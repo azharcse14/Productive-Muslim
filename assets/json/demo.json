@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "message": "",
+  "data": [
+    {
+      "id": 1,
+      "name": "An Entire Place",
+      "description": "Guests have the whole place to themselves."
+    },
+    {
+      "id": 2,
+      "name": "A Room",
+      "description": "Guests have their own room in a home plus access to shared place."
+    },
+    {
+      "id": 3,
+      "name": "A Shared Room",
+      "description": "Guests will sleep in a room or common area that may be shared with you  or others."
+    }
+  ],
+  "queries": {
+    "log": [],
+    "time": 0,
+    "duplicates": 0
+  },
+  "meta": null
+}
