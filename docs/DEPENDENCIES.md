@@ -21,6 +21,7 @@ healthy maintenance. Log the check date and a one-line justification here.
 | `shared_preferences_platform_interface` | ^2.4.2 | 2026-06-12 | — | dev-only: in-memory prefs for tests |
 | `adhan_dart` | ^2.0.1 | 2026-06-12 | 2026-05-11 | Prayer time + qibla calculation, pure Dart, offline (guide §3.4); wrapped behind PrayerDayRepository |
 | `flutter_local_notifications` | ^22.0.0 | 2026-06-12 | 2026-06-07 | Azan/jamaat/sahri/iftar/muhasaba local notifications (guide §3.4); ships Package.swift (SPM-only iOS holds); requires Android core-library desugaring (desugar_jdk_libs 2.1.5) |
+| `sensors_plus` | ^7.0.0 | 2026-06-12 | 2025-09-11 | Magnetometer + accelerometer for the qibla compass (guide §3.4 — no maintained compass package passed review, so tilt compensation is in-house in CompassMath); flutter community plus; ships Package.swift |
 
 ## Decisions
 

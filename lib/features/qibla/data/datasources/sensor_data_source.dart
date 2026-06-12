@@ -1,0 +1,89 @@
+import 'dart:async';
+
+import 'package:sensors_plus/sensors_plus.dart';
+
+/// One raw sensor sample pair, in the device coordinate system.
+typedef SensorVectors = ({
+  double ax,
+  double ay,
+  double az,
+  double mx,
+  double my,
+  double mz,
+});
+
+/// Seam over sensors_plus so the store (and tests) never touch plugin
+/// statics. Streams error on devices without the sensor.
+abstract interface class CompassSensorSource {
+  Stream<SensorVectors> vectors();
+}
+
+final class SensorsPlusSource implements CompassSensorSource {
+  const SensorsPlusSource();
+
+  static const _interval = SensorInterval.uiInterval;
+
+  @override
+  Stream<SensorVectors> vectors() async* {
+    AccelerometerEvent? lastAccel;
+    await for (final event in _merged()) {
+      switch (event) {
+        case final AccelerometerEvent accel:
+          lastAccel = accel;
+        case final MagnetometerEvent mag:
+          final accel = lastAccel;
+          if (accel != null) {
+            yield (
+              ax: accel.x,
+              ay: accel.y,
+              az: accel.z,
+              mx: mag.x,
+              my: mag.y,
+              mz: mag.z,
+            );
+          }
+      }
+    }
+  }
+
+  Stream<Object> _merged() async* {
+    // Interleave both streams; magnetometer drives emission cadence.
+    yield* StreamGroupLite.merge([
+      accelerometerEventStream(samplingPeriod: _interval),
+      magnetometerEventStream(samplingPeriod: _interval),
+    ]);
+  }
+}
+
+/// Minimal stream merge (avoids an `async` package dependency for one
+/// call site).
+abstract final class StreamGroupLite {
+  static Stream<T> merge<T>(List<Stream<T>> streams) {
+    late final StreamController<T> controller;
+    final subscriptions = <StreamSubscription<T>>[];
+    var active = 0;
+    controller = StreamController<T>(
+      onListen: () {
+        active = streams.length;
+        for (final stream in streams) {
+          subscriptions.add(
+            stream.listen(
+              controller.add,
+              onError: controller.addError,
+              onDone: () {
+                active--;
+                if (active == 0) {
+                  unawaited(controller.close());
+                }
+              },
+            ),
+          );
+        }
+      },
+      onCancel: () async {
+        await Future.wait(subscriptions.map((sub) => sub.cancel()));
+      },
+    );
+    return controller.stream;
+  }
+}

@@ -222,5 +222,40 @@
   "jamaatReminderHint": "Jamaat reminders are configured under Notifications.",
   "cancel": "Cancel",
   "save": "Save",
-  "delete": "Delete"
+  "delete": "Delete",
+  "qiblaTitle": "Qibla",
+  "qiblaAligned": "Facing the Qibla",
+  "qiblaHeading": "{degrees}° {cardinal}",
+  "@qiblaHeading": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      },
+      "cardinal": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaDistance": "{km} km to the Kaaba",
+  "@qiblaDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaCalibrate": "Move your phone in a figure-8 to calibrate the compass",
+  "qiblaSensorUnavailable": "Compass sensor unavailable on this device",
+  "qiblaVerbalBearing": "Qibla is at {degrees}° {cardinal} from north",
+  "@qiblaVerbalBearing": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      },
+      "cardinal": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaNeedsLocation": "Set your location to find the qibla direction"
 }

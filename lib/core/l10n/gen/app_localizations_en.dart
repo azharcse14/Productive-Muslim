@@ -473,4 +473,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get qiblaTitle => 'Qibla';
+
+  @override
+  String get qiblaAligned => 'Facing the Qibla';
+
+  @override
+  String qiblaHeading(String degrees, String cardinal) {
+    return '$degrees° $cardinal';
+  }
+
+  @override
+  String qiblaDistance(String km) {
+    return '$km km to the Kaaba';
+  }
+
+  @override
+  String get qiblaCalibrate =>
+      'Move your phone in a figure-8 to calibrate the compass';
+
+  @override
+  String get qiblaSensorUnavailable =>
+      'Compass sensor unavailable on this device';
+
+  @override
+  String qiblaVerbalBearing(String degrees, String cardinal) {
+    return 'Qibla is at $degrees° $cardinal from north';
+  }
+
+  @override
+  String get qiblaNeedsLocation =>
+      'Set your location to find the qibla direction';
 }

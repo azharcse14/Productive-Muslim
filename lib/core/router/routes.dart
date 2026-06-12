@@ -19,6 +19,9 @@ abstract final class Routes {
   /// Top-level: reachable from Home's "Set jamaat" and the More tab.
   static const myMosque = (name: 'myMosque', path: '/mosque');
 
+  /// Top-level full-screen compass (Home shortcut + More tab).
+  static const qibla = (name: 'qibla', path: '/qibla');
+
   /// Debug-only component gallery.
   static const gallery = (name: 'gallery', path: '/dev/gallery');
 }

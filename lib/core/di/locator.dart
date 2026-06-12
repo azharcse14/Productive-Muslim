@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +17,8 @@ import '../../features/prayer_times/data/repositories/prayer_day_repository_impl
 import '../../features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
+import '../../features/qibla/data/datasources/sensor_data_source.dart';
+import '../../features/qibla/presentation/state/qibla_store.dart';
 import '../../features/settings/data/datasources/city_asset_data_source.dart';
 import '../../features/settings/data/datasources/geolocator_data_source.dart';
 import '../../features/settings/data/datasources/settings_local_data_source.dart';
@@ -68,6 +70,17 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => SearchCities(locator()))
     ..registerLazySingleton(() => GetCurrentLocation(locator()))
     ..registerLazySingleton(() => SettingsStore(locator(), locator()));
+
+  // ---- qibla ----
+  locator
+    ..registerLazySingleton<CompassSensorSource>(SensorsPlusSource.new)
+    ..registerFactory(
+      () => QiblaStore(
+        sensors: locator(),
+        settings: locator(),
+        onAligned: HapticFeedback.mediumImpact,
+      ),
+    );
 
   // ---- my mosque ----
   locator

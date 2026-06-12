@@ -14,7 +14,7 @@
 | 3 | Prayer Times Domain + Home | ✅ | Done 2026-06-12; 119 tests green, APK builds |
 | 4 | Notification Scheduler | ✅ | Done 2026-06-12; 143 tests green, APK builds (deep links → Ph7, azan audio → Ph11) |
 | 5 | My Mosque / Jamaat | ✅ | Done 2026-06-12 (multi-agent); 174 tests green, APK builds |
-| 6 | Qibla Compass | ⬜ | |
+| 6 | Qibla Compass | ✅ | Done 2026-06-12 (multi-agent); 220 tests green |
 | 7 | Muhasaba | ⬜ | |
 | 8 | Quran | ⬜ | |
 | 9 | Dua & Tasbih + Asmaul Husna | ⬜ | |
@@ -99,12 +99,14 @@
 - [ ] Seasonal (summer/winter) profile pair — deferred as designed "advanced optional" (revisit in Phase 11 polish)
 - [x] Debug APK build green
 
-## Phase 6 — Qibla ⬜
+## Phase 6 — Qibla ✅
 
-- [ ] Bearing via adhan_dart; tilt-compensated heading (package decision logged)
-- [ ] Aligned state ±3° + haptic; calibration, sensor-unavailable, location-needed states
-- [ ] Distance to Kaaba
-- [ ] Tests: bearing math, tolerance, smoothing
+- [x] In-house `CompassMath` (pure Dart, subagent-built): great-circle qibla bearing, haversine distance, tilt-compensated heading from raw accel+mag (documented axis convention), shortest-arc smoothing, angular difference, 16-wind cardinals — decision logged: no compass package passed §3, sensors_plus raw streams + in-house math
+- [x] Aligned state ±3°: gold dial/needle/arc + edge-triggered haptic (mediumImpact); CompassDial CustomPainter per ui.jsx spec (world-fixed tick ring, N in urgent color, center qalb medallion)
+- [x] States: calibration banner (field-magnitude heuristic, figure-8 copy), sensor-unavailable verbal fallback ("Qibla is at N° WNW from north"), location-needed CTA; distance to Kaaba as quiet detail
+- [x] Routes: `/qibla` top-level — Home header compass shortcut + More tab entry
+- [x] Tests (46 new, 220 total): 37 math tests (reference bearings ±1.5°, wrap cases, synthetic tilt vectors), store (status transitions, smoothing convergence, single-fire haptic), screen states. Subagent caught a spec error: Dhaka→Kaaba is ~5,173 km, not ~4,780
+- [x] analyze clean; debug APK verifying
 
 ## Phase 7 — Muhasaba ⬜
 
@@ -160,6 +162,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 6 (multi-agent): qibla compass — CompassMath pure math + 37 tests (subagent) parallel with sensor datasource, QiblaStore, CompassDial painter, 4 screen states, routes; 46 new tests | analyze clean, 220 tests pass — **Phase 6 complete** |
 | 2026-06-12 | Phase 5 (multi-agent): My Mosque — backend (entities/model/prefs/repo + 18 tests) built by subagent in parallel with UI (profile switcher, per-prayer None/Offset/Fixed editor) and integration (Home countdown jamaat branch live, jamaat reminders scheduled); 31 new tests | analyze clean, 174 tests pass, APK builds — **Phase 5 complete** (seasonal profiles deferred to polish) |
 | 2026-06-12 | Phase 4: notification scheduler — pure 48h plan builder, plugin wrapper (channels, exact alarms, boot receivers, desugaring), reschedule-on-change controller, matrix settings UI, en+bn notification copy, 24 new tests | analyze clean, 143 tests pass, APK builds — **Phase 4 complete** (deep links → Ph7, azan audio → Ph11) |
 | 2026-06-12 | Phase 3: prayer-times domain (adhan_dart wrapper, PrayerDay, smart-countdown state machine), in-house Hijri + Bangla calendars, jamaat entities, full Home screen (hero countdown, prayer table, tri-calendar header, sahri/iftar row, empty state), 45 new tests | analyze clean, 119 tests pass, APK builds — **Phase 3 complete** |

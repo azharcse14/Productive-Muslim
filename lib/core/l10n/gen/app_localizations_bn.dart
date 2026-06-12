@@ -473,4 +473,34 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get delete => 'মুছুন';
+
+  @override
+  String get qiblaTitle => 'কিবলা';
+
+  @override
+  String get qiblaAligned => 'কিবলামুখী হয়েছেন';
+
+  @override
+  String qiblaHeading(String degrees, String cardinal) {
+    return '$degrees° $cardinal';
+  }
+
+  @override
+  String qiblaDistance(String km) {
+    return 'কাবা শরীফ $km কিমি দূরে';
+  }
+
+  @override
+  String get qiblaCalibrate => 'কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান';
+
+  @override
+  String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
+
+  @override
+  String qiblaVerbalBearing(String degrees, String cardinal) {
+    return 'কিবলা উত্তর থেকে $degrees° $cardinal দিকে';
+  }
+
+  @override
+  String get qiblaNeedsLocation => 'কিবলার দিক পেতে আগে অবস্থান সেট করুন';
 }

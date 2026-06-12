@@ -889,6 +889,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// No description provided for @qiblaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get qiblaTitle;
+
+  /// No description provided for @qiblaAligned.
+  ///
+  /// In en, this message translates to:
+  /// **'Facing the Qibla'**
+  String get qiblaAligned;
+
+  /// No description provided for @qiblaHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'{degrees}° {cardinal}'**
+  String qiblaHeading(String degrees, String cardinal);
+
+  /// No description provided for @qiblaDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km to the Kaaba'**
+  String qiblaDistance(String km);
+
+  /// No description provided for @qiblaCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Move your phone in a figure-8 to calibrate the compass'**
+  String get qiblaCalibrate;
+
+  /// No description provided for @qiblaSensorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass sensor unavailable on this device'**
+  String get qiblaSensorUnavailable;
+
+  /// No description provided for @qiblaVerbalBearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla is at {degrees}° {cardinal} from north'**
+  String qiblaVerbalBearing(String degrees, String cardinal);
+
+  /// No description provided for @qiblaNeedsLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location to find the qibla direction'**
+  String get qiblaNeedsLocation;
 }
 
 class _AppLocalizationsDelegate

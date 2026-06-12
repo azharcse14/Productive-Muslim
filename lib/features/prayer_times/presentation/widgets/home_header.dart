@@ -10,6 +10,7 @@ final class HomeHeader extends StatelessWidget {
     required this.locationName,
     required this.dates,
     required this.onLocationTap,
+    this.onQiblaTap,
     super.key,
   });
 
@@ -18,6 +19,7 @@ final class HomeHeader extends StatelessWidget {
   /// Pre-formatted date strings, rendered dot-separated and wrapping.
   final List<String> dates;
   final VoidCallback onLocationTap;
+  final VoidCallback? onQiblaTap;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,10 @@ final class HomeHeader extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Icon(Icons.notifications_none, size: 21, color: q.ink2),
+              IconButton(
+                onPressed: onQiblaTap,
+                icon: Icon(Icons.explore_outlined, size: 22, color: q.ink2),
+              ),
             ],
           ),
           Padding(

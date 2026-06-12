@@ -135,6 +135,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                 dates: dates,
                 onLocationTap: () =>
                     context.pushNamed(Routes.locationPicker.name),
+                onQiblaTap: () => context.pushNamed(Routes.qibla.name),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
