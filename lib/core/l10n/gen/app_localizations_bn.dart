@@ -636,4 +636,290 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notYet => 'এখনো হয়নি';
+
+  @override
+  String get quranTitle => 'কুরআন';
+
+  @override
+  String get searchSurahHint => 'সূরা খুঁজুন…';
+
+  @override
+  String get continueReading => 'পড়া চালিয়ে যান';
+
+  @override
+  String surahMeta(int count, String place) {
+    return '$count আয়াত · $place';
+  }
+
+  @override
+  String revelationName(String place) {
+    String _temp0 = intl.Intl.selectLogic(place, {
+      'meccan': 'মক্কী',
+      'medinan': 'মাদানী',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get readerFontSize => 'আরবি লেখার আকার';
+
+  @override
+  String get showTranslation => 'অনুবাদ দেখান';
+
+  @override
+  String get ayahCopied => 'আয়াত কপি হয়েছে';
+
+  @override
+  String get bookmarkLabel => 'বুকমার্ক';
+
+  @override
+  String get quranFirstOpen =>
+      'বিসমিল্লাহ — পড়া শুরু করুন, কোথায় থেমেছিলেন কালবী মনে রাখবে।';
+
+  @override
+  String ayahShareSuffix(int surah, int ayah) {
+    return '— কুরআন $surah:$ayah';
+  }
+
+  @override
+  String get duaTitle => 'দুআ ও তাসবিহ';
+
+  @override
+  String get tasbihTitle => 'তাসবিহ';
+
+  @override
+  String get asmaulHusnaTitle => 'আসমাউল হুসনা';
+
+  @override
+  String duaCategoryName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'morning_evening': 'সকাল-সন্ধ্যা',
+      'sleep': 'ঘুম',
+      'waking': 'ঘুম থেকে ওঠা',
+      'food': 'খাবার-পানীয়',
+      'home': 'ঘরে প্রবেশ-প্রস্থান',
+      'travel': 'সফর',
+      'salah': 'নামাজ',
+      'distress': 'দুশ্চিন্তা ও মুক্তি',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String duaCount(int count) {
+    return '$countটি দুআ';
+  }
+
+  @override
+  String repeatTimes(int count) {
+    return '$count বার পড়ুন';
+  }
+
+  @override
+  String get referenceLabel => 'সূত্র';
+
+  @override
+  String get tasbihTarget => 'লক্ষ্য';
+
+  @override
+  String get tasbihCustom => 'কাস্টম';
+
+  @override
+  String get tasbihReset => 'রিসেট';
+
+  @override
+  String get tasbihResetConfirm => 'এই রাউন্ড ইতিহাসে রেখে রিসেট করবেন?';
+
+  @override
+  String tasbihSessionLine(int count) {
+    return 'আজ: $count গণনা';
+  }
+
+  @override
+  String get tasbihTargetReached => 'লক্ষ্য পূর্ণ — আল্লাহ কবুল করুন';
+
+  @override
+  String get ramadanTitle => 'রমজান';
+
+  @override
+  String rozaDayOf(int day, int total) {
+    return '$total দিনের $dayতম রোজা';
+  }
+
+  @override
+  String daysUntilRamadan(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'রমজানের আর $count দিন',
+      one: 'রমজানের আর ১ দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get monthTable => 'এ মাসের সাহরি ও ইফতার';
+
+  @override
+  String get zakatTitle => 'যাকাত ক্যালকুলেটর';
+
+  @override
+  String get zakatCash => 'নগদ টাকা';
+
+  @override
+  String get zakatBank => 'ব্যাংক ব্যালেন্স';
+
+  @override
+  String get zakatGold => 'স্বর্ণ (গ্রাম)';
+
+  @override
+  String get zakatSilver => 'রুপা (গ্রাম)';
+
+  @override
+  String get zakatBusiness => 'ব্যবসায়িক সম্পদ';
+
+  @override
+  String get zakatInvestments => 'বিনিয়োগ';
+
+  @override
+  String get zakatOwed => 'পাওনা টাকা';
+
+  @override
+  String get zakatDebts => 'ঋণ (বাদ যাবে)';
+
+  @override
+  String get zakatGoldPrice => 'প্রতি গ্রাম স্বর্ণের দাম';
+
+  @override
+  String get zakatSilverPrice => 'প্রতি গ্রাম রুপার দাম';
+
+  @override
+  String get zakatCalculate => 'হিসাব করুন';
+
+  @override
+  String zakatNisab(String amount) {
+    return 'নিসাব সীমা: $amount';
+  }
+
+  @override
+  String zakatDue(String amount) {
+    return 'প্রদেয় যাকাত: $amount';
+  }
+
+  @override
+  String get zakatNotPayable =>
+      'আপনার যাকাতযোগ্য সম্পদ নিসাবের নিচে — যাকাত ফরজ হয়নি।';
+
+  @override
+  String get fitraInfo =>
+      'সদাকাতুল ফিতর ঈদের নামাজের আগে জনপ্রতি আদায় করতে হয় — প্রায় এক সা\' (~২.৫–৩ কেজি) প্রধান খাদ্য বা তার মূল্য, পরিবারের প্রত্যেকের জন্য।';
+
+  @override
+  String get calendarTitle => 'ক্যালেন্ডার';
+
+  @override
+  String islamicDayName(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'hijriNewYear': 'হিজরি নববর্ষ',
+      'ashura': 'আশুরা',
+      'mawlid': 'ঈদে মিলাদুন্নবী',
+      'israMiraj': 'ইসরা ও মিরাজ',
+      'nisfShaban': 'শবে বরাত',
+      'ramadanStart': 'রমজান শুরু',
+      'laylatulQadr': 'লাইলাতুল কদর',
+      'eidAlFitr': 'ঈদুল ফিতর',
+      'arafah': 'আরাফার দিন',
+      'eidAlAdha': 'ঈদুল আজহা',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingWelcomeTitle => 'হৃদয়ের দৈনিক দ্বীনের সঙ্গী';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'নামাজের সময়, কিবলা, কুরআন, দুআ আর কোমল আত্মজিজ্ঞাসা — সব অফলাইনে, সব আপনার।';
+
+  @override
+  String get onboardingLanguageTitle => 'ভাষা বেছে নিন';
+
+  @override
+  String get onboardingLocationTitle => 'আপনি কোথায় আছেন?';
+
+  @override
+  String get onboardingMadhabTitle => 'আসরের হিসাব';
+
+  @override
+  String get onboardingMadhabNote =>
+      'এটি শুধু আসরের সময়ে প্রভাব ফেলে — সেটিংসে যেকোনো সময় বদলাতে পারবেন।';
+
+  @override
+  String get onboardingMethodTitle => 'হিসাবের পদ্ধতি';
+
+  @override
+  String get onboardingMethodNote =>
+      'আপনার অঞ্চলের জন্য প্রস্তাবিত। পরে সেটিংসে বদলানো যাবে।';
+
+  @override
+  String get onboardingNotifTitle => 'কোমল স্মরণে থাকুন';
+
+  @override
+  String get onboardingNotifBody =>
+      'প্রতি ওয়াক্তে আজান, সাহরি-ইফতার অ্যালার্ট, আর সন্ধ্যার মুহাসাবা নাজ — সব আপনার ডিভাইসেই হিসাব হয়।';
+
+  @override
+  String get onboardingNotifAllow => 'নোটিফিকেশন চালু করুন';
+
+  @override
+  String get onboardingNotifSkip => 'পরে দেখব';
+
+  @override
+  String get onboardingFinishTitle => 'বিসমিল্লাহ';
+
+  @override
+  String get onboardingFinishBody =>
+      'সব প্রস্তুত। আপনার দিনগুলো নূরে ভরে উঠুক।';
+
+  @override
+  String get onboardingBegin => 'শুরু করুন';
+
+  @override
+  String get next => 'পরবর্তী';
+
+  @override
+  String get back => 'পেছনে';
+
+  @override
+  String get skip => 'এড়িয়ে যান';
+
+  @override
+  String get appLockEnterPin => 'আপনার পিন দিন';
+
+  @override
+  String get appLockSetPin => '৪ সংখ্যার পিন সেট করুন';
+
+  @override
+  String get appLockConfirmPin => 'পিনটি আবার দিন';
+
+  @override
+  String get appLockPinMismatch => 'পিন মেলেনি — আবার চেষ্টা করুন';
+
+  @override
+  String get appLockWrongPin => 'ভুল পিন — আবার চেষ্টা করুন';
+
+  @override
+  String get appLockUseBiometric => 'ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন';
+
+  @override
+  String get appLockEnable => 'অ্যাপ লক';
+
+  @override
+  String get appLockEnableSub => 'কালবী খুলতে পিন (ও বায়োমেট্রিক) লাগবে';
+
+  @override
+  String get appLockDisable => 'অ্যাপ লক বন্ধ করুন';
 }

@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:qalbee/features/prayer_times/presentation/state/home_store.dart';
+import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
 import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
 import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
 import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
@@ -14,11 +17,13 @@ import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
 import 'package:qalbee/main.dart';
 
+import 'helpers/content_fakes.dart';
+import 'helpers/lock_fakes.dart';
 import 'helpers/mosque_fakes.dart';
 import 'helpers/muhasaba_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
-  AppSettings stored = const AppSettings();
+  AppSettings stored = const AppSettings(setupComplete: true);
 
   @override
   Future<Result<AppSettings>> load() async => Result.success(stored);
@@ -41,10 +46,16 @@ void main() {
     final clock = TimezoneClock();
     final (mosqueStore, _) = await makeMosqueStore();
     final (muhasabaStore, _) = await makeMuhasabaStore();
+    final lockStore = await makeAppLockStore();
+    final quranStore = await makeQuranStore();
+    final duaStore = await makeDuaStore();
     GetIt.I
       ..registerSingleton<SettingsStore>(settings)
       ..registerSingleton<MosqueStore>(mosqueStore)
       ..registerSingleton<MuhasabaStore>(muhasabaStore)
+      ..registerSingleton<AppLockStore>(lockStore)
+      ..registerSingleton<QuranStore>(quranStore)
+      ..registerSingleton<DuaStore>(duaStore)
       ..registerFactory<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
@@ -54,6 +65,7 @@ void main() {
         ),
       );
     await tester.pumpWidget(const QalbeeApp());
+    await tester.pump(const Duration(milliseconds: 1300)); // splash timer
     await tester.pumpAndSettle();
     expect(find.text('Quran'), findsOneWidget);
     expect(find.text('Muhasaba'), findsOneWidget);

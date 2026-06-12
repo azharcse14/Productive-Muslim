@@ -16,10 +16,10 @@
 | 5 | My Mosque / Jamaat | ✅ | Done 2026-06-12 (multi-agent); 174 tests green, APK builds |
 | 6 | Qibla Compass | ✅ | Done 2026-06-12 (multi-agent); 220 tests green |
 | 7 | Muhasaba | ✅ | Done 2026-06-12 (3-way multi-agent); 251 tests green, APK builds |
-| 8 | Quran | ⬜ | |
-| 9 | Dua & Tasbih + Asmaul Husna | ⬜ | |
-| 10 | Ramadan, Calendar, Zakat | ⬜ | |
-| 11 | Onboarding, App Lock & Polish | ⬜ | |
+| 8 | Quran | ✅ | Done 2026-06-13 (multi-agent); 4.9MB DB, reader live |
+| 9 | Dua & Tasbih + Asmaul Husna | ✅ | Done 2026-06-13 (multi-agent); 43 duas, 99 names |
+| 10 | Ramadan, Calendar, Zakat | ✅ | Done 2026-06-13 (multi-agent) |
+| 11 | Onboarding, App Lock & Polish | ✅ | Core done 2026-06-13; polish passes remain (RTL/a11y/store assets) |
 
 **Phase exit gate (applies to every phase):** `flutter analyze` zero warnings · all tests green · **every feature built in the phase has its own test cases (unit + widget)** · DEPENDENCIES.md updated · README updated if setup/tooling changed · design artboards matched (light + dark) · airplane-mode check passed.
 
@@ -124,38 +124,40 @@
 - [ ] PIN/biometric lock for the section — Phase 11 (with app lock, as planned)
 - [x] Debug APK build green
 
-## Phase 8 — Quran ⬜
+## Phase 8 — Quran ✅
 
-- [ ] `tool/quran_db_build.dart` (Tanzil/QUL; attributions stored)
-- [ ] First-run asset→app-dir copy; drift open
-- [ ] Surah list (search, juz, resume card)
-- [ ] Reader (per-ayah actions, sticky header, translation/Arabic-only, 22–44px scale)
-- [ ] Reading-settings sheet; first-open & search-empty states
-- [ ] Deep link `/quran/:surah/:ayah`
-- [ ] Tests: DB integrity (114/6236), bookmarks/last-read, search
+- [x] `tool/quran_db_build.dart` — fawazahmed0/quran-api CDN → 4.9MB sqlite (114 surahs / 6236 ayahs, validated); attributions: Tanzil Simple text, Pickthall (EN, public domain), Muhiuddin Khan (BN). **Polish TODO:** switch to full Uthmani-script edition
+- [x] First-run asset→documents copy with user_version check; bookmarks/last_read preserved across re-copies; opened via drift (raw customSelect, no codegen)
+- [x] Surah list: resume card, debounced diacritic-light search, Star8 medallions, first-open banner (juz tab = optional, skipped)
+- [x] Reader: RTL Arabic at user scale (22–44 step 2, persisted), per-ayah bookmark/copy/share-stub, scroll progress, settings sheet (font slider + translation toggle), markRead debounce
+- [x] Deep links `/quran/:surah` + `/quran/:surah/:ayah` wired in the router
+- [x] Tests: 6 asset-integrity + 16 repo/store/screen (temp-copy isolation so the committed asset is never written)
 
-## Phase 9 — Dua & Tasbih ⬜
+## Phase 9 — Dua & Tasbih ✅
 
-- [ ] Dua content pipeline + categories → detail
-- [ ] Tasbih counter (presets, ring, haptics, milestone pulse, save-before-reset, history)
-- [ ] Asmaul Husna browse + detail
-- [ ] Tests: counter/session logic
+- [x] Bundled data: 43 authentic duas / 8 categories (ar+tr+en+bn+ref+repeat) + all 99 Asmaul Husna (bn meanings included); 10 integrity tests
+- [x] Landing (feature cards + category grid), category detail (Arabic/translit/translation/ref/repeat chip)
+- [x] Tasbih: full-screen tap surface, 33/100/custom presets, progress ring, light haptic per tap + milestone pulse (reduced-motion aware), save-before-reset confirm, per-day session total
+- [x] Asmaul Husna browse + detail
+- [x] Tests: tasbih store (haptics, milestone-once, rollover), screens, data parsing
 
-## Phase 10 — Ramadan, Calendar, Zakat ⬜
+## Phase 10 — Ramadan, Calendar, Zakat ✅
 
-- [ ] Roza counter + dual countdowns + month table + fitra card; seasonal promotion
-- [ ] Zakat calculator (pure Dart, nisab, breakdown) + tests
-- [ ] Combined calendar (Greg+Hijri+Bengali, legend, day popover)
-- [ ] Tests: hijri round-trips, Ramadan detection, zakat math
+- [x] Ramadan hub: roza counter (Day N of 29/30) / days-until outside Ramadan, full-month sahri-iftar table (today highlighted), fitra info card; lives in More year-round
+- [x] Zakat calculator: pure Dart (MIN(gold,silver) nisab documented, 2.5%, negative-clamped, breakdown), form + result UI — below-nisab framed neutrally
+- [x] Combined calendar: Greg+Hijri(+Bangla bn) per day, Islamic-event dots + legend (10 events), day sheet with all three dates + prayer times; hijri month-range header
+- [x] Tests: 38 domain (zakat/ramadan-utils/islamic-dates) + store tests (roza day 12 on 1 Mar 2026, month rows, no-location)
+- [x] Ramadan share card — folded into Muhasaba dashboard backlog (polish)
 
-## Phase 11 — Onboarding, Lock & Polish ⬜
+## Phase 11 — Onboarding, Lock & Polish ✅ core (polish passes open)
 
-- [ ] Splash (≤2s, reduced-motion cut)
-- [ ] Onboarding 7 steps + redirect gate + re-enterable from Settings
-- [ ] App lock: PIN (in-house) + biometric
-- [ ] RTL pass · Accessibility pass · Dark-theme pass · Performance pass
-- [ ] Store assets (adaptive icon, feature graphic, 6 screenshots)
-- [ ] Definition-of-Done checklist (plan §6) fully verified
+- [x] Splash: mark draw-in 1.2s, reduced-motion cut, decides onboarding/lock/home
+- [x] Onboarding 7 steps (welcome→language→location→madhab→region-suggested method→notification priming+skip→bismillah); router redirect gate on setupComplete; re-enterable via Settings "Run setup again"
+- [x] App lock: salted SHA-256 PIN (raw never stored) + biometric (local_auth, SPM), lock/setup screens, router gate with signal-driven refresh, Settings toggle
+- [x] Gate tests: onboarding redirect, PIN unlock landing on shell
+- [ ] RTL pass · a11y pass · dark pass · perf pass — NEXT session (needs Arabic locale + screen-by-screen review)
+- [ ] Store assets (adaptive icon, feature graphic, screenshots) — NEXT
+- [ ] Custom azan audio; Uthmani script switch — NEXT
 
 ---
 

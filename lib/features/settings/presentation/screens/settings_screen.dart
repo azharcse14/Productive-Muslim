@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -9,6 +11,8 @@ import '../../../../core/theme/qalbee_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../onboarding/presentation/screens/lock_screen.dart';
+import '../../../onboarding/presentation/state/app_lock_store.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
 import '../state/settings_store.dart';
@@ -140,16 +144,24 @@ final class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: Column(
                 children: [
-                  QListRow(
-                    icon: Icons.lock_outline,
-                    title: l10n.settingAppLock,
-                    subtitle: l10n.comingSoon,
-                  ),
+                  SignalBuilder(builder: (context) {
+                    final lock = locator<AppLockStore>();
+                    return QListRow(
+                      icon: Icons.lock_outline,
+                      title: l10n.appLockEnable,
+                      subtitle: l10n.appLockEnableSub,
+                      trailing: Switch(
+                        value: lock.enabled.value,
+                        onChanged: (v) => unawaited(_toggleAppLock(v)),
+                      ),
+                    );
+                  }),
                   const Divider(),
                   QListRow(
                     icon: Icons.replay_outlined,
                     title: l10n.settingRunSetup,
-                    subtitle: l10n.comingSoon,
+                    trailing: Icon(Icons.chevron_right, color: q.ink3),
+                    onTap: () => unawaited(_runSetupAgain()),
                   ),
                 ],
               ),
@@ -171,6 +183,26 @@ final class _SettingsScreenState extends State<SettingsScreen> {
         );
       }),
     );
+  }
+
+  Future<void> _toggleAppLock(bool enable) async {
+    final lock = locator<AppLockStore>();
+    if (!enable) {
+      await lock.disable();
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<bool>(
+        builder: (_) => const LockScreen(mode: LockScreenMode.setup),
+      ),
+    );
+  }
+
+  Future<void> _runSetupAgain() async {
+    await _store.setSetupComplete(complete: false);
+    if (mounted) {
+      context.goNamed(Routes.onboarding.name);
+    }
   }
 
   Future<void> _pickMadhab(Madhab current) async {

@@ -639,4 +639,292 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notYet => 'Not yet';
+
+  @override
+  String get quranTitle => 'Quran';
+
+  @override
+  String get searchSurahHint => 'Search surah…';
+
+  @override
+  String get continueReading => 'Continue reading';
+
+  @override
+  String surahMeta(int count, String place) {
+    return '$count ayahs · $place';
+  }
+
+  @override
+  String revelationName(String place) {
+    String _temp0 = intl.Intl.selectLogic(place, {
+      'meccan': 'Meccan',
+      'medinan': 'Medinan',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get readerFontSize => 'Arabic text size';
+
+  @override
+  String get showTranslation => 'Show translation';
+
+  @override
+  String get ayahCopied => 'Ayah copied';
+
+  @override
+  String get bookmarkLabel => 'Bookmark';
+
+  @override
+  String get quranFirstOpen =>
+      'Bismillah — start reading and Qalbee will remember where you left off.';
+
+  @override
+  String ayahShareSuffix(int surah, int ayah) {
+    return '— Quran $surah:$ayah';
+  }
+
+  @override
+  String get duaTitle => 'Dua & Tasbih';
+
+  @override
+  String get tasbihTitle => 'Tasbih';
+
+  @override
+  String get asmaulHusnaTitle => 'Asmaul Husna';
+
+  @override
+  String duaCategoryName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'morning_evening': 'Morning & evening',
+      'sleep': 'Sleep',
+      'waking': 'Waking up',
+      'food': 'Food & drink',
+      'home': 'Entering & leaving home',
+      'travel': 'Travel',
+      'salah': 'Salah',
+      'distress': 'Distress & relief',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String duaCount(int count) {
+    return '$count duas';
+  }
+
+  @override
+  String repeatTimes(int count) {
+    return 'Repeat $count×';
+  }
+
+  @override
+  String get referenceLabel => 'Reference';
+
+  @override
+  String get tasbihTarget => 'Target';
+
+  @override
+  String get tasbihCustom => 'Custom';
+
+  @override
+  String get tasbihReset => 'Reset';
+
+  @override
+  String get tasbihResetConfirm => 'Save this round to history and reset?';
+
+  @override
+  String tasbihSessionLine(int count) {
+    return 'Today: $count counted';
+  }
+
+  @override
+  String get tasbihTargetReached => 'Target reached — may Allah accept';
+
+  @override
+  String get ramadanTitle => 'Ramadan';
+
+  @override
+  String rozaDayOf(int day, int total) {
+    return 'Day $day of $total';
+  }
+
+  @override
+  String daysUntilRamadan(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days until Ramadan',
+      one: '1 day until Ramadan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get monthTable => 'Sahri & iftar this month';
+
+  @override
+  String get zakatTitle => 'Zakat calculator';
+
+  @override
+  String get zakatCash => 'Cash on hand';
+
+  @override
+  String get zakatBank => 'Bank balance';
+
+  @override
+  String get zakatGold => 'Gold (grams)';
+
+  @override
+  String get zakatSilver => 'Silver (grams)';
+
+  @override
+  String get zakatBusiness => 'Business assets';
+
+  @override
+  String get zakatInvestments => 'Investments';
+
+  @override
+  String get zakatOwed => 'Money owed to you';
+
+  @override
+  String get zakatDebts => 'Debts (deducted)';
+
+  @override
+  String get zakatGoldPrice => 'Gold price per gram';
+
+  @override
+  String get zakatSilverPrice => 'Silver price per gram';
+
+  @override
+  String get zakatCalculate => 'Calculate';
+
+  @override
+  String zakatNisab(String amount) {
+    return 'Nisab threshold: $amount';
+  }
+
+  @override
+  String zakatDue(String amount) {
+    return 'Zakat due: $amount';
+  }
+
+  @override
+  String get zakatNotPayable =>
+      'Your zakatable wealth is below the nisab — no zakat is due.';
+
+  @override
+  String get fitraInfo =>
+      'Sadaqat al-fitr is due per person before Eid prayer — roughly one sa\' (~2.5–3 kg) of staple food, or its value, per family member.';
+
+  @override
+  String get calendarTitle => 'Calendar';
+
+  @override
+  String islamicDayName(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'hijriNewYear': 'Hijri New Year',
+      'ashura': 'Ashura',
+      'mawlid': 'Mawlid',
+      'israMiraj': 'Isra & Miraj',
+      'nisfShaban': 'Mid-Shaban',
+      'ramadanStart': 'Ramadan begins',
+      'laylatulQadr': 'Laylatul Qadr',
+      'eidAlFitr': 'Eid al-Fitr',
+      'arafah': 'Day of Arafah',
+      'eidAlAdha': 'Eid al-Adha',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingWelcomeTitle =>
+      'A companion for the heart\'s daily deen';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Prayer times, qibla, Quran, dua, and gentle self-accounting — all offline, all yours.';
+
+  @override
+  String get onboardingLanguageTitle => 'Choose your language';
+
+  @override
+  String get onboardingLocationTitle => 'Where are you?';
+
+  @override
+  String get onboardingMadhabTitle => 'Asr calculation';
+
+  @override
+  String get onboardingMadhabNote =>
+      'This affects Asr time only — you can change it anytime in Settings.';
+
+  @override
+  String get onboardingMethodTitle => 'Calculation method';
+
+  @override
+  String get onboardingMethodNote =>
+      'Suggested for your region. You can change this later in Settings.';
+
+  @override
+  String get onboardingNotifTitle => 'Stay gently reminded';
+
+  @override
+  String get onboardingNotifBody =>
+      'Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.';
+
+  @override
+  String get onboardingNotifAllow => 'Allow notifications';
+
+  @override
+  String get onboardingNotifSkip => 'Maybe later';
+
+  @override
+  String get onboardingFinishTitle => 'Bismillah';
+
+  @override
+  String get onboardingFinishBody =>
+      'Everything is ready. May your days be filled with light.';
+
+  @override
+  String get onboardingBegin => 'Begin';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get appLockEnterPin => 'Enter your PIN';
+
+  @override
+  String get appLockSetPin => 'Set a 4-digit PIN';
+
+  @override
+  String get appLockConfirmPin => 'Confirm your PIN';
+
+  @override
+  String get appLockPinMismatch => 'PINs didn\'t match — try again';
+
+  @override
+  String get appLockWrongPin => 'Wrong PIN — try again';
+
+  @override
+  String get appLockUseBiometric => 'Use fingerprint / face';
+
+  @override
+  String get appLockEnable => 'App lock';
+
+  @override
+  String get appLockEnableSub =>
+      'Require a PIN (and biometrics) to open Qalbee';
+
+  @override
+  String get appLockDisable => 'Turn off app lock';
 }

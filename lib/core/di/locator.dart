@@ -3,6 +3,11 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/dua_tasbih/data/dua_asset_data_source.dart';
+import '../../features/dua_tasbih/data/dua_repository_impl.dart';
+import '../../features/dua_tasbih/domain/repositories/dua_repository.dart';
+import '../../features/dua_tasbih/presentation/state/dua_store.dart';
+import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../features/muhasaba/data/database/muhasaba_database.dart';
 import '../../features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
 import '../../features/muhasaba/domain/repositories/muhasaba_repository.dart';
@@ -17,12 +22,19 @@ import '../../features/notifications/data/local_notifications_scheduler.dart';
 import '../../features/notifications/domain/repositories/notification_scheduler.dart';
 import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
 import '../../features/notifications/presentation/state/notification_controller.dart';
+import '../../features/onboarding/data/app_lock_data_source.dart';
+import '../../features/onboarding/data/local_auth_biometric.dart';
+import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import '../../features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
 import '../../features/qibla/data/datasources/sensor_data_source.dart';
 import '../../features/qibla/presentation/state/qibla_store.dart';
+import '../../features/quran/data/datasources/quran_database.dart';
+import '../../features/quran/data/repositories/quran_repository_impl.dart';
+import '../../features/quran/domain/repositories/quran_repository.dart';
+import '../../features/quran/presentation/state/quran_store.dart';
 import '../../features/settings/data/datasources/city_asset_data_source.dart';
 import '../../features/settings/data/datasources/geolocator_data_source.dart';
 import '../../features/settings/data/datasources/settings_local_data_source.dart';
@@ -74,6 +86,14 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => SearchCities(locator()))
     ..registerLazySingleton(() => GetCurrentLocation(locator()))
     ..registerLazySingleton(() => SettingsStore(locator(), locator()));
+
+  // ---- onboarding / app lock ----
+  locator
+    ..registerLazySingleton(
+      () => AppLockDataSource(SharedPreferencesAsync()),
+    )
+    ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
+    ..registerLazySingleton(() => AppLockStore(locator(), locator()));
 
   // ---- muhasaba ----
   locator
@@ -152,7 +172,28 @@ Future<void> setupLocator() async {
       ),
     );
 
+  // ---- quran ----
+  locator
+    ..registerSingletonAsync<QuranDatabase>(QuranDatabase.open)
+    ..registerLazySingleton<QuranRepository>(
+      () => QuranRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(
+      () => QuranStore(locator(), SharedPreferencesAsync()),
+    );
+
+  // ---- dua & tasbih ----
+  locator
+    ..registerLazySingleton(() => DuaAssetDataSource(rootBundle))
+    ..registerLazySingleton<DuaRepository>(
+      () => DuaRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(() => DuaStore(locator()))
+    ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()));
+
   await locator<SettingsStore>().load();
   await locator<MosqueStore>().load();
   await locator<MuhasabaStore>().load();
+  await locator<AppLockStore>().load();
+  await locator.isReady<QuranDatabase>();
 }

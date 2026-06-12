@@ -324,5 +324,171 @@
       }
     }
   },
-  "notYet": "Not yet"
+  "notYet": "Not yet",
+  "quranTitle": "Quran",
+  "searchSurahHint": "Search surah…",
+  "continueReading": "Continue reading",
+  "surahMeta": "{count} ayahs · {place}",
+  "@surahMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "revelationName": "{place, select, meccan{Meccan} medinan{Medinan} other{—}}",
+  "@revelationName": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "readerFontSize": "Arabic text size",
+  "showTranslation": "Show translation",
+  "ayahCopied": "Ayah copied",
+  "bookmarkLabel": "Bookmark",
+  "quranFirstOpen": "Bismillah — start reading and Qalbee will remember where you left off.",
+  "ayahShareSuffix": "— Quran {surah}:{ayah}",
+  "@ayahShareSuffix": {
+    "placeholders": {
+      "surah": {
+        "type": "int"
+      },
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "duaTitle": "Dua & Tasbih",
+  "tasbihTitle": "Tasbih",
+  "asmaulHusnaTitle": "Asmaul Husna",
+  "duaCategoryName": "{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} other{{id}}}",
+  "@duaCategoryName": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "duaCount": "{count} duas",
+  "@duaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repeatTimes": "Repeat {count}×",
+  "@repeatTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "referenceLabel": "Reference",
+  "tasbihTarget": "Target",
+  "tasbihCustom": "Custom",
+  "tasbihReset": "Reset",
+  "tasbihResetConfirm": "Save this round to history and reset?",
+  "tasbihSessionLine": "Today: {count} counted",
+  "@tasbihSessionLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbihTargetReached": "Target reached — may Allah accept",
+  "ramadanTitle": "Ramadan",
+  "rozaDayOf": "Day {day} of {total}",
+  "@rozaDayOf": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "daysUntilRamadan": "{count, plural, =1{1 day until Ramadan} other{{count} days until Ramadan}}",
+  "@daysUntilRamadan": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthTable": "Sahri & iftar this month",
+  "zakatTitle": "Zakat calculator",
+  "zakatCash": "Cash on hand",
+  "zakatBank": "Bank balance",
+  "zakatGold": "Gold (grams)",
+  "zakatSilver": "Silver (grams)",
+  "zakatBusiness": "Business assets",
+  "zakatInvestments": "Investments",
+  "zakatOwed": "Money owed to you",
+  "zakatDebts": "Debts (deducted)",
+  "zakatGoldPrice": "Gold price per gram",
+  "zakatSilverPrice": "Silver price per gram",
+  "zakatCalculate": "Calculate",
+  "zakatNisab": "Nisab threshold: {amount}",
+  "@zakatNisab": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatDue": "Zakat due: {amount}",
+  "@zakatDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatNotPayable": "Your zakatable wealth is below the nisab — no zakat is due.",
+  "fitraInfo": "Sadaqat al-fitr is due per person before Eid prayer — roughly one sa' (~2.5–3 kg) of staple food, or its value, per family member.",
+  "calendarTitle": "Calendar",
+  "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
+  "@islamicDayName": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWelcomeTitle": "A companion for the heart's daily deen",
+  "onboardingWelcomeBody": "Prayer times, qibla, Quran, dua, and gentle self-accounting — all offline, all yours.",
+  "onboardingLanguageTitle": "Choose your language",
+  "onboardingLocationTitle": "Where are you?",
+  "onboardingMadhabTitle": "Asr calculation",
+  "onboardingMadhabNote": "This affects Asr time only — you can change it anytime in Settings.",
+  "onboardingMethodTitle": "Calculation method",
+  "onboardingMethodNote": "Suggested for your region. You can change this later in Settings.",
+  "onboardingNotifTitle": "Stay gently reminded",
+  "onboardingNotifBody": "Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.",
+  "onboardingNotifAllow": "Allow notifications",
+  "onboardingNotifSkip": "Maybe later",
+  "onboardingFinishTitle": "Bismillah",
+  "onboardingFinishBody": "Everything is ready. May your days be filled with light.",
+  "onboardingBegin": "Begin",
+  "next": "Next",
+  "back": "Back",
+  "skip": "Skip",
+  "appLockEnterPin": "Enter your PIN",
+  "appLockSetPin": "Set a 4-digit PIN",
+  "appLockConfirmPin": "Confirm your PIN",
+  "appLockPinMismatch": "PINs didn't match — try again",
+  "appLockWrongPin": "Wrong PIN — try again",
+  "appLockUseBiometric": "Use fingerprint / face",
+  "appLockEnable": "App lock",
+  "appLockEnableSub": "Require a PIN (and biometrics) to open Qalbee",
+  "appLockDisable": "Turn off app lock"
 }

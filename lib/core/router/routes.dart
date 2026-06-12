@@ -22,6 +22,20 @@ abstract final class Routes {
   /// Top-level full-screen compass (Home shortcut + More tab).
   static const qibla = (name: 'qibla', path: '/qibla');
 
+  /// Reader under the Quran branch; deep-link friendly
+  /// (`/quran/:surah/:ayah` for notification taps — guide §4).
+  static const quranReader = (name: 'quranReader', path: ':surah');
+  static const quranAyah = (name: 'quranAyah', path: ':surah/:ayah');
+
+  /// More-tab destinations (top-level pushes).
+  static const ramadan = (name: 'ramadan', path: '/ramadan');
+  static const calendar = (name: 'calendar', path: '/calendar');
+
+  /// First-run flow and the app-lock gate (outside the shell).
+  static const splash = (name: 'splash', path: '/splash');
+  static const onboarding = (name: 'onboarding', path: '/onboarding');
+  static const lock = (name: 'lock', path: '/lock');
+
   /// Debug-only component gallery.
   static const gallery = (name: 'gallery', path: '/dev/gallery');
 }

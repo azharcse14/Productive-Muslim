@@ -4,12 +4,15 @@ import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
 import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
 import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
 import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/screens/settings_screen.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+
+import '../../../helpers/lock_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
@@ -38,7 +41,10 @@ void main() {
     repo = _InMemoryRepo();
     final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
     await store.load();
-    GetIt.I.registerSingleton<SettingsStore>(store);
+    final lockStore = await makeAppLockStore();
+    GetIt.I
+      ..registerSingleton<SettingsStore>(store)
+      ..registerSingleton<AppLockStore>(lockStore);
   });
 
   tearDown(() => GetIt.I.reset());

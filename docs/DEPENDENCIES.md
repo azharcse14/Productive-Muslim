@@ -26,6 +26,9 @@ healthy maintenance. Log the check date and a one-line justification here.
 | `drift_flutter` | ^0.3.0 | 2026-06-12 | — | Official drift platform setup (replaces manual sqlite3_flutter_libs wiring) |
 | `sqlite3` | ^3.3.2 | 2026-06-12 | 2026-05-26 | Native sqlite bindings; `sqlite3_flutter_libs` is EOL — 3.x bundles natively |
 | `drift_dev` + `build_runner` | ^2.34.0 / ^2.15.0 | 2026-06-12 | 2026-06-10 / 2026-04-30 | dev-only codegen for drift tables |
+| `path_provider` + `path` | ^2.1.5 / ^1.9.x | 2026-06-12 | — | App-dir path for the copied Quran DB (flutter.dev) |
+| `local_auth` | ^3.0.1 | 2026-06-12 | 2026-02-25 | Biometric app lock (flutter.dev); local_auth_darwin ships Package.swift |
+| `crypto` | ^3.x | 2026-06-12 | — | SHA-256 PIN hashing (dart.dev) — raw PIN never stored |
 
 ## Decisions
 
@@ -40,6 +43,9 @@ healthy maintenance. Log the check date and a one-line justification here.
 | Asset | Source | License | Checked |
 |---|---|---|---|
 | World city DB (assets/data/cities.json, 33,824 cities) | GeoNames cities15000 via `tool/city_db_build.dart` | CC BY 4.0 — attribution in Settings → Credits | 2026-06-12 |
+| Quran DB (assets/data/quran.db, 4.9 MB, 114/6236) | Tanzil Quran Text (Simple) via fawazahmed0/quran-api (Unlicense), built by `tool/quran_db_build.dart` | Quran text: Tanzil.net terms (redistribution w/ attribution). EN: Pickthall (public domain). BN: Muhiuddin Khan. **TODO Phase 11 polish:** switch to full Uthmani-script edition (U+06E1 small-sukun aware) for mushaf fidelity | 2026-06-12 |
+| Dua collection (assets/data/duas.json, 43 duas / 8 categories) | Hisnul-Muslim-style compilation (Quran/Sunnah texts, not copyrightable); refs cited per dua | attributions in-app via reference field | 2026-06-12 |
+| Asmaul Husna (assets/data/asmaul_husna.json) | Public religious data, curated in-repo | — | 2026-06-12 |
 | Schibsted Grotesk (variable) | google/fonts (ofl/schibstedgrotesk) | OFL 1.1 | 2026-06-12 |
 | Noto Sans Bengali (variable) | google/fonts (ofl/notosansbengali) | OFL 1.1 | 2026-06-12 |
 | IBM Plex Sans Arabic (400/500/600/700) | google/fonts (ofl/ibmplexsansarabic) | OFL 1.1 | 2026-06-12 |

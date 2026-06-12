@@ -72,6 +72,10 @@ final class SettingsStore {
   Future<void> setNotifications(NotificationMatrix matrix) =>
       _update(settings.value.copyWith(notifications: matrix));
 
+  /// Onboarding gate (router redirect reads this).
+  Future<void> setSetupComplete({required bool complete}) =>
+      _update(settings.value.copyWith(setupComplete: complete));
+
   Future<void> setAdjustment(Prayer prayer, int minutes) {
     final params = settings.value.prayerParams;
     return _update(

@@ -1129,6 +1129,444 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not yet'**
   String get notYet;
+
+  /// No description provided for @quranTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get quranTitle;
+
+  /// No description provided for @searchSurahHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search surah…'**
+  String get searchSurahHint;
+
+  /// No description provided for @continueReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue reading'**
+  String get continueReading;
+
+  /// No description provided for @surahMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ayahs · {place}'**
+  String surahMeta(int count, String place);
+
+  /// No description provided for @revelationName.
+  ///
+  /// In en, this message translates to:
+  /// **'{place, select, meccan{Meccan} medinan{Medinan} other{—}}'**
+  String revelationName(String place);
+
+  /// No description provided for @readerFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic text size'**
+  String get readerFontSize;
+
+  /// No description provided for @showTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show translation'**
+  String get showTranslation;
+
+  /// No description provided for @ayahCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah copied'**
+  String get ayahCopied;
+
+  /// No description provided for @bookmarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get bookmarkLabel;
+
+  /// No description provided for @quranFirstOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bismillah — start reading and Qalbee will remember where you left off.'**
+  String get quranFirstOpen;
+
+  /// No description provided for @ayahShareSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'— Quran {surah}:{ayah}'**
+  String ayahShareSuffix(int surah, int ayah);
+
+  /// No description provided for @duaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua & Tasbih'**
+  String get duaTitle;
+
+  /// No description provided for @tasbihTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih'**
+  String get tasbihTitle;
+
+  /// No description provided for @asmaulHusnaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Asmaul Husna'**
+  String get asmaulHusnaTitle;
+
+  /// No description provided for @duaCategoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} other{{id}}}'**
+  String duaCategoryName(String id);
+
+  /// No description provided for @duaCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} duas'**
+  String duaCount(int count);
+
+  /// No description provided for @repeatTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat {count}×'**
+  String repeatTimes(int count);
+
+  /// No description provided for @referenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get referenceLabel;
+
+  /// No description provided for @tasbihTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get tasbihTarget;
+
+  /// No description provided for @tasbihCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get tasbihCustom;
+
+  /// No description provided for @tasbihReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get tasbihReset;
+
+  /// No description provided for @tasbihResetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this round to history and reset?'**
+  String get tasbihResetConfirm;
+
+  /// No description provided for @tasbihSessionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {count} counted'**
+  String tasbihSessionLine(int count);
+
+  /// No description provided for @tasbihTargetReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Target reached — may Allah accept'**
+  String get tasbihTargetReached;
+
+  /// No description provided for @ramadanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan'**
+  String get ramadanTitle;
+
+  /// No description provided for @rozaDayOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of {total}'**
+  String rozaDayOf(int day, int total);
+
+  /// No description provided for @daysUntilRamadan.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day until Ramadan} other{{count} days until Ramadan}}'**
+  String daysUntilRamadan(int count);
+
+  /// No description provided for @monthTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri & iftar this month'**
+  String get monthTable;
+
+  /// No description provided for @zakatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat calculator'**
+  String get zakatTitle;
+
+  /// No description provided for @zakatCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on hand'**
+  String get zakatCash;
+
+  /// No description provided for @zakatBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank balance'**
+  String get zakatBank;
+
+  /// No description provided for @zakatGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold (grams)'**
+  String get zakatGold;
+
+  /// No description provided for @zakatSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver (grams)'**
+  String get zakatSilver;
+
+  /// No description provided for @zakatBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business assets'**
+  String get zakatBusiness;
+
+  /// No description provided for @zakatInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get zakatInvestments;
+
+  /// No description provided for @zakatOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Money owed to you'**
+  String get zakatOwed;
+
+  /// No description provided for @zakatDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts (deducted)'**
+  String get zakatDebts;
+
+  /// No description provided for @zakatGoldPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold price per gram'**
+  String get zakatGoldPrice;
+
+  /// No description provided for @zakatSilverPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver price per gram'**
+  String get zakatSilverPrice;
+
+  /// No description provided for @zakatCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get zakatCalculate;
+
+  /// No description provided for @zakatNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab threshold: {amount}'**
+  String zakatNisab(String amount);
+
+  /// No description provided for @zakatDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat due: {amount}'**
+  String zakatDue(String amount);
+
+  /// No description provided for @zakatNotPayable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zakatable wealth is below the nisab — no zakat is due.'**
+  String get zakatNotPayable;
+
+  /// No description provided for @fitraInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sadaqat al-fitr is due per person before Eid prayer — roughly one sa\' (~2.5–3 kg) of staple food, or its value, per family member.'**
+  String get fitraInfo;
+
+  /// No description provided for @calendarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendarTitle;
+
+  /// No description provided for @islamicDayName.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}'**
+  String islamicDayName(String day);
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A companion for the heart\'s daily deen'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times, qibla, Quran, dua, and gentle self-accounting — all offline, all yours.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language'**
+  String get onboardingLanguageTitle;
+
+  /// No description provided for @onboardingLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you?'**
+  String get onboardingLocationTitle;
+
+  /// No description provided for @onboardingMadhabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr calculation'**
+  String get onboardingMadhabTitle;
+
+  /// No description provided for @onboardingMadhabNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This affects Asr time only — you can change it anytime in Settings.'**
+  String get onboardingMadhabNote;
+
+  /// No description provided for @onboardingMethodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get onboardingMethodTitle;
+
+  /// No description provided for @onboardingMethodNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for your region. You can change this later in Settings.'**
+  String get onboardingMethodNote;
+
+  /// No description provided for @onboardingNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay gently reminded'**
+  String get onboardingNotifTitle;
+
+  /// No description provided for @onboardingNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.'**
+  String get onboardingNotifBody;
+
+  /// No description provided for @onboardingNotifAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get onboardingNotifAllow;
+
+  /// No description provided for @onboardingNotifSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get onboardingNotifSkip;
+
+  /// No description provided for @onboardingFinishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bismillah'**
+  String get onboardingFinishTitle;
+
+  /// No description provided for @onboardingFinishBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is ready. May your days be filled with light.'**
+  String get onboardingFinishBody;
+
+  /// No description provided for @onboardingBegin.
+  ///
+  /// In en, this message translates to:
+  /// **'Begin'**
+  String get onboardingBegin;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @appLockEnterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN'**
+  String get appLockEnterPin;
+
+  /// No description provided for @appLockSetPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a 4-digit PIN'**
+  String get appLockSetPin;
+
+  /// No description provided for @appLockConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your PIN'**
+  String get appLockConfirmPin;
+
+  /// No description provided for @appLockPinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'PINs didn\'t match — try again'**
+  String get appLockPinMismatch;
+
+  /// No description provided for @appLockWrongPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong PIN — try again'**
+  String get appLockWrongPin;
+
+  /// No description provided for @appLockUseBiometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Use fingerprint / face'**
+  String get appLockUseBiometric;
+
+  /// No description provided for @appLockEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLockEnable;
+
+  /// No description provided for @appLockEnableSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Require a PIN (and biometrics) to open Qalbee'**
+  String get appLockEnableSub;
+
+  /// No description provided for @appLockDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off app lock'**
+  String get appLockDisable;
 }
 
 class _AppLocalizationsDelegate

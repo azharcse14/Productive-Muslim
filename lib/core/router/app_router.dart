@@ -1,28 +1,61 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../../features/onboarding/presentation/screens/lock_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/screens/splash_screen.dart';
+import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/qibla/presentation/screens/qibla_screen.dart';
+import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
+import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/settings/presentation/state/settings_store.dart';
 import '../../shared/gallery/widget_gallery_screen.dart';
 import '../../shared/widgets/q_bottom_nav.dart';
+import '../di/locator.dart';
 import 'routes.dart';
 
 /// Single source of routes (guide §4). Bottom navigation uses
 /// [StatefulShellRoute.indexedStack] so tab state persists.
 ///
-/// Phase 11 adds the onboarding `redirect` (setupComplete gate) and the
-/// `/quran/:surah/:ayah` deep link for notification taps.
+/// Gates: splash is the cold-start entry; incomplete setup redirects to
+/// onboarding; an enabled-and-locked app lock redirects to the PIN gate.
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: Routes.home.path,
+    initialLocation: Routes.splash.path,
+    refreshListenable: _RouterRefresh(),
+    redirect: (context, state) {
+      final path = state.uri.path;
+      if (path == Routes.splash.path) {
+        return null; // splash decides where to go itself
+      }
+      final setupComplete =
+          locator<SettingsStore>().settings.value.setupComplete;
+      if (!setupComplete) {
+        return path == Routes.onboarding.path ||
+                path == Routes.locationPicker.path
+            ? null
+            : Routes.onboarding.path;
+      }
+      final locked = locator<AppLockStore>().locked.value;
+      if (locked) {
+        return path == Routes.lock.path ? null : Routes.lock.path;
+      }
+      if (path == Routes.lock.path || path == Routes.onboarding.path) {
+        return Routes.home.path; // gates passed — nothing to show here
+      }
+      return null;
+    },
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => QShellScaffold(shell: shell),
@@ -42,6 +75,28 @@ GoRouter buildRouter() {
                 name: Routes.quran.name,
                 path: Routes.quran.path,
                 builder: (context, state) => const QuranScreen(),
+                routes: [
+                  GoRoute(
+                    name: Routes.quranAyah.name,
+                    path: Routes.quranAyah.path,
+                    builder: (context, state) => QuranReaderScreen(
+                      surahId:
+                          int.tryParse(state.pathParameters['surah'] ?? '') ??
+                              1,
+                      initialAyah:
+                          int.tryParse(state.pathParameters['ayah'] ?? ''),
+                    ),
+                  ),
+                  GoRoute(
+                    name: Routes.quranReader.name,
+                    path: Routes.quranReader.path,
+                    builder: (context, state) => QuranReaderScreen(
+                      surahId:
+                          int.tryParse(state.pathParameters['surah'] ?? '') ??
+                              1,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -90,6 +145,21 @@ GoRouter buildRouter() {
         ],
       ),
       GoRoute(
+        name: Routes.splash.name,
+        path: Routes.splash.path,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        name: Routes.onboarding.name,
+        path: Routes.onboarding.path,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        name: Routes.lock.name,
+        path: Routes.lock.path,
+        builder: (context, state) => const LockScreen(),
+      ),
+      GoRoute(
         name: Routes.locationPicker.name,
         path: Routes.locationPicker.path,
         builder: (context, state) => const LocationPickerScreen(),
@@ -105,12 +175,42 @@ GoRouter buildRouter() {
         builder: (context, state) => const QiblaScreen(),
       ),
       GoRoute(
+        name: Routes.ramadan.name,
+        path: Routes.ramadan.path,
+        builder: (context, state) => const RamadanScreen(),
+      ),
+      GoRoute(
+        name: Routes.calendar.name,
+        path: Routes.calendar.path,
+        builder: (context, state) => const CalendarScreen(),
+      ),
+      GoRoute(
         name: Routes.gallery.name,
         path: Routes.gallery.path,
         builder: (context, state) => const WidgetGalleryScreen(),
       ),
     ],
   );
+}
+
+/// Re-runs the router redirect whenever a gate signal flips
+/// (lock/unlock, setup completion).
+final class _RouterRefresh extends ChangeNotifier {
+  _RouterRefresh() {
+    _stop = effect(() {
+      locator<AppLockStore>().locked.value;
+      locator<SettingsStore>().settings.value.setupComplete;
+      notifyListeners();
+    });
+  }
+
+  late final EffectCleanup _stop;
+
+  @override
+  void dispose() {
+    _stop();
+    super.dispose();
+  }
 }
 
 /// Shell scaffold holding the persistent bottom navigation.

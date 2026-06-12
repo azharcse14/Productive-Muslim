@@ -1,13 +1,250 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/di/locator.dart';
+import '../../../../core/theme/qalbee_tokens.dart';
+import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
-import '../../../../shared/widgets/placeholder_screen.dart';
+import '../../../../shared/widgets/q_banner.dart';
+import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
+import '../../domain/entities/surah.dart';
+import '../state/quran_store.dart';
+import '../widgets/ayah_medallion.dart';
+import 'quran_reader_screen.dart';
 
-/// Quran tab — surah list + reader land in Phase 8.
-final class QuranScreen extends StatelessWidget {
+/// Quran tab (design §4.5): continue-reading resume card, surah search
+/// and the 114-surah index; rows open the reader.
+final class QuranScreen extends StatefulWidget {
   const QuranScreen({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      PlaceholderScreen(title: context.l10n.tabQuran);
+  State<QuranScreen> createState() => _QuranScreenState();
+}
+
+final class _QuranScreenState extends State<QuranScreen> {
+  // App-scoped store — never disposed here.
+  late final QuranStore _store = locator<QuranStore>();
+
+  /// null = no active query (show the full index from the store).
+  final _results = signal<List<Surah>?>(null);
+
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_store.loaded.value) {
+      unawaited(_store.load());
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onQueryChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(
+      const Duration(milliseconds: 250),
+      () => unawaited(_runSearch(query)),
+    );
+  }
+
+  Future<void> _runSearch(String query) async {
+    _results.value = query.trim().isEmpty ? null : await _store.search(query);
+  }
+
+  void _openReader(int surahId, {int? initialAyah}) {
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => QuranReaderScreen(
+            surahId: surahId,
+            initialAyah: initialAyah,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.quranTitle)),
+      body: SafeArea(
+        child: SignalBuilder(
+          builder: (context) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  QSpace.s5,
+                  QSpace.s3,
+                  QSpace.s5,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_store.lastRead.value != null) ...[
+                      _resumeCard(context),
+                      const SizedBox(height: QSpace.s3),
+                    ] else if (_store.loaded.value) ...[
+                      QBanner(
+                        text: l10n.quranFirstOpen,
+                        icon: Icons.menu_book_outlined,
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                    ],
+                    TextField(
+                      onChanged: _onQueryChanged,
+                      decoration: InputDecoration(
+                        hintText: l10n.searchSurahHint,
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: q.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(QRadius.md),
+                          borderSide: BorderSide(color: q.line, width: 1.5),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(QRadius.md),
+                          borderSide: BorderSide(color: q.line, width: 1.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(QRadius.md),
+                          borderSide: BorderSide(color: q.primary, width: 2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: QSpace.s2),
+              Expanded(child: _surahList(context)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _resumeCard(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    final position = _store.lastRead.value;
+    if (position == null) {
+      return const SizedBox.shrink();
+    }
+    final surah = _surahById(position.surah);
+    final ayahLabel = LocaleDigits.localize(
+      '${position.ayah}',
+      Localizations.localeOf(context).languageCode,
+    );
+    return QCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: QSpace.s4,
+        vertical: QSpace.s2,
+      ),
+      child: QListRow(
+        icon: Icons.menu_book_outlined,
+        title: l10n.continueReading,
+        subtitle:
+            surah == null ? null : '${surah.transliteration} · $ayahLabel',
+        trailing: Icon(Icons.chevron_right, color: q.ink3),
+        onTap: () => _openReader(position.surah, initialAyah: position.ayah),
+      ),
+    );
+  }
+
+  Surah? _surahById(int id) {
+    for (final surah in _store.surahs.value) {
+      if (surah.id == id) {
+        return surah;
+      }
+    }
+    return null;
+  }
+
+  Widget _surahList(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    if (!_store.loaded.value) {
+      return ListView(
+        padding: const EdgeInsets.all(QSpace.s5),
+        children: [
+          for (var i = 0; i < 8; i++) ...[
+            const QSkeleton(height: 52, radius: QRadius.sm),
+            const SizedBox(height: QSpace.s2),
+          ],
+        ],
+      );
+    }
+    final surahs = _results.value ?? _store.surahs.value;
+    if (surahs.isEmpty) {
+      return Center(
+        child: Text(
+          l10n.searchNoResults,
+          style: QType.body.copyWith(color: q.ink2),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
+      itemCount: surahs.length,
+      itemBuilder: (context, index) => _surahRow(context, surahs[index]),
+    );
+  }
+
+  Widget _surahRow(BuildContext context, Surah surah) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return InkWell(
+      onTap: () => _openReader(surah.id),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 2,
+          vertical: QSpace.s2,
+        ),
+        child: Row(
+          children: [
+            AyahMedallion(number: surah.id),
+            const SizedBox(width: QSpace.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    surah.transliteration,
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  Text(
+                    l10n.surahMeta(
+                      surah.ayahCount,
+                      l10n.revelationName(surah.revelation),
+                    ),
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Text(
+              surah.nameArabic,
+              style: QType.quran(20).copyWith(color: q.ink),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
