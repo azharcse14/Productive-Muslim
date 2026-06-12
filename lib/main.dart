@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
 
-void main() {
+import 'core/di/locator.dart';
+import 'core/l10n/gen/app_localizations.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupLocator();
   runApp(const QalbeeApp());
 }
 
-/// Root widget. Phase 1 replaces the placeholder home with the themed
-/// go_router shell (see docs/QALBEE_IMPLEMENTATION_PLAN.md).
+/// Root widget: themed, localized, routed (go_router shell).
 final class QalbeeApp extends StatelessWidget {
   const QalbeeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Qalbee',
-      theme: ThemeData(colorSchemeSeed: const Color(0xFF15564D)),
-      darkTheme: ThemeData(
-        colorSchemeSeed: const Color(0xFF79C7B6),
-        brightness: Brightness.dark,
-      ),
-      home: const Scaffold(
-        body: Center(child: Text('Qalbee')),
-      ),
+    return MaterialApp.router(
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: buildRouter(),
     );
   }
 }

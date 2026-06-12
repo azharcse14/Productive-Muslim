@@ -50,7 +50,11 @@ Full details: [`docs/QALBEE_DEVELOPMENT_GUIDE.md`](docs/QALBEE_DEVELOPMENT_GUIDE
 
 ## Design
 
-The complete high-fidelity design (tokens, components, ~90 artboards, light + dark + RTL) lives in [`docs/design_handoff_qalbee/`](docs/design_handoff_qalbee/) — open `Qalbee Design.html` in a browser. `qalbee/tokens.css` is the canonical token source and maps 1:1 to the Flutter theme.
+The complete high-fidelity design (tokens, components, ~90 artboards, light + dark + RTL) lives in [`docs/design_handoff_qalbee/`](docs/design_handoff_qalbee/) — open `Qalbee Design.html` in a browser. `qalbee/tokens.css` is the canonical token source and maps 1:1 to `lib/core/theme/` (`QalbeeColors` ThemeExtension + QSpace/QRadius/QMotion + QType scale).
+
+- **Fonts (bundled):** Schibsted Grotesk (UI), Noto Sans Bengali, IBM Plex Sans Arabic, KFGQPC Uthmanic HAFS (Quran only). Licenses in `docs/DEPENDENCIES.md`.
+- **L10n:** ARB files in `lib/core/l10n/arb` (en template + bn); run `flutter gen-l10n` after editing.
+- **Widget gallery:** in debug builds, More tab → Widget Gallery (`/dev/gallery`) shows the component library in the current theme.
 
 ## Dependency Policy (strict)
 

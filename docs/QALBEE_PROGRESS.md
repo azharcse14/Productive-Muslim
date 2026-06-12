@@ -9,7 +9,7 @@
 | Phase | Title | Status | Notes |
 |---|---|---|---|
 | 0 | Cleanup & Baseline | ✅ | Done 2026-06-12; APK builds green on Gradle 9.1/AGP 9.0.1 |
-| 1 | Foundation: Tokens, Theme, L10n, Shell | ⬜ | |
+| 1 | Foundation: Tokens, Theme, L10n, Shell | ✅ | Done 2026-06-12; 37 tests green, APK builds |
 | 2 | Settings + Location | ⬜ | |
 | 3 | Prayer Times Domain + Home | ⬜ | |
 | 4 | Notification Scheduler | ⬜ | |
@@ -21,7 +21,7 @@
 | 10 | Ramadan, Calendar, Zakat | ⬜ | |
 | 11 | Onboarding, App Lock & Polish | ⬜ | |
 
-**Phase exit gate (applies to every phase):** `flutter analyze` zero warnings · all tests green · DEPENDENCIES.md updated · README updated if setup/tooling changed · design artboards matched (light + dark) · airplane-mode check passed.
+**Phase exit gate (applies to every phase):** `flutter analyze` zero warnings · all tests green · **every feature built in the phase has its own test cases (unit + widget)** · DEPENDENCIES.md updated · README updated if setup/tooling changed · design artboards matched (light + dark) · airplane-mode check passed.
 
 ---
 
@@ -38,19 +38,20 @@
 - [x] `flutter analyze` zero issues; `flutter test` passing
 - [x] Android debug build green on new toolchain (`app-debug.apk` built, 121s)
 
-## Phase 1 — Foundation ⬜
+## Phase 1 — Foundation ✅
 
-- [ ] Theme: `tokens.css` → ColorScheme + ThemeExtensions (light + dark)
-- [ ] Fonts bundled: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic, KFGQPC HAFS (+ license/attribution noted)
-- [ ] Type scale + per-locale fallback chains
-- [ ] L10n: ARB en + bn, digit formatting helper
-- [ ] Motif: QalbMark/Star8/MotifBg painters in `shared/painters/`; icon set decision
-- [ ] `config/` scaffold: app_config / assets / flavors
-- [ ] Shared widget library (buttons, inputs, seg control, sheets, dialogs, ring, heatmap cell, bottom nav) with all interaction states
-- [ ] DI locator + go_router shell (5 tabs, route constants, redirect stub)
-- [ ] Debug widget gallery route
-- [ ] Tests: button/countdown-shell goldens, digit formatting
-- [ ] `docs/DEPENDENCIES.md` created; go_router/get_it/signals/intl logged
+- [x] Theme: `tokens.css` → ColorScheme + `QalbeeColors` ThemeExtension (light + dark, M3), QSpace/QRadius/QMotion tokens
+- [x] Fonts bundled: Schibsted Grotesk (var), Noto Sans Bengali (var), IBM Plex Sans Arabic (4 wts), KFGQPC Uthmanic HAFS v22 (licenses logged in DEPENDENCIES.md)
+- [x] Type scale (display→overline + 56px countdown numeral, fontVariations for variable fonts) + UI fallback chain
+- [x] L10n: ARB en + bn (`flutter gen-l10n`), LocaleDigits helper (bn/ar/ur digit sets)
+- [x] Motif: QalbMark/Star8/MotifBackground CustomPainters in `shared/painters/` (heart path hand-converted from SVG); icon set decision: Material Symbols substitute (handoff permits)
+- [x] `config/` scaffold: app_config (product thresholds) / assets (font families) / flavors
+- [x] Shared widget library: QButton (5 kinds × pressed/disabled/focused), QCard, QChip, QSegControl, QBanner, QSkeleton, QProgressRing, QHeatmap(Cell), QListRow, CountdownCard (5 states), QBottomNavScaffold
+- [x] DI locator + go_router `StatefulShellRoute.indexedStack` shell (5 tabs, typed route constants, redirect comes with onboarding Phase 11)
+- [x] Debug widget gallery route (`/dev/gallery`, linked from More tab in debug)
+- [x] Tests (37 passing): LocaleDigits, Result, AppTheme/tokens, QButton (incl. semantics), CountdownCard all 5 states + dark, QHeatmap levels, router shell (5 tabs, switching, persistence, bn locale)
+- [x] `docs/DEPENDENCIES.md` created; go_router 17.3.0 / get_it 9.2.1 / signals 7.1.0 / intl logged with check dates
+- [x] Debug APK build green
 
 ## Phase 2 — Settings + Location ⬜
 
@@ -147,5 +148,6 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 1 foundation: tokens→theme (M3), 4 font families bundled, l10n en+bn, motif painters, 11 shared widgets, DI+router shell (5 tabs), debug gallery, DEPENDENCIES.md, 37 tests | analyze clean, all tests pass, APK builds — **Phase 1 complete** |
 | 2026-06-12 | Phase 0 cleanup: Firebase/config/env/template assets removed, pubspec+analysis_options+README+main.dart rewritten, SPM enabled (no CocoaPods), Android toolchain → Gradle 9.1.0/AGP 9.0.1/Kotlin 2.3.20 | analyze clean, tests pass, Android debug APK builds — **Phase 0 complete** |
 | 2026-06-12 | Implementation plan + this progress tracker created | Docs ready; coding not started |

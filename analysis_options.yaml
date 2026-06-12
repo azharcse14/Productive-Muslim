@@ -18,6 +18,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.drift.dart"
+    - "lib/core/l10n/gen/**"
 
 linter:
   rules:

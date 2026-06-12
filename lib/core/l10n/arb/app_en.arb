@@ -1,0 +1,35 @@
+{
+  "@@locale": "en",
+  "appTitle": "Qalbee",
+  "@appTitle": {
+    "description": "The application name shown in the launcher and app bars"
+  },
+  "tabHome": "Home",
+  "@tabHome": {
+    "description": "Bottom navigation label for the Home tab"
+  },
+  "tabQuran": "Quran",
+  "@tabQuran": {
+    "description": "Bottom navigation label for the Quran tab"
+  },
+  "tabMuhasaba": "Muhasaba",
+  "@tabMuhasaba": {
+    "description": "Bottom navigation label for the Muhasaba tracker tab"
+  },
+  "tabDua": "Dua",
+  "@tabDua": {
+    "description": "Bottom navigation label for the Dua & Tasbih tab"
+  },
+  "tabMore": "More",
+  "@tabMore": {
+    "description": "Bottom navigation label for the More/overflow tab"
+  },
+  "comingSoon": "Coming soon",
+  "@comingSoon": {
+    "description": "Placeholder body text on screens that are not built yet"
+  },
+  "galleryTitle": "Widget Gallery",
+  "@galleryTitle": {
+    "description": "Title of the debug-only component gallery screen"
+  }
+}
