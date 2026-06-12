@@ -8,4 +8,9 @@ abstract interface class ZonedClock {
 
   /// Converts an absolute [instant] (UTC) to the wall clock at [location].
   DateTime instantAt(LocationConfig location, DateTime instant);
+
+  /// Inverse of [instantAt]: the UTC instant at which the wall clock at
+  /// [location] reads [wall]. Needed to schedule OS alarms at foreign-city
+  /// moments.
+  DateTime utcInstantOf(LocationConfig location, DateTime wall);
 }

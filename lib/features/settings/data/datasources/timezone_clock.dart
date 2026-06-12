@@ -23,6 +23,29 @@ final class TimezoneClock implements ZonedClock {
     };
   }
 
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      switch (location) {
+        // A non-UTC DateTime built from wall components IS device-local.
+        GpsLocation() => DateTime(
+            wall.year,
+            wall.month,
+            wall.day,
+            wall.hour,
+            wall.minute,
+            wall.second,
+          ).toUtc(),
+        ManualCityLocation(:final city) => tz.TZDateTime(
+            tz.getLocation(city.timezone),
+            wall.year,
+            wall.month,
+            wall.day,
+            wall.hour,
+            wall.minute,
+            wall.second,
+          ).toUtc(),
+      };
+
   DateTime _toZone(DateTime utc, String ianaId) {
     final zoned = tz.TZDateTime.from(utc, tz.getLocation(ianaId));
     // Re-wrap as a plain DateTime carrying the wall-clock values, so

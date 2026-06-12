@@ -298,4 +298,121 @@ class AppLocalizationsBn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String notifAzanTitle(Object prayer, Object time) {
+    return '$prayer · $time';
+  }
+
+  @override
+  String notifAzanBody(Object prayer) {
+    return '$prayer-এর সময় হয়েছে।';
+  }
+
+  @override
+  String notifJamaatTitle(Object prayer) {
+    return '$prayer জামাত শীঘ্রই';
+  }
+
+  @override
+  String notifJamaatBody(Object time) {
+    return 'জামাত $time এ।';
+  }
+
+  @override
+  String get notifSahriTitle => 'সাহরি শেষ হতে চলেছে';
+
+  @override
+  String notifSahriBody(Object time) {
+    return 'সাহরি শেষ $time এ — সময়মতো খাওয়া শেষ করুন।';
+  }
+
+  @override
+  String get notifIftarTitle => 'ইফতারের সময় হয়েছে';
+
+  @override
+  String notifIftarBody(Object time) {
+    return 'আল্লাহ আপনার রোজা কবুল করুন। ইফতার $time এ।';
+  }
+
+  @override
+  String get notifMuhasabaTitle => 'সন্ধ্যার আত্মজিজ্ঞাসা';
+
+  @override
+  String get notifMuhasabaBody => 'আজকের মুহাসাবার জন্য এক মিনিট সময় হবে?';
+
+  @override
+  String get notifMarkPrayed => 'নামাজ পড়েছি';
+
+  @override
+  String get channelAzan => 'আজান';
+
+  @override
+  String get channelReminders => 'রিমাইন্ডার';
+
+  @override
+  String get channelSilent => 'নীরব নামাজ-সতর্কতা';
+
+  @override
+  String get notifSettingsTitle => 'নোটিফিকেশন';
+
+  @override
+  String get notifPermissionDeniedBanner =>
+      'সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। কালবী পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।';
+
+  @override
+  String get notifEnableCta => 'নোটিফিকেশন চালু করুন';
+
+  @override
+  String get notifExactAlarmBanner =>
+      'ঠিক মিনিটে আজান পেতে সিস্টেম সেটিংসে কালবীর জন্য \"Alarms & reminders\" অনুমতি দিন।';
+
+  @override
+  String get notifExactAlarmCta => 'এক্সাক্ট অ্যালার্ম অনুমতি দিন';
+
+  @override
+  String get notifBatteryHint =>
+      'রিমাইন্ডার দেরিতে এলে সিস্টেম সেটিংসে কালবীকে ব্যাটারি অপটিমাইজেশন থেকে বাদ দিন।';
+
+  @override
+  String get notifPerPrayerHeader => 'নামাজের অ্যালার্ট';
+
+  @override
+  String get azanModeAzan => 'আজান';
+
+  @override
+  String get azanModeBeep => 'বিপ';
+
+  @override
+  String get azanModeSilent => 'নীরব';
+
+  @override
+  String get azanModeOff => 'বন্ধ';
+
+  @override
+  String get notifSahriToggle => 'সাহরি সতর্কতা';
+
+  @override
+  String get notifSahriToggleSub => 'সাহরি শেষ হওয়ার আগে';
+
+  @override
+  String get notifIftarToggle => 'ইফতার অ্যালার্ট';
+
+  @override
+  String get notifIftarToggleSub => 'মাগরিবের সময়, আনন্দের বার্তাসহ';
+
+  @override
+  String get notifJamaatToggle => 'জামাত রিমাইন্ডার';
+
+  @override
+  String get notifJamaatToggleSub => 'আমার মসজিদে জামাতের সময় লাগবে';
+
+  @override
+  String get notifMuhasabaToggle => 'সন্ধ্যার মুহাসাবা নাজ';
+
+  @override
+  String get notifMuhasabaToggleSub => 'এশার পরে একটি মৃদু রিমাইন্ডার';
+
+  @override
+  String get leadTimeLabel => 'কত আগে';
 }

@@ -100,8 +100,10 @@ final class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: QListRow(
                 icon: Icons.notifications_outlined,
-                title: l10n.groupNotifications,
-                subtitle: l10n.comingSoon,
+                title: l10n.notifSettingsTitle,
+                trailing: Icon(Icons.chevron_right, color: q.ink3),
+                onTap: () =>
+                    context.pushNamed(Routes.notificationSettings.name),
               ),
             ),
             _GroupHeader(l10n.groupAppearance),

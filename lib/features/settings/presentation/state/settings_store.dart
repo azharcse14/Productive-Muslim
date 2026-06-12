@@ -3,6 +3,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/location_config.dart';
+import '../../domain/entities/notification_matrix.dart';
 import '../../domain/entities/prayer_params.dart';
 import '../../domain/usecases/get_settings.dart';
 import '../../domain/usecases/save_settings.dart';
@@ -67,6 +68,9 @@ final class SettingsStore {
               settings.value.prayerParams.copyWith(highLatitudeRule: rule),
         ),
       );
+
+  Future<void> setNotifications(NotificationMatrix matrix) =>
+      _update(settings.value.copyWith(notifications: matrix));
 
   Future<void> setAdjustment(Prayer prayer, int minutes) {
     final params = settings.value.prayerParams;

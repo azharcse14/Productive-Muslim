@@ -56,6 +56,10 @@ final class _FakeClock implements ZonedClock {
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
       _real.instantAt(location, instant);
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      _real.utcInstantOf(location, wall);
 }
 
 late _FakeClock _clock;

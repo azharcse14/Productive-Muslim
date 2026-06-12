@@ -583,6 +583,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{month, select, m1{Boishakh} m2{Joishtho} m3{Asharh} m4{Srabon} m5{Bhadro} m6{Ashwin} m7{Kartik} m8{Ogrohayon} m9{Poush} m10{Magh} m11{Falgun} m12{Choitro} other{—}}'**
   String banglaMonthName(String month);
+
+  /// No description provided for @notifAzanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} · {time}'**
+  String notifAzanTitle(Object prayer, Object time);
+
+  /// No description provided for @notifAzanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time for {prayer}.'**
+  String notifAzanBody(Object prayer);
+
+  /// No description provided for @notifJamaatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} jamaat soon'**
+  String notifJamaatTitle(Object prayer);
+
+  /// No description provided for @notifJamaatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat at {time}.'**
+  String notifJamaatBody(Object time);
+
+  /// No description provided for @notifSahriTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends soon'**
+  String get notifSahriTitle;
+
+  /// No description provided for @notifSahriBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends at {time} — finish your meal in time.'**
+  String notifSahriBody(Object time);
+
+  /// No description provided for @notifIftarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s iftar time'**
+  String get notifIftarTitle;
+
+  /// No description provided for @notifIftarBody.
+  ///
+  /// In en, this message translates to:
+  /// **'May Allah accept your fast. Iftar at {time}.'**
+  String notifIftarBody(Object time);
+
+  /// No description provided for @notifMuhasabaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening reflection'**
+  String get notifMuhasabaTitle;
+
+  /// No description provided for @notifMuhasabaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A quiet minute for today\'s muhasaba?'**
+  String get notifMuhasabaBody;
+
+  /// No description provided for @notifMarkPrayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as prayed'**
+  String get notifMarkPrayed;
+
+  /// No description provided for @channelAzan.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan'**
+  String get channelAzan;
+
+  /// No description provided for @channelReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get channelReminders;
+
+  /// No description provided for @channelSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent prayer alerts'**
+  String get channelSilent;
+
+  /// No description provided for @notifSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifSettingsTitle;
+
+  /// No description provided for @notifPermissionDeniedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off in system settings. Qalbee stays fully useful — enable them to get azan and reminders.'**
+  String get notifPermissionDeniedBanner;
+
+  /// No description provided for @notifEnableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get notifEnableCta;
+
+  /// No description provided for @notifExactAlarmBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'For azan at the exact minute, allow \"Alarms & reminders\" for Qalbee in system settings.'**
+  String get notifExactAlarmBanner;
+
+  /// No description provided for @notifExactAlarmCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow exact alarms'**
+  String get notifExactAlarmCta;
+
+  /// No description provided for @notifBatteryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If reminders arrive late, exclude Qalbee from battery optimization in system settings.'**
+  String get notifBatteryHint;
+
+  /// No description provided for @notifPerPrayerHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer alerts'**
+  String get notifPerPrayerHeader;
+
+  /// No description provided for @azanModeAzan.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan'**
+  String get azanModeAzan;
+
+  /// No description provided for @azanModeBeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Beep'**
+  String get azanModeBeep;
+
+  /// No description provided for @azanModeSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent'**
+  String get azanModeSilent;
+
+  /// No description provided for @azanModeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get azanModeOff;
+
+  /// No description provided for @notifSahriToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri warning'**
+  String get notifSahriToggle;
+
+  /// No description provided for @notifSahriToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Before sahri ends'**
+  String get notifSahriToggleSub;
+
+  /// No description provided for @notifIftarToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Iftar alert'**
+  String get notifIftarToggle;
+
+  /// No description provided for @notifIftarToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'At maghrib, with a celebratory tone'**
+  String get notifIftarToggleSub;
+
+  /// No description provided for @notifJamaatToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat reminder'**
+  String get notifJamaatToggle;
+
+  /// No description provided for @notifJamaatToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs jamaat times in My Mosque'**
+  String get notifJamaatToggleSub;
+
+  /// No description provided for @notifMuhasabaToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening muhasaba nudge'**
+  String get notifMuhasabaToggle;
+
+  /// No description provided for @notifMuhasabaToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'One gentle reminder after Isha'**
+  String get notifMuhasabaToggleSub;
+
+  /// No description provided for @leadTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lead time'**
+  String get leadTimeLabel;
 }
 
 class _AppLocalizationsDelegate

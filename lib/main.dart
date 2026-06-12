@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -6,11 +8,14 @@ import 'core/di/locator.dart';
 import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/notifications/presentation/state/notification_controller.dart';
 import 'features/settings/presentation/state/settings_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
+  // Schedule the next ~48h of notifications; never blocks first frame.
+  unawaited(locator<NotificationController>().start());
   runApp(const QalbeeApp());
 }
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
+import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
@@ -71,6 +72,14 @@ GoRouter buildRouter() {
                     name: Routes.settings.name,
                     path: Routes.settings.path,
                     builder: (context, state) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        name: Routes.notificationSettings.name,
+                        path: Routes.notificationSettings.path,
+                        builder: (context, state) =>
+                            const NotificationSettingsScreen(),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -12,7 +12,7 @@
 | 1 | Foundation: Tokens, Theme, L10n, Shell | ✅ | Done 2026-06-12; 37 tests green, APK builds |
 | 2 | Settings + Location | ✅ | Done 2026-06-12; 74 tests green, APK builds |
 | 3 | Prayer Times Domain + Home | ✅ | Done 2026-06-12; 119 tests green, APK builds |
-| 4 | Notification Scheduler | ⬜ | |
+| 4 | Notification Scheduler | ✅ | Done 2026-06-12; 143 tests green, APK builds (deep links → Ph7, azan audio → Ph11) |
 | 5 | My Mosque / Jamaat | ⬜ | |
 | 6 | Qibla Compass | ⬜ | |
 | 7 | Muhasaba | ⬜ | |
@@ -77,13 +77,17 @@
 - [x] Tests (45 new, 119 total): state machine, activeWaqt boundaries, hijri/bangla calendars, adhan mapping (madhab/method/adjustments/ordering/plausibility), Home widget tests with fake clock (tick, states, empty)
 - [x] Debug APK build green
 
-## Phase 4 — Notifications ⬜
+## Phase 4 — Notifications ✅ (two follow-ups deferred)
 
-- [ ] NotificationScheduler behind domain interface; ~48h window; reschedule triggers
-- [ ] Android exact-alarm flow + battery-optimization guidance; iOS priming + denied education
-- [ ] Notification content per design artifacts; "Mark as prayed" deep link
-- [ ] Settings notification matrix UI live
-- [ ] Tests: scheduling-window logic, reschedule triggers
+- [x] `NotificationScheduler` domain interface; only `LocalNotificationsScheduler` (data) touches the plugin; pure `buildNotificationPlan` fills a 48h window from 3 computed days
+- [x] Reschedule triggers: app open + debounced effect on location/params/matrix/locale changes (`NotificationController`); no location ⇒ cancelAll
+- [x] Android: exact-alarm permission flow (`SCHEDULE_EXACT_ALARM`, falls back to inexact), boot/app-update receivers, `POST_NOTIFICATIONS`, core-library desugaring; battery-optimization guidance banner. iOS: permission request + denied education ("app stays fully useful")
+- [x] Notification content per design §15: azan (per-matrix azan/beep/silent channels, "Mark as prayed" action), jamaat lead reminder, sahri warning, celebratory iftar, single evening muhasaba nudge — localized en+bn, foreign-city times convert via `utcInstantOf`
+- [x] Notification matrix UI live: per-prayer 4-mode segments, sahri/iftar/jamaat/muhasaba toggles with lead-time steppers, linked from Settings
+- [x] Tests (24 new, 143 total): plan builder (modes, leads, window/boundary trims, jamaat resolution, sorted unique ids), reschedule orchestration, utcInstantOf round-trip, controller triggers (debounce, locale re-resolution, idempotent start), matrix screen widget tests
+- [ ] Notification-tap deep links (payload → route) — wired when target screens exist (Phase 7)
+- [ ] Custom azan audio asset — polish pass (Phase 11)
+- [x] Debug APK build green
 
 ## Phase 5 — My Mosque / Jamaat ⬜
 
@@ -153,6 +157,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 4: notification scheduler — pure 48h plan builder, plugin wrapper (channels, exact alarms, boot receivers, desugaring), reschedule-on-change controller, matrix settings UI, en+bn notification copy, 24 new tests | analyze clean, 143 tests pass, APK builds — **Phase 4 complete** (deep links → Ph7, azan audio → Ph11) |
 | 2026-06-12 | Phase 3: prayer-times domain (adhan_dart wrapper, PrayerDay, smart-countdown state machine), in-house Hijri + Bangla calendars, jamaat entities, full Home screen (hero countdown, prayer table, tri-calendar header, sahri/iftar row, empty state), 45 new tests | analyze clean, 119 tests pass, APK builds — **Phase 3 complete** |
 | 2026-06-12 | Phase 2: settings+location — domain entities/usecases, GeoNames city DB (33.8k), TimezoneClock, prefs repo, geolocator with fallback UX, grouped Settings UI + location picker, live theme/locale, platform permissions, 37 new tests | analyze clean, 74 tests pass, APK builds — **Phase 2 complete** |
 | 2026-06-12 | Phase 1 foundation: tokens→theme (M3), 4 font families bundled, l10n en+bn, motif painters, 11 shared widgets, DI+router shell (5 tabs), debug gallery, DEPENDENCIES.md, 37 tests | analyze clean, all tests pass, APK builds — **Phase 1 complete** |

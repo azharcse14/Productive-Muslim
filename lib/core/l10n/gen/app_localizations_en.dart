@@ -298,4 +298,121 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String notifAzanTitle(Object prayer, Object time) {
+    return '$prayer · $time';
+  }
+
+  @override
+  String notifAzanBody(Object prayer) {
+    return 'It\'s time for $prayer.';
+  }
+
+  @override
+  String notifJamaatTitle(Object prayer) {
+    return '$prayer jamaat soon';
+  }
+
+  @override
+  String notifJamaatBody(Object time) {
+    return 'Jamaat at $time.';
+  }
+
+  @override
+  String get notifSahriTitle => 'Sahri ends soon';
+
+  @override
+  String notifSahriBody(Object time) {
+    return 'Sahri ends at $time — finish your meal in time.';
+  }
+
+  @override
+  String get notifIftarTitle => 'It\'s iftar time';
+
+  @override
+  String notifIftarBody(Object time) {
+    return 'May Allah accept your fast. Iftar at $time.';
+  }
+
+  @override
+  String get notifMuhasabaTitle => 'Evening reflection';
+
+  @override
+  String get notifMuhasabaBody => 'A quiet minute for today\'s muhasaba?';
+
+  @override
+  String get notifMarkPrayed => 'Mark as prayed';
+
+  @override
+  String get channelAzan => 'Azan';
+
+  @override
+  String get channelReminders => 'Reminders';
+
+  @override
+  String get channelSilent => 'Silent prayer alerts';
+
+  @override
+  String get notifSettingsTitle => 'Notifications';
+
+  @override
+  String get notifPermissionDeniedBanner =>
+      'Notifications are off in system settings. Qalbee stays fully useful — enable them to get azan and reminders.';
+
+  @override
+  String get notifEnableCta => 'Enable notifications';
+
+  @override
+  String get notifExactAlarmBanner =>
+      'For azan at the exact minute, allow \"Alarms & reminders\" for Qalbee in system settings.';
+
+  @override
+  String get notifExactAlarmCta => 'Allow exact alarms';
+
+  @override
+  String get notifBatteryHint =>
+      'If reminders arrive late, exclude Qalbee from battery optimization in system settings.';
+
+  @override
+  String get notifPerPrayerHeader => 'Prayer alerts';
+
+  @override
+  String get azanModeAzan => 'Azan';
+
+  @override
+  String get azanModeBeep => 'Beep';
+
+  @override
+  String get azanModeSilent => 'Silent';
+
+  @override
+  String get azanModeOff => 'Off';
+
+  @override
+  String get notifSahriToggle => 'Sahri warning';
+
+  @override
+  String get notifSahriToggleSub => 'Before sahri ends';
+
+  @override
+  String get notifIftarToggle => 'Iftar alert';
+
+  @override
+  String get notifIftarToggleSub => 'At maghrib, with a celebratory tone';
+
+  @override
+  String get notifJamaatToggle => 'Jamaat reminder';
+
+  @override
+  String get notifJamaatToggleSub => 'Needs jamaat times in My Mosque';
+
+  @override
+  String get notifMuhasabaToggle => 'Evening muhasaba nudge';
+
+  @override
+  String get notifMuhasabaToggleSub => 'One gentle reminder after Isha';
+
+  @override
+  String get leadTimeLabel => 'Lead time';
 }

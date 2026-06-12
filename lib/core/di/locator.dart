@@ -1,7 +1,12 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/notifications/data/local_notifications_scheduler.dart';
+import '../../features/notifications/domain/repositories/notification_scheduler.dart';
+import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
+import '../../features/notifications/presentation/state/notification_controller.dart';
 import '../../features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import '../../features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -22,6 +27,7 @@ import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
+import '../utils/locale_digits.dart';
 
 /// Global service locator. The ONLY place registrations happen
 /// (guide §4 — single composition root). Widgets never call
@@ -56,6 +62,36 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => SearchCities(locator()))
     ..registerLazySingleton(() => GetCurrentLocation(locator()))
     ..registerLazySingleton(() => SettingsStore(locator(), locator()));
+
+  // ---- notifications ----
+  locator
+    ..registerLazySingleton<NotificationScheduler>(
+      () => LocalNotificationsScheduler(
+        clock: locator(),
+        currentLocation: () => locator<SettingsStore>().location.value,
+        formatTime: (dt) {
+          final code = locator<SettingsStore>().settings.value.localeCode;
+          return LocaleDigits.localize(
+            DateFormat.jm(code).format(dt),
+            code,
+          );
+        },
+      ),
+    )
+    ..registerLazySingleton(
+      () => RescheduleNotifications(
+        getPrayerDay: locator(),
+        scheduler: locator(),
+        clock: locator(),
+      ),
+    )
+    ..registerLazySingleton(
+      () => NotificationController(
+        reschedule: locator(),
+        scheduler: locator(),
+        settings: locator(),
+      ),
+    );
 
   // ---- prayer times / home ----
   locator
