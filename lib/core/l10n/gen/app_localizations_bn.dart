@@ -209,4 +209,93 @@ class AppLocalizationsBn extends AppLocalizations {
   String minutesShort(int count) {
     return '$count মিনিট';
   }
+
+  @override
+  String countdownStartsIn(String prayer) {
+    return '$prayer শুরু হতে বাকি';
+  }
+
+  @override
+  String get countdownJamaatIn => 'জামাত শুরু হতে বাকি';
+
+  @override
+  String countdownEndsIn(String prayer) {
+    return '$prayer শেষ হতে বাকি';
+  }
+
+  @override
+  String get countdownSahriEnds => 'সাহরি শেষ হতে বাকি';
+
+  @override
+  String get countdownIftarIn => 'ইফতারের বাকি';
+
+  @override
+  String subAt(String label, String time) {
+    return '$label $time এ';
+  }
+
+  @override
+  String get jamaatLabel => 'জামাত';
+
+  @override
+  String get sunriseLabel => 'সূর্যোদয়';
+
+  @override
+  String get sahriEndsLabel => 'সাহরি শেষ';
+
+  @override
+  String get iftarLabel => 'ইফতার';
+
+  @override
+  String get setJamaat => 'জামাত সেট করুন';
+
+  @override
+  String get homeSetLocationTitle => 'আপনি কোথায় আছেন?';
+
+  @override
+  String get homeSetLocationBody =>
+      'একবার অবস্থান বেছে নিন — কালবী সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।';
+
+  @override
+  String get homeSetLocationCta => 'অবস্থান সেট করুন';
+
+  @override
+  String hijriMonthName(String month) {
+    String _temp0 = intl.Intl.selectLogic(month, {
+      'm1': 'মুহাররম',
+      'm2': 'সফর',
+      'm3': 'রবিউল আউয়াল',
+      'm4': 'রবিউস সানি',
+      'm5': 'জমাদিউল আউয়াল',
+      'm6': 'জমাদিউস সানি',
+      'm7': 'রজব',
+      'm8': 'শাবান',
+      'm9': 'রমজান',
+      'm10': 'শাওয়াল',
+      'm11': 'জিলকদ',
+      'm12': 'জিলহজ',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String banglaMonthName(String month) {
+    String _temp0 = intl.Intl.selectLogic(month, {
+      'm1': 'বৈশাখ',
+      'm2': 'জ্যৈষ্ঠ',
+      'm3': 'আষাঢ়',
+      'm4': 'শ্রাবণ',
+      'm5': 'ভাদ্র',
+      'm6': 'আশ্বিন',
+      'm7': 'কার্তিক',
+      'm8': 'অগ্রহায়ণ',
+      'm9': 'পৌষ',
+      'm10': 'মাঘ',
+      'm11': 'ফাল্গুন',
+      'm12': 'চৈত্র',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
 }

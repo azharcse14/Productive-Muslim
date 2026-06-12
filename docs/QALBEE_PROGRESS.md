@@ -11,7 +11,7 @@
 | 0 | Cleanup & Baseline | ✅ | Done 2026-06-12; APK builds green on Gradle 9.1/AGP 9.0.1 |
 | 1 | Foundation: Tokens, Theme, L10n, Shell | ✅ | Done 2026-06-12; 37 tests green, APK builds |
 | 2 | Settings + Location | ✅ | Done 2026-06-12; 74 tests green, APK builds |
-| 3 | Prayer Times Domain + Home | ⬜ | |
+| 3 | Prayer Times Domain + Home | ✅ | Done 2026-06-12; 119 tests green, APK builds |
 | 4 | Notification Scheduler | ⬜ | |
 | 5 | My Mosque / Jamaat | ⬜ | |
 | 6 | Qibla Compass | ⬜ | |
@@ -65,15 +65,17 @@
 - [x] Tests (74 passing total): mapper round-trips, prefs round-trip, city search (prefix/diacritics/limit), tz conversion (Dhaka/London DST/date-line), location permission matrix, store persistence, settings screen widget tests
 - [x] Debug APK build green
 
-## Phase 3 — Prayer Times + Home ⬜
+## Phase 3 — Prayer Times + Home ✅
 
-- [ ] Domain: PrayerDay/Waqt/CountdownTarget; adhan_dart wrapped in data layer
-- [ ] Smart countdown pure function `resolve(...)` — exhaustive branch tests
-- [ ] Hijri converter (in-house) + test vectors
-- [ ] Home screen: header, countdown hero (5 states), prayer table, sahri/iftar row
-- [ ] One `now` signal; countdown-subtree-only rebuilds
-- [ ] Compact (360×640) + tablet adaptations
-- [ ] Tests: state machine, param mapping, countdown card widget states
+- [x] Domain: PrayerDay (waqt starts/ends incl. overnight isha + fajrTomorrow), ActiveWaqt, CountdownTarget (kind/at/window/progress); adhan_dart wrapped behind PrayerDayRepository, UTC→wall via ZonedClock
+- [x] Smart countdown pure function `resolveCountdownTarget` + `countdownUrgencyFor` — exhaustive branch tests (pre-fajr, gap, jamaat future/past/fixed/offset/none, midnight rollover, Ramadan sahri/iftar overrides, urgency thresholds)
+- [x] Hijri converter (in-house tabular/Kuwaiti, civil epoch) + Bangla calendar (BD 2019 revision) with test vectors incl. design-brief sample dates
+- [x] JamaatConfig sealed entities (fixed/offset/none) defined early for the state machine (full My Mosque feature = Phase 5)
+- [x] Home screen: tri-calendar header (Gregorian·Hijri·Bangla for bn), countdown hero (5 states, 240ms transitions), prayer table (active-waqt highlight, Set-jamaat affordance, sunrise row, check stub), sahri/iftar row, empty-location state with CTA
+- [x] One 1s `now` signal; computeds memoize so only the countdown subtree ticks
+- [x] Compact <700dp adaptation (36px numeral, dense rows)
+- [x] Tests (45 new, 119 total): state machine, activeWaqt boundaries, hijri/bangla calendars, adhan mapping (madhab/method/adjustments/ordering/plausibility), Home widget tests with fake clock (tick, states, empty)
+- [x] Debug APK build green
 
 ## Phase 4 — Notifications ⬜
 
@@ -151,6 +153,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 3: prayer-times domain (adhan_dart wrapper, PrayerDay, smart-countdown state machine), in-house Hijri + Bangla calendars, jamaat entities, full Home screen (hero countdown, prayer table, tri-calendar header, sahri/iftar row, empty state), 45 new tests | analyze clean, 119 tests pass, APK builds — **Phase 3 complete** |
 | 2026-06-12 | Phase 2: settings+location — domain entities/usecases, GeoNames city DB (33.8k), TimezoneClock, prefs repo, geolocator with fallback UX, grouped Settings UI + location picker, live theme/locale, platform permissions, 37 new tests | analyze clean, 74 tests pass, APK builds — **Phase 2 complete** |
 | 2026-06-12 | Phase 1 foundation: tokens→theme (M3), 4 font families bundled, l10n en+bn, motif painters, 11 shared widgets, DI+router shell (5 tabs), debug gallery, DEPENDENCIES.md, 37 tests | analyze clean, all tests pass, APK builds — **Phase 1 complete** |
 | 2026-06-12 | Phase 0 cleanup: Firebase/config/env/template assets removed, pubspec+analysis_options+README+main.dart rewritten, SPM enabled (no CocoaPods), Android toolchain → Gradle 9.1.0/AGP 9.0.1/Kotlin 2.3.20 | analyze clean, tests pass, Android debug APK builds — **Phase 0 complete** |

@@ -209,4 +209,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String minutesShort(int count) {
     return '$count min';
   }
+
+  @override
+  String countdownStartsIn(String prayer) {
+    return '$prayer starts in';
+  }
+
+  @override
+  String get countdownJamaatIn => 'Jamaat in';
+
+  @override
+  String countdownEndsIn(String prayer) {
+    return '$prayer ends in';
+  }
+
+  @override
+  String get countdownSahriEnds => 'Sahri ends in';
+
+  @override
+  String get countdownIftarIn => 'Iftar in';
+
+  @override
+  String subAt(String label, String time) {
+    return '$label at $time';
+  }
+
+  @override
+  String get jamaatLabel => 'Jamaat';
+
+  @override
+  String get sunriseLabel => 'Sunrise';
+
+  @override
+  String get sahriEndsLabel => 'Sahri ends';
+
+  @override
+  String get iftarLabel => 'Iftar';
+
+  @override
+  String get setJamaat => 'Set jamaat';
+
+  @override
+  String get homeSetLocationTitle => 'Where are you?';
+
+  @override
+  String get homeSetLocationBody =>
+      'Pick your location once and Qalbee computes accurate prayer times for it — fully offline.';
+
+  @override
+  String get homeSetLocationCta => 'Set location';
+
+  @override
+  String hijriMonthName(String month) {
+    String _temp0 = intl.Intl.selectLogic(month, {
+      'm1': 'Muharram',
+      'm2': 'Safar',
+      'm3': 'Rabi al-Awwal',
+      'm4': 'Rabi al-Thani',
+      'm5': 'Jumada al-Ula',
+      'm6': 'Jumada al-Akhirah',
+      'm7': 'Rajab',
+      'm8': 'Shaban',
+      'm9': 'Ramadan',
+      'm10': 'Shawwal',
+      'm11': 'Dhul-Qadah',
+      'm12': 'Dhul-Hijjah',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String banglaMonthName(String month) {
+    String _temp0 = intl.Intl.selectLogic(month, {
+      'm1': 'Boishakh',
+      'm2': 'Joishtho',
+      'm3': 'Asharh',
+      'm4': 'Srabon',
+      'm5': 'Bhadro',
+      'm6': 'Ashwin',
+      'm7': 'Kartik',
+      'm8': 'Ogrohayon',
+      'm9': 'Poush',
+      'm10': 'Magh',
+      'm11': 'Falgun',
+      'm12': 'Choitro',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
 }

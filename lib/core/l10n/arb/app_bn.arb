@@ -64,5 +64,21 @@
   "locationServiceOff": "লোকেশন সার্ভিস বন্ধ আছে। নিচে শহর বেছে নিন, অথবা লোকেশন চালু করে আবার চেষ্টা করুন।",
   "locationCurrent": "বর্তমান অবস্থান",
   "searchNoResults": "কোনো শহর মেলেনি — অন্য বানানে চেষ্টা করুন",
-  "minutesShort": "{count} মিনিট"
+  "minutesShort": "{count} মিনিট",
+  "countdownStartsIn": "{prayer} শুরু হতে বাকি",
+  "countdownJamaatIn": "জামাত শুরু হতে বাকি",
+  "countdownEndsIn": "{prayer} শেষ হতে বাকি",
+  "countdownSahriEnds": "সাহরি শেষ হতে বাকি",
+  "countdownIftarIn": "ইফতারের বাকি",
+  "subAt": "{label} {time} এ",
+  "jamaatLabel": "জামাত",
+  "sunriseLabel": "সূর্যোদয়",
+  "sahriEndsLabel": "সাহরি শেষ",
+  "iftarLabel": "ইফতার",
+  "setJamaat": "জামাত সেট করুন",
+  "homeSetLocationTitle": "আপনি কোথায় আছেন?",
+  "homeSetLocationBody": "একবার অবস্থান বেছে নিন — কালবী সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।",
+  "homeSetLocationCta": "অবস্থান সেট করুন",
+  "hijriMonthName": "{month, select, m1{মুহাররম} m2{সফর} m3{রবিউল আউয়াল} m4{রবিউস সানি} m5{জমাদিউল আউয়াল} m6{জমাদিউস সানি} m7{রজব} m8{শাবান} m9{রমজান} m10{শাওয়াল} m11{জিলকদ} m12{জিলহজ} other{—}}",
+  "banglaMonthName": "{month, select, m1{বৈশাখ} m2{জ্যৈষ্ঠ} m3{আষাঢ়} m4{শ্রাবণ} m5{ভাদ্র} m6{আশ্বিন} m7{কার্তিক} m8{অগ্রহায়ণ} m9{পৌষ} m10{মাঘ} m11{ফাল্গুন} m12{চৈত্র} other{—}}"
 }

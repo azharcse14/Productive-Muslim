@@ -9,6 +9,7 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
+  adhan_dart: ^2.0.1
   flutter:
     sdk: flutter
   flutter_localizations:

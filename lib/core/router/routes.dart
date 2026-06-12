@@ -9,7 +9,10 @@ abstract final class Routes {
 
   /// Settings stack lives under the More branch.
   static const settings = (name: 'settings', path: 'settings');
-  static const locationPicker = (name: 'locationPicker', path: 'location');
+
+  /// Top-level (outside the shell) so Home and Settings can both open it
+  /// full-screen without switching tabs.
+  static const locationPicker = (name: 'locationPicker', path: '/location');
 
   /// Debug-only component gallery.
   static const gallery = (name: 'gallery', path: '/dev/gallery');

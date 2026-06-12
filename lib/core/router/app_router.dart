@@ -71,20 +71,17 @@ GoRouter buildRouter() {
                     name: Routes.settings.name,
                     path: Routes.settings.path,
                     builder: (context, state) => const SettingsScreen(),
-                    routes: [
-                      GoRoute(
-                        name: Routes.locationPicker.name,
-                        path: Routes.locationPicker.path,
-                        builder: (context, state) =>
-                            const LocationPickerScreen(),
-                      ),
-                    ],
                   ),
                 ],
               ),
             ],
           ),
         ],
+      ),
+      GoRoute(
+        name: Routes.locationPicker.name,
+        path: Routes.locationPicker.path,
+        builder: (context, state) => const LocationPickerScreen(),
       ),
       GoRoute(
         name: Routes.gallery.name,

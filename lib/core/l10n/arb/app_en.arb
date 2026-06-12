@@ -95,5 +95,60 @@
         "type": "int"
       }
     }
+  },
+  "countdownStartsIn": "{prayer} starts in",
+  "@countdownStartsIn": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "countdownJamaatIn": "Jamaat in",
+  "countdownEndsIn": "{prayer} ends in",
+  "@countdownEndsIn": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "countdownSahriEnds": "Sahri ends in",
+  "countdownIftarIn": "Iftar in",
+  "subAt": "{label} at {time}",
+  "@subAt": {
+    "description": "Caption under the countdown numeral, e.g. 'Jamaat at 5:15 pm'",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jamaatLabel": "Jamaat",
+  "sunriseLabel": "Sunrise",
+  "sahriEndsLabel": "Sahri ends",
+  "iftarLabel": "Iftar",
+  "setJamaat": "Set jamaat",
+  "homeSetLocationTitle": "Where are you?",
+  "homeSetLocationBody": "Pick your location once and Qalbee computes accurate prayer times for it — fully offline.",
+  "homeSetLocationCta": "Set location",
+  "hijriMonthName": "{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}",
+  "@hijriMonthName": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "banglaMonthName": "{month, select, m1{Boishakh} m2{Joishtho} m3{Asharh} m4{Srabon} m5{Bhadro} m6{Ashwin} m7{Kartik} m8{Ogrohayon} m9{Poush} m10{Magh} m11{Falgun} m12{Choitro} other{—}}",
+  "@banglaMonthName": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -487,6 +487,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} min'**
   String minutesShort(int count);
+
+  /// No description provided for @countdownStartsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} starts in'**
+  String countdownStartsIn(String prayer);
+
+  /// No description provided for @countdownJamaatIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat in'**
+  String get countdownJamaatIn;
+
+  /// No description provided for @countdownEndsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} ends in'**
+  String countdownEndsIn(String prayer);
+
+  /// No description provided for @countdownSahriEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends in'**
+  String get countdownSahriEnds;
+
+  /// No description provided for @countdownIftarIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Iftar in'**
+  String get countdownIftarIn;
+
+  /// Caption under the countdown numeral, e.g. 'Jamaat at 5:15 pm'
+  ///
+  /// In en, this message translates to:
+  /// **'{label} at {time}'**
+  String subAt(String label, String time);
+
+  /// No description provided for @jamaatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat'**
+  String get jamaatLabel;
+
+  /// No description provided for @sunriseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get sunriseLabel;
+
+  /// No description provided for @sahriEndsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends'**
+  String get sahriEndsLabel;
+
+  /// No description provided for @iftarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Iftar'**
+  String get iftarLabel;
+
+  /// No description provided for @setJamaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Set jamaat'**
+  String get setJamaat;
+
+  /// No description provided for @homeSetLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you?'**
+  String get homeSetLocationTitle;
+
+  /// No description provided for @homeSetLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your location once and Qalbee computes accurate prayer times for it — fully offline.'**
+  String get homeSetLocationBody;
+
+  /// No description provided for @homeSetLocationCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set location'**
+  String get homeSetLocationCta;
+
+  /// No description provided for @hijriMonthName.
+  ///
+  /// In en, this message translates to:
+  /// **'{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}'**
+  String hijriMonthName(String month);
+
+  /// No description provided for @banglaMonthName.
+  ///
+  /// In en, this message translates to:
+  /// **'{month, select, m1{Boishakh} m2{Joishtho} m3{Asharh} m4{Srabon} m5{Bhadro} m6{Ashwin} m7{Kartik} m8{Ogrohayon} m9{Poush} m10{Magh} m11{Falgun} m12{Choitro} other{—}}'**
+  String banglaMonthName(String month);
 }
 
 class _AppLocalizationsDelegate

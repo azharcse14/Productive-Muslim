@@ -1,0 +1,225 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/qalbee_tokens.dart';
+import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../shared/extensions/context_ext.dart';
+import '../../../my_mosque/domain/entities/jamaat_config.dart';
+import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/presentation/widgets/setting_labels.dart';
+import '../../domain/entities/prayer_day.dart';
+
+/// Daily prayer table (design §4.3): 5 prayers + sunrise; start–end range,
+/// jamaat column (quiet "Set jamaat" affordance when unset), and a
+/// check→Muhasaba affordance (wired in Phase 7). Current waqt highlighted.
+final class PrayerTable extends StatelessWidget {
+  const PrayerTable({
+    required this.day,
+    required this.activePrayer,
+    required this.jamaat,
+    required this.formatTime,
+    this.onSetJamaat,
+    this.dense = false,
+    super.key,
+  });
+
+  final PrayerDay day;
+  final Prayer? activePrayer;
+  final JamaatConfig jamaat;
+
+  /// Locale-aware time formatter (digits included).
+  final String Function(DateTime) formatTime;
+  final VoidCallback? onSetJamaat;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: q.surface,
+        borderRadius: BorderRadius.circular(QRadius.lg),
+        border: Border.all(color: q.line),
+        boxShadow: [
+          BoxShadow(
+            color: q.ink.withValues(alpha: 0.06),
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(QRadius.lg),
+        child: Column(
+          children: [
+            for (final (i, prayer) in Prayer.values.indexed) ...[
+              _PrayerRow(
+                  name: context.l10n.prayerLabel(prayer),
+                  range:
+                      '${formatTime(day.startOf(prayer))} – ${formatTime(day.endOf(prayer))}',
+                  jamaatTime: switch (
+                      jamaat.timeFor(prayer, day.startOf(prayer))) {
+                    null => null,
+                    final t => formatTime(t),
+                  },
+                  active: prayer == activePrayer,
+                  first: i == 0,
+                  dense: dense,
+                  onSetJamaat: onSetJamaat,
+                ),
+              if (prayer == Prayer.fajr)
+                _SunriseRow(
+                  label: context.l10n.sunriseLabel,
+                  time: formatTime(day.sunrise),
+                  dense: dense,
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final class _PrayerRow extends StatelessWidget {
+  const _PrayerRow({
+    required this.name,
+    required this.range,
+    required this.jamaatTime,
+    required this.active,
+    required this.first,
+    required this.dense,
+    this.onSetJamaat,
+  });
+
+  final String name;
+  final String range;
+  final String? jamaatTime;
+  final bool active;
+  final bool first;
+  final bool dense;
+  final VoidCallback? onSetJamaat;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    final fg = active ? q.onPrimarySoft : null;
+    return Container(
+      constraints: BoxConstraints(minHeight: dense ? 40 : 54),
+      padding: EdgeInsetsDirectional.symmetric(horizontal: dense ? 12 : 16),
+      decoration: BoxDecoration(
+        color: active ? q.primarySoft : null,
+        border: first ? null : Border(top: BorderSide(color: q.line)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: active ? q.primary : q.line,
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: dense ? 64 : 84,
+            child: Text(
+              name,
+              style: QType.titleSm.copyWith(
+                fontSize: dense ? 13.5 : null,
+                color: fg ?? q.ink,
+                fontVariations: [FontVariation('wght', active ? 700 : 600)],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              range,
+              style: QType.num_(QType.caption).copyWith(
+                fontSize: dense ? 11 : 12.5,
+                color: fg ?? q.ink2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: dense ? 40 : 52,
+            child: jamaatTime != null
+                ? Text(
+                    jamaatTime!,
+                    textAlign: TextAlign.center,
+                    style: QType.num_(QType.caption).copyWith(
+                      color: fg ?? q.ink2,
+                      fontVariations: const [FontVariation('wght', 600)],
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: onSetJamaat,
+                    child: Text(
+                      context.l10n.setJamaat,
+                      textAlign: TextAlign.center,
+                      style: QType.caption.copyWith(
+                        fontSize: 10.5,
+                        color: q.ink3,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: q.ink3, width: 1.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final class _SunriseRow extends StatelessWidget {
+  const _SunriseRow({
+    required this.label,
+    required this.time,
+    required this.dense,
+  });
+
+  final String label;
+  final String time;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return Opacity(
+      opacity: 0.85,
+      child: Container(
+        constraints: BoxConstraints(minHeight: dense ? 30 : 42),
+        padding: EdgeInsetsDirectional.symmetric(horizontal: dense ? 12 : 16),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: q.line)),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 18),
+            SizedBox(
+              width: dense ? 64 : 84,
+              child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
+            ),
+            Expanded(
+              child: Text(
+                time,
+                style: QType.num_(QType.caption).copyWith(color: q.ink2),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
