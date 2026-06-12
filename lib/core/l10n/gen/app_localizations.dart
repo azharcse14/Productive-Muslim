@@ -937,6 +937,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set your location to find the qibla direction'**
   String get qiblaNeedsLocation;
+
+  /// No description provided for @muhasabaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhasaba'**
+  String get muhasabaTitle;
+
+  /// No description provided for @muhasabaFirstDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily muhasaba'**
+  String get muhasabaFirstDayTitle;
+
+  /// No description provided for @muhasabaFirstDayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.'**
+  String get muhasabaFirstDayBody;
+
+  /// No description provided for @muhasabaStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bismillah, let\'s begin'**
+  String get muhasabaStart;
+
+  /// No description provided for @trackerName.
+  ///
+  /// In en, this message translates to:
+  /// **'{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}'**
+  String trackerName(String key);
+
+  /// No description provided for @addTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get addTracker;
+
+  /// No description provided for @editTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get editTracker;
+
+  /// No description provided for @trackerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (e.g. Morning adhkar)'**
+  String get trackerNameHint;
+
+  /// No description provided for @trackerKindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get trackerKindLabel;
+
+  /// No description provided for @kindYesNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes / No'**
+  String get kindYesNo;
+
+  /// No description provided for @kindCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get kindCount;
+
+  /// No description provided for @kindDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get kindDuration;
+
+  /// No description provided for @targetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily target (optional)'**
+  String get targetLabel;
+
+  /// No description provided for @targetCountSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get targetCountSuffix;
+
+  /// No description provided for @targetMinutesSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get targetMinutesSuffix;
+
+  /// No description provided for @archiveTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archiveTracker;
+
+  /// No description provided for @unarchiveTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get unarchiveTracker;
+
+  /// No description provided for @archiveExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived items disappear from your daily list, but every past entry is preserved.'**
+  String get archiveExplain;
+
+  /// No description provided for @archivedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archivedSection;
+
+  /// No description provided for @dashboardTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboardTab;
+
+  /// No description provided for @todayTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayTab;
+
+  /// No description provided for @periodToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get periodToday;
+
+  /// No description provided for @periodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get periodWeek;
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get periodMonth;
+
+  /// No description provided for @periodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get periodYear;
+
+  /// No description provided for @overallCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall completion'**
+  String get overallCompletion;
+
+  /// No description provided for @currentStreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day streak} other{{count} day streak}}'**
+  String currentStreakLabel(int count);
+
+  /// No description provided for @bestStreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Best: {count}'**
+  String bestStreakLabel(int count);
+
+  /// No description provided for @vsPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'{trend, select, up{Better than the last period} same{Steady as the last period} down{A fresh start — keep going} other{—}}'**
+  String vsPrevious(String trend);
+
+  /// No description provided for @emptyRange.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries in this range yet'**
+  String get emptyRange;
+
+  /// No description provided for @minutesValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String minutesValue(int count);
+
+  /// No description provided for @notYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get notYet;
 }
 
 class _AppLocalizationsDelegate

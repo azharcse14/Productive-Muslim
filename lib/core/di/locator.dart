@@ -3,6 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/muhasaba/data/database/muhasaba_database.dart';
+import '../../features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
+import '../../features/muhasaba/domain/repositories/muhasaba_repository.dart';
+import '../../features/muhasaba/presentation/state/muhasaba_store.dart';
 import '../../features/my_mosque/data/datasources/mosque_local_data_source.dart';
 import '../../features/my_mosque/data/repositories/mosque_repository_impl.dart';
 import '../../features/my_mosque/domain/repositories/mosque_repository.dart';
@@ -70,6 +74,14 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => SearchCities(locator()))
     ..registerLazySingleton(() => GetCurrentLocation(locator()))
     ..registerLazySingleton(() => SettingsStore(locator(), locator()));
+
+  // ---- muhasaba ----
+  locator
+    ..registerLazySingleton<MuhasabaDatabase>(MuhasabaDatabase.open)
+    ..registerLazySingleton<MuhasabaRepository>(
+      () => MuhasabaRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(() => MuhasabaStore(locator()));
 
   // ---- qibla ----
   locator
@@ -142,4 +154,5 @@ Future<void> setupLocator() async {
 
   await locator<SettingsStore>().load();
   await locator<MosqueStore>().load();
+  await locator<MuhasabaStore>().load();
 }

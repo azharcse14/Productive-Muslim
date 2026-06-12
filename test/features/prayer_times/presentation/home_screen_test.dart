@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -22,6 +23,7 @@ import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
 
 import '../../../helpers/mosque_fakes.dart';
+import '../../../helpers/muhasaba_fakes.dart';
 
 final class _InMemorySettingsRepo implements SettingsRepository {
   _InMemorySettingsRepo(this.stored);
@@ -68,6 +70,7 @@ final class _FakeClock implements ZonedClock {
 }
 
 late _FakeClock _clock;
+late InMemoryMuhasabaRepository _muhasabaRepo;
 
 Future<void> _register({required bool withLocation}) async {
   TimezoneClock.initialize();
@@ -79,9 +82,13 @@ Future<void> _register({required bool withLocation}) async {
       SettingsStore(GetSettings(settingsRepo), SaveSettings(settingsRepo));
   await settingsStore.load();
   final (mosqueStore, _) = await makeMosqueStore();
+  final (muhasabaStore, muhasabaRepo) =
+      await makeMuhasabaStore(now: () => _clock.current);
+  _muhasabaRepo = muhasabaRepo;
   GetIt.I
     ..registerSingleton<SettingsStore>(settingsStore)
     ..registerSingleton<MosqueStore>(mosqueStore)
+    ..registerSingleton<MuhasabaStore>(muhasabaStore)
     ..registerFactory<HomeStore>(
       () => HomeStore(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(_clock)),
@@ -157,6 +164,28 @@ void main() {
       await tester.pump();
       // 12 Jun 2026 ≈ Dhul-Hijjah 1447 in the tabular calendar.
       expect(find.textContaining('Dhul-Hijjah'), findsOneWidget);
+    });
+
+    testWidgets('prayer check writes a salah entry to muhasaba',
+        (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      // The check circles are the only circular InkWells in the table.
+      final checks = find.byWidgetPredicate(
+        (w) => w is InkWell && w.customBorder is CircleBorder,
+      );
+      expect(checks, findsNWidgets(5));
+      await tester.tap(checks.first);
+      await tester.pump();
+      expect(_muhasabaRepo.entries_[('salah_fajr', 20260612)], 1);
+      // Tapping again toggles off.
+      await tester.tap(checks.first);
+      await tester.pump();
+      expect(
+        _muhasabaRepo.entries_.containsKey(('salah_fajr', 20260612)),
+        isFalse,
+      );
     });
 
     testWidgets(

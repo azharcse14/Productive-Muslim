@@ -5,6 +5,7 @@ import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/router/app_router.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -18,6 +19,7 @@ import 'package:qalbee/features/settings/presentation/state/settings_store.dart'
 import 'package:qalbee/shared/widgets/q_bottom_nav.dart';
 
 import '../../helpers/mosque_fakes.dart';
+import '../../helpers/muhasaba_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
@@ -48,9 +50,11 @@ void main() {
     await settingsStore.load();
     final clock = TimezoneClock();
     final (mosqueStore, _) = await makeMosqueStore();
+    final (muhasabaStore, _) = await makeMuhasabaStore();
     GetIt.I
       ..registerSingleton<SettingsStore>(settingsStore)
       ..registerSingleton<MosqueStore>(mosqueStore)
+      ..registerSingleton<MuhasabaStore>(muhasabaStore)
       ..registerFactory<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),

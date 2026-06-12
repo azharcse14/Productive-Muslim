@@ -506,4 +506,137 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qiblaNeedsLocation =>
       'Set your location to find the qibla direction';
+
+  @override
+  String get muhasabaTitle => 'Muhasaba';
+
+  @override
+  String get muhasabaFirstDayTitle => 'Your daily muhasaba';
+
+  @override
+  String get muhasabaFirstDayBody =>
+      'Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.';
+
+  @override
+  String get muhasabaStart => 'Bismillah, let\'s begin';
+
+  @override
+  String trackerName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'salah_fajr': 'Fajr prayer',
+      'salah_dhuhr': 'Dhuhr prayer',
+      'salah_asr': 'Asr prayer',
+      'salah_maghrib': 'Maghrib prayer',
+      'salah_isha': 'Isha prayer',
+      'quran': 'Quran reading',
+      'azkar': 'Azkar',
+      'sadaqah': 'Sadaqah',
+      'tahajjud': 'Tahajjud',
+      'roza': 'Fasting',
+      'other': '$key',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get addTracker => 'Add item';
+
+  @override
+  String get editTracker => 'Edit item';
+
+  @override
+  String get trackerNameHint => 'Name (e.g. Morning adhkar)';
+
+  @override
+  String get trackerKindLabel => 'Type';
+
+  @override
+  String get kindYesNo => 'Yes / No';
+
+  @override
+  String get kindCount => 'Count';
+
+  @override
+  String get kindDuration => 'Duration';
+
+  @override
+  String get targetLabel => 'Daily target (optional)';
+
+  @override
+  String get targetCountSuffix => 'times';
+
+  @override
+  String get targetMinutesSuffix => 'minutes';
+
+  @override
+  String get archiveTracker => 'Archive';
+
+  @override
+  String get unarchiveTracker => 'Restore';
+
+  @override
+  String get archiveExplain =>
+      'Archived items disappear from your daily list, but every past entry is preserved.';
+
+  @override
+  String get archivedSection => 'Archived';
+
+  @override
+  String get dashboardTab => 'Dashboard';
+
+  @override
+  String get todayTab => 'Today';
+
+  @override
+  String get periodToday => 'Today';
+
+  @override
+  String get periodWeek => 'Week';
+
+  @override
+  String get periodMonth => 'Month';
+
+  @override
+  String get periodYear => 'Year';
+
+  @override
+  String get overallCompletion => 'Overall completion';
+
+  @override
+  String currentStreakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count day streak',
+      one: '1 day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bestStreakLabel(int count) {
+    return 'Best: $count';
+  }
+
+  @override
+  String vsPrevious(String trend) {
+    String _temp0 = intl.Intl.selectLogic(trend, {
+      'up': 'Better than the last period',
+      'same': 'Steady as the last period',
+      'down': 'A fresh start — keep going',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get emptyRange => 'No entries in this range yet';
+
+  @override
+  String minutesValue(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get notYet => 'Not yet';
 }

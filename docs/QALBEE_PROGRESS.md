@@ -15,7 +15,7 @@
 | 4 | Notification Scheduler | ✅ | Done 2026-06-12; 143 tests green, APK builds (deep links → Ph7, azan audio → Ph11) |
 | 5 | My Mosque / Jamaat | ✅ | Done 2026-06-12 (multi-agent); 174 tests green, APK builds |
 | 6 | Qibla Compass | ✅ | Done 2026-06-12 (multi-agent); 220 tests green |
-| 7 | Muhasaba | ⬜ | |
+| 7 | Muhasaba | ✅ | Done 2026-06-12 (3-way multi-agent); 251 tests green, APK builds |
 | 8 | Quran | ⬜ | |
 | 9 | Dua & Tasbih + Asmaul Husna | ⬜ | |
 | 10 | Ramadan, Calendar, Zakat | ⬜ | |
@@ -108,18 +108,21 @@
 - [x] Tests (46 new, 220 total): 37 math tests (reference bearings ±1.5°, wrap cases, synthetic tilt vectors), store (status transitions, smoothing convergence, single-fire haptic), screen states. Subagent caught a spec error: Dhaka→Kaaba is ~5,173 km, not ~4,780
 - [x] analyze clean; debug APK verifying
 
-## Phase 7 — Muhasaba ⬜
+## Phase 7 — Muhasaba ✅ (share card → Ph10, lock → Ph11)
 
-- [ ] Drift schema: tracker_items + daily_entries; archive-not-delete
-- [ ] Default items seeded
-- [ ] SQL aggregations (completion %, totals, streaks, heatmap, trend) as DAO queries
-- [ ] Daily entry screen (3 input types, date switcher/back-fill)
-- [ ] Custom field flow + archive flow
-- [ ] Dashboard (range selector, ring, bars, heatmap, streaks, vs-previous)
-- [ ] First-day & empty-range states; share card (4:5 export)
-- [ ] Home prayer-check → Muhasaba writes
-- [ ] No-guilt framing verified on every surface
-- [ ] Tests: DAO aggregations/streaks, tracker row widgets
+- [x] Drift schema (subagent): tracker_items + daily_entries (yyyymmdd int dates), schemaVersion 1, drift_flutter open; archive = flag update only, entries always preserved
+- [x] Default items seeded once (5 salah + quran/azkar/sadaqah/tahajjud/roza), l10n-key names en+bn
+- [x] SQL aggregations as DAO customSelects: per-day completion fractions (CASE/MIN respecting targets), per-item daysDone/totals, day-done flags → bounded streak walk (400d window), previous-window completion for trend
+- [x] Daily entry view: salah chip row, 3 distinct input types (toggle / count stepper / +5-min duration stepper), date switcher with back-fill (future blocked)
+- [x] Custom field flow: name/type/target/curated icon+color picker sheet; archive-with-explanation (restore too); defaults structurally locked
+- [x] Dashboard (subagent): Today/Week/Month/Year segments, completion ring, streak chips, vs-previous (±0.05 band, q.ok for up — never shame colors), in-house TrendLine painter, weekday-aligned heatmap + "Not yet" legend, per-item bars
+- [x] First-day welcome + empty-range states
+- [x] Home prayer-check circles live → toggle today's salah entries (tested both directions)
+- [x] No-guilt framing: level-0 heatmap "Not yet", down-trend copy "A fresh start — keep going", urgent color never used
+- [x] Tests (77 new, 251 total): 16 DAO (fractional completions, streak scenarios, archive math), 8 store, 6 screen, prayer-check integration, helpers
+- [ ] Ramadan share card (4:5 export) — deferred to Phase 10 (Ramadan section) where it belongs contextually
+- [ ] PIN/biometric lock for the section — Phase 11 (with app lock, as planned)
+- [x] Debug APK build green
 
 ## Phase 8 — Quran ⬜
 
@@ -162,6 +165,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 7 (3-way multi-agent): Muhasaba — drift DB + SQL aggregations (agent 1, 16 DAO tests), full Today/Dashboard screen (agent 2, 6 tests), domain/store/widgets/editor + Home prayer-check integration (main loop); 77 new tests | analyze clean, 251 tests pass, APK builds — **Phase 7 complete** (share card → Ph10, lock → Ph11) |
 | 2026-06-12 | Phase 6 (multi-agent): qibla compass — CompassMath pure math + 37 tests (subagent) parallel with sensor datasource, QiblaStore, CompassDial painter, 4 screen states, routes; 46 new tests | analyze clean, 220 tests pass — **Phase 6 complete** |
 | 2026-06-12 | Phase 5 (multi-agent): My Mosque — backend (entities/model/prefs/repo + 18 tests) built by subagent in parallel with UI (profile switcher, per-prayer None/Offset/Fixed editor) and integration (Home countdown jamaat branch live, jamaat reminders scheduled); 31 new tests | analyze clean, 174 tests pass, APK builds — **Phase 5 complete** (seasonal profiles deferred to polish) |
 | 2026-06-12 | Phase 4: notification scheduler — pure 48h plan builder, plugin wrapper (channels, exact alarms, boot receivers, desugaring), reschedule-on-change controller, matrix settings UI, en+bn notification copy, 24 new tests | analyze clean, 143 tests pass, APK builds — **Phase 4 complete** (deep links → Ph7, azan audio → Ph11) |

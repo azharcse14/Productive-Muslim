@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/qalbee_colors.dart';
+
+/// Curated icon set for tracker items (keys are stored in the DB).
+abstract final class TrackerVisuals {
+  static const icons = <String, IconData>{
+    'mosque': Icons.mosque_outlined,
+    'book': Icons.menu_book_outlined,
+    'beads': Icons.grain,
+    'heart': Icons.favorite_outline,
+    'moon': Icons.nightlight_outlined,
+    'sun': Icons.wb_sunny_outlined,
+    'spark': Icons.auto_awesome_outlined,
+    'food': Icons.restaurant_outlined,
+    'water': Icons.water_drop_outlined,
+    'walk': Icons.directions_walk_outlined,
+  };
+
+  static IconData iconOf(String key) => icons[key] ?? Icons.auto_awesome;
+
+  /// Curated palette — token-derived, no raw colors in feature widgets.
+  static List<Color> palette(QalbeeColors q) => [
+        q.primary,
+        q.accentStrong,
+        q.ok,
+        q.warn,
+        q.onPrimarySoft,
+        q.ink2,
+      ];
+
+  static Color colorOf(QalbeeColors q, int index) {
+    final colors = palette(q);
+    return colors[index % colors.length];
+  }
+}

@@ -503,4 +503,137 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qiblaNeedsLocation => 'কিবলার দিক পেতে আগে অবস্থান সেট করুন';
+
+  @override
+  String get muhasabaTitle => 'মুহাসাবা';
+
+  @override
+  String get muhasabaFirstDayTitle => 'আপনার দৈনিক মুহাসাবা';
+
+  @override
+  String get muhasabaFirstDayBody =>
+      'মুহাসাবা মানে কোমল আত্মজিজ্ঞাসা: ছোট ছোট দৈনিক আমল, সদয়ভাবে হিসাব রাখা। যা করেছেন টিক দিন — প্রতিটুকুই মূল্যবান।';
+
+  @override
+  String get muhasabaStart => 'বিসমিল্লাহ, শুরু করি';
+
+  @override
+  String trackerName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'salah_fajr': 'ফজরের নামাজ',
+      'salah_dhuhr': 'যোহরের নামাজ',
+      'salah_asr': 'আসরের নামাজ',
+      'salah_maghrib': 'মাগরিবের নামাজ',
+      'salah_isha': 'এশার নামাজ',
+      'quran': 'কুরআন তিলাওয়াত',
+      'azkar': 'আজকার',
+      'sadaqah': 'সদকা',
+      'tahajjud': 'তাহাজ্জুদ',
+      'roza': 'রোজা',
+      'other': '$key',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get addTracker => 'আইটেম যোগ করুন';
+
+  @override
+  String get editTracker => 'আইটেম সম্পাদনা';
+
+  @override
+  String get trackerNameHint => 'নাম (যেমন: সকালের আজকার)';
+
+  @override
+  String get trackerKindLabel => 'ধরন';
+
+  @override
+  String get kindYesNo => 'হ্যাঁ / না';
+
+  @override
+  String get kindCount => 'সংখ্যা';
+
+  @override
+  String get kindDuration => 'সময়কাল';
+
+  @override
+  String get targetLabel => 'দৈনিক লক্ষ্য (ঐচ্ছিক)';
+
+  @override
+  String get targetCountSuffix => 'বার';
+
+  @override
+  String get targetMinutesSuffix => 'মিনিট';
+
+  @override
+  String get archiveTracker => 'আর্কাইভ';
+
+  @override
+  String get unarchiveTracker => 'ফিরিয়ে আনুন';
+
+  @override
+  String get archiveExplain =>
+      'আর্কাইভ করা আইটেম দৈনিক তালিকা থেকে সরে যায়, কিন্তু আগের সব এন্ট্রি সংরক্ষিত থাকে।';
+
+  @override
+  String get archivedSection => 'আর্কাইভ করা';
+
+  @override
+  String get dashboardTab => 'ড্যাশবোর্ড';
+
+  @override
+  String get todayTab => 'আজ';
+
+  @override
+  String get periodToday => 'আজ';
+
+  @override
+  String get periodWeek => 'সপ্তাহ';
+
+  @override
+  String get periodMonth => 'মাস';
+
+  @override
+  String get periodYear => 'বছর';
+
+  @override
+  String get overallCompletion => 'সার্বিক অগ্রগতি';
+
+  @override
+  String currentStreakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিনের ধারা',
+      one: '১ দিনের ধারা',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bestStreakLabel(int count) {
+    return 'সেরা: $count';
+  }
+
+  @override
+  String vsPrevious(String trend) {
+    String _temp0 = intl.Intl.selectLogic(trend, {
+      'up': 'গত সময়ের চেয়ে ভালো',
+      'same': 'গত সময়ের মতোই অবিচল',
+      'down': 'নতুন করে শুরু — চালিয়ে যান',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get emptyRange => 'এই সময়ে এখনো কোনো এন্ট্রি নেই';
+
+  @override
+  String minutesValue(int count) {
+    return '$count মিনিট';
+  }
+
+  @override
+  String get notYet => 'এখনো হয়নি';
 }

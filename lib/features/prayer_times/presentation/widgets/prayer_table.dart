@@ -18,6 +18,8 @@ final class PrayerTable extends StatelessWidget {
     required this.jamaat,
     required this.formatTime,
     this.onSetJamaat,
+    this.prayed = const {},
+    this.onTogglePrayed,
     this.dense = false,
     super.key,
   });
@@ -29,6 +31,12 @@ final class PrayerTable extends StatelessWidget {
   /// Locale-aware time formatter (digits included).
   final String Function(DateTime) formatTime;
   final VoidCallback? onSetJamaat;
+
+  /// Prayers checked off in today's muhasaba.
+  final Set<Prayer> prayed;
+
+  /// Check affordance → muhasaba write (design §4.3).
+  final void Function(Prayer)? onTogglePrayed;
   final bool dense;
 
   @override
@@ -65,6 +73,10 @@ final class PrayerTable extends StatelessWidget {
                   first: i == 0,
                   dense: dense,
                   onSetJamaat: onSetJamaat,
+                  done: prayed.contains(prayer),
+                  onToggleDone: onTogglePrayed == null
+                      ? null
+                      : () => onTogglePrayed!(prayer),
                 ),
               if (prayer == Prayer.fajr)
                 _SunriseRow(
@@ -88,7 +100,9 @@ final class _PrayerRow extends StatelessWidget {
     required this.active,
     required this.first,
     required this.dense,
+    required this.done,
     this.onSetJamaat,
+    this.onToggleDone,
   });
 
   final String name;
@@ -97,7 +111,9 @@ final class _PrayerRow extends StatelessWidget {
   final bool active;
   final bool first;
   final bool dense;
+  final bool done;
   final VoidCallback? onSetJamaat;
+  final VoidCallback? onToggleDone;
 
   @override
   Widget build(BuildContext context) {
@@ -168,12 +184,25 @@ final class _PrayerRow extends StatelessWidget {
                   ),
           ),
           const SizedBox(width: 10),
-          Container(
-            width: 26,
-            height: 26,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: q.ink3, width: 1.8),
+          Semantics(
+            button: onToggleDone != null,
+            checked: done,
+            child: InkWell(
+              onTap: onToggleDone,
+              customBorder: const CircleBorder(),
+              child: Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: done ? q.ok : null,
+                  border:
+                      done ? null : Border.all(color: q.ink3, width: 1.8),
+                ),
+                child: done
+                    ? Icon(Icons.check, size: 15, color: q.okSoft)
+                    : null,
+              ),
             ),
           ),
         ],

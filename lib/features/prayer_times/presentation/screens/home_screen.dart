@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +16,8 @@ import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../muhasaba/presentation/state/muhasaba_store.dart';
+import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/countdown_target.dart';
 import '../state/home_store.dart';
@@ -31,6 +35,7 @@ final class HomeScreen extends StatefulWidget {
 
 final class _HomeScreenState extends State<HomeScreen> {
   late final HomeStore _store = locator<HomeStore>();
+  late final MuhasabaStore _muhasaba = locator<MuhasabaStore>();
 
   @override
   void dispose() {
@@ -169,6 +174,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                   0,
                 ),
                 child: SignalBuilder(builder: (context) {
+                  final muhasaba = _muhasaba;
+                  final entries = muhasaba.entries.value;
                   return PrayerTable(
                     day: day,
                     activePrayer: _store.activeWaqt.value?.prayer,
@@ -177,6 +184,15 @@ final class _HomeScreenState extends State<HomeScreen> {
                     dense: compact,
                     onSetJamaat: () =>
                         context.pushNamed(Routes.myMosque.name),
+                    prayed: {
+                      for (final prayer in Prayer.values)
+                        if (muhasaba.selectedIsToday &&
+                            (entries['salah_${prayer.name}'] ?? 0) > 0)
+                          prayer,
+                    },
+                    onTogglePrayed: (prayer) => unawaited(
+                      muhasaba.togglePrayerToday('salah_${prayer.name}'),
+                    ),
                   );
                 }),
               ),

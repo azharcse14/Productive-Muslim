@@ -22,6 +22,10 @@ healthy maintenance. Log the check date and a one-line justification here.
 | `adhan_dart` | ^2.0.1 | 2026-06-12 | 2026-05-11 | Prayer time + qibla calculation, pure Dart, offline (guide §3.4); wrapped behind PrayerDayRepository |
 | `flutter_local_notifications` | ^22.0.0 | 2026-06-12 | 2026-06-07 | Azan/jamaat/sahri/iftar/muhasaba local notifications (guide §3.4); ships Package.swift (SPM-only iOS holds); requires Android core-library desugaring (desugar_jdk_libs 2.1.5) |
 | `sensors_plus` | ^7.0.0 | 2026-06-12 | 2025-09-11 | Magnetometer + accelerometer for the qibla compass (guide §3.4 — no maintained compass package passed review, so tilt compensation is in-house in CompassMath); flutter community plus; ships Package.swift |
+| `drift` | ^2.34.0 | 2026-06-12 | 2026-06-10 | Typed SQLite for Muhasaba (guide §3.4); SQL-side aggregations |
+| `drift_flutter` | ^0.3.0 | 2026-06-12 | — | Official drift platform setup (replaces manual sqlite3_flutter_libs wiring) |
+| `sqlite3` | ^3.3.2 | 2026-06-12 | 2026-05-26 | Native sqlite bindings; `sqlite3_flutter_libs` is EOL — 3.x bundles natively |
+| `drift_dev` + `build_runner` | ^2.34.0 / ^2.15.0 | 2026-06-12 | 2026-06-10 / 2026-04-30 | dev-only codegen for drift tables |
 
 ## Decisions
 

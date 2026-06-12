@@ -257,5 +257,72 @@
       }
     }
   },
-  "qiblaNeedsLocation": "Set your location to find the qibla direction"
+  "qiblaNeedsLocation": "Set your location to find the qibla direction",
+  "muhasabaTitle": "Muhasaba",
+  "muhasabaFirstDayTitle": "Your daily muhasaba",
+  "muhasabaFirstDayBody": "Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.",
+  "muhasabaStart": "Bismillah, let's begin",
+  "trackerName": "{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}",
+  "@trackerName": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "addTracker": "Add item",
+  "editTracker": "Edit item",
+  "trackerNameHint": "Name (e.g. Morning adhkar)",
+  "trackerKindLabel": "Type",
+  "kindYesNo": "Yes / No",
+  "kindCount": "Count",
+  "kindDuration": "Duration",
+  "targetLabel": "Daily target (optional)",
+  "targetCountSuffix": "times",
+  "targetMinutesSuffix": "minutes",
+  "archiveTracker": "Archive",
+  "unarchiveTracker": "Restore",
+  "archiveExplain": "Archived items disappear from your daily list, but every past entry is preserved.",
+  "archivedSection": "Archived",
+  "dashboardTab": "Dashboard",
+  "todayTab": "Today",
+  "periodToday": "Today",
+  "periodWeek": "Week",
+  "periodMonth": "Month",
+  "periodYear": "Year",
+  "overallCompletion": "Overall completion",
+  "currentStreakLabel": "{count, plural, =1{1 day streak} other{{count} day streak}}",
+  "@currentStreakLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bestStreakLabel": "Best: {count}",
+  "@bestStreakLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vsPrevious": "{trend, select, up{Better than the last period} same{Steady as the last period} down{A fresh start — keep going} other{—}}",
+  "@vsPrevious": {
+    "placeholders": {
+      "trend": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyRange": "No entries in this range yet",
+  "minutesValue": "{count} min",
+  "@minutesValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notYet": "Not yet"
 }
