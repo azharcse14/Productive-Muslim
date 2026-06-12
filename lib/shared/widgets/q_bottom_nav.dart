@@ -126,6 +126,9 @@ final class _NavDestination extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: QTouch.minTarget),
           child: Column(
+            // min, NOT max: Scaffold hands the nav slot loose constraints,
+            // so a max-sized Column would swallow the whole screen height.
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(

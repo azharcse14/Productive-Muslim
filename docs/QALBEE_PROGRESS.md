@@ -165,6 +165,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | **Bugfix (user-reported):** blank screens, nav bar floating mid-screen on device. Bisected with probe entrypoints on the Pixel 8 emulator → `_NavDestination`'s Column defaulted to `mainAxisSize.max` inside the Scaffold's loosely-constrained bottomNavigationBar slot, so the nav swallowed the full screen height. One-line fix (`mainAxisSize.min`) + geometry regression test. Verified on emulator with screenshots | 252 tests pass; app renders correctly on device |
 | 2026-06-12 | Phase 7 (3-way multi-agent): Muhasaba — drift DB + SQL aggregations (agent 1, 16 DAO tests), full Today/Dashboard screen (agent 2, 6 tests), domain/store/widgets/editor + Home prayer-check integration (main loop); 77 new tests | analyze clean, 251 tests pass, APK builds — **Phase 7 complete** (share card → Ph10, lock → Ph11) |
 | 2026-06-12 | Phase 6 (multi-agent): qibla compass — CompassMath pure math + 37 tests (subagent) parallel with sensor datasource, QiblaStore, CompassDial painter, 4 screen states, routes; 46 new tests | analyze clean, 220 tests pass — **Phase 6 complete** |
 | 2026-06-12 | Phase 5 (multi-agent): My Mosque — backend (entities/model/prefs/repo + 18 tests) built by subagent in parallel with UI (profile switcher, per-prayer None/Offset/Fixed editor) and integration (Home countdown jamaat branch live, jamaat reminders scheduled); 31 new tests | analyze clean, 174 tests pass, APK builds — **Phase 5 complete** (seasonal profiles deferred to polish) |

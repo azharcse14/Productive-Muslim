@@ -100,6 +100,26 @@ void main() {
       expect(find.text('Muhasaba'), findsOneWidget);
     });
 
+    testWidgets('nav bar hugs the bottom of the screen (regression)',
+        (tester) async {
+      // A max-sized Column inside the nav once swallowed the whole
+      // screen height, centering the bar mid-screen and blanking the
+      // body (Scaffold gives the bottomNavigationBar slot loose
+      // constraints). Guard the actual geometry.
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      final screen =
+          tester.view.physicalSize / tester.view.devicePixelRatio;
+      final homeLabel = tester.getCenter(find.text('Home'));
+      expect(
+        homeLabel.dy,
+        greaterThan(screen.height - 120),
+        reason: 'nav labels must sit near the bottom edge',
+      );
+      // And the body above must actually have room.
+      expect(find.text('Where are you?'), findsOneWidget);
+    });
+
     testWidgets('renders Bangla labels under the bn locale', (tester) async {
       await tester.pumpWidget(
         MaterialApp.router(
