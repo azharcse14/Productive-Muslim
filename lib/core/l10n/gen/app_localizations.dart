@@ -787,6 +787,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lead time'**
   String get leadTimeLabel;
+
+  /// No description provided for @myMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Mosque'**
+  String get myMosqueTitle;
+
+  /// No description provided for @myMosqueSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat times for your mosque'**
+  String get myMosqueSubtitle;
+
+  /// No description provided for @addProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Add profile'**
+  String get addProfile;
+
+  /// No description provided for @profileNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque name (e.g. Home, Work)'**
+  String get profileNameHint;
+
+  /// No description provided for @defaultProfileName.
+  ///
+  /// In en, this message translates to:
+  /// **'My Mosque'**
+  String get defaultProfileName;
+
+  /// No description provided for @deleteProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete profile'**
+  String get deleteProfile;
+
+  /// No description provided for @deleteProfileConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? Its jamaat times will be removed.'**
+  String deleteProfileConfirm(String name);
+
+  /// No description provided for @jamaatModeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get jamaatModeNone;
+
+  /// No description provided for @jamaatModeOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Offset'**
+  String get jamaatModeOffset;
+
+  /// No description provided for @jamaatModeFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get jamaatModeFixed;
+
+  /// No description provided for @offsetAfterStart.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min after waqt starts'**
+  String offsetAfterStart(int count);
+
+  /// No description provided for @fixedAtTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat at {time}'**
+  String fixedAtTime(String time);
+
+  /// No description provided for @pickTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick time'**
+  String get pickTime;
+
+  /// No description provided for @jamaatReminderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat reminders are configured under Notifications.'**
+  String get jamaatReminderHint;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
 }
 
 class _AppLocalizationsDelegate

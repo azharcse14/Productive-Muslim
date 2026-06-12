@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
+import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
@@ -91,6 +92,11 @@ GoRouter buildRouter() {
         name: Routes.locationPicker.name,
         path: Routes.locationPicker.path,
         builder: (context, state) => const LocationPickerScreen(),
+      ),
+      GoRoute(
+        name: Routes.myMosque.name,
+        path: Routes.myMosque.path,
+        builder: (context, state) => const MyMosqueScreen(),
       ),
       GoRoute(
         name: Routes.gallery.name,

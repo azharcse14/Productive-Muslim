@@ -174,6 +174,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                     jamaat: _store.jamaatConfig.value,
                     formatTime: (t) => _formatTime(context, t),
                     dense: compact,
+                    onSetJamaat: () =>
+                        context.pushNamed(Routes.myMosque.name),
                   );
                 }),
               ),

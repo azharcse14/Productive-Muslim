@@ -415,4 +415,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get leadTimeLabel => 'Lead time';
+
+  @override
+  String get myMosqueTitle => 'My Mosque';
+
+  @override
+  String get myMosqueSubtitle => 'Jamaat times for your mosque';
+
+  @override
+  String get addProfile => 'Add profile';
+
+  @override
+  String get profileNameHint => 'Mosque name (e.g. Home, Work)';
+
+  @override
+  String get defaultProfileName => 'My Mosque';
+
+  @override
+  String get deleteProfile => 'Delete profile';
+
+  @override
+  String deleteProfileConfirm(String name) {
+    return 'Delete \"$name\"? Its jamaat times will be removed.';
+  }
+
+  @override
+  String get jamaatModeNone => 'None';
+
+  @override
+  String get jamaatModeOffset => 'Offset';
+
+  @override
+  String get jamaatModeFixed => 'Fixed';
+
+  @override
+  String offsetAfterStart(int count) {
+    return '$count min after waqt starts';
+  }
+
+  @override
+  String fixedAtTime(String time) {
+    return 'Jamaat at $time';
+  }
+
+  @override
+  String get pickTime => 'Pick time';
+
+  @override
+  String get jamaatReminderHint =>
+      'Jamaat reminders are configured under Notifications.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
 }

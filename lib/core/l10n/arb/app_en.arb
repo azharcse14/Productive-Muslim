@@ -184,5 +184,43 @@
   "notifJamaatToggleSub": "Needs jamaat times in My Mosque",
   "notifMuhasabaToggle": "Evening muhasaba nudge",
   "notifMuhasabaToggleSub": "One gentle reminder after Isha",
-  "leadTimeLabel": "Lead time"
+  "leadTimeLabel": "Lead time",
+  "myMosqueTitle": "My Mosque",
+  "myMosqueSubtitle": "Jamaat times for your mosque",
+  "addProfile": "Add profile",
+  "profileNameHint": "Mosque name (e.g. Home, Work)",
+  "defaultProfileName": "My Mosque",
+  "deleteProfile": "Delete profile",
+  "deleteProfileConfirm": "Delete \"{name}\"? Its jamaat times will be removed.",
+  "@deleteProfileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jamaatModeNone": "None",
+  "jamaatModeOffset": "Offset",
+  "jamaatModeFixed": "Fixed",
+  "offsetAfterStart": "{count} min after waqt starts",
+  "@offsetAfterStart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fixedAtTime": "Jamaat at {time}",
+  "@fixedAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pickTime": "Pick time",
+  "jamaatReminderHint": "Jamaat reminders are configured under Notifications.",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete"
 }

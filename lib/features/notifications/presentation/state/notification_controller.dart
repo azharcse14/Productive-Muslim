@@ -4,6 +4,7 @@ import 'dart:ui' show Locale;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
@@ -18,13 +19,16 @@ final class NotificationController {
     required RescheduleNotifications reschedule,
     required NotificationScheduler scheduler,
     required SettingsStore settings,
+    required MosqueStore mosque,
   })  : _reschedule = reschedule,
         _scheduler = scheduler,
-        _settings = settings;
+        _settings = settings,
+        _mosque = mosque;
 
   final RescheduleNotifications _reschedule;
   final NotificationScheduler _scheduler;
   final SettingsStore _settings;
+  final MosqueStore _mosque;
 
   EffectCleanup? _stopEffect;
   Timer? _debounce;
@@ -43,6 +47,7 @@ final class NotificationController {
       _settings.prayerParams.value;
       _settings.settings.value.notifications;
       _settings.settings.value.localeCode;
+      _mosque.activeConfig.value;
       _debounce?.cancel();
       _debounce = Timer(
         const Duration(milliseconds: 400),
@@ -52,7 +57,11 @@ final class NotificationController {
   }
 
   Future<void> _rescheduleNow() async {
-    await _reschedule(settings: _settings.settings.value, texts: _texts());
+    await _reschedule(
+      settings: _settings.settings.value,
+      texts: _texts(),
+      jamaat: _mosque.activeConfig.value,
+    );
   }
 
   NotificationTexts _texts() {

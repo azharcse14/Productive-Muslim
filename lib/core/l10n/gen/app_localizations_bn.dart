@@ -415,4 +415,62 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get leadTimeLabel => 'কত আগে';
+
+  @override
+  String get myMosqueTitle => 'আমার মসজিদ';
+
+  @override
+  String get myMosqueSubtitle => 'আপনার মসজিদের জামাতের সময়';
+
+  @override
+  String get addProfile => 'প্রোফাইল যোগ করুন';
+
+  @override
+  String get profileNameHint => 'মসজিদের নাম (যেমন: বাসা, অফিস)';
+
+  @override
+  String get defaultProfileName => 'আমার মসজিদ';
+
+  @override
+  String get deleteProfile => 'প্রোফাইল মুছুন';
+
+  @override
+  String deleteProfileConfirm(String name) {
+    return '\"$name\" মুছবেন? এর জামাতের সময়গুলো মুছে যাবে।';
+  }
+
+  @override
+  String get jamaatModeNone => 'নেই';
+
+  @override
+  String get jamaatModeOffset => 'অফসেট';
+
+  @override
+  String get jamaatModeFixed => 'নির্দিষ্ট';
+
+  @override
+  String offsetAfterStart(int count) {
+    return 'ওয়াক্ত শুরুর $count মিনিট পরে';
+  }
+
+  @override
+  String fixedAtTime(String time) {
+    return 'জামাত $time এ';
+  }
+
+  @override
+  String get pickTime => 'সময় বাছুন';
+
+  @override
+  String get jamaatReminderHint =>
+      'জামাত রিমাইন্ডার নোটিফিকেশন সেটিংসে কনফিগার করা যায়।';
+
+  @override
+  String get cancel => 'বাতিল';
+
+  @override
+  String get save => 'সংরক্ষণ';
+
+  @override
+  String get delete => 'মুছুন';
 }

@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:qalbee/features/prayer_times/presentation/screens/home_screen.dart';
@@ -12,11 +14,14 @@ import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
 import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
 import 'package:qalbee/features/settings/domain/entities/city.dart';
 import 'package:qalbee/features/settings/domain/entities/location_config.dart';
+import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
 import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
 import 'package:qalbee/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
 import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+
+import '../../../helpers/mosque_fakes.dart';
 
 final class _InMemorySettingsRepo implements SettingsRepository {
   _InMemorySettingsRepo(this.stored);
@@ -73,13 +78,16 @@ Future<void> _register({required bool withLocation}) async {
   final settingsStore =
       SettingsStore(GetSettings(settingsRepo), SaveSettings(settingsRepo));
   await settingsStore.load();
+  final (mosqueStore, _) = await makeMosqueStore();
   GetIt.I
     ..registerSingleton<SettingsStore>(settingsStore)
+    ..registerSingleton<MosqueStore>(mosqueStore)
     ..registerFactory<HomeStore>(
       () => HomeStore(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(_clock)),
         clock: _clock,
         settings: settingsStore,
+        mosque: mosqueStore,
       ),
     );
 }
@@ -149,6 +157,27 @@ void main() {
       await tester.pump();
       // 12 Jun 2026 ≈ Dhul-Hijjah 1447 in the tabular calendar.
       expect(find.textContaining('Dhul-Hijjah'), findsOneWidget);
+    });
+
+    testWidgets(
+        'configured jamaat shows in the table and drives a jamaat countdown',
+        (tester) async {
+      await _register(withLocation: true);
+      final mosque = GetIt.I<MosqueStore>();
+      final profile = await mosque.addProfile('Home');
+      // Fajr waqt at 04:00; jamaat at 04:30 → countdown targets jamaat.
+      await mosque.setEntry(
+        profile.id,
+        Prayer.fajr,
+        const FixedJamaat(ClockTime(4, 30)),
+      );
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text('JAMAAT IN'), findsOneWidget);
+      // Fajr row shows the jamaat time instead of "Set jamaat".
+      expect(find.text('Set jamaat'), findsNWidgets(3)); // dhuhr/asr/isha
+      // Maghrib got the default +5 offset from addProfile.
+      expect(find.textContaining('4:30'), findsWidgets);
     });
   });
 }

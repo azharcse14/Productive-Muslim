@@ -4,7 +4,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
-import '../../../my_mosque/domain/entities/jamaat_config.dart';
+import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/countdown_target.dart';
@@ -22,9 +22,11 @@ final class HomeStore {
     required GetPrayerDay getPrayerDay,
     required ZonedClock clock,
     required SettingsStore settings,
+    required MosqueStore mosque,
   })  : _getPrayerDay = getPrayerDay,
         _clock = clock,
-        _settings = settings {
+        _settings = settings,
+        _mosque = mosque {
     now = signal(_wallNow());
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       now.value = _wallNow();
@@ -34,6 +36,7 @@ final class HomeStore {
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
   final SettingsStore _settings;
+  final MosqueStore _mosque;
 
   /// Wall clock at the configured location, ticked every second.
   late final Signal<DateTime> now;
@@ -75,8 +78,8 @@ final class HomeStore {
   late final ramadanMode =
       computed(() => hijriDate.value.month == HijriDate.ramadanMonth);
 
-  /// Jamaat config arrives with My Mosque (Phase 5); none until then.
-  late final jamaatConfig = signal(JamaatConfig.none);
+  /// The active mosque profile's jamaat times.
+  late final jamaatConfig = computed(() => _mosque.activeConfig.value);
 
   late final countdownTarget = computed<CountdownTarget?>(() {
     final day = prayerDay.value;

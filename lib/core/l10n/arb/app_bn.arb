@@ -114,5 +114,22 @@
   "notifJamaatToggleSub": "আমার মসজিদে জামাতের সময় লাগবে",
   "notifMuhasabaToggle": "সন্ধ্যার মুহাসাবা নাজ",
   "notifMuhasabaToggleSub": "এশার পরে একটি মৃদু রিমাইন্ডার",
-  "leadTimeLabel": "কত আগে"
+  "leadTimeLabel": "কত আগে",
+  "myMosqueTitle": "আমার মসজিদ",
+  "myMosqueSubtitle": "আপনার মসজিদের জামাতের সময়",
+  "addProfile": "প্রোফাইল যোগ করুন",
+  "profileNameHint": "মসজিদের নাম (যেমন: বাসা, অফিস)",
+  "defaultProfileName": "আমার মসজিদ",
+  "deleteProfile": "প্রোফাইল মুছুন",
+  "deleteProfileConfirm": "\"{name}\" মুছবেন? এর জামাতের সময়গুলো মুছে যাবে।",
+  "jamaatModeNone": "নেই",
+  "jamaatModeOffset": "অফসেট",
+  "jamaatModeFixed": "নির্দিষ্ট",
+  "offsetAfterStart": "ওয়াক্ত শুরুর {count} মিনিট পরে",
+  "fixedAtTime": "জামাত {time} এ",
+  "pickTime": "সময় বাছুন",
+  "jamaatReminderHint": "জামাত রিমাইন্ডার নোটিফিকেশন সেটিংসে কনফিগার করা যায়।",
+  "cancel": "বাতিল",
+  "save": "সংরক্ষণ",
+  "delete": "মুছুন"
 }

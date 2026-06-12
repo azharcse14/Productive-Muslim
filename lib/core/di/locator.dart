@@ -3,6 +3,12 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/my_mosque/data/datasources/mosque_local_data_source.dart';
+import '../../features/my_mosque/data/repositories/mosque_repository_impl.dart';
+import '../../features/my_mosque/domain/repositories/mosque_repository.dart';
+import '../../features/my_mosque/domain/usecases/get_mosque_state.dart';
+import '../../features/my_mosque/domain/usecases/save_mosque_state.dart';
+import '../../features/my_mosque/presentation/state/mosque_store.dart';
 import '../../features/notifications/data/local_notifications_scheduler.dart';
 import '../../features/notifications/domain/repositories/notification_scheduler.dart';
 import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
@@ -63,6 +69,18 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => GetCurrentLocation(locator()))
     ..registerLazySingleton(() => SettingsStore(locator(), locator()));
 
+  // ---- my mosque ----
+  locator
+    ..registerLazySingleton(
+      () => MosqueLocalDataSource(SharedPreferencesAsync()),
+    )
+    ..registerLazySingleton<MosqueRepository>(
+      () => MosqueRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(() => GetMosqueState(locator()))
+    ..registerLazySingleton(() => SaveMosqueState(locator()))
+    ..registerLazySingleton(() => MosqueStore(locator(), locator()));
+
   // ---- notifications ----
   locator
     ..registerLazySingleton<NotificationScheduler>(
@@ -90,6 +108,7 @@ Future<void> setupLocator() async {
         reschedule: locator(),
         scheduler: locator(),
         settings: locator(),
+        mosque: locator(),
       ),
     );
 
@@ -104,8 +123,10 @@ Future<void> setupLocator() async {
         getPrayerDay: locator(),
         clock: locator(),
         settings: locator(),
+        mosque: locator(),
       ),
     );
 
   await locator<SettingsStore>().load();
+  await locator<MosqueStore>().load();
 }

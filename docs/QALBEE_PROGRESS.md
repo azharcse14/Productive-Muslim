@@ -13,7 +13,7 @@
 | 2 | Settings + Location | ✅ | Done 2026-06-12; 74 tests green, APK builds |
 | 3 | Prayer Times Domain + Home | ✅ | Done 2026-06-12; 119 tests green, APK builds |
 | 4 | Notification Scheduler | ✅ | Done 2026-06-12; 143 tests green, APK builds (deep links → Ph7, azan audio → Ph11) |
-| 5 | My Mosque / Jamaat | ⬜ | |
+| 5 | My Mosque / Jamaat | ✅ | Done 2026-06-12 (multi-agent); 174 tests green, APK builds |
 | 6 | Qibla Compass | ⬜ | |
 | 7 | Muhasaba | ⬜ | |
 | 8 | Quran | ⬜ | |
@@ -89,12 +89,15 @@
 - [ ] Custom azan audio asset — polish pass (Phase 11)
 - [x] Debug APK build green
 
-## Phase 5 — My Mosque / Jamaat ⬜
+## Phase 5 — My Mosque / Jamaat ✅ (seasonal profiles deferred)
 
-- [ ] Domain: JamaatEntry sealed (fixed/offset/none), MosqueProfile (multi, active, seasonal)
-- [ ] Persistence (documented choice) + profile switcher UI
-- [ ] Countdown jamaat branch on real config; jamaat reminders scheduled
-- [ ] Tests: jamaat resolution, countdown integration
+- [x] Domain: MosqueProfile (Maghrib +5 default via `create`), MosqueState (multi-profile, active id, `activeConfig` fallback), repository + use cases (JamaatEntry sealed types landed in Ph3) — *built by subagent in parallel*
+- [x] Persistence: prefs JSON blob `mosque_state_v1` (documented; migrates to drift if needed later); forward-compatible mapper skips corrupt/unknown entries
+- [x] My Mosque screen: profile switcher chips + add/delete dialogs, per-prayer None/Offset/Fixed segments with offset steppers and time picker, reminder hint; reachable from More tab and Home's "Set jamaat"
+- [x] Countdown integration: HomeStore.jamaatConfig now computed from MosqueStore.activeConfig; prayer-table jamaat column live; NotificationController reschedules on jamaat changes and passes config to the plan (jamaat reminders now fire)
+- [x] Tests (31 new, 174 total): entities/model/datasource (subagent), store (defaults, per-profile updates, active switching, delete fallback), screen widgets (dialog flow, segments, switcher), Home integration ("JAMAAT IN" countdown + table times)
+- [ ] Seasonal (summer/winter) profile pair — deferred as designed "advanced optional" (revisit in Phase 11 polish)
+- [x] Debug APK build green
 
 ## Phase 6 — Qibla ⬜
 
@@ -157,6 +160,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 5 (multi-agent): My Mosque — backend (entities/model/prefs/repo + 18 tests) built by subagent in parallel with UI (profile switcher, per-prayer None/Offset/Fixed editor) and integration (Home countdown jamaat branch live, jamaat reminders scheduled); 31 new tests | analyze clean, 174 tests pass, APK builds — **Phase 5 complete** (seasonal profiles deferred to polish) |
 | 2026-06-12 | Phase 4: notification scheduler — pure 48h plan builder, plugin wrapper (channels, exact alarms, boot receivers, desugaring), reschedule-on-change controller, matrix settings UI, en+bn notification copy, 24 new tests | analyze clean, 143 tests pass, APK builds — **Phase 4 complete** (deep links → Ph7, azan audio → Ph11) |
 | 2026-06-12 | Phase 3: prayer-times domain (adhan_dart wrapper, PrayerDay, smart-countdown state machine), in-house Hijri + Bangla calendars, jamaat entities, full Home screen (hero countdown, prayer table, tri-calendar header, sahri/iftar row, empty state), 45 new tests | analyze clean, 119 tests pass, APK builds — **Phase 3 complete** |
 | 2026-06-12 | Phase 2: settings+location — domain entities/usecases, GeoNames city DB (33.8k), TimezoneClock, prefs repo, geolocator with fallback UX, grouped Settings UI + location picker, live theme/locale, platform permissions, 37 new tests | analyze clean, 74 tests pass, APK builds — **Phase 2 complete** |

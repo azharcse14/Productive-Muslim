@@ -16,6 +16,9 @@ abstract final class Routes {
   /// full-screen without switching tabs.
   static const locationPicker = (name: 'locationPicker', path: '/location');
 
+  /// Top-level: reachable from Home's "Set jamaat" and the More tab.
+  static const myMosque = (name: 'myMosque', path: '/mosque');
+
   /// Debug-only component gallery.
   static const gallery = (name: 'gallery', path: '/dev/gallery');
 }

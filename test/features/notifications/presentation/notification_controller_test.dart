@@ -17,6 +17,8 @@ import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
 import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
 
+import '../../../helpers/mosque_fakes.dart';
+
 final class _CountingScheduler implements NotificationScheduler {
   int initCalls = 0;
   int rescheduleCalls = 0;
@@ -88,6 +90,7 @@ void main() {
     final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
     final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
     await settings.load();
+    final (mosqueStore, _) = await makeMosqueStore();
     final controller = NotificationController(
       reschedule: RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
@@ -96,6 +99,7 @@ void main() {
       ),
       scheduler: scheduler,
       settings: settings,
+      mosque: mosqueStore,
     );
 
     await controller.start();
