@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qalbee — Design System & Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&amp;family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Scheherazade+New:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="qalbee/tokens.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="qalbee/base.jsx"></script>
+<script type="text/babel" src="qalbee/ui.jsx"></script>
+<script type="text/babel" src="qalbee/sec-foundations.jsx"></script>
+<script type="text/babel" src="qalbee/sec-components.jsx"></script>
+<script type="text/babel" src="qalbee/sec-splash-onboarding.jsx"></script>
+<script type="text/babel" src="qalbee/sec-home-qibla.jsx"></script>
+<script type="text/babel" src="qalbee/sec-quran-dua.jsx"></script>
+<script type="text/babel" src="qalbee/sec-muhasaba.jsx"></script>
+<script type="text/babel" src="qalbee/sec-misc.jsx"></script>
+<script type="text/babel" src="qalbee/sec-rtl-notif-store.jsx"></script>
+<script type="text/babel">
+  const { SecFoundations, SecComponents, SecSplashOnboarding, SecHomeQibla, SecQuranDua, SecMuhasaba, SecMisc, SecRtlNotifStore } = window;
+  const App = () => (
+    <DesignCanvas title="Qalbee — design system & every screen">
+      <SecFoundations></SecFoundations>
+      <SecComponents></SecComponents>
+      <SecSplashOnboarding></SecSplashOnboarding>
+      <SecHomeQibla></SecHomeQibla>
+      <SecQuranDua></SecQuranDua>
+      <SecMuhasaba></SecMuhasaba>
+      <SecMisc></SecMisc>
+      <SecRtlNotifStore></SecRtlNotifStore>
+    </DesignCanvas>
+  );
+  ReactDOM.createRoot(document.getElementById("root")).render(<App></App>);
+</script>
+</body>
+</html>
