@@ -15,6 +15,10 @@ healthy maintenance. Log the check date and a one-line justification here.
 | `intl` | ^0.20.2 | 2026-06-12 | 2025-01-24 | Mandated l10n/formatting (guide §3.4). **Exception note:** last publish >12 months, but it is the Dart-team package version-pinned by `flutter_localizations` (SDK) — effectively part of the SDK release train |
 | `flutter_localizations` | SDK | 2026-06-12 | — | Flutter SDK l10n delegates |
 | `flutter_lints` | ^6.0.0 | 2026-06-12 | — | Official lint set (guide §6); dev-only |
+| `shared_preferences` | ^2.5.5 | 2026-06-12 | 2026-03-25 | App settings KV (guide §3.1 decision below); flutter.dev; SPM-ready |
+| `geolocator` | ^14.0.2 | 2026-06-12 | 2025-07-02 | GPS coordinates (guide §3.4); Baseflow, actively maintained; geolocator_apple ships Package.swift (SPM-only iOS policy holds) |
+| `timezone` | ^0.11.0 | 2026-06-12 | 2026-01-07 | IANA wall-clock conversion for manually selected cities (guide §5) |
+| `shared_preferences_platform_interface` | ^2.4.2 | 2026-06-12 | — | dev-only: in-memory prefs for tests |
 
 ## Decisions
 
@@ -28,6 +32,7 @@ healthy maintenance. Log the check date and a one-line justification here.
 
 | Asset | Source | License | Checked |
 |---|---|---|---|
+| World city DB (assets/data/cities.json, 33,824 cities) | GeoNames cities15000 via `tool/city_db_build.dart` | CC BY 4.0 — attribution in Settings → Credits | 2026-06-12 |
 | Schibsted Grotesk (variable) | google/fonts (ofl/schibstedgrotesk) | OFL 1.1 | 2026-06-12 |
 | Noto Sans Bengali (variable) | google/fonts (ofl/notosansbengali) | OFL 1.1 | 2026-06-12 |
 | IBM Plex Sans Arabic (400/500/600/700) | google/fonts (ofl/ibmplexsansarabic) | OFL 1.1 | 2026-06-12 |

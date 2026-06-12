@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 0 | Cleanup & Baseline | ✅ | Done 2026-06-12; APK builds green on Gradle 9.1/AGP 9.0.1 |
 | 1 | Foundation: Tokens, Theme, L10n, Shell | ✅ | Done 2026-06-12; 37 tests green, APK builds |
-| 2 | Settings + Location | ⬜ | |
+| 2 | Settings + Location | ✅ | Done 2026-06-12; 74 tests green, APK builds |
 | 3 | Prayer Times Domain + Home | ⬜ | |
 | 4 | Notification Scheduler | ⬜ | |
 | 5 | My Mosque / Jamaat | ⬜ | |
@@ -53,14 +53,17 @@
 - [x] `docs/DEPENDENCIES.md` created; go_router 17.3.0 / get_it 9.2.1 / signals 7.1.0 / intl logged with check dates
 - [x] Debug APK build green
 
-## Phase 2 — Settings + Location ⬜
+## Phase 2 — Settings + Location ✅
 
-- [ ] Domain: AppSettings, LocationConfig (sealed), PrayerParams, notification matrix model
-- [ ] `tool/city_db_build.dart` + bundled city DB (license logged)
-- [ ] Timezone rule: device→toLocal, manual city→IANA tz (single datasource, tested)
-- [ ] Prefs-backed settings repo; geolocator wrapper with denied→manual fallback
-- [ ] Settings screen (grouped sections)
-- [ ] Tests: settings round-trip, foreign-city tz conversion, city search
+- [x] Domain: AppSettings, LocationConfig (sealed gps/manualCity), City, PrayerParams (12 methods, madhab, high-lat, ±minute offsets), NotificationMatrix; repositories + 4 use cases — pure Dart
+- [x] `tool/city_db_build.dart` → 33,824 cities (GeoNames cities15000, CC BY 4.0 logged), population-ranked JSON asset (1.7 MB)
+- [x] Timezone rule: GPS→toLocal, manual city→IANA via `timezone` pkg, one `TimezoneClock` (ZonedClock interface), DST + date-line tested
+- [x] Prefs-backed settings repo (atomic JSON blob, forward-compatible mapper); geolocator behind `DeviceLocationSource` seam; sealed LocationFailures with denied→manual-picker fallback UX
+- [x] Settings screen — 5 designed groups (calculation/notifications/appearance/privacy/about+credits), option sheets, per-prayer minute steppers; theme+locale apply live via app-scoped SettingsStore signals
+- [x] Location picker — GPS path with priming text + denied/service-off banners, debounced city search with skeletons
+- [x] Platform: Android location permissions, iOS NSLocationWhenInUse string
+- [x] Tests (74 passing total): mapper round-trips, prefs round-trip, city search (prefix/diacritics/limit), tz conversion (Dhaka/London DST/date-line), location permission matrix, store persistence, settings screen widget tests
+- [x] Debug APK build green
 
 ## Phase 3 — Prayer Times + Home ⬜
 
@@ -148,6 +151,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-06-12 | Phase 2: settings+location — domain entities/usecases, GeoNames city DB (33.8k), TimezoneClock, prefs repo, geolocator with fallback UX, grouped Settings UI + location picker, live theme/locale, platform permissions, 37 new tests | analyze clean, 74 tests pass, APK builds — **Phase 2 complete** |
 | 2026-06-12 | Phase 1 foundation: tokens→theme (M3), 4 font families bundled, l10n en+bn, motif painters, 11 shared widgets, DI+router shell (5 tabs), debug gallery, DEPENDENCIES.md, 37 tests | analyze clean, all tests pass, APK builds — **Phase 1 complete** |
 | 2026-06-12 | Phase 0 cleanup: Firebase/config/env/template assets removed, pubspec+analysis_options+README+main.dart rewritten, SPM enabled (no CocoaPods), Android toolchain → Gradle 9.1.0/AGP 9.0.1/Kotlin 2.3.20 | analyze clean, tests pass, Android debug APK builds — **Phase 0 complete** |
 | 2026-06-12 | Implementation plan + this progress tracker created | Docs ready; coding not started |

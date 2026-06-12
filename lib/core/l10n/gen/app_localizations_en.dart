@@ -31,4 +31,182 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get galleryTitle => 'Widget Gallery';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get groupCalculation => 'Prayer calculation';
+
+  @override
+  String get groupNotifications => 'Notifications';
+
+  @override
+  String get groupAppearance => 'Appearance & language';
+
+  @override
+  String get groupPrivacy => 'Privacy';
+
+  @override
+  String get groupAbout => 'About';
+
+  @override
+  String get settingLocation => 'Location';
+
+  @override
+  String get settingLocationNotSet => 'Not set';
+
+  @override
+  String get settingMadhab => 'Madhab (Asr)';
+
+  @override
+  String get settingMethod => 'Calculation method';
+
+  @override
+  String get settingAdjustments => 'Minute adjustments';
+
+  @override
+  String get settingAdjustmentsSub => 'Fine-tune each prayer ±minutes';
+
+  @override
+  String get settingHighLat => 'High-latitude rule';
+
+  @override
+  String get settingHighLatSub => 'Advanced — for extreme latitudes';
+
+  @override
+  String get settingTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get settingLanguage => 'Language';
+
+  @override
+  String get settingAppLock => 'App lock';
+
+  @override
+  String get settingRunSetup => 'Run setup again';
+
+  @override
+  String get settingCredits => 'Credits & attributions';
+
+  @override
+  String get creditsBody =>
+      'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.';
+
+  @override
+  String get madhabHanafi => 'Hanafi';
+
+  @override
+  String get madhabShafi => 'Shafiʿi';
+
+  @override
+  String get madhabExplain => 'Affects Asr time only';
+
+  @override
+  String get highLatMiddle => 'Middle of the night';
+
+  @override
+  String get highLatSeventh => 'Seventh of the night';
+
+  @override
+  String get highLatTwilight => 'Twilight angle';
+
+  @override
+  String get methodMuslimWorldLeague => 'Muslim World League';
+
+  @override
+  String get methodEgyptian => 'Egyptian General Authority';
+
+  @override
+  String get methodKarachi => 'Univ. of Islamic Sciences, Karachi';
+
+  @override
+  String get methodUmmAlQura => 'Umm al-Qura (Makkah)';
+
+  @override
+  String get methodDubai => 'Dubai';
+
+  @override
+  String get methodQatar => 'Qatar';
+
+  @override
+  String get methodKuwait => 'Kuwait';
+
+  @override
+  String get methodMoonsighting => 'Moonsighting Committee';
+
+  @override
+  String get methodSingapore => 'Singapore (MUIS)';
+
+  @override
+  String get methodNorthAmerica => 'ISNA (North America)';
+
+  @override
+  String get methodTurkiye => 'Türkiye (Diyanet)';
+
+  @override
+  String get methodTehran => 'Tehran (IGUT)';
+
+  @override
+  String get prayerFajr => 'Fajr';
+
+  @override
+  String get prayerDhuhr => 'Dhuhr';
+
+  @override
+  String get prayerAsr => 'Asr';
+
+  @override
+  String get prayerMaghrib => 'Maghrib';
+
+  @override
+  String get prayerIsha => 'Isha';
+
+  @override
+  String get locationTitle => 'Location';
+
+  @override
+  String get locationUseGps => 'Use my location';
+
+  @override
+  String get locationUseGpsSub =>
+      'GPS — works fully offline after the first fix';
+
+  @override
+  String get locationChooseCity => 'Choose city manually';
+
+  @override
+  String get locationSearchHint => 'Search city…';
+
+  @override
+  String get locationPrimingBody =>
+      'Qalbee uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.';
+
+  @override
+  String get locationDeniedFallback =>
+      'No problem — pick your city below and everything works the same.';
+
+  @override
+  String get locationServiceOff =>
+      'Location services are turned off. Pick your city below, or enable location and try again.';
+
+  @override
+  String get locationCurrent => 'Current location';
+
+  @override
+  String get searchNoResults => 'No matching city — try a different spelling';
+
+  @override
+  String minutesShort(int count) {
+    return '$count min';
+  }
 }

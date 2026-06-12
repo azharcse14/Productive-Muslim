@@ -7,6 +7,10 @@ abstract final class Routes {
   static const dua = (name: 'dua', path: '/dua');
   static const more = (name: 'more', path: '/more');
 
+  /// Settings stack lives under the More branch.
+  static const settings = (name: 'settings', path: 'settings');
+  static const locationPicker = (name: 'locationPicker', path: 'location');
+
   /// Debug-only component gallery.
   static const gallery = (name: 'gallery', path: '/dev/gallery');
 }

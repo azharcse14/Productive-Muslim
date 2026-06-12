@@ -40,9 +40,9 @@ final class FailureResult<T> extends Result<T> {
   final Failure failure;
 }
 
-/// Base failure. Features extend this with specific sealed subtypes
-/// (e.g. LocationFailure.permissionDenied) as they are built.
-sealed class Failure {
+/// Base failure. Features extend this with their own (typically sealed)
+/// subtypes — e.g. `LocationFailure` — so call sites can pattern-match.
+abstract base class Failure {
   const Failure(this.message);
 
   /// Developer-facing description; user-facing text comes from l10n.

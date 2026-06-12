@@ -145,6 +145,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Widget Gallery'**
   String get galleryTitle;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @groupCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer calculation'**
+  String get groupCalculation;
+
+  /// No description provided for @groupNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get groupNotifications;
+
+  /// No description provided for @groupAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance & language'**
+  String get groupAppearance;
+
+  /// No description provided for @groupPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get groupPrivacy;
+
+  /// No description provided for @groupAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get groupAbout;
+
+  /// No description provided for @settingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get settingLocation;
+
+  /// No description provided for @settingLocationNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get settingLocationNotSet;
+
+  /// No description provided for @settingMadhab.
+  ///
+  /// In en, this message translates to:
+  /// **'Madhab (Asr)'**
+  String get settingMadhab;
+
+  /// No description provided for @settingMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get settingMethod;
+
+  /// No description provided for @settingAdjustments.
+  ///
+  /// In en, this message translates to:
+  /// **'Minute adjustments'**
+  String get settingAdjustments;
+
+  /// No description provided for @settingAdjustmentsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tune each prayer ±minutes'**
+  String get settingAdjustmentsSub;
+
+  /// No description provided for @settingHighLat.
+  ///
+  /// In en, this message translates to:
+  /// **'High-latitude rule'**
+  String get settingHighLat;
+
+  /// No description provided for @settingHighLatSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced — for extreme latitudes'**
+  String get settingHighLatSub;
+
+  /// No description provided for @settingTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @settingLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingLanguage;
+
+  /// No description provided for @settingAppLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get settingAppLock;
+
+  /// No description provided for @settingRunSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Run setup again'**
+  String get settingRunSetup;
+
+  /// No description provided for @settingCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits & attributions'**
+  String get settingCredits;
+
+  /// No description provided for @creditsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.'**
+  String get creditsBody;
+
+  /// No description provided for @madhabHanafi.
+  ///
+  /// In en, this message translates to:
+  /// **'Hanafi'**
+  String get madhabHanafi;
+
+  /// No description provided for @madhabShafi.
+  ///
+  /// In en, this message translates to:
+  /// **'Shafiʿi'**
+  String get madhabShafi;
+
+  /// No description provided for @madhabExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Affects Asr time only'**
+  String get madhabExplain;
+
+  /// No description provided for @highLatMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **'Middle of the night'**
+  String get highLatMiddle;
+
+  /// No description provided for @highLatSeventh.
+  ///
+  /// In en, this message translates to:
+  /// **'Seventh of the night'**
+  String get highLatSeventh;
+
+  /// No description provided for @highLatTwilight.
+  ///
+  /// In en, this message translates to:
+  /// **'Twilight angle'**
+  String get highLatTwilight;
+
+  /// No description provided for @methodMuslimWorldLeague.
+  ///
+  /// In en, this message translates to:
+  /// **'Muslim World League'**
+  String get methodMuslimWorldLeague;
+
+  /// No description provided for @methodEgyptian.
+  ///
+  /// In en, this message translates to:
+  /// **'Egyptian General Authority'**
+  String get methodEgyptian;
+
+  /// No description provided for @methodKarachi.
+  ///
+  /// In en, this message translates to:
+  /// **'Univ. of Islamic Sciences, Karachi'**
+  String get methodKarachi;
+
+  /// No description provided for @methodUmmAlQura.
+  ///
+  /// In en, this message translates to:
+  /// **'Umm al-Qura (Makkah)'**
+  String get methodUmmAlQura;
+
+  /// No description provided for @methodDubai.
+  ///
+  /// In en, this message translates to:
+  /// **'Dubai'**
+  String get methodDubai;
+
+  /// No description provided for @methodQatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Qatar'**
+  String get methodQatar;
+
+  /// No description provided for @methodKuwait.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait'**
+  String get methodKuwait;
+
+  /// No description provided for @methodMoonsighting.
+  ///
+  /// In en, this message translates to:
+  /// **'Moonsighting Committee'**
+  String get methodMoonsighting;
+
+  /// No description provided for @methodSingapore.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore (MUIS)'**
+  String get methodSingapore;
+
+  /// No description provided for @methodNorthAmerica.
+  ///
+  /// In en, this message translates to:
+  /// **'ISNA (North America)'**
+  String get methodNorthAmerica;
+
+  /// No description provided for @methodTurkiye.
+  ///
+  /// In en, this message translates to:
+  /// **'Türkiye (Diyanet)'**
+  String get methodTurkiye;
+
+  /// No description provided for @methodTehran.
+  ///
+  /// In en, this message translates to:
+  /// **'Tehran (IGUT)'**
+  String get methodTehran;
+
+  /// No description provided for @prayerFajr.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// No description provided for @prayerDhuhr.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// No description provided for @prayerAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// No description provided for @prayerMaghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// No description provided for @prayerIsha.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// No description provided for @locationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationTitle;
+
+  /// No description provided for @locationUseGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get locationUseGps;
+
+  /// No description provided for @locationUseGpsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS — works fully offline after the first fix'**
+  String get locationUseGpsSub;
+
+  /// No description provided for @locationChooseCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose city manually'**
+  String get locationChooseCity;
+
+  /// No description provided for @locationSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search city…'**
+  String get locationSearchHint;
+
+  /// No description provided for @locationPrimingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Qalbee uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.'**
+  String get locationPrimingBody;
+
+  /// No description provided for @locationDeniedFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'No problem — pick your city below and everything works the same.'**
+  String get locationDeniedFallback;
+
+  /// No description provided for @locationServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are turned off. Pick your city below, or enable location and try again.'**
+  String get locationServiceOff;
+
+  /// No description provided for @locationCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location'**
+  String get locationCurrent;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching city — try a different spelling'**
+  String get searchNoResults;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String minutesShort(int count);
 }
 
 class _AppLocalizationsDelegate

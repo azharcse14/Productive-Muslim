@@ -57,7 +57,7 @@ void main() {
       );
       expect(
         tester.getSemantics(find.byType(QButton)),
-        containsSemantics(
+        isSemantics(
           isButton: true,
           isEnabled: true,
           hasTapAction: true,

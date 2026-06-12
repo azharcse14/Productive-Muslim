@@ -5,7 +5,9 @@ import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
+import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/gallery/widget_gallery_screen.dart';
 import '../../shared/widgets/q_bottom_nav.dart';
 import 'routes.dart';
@@ -64,6 +66,21 @@ GoRouter buildRouter() {
                 name: Routes.more.name,
                 path: Routes.more.path,
                 builder: (context, state) => const MoreScreen(),
+                routes: [
+                  GoRoute(
+                    name: Routes.settings.name,
+                    path: Routes.settings.path,
+                    builder: (context, state) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        name: Routes.locationPicker.name,
+                        path: Routes.locationPicker.path,
+                        builder: (context, state) =>
+                            const LocationPickerScreen(),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
