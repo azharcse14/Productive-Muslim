@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/features/prayer_times/presentation/widgets/qibla_mini_chip.dart';
+import 'package:qalbee/shared/painters/kaaba_mark.dart';
 
 Widget _app(Widget child) => MaterialApp(
       theme: AppTheme.light(),
@@ -13,7 +14,8 @@ Widget _app(Widget child) => MaterialApp(
 
 void main() {
   group('QiblaMiniChip', () {
-    testWidgets('renders label and degrees with location', (tester) async {
+    testWidgets('renders the rotating arrow and degrees with location',
+        (tester) async {
       await tester.pumpWidget(_app(
         const QiblaMiniChip(
           bearing: 281,
@@ -21,13 +23,14 @@ void main() {
           hasLocation: true,
         ),
       ));
-      expect(find.text('Qibla'), findsOneWidget);
       expect(find.text('281°'), findsOneWidget);
       expect(find.byIcon(Icons.navigation), findsOneWidget);
-      expect(find.byIcon(Icons.location_off), findsNothing);
+      // Kaaba glyph sits under the rotating needle.
+      expect(find.byType(KaabaMark), findsOneWidget);
+      expect(find.byIcon(Icons.explore_off_outlined), findsNothing);
     });
 
-    testWidgets('renders needs-location state without location',
+    testWidgets('renders the qibla label + off glyph without location',
         (tester) async {
       await tester.pumpWidget(_app(
         const QiblaMiniChip(
@@ -37,9 +40,23 @@ void main() {
         ),
       ));
       expect(find.text('Qibla'), findsOneWidget);
-      expect(find.text('Set location'), findsOneWidget);
-      expect(find.byIcon(Icons.location_off), findsOneWidget);
+      expect(find.byIcon(Icons.explore_off_outlined), findsOneWidget);
       expect(find.byIcon(Icons.navigation), findsNothing);
+    });
+
+    testWidgets('tints icon and text with the given foreground colour',
+        (tester) async {
+      const fg = Color(0xFF112233);
+      await tester.pumpWidget(_app(
+        const QiblaMiniChip(
+          bearing: 281,
+          heading: 0,
+          hasLocation: true,
+          foreground: fg,
+        ),
+      ));
+      final icon = tester.widget<Icon>(find.byIcon(Icons.navigation));
+      expect(icon.color, fg);
     });
 
     testWidgets('tap fires onTap', (tester) async {

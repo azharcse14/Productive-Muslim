@@ -35,10 +35,25 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.15.0
   drift_dev: ^2.34.0
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   shared_preferences_platform_interface: ^2.4.2
+
+flutter_launcher_icons:
+  image_path: "assets/icon/qalbee_icon.png"
+  android: true
+  adaptive_icon_background: "#15564D"
+  adaptive_icon_foreground: "assets/icon/qalbee_icon_foreground.png"
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    background_color: "#15564D"
+    theme_color: "#15564D"
+  macos:
+    generate: true
 
 flutter:
   uses-material-design: true

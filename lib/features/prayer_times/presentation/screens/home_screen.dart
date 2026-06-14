@@ -291,23 +291,6 @@ final class _HomeScreenState extends State<HomeScreen> {
                         context.pushNamed(Routes.notificationSettings.name),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      QSpace.s5,
-                      QSpace.s3,
-                      QSpace.s5,
-                      0,
-                    ),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: QiblaMiniChip(
-                        bearing: qiblaBearing,
-                        heading: null,
-                        hasLocation: location != null,
-                        onTap: () => context.pushNamed(Routes.qibla.name),
-                      ),
-                    ),
-                  ),
-                  Padding(
                     padding: EdgeInsets.fromLTRB(
                       QSpace.s5,
                       compact ? QSpace.s3 : QSpace.s4,
@@ -345,6 +328,13 @@ final class _HomeScreenState extends State<HomeScreen> {
                             ),
                             sub: sub,
                             progress: _store.progress.value,
+                            corner: (fg) => QiblaMiniChip(
+                              bearing: qiblaBearing,
+                              heading: null,
+                              hasLocation: location != null,
+                              foreground: fg,
+                              onTap: () => context.pushNamed(Routes.qibla.name),
+                            ),
                             footer: [
                               (
                                 icon: Icons.wb_sunny_outlined,
@@ -363,46 +353,6 @@ final class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  if (_ayah != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        QSpace.s5,
-                        QSpace.s4,
-                        QSpace.s5,
-                        0,
-                      ),
-                      child: DailyAyahCard(
-                        arabic: _ayah!.arabic,
-                        translation: _ayah!.translationFor(locale.languageCode),
-                        surahName: _surahName(_ayah!.surah),
-                        ayahNumber: LocaleDigits.localize(
-                          '${_ayah!.number}',
-                          locale.languageCode,
-                        ),
-                        onTap: () => context.goNamed(
-                          Routes.quranAyah.name,
-                          pathParameters: {
-                            'surah': '${_ayah!.surah}',
-                            'ayah': '${_ayah!.number}',
-                          },
-                        ),
-                      ),
-                    ),
-                  if (_hadithOfDay != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        QSpace.s5,
-                        QSpace.s4,
-                        QSpace.s5,
-                        0,
-                      ),
-                      child: HadithCard(
-                        text: _hadithOfDay!.translationFor(locale.languageCode),
-                        narrator: _hadithOfDay!.narrator,
-                        reference: _hadithOfDay!.reference,
-                        onTap: () => context.pushNamed(Routes.hadith.name),
-                      ),
-                    ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
                       QSpace.s5,
@@ -568,6 +518,46 @@ final class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
+                  if (_ayah != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        QSpace.s5,
+                        0,
+                        QSpace.s5,
+                        0,
+                      ),
+                      child: DailyAyahCard(
+                        arabic: _ayah!.arabic,
+                        translation: _ayah!.translationFor(locale.languageCode),
+                        surahName: _surahName(_ayah!.surah),
+                        ayahNumber: LocaleDigits.localize(
+                          '${_ayah!.number}',
+                          locale.languageCode,
+                        ),
+                        onTap: () => context.goNamed(
+                          Routes.quranAyah.name,
+                          pathParameters: {
+                            'surah': '${_ayah!.surah}',
+                            'ayah': '${_ayah!.number}',
+                          },
+                        ),
+                      ),
+                    ),
+                  if (_hadithOfDay != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        QSpace.s5,
+                        QSpace.s4,
+                        QSpace.s5,
+                        QSpace.s5,
+                      ),
+                      child: HadithCard(
+                        text: _hadithOfDay!.translationFor(locale.languageCode),
+                        narrator: _hadithOfDay!.narrator,
+                        reference: _hadithOfDay!.reference,
+                        onTap: () => context.pushNamed(Routes.hadith.name),
+                      ),
+                    ),
                 ],
               ),
             );

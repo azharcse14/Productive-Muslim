@@ -24,11 +24,17 @@ final class CountdownCard extends StatelessWidget {
     required this.sub,
     required this.progress,
     this.footer = const [],
+    this.corner,
     this.compact = false,
     super.key,
   });
 
   final CountdownState state;
+
+  /// Optional widget pinned to the card's top-right corner. Built with the
+  /// card's current foreground color so it can tint itself to match the
+  /// active state (e.g. the home qibla indicator).
+  final Widget Function(Color foreground)? corner;
 
   /// Overline label, e.g. "ASR ENDS IN".
   final String eyebrow;
@@ -121,6 +127,12 @@ final class CountdownCard extends StatelessWidget {
         child: Stack(
           children: [
             MotifBackground(color: c.fg, opacity: 0.055, cell: 120),
+            if (corner != null)
+              PositionedDirectional(
+                top: compact ? 12 : 16,
+                end: compact ? 12 : 16,
+                child: corner!(c.fg),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
               child: Column(
