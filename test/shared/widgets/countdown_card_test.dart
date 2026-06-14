@@ -85,5 +85,14 @@ void main() {
       );
       expect(fraction.widthFactor, 1);
     });
+
+    testWidgets('progress fill is anchored to the start (left-to-right)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
+      final fraction = tester.widget<FractionallySizedBox>(
+        find.byType(FractionallySizedBox),
+      );
+      expect(fraction.alignment, AlignmentDirectional.centerStart);
+    });
   });
 }

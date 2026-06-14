@@ -130,7 +130,8 @@ void main() {
       expect(find.text('Asr'), findsOneWidget);
       expect(find.text('Maghrib'), findsOneWidget);
       expect(find.text('Isha'), findsOneWidget);
-      expect(find.text('Sunrise'), findsOneWidget);
+      // Sunrise was removed from the table (still in the countdown footer).
+      expect(find.text('Sunrise'), findsNothing);
       expect(find.text('Sahri ends'), findsOneWidget);
       expect(find.text('Iftar'), findsOneWidget);
       // Unconfigured jamaat shows the quiet affordance on all 5 rows.

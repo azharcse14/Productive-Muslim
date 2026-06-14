@@ -157,14 +157,13 @@ final class CountdownCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(3),
                     child: SizedBox(
                       height: 5,
+                      width: double.infinity,
                       child: ColoredBox(
                         color: c.fg.withValues(alpha: 0.14),
-                        child: Align(
+                        child: FractionallySizedBox(
                           alignment: AlignmentDirectional.centerStart,
-                          child: FractionallySizedBox(
-                            widthFactor: progress.clamp(0, 1),
-                            child: ColoredBox(color: c.bar),
-                          ),
+                          widthFactor: progress.clamp(0, 1),
+                          child: ColoredBox(color: c.bar),
                         ),
                       ),
                     ),

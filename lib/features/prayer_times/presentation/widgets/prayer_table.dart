@@ -8,7 +8,7 @@ import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/prayer_day.dart';
 
-/// Daily prayer table (design §4.3): 5 prayers + sunrise; start–end range,
+/// Daily prayer table (design §4.3): the 5 prayers; start–end range,
 /// jamaat column (quiet "Set jamaat" affordance when unset), and a
 /// check→Muhasaba affordance (wired in Phase 7). Current waqt highlighted.
 final class PrayerTable extends StatelessWidget {
@@ -77,12 +77,6 @@ final class PrayerTable extends StatelessWidget {
                   onToggleDone: onTogglePrayed == null
                       ? null
                       : () => onTogglePrayed!(prayer),
-                ),
-              if (prayer == Prayer.fajr)
-                _SunriseRow(
-                  label: context.l10n.sunriseLabel,
-                  time: formatTime(day.sunrise),
-                  dense: dense,
                 ),
             ],
           ],
@@ -206,48 +200,6 @@ final class _PrayerRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-final class _SunriseRow extends StatelessWidget {
-  const _SunriseRow({
-    required this.label,
-    required this.time,
-    required this.dense,
-  });
-
-  final String label;
-  final String time;
-  final bool dense;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Opacity(
-      opacity: 0.85,
-      child: Container(
-        constraints: BoxConstraints(minHeight: dense ? 30 : 42),
-        padding: EdgeInsetsDirectional.symmetric(horizontal: dense ? 12 : 16),
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: q.line)),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 18),
-            SizedBox(
-              width: dense ? 64 : 84,
-              child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
-            ),
-            Expanded(
-              child: Text(
-                time,
-                style: QType.num_(QType.caption).copyWith(color: q.ink2),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
