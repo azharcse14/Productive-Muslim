@@ -138,6 +138,16 @@ void main() {
       expect(find.text('Set jamaat'), findsNWidgets(5));
     });
 
+    testWidgets('shows the minimal muhasaba track card', (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      // Title + completion ring + streak line, all in one compact card.
+      expect(find.text('Muhasaba'), findsOneWidget);
+      expect(find.text('0%'), findsOneWidget);
+      expect(find.text('0 day streak'), findsOneWidget);
+    });
+
     testWidgets('countdown numeral ticks with the clock', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());

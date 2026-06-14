@@ -16,6 +16,7 @@ import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
@@ -211,6 +212,27 @@ final class _HomeScreenState extends State<HomeScreen> {
                 }),
               ),
               Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: SignalBuilder(
+                  builder: (context) {
+                    final stats = _muhasaba.stats.value;
+                    if (stats == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return _MuhasabaCard(
+                      completion: stats.completion,
+                      streak: stats.currentStreak,
+                      onTap: () => context.goNamed(Routes.muhasaba.name),
+                    );
+                  },
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(QSpace.s5),
                 child: QCard(
                   padding: const EdgeInsets.symmetric(
@@ -246,6 +268,89 @@ final class _HomeScreenState extends State<HomeScreen> {
             ],
           );
         }),
+      ),
+    );
+  }
+}
+
+/// Minimal home summary of today's muhasaba track (design §4.3 hand-off
+/// to §4.7): a small completion ring + streak, tappable into the dashboard.
+final class _MuhasabaCard extends StatelessWidget {
+  const _MuhasabaCard({
+    required this.completion,
+    required this.streak,
+    required this.onTap,
+  });
+
+  /// This-week mean completion, 0..1.
+  final double completion;
+  final int streak;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: QCard(
+        padding: const EdgeInsets.symmetric(
+          horizontal: QSpace.s5,
+          vertical: QSpace.s4,
+        ),
+        child: Row(
+          children: [
+            QProgressRing(
+              progress: completion,
+              size: 44,
+              strokeWidth: 5,
+              child: Text(
+                LocaleDigits.localize(
+                  '${(completion * 100).round()}%',
+                  languageCode,
+                ),
+                style: QType.num_(QType.caption).copyWith(
+                  fontSize: 11,
+                  color: q.ink,
+                ),
+              ),
+            ),
+            const SizedBox(width: QSpace.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.muhasabaTitle,
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department_outlined,
+                        size: 14,
+                        color: q.ink2,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        LocaleDigits.localize(
+                          l10n.currentStreakLabel(streak),
+                          languageCode,
+                        ),
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 20, color: q.ink3),
+          ],
+        ),
       ),
     );
   }
