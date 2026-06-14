@@ -566,6 +566,156 @@ abstract class AppLocalizations {
   /// **'Iftar'**
   String get iftarLabel;
 
+  /// No description provided for @forbiddenTimesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forbidden times'**
+  String get forbiddenTimesTitle;
+
+  /// No description provided for @naflTimesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafl times'**
+  String get naflTimesTitle;
+
+  /// No description provided for @specialNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get specialNow;
+
+  /// No description provided for @specialTimeForbiddenSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'After sunrise'**
+  String get specialTimeForbiddenSunrise;
+
+  /// No description provided for @specialTimeForbiddenZawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Midday (zawal)'**
+  String get specialTimeForbiddenZawal;
+
+  /// No description provided for @specialTimeForbiddenSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Before sunset'**
+  String get specialTimeForbiddenSunset;
+
+  /// No description provided for @specialTimeIshraq.
+  ///
+  /// In en, this message translates to:
+  /// **'Ishraq'**
+  String get specialTimeIshraq;
+
+  /// No description provided for @specialTimeDuha.
+  ///
+  /// In en, this message translates to:
+  /// **'Duha (Chasht)'**
+  String get specialTimeDuha;
+
+  /// No description provided for @specialTimeSalatZawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Salat al-Zawal'**
+  String get specialTimeSalatZawal;
+
+  /// No description provided for @specialTimeAwwabin.
+  ///
+  /// In en, this message translates to:
+  /// **'Awwabin'**
+  String get specialTimeAwwabin;
+
+  /// No description provided for @specialTimeTahajjud.
+  ///
+  /// In en, this message translates to:
+  /// **'Tahajjud'**
+  String get specialTimeTahajjud;
+
+  /// No description provided for @forbiddenTimesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No salah may be offered in these three moments.'**
+  String get forbiddenTimesSubtitle;
+
+  /// No description provided for @naflTimesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best times for voluntary (nafl) prayers.'**
+  String get naflTimesSubtitle;
+
+  /// No description provided for @specialTimesLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for details'**
+  String get specialTimesLearnMore;
+
+  /// No description provided for @specialTimesPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forbidden & nafl times'**
+  String get specialTimesPageTitle;
+
+  /// No description provided for @forbiddenTimesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'There are three moments in the day when offering any salah is prohibited (makruh tahrimi). The Prophet ﷺ forbade praying as the sun rises, at its zenith, and as it sets — the times the disbelievers worshipped the sun. Missed obligatory prayers remembered in these windows may still be made up.'**
+  String get forbiddenTimesIntro;
+
+  /// No description provided for @naflTimesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Beyond the obligatory prayers, these are recommended voluntary (nafl) prayers with their preferred times — a means of drawing nearer to Allah and making up for shortcomings in the fard.'**
+  String get naflTimesIntro;
+
+  /// No description provided for @specialDetailForbiddenSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'From sunrise until the sun has fully risen above the horizon (about 15 minutes). The Prophet ﷺ said the sun rises between the two horns of Shaytan, so salah is withheld until it clears.'**
+  String get specialDetailForbiddenSunrise;
+
+  /// No description provided for @specialDetailForbiddenZawal.
+  ///
+  /// In en, this message translates to:
+  /// **'The brief moment the sun stands at its highest point (istiwa) before passing the meridian into the Dhuhr time. No salah is offered until it begins to decline.'**
+  String get specialDetailForbiddenZawal;
+
+  /// No description provided for @specialDetailForbiddenSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'From when the sun yellows and starts to set until it has fully set (Maghrib). As at sunrise, salah is withheld while the sun sets.'**
+  String get specialDetailForbiddenSunset;
+
+  /// No description provided for @specialDetailIshraq.
+  ///
+  /// In en, this message translates to:
+  /// **'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah.'**
+  String get specialDetailIshraq;
+
+  /// No description provided for @specialDetailDuha.
+  ///
+  /// In en, this message translates to:
+  /// **'The forenoon prayer of two to twelve rak\'ahs, best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak\'ahs suffice for it.'**
+  String get specialDetailDuha;
+
+  /// No description provided for @specialDetailSalatZawal.
+  ///
+  /// In en, this message translates to:
+  /// **'Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.'**
+  String get specialDetailSalatZawal;
+
+  /// No description provided for @specialDetailAwwabin.
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary rak\'ahs offered between the Maghrib and Isha prayers — the salah of the oft-returning (awwabin), beloved for turning back to Allah after the day\'s work.'**
+  String get specialDetailAwwabin;
+
+  /// No description provided for @specialDetailTahajjud.
+  ///
+  /// In en, this message translates to:
+  /// **'Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.'**
+  String get specialDetailTahajjud;
+
   /// No description provided for @setJamaat.
   ///
   /// In en, this message translates to:
@@ -1334,6 +1484,12 @@ abstract class AppLocalizations {
   /// **'Zakat calculator'**
   String get zakatTitle;
 
+  /// No description provided for @zakatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Work out the zakat due on your wealth'**
+  String get zakatSubtitle;
+
   /// No description provided for @zakatCash.
   ///
   /// In en, this message translates to:
@@ -1597,6 +1753,594 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn off app lock'**
   String get appLockDisable;
+
+  /// No description provided for @prayerSheetWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Time window'**
+  String get prayerSheetWindow;
+
+  /// No description provided for @prayerSheetRakaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Rakaat'**
+  String get prayerSheetRakaat;
+
+  /// No description provided for @rakaatFard.
+  ///
+  /// In en, this message translates to:
+  /// **'Fard'**
+  String get rakaatFard;
+
+  /// No description provided for @rakaatSunnah.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah'**
+  String get rakaatSunnah;
+
+  /// No description provided for @rakaatWitr.
+  ///
+  /// In en, this message translates to:
+  /// **'Witr'**
+  String get rakaatWitr;
+
+  /// No description provided for @prayerSheetNoJamaat.
+  ///
+  /// In en, this message translates to:
+  /// **'No jamaat set'**
+  String get prayerSheetNoJamaat;
+
+  /// No description provided for @prayerFazilatFajr.
+  ///
+  /// In en, this message translates to:
+  /// **'The two sunnah of Fajr are better than the world and all it contains. Its prayer is witnessed by the angels of night and day.'**
+  String get prayerFazilatFajr;
+
+  /// No description provided for @prayerFazilatDhuhr.
+  ///
+  /// In en, this message translates to:
+  /// **'The gates of the heavens open at midday; the Prophet loved to pray four rakaat in that hour.'**
+  String get prayerFazilatDhuhr;
+
+  /// No description provided for @prayerFazilatAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.'**
+  String get prayerFazilatAsr;
+
+  /// No description provided for @prayerFazilatMaghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.'**
+  String get prayerFazilatMaghrib;
+
+  /// No description provided for @prayerFazilatIsha.
+  ///
+  /// In en, this message translates to:
+  /// **'Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.'**
+  String get prayerFazilatIsha;
+
+  /// No description provided for @dailyAyahTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah of the day'**
+  String get dailyAyahTitle;
+
+  /// No description provided for @dailyAyahReference.
+  ///
+  /// In en, this message translates to:
+  /// **'{surah}, ayah {ayah}'**
+  String dailyAyahReference(String surah, String ayah);
+
+  /// No description provided for @tasbihQuickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih'**
+  String get tasbihQuickTitle;
+
+  /// No description provided for @tasbihQuickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to count'**
+  String get tasbihQuickHint;
+
+  /// No description provided for @qiblaChipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get qiblaChipLabel;
+
+  /// No description provided for @qiblaChipNeedsLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Set location'**
+  String get qiblaChipNeedsLocation;
+
+  /// No description provided for @dayTimelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s timeline'**
+  String get dayTimelineTitle;
+
+  /// No description provided for @streakMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}-day streak! 🎉'**
+  String streakMilestone(int count);
+
+  /// No description provided for @calculatorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculators'**
+  String get calculatorsTitle;
+
+  /// No description provided for @calculatorsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat, fitra, qaza, inheritance & age'**
+  String get calculatorsSubtitle;
+
+  /// No description provided for @fitraTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitra calculator'**
+  String get fitraTitle;
+
+  /// No description provided for @fitraSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate Sadaqatul Fitr for your household'**
+  String get fitraSubtitle;
+
+  /// No description provided for @fitraStaple.
+  ///
+  /// In en, this message translates to:
+  /// **'Staple food'**
+  String get fitraStaple;
+
+  /// No description provided for @fitraStapleWheat.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheat / flour'**
+  String get fitraStapleWheat;
+
+  /// No description provided for @fitraStapleBarley.
+  ///
+  /// In en, this message translates to:
+  /// **'Barley'**
+  String get fitraStapleBarley;
+
+  /// No description provided for @fitraStapleDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get fitraStapleDates;
+
+  /// No description provided for @fitraStapleRaisins.
+  ///
+  /// In en, this message translates to:
+  /// **'Raisins'**
+  String get fitraStapleRaisins;
+
+  /// No description provided for @fitraPricePerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per kg'**
+  String get fitraPricePerKg;
+
+  /// No description provided for @fitraPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of people'**
+  String get fitraPeople;
+
+  /// No description provided for @fitraCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get fitraCalculate;
+
+  /// No description provided for @fitraPerPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Per person: {amount}'**
+  String fitraPerPerson(String amount);
+
+  /// No description provided for @fitraTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total fitra: {amount}'**
+  String fitraTotal(String amount);
+
+  /// No description provided for @fitraWeightNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {kg} kg per person'**
+  String fitraWeightNote(String kg);
+
+  /// No description provided for @fitraBeforeEid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay before the Eid prayer.'**
+  String get fitraBeforeEid;
+
+  /// No description provided for @qazaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qaza prayer calculator'**
+  String get qazaTitle;
+
+  /// No description provided for @qazaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate missed obligatory prayers to make up'**
+  String get qazaSubtitle;
+
+  /// No description provided for @qazaStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'From date'**
+  String get qazaStartDate;
+
+  /// No description provided for @qazaEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'To date'**
+  String get qazaEndDate;
+
+  /// No description provided for @qazaSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get qazaSelectDate;
+
+  /// No description provided for @qazaIncludeWitr.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Witr (Hanafi)'**
+  String get qazaIncludeWitr;
+
+  /// No description provided for @qazaAlreadyMadeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Already made up (per prayer)'**
+  String get qazaAlreadyMadeUp;
+
+  /// No description provided for @qazaCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get qazaCalculate;
+
+  /// No description provided for @qazaDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Period: {count} days'**
+  String qazaDays(String count);
+
+  /// No description provided for @qazaPerPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Each prayer: {count}'**
+  String qazaPerPrayer(String count);
+
+  /// No description provided for @qazaWitr.
+  ///
+  /// In en, this message translates to:
+  /// **'Witr: {count}'**
+  String qazaWitr(String count);
+
+  /// No description provided for @qazaTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total missed: {count}'**
+  String qazaTotal(String count);
+
+  /// No description provided for @qazaNote.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate to help you plan — make them up steadily, without guilt.'**
+  String get qazaNote;
+
+  /// No description provided for @ageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Age calculator'**
+  String get ageTitle;
+
+  /// No description provided for @ageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your age in both the Gregorian and Hijri calendars'**
+  String get ageSubtitle;
+
+  /// No description provided for @ageBirthDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get ageBirthDate;
+
+  /// No description provided for @ageAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'As of date'**
+  String get ageAsOf;
+
+  /// No description provided for @ageSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get ageSelectDate;
+
+  /// No description provided for @ageCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get ageCalculate;
+
+  /// No description provided for @ageGregorian.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian age'**
+  String get ageGregorian;
+
+  /// No description provided for @ageHijri.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri age'**
+  String get ageHijri;
+
+  /// No description provided for @ageValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} years, {months} months, {days} days'**
+  String ageValue(String years, String months, String days);
+
+  /// No description provided for @ageTotalDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {count} days'**
+  String ageTotalDays(String count);
+
+  /// No description provided for @faraidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inheritance calculator'**
+  String get faraidTitle;
+
+  /// No description provided for @faraidSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate shares for common heirs (Faraid)'**
+  String get faraidSubtitle;
+
+  /// No description provided for @faraidEstate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estate value'**
+  String get faraidEstate;
+
+  /// No description provided for @faraidSpouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Spouse'**
+  String get faraidSpouse;
+
+  /// No description provided for @faraidNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get faraidNone;
+
+  /// No description provided for @faraidHusband.
+  ///
+  /// In en, this message translates to:
+  /// **'Husband'**
+  String get faraidHusband;
+
+  /// No description provided for @faraidWife.
+  ///
+  /// In en, this message translates to:
+  /// **'Wife'**
+  String get faraidWife;
+
+  /// No description provided for @faraidWives.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of wives'**
+  String get faraidWives;
+
+  /// No description provided for @faraidFather.
+  ///
+  /// In en, this message translates to:
+  /// **'Father'**
+  String get faraidFather;
+
+  /// No description provided for @faraidMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother'**
+  String get faraidMother;
+
+  /// No description provided for @faraidSons.
+  ///
+  /// In en, this message translates to:
+  /// **'Sons'**
+  String get faraidSons;
+
+  /// No description provided for @faraidDaughters.
+  ///
+  /// In en, this message translates to:
+  /// **'Daughters'**
+  String get faraidDaughters;
+
+  /// No description provided for @faraidBrothers.
+  ///
+  /// In en, this message translates to:
+  /// **'Full brothers'**
+  String get faraidBrothers;
+
+  /// No description provided for @faraidSisters.
+  ///
+  /// In en, this message translates to:
+  /// **'Full sisters'**
+  String get faraidSisters;
+
+  /// No description provided for @faraidCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get faraidCalculate;
+
+  /// No description provided for @faraidShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {amount}'**
+  String faraidShare(String label, String amount);
+
+  /// No description provided for @faraidAwlNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares exceed the estate — reduced proportionally (\'Awl).'**
+  String get faraidAwlNote;
+
+  /// No description provided for @faraidRaddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Surplus returned to the heirs (Radd).'**
+  String get faraidRaddNote;
+
+  /// No description provided for @faraidUnallocated.
+  ///
+  /// In en, this message translates to:
+  /// **'Unallocated (to other relatives): {amount}'**
+  String faraidUnallocated(String amount);
+
+  /// No description provided for @faraidDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate for common heirs only. Consult a qualified scholar for a binding ruling.'**
+  String get faraidDisclaimer;
+
+  /// No description provided for @faraidHeirHusband.
+  ///
+  /// In en, this message translates to:
+  /// **'Husband'**
+  String get faraidHeirHusband;
+
+  /// No description provided for @faraidHeirWife.
+  ///
+  /// In en, this message translates to:
+  /// **'Wife'**
+  String get faraidHeirWife;
+
+  /// No description provided for @faraidHeirFather.
+  ///
+  /// In en, this message translates to:
+  /// **'Father'**
+  String get faraidHeirFather;
+
+  /// No description provided for @faraidHeirMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother'**
+  String get faraidHeirMother;
+
+  /// No description provided for @faraidHeirSon.
+  ///
+  /// In en, this message translates to:
+  /// **'Son'**
+  String get faraidHeirSon;
+
+  /// No description provided for @faraidHeirDaughter.
+  ///
+  /// In en, this message translates to:
+  /// **'Daughter'**
+  String get faraidHeirDaughter;
+
+  /// No description provided for @faraidHeirBrother.
+  ///
+  /// In en, this message translates to:
+  /// **'Brother'**
+  String get faraidHeirBrother;
+
+  /// No description provided for @faraidHeirSister.
+  ///
+  /// In en, this message translates to:
+  /// **'Sister'**
+  String get faraidHeirSister;
+
+  /// No description provided for @hadithOfDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith of the day'**
+  String get hadithOfDayTitle;
+
+  /// No description provided for @hadithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith'**
+  String get hadithTitle;
+
+  /// No description provided for @hadithSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentic narrations to reflect on'**
+  String get hadithSubtitle;
+
+  /// No description provided for @hadithNarratedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrated by {narrator}'**
+  String hadithNarratedBy(String narrator);
+
+  /// No description provided for @duaSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search duas'**
+  String get duaSearchHint;
+
+  /// No description provided for @duaSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get duaSearchTitle;
+
+  /// No description provided for @duaNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No duas found'**
+  String get duaNoResults;
+
+  /// No description provided for @duaFavoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get duaFavoritesTitle;
+
+  /// No description provided for @duaFavoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart on any dua to save it here'**
+  String get duaFavoritesEmpty;
+
+  /// No description provided for @favoriteAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get favoriteAddLabel;
+
+  /// No description provided for @favoriteRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get favoriteRemoveLabel;
+
+  /// No description provided for @widgetNextPrayerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer'**
+  String get widgetNextPrayerLabel;
 }
 
 class _AppLocalizationsDelegate

@@ -13,9 +13,12 @@ import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/dua.dart';
+import '../state/dua_favorites_store.dart';
 import '../state/dua_store.dart';
+import '../widgets/dua_card.dart';
 import 'asmaul_husna_screen.dart';
 import 'dua_category_screen.dart';
+import 'dua_search_delegate.dart';
 import 'tasbih_screen.dart';
 
 /// Dua & Tasbih landing (design §4.8): tasbih + Asmaul Husna feature cards
@@ -28,14 +31,18 @@ final class DuaScreen extends StatefulWidget {
 }
 
 final class _DuaScreenState extends State<DuaScreen> {
-  // App-scoped store — never disposed here.
+  // App-scoped stores — never disposed here.
   late final DuaStore _store = locator<DuaStore>();
+  late final DuaFavoritesStore _favorites = locator<DuaFavoritesStore>();
 
   @override
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
       unawaited(_store.load());
+    }
+    if (!_favorites.loaded.value) {
+      unawaited(_favorites.load());
     }
   }
 
@@ -52,11 +59,36 @@ final class _DuaScreenState extends State<DuaScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.duaTitle)),
+      appBar: AppBar(
+        title: Text(l10n.duaTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: l10n.duaSearchTitle,
+            onPressed: () {
+              unawaited(
+                showSearch<void>(
+                  context: context,
+                  delegate: DuaSearchDelegate(
+                    _store.categories.value,
+                    hint: l10n.duaSearchHint,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
             final categories = _store.categories.value;
+            final favoriteIds = _favorites.ids.value;
+            final favoriteDuas = <Dua>[
+              for (final category in categories)
+                for (final dua in category.duas)
+                  if (favoriteIds.contains(dua.id)) dua,
+            ];
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -105,11 +137,47 @@ final class _DuaScreenState extends State<DuaScreen> {
                       ),
                   ],
                 ),
+                const SizedBox(height: QSpace.s4),
+                _FavoritesSection(duas: favoriteDuas),
               ],
             );
           },
         ),
       ),
+    );
+  }
+}
+
+final class _FavoritesSection extends StatelessWidget {
+  const _FavoritesSection({required this.duas});
+
+  final List<Dua> duas;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.duaFavoritesTitle,
+          style: QType.titleSm.copyWith(color: q.ink),
+        ),
+        const SizedBox(height: QSpace.s3),
+        if (duas.isEmpty)
+          QCard(
+            child: Text(
+              l10n.duaFavoritesEmpty,
+              style: QType.body.copyWith(color: q.ink2),
+            ),
+          )
+        else
+          for (final dua in duas) ...[
+            DuaCard(dua: dua),
+            const SizedBox(height: QSpace.s3),
+          ],
+      ],
     );
   }
 }

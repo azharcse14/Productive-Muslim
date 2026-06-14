@@ -6,6 +6,7 @@ import 'package:qalbee/core/router/app_router.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
@@ -59,6 +60,7 @@ void main() {
     final lockStore = await makeAppLockStore();
     final quranStore = await makeQuranStore();
     final duaStore = await makeDuaStore();
+    final tasbihStore = await makeTasbihStore();
     GetIt.I
       ..registerSingleton<SettingsStore>(settingsStore)
       ..registerSingleton<MosqueStore>(mosqueStore)
@@ -66,6 +68,7 @@ void main() {
       ..registerSingleton<AppLockStore>(lockStore)
       ..registerSingleton<QuranStore>(quranStore)
       ..registerSingleton<DuaStore>(duaStore)
+      ..registerSingleton<TasbihStore>(tasbihStore)
       ..registerFactory<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
@@ -170,6 +173,7 @@ void main() {
       final lockStore = await makeAppLockStore(withPin: true);
       final quranStore = await makeQuranStore();
       final duaStore = await makeDuaStore();
+      final tasbihStore = await makeTasbihStore();
       final (mosqueStore, _) = await makeMosqueStore();
       final (muhasabaStore, _) = await makeMuhasabaStore();
       final clock = TimezoneClock();
@@ -178,6 +182,7 @@ void main() {
         ..registerSingleton<AppLockStore>(lockStore)
         ..registerSingleton<QuranStore>(quranStore)
         ..registerSingleton<DuaStore>(duaStore)
+        ..registerSingleton<TasbihStore>(tasbihStore)
         ..registerSingleton<MosqueStore>(mosqueStore)
         ..registerSingleton<MuhasabaStore>(muhasabaStore)
         ..registerFactory<HomeStore>(
@@ -199,6 +204,39 @@ void main() {
       await tester.pumpAndSettle();
       // Unlocked → router refresh lands on the shell.
       expect(find.text('Muhasaba'), findsOneWidget);
+    });
+
+    testWidgets('More opens the Calculators hub with every tool',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('More'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Calculators'));
+      await tester.pumpAndSettle();
+      // Hub lists all five calculators.
+      expect(find.text('Zakat calculator'), findsOneWidget);
+      expect(find.text('Fitra calculator'), findsOneWidget);
+      expect(find.text('Qaza prayer calculator'), findsOneWidget);
+      expect(find.text('Inheritance calculator'), findsOneWidget);
+      expect(find.text('Age calculator'), findsOneWidget);
+    });
+
+    testWidgets('Calculators hub navigates into the Zakat tool',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('More'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Calculators'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Zakat calculator'));
+      await tester.pumpAndSettle();
+      // ZakatScreen is now on top — its form fields are present.
+      expect(find.text('Cash on hand'), findsOneWidget);
+      expect(find.text('Gold (grams)'), findsOneWidget);
     });
 
     testWidgets('renders Bangla labels under the bn locale', (tester) async {

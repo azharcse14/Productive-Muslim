@@ -1,0 +1,324 @@
+{
+  "hadith": [
+    {
+      "id": "h001",
+      "ar": "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+      "en": "Actions are but by intentions, and every man shall have only that which he intended.",
+      "bn": "নিশ্চয়ই সকল কাজ নিয়তের উপর নির্ভরশীল, আর প্রত্যেক ব্যক্তি তা-ই পাবে যা সে নিয়ত করেছে।",
+      "narrator": "Umar ibn al-Khattab (RA)",
+      "ref": "Sahih Bukhari 1"
+    },
+    {
+      "id": "h002",
+      "ar": "لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
+      "en": "None of you truly believes until he loves for his brother what he loves for himself.",
+      "bn": "তোমাদের কেউ ততক্ষণ পূর্ণ মুমিন হবে না, যতক্ষণ না সে নিজের জন্য যা পছন্দ করে তার ভাইয়ের জন্যও তা পছন্দ করে।",
+      "narrator": "Anas ibn Malik (RA)",
+      "ref": "Sahih Bukhari 13"
+    },
+    {
+      "id": "h003",
+      "ar": "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ، إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ",
+      "en": "The strong man is not the one who wrestles others down; the strong man is the one who controls himself when angry.",
+      "bn": "শক্তিশালী সেই নয় যে কুস্তিতে অন্যকে কাবু করে; বরং প্রকৃত শক্তিশালী সেই, যে রাগের সময় নিজেকে সংযত রাখতে পারে।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 6114"
+    },
+    {
+      "id": "h004",
+      "ar": "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+      "en": "Whoever believes in Allah and the Last Day, let him speak good or remain silent.",
+      "bn": "যে আল্লাহ ও আখিরাতের প্রতি বিশ্বাস রাখে, সে যেন ভালো কথা বলে অথবা চুপ থাকে।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 6018"
+    },
+    {
+      "id": "h005",
+      "ar": "الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ",
+      "en": "The Muslim is the one from whose tongue and hand the Muslims are safe.",
+      "bn": "প্রকৃত মুসলিম সেই, যার জিহ্বা ও হাত থেকে অন্য মুসলিমরা নিরাপদ থাকে।",
+      "narrator": "Abdullah ibn Amr (RA)",
+      "ref": "Sahih Bukhari 10"
+    },
+    {
+      "id": "h006",
+      "ar": "مَنْ حَسُنَ إِسْلَامُ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ",
+      "en": "Part of the excellence of a person's Islam is his leaving that which does not concern him.",
+      "bn": "মানুষের ইসলামের সৌন্দর্যের অন্যতম হলো, অনর্থক বিষয় পরিত্যাগ করা।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "An-Nawawi 12"
+    },
+    {
+      "id": "h007",
+      "ar": "الدِّينُ النَّصِيحَةُ",
+      "en": "The religion is sincerity (and good counsel).",
+      "bn": "দ্বীন হলো কল্যাণকামিতা ও আন্তরিকতা।",
+      "narrator": "Tamim ad-Dari (RA)",
+      "ref": "Sahih Muslim 55"
+    },
+    {
+      "id": "h008",
+      "ar": "اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا",
+      "en": "Fear Allah wherever you are, and follow a bad deed with a good one to wipe it out.",
+      "bn": "তুমি যেখানেই থাকো আল্লাহকে ভয় করো, আর মন্দ কাজের পর ভালো কাজ করো, তা মন্দকে মুছে দেবে।",
+      "narrator": "Abu Dharr (RA)",
+      "ref": "An-Nawawi 18"
+    },
+    {
+      "id": "h009",
+      "ar": "لَا تَغْضَبْ",
+      "en": "Do not become angry.",
+      "bn": "তুমি রাগ করো না।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 6116"
+    },
+    {
+      "id": "h010",
+      "ar": "إِنَّ اللَّهَ كَتَبَ الْإِحْسَانَ عَلَى كُلِّ شَيْءٍ",
+      "en": "Allah has prescribed excellence (ihsan) in all things.",
+      "bn": "নিশ্চয়ই আল্লাহ প্রতিটি বিষয়ে উত্তম আচরণ (ইহসান) ফরজ করে দিয়েছেন।",
+      "narrator": "Shaddad ibn Aws (RA)",
+      "ref": "Sahih Muslim 1955"
+    },
+    {
+      "id": "h011",
+      "ar": "مَنْ لَا يَرْحَمُ النَّاسَ لَا يَرْحَمُهُ اللَّهُ",
+      "en": "Whoever does not show mercy to people, Allah will not show mercy to him.",
+      "bn": "যে মানুষের প্রতি দয়া করে না, আল্লাহও তার প্রতি দয়া করেন না।",
+      "narrator": "Jarir ibn Abdullah (RA)",
+      "ref": "Sahih Bukhari 7376"
+    },
+    {
+      "id": "h012",
+      "ar": "الطُّهُورُ شَطْرُ الْإِيمَانِ",
+      "en": "Cleanliness is half of faith.",
+      "bn": "পবিত্রতা ঈমানের অর্ধেক।",
+      "narrator": "Abu Malik al-Ash'ari (RA)",
+      "ref": "Sahih Muslim 223"
+    },
+    {
+      "id": "h013",
+      "ar": "الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ",
+      "en": "A good word is charity.",
+      "bn": "উত্তম কথা বলা একটি সদকা।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 2989"
+    },
+    {
+      "id": "h014",
+      "ar": "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ",
+      "en": "Your smiling in the face of your brother is charity for you.",
+      "bn": "তোমার ভাইয়ের মুখের সামনে হাসিমুখে থাকাও তোমার জন্য সদকা।",
+      "narrator": "Abu Dharr (RA)",
+      "ref": "Jami at-Tirmidhi 1956"
+    },
+    {
+      "id": "h015",
+      "ar": "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+      "en": "Whoever travels a path seeking knowledge, Allah will make easy for him a path to Paradise.",
+      "bn": "যে ব্যক্তি জ্ঞান অন্বেষণের পথে চলে, আল্লাহ তার জন্য জান্নাতের পথ সহজ করে দেন।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Muslim 2699"
+    },
+    {
+      "id": "h016",
+      "ar": "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+      "en": "The best of you are those who learn the Qur'an and teach it.",
+      "bn": "তোমাদের মধ্যে সর্বোত্তম সেই, যে কুরআন শেখে এবং অন্যকে শেখায়।",
+      "narrator": "Uthman ibn Affan (RA)",
+      "ref": "Sahih Bukhari 5027"
+    },
+    {
+      "id": "h017",
+      "ar": "مَنْ صَمَتَ نَجَا",
+      "en": "Whoever remains silent is saved.",
+      "bn": "যে নীরব থাকে, সে নাজাত পায়।",
+      "narrator": "Abdullah ibn Amr (RA)",
+      "ref": "Jami at-Tirmidhi 2501"
+    },
+    {
+      "id": "h018",
+      "ar": "الْحَيَاءُ مِنَ الْإِيمَانِ",
+      "en": "Modesty is part of faith.",
+      "bn": "লজ্জা ঈমানের অঙ্গ।",
+      "narrator": "Abdullah ibn Umar (RA)",
+      "ref": "Sahih Bukhari 24"
+    },
+    {
+      "id": "h019",
+      "ar": "إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ، وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ",
+      "en": "Allah does not look at your appearances or your wealth, but He looks at your hearts and your deeds.",
+      "bn": "নিশ্চয়ই আল্লাহ তোমাদের চেহারা ও সম্পদের দিকে তাকান না, বরং তিনি তোমাদের অন্তর ও আমলের দিকে তাকান।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Muslim 2564"
+    },
+    {
+      "id": "h020",
+      "ar": "مَنْ بَنَى لِلَّهِ مَسْجِدًا بَنَى اللَّهُ لَهُ مِثْلَهُ فِي الْجَنَّةِ",
+      "en": "Whoever builds a mosque for Allah, Allah will build for him the like of it in Paradise.",
+      "bn": "যে ব্যক্তি আল্লাহর সন্তুষ্টির জন্য একটি মসজিদ নির্মাণ করে, আল্লাহ তার জন্য জান্নাতে অনুরূপ একটি ঘর নির্মাণ করেন।",
+      "narrator": "Uthman ibn Affan (RA)",
+      "ref": "Sahih Bukhari 450"
+    },
+    {
+      "id": "h021",
+      "ar": "بَشِّرُوا وَلَا تُنَفِّرُوا، وَيَسِّرُوا وَلَا تُعَسِّرُوا",
+      "en": "Give glad tidings and do not repel; make things easy and do not make them difficult.",
+      "bn": "তোমরা সুসংবাদ দাও, বিতৃষ্ণা সৃষ্টি করো না; সহজ করো, কঠিন করো না।",
+      "narrator": "Anas ibn Malik (RA)",
+      "ref": "Sahih Bukhari 69"
+    },
+    {
+      "id": "h022",
+      "ar": "مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ",
+      "en": "Whoever does not thank people has not thanked Allah.",
+      "bn": "যে মানুষের কৃতজ্ঞতা প্রকাশ করে না, সে আল্লাহরও কৃতজ্ঞতা প্রকাশ করে না।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Jami at-Tirmidhi 1954"
+    },
+    {
+      "id": "h023",
+      "ar": "الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا",
+      "en": "The believer to another believer is like a building whose parts support one another.",
+      "bn": "এক মুমিন অপর মুমিনের জন্য একটি দালালের মতো, যার এক অংশ অপর অংশকে মজবুত করে।",
+      "narrator": "Abu Musa al-Ash'ari (RA)",
+      "ref": "Sahih Bukhari 481"
+    },
+    {
+      "id": "h024",
+      "ar": "مَنْ غَشَّنَا فَلَيْسَ مِنَّا",
+      "en": "Whoever deceives us is not one of us.",
+      "bn": "যে আমাদের সাথে প্রতারণা করে, সে আমাদের দলভুক্ত নয়।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Muslim 101"
+    },
+    {
+      "id": "h025",
+      "ar": "كُلُّ مَعْرُوفٍ صَدَقَةٌ",
+      "en": "Every act of kindness is a charity.",
+      "bn": "প্রতিটি সৎ কাজই একটি সদকা।",
+      "narrator": "Jabir ibn Abdullah (RA)",
+      "ref": "Sahih Bukhari 6021"
+    },
+    {
+      "id": "h026",
+      "ar": "إِنَّ مِنْ خِيَارِكُمْ أَحْسَنَكُمْ أَخْلَاقًا",
+      "en": "Among the best of you are those who have the best character.",
+      "bn": "নিশ্চয়ই তোমাদের মধ্যে সর্বোত্তম সেই, যার চরিত্র সবচেয়ে উত্তম।",
+      "narrator": "Abdullah ibn Amr (RA)",
+      "ref": "Sahih Bukhari 3559"
+    },
+    {
+      "id": "h027",
+      "ar": "الدُّنْيَا مَتَاعٌ، وَخَيْرُ مَتَاعِ الدُّنْيَا الْمَرْأَةُ الصَّالِحَةُ",
+      "en": "The world is but provision, and the best provision of the world is a righteous woman.",
+      "bn": "দুনিয়া হলো ভোগের সামগ্রী, আর দুনিয়ার সর্বোত্তম সম্পদ হলো একজন নেককার নারী।",
+      "narrator": "Abdullah ibn Amr (RA)",
+      "ref": "Sahih Muslim 1467"
+    },
+    {
+      "id": "h028",
+      "ar": "مَنْ قَالَ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ حُطَّتْ خَطَايَاهُ",
+      "en": "Whoever says 'Subhan Allah wa bihamdihi' a hundred times a day, his sins are wiped away.",
+      "bn": "যে ব্যক্তি দিনে একশতবার 'সুবহানাল্লাহি ওয়া বিহামদিহি' বলে, তার গুনাহসমূহ মুছে দেওয়া হয়।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 6405"
+    },
+    {
+      "id": "h029",
+      "ar": "مَنْ كَانَ فِي حَاجَةِ أَخِيهِ كَانَ اللَّهُ فِي حَاجَتِهِ",
+      "en": "Whoever fulfills the needs of his brother, Allah will fulfill his needs.",
+      "bn": "যে ব্যক্তি তার ভাইয়ের প্রয়োজন পূরণে নিয়োজিত থাকে, আল্লাহ তার প্রয়োজন পূরণে থাকেন।",
+      "narrator": "Abdullah ibn Umar (RA)",
+      "ref": "Sahih Bukhari 2442"
+    },
+    {
+      "id": "h030",
+      "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى",
+      "en": "O Allah, I ask You for guidance, piety, chastity and contentment.",
+      "bn": "হে আল্লাহ, আমি আপনার কাছে হিদায়াত, তাকওয়া, পবিত্রতা ও আত্মতৃপ্তি প্রার্থনা করছি।",
+      "narrator": "Abdullah ibn Mas'ud (RA)",
+      "ref": "Sahih Muslim 2721"
+    },
+    {
+      "id": "h031",
+      "ar": "خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ",
+      "en": "The best of people are those most beneficial to people.",
+      "bn": "সর্বোত্তম মানুষ সেই, যে অন্য মানুষের জন্য সবচেয়ে উপকারী।",
+      "narrator": "Jabir ibn Abdullah (RA)",
+      "ref": "Mu'jam al-Awsat 5787"
+    },
+    {
+      "id": "h032",
+      "ar": "مَنْ تَوَاضَعَ لِلَّهِ رَفَعَهُ اللَّهُ",
+      "en": "Whoever humbles himself for Allah, Allah will raise him.",
+      "bn": "যে ব্যক্তি আল্লাহর জন্য বিনয়ী হয়, আল্লাহ তাকে উঁচু করে দেন।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Muslim 2588"
+    },
+    {
+      "id": "h033",
+      "ar": "إِنَّ اللَّهَ رَفِيقٌ يُحِبُّ الرِّفْقَ فِي الْأَمْرِ كُلِّهِ",
+      "en": "Allah is gentle and loves gentleness in all matters.",
+      "bn": "নিশ্চয়ই আল্লাহ কোমল, আর তিনি প্রতিটি বিষয়ে কোমলতা পছন্দ করেন।",
+      "narrator": "Aisha (RA)",
+      "ref": "Sahih Bukhari 6927"
+    },
+    {
+      "id": "h034",
+      "ar": "مَنْ حَجَّ فَلَمْ يَرْفُثْ وَلَمْ يَفْسُقْ رَجَعَ كَيَوْمِ وَلَدَتْهُ أُمُّهُ",
+      "en": "Whoever performs Hajj without obscenity or wrongdoing returns as on the day his mother bore him.",
+      "bn": "যে ব্যক্তি অশ্লীলতা ও পাপাচার ছাড়া হজ আদায় করে, সে এমনভাবে ফিরে আসে যেন তার মা তাকে সদ্য জন্ম দিয়েছেন।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 1521"
+    },
+    {
+      "id": "h035",
+      "ar": "الصِّيَامُ جُنَّةٌ",
+      "en": "Fasting is a shield.",
+      "bn": "রোজা হলো একটি ঢাল।",
+      "narrator": "Abu Hurairah (RA)",
+      "ref": "Sahih Bukhari 1894"
+    },
+    {
+      "id": "h036",
+      "ar": "مَنْ صَلَّى الْبَرْدَيْنِ دَخَلَ الْجَنَّةَ",
+      "en": "Whoever prays the two cool prayers (Fajr and Asr) will enter Paradise.",
+      "bn": "যে ব্যক্তি দুই শীতল ওয়াক্তের নামাজ (ফজর ও আসর) আদায় করে, সে জান্নাতে প্রবেশ করবে।",
+      "narrator": "Abu Musa al-Ash'ari (RA)",
+      "ref": "Sahih Bukhari 574"
+    },
+    {
+      "id": "h037",
+      "ar": "أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ",
+      "en": "The most beloved deeds to Allah are the most consistent, even if they are few.",
+      "bn": "আল্লাহর কাছে সর্বাধিক প্রিয় আমল হলো সেটিই, যা নিয়মিত করা হয়, যদিও তা পরিমাণে কম হয়।",
+      "narrator": "Aisha (RA)",
+      "ref": "Sahih Bukhari 6464"
+    },
+    {
+      "id": "h038",
+      "ar": "مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ",
+      "en": "Whomever Allah wishes good for, He grants him understanding of the religion.",
+      "bn": "আল্লাহ যার কল্যাণ চান, তাকে দ্বীনের গভীর বুঝ দান করেন।",
+      "narrator": "Mu'awiyah (RA)",
+      "ref": "Sahih Bukhari 71"
+    },
+    {
+      "id": "h039",
+      "ar": "إِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ، وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ",
+      "en": "Truthfulness leads to righteousness, and righteousness leads to Paradise.",
+      "bn": "নিশ্চয়ই সত্যবাদিতা পুণ্যের দিকে পথ দেখায়, আর পুণ্য জান্নাতের দিকে পথ দেখায়।",
+      "narrator": "Abdullah ibn Mas'ud (RA)",
+      "ref": "Sahih Bukhari 6094"
+    },
+    {
+      "id": "h040",
+      "ar": "كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ",
+      "en": "Be in this world as though you were a stranger or a traveler passing through.",
+      "bn": "তুমি দুনিয়াতে এমনভাবে থাকো, যেন তুমি একজন অপরিচিত পথিক অথবা পথ অতিক্রমকারী মুসাফির।",
+      "narrator": "Abdullah ibn Umar (RA)",
+      "ref": "Sahih Bukhari 6416"
+    }
+  ]
+}

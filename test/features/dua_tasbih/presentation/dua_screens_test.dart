@@ -10,6 +10,7 @@ import 'package:qalbee/features/dua_tasbih/presentation/screens/asmaul_husna_scr
 import 'package:qalbee/features/dua_tasbih/presentation/screens/dua_category_screen.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/screens/dua_screen.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/screens/tasbih_screen.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/shared/widgets/q_progress_ring.dart';
@@ -89,8 +90,11 @@ void main() {
         InMemorySharedPreferencesAsync.empty();
     final duaStore = DuaStore(_FakeDuaRepository());
     await duaStore.load();
+    final favoritesStore = DuaFavoritesStore(SharedPreferencesAsync());
+    await favoritesStore.load();
     GetIt.I
       ..registerSingleton<DuaStore>(duaStore)
+      ..registerSingleton<DuaFavoritesStore>(favoritesStore)
       ..registerSingleton<TasbihStore>(
         TasbihStore(
           SharedPreferencesAsync(),

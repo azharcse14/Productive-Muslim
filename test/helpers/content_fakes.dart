@@ -2,6 +2,7 @@ import 'package:qalbee/core/utils/result.dart';
 import 'package:qalbee/features/dua_tasbih/domain/entities/dua.dart';
 import 'package:qalbee/features/dua_tasbih/domain/repositories/dua_repository.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/features/quran/domain/entities/ayah.dart';
 import 'package:qalbee/features/quran/domain/entities/surah.dart';
 import 'package:qalbee/features/quran/domain/repositories/quran_repository.dart';
@@ -106,6 +107,18 @@ final class FakeDuaRepository implements DuaRepository {
 
 Future<DuaStore> makeDuaStore() async {
   final store = DuaStore(FakeDuaRepository());
+  await store.load();
+  return store;
+}
+
+/// Tasbih counter for shell-level widget tests — no-op haptics so no
+/// platform channels are touched.
+Future<TasbihStore> makeTasbihStore() async {
+  final store = TasbihStore(
+    SharedPreferencesAsync(),
+    haptic: () {},
+    milestoneHaptic: () {},
+  );
   await store.load();
   return store;
 }

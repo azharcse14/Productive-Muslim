@@ -134,6 +134,31 @@
   "sunsetLabel": "Sunset",
   "sahriEndsLabel": "Sahri ends",
   "iftarLabel": "Iftar",
+  "forbiddenTimesTitle": "Forbidden times",
+  "naflTimesTitle": "Nafl times",
+  "specialNow": "Now",
+  "specialTimeForbiddenSunrise": "After sunrise",
+  "specialTimeForbiddenZawal": "Midday (zawal)",
+  "specialTimeForbiddenSunset": "Before sunset",
+  "specialTimeIshraq": "Ishraq",
+  "specialTimeDuha": "Duha (Chasht)",
+  "specialTimeSalatZawal": "Salat al-Zawal",
+  "specialTimeAwwabin": "Awwabin",
+  "specialTimeTahajjud": "Tahajjud",
+  "forbiddenTimesSubtitle": "No salah may be offered in these three moments.",
+  "naflTimesSubtitle": "Best times for voluntary (nafl) prayers.",
+  "specialTimesLearnMore": "Tap for details",
+  "specialTimesPageTitle": "Forbidden & nafl times",
+  "forbiddenTimesIntro": "There are three moments in the day when offering any salah is prohibited (makruh tahrimi). The Prophet ﷺ forbade praying as the sun rises, at its zenith, and as it sets — the times the disbelievers worshipped the sun. Missed obligatory prayers remembered in these windows may still be made up.",
+  "naflTimesIntro": "Beyond the obligatory prayers, these are recommended voluntary (nafl) prayers with their preferred times — a means of drawing nearer to Allah and making up for shortcomings in the fard.",
+  "specialDetailForbiddenSunrise": "From sunrise until the sun has fully risen above the horizon (about 15 minutes). The Prophet ﷺ said the sun rises between the two horns of Shaytan, so salah is withheld until it clears.",
+  "specialDetailForbiddenZawal": "The brief moment the sun stands at its highest point (istiwa) before passing the meridian into the Dhuhr time. No salah is offered until it begins to decline.",
+  "specialDetailForbiddenSunset": "From when the sun yellows and starts to set until it has fully set (Maghrib). As at sunrise, salah is withheld while the sun sets.",
+  "specialDetailIshraq": "Two rak'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak'ahs earns the reward of a complete Hajj and Umrah.",
+  "specialDetailDuha": "The forenoon prayer of two to twelve rak'ahs, best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak'ahs suffice for it.",
+  "specialDetailSalatZawal": "Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.",
+  "specialDetailAwwabin": "Voluntary rak'ahs offered between the Maghrib and Isha prayers — the salah of the oft-returning (awwabin), beloved for turning back to Allah after the day's work.",
+  "specialDetailTahajjud": "Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.",
   "setJamaat": "Set jamaat",
   "homeSetLocationTitle": "Where are you?",
   "homeSetLocationBody": "Pick your location once and Qalbee computes accurate prayer times for it — fully offline.",
@@ -441,6 +466,7 @@
   },
   "monthTable": "Sahri & iftar this month",
   "zakatTitle": "Zakat calculator",
+  "zakatSubtitle": "Work out the zakat due on your wealth",
   "zakatCash": "Cash on hand",
   "zakatBank": "Bank balance",
   "zakatGold": "Gold (grams)",
@@ -505,5 +531,157 @@
   "appLockUseBiometric": "Use fingerprint / face",
   "appLockEnable": "App lock",
   "appLockEnableSub": "Require a PIN (and biometrics) to open Qalbee",
-  "appLockDisable": "Turn off app lock"
+  "appLockDisable": "Turn off app lock",
+  "prayerSheetWindow": "Time window",
+  "prayerSheetRakaat": "Rakaat",
+  "rakaatFard": "Fard",
+  "rakaatSunnah": "Sunnah",
+  "rakaatWitr": "Witr",
+  "prayerSheetNoJamaat": "No jamaat set",
+  "prayerFazilatFajr": "The two sunnah of Fajr are better than the world and all it contains. Its prayer is witnessed by the angels of night and day.",
+  "prayerFazilatDhuhr": "The gates of the heavens open at midday; the Prophet loved to pray four rakaat in that hour.",
+  "prayerFazilatAsr": "Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.",
+  "prayerFazilatMaghrib": "Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.",
+  "prayerFazilatIsha": "Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.",
+  "dailyAyahTitle": "Ayah of the day",
+  "dailyAyahReference": "{surah}, ayah {ayah}",
+  "@dailyAyahReference": {
+    "placeholders": {
+      "surah": { "type": "String" },
+      "ayah": { "type": "String" }
+    }
+  },
+  "tasbihQuickTitle": "Tasbih",
+  "tasbihQuickHint": "Tap to count",
+  "qiblaChipLabel": "Qibla",
+  "qiblaChipNeedsLocation": "Set location",
+  "dayTimelineTitle": "Today's timeline",
+  "streakMilestone": "{count}-day streak! 🎉",
+  "@streakMilestone": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "calculatorsTitle": "Calculators",
+  "calculatorsSubtitle": "Zakat, fitra, qaza, inheritance & age",
+  "fitraTitle": "Fitra calculator",
+  "fitraSubtitle": "Calculate Sadaqatul Fitr for your household",
+  "fitraStaple": "Staple food",
+  "fitraStapleWheat": "Wheat / flour",
+  "fitraStapleBarley": "Barley",
+  "fitraStapleDates": "Dates",
+  "fitraStapleRaisins": "Raisins",
+  "fitraPricePerKg": "Price per kg",
+  "fitraPeople": "Number of people",
+  "fitraCalculate": "Calculate",
+  "fitraPerPerson": "Per person: {amount}",
+  "@fitraPerPerson": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "fitraTotal": "Total fitra: {amount}",
+  "@fitraTotal": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "fitraWeightNote": "Based on {kg} kg per person",
+  "@fitraWeightNote": {
+    "placeholders": { "kg": { "type": "String" } }
+  },
+  "fitraBeforeEid": "Pay before the Eid prayer.",
+  "qazaTitle": "Qaza prayer calculator",
+  "qazaSubtitle": "Estimate missed obligatory prayers to make up",
+  "qazaStartDate": "From date",
+  "qazaEndDate": "To date",
+  "qazaSelectDate": "Select date",
+  "qazaIncludeWitr": "Include Witr (Hanafi)",
+  "qazaAlreadyMadeUp": "Already made up (per prayer)",
+  "qazaCalculate": "Calculate",
+  "qazaDays": "Period: {count} days",
+  "@qazaDays": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaPerPrayer": "Each prayer: {count}",
+  "@qazaPerPrayer": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaWitr": "Witr: {count}",
+  "@qazaWitr": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaTotal": "Total missed: {count}",
+  "@qazaTotal": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaNote": "An estimate to help you plan — make them up steadily, without guilt.",
+  "ageTitle": "Age calculator",
+  "ageSubtitle": "Your age in both the Gregorian and Hijri calendars",
+  "ageBirthDate": "Date of birth",
+  "ageAsOf": "As of date",
+  "ageSelectDate": "Select date",
+  "ageCalculate": "Calculate",
+  "ageGregorian": "Gregorian age",
+  "ageHijri": "Hijri age",
+  "ageValue": "{years} years, {months} months, {days} days",
+  "@ageValue": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "months": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "ageTotalDays": "Total: {count} days",
+  "@ageTotalDays": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "faraidTitle": "Inheritance calculator",
+  "faraidSubtitle": "Estimate shares for common heirs (Faraid)",
+  "faraidEstate": "Estate value",
+  "faraidSpouse": "Spouse",
+  "faraidNone": "None",
+  "faraidHusband": "Husband",
+  "faraidWife": "Wife",
+  "faraidWives": "Number of wives",
+  "faraidFather": "Father",
+  "faraidMother": "Mother",
+  "faraidSons": "Sons",
+  "faraidDaughters": "Daughters",
+  "faraidBrothers": "Full brothers",
+  "faraidSisters": "Full sisters",
+  "faraidCalculate": "Calculate",
+  "faraidShare": "{label}: {amount}",
+  "@faraidShare": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "faraidAwlNote": "Shares exceed the estate — reduced proportionally ('Awl).",
+  "faraidRaddNote": "Surplus returned to the heirs (Radd).",
+  "faraidUnallocated": "Unallocated (to other relatives): {amount}",
+  "@faraidUnallocated": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "faraidDisclaimer": "An estimate for common heirs only. Consult a qualified scholar for a binding ruling.",
+  "faraidHeirHusband": "Husband",
+  "faraidHeirWife": "Wife",
+  "faraidHeirFather": "Father",
+  "faraidHeirMother": "Mother",
+  "faraidHeirSon": "Son",
+  "faraidHeirDaughter": "Daughter",
+  "faraidHeirBrother": "Brother",
+  "faraidHeirSister": "Sister",
+  "hadithOfDayTitle": "Hadith of the day",
+  "hadithTitle": "Hadith",
+  "hadithSubtitle": "Authentic narrations to reflect on",
+  "hadithNarratedBy": "Narrated by {narrator}",
+  "@hadithNarratedBy": {
+    "placeholders": { "narrator": { "type": "String" } }
+  },
+  "duaSearchHint": "Search duas",
+  "duaSearchTitle": "Search",
+  "duaNoResults": "No duas found",
+  "duaFavoritesTitle": "Favorites",
+  "duaFavoritesEmpty": "Tap the heart on any dua to save it here",
+  "favoriteAddLabel": "Add to favorites",
+  "favoriteRemoveLabel": "Remove from favorites",
+  "widgetNextPrayerLabel": "Next prayer"
 }

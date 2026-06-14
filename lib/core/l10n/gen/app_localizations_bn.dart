@@ -256,6 +256,92 @@ class AppLocalizationsBn extends AppLocalizations {
   String get iftarLabel => 'ইফতার';
 
   @override
+  String get forbiddenTimesTitle => 'নিষিদ্ধ ওয়াক্ত';
+
+  @override
+  String get naflTimesTitle => 'নফল সালাত';
+
+  @override
+  String get specialNow => 'এখন';
+
+  @override
+  String get specialTimeForbiddenSunrise => 'সূর্যোদয়ের পর';
+
+  @override
+  String get specialTimeForbiddenZawal => 'দ্বিপ্রহর (যাওয়াল)';
+
+  @override
+  String get specialTimeForbiddenSunset => 'সূর্যাস্তের আগে';
+
+  @override
+  String get specialTimeIshraq => 'ইশরাক';
+
+  @override
+  String get specialTimeDuha => 'চাশত (দুহা)';
+
+  @override
+  String get specialTimeSalatZawal => 'সালাতুয যাওয়াল';
+
+  @override
+  String get specialTimeAwwabin => 'আওয়াবিন';
+
+  @override
+  String get specialTimeTahajjud => 'তাহাজ্জুদ';
+
+  @override
+  String get forbiddenTimesSubtitle =>
+      'এই তিন সময়ে কোনো সালাত আদায় করা যায় না।';
+
+  @override
+  String get naflTimesSubtitle => 'নফল সালাত আদায়ের উত্তম সময়।';
+
+  @override
+  String get specialTimesLearnMore => 'বিস্তারিত দেখতে চাপুন';
+
+  @override
+  String get specialTimesPageTitle => 'নিষিদ্ধ ও নফল সময়';
+
+  @override
+  String get forbiddenTimesIntro =>
+      'দিনে তিনটি সময় আছে যখন যেকোনো সালাত আদায় করা নিষিদ্ধ (মাকরূহ তাহরীমি)। রাসূলুল্লাহ ﷺ সূর্যোদয়, ঠিক দ্বিপ্রহরে এবং সূর্যাস্তের সময় সালাত আদায় করতে নিষেধ করেছেন — যে সময়ে কাফেররা সূর্যের পূজা করত। তবে এই সময়ে স্মরণে আসা ছুটে যাওয়া ফরজ সালাত কাযা করা যায়।';
+
+  @override
+  String get naflTimesIntro =>
+      'ফরজ সালাত ছাড়াও কিছু নফল (ঐচ্ছিক) সালাত রয়েছে যেগুলোর নির্দিষ্ট উত্তম সময় আছে — এগুলো আল্লাহর নৈকট্য লাভ ও ফরজের ঘাটতি পূরণের মাধ্যম।';
+
+  @override
+  String get specialDetailForbiddenSunrise =>
+      'সূর্যোদয় থেকে শুরু করে সূর্য দিগন্তের উপরে পুরোপুরি উঠে যাওয়া পর্যন্ত (প্রায় ১৫ মিনিট)। রাসূলুল্লাহ ﷺ বলেছেন সূর্য শয়তানের দুই শিংয়ের মাঝ দিয়ে উদিত হয়, তাই তা পুরোপুরি উঠার আগ পর্যন্ত সালাত স্থগিত থাকে।';
+
+  @override
+  String get specialDetailForbiddenZawal =>
+      'যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত কোনো সালাত আদায় হয় না।';
+
+  @override
+  String get specialDetailForbiddenSunset =>
+      'সূর্য যখন হলদে হয়ে অস্ত যেতে শুরু করে তখন থেকে পুরোপুরি অস্ত (মাগরিব) যাওয়া পর্যন্ত। সূর্যোদয়ের মতোই অস্ত যাওয়ার সময় সালাত স্থগিত থাকে।';
+
+  @override
+  String get specialDetailIshraq =>
+      'সূর্য পুরোপুরি উঠে যাওয়ার অল্প পরে আদায় করা দুই রাকাত। যে ব্যক্তি জামাতে ফজর পড়ে সূর্যোদয় পর্যন্ত যিকিরে বসে থাকে এবং পরে দুই রাকাত পড়ে, সে একটি পূর্ণ হজ ও উমরার সওয়াব পায়।';
+
+  @override
+  String get specialDetailDuha =>
+      'চাশতের নামাজ — দুই থেকে বারো রাকাত, সূর্য ভালোভাবে উঠে যাওয়ার পর থেকে যাওয়ালের ঠিক আগ পর্যন্ত আদায় করা উত্তম। প্রতিদিন সকালে শরীরের প্রতিটি জোড়ার জন্য সদকা ওয়াজিব, আর এই রাকাতগুলো তার জন্য যথেষ্ট।';
+
+  @override
+  String get specialDetailSalatZawal =>
+      'সূর্য মাথার উপর থেকে ঢলে পড়ার ঠিক পরে, যোহরের ফরজের আগমুহূর্তে আদায় করা হয়। রাসূলুল্লাহ ﷺ এই সময়ে নামাজ পড়তেন যখন আসমানের দরজাগুলো খুলে দেওয়া হয়।';
+
+  @override
+  String get specialDetailAwwabin =>
+      'মাগরিব ও এশার মাঝে আদায় করা নফল রাকাত — আওয়াবিন (অধিক প্রত্যাবর্তনকারীদের) সালাত, দিনের কাজ শেষে আল্লাহর দিকে ফিরে আসার জন্য প্রিয়।';
+
+  @override
+  String get specialDetailTahajjud =>
+      'রাতের শেষ তৃতীয়াংশে আদায় করা সালাত, সর্বোত্তম নফল সালাত। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
+
+  @override
   String get setJamaat => 'জামাত সেট করুন';
 
   @override
@@ -783,6 +869,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get zakatTitle => 'যাকাত ক্যালকুলেটর';
 
   @override
+  String get zakatSubtitle => 'আপনার সম্পদের ওপর প্রদেয় যাকাত হিসাব করুন';
+
+  @override
   String get zakatCash => 'নগদ টাকা';
 
   @override
@@ -939,4 +1028,338 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get appLockDisable => 'অ্যাপ লক বন্ধ করুন';
+
+  @override
+  String get prayerSheetWindow => 'ওয়াক্তের সময়';
+
+  @override
+  String get prayerSheetRakaat => 'রাকাত';
+
+  @override
+  String get rakaatFard => 'ফরজ';
+
+  @override
+  String get rakaatSunnah => 'সুন্নত';
+
+  @override
+  String get rakaatWitr => 'বিতর';
+
+  @override
+  String get prayerSheetNoJamaat => 'জামাত সেট করা নেই';
+
+  @override
+  String get prayerFazilatFajr =>
+      'ফজরের দুই রাকাত সুন্নত দুনিয়া ও তার সবকিছুর চেয়ে উত্তম। দিন ও রাতের ফেরেশতারা এ নামাজের সাক্ষী হন।';
+
+  @override
+  String get prayerFazilatDhuhr =>
+      'দুপুরে আসমানের দরজাগুলো খুলে দেওয়া হয়; নবীজি তখন চার রাকাত পড়তে ভালোবাসতেন।';
+
+  @override
+  String get prayerFazilatAsr =>
+      'মধ্যবর্তী নামাজের হেফাজত করো। যে আসর পড়ে, সে সূর্যোদয় ও সূর্যাস্তের আগে জাহান্নামে প্রবেশ করবে না।';
+
+  @override
+  String get prayerFazilatMaghrib =>
+      'সূর্য ডোবার সাথে সাথেই পড়ে নাও। ফরজের পর দুই রাকাত হালকা সুন্নত রয়েছে।';
+
+  @override
+  String get prayerFazilatIsha =>
+      'জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।';
+
+  @override
+  String get dailyAyahTitle => 'আজকের আয়াত';
+
+  @override
+  String dailyAyahReference(String surah, String ayah) {
+    return '$surah, আয়াত $ayah';
+  }
+
+  @override
+  String get tasbihQuickTitle => 'তাসবিহ';
+
+  @override
+  String get tasbihQuickHint => 'গুনতে ট্যাপ করুন';
+
+  @override
+  String get qiblaChipLabel => 'কিবলা';
+
+  @override
+  String get qiblaChipNeedsLocation => 'অবস্থান দিন';
+
+  @override
+  String get dayTimelineTitle => 'আজকের সময়রেখা';
+
+  @override
+  String streakMilestone(int count) {
+    return '$count দিনের ধারা! 🎉';
+  }
+
+  @override
+  String get calculatorsTitle => 'ক্যালকুলেটর';
+
+  @override
+  String get calculatorsSubtitle => 'যাকাত, ফিতরা, কাযা, উত্তরাধিকার ও বয়স';
+
+  @override
+  String get fitraTitle => 'ফিতরা ক্যালকুলেটর';
+
+  @override
+  String get fitraSubtitle => 'আপনার পরিবারের জন্য সাদাকাতুল ফিতর হিসাব করুন';
+
+  @override
+  String get fitraStaple => 'প্রধান খাদ্য';
+
+  @override
+  String get fitraStapleWheat => 'গম / আটা';
+
+  @override
+  String get fitraStapleBarley => 'যব';
+
+  @override
+  String get fitraStapleDates => 'খেজুর';
+
+  @override
+  String get fitraStapleRaisins => 'কিশমিশ';
+
+  @override
+  String get fitraPricePerKg => 'প্রতি কেজির দাম';
+
+  @override
+  String get fitraPeople => 'ব্যক্তির সংখ্যা';
+
+  @override
+  String get fitraCalculate => 'হিসাব করুন';
+
+  @override
+  String fitraPerPerson(String amount) {
+    return 'জনপ্রতি: $amount';
+  }
+
+  @override
+  String fitraTotal(String amount) {
+    return 'মোট ফিতরা: $amount';
+  }
+
+  @override
+  String fitraWeightNote(String kg) {
+    return 'জনপ্রতি $kg কেজি অনুযায়ী';
+  }
+
+  @override
+  String get fitraBeforeEid => 'ঈদের নামাজের আগে আদায় করুন।';
+
+  @override
+  String get qazaTitle => 'কাযা নামাজ ক্যালকুলেটর';
+
+  @override
+  String get qazaSubtitle =>
+      'আদায় করার জন্য ছুটে যাওয়া ফরজ নামাজের আনুমানিক হিসাব';
+
+  @override
+  String get qazaStartDate => 'শুরুর তারিখ';
+
+  @override
+  String get qazaEndDate => 'শেষের তারিখ';
+
+  @override
+  String get qazaSelectDate => 'তারিখ নির্বাচন করুন';
+
+  @override
+  String get qazaIncludeWitr => 'বিতর অন্তর্ভুক্ত করুন (হানাফি)';
+
+  @override
+  String get qazaAlreadyMadeUp => 'ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)';
+
+  @override
+  String get qazaCalculate => 'হিসাব করুন';
+
+  @override
+  String qazaDays(String count) {
+    return 'সময়কাল: $count দিন';
+  }
+
+  @override
+  String qazaPerPrayer(String count) {
+    return 'প্রতি নামাজ: $count';
+  }
+
+  @override
+  String qazaWitr(String count) {
+    return 'বিতর: $count';
+  }
+
+  @override
+  String qazaTotal(String count) {
+    return 'মোট ছুটে যাওয়া: $count';
+  }
+
+  @override
+  String get qazaNote =>
+      'পরিকল্পনায় সহায়তার জন্য একটি আনুমানিক হিসাব — অপরাধবোধ ছাড়াই ধীরে ধীরে আদায় করুন।';
+
+  @override
+  String get ageTitle => 'বয়স ক্যালকুলেটর';
+
+  @override
+  String get ageSubtitle => 'গ্রেগরিয়ান ও হিজরি উভয় ক্যালেন্ডারে আপনার বয়স';
+
+  @override
+  String get ageBirthDate => 'জন্ম তারিখ';
+
+  @override
+  String get ageAsOf => 'যে তারিখ অনুযায়ী';
+
+  @override
+  String get ageSelectDate => 'তারিখ নির্বাচন করুন';
+
+  @override
+  String get ageCalculate => 'হিসাব করুন';
+
+  @override
+  String get ageGregorian => 'গ্রেগরিয়ান বয়স';
+
+  @override
+  String get ageHijri => 'হিজরি বয়স';
+
+  @override
+  String ageValue(String years, String months, String days) {
+    return '$years বছর, $months মাস, $days দিন';
+  }
+
+  @override
+  String ageTotalDays(String count) {
+    return 'মোট: $count দিন';
+  }
+
+  @override
+  String get faraidTitle => 'উত্তরাধিকার ক্যালকুলেটর';
+
+  @override
+  String get faraidSubtitle =>
+      'সাধারণ উত্তরাধিকারীদের অংশ অনুমান করুন (ফারায়েজ)';
+
+  @override
+  String get faraidEstate => 'সম্পত্তির পরিমাণ';
+
+  @override
+  String get faraidSpouse => 'স্বামী/স্ত্রী';
+
+  @override
+  String get faraidNone => 'কেউ নয়';
+
+  @override
+  String get faraidHusband => 'স্বামী';
+
+  @override
+  String get faraidWife => 'স্ত্রী';
+
+  @override
+  String get faraidWives => 'স্ত্রীর সংখ্যা';
+
+  @override
+  String get faraidFather => 'পিতা';
+
+  @override
+  String get faraidMother => 'মাতা';
+
+  @override
+  String get faraidSons => 'ছেলে';
+
+  @override
+  String get faraidDaughters => 'মেয়ে';
+
+  @override
+  String get faraidBrothers => 'সহোদর ভাই';
+
+  @override
+  String get faraidSisters => 'সহোদর বোন';
+
+  @override
+  String get faraidCalculate => 'হিসাব করুন';
+
+  @override
+  String faraidShare(String label, String amount) {
+    return '$label: $amount';
+  }
+
+  @override
+  String get faraidAwlNote =>
+      'অংশসমূহ সম্পত্তির চেয়ে বেশি — আনুপাতিকভাবে কমানো হয়েছে (\'আউল)।';
+
+  @override
+  String get faraidRaddNote =>
+      'উদ্বৃত্ত উত্তরাধিকারীদের ফিরিয়ে দেওয়া হয়েছে (রদ্দ)।';
+
+  @override
+  String faraidUnallocated(String amount) {
+    return 'অবণ্টিত (অন্যান্য আত্মীয়দের জন্য): $amount';
+  }
+
+  @override
+  String get faraidDisclaimer =>
+      'এটি কেবল সাধারণ উত্তরাধিকারীদের জন্য একটি অনুমান। চূড়ান্ত সিদ্ধান্তের জন্য একজন যোগ্য আলেমের পরামর্শ নিন।';
+
+  @override
+  String get faraidHeirHusband => 'স্বামী';
+
+  @override
+  String get faraidHeirWife => 'স্ত্রী';
+
+  @override
+  String get faraidHeirFather => 'পিতা';
+
+  @override
+  String get faraidHeirMother => 'মাতা';
+
+  @override
+  String get faraidHeirSon => 'ছেলে';
+
+  @override
+  String get faraidHeirDaughter => 'মেয়ে';
+
+  @override
+  String get faraidHeirBrother => 'ভাই';
+
+  @override
+  String get faraidHeirSister => 'বোন';
+
+  @override
+  String get hadithOfDayTitle => 'আজকের হাদিস';
+
+  @override
+  String get hadithTitle => 'হাদিস';
+
+  @override
+  String get hadithSubtitle => 'চিন্তা-ভাবনার জন্য সহিহ বর্ণনা';
+
+  @override
+  String hadithNarratedBy(String narrator) {
+    return 'বর্ণনায় $narrator';
+  }
+
+  @override
+  String get duaSearchHint => 'দোয়া খুঁজুন';
+
+  @override
+  String get duaSearchTitle => 'খুঁজুন';
+
+  @override
+  String get duaNoResults => 'কোনো দোয়া পাওয়া যায়নি';
+
+  @override
+  String get duaFavoritesTitle => 'প্রিয়';
+
+  @override
+  String get duaFavoritesEmpty =>
+      'যেকোনো দোয়ার হার্ট আইকনে চাপ দিয়ে এখানে সংরক্ষণ করুন';
+
+  @override
+  String get favoriteAddLabel => 'প্রিয়তে যোগ করুন';
+
+  @override
+  String get favoriteRemoveLabel => 'প্রিয় থেকে সরান';
+
+  @override
+  String get widgetNextPrayerLabel => 'পরবর্তী নামাজ';
 }

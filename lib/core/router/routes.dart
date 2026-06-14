@@ -22,6 +22,9 @@ abstract final class Routes {
   /// Top-level full-screen compass (Home shortcut + More tab).
   static const qibla = (name: 'qibla', path: '/qibla');
 
+  /// Explanatory detail page for the Home forbidden/nafl times cards.
+  static const specialTimes = (name: 'specialTimes', path: '/special-times');
+
   /// Reader under the Quran branch; deep-link friendly
   /// (`/quran/:surah/:ayah` for notification taps — guide §4).
   static const quranReader = (name: 'quranReader', path: ':surah');
@@ -30,6 +33,20 @@ abstract final class Routes {
   /// More-tab destinations (top-level pushes).
   static const ramadan = (name: 'ramadan', path: '/ramadan');
   static const calendar = (name: 'calendar', path: '/calendar');
+
+  /// Zakat calculator — top-level so it's reachable directly from More
+  /// (year-round obligation) as well as from the Ramadan hub.
+  static const zakat = (name: 'zakat', path: '/zakat');
+
+  /// Hadith collection — reachable from More and the Home daily card.
+  static const hadith = (name: 'hadith', path: '/hadith');
+
+  /// Islamic calculators hub (More tab) and its individual tools.
+  static const calculators = (name: 'calculators', path: '/calculators');
+  static const fitra = (name: 'fitra', path: '/calculators/fitra');
+  static const qaza = (name: 'qaza', path: '/calculators/qaza');
+  static const faraid = (name: 'faraid', path: '/calculators/faraid');
+  static const age = (name: 'age', path: '/calculators/age');
 
   /// First-run flow and the app-lock gate (outside the shell).
   static const splash = (name: 'splash', path: '/splash');

@@ -10,8 +10,10 @@ import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/countdown_target.dart';
 import '../../domain/entities/prayer_day.dart';
+import '../../domain/entities/special_time.dart';
 import '../../domain/usecases/get_prayer_day.dart';
 import '../../domain/usecases/resolve_countdown.dart';
+import '../../domain/usecases/resolve_special_times.dart';
 
 /// Home-screen state. ONE 1-second timer drives ONE `now` signal;
 /// everything else is `computed` (guide §4: derive, don't duplicate).
@@ -132,6 +134,28 @@ final class HomeStore {
       for (final (i, prayer) in Prayer.values.indexed)
         if (mask & (1 << i) == 0) prayer,
     };
+  });
+
+  /// Today's forbidden (makruh) and nafl windows — flips only when the
+  /// day changes, so the special-times card doesn't rebuild per second.
+  late final specialWindows = computed<List<SpecialWindow>>(() {
+    final day = prayerDay.value;
+    if (day == null) {
+      return const [];
+    }
+    return resolveSpecialWindows(day);
+  });
+
+  /// The special window the clock is currently inside, or null. A value
+  /// type, so it only flips at a window boundary (no per-second rebuild).
+  late final activeSpecial = computed<SpecialTime?>(() {
+    final n = now.value;
+    for (final w in specialWindows.value) {
+      if (w.containsAt(n)) {
+        return w.time;
+      }
+    }
+    return null;
   });
 
   /// Per-second values, isolated so only the hero numeral subtree ticks.

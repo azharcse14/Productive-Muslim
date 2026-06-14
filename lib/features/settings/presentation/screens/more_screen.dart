@@ -50,6 +50,22 @@ final class MoreScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 QListRow(
+                  icon: Icons.format_quote_outlined,
+                  title: context.l10n.hadithTitle,
+                  subtitle: context.l10n.hadithSubtitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.hadith.name),
+                ),
+                const Divider(),
+                QListRow(
+                  icon: Icons.calculate_outlined,
+                  title: context.l10n.calculatorsTitle,
+                  subtitle: context.l10n.calculatorsSubtitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.calculators.name),
+                ),
+                const Divider(),
+                QListRow(
                   icon: Icons.mosque_outlined,
                   title: context.l10n.myMosqueTitle,
                   subtitle: context.l10n.myMosqueSubtitle,

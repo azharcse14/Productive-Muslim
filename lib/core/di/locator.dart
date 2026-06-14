@@ -1,13 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:signals/signals.dart';
 
 import '../../features/dua_tasbih/data/dua_asset_data_source.dart';
 import '../../features/dua_tasbih/data/dua_repository_impl.dart';
 import '../../features/dua_tasbih/domain/repositories/dua_repository.dart';
+import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_store.dart';
 import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../features/hadith/data/hadith_asset_data_source.dart';
+import '../../features/hadith/data/hadith_repository_impl.dart';
+import '../../features/hadith/domain/repositories/hadith_repository.dart';
+import '../../features/hadith/presentation/state/hadith_store.dart';
+import '../../features/home_widget/data/prayer_widget_service.dart';
 import '../../features/muhasaba/data/database/muhasaba_database.dart';
 import '../../features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
 import '../../features/muhasaba/domain/repositories/muhasaba_repository.dart';
@@ -192,13 +201,51 @@ Future<void> setupLocator() async {
       () => DuaRepositoryImpl(locator()),
     )
     ..registerLazySingleton(() => DuaStore(locator()))
+    ..registerLazySingleton(
+      () => DuaFavoritesStore(SharedPreferencesAsync()),
+    )
     ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()));
+
+  // ---- hadith ----
+  locator
+    ..registerLazySingleton(() => HadithAssetDataSource(rootBundle))
+    ..registerLazySingleton<HadithRepository>(
+      () => HadithRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(() => HadithStore(locator()));
+
+  // ---- home-screen widget ----
+  locator.registerLazySingleton(
+    () => PrayerWidgetService(
+      getPrayerDay: locator(),
+      clock: locator(),
+      settings: locator(),
+    ),
+  );
 
   await locator<SettingsStore>().load();
   await locator<MosqueStore>().load();
   await locator<MuhasabaStore>().load();
   await locator<AppLockStore>().load();
+  await locator<DuaFavoritesStore>().load();
   await locator.isReady<QuranDatabase>();
+
+  _startWidgetUpdates();
+}
+
+/// Keeps the home-screen widget in sync. Runs once now (app open) and again
+/// whenever the location, prayer parameters, or locale change. Best-effort:
+/// [PrayerWidgetService.update] swallows its own errors.
+void _startWidgetUpdates() {
+  final settings = locator<SettingsStore>();
+  final widget = locator<PrayerWidgetService>();
+  effect(() {
+    // Touch the signals the snapshot depends on so the effect re-runs.
+    settings.location.value;
+    settings.prayerParams.value;
+    settings.settings.value.localeCode;
+    unawaited(widget.update());
+  });
 }
 
 /// Salah ids whose waqt hasn't begun on [date] at the location's clock —

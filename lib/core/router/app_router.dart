@@ -2,8 +2,14 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../features/calculators/presentation/screens/age_screen.dart';
+import '../../features/calculators/presentation/screens/calculators_screen.dart';
+import '../../features/calculators/presentation/screens/fitra_screen.dart';
+import '../../features/calculators/presentation/screens/inheritance_screen.dart';
+import '../../features/calculators/presentation/screens/qaza_screen.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
+import '../../features/hadith/presentation/screens/hadith_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -11,11 +17,14 @@ import '../../features/onboarding/presentation/screens/lock_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/state/app_lock_store.dart';
+import '../../features/prayer_times/domain/entities/special_time.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
+import '../../features/prayer_times/presentation/screens/special_times_screen.dart';
 import '../../features/qibla/presentation/screens/qibla_screen.dart';
 import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
+import '../../features/ramadan/presentation/screens/zakat_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
@@ -175,6 +184,18 @@ GoRouter buildRouter() {
         builder: (context, state) => const QiblaScreen(),
       ),
       GoRoute(
+        name: Routes.specialTimes.name,
+        path: Routes.specialTimes.path,
+        builder: (context, state) {
+          final extra =
+              state.extra as (SpecialKind, List<SpecialWindow>)?;
+          return SpecialTimesScreen(
+            kind: extra?.$1 ?? SpecialKind.forbidden,
+            windows: extra?.$2 ?? const [],
+          );
+        },
+      ),
+      GoRoute(
         name: Routes.ramadan.name,
         path: Routes.ramadan.path,
         builder: (context, state) => const RamadanScreen(),
@@ -183,6 +204,41 @@ GoRouter buildRouter() {
         name: Routes.calendar.name,
         path: Routes.calendar.path,
         builder: (context, state) => const CalendarScreen(),
+      ),
+      GoRoute(
+        name: Routes.hadith.name,
+        path: Routes.hadith.path,
+        builder: (context, state) => const HadithScreen(),
+      ),
+      GoRoute(
+        name: Routes.zakat.name,
+        path: Routes.zakat.path,
+        builder: (context, state) => const ZakatScreen(),
+      ),
+      GoRoute(
+        name: Routes.calculators.name,
+        path: Routes.calculators.path,
+        builder: (context, state) => const CalculatorsScreen(),
+      ),
+      GoRoute(
+        name: Routes.fitra.name,
+        path: Routes.fitra.path,
+        builder: (context, state) => const FitraScreen(),
+      ),
+      GoRoute(
+        name: Routes.qaza.name,
+        path: Routes.qaza.path,
+        builder: (context, state) => const QazaScreen(),
+      ),
+      GoRoute(
+        name: Routes.faraid.name,
+        path: Routes.faraid.path,
+        builder: (context, state) => const InheritanceScreen(),
+      ),
+      GoRoute(
+        name: Routes.age.name,
+        path: Routes.age.path,
+        builder: (context, state) => const AgeScreen(),
       ),
       GoRoute(
         name: Routes.gallery.name,

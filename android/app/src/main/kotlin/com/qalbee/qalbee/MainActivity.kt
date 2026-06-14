@@ -1,5 +1,38 @@
 package com.qalbee.qalbee
 
+import android.content.Context
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterActivity() {
+
+    private val channelName = "com.qalbee.qalbee/widget"
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            channelName
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "updateWidget" -> {
+                    // Persist the Dart-formatted snapshot, then repaint.
+                    val prefs = getSharedPreferences(
+                        QalbeeWidgetProvider.PREFS,
+                        Context.MODE_PRIVATE
+                    )
+                    prefs.edit().apply {
+                        @Suppress("UNCHECKED_CAST")
+                        val payload = call.arguments as? Map<String, Any?>
+                        payload?.forEach { (key, value) -> putString(key, value?.toString() ?: "") }
+                        apply()
+                    }
+                    QalbeeWidgetProvider.updateAll(this)
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
+}

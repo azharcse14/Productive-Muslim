@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/theme/qalbee_tokens.dart';
 import '../../../../core/theme/qalbee_typography.dart';
@@ -22,6 +25,7 @@ final class PrayerTable extends StatelessWidget {
     this.onTogglePrayed,
     this.locked = const {},
     this.onLockedTap,
+    this.onPrayerTap,
     this.dense = false,
     super.key,
   });
@@ -45,6 +49,10 @@ final class PrayerTable extends StatelessWidget {
 
   /// Check affordance → muhasaba write (design §4.3).
   final void Function(Prayer)? onTogglePrayed;
+
+  /// Tapping a row (away from its check/jamaat affordances) opens the
+  /// prayer detail sheet.
+  final void Function(Prayer)? onPrayerTap;
   final bool dense;
 
   @override
@@ -69,6 +77,7 @@ final class PrayerTable extends StatelessWidget {
           children: [
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
+                  prayer: prayer,
                   name: context.l10n.prayerLabel(prayer),
                   range:
                       '${formatTime(day.startOf(prayer))} – ${formatTime(day.endOf(prayer))}',
@@ -89,6 +98,7 @@ final class PrayerTable extends StatelessWidget {
                   onToggleDone: onTogglePrayed == null || locked.contains(prayer)
                       ? null
                       : () => onTogglePrayed!(prayer),
+                  onTap: onPrayerTap == null ? null : () => onPrayerTap!(prayer),
                 ),
             ],
           ],
@@ -100,6 +110,7 @@ final class PrayerTable extends StatelessWidget {
 
 final class _PrayerRow extends StatelessWidget {
   const _PrayerRow({
+    required this.prayer,
     required this.name,
     required this.range,
     required this.jamaatTime,
@@ -111,11 +122,22 @@ final class _PrayerRow extends StatelessWidget {
     this.onSetJamaat,
     this.onToggleDone,
     this.onLockedTap,
+    this.onTap,
   });
 
+  final Prayer prayer;
   final String name;
   final String range;
   final String? jamaatTime;
+
+  /// A waqt-specific glyph standing in for a generic bullet (design §4.3).
+  static IconData _iconFor(Prayer prayer) => switch (prayer) {
+        Prayer.fajr => Icons.wb_twilight,
+        Prayer.dhuhr => Icons.wb_sunny_outlined,
+        Prayer.asr => Icons.brightness_6_outlined,
+        Prayer.maghrib => Icons.brightness_4_outlined,
+        Prayer.isha => Icons.nightlight_outlined,
+      };
   final bool active;
   final bool first;
   final bool dense;
@@ -124,12 +146,17 @@ final class _PrayerRow extends StatelessWidget {
   final VoidCallback? onSetJamaat;
   final VoidCallback? onToggleDone;
   final VoidCallback? onLockedTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
     final fg = active ? q.onPrimarySoft : null;
-    return Container(
+    final iconColor = active ? (fg ?? q.primary) : q.ink3;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
       constraints: BoxConstraints(minHeight: dense ? 40 : 54),
       padding: EdgeInsetsDirectional.symmetric(horizontal: dense ? 12 : 16),
       decoration: BoxDecoration(
@@ -138,14 +165,7 @@ final class _PrayerRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active ? q.primary : q.line,
-            ),
-          ),
+          _WaqtIcon(icon: _iconFor(prayer), color: iconColor, pulsing: active),
           const SizedBox(width: 10),
           SizedBox(
             width: dense ? 64 : 84,
@@ -213,9 +233,16 @@ final class _PrayerRow extends StatelessWidget {
               button: onToggleDone != null,
               checked: done,
               child: InkWell(
-                onTap: onToggleDone,
+                onTap: onToggleDone == null
+                    ? null
+                    : () {
+                        unawaited(HapticFeedback.selectionClick());
+                        onToggleDone!();
+                      },
                 customBorder: const CircleBorder(),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: QMotion.fast,
+                  curve: QMotion.ease,
                   width: 26,
                   height: 26,
                   decoration: BoxDecoration(
@@ -224,14 +251,91 @@ final class _PrayerRow extends StatelessWidget {
                     border:
                         done ? null : Border.all(color: q.ink3, width: 1.8),
                   ),
-                  child: done
-                      ? Icon(Icons.check, size: 15, color: q.okSoft)
-                      : null,
+                  child: AnimatedSwitcher(
+                    duration: QMotion.fast,
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
+                    child: done
+                        ? Icon(Icons.check,
+                            key: const ValueKey(true),
+                            size: 15,
+                            color: q.okSoft)
+                        : const SizedBox.shrink(key: ValueKey(false)),
+                  ),
                 ),
               ),
             ),
         ],
       ),
+      ),
     );
+  }
+}
+
+/// The waqt glyph; gently pulses while its prayer is the active waqt to
+/// signal "live now" without distracting (design §4.3 motion).
+final class _WaqtIcon extends StatefulWidget {
+  const _WaqtIcon({
+    required this.icon,
+    required this.color,
+    required this.pulsing,
+  });
+
+  final IconData icon;
+  final Color color;
+  final bool pulsing;
+
+  @override
+  State<_WaqtIcon> createState() => _WaqtIconState();
+}
+
+class _WaqtIconState extends State<_WaqtIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    // Created eagerly here (not lazily) so dispose() never triggers a
+    // first-time AnimationController init — which would do an unsafe
+    // TickerMode ancestor lookup on a deactivated element.
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _scale = Tween(begin: 1.0, end: 1.14).animate(
+      CurvedAnimation(parent: _c, curve: Curves.easeInOut),
+    );
+    if (widget.pulsing) {
+      unawaited(_c.repeat(reverse: true));
+    }
+  }
+
+  @override
+  void didUpdateWidget(_WaqtIcon old) {
+    super.didUpdateWidget(old);
+    if (widget.pulsing && !_c.isAnimating) {
+      unawaited(_c.repeat(reverse: true));
+    } else if (!widget.pulsing && _c.isAnimating) {
+      _c
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(widget.icon, size: 18, color: widget.color);
+    if (!widget.pulsing) {
+      return icon;
+    }
+    return ScaleTransition(scale: _scale, child: icon);
   }
 }

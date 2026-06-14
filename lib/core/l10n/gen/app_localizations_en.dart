@@ -256,6 +256,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iftarLabel => 'Iftar';
 
   @override
+  String get forbiddenTimesTitle => 'Forbidden times';
+
+  @override
+  String get naflTimesTitle => 'Nafl times';
+
+  @override
+  String get specialNow => 'Now';
+
+  @override
+  String get specialTimeForbiddenSunrise => 'After sunrise';
+
+  @override
+  String get specialTimeForbiddenZawal => 'Midday (zawal)';
+
+  @override
+  String get specialTimeForbiddenSunset => 'Before sunset';
+
+  @override
+  String get specialTimeIshraq => 'Ishraq';
+
+  @override
+  String get specialTimeDuha => 'Duha (Chasht)';
+
+  @override
+  String get specialTimeSalatZawal => 'Salat al-Zawal';
+
+  @override
+  String get specialTimeAwwabin => 'Awwabin';
+
+  @override
+  String get specialTimeTahajjud => 'Tahajjud';
+
+  @override
+  String get forbiddenTimesSubtitle =>
+      'No salah may be offered in these three moments.';
+
+  @override
+  String get naflTimesSubtitle => 'Best times for voluntary (nafl) prayers.';
+
+  @override
+  String get specialTimesLearnMore => 'Tap for details';
+
+  @override
+  String get specialTimesPageTitle => 'Forbidden & nafl times';
+
+  @override
+  String get forbiddenTimesIntro =>
+      'There are three moments in the day when offering any salah is prohibited (makruh tahrimi). The Prophet ﷺ forbade praying as the sun rises, at its zenith, and as it sets — the times the disbelievers worshipped the sun. Missed obligatory prayers remembered in these windows may still be made up.';
+
+  @override
+  String get naflTimesIntro =>
+      'Beyond the obligatory prayers, these are recommended voluntary (nafl) prayers with their preferred times — a means of drawing nearer to Allah and making up for shortcomings in the fard.';
+
+  @override
+  String get specialDetailForbiddenSunrise =>
+      'From sunrise until the sun has fully risen above the horizon (about 15 minutes). The Prophet ﷺ said the sun rises between the two horns of Shaytan, so salah is withheld until it clears.';
+
+  @override
+  String get specialDetailForbiddenZawal =>
+      'The brief moment the sun stands at its highest point (istiwa) before passing the meridian into the Dhuhr time. No salah is offered until it begins to decline.';
+
+  @override
+  String get specialDetailForbiddenSunset =>
+      'From when the sun yellows and starts to set until it has fully set (Maghrib). As at sunrise, salah is withheld while the sun sets.';
+
+  @override
+  String get specialDetailIshraq =>
+      'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah.';
+
+  @override
+  String get specialDetailDuha =>
+      'The forenoon prayer of two to twelve rak\'ahs, best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak\'ahs suffice for it.';
+
+  @override
+  String get specialDetailSalatZawal =>
+      'Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.';
+
+  @override
+  String get specialDetailAwwabin =>
+      'Voluntary rak\'ahs offered between the Maghrib and Isha prayers — the salah of the oft-returning (awwabin), beloved for turning back to Allah after the day\'s work.';
+
+  @override
+  String get specialDetailTahajjud =>
+      'Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.';
+
+  @override
   String get setJamaat => 'Set jamaat';
 
   @override
@@ -786,6 +872,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get zakatTitle => 'Zakat calculator';
 
   @override
+  String get zakatSubtitle => 'Work out the zakat due on your wealth';
+
+  @override
   String get zakatCash => 'Cash on hand';
 
   @override
@@ -944,4 +1033,335 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockDisable => 'Turn off app lock';
+
+  @override
+  String get prayerSheetWindow => 'Time window';
+
+  @override
+  String get prayerSheetRakaat => 'Rakaat';
+
+  @override
+  String get rakaatFard => 'Fard';
+
+  @override
+  String get rakaatSunnah => 'Sunnah';
+
+  @override
+  String get rakaatWitr => 'Witr';
+
+  @override
+  String get prayerSheetNoJamaat => 'No jamaat set';
+
+  @override
+  String get prayerFazilatFajr =>
+      'The two sunnah of Fajr are better than the world and all it contains. Its prayer is witnessed by the angels of night and day.';
+
+  @override
+  String get prayerFazilatDhuhr =>
+      'The gates of the heavens open at midday; the Prophet loved to pray four rakaat in that hour.';
+
+  @override
+  String get prayerFazilatAsr =>
+      'Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.';
+
+  @override
+  String get prayerFazilatMaghrib =>
+      'Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.';
+
+  @override
+  String get prayerFazilatIsha =>
+      'Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.';
+
+  @override
+  String get dailyAyahTitle => 'Ayah of the day';
+
+  @override
+  String dailyAyahReference(String surah, String ayah) {
+    return '$surah, ayah $ayah';
+  }
+
+  @override
+  String get tasbihQuickTitle => 'Tasbih';
+
+  @override
+  String get tasbihQuickHint => 'Tap to count';
+
+  @override
+  String get qiblaChipLabel => 'Qibla';
+
+  @override
+  String get qiblaChipNeedsLocation => 'Set location';
+
+  @override
+  String get dayTimelineTitle => 'Today\'s timeline';
+
+  @override
+  String streakMilestone(int count) {
+    return '$count-day streak! 🎉';
+  }
+
+  @override
+  String get calculatorsTitle => 'Calculators';
+
+  @override
+  String get calculatorsSubtitle => 'Zakat, fitra, qaza, inheritance & age';
+
+  @override
+  String get fitraTitle => 'Fitra calculator';
+
+  @override
+  String get fitraSubtitle => 'Calculate Sadaqatul Fitr for your household';
+
+  @override
+  String get fitraStaple => 'Staple food';
+
+  @override
+  String get fitraStapleWheat => 'Wheat / flour';
+
+  @override
+  String get fitraStapleBarley => 'Barley';
+
+  @override
+  String get fitraStapleDates => 'Dates';
+
+  @override
+  String get fitraStapleRaisins => 'Raisins';
+
+  @override
+  String get fitraPricePerKg => 'Price per kg';
+
+  @override
+  String get fitraPeople => 'Number of people';
+
+  @override
+  String get fitraCalculate => 'Calculate';
+
+  @override
+  String fitraPerPerson(String amount) {
+    return 'Per person: $amount';
+  }
+
+  @override
+  String fitraTotal(String amount) {
+    return 'Total fitra: $amount';
+  }
+
+  @override
+  String fitraWeightNote(String kg) {
+    return 'Based on $kg kg per person';
+  }
+
+  @override
+  String get fitraBeforeEid => 'Pay before the Eid prayer.';
+
+  @override
+  String get qazaTitle => 'Qaza prayer calculator';
+
+  @override
+  String get qazaSubtitle => 'Estimate missed obligatory prayers to make up';
+
+  @override
+  String get qazaStartDate => 'From date';
+
+  @override
+  String get qazaEndDate => 'To date';
+
+  @override
+  String get qazaSelectDate => 'Select date';
+
+  @override
+  String get qazaIncludeWitr => 'Include Witr (Hanafi)';
+
+  @override
+  String get qazaAlreadyMadeUp => 'Already made up (per prayer)';
+
+  @override
+  String get qazaCalculate => 'Calculate';
+
+  @override
+  String qazaDays(String count) {
+    return 'Period: $count days';
+  }
+
+  @override
+  String qazaPerPrayer(String count) {
+    return 'Each prayer: $count';
+  }
+
+  @override
+  String qazaWitr(String count) {
+    return 'Witr: $count';
+  }
+
+  @override
+  String qazaTotal(String count) {
+    return 'Total missed: $count';
+  }
+
+  @override
+  String get qazaNote =>
+      'An estimate to help you plan — make them up steadily, without guilt.';
+
+  @override
+  String get ageTitle => 'Age calculator';
+
+  @override
+  String get ageSubtitle =>
+      'Your age in both the Gregorian and Hijri calendars';
+
+  @override
+  String get ageBirthDate => 'Date of birth';
+
+  @override
+  String get ageAsOf => 'As of date';
+
+  @override
+  String get ageSelectDate => 'Select date';
+
+  @override
+  String get ageCalculate => 'Calculate';
+
+  @override
+  String get ageGregorian => 'Gregorian age';
+
+  @override
+  String get ageHijri => 'Hijri age';
+
+  @override
+  String ageValue(String years, String months, String days) {
+    return '$years years, $months months, $days days';
+  }
+
+  @override
+  String ageTotalDays(String count) {
+    return 'Total: $count days';
+  }
+
+  @override
+  String get faraidTitle => 'Inheritance calculator';
+
+  @override
+  String get faraidSubtitle => 'Estimate shares for common heirs (Faraid)';
+
+  @override
+  String get faraidEstate => 'Estate value';
+
+  @override
+  String get faraidSpouse => 'Spouse';
+
+  @override
+  String get faraidNone => 'None';
+
+  @override
+  String get faraidHusband => 'Husband';
+
+  @override
+  String get faraidWife => 'Wife';
+
+  @override
+  String get faraidWives => 'Number of wives';
+
+  @override
+  String get faraidFather => 'Father';
+
+  @override
+  String get faraidMother => 'Mother';
+
+  @override
+  String get faraidSons => 'Sons';
+
+  @override
+  String get faraidDaughters => 'Daughters';
+
+  @override
+  String get faraidBrothers => 'Full brothers';
+
+  @override
+  String get faraidSisters => 'Full sisters';
+
+  @override
+  String get faraidCalculate => 'Calculate';
+
+  @override
+  String faraidShare(String label, String amount) {
+    return '$label: $amount';
+  }
+
+  @override
+  String get faraidAwlNote =>
+      'Shares exceed the estate — reduced proportionally (\'Awl).';
+
+  @override
+  String get faraidRaddNote => 'Surplus returned to the heirs (Radd).';
+
+  @override
+  String faraidUnallocated(String amount) {
+    return 'Unallocated (to other relatives): $amount';
+  }
+
+  @override
+  String get faraidDisclaimer =>
+      'An estimate for common heirs only. Consult a qualified scholar for a binding ruling.';
+
+  @override
+  String get faraidHeirHusband => 'Husband';
+
+  @override
+  String get faraidHeirWife => 'Wife';
+
+  @override
+  String get faraidHeirFather => 'Father';
+
+  @override
+  String get faraidHeirMother => 'Mother';
+
+  @override
+  String get faraidHeirSon => 'Son';
+
+  @override
+  String get faraidHeirDaughter => 'Daughter';
+
+  @override
+  String get faraidHeirBrother => 'Brother';
+
+  @override
+  String get faraidHeirSister => 'Sister';
+
+  @override
+  String get hadithOfDayTitle => 'Hadith of the day';
+
+  @override
+  String get hadithTitle => 'Hadith';
+
+  @override
+  String get hadithSubtitle => 'Authentic narrations to reflect on';
+
+  @override
+  String hadithNarratedBy(String narrator) {
+    return 'Narrated by $narrator';
+  }
+
+  @override
+  String get duaSearchHint => 'Search duas';
+
+  @override
+  String get duaSearchTitle => 'Search';
+
+  @override
+  String get duaNoResults => 'No duas found';
+
+  @override
+  String get duaFavoritesTitle => 'Favorites';
+
+  @override
+  String get duaFavoritesEmpty => 'Tap the heart on any dua to save it here';
+
+  @override
+  String get favoriteAddLabel => 'Add to favorites';
+
+  @override
+  String get favoriteRemoveLabel => 'Remove from favorites';
+
+  @override
+  String get widgetNextPrayerLabel => 'Next prayer';
 }

@@ -6,7 +6,11 @@ import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/screens/asmaul_husna_screen.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/screens/dua_category_screen.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/screens/dua_screen.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../helpers/content_fakes.dart';
 
@@ -19,7 +23,13 @@ Widget _app(Widget home) => MaterialApp(
 
 void main() {
   setUp(() async {
-    GetIt.I.registerSingleton<DuaStore>(await makeDuaStore());
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final favoritesStore = DuaFavoritesStore(SharedPreferencesAsync());
+    await favoritesStore.load();
+    GetIt.I
+      ..registerSingleton<DuaStore>(await makeDuaStore())
+      ..registerSingleton<DuaFavoritesStore>(favoritesStore);
   });
 
   tearDown(() => GetIt.I.reset());

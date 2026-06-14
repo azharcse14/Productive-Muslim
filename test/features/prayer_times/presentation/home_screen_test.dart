@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/l10n/gen/app_localizations.dart';
 import 'package:qalbee/core/theme/app_theme.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
@@ -11,6 +13,7 @@ import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_reposi
 import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:qalbee/features/prayer_times/presentation/screens/home_screen.dart';
 import 'package:qalbee/features/prayer_times/presentation/state/home_store.dart';
+import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
 import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
 import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
 import 'package:qalbee/features/settings/domain/entities/city.dart';
@@ -21,7 +24,10 @@ import 'package:qalbee/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
 import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
 import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/content_fakes.dart';
 import '../../../helpers/mosque_fakes.dart';
 import '../../../helpers/muhasaba_fakes.dart';
 
@@ -73,6 +79,8 @@ late _FakeClock _clock;
 late InMemoryMuhasabaRepository _muhasabaRepo;
 
 Future<void> _register({required bool withLocation}) async {
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   TimezoneClock.initialize();
   _clock = _FakeClock(DateTime(2026, 6, 12, 4)); // inside fajr waqt
   final settingsRepo = _InMemorySettingsRepo(
@@ -85,10 +93,16 @@ Future<void> _register({required bool withLocation}) async {
   final (muhasabaStore, muhasabaRepo) =
       await makeMuhasabaStore(now: () => _clock.current);
   _muhasabaRepo = muhasabaRepo;
+  final quranStore = await makeQuranStore();
+  final duaStore = await makeDuaStore();
+  final tasbihStore = await makeTasbihStore();
   GetIt.I
     ..registerSingleton<SettingsStore>(settingsStore)
     ..registerSingleton<MosqueStore>(mosqueStore)
     ..registerSingleton<MuhasabaStore>(muhasabaStore)
+    ..registerSingleton<QuranStore>(quranStore)
+    ..registerSingleton<DuaStore>(duaStore)
+    ..registerSingleton<TasbihStore>(tasbihStore)
     ..registerFactory<HomeStore>(
       () => HomeStore(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(_clock)),
@@ -132,10 +146,33 @@ void main() {
       expect(find.text('Isha'), findsOneWidget);
       // Sunrise was removed from the table (still in the countdown footer).
       expect(find.text('Sunrise'), findsNothing);
-      expect(find.text('Sahri ends'), findsOneWidget);
-      expect(find.text('Iftar'), findsOneWidget);
       // Unconfigured jamaat shows the quiet affordance on all 5 rows.
       expect(find.text('Set jamaat'), findsNWidgets(5));
+      // The meal row sits below the fold now (cards were added above it).
+      await tester.scrollUntilVisible(
+        find.text('Sahri ends'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Sahri ends'), findsOneWidget);
+      expect(find.text('Iftar'), findsOneWidget);
+    });
+
+    testWidgets('shows the forbidden and nafl times card', (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      // The card sits below the fold, so scroll it into view first.
+      await tester.scrollUntilVisible(
+        find.text('Forbidden times'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Forbidden times'), findsOneWidget);
+      expect(find.text('Nafl times'), findsOneWidget);
+      expect(find.text('After sunrise'), findsOneWidget);
+      expect(find.text('Ishraq'), findsOneWidget);
+      expect(find.text('Tahajjud'), findsOneWidget);
     });
 
     testWidgets('shows the minimal muhasaba track card', (tester) async {
@@ -183,14 +220,14 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
-      // Checkable circles wrap a Container; locked clock affordances wrap a
-      // SizedBox. At 4am only Fajr's waqt has started, so it's the lone
+      // Checkable circles wrap an AnimatedContainer; locked clock affordances
+      // wrap a SizedBox. At 4am only Fajr's waqt has started, so it's the lone
       // checkable one; the later prayers are locked (quiet clock icons).
       final checks = find.byWidgetPredicate(
         (w) =>
             w is InkWell &&
             w.customBorder is CircleBorder &&
-            w.child is Container,
+            w.child is AnimatedContainer,
       );
       expect(checks, findsOneWidget);
       expect(find.byIcon(Icons.schedule), findsNWidgets(4));

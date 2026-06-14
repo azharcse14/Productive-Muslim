@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:qalbee/core/utils/result.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
@@ -49,6 +50,7 @@ void main() {
     final lockStore = await makeAppLockStore();
     final quranStore = await makeQuranStore();
     final duaStore = await makeDuaStore();
+    final tasbihStore = await makeTasbihStore();
     GetIt.I
       ..registerSingleton<SettingsStore>(settings)
       ..registerSingleton<MosqueStore>(mosqueStore)
@@ -56,6 +58,7 @@ void main() {
       ..registerSingleton<AppLockStore>(lockStore)
       ..registerSingleton<QuranStore>(quranStore)
       ..registerSingleton<DuaStore>(duaStore)
+      ..registerSingleton<TasbihStore>(tasbihStore)
       ..registerFactory<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),

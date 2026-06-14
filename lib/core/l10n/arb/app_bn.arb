@@ -78,6 +78,31 @@
   "sunsetLabel": "সূর্যাস্ত",
   "sahriEndsLabel": "সাহরি শেষ",
   "iftarLabel": "ইফতার",
+  "forbiddenTimesTitle": "নিষিদ্ধ ওয়াক্ত",
+  "naflTimesTitle": "নফল সালাত",
+  "specialNow": "এখন",
+  "specialTimeForbiddenSunrise": "সূর্যোদয়ের পর",
+  "specialTimeForbiddenZawal": "দ্বিপ্রহর (যাওয়াল)",
+  "specialTimeForbiddenSunset": "সূর্যাস্তের আগে",
+  "specialTimeIshraq": "ইশরাক",
+  "specialTimeDuha": "চাশত (দুহা)",
+  "specialTimeSalatZawal": "সালাতুয যাওয়াল",
+  "specialTimeAwwabin": "আওয়াবিন",
+  "specialTimeTahajjud": "তাহাজ্জুদ",
+  "forbiddenTimesSubtitle": "এই তিন সময়ে কোনো সালাত আদায় করা যায় না।",
+  "naflTimesSubtitle": "নফল সালাত আদায়ের উত্তম সময়।",
+  "specialTimesLearnMore": "বিস্তারিত দেখতে চাপুন",
+  "specialTimesPageTitle": "নিষিদ্ধ ও নফল সময়",
+  "forbiddenTimesIntro": "দিনে তিনটি সময় আছে যখন যেকোনো সালাত আদায় করা নিষিদ্ধ (মাকরূহ তাহরীমি)। রাসূলুল্লাহ ﷺ সূর্যোদয়, ঠিক দ্বিপ্রহরে এবং সূর্যাস্তের সময় সালাত আদায় করতে নিষেধ করেছেন — যে সময়ে কাফেররা সূর্যের পূজা করত। তবে এই সময়ে স্মরণে আসা ছুটে যাওয়া ফরজ সালাত কাযা করা যায়।",
+  "naflTimesIntro": "ফরজ সালাত ছাড়াও কিছু নফল (ঐচ্ছিক) সালাত রয়েছে যেগুলোর নির্দিষ্ট উত্তম সময় আছে — এগুলো আল্লাহর নৈকট্য লাভ ও ফরজের ঘাটতি পূরণের মাধ্যম।",
+  "specialDetailForbiddenSunrise": "সূর্যোদয় থেকে শুরু করে সূর্য দিগন্তের উপরে পুরোপুরি উঠে যাওয়া পর্যন্ত (প্রায় ১৫ মিনিট)। রাসূলুল্লাহ ﷺ বলেছেন সূর্য শয়তানের দুই শিংয়ের মাঝ দিয়ে উদিত হয়, তাই তা পুরোপুরি উঠার আগ পর্যন্ত সালাত স্থগিত থাকে।",
+  "specialDetailForbiddenZawal": "যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত কোনো সালাত আদায় হয় না।",
+  "specialDetailForbiddenSunset": "সূর্য যখন হলদে হয়ে অস্ত যেতে শুরু করে তখন থেকে পুরোপুরি অস্ত (মাগরিব) যাওয়া পর্যন্ত। সূর্যোদয়ের মতোই অস্ত যাওয়ার সময় সালাত স্থগিত থাকে।",
+  "specialDetailIshraq": "সূর্য পুরোপুরি উঠে যাওয়ার অল্প পরে আদায় করা দুই রাকাত। যে ব্যক্তি জামাতে ফজর পড়ে সূর্যোদয় পর্যন্ত যিকিরে বসে থাকে এবং পরে দুই রাকাত পড়ে, সে একটি পূর্ণ হজ ও উমরার সওয়াব পায়।",
+  "specialDetailDuha": "চাশতের নামাজ — দুই থেকে বারো রাকাত, সূর্য ভালোভাবে উঠে যাওয়ার পর থেকে যাওয়ালের ঠিক আগ পর্যন্ত আদায় করা উত্তম। প্রতিদিন সকালে শরীরের প্রতিটি জোড়ার জন্য সদকা ওয়াজিব, আর এই রাকাতগুলো তার জন্য যথেষ্ট।",
+  "specialDetailSalatZawal": "সূর্য মাথার উপর থেকে ঢলে পড়ার ঠিক পরে, যোহরের ফরজের আগমুহূর্তে আদায় করা হয়। রাসূলুল্লাহ ﷺ এই সময়ে নামাজ পড়তেন যখন আসমানের দরজাগুলো খুলে দেওয়া হয়।",
+  "specialDetailAwwabin": "মাগরিব ও এশার মাঝে আদায় করা নফল রাকাত — আওয়াবিন (অধিক প্রত্যাবর্তনকারীদের) সালাত, দিনের কাজ শেষে আল্লাহর দিকে ফিরে আসার জন্য প্রিয়।",
+  "specialDetailTahajjud": "রাতের শেষ তৃতীয়াংশে আদায় করা সালাত, সর্বোত্তম নফল সালাত। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।",
   "setJamaat": "জামাত সেট করুন",
   "homeSetLocationTitle": "আপনি কোথায় আছেন?",
   "homeSetLocationBody": "একবার অবস্থান বেছে নিন — কালবী সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।",
@@ -206,6 +231,7 @@
   "daysUntilRamadan": "{count, plural, =1{রমজানের আর ১ দিন} other{রমজানের আর {count} দিন}}",
   "monthTable": "এ মাসের সাহরি ও ইফতার",
   "zakatTitle": "যাকাত ক্যালকুলেটর",
+  "zakatSubtitle": "আপনার সম্পদের ওপর প্রদেয় যাকাত হিসাব করুন",
   "zakatCash": "নগদ টাকা",
   "zakatBank": "ব্যাংক ব্যালেন্স",
   "zakatGold": "স্বর্ণ (গ্রাম)",
@@ -249,5 +275,157 @@
   "appLockUseBiometric": "ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন",
   "appLockEnable": "অ্যাপ লক",
   "appLockEnableSub": "কালবী খুলতে পিন (ও বায়োমেট্রিক) লাগবে",
-  "appLockDisable": "অ্যাপ লক বন্ধ করুন"
+  "appLockDisable": "অ্যাপ লক বন্ধ করুন",
+  "prayerSheetWindow": "ওয়াক্তের সময়",
+  "prayerSheetRakaat": "রাকাত",
+  "rakaatFard": "ফরজ",
+  "rakaatSunnah": "সুন্নত",
+  "rakaatWitr": "বিতর",
+  "prayerSheetNoJamaat": "জামাত সেট করা নেই",
+  "prayerFazilatFajr": "ফজরের দুই রাকাত সুন্নত দুনিয়া ও তার সবকিছুর চেয়ে উত্তম। দিন ও রাতের ফেরেশতারা এ নামাজের সাক্ষী হন।",
+  "prayerFazilatDhuhr": "দুপুরে আসমানের দরজাগুলো খুলে দেওয়া হয়; নবীজি তখন চার রাকাত পড়তে ভালোবাসতেন।",
+  "prayerFazilatAsr": "মধ্যবর্তী নামাজের হেফাজত করো। যে আসর পড়ে, সে সূর্যোদয় ও সূর্যাস্তের আগে জাহান্নামে প্রবেশ করবে না।",
+  "prayerFazilatMaghrib": "সূর্য ডোবার সাথে সাথেই পড়ে নাও। ফরজের পর দুই রাকাত হালকা সুন্নত রয়েছে।",
+  "prayerFazilatIsha": "জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।",
+  "dailyAyahTitle": "আজকের আয়াত",
+  "dailyAyahReference": "{surah}, আয়াত {ayah}",
+  "@dailyAyahReference": {
+    "placeholders": {
+      "surah": { "type": "String" },
+      "ayah": { "type": "String" }
+    }
+  },
+  "tasbihQuickTitle": "তাসবিহ",
+  "tasbihQuickHint": "গুনতে ট্যাপ করুন",
+  "qiblaChipLabel": "কিবলা",
+  "qiblaChipNeedsLocation": "অবস্থান দিন",
+  "dayTimelineTitle": "আজকের সময়রেখা",
+  "streakMilestone": "{count} দিনের ধারা! 🎉",
+  "@streakMilestone": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "calculatorsTitle": "ক্যালকুলেটর",
+  "calculatorsSubtitle": "যাকাত, ফিতরা, কাযা, উত্তরাধিকার ও বয়স",
+  "fitraTitle": "ফিতরা ক্যালকুলেটর",
+  "fitraSubtitle": "আপনার পরিবারের জন্য সাদাকাতুল ফিতর হিসাব করুন",
+  "fitraStaple": "প্রধান খাদ্য",
+  "fitraStapleWheat": "গম / আটা",
+  "fitraStapleBarley": "যব",
+  "fitraStapleDates": "খেজুর",
+  "fitraStapleRaisins": "কিশমিশ",
+  "fitraPricePerKg": "প্রতি কেজির দাম",
+  "fitraPeople": "ব্যক্তির সংখ্যা",
+  "fitraCalculate": "হিসাব করুন",
+  "fitraPerPerson": "জনপ্রতি: {amount}",
+  "@fitraPerPerson": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "fitraTotal": "মোট ফিতরা: {amount}",
+  "@fitraTotal": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "fitraWeightNote": "জনপ্রতি {kg} কেজি অনুযায়ী",
+  "@fitraWeightNote": {
+    "placeholders": { "kg": { "type": "String" } }
+  },
+  "fitraBeforeEid": "ঈদের নামাজের আগে আদায় করুন।",
+  "qazaTitle": "কাযা নামাজ ক্যালকুলেটর",
+  "qazaSubtitle": "আদায় করার জন্য ছুটে যাওয়া ফরজ নামাজের আনুমানিক হিসাব",
+  "qazaStartDate": "শুরুর তারিখ",
+  "qazaEndDate": "শেষের তারিখ",
+  "qazaSelectDate": "তারিখ নির্বাচন করুন",
+  "qazaIncludeWitr": "বিতর অন্তর্ভুক্ত করুন (হানাফি)",
+  "qazaAlreadyMadeUp": "ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)",
+  "qazaCalculate": "হিসাব করুন",
+  "qazaDays": "সময়কাল: {count} দিন",
+  "@qazaDays": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaPerPrayer": "প্রতি নামাজ: {count}",
+  "@qazaPerPrayer": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaWitr": "বিতর: {count}",
+  "@qazaWitr": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaTotal": "মোট ছুটে যাওয়া: {count}",
+  "@qazaTotal": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaNote": "পরিকল্পনায় সহায়তার জন্য একটি আনুমানিক হিসাব — অপরাধবোধ ছাড়াই ধীরে ধীরে আদায় করুন।",
+  "ageTitle": "বয়স ক্যালকুলেটর",
+  "ageSubtitle": "গ্রেগরিয়ান ও হিজরি উভয় ক্যালেন্ডারে আপনার বয়স",
+  "ageBirthDate": "জন্ম তারিখ",
+  "ageAsOf": "যে তারিখ অনুযায়ী",
+  "ageSelectDate": "তারিখ নির্বাচন করুন",
+  "ageCalculate": "হিসাব করুন",
+  "ageGregorian": "গ্রেগরিয়ান বয়স",
+  "ageHijri": "হিজরি বয়স",
+  "ageValue": "{years} বছর, {months} মাস, {days} দিন",
+  "@ageValue": {
+    "placeholders": {
+      "years": { "type": "String" },
+      "months": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "ageTotalDays": "মোট: {count} দিন",
+  "@ageTotalDays": {
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "faraidTitle": "উত্তরাধিকার ক্যালকুলেটর",
+  "faraidSubtitle": "সাধারণ উত্তরাধিকারীদের অংশ অনুমান করুন (ফারায়েজ)",
+  "faraidEstate": "সম্পত্তির পরিমাণ",
+  "faraidSpouse": "স্বামী/স্ত্রী",
+  "faraidNone": "কেউ নয়",
+  "faraidHusband": "স্বামী",
+  "faraidWife": "স্ত্রী",
+  "faraidWives": "স্ত্রীর সংখ্যা",
+  "faraidFather": "পিতা",
+  "faraidMother": "মাতা",
+  "faraidSons": "ছেলে",
+  "faraidDaughters": "মেয়ে",
+  "faraidBrothers": "সহোদর ভাই",
+  "faraidSisters": "সহোদর বোন",
+  "faraidCalculate": "হিসাব করুন",
+  "faraidShare": "{label}: {amount}",
+  "@faraidShare": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "faraidAwlNote": "অংশসমূহ সম্পত্তির চেয়ে বেশি — আনুপাতিকভাবে কমানো হয়েছে ('আউল)।",
+  "faraidRaddNote": "উদ্বৃত্ত উত্তরাধিকারীদের ফিরিয়ে দেওয়া হয়েছে (রদ্দ)।",
+  "faraidUnallocated": "অবণ্টিত (অন্যান্য আত্মীয়দের জন্য): {amount}",
+  "@faraidUnallocated": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "faraidDisclaimer": "এটি কেবল সাধারণ উত্তরাধিকারীদের জন্য একটি অনুমান। চূড়ান্ত সিদ্ধান্তের জন্য একজন যোগ্য আলেমের পরামর্শ নিন।",
+  "faraidHeirHusband": "স্বামী",
+  "faraidHeirWife": "স্ত্রী",
+  "faraidHeirFather": "পিতা",
+  "faraidHeirMother": "মাতা",
+  "faraidHeirSon": "ছেলে",
+  "faraidHeirDaughter": "মেয়ে",
+  "faraidHeirBrother": "ভাই",
+  "faraidHeirSister": "বোন",
+  "hadithOfDayTitle": "আজকের হাদিস",
+  "hadithTitle": "হাদিস",
+  "hadithSubtitle": "চিন্তা-ভাবনার জন্য সহিহ বর্ণনা",
+  "hadithNarratedBy": "বর্ণনায় {narrator}",
+  "@hadithNarratedBy": {
+    "placeholders": { "narrator": { "type": "String" } }
+  },
+  "duaSearchHint": "দোয়া খুঁজুন",
+  "duaSearchTitle": "খুঁজুন",
+  "duaNoResults": "কোনো দোয়া পাওয়া যায়নি",
+  "duaFavoritesTitle": "প্রিয়",
+  "duaFavoritesEmpty": "যেকোনো দোয়ার হার্ট আইকনে চাপ দিয়ে এখানে সংরক্ষণ করুন",
+  "favoriteAddLabel": "প্রিয়তে যোগ করুন",
+  "favoriteRemoveLabel": "প্রিয় থেকে সরান",
+  "widgetNextPrayerLabel": "পরবর্তী নামাজ"
 }
