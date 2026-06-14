@@ -54,6 +54,38 @@ void main() {
       expect(repo.entries_.containsKey(('salah_fajr', 20260612)), isFalse);
     });
 
+    test('locked salah cannot be checked ahead of its waqt', () async {
+      // Asr/Maghrib/Isha haven't started today; Fajr/Dhuhr have.
+      final (store, repo) = await makeMuhasabaStore(
+        now: _fixedNow,
+        lockedSalahOn: (date) =>
+            date == DateTime(2026, 6, 12) ? {'salah_asr', 'salah_isha'} : {},
+      );
+      expect(store.lockedSalah, {'salah_asr', 'salah_isha'});
+      // A locked salah is silently refused.
+      await store.setValue('salah_asr', 1);
+      expect(store.valueOf('salah_asr'), 0);
+      expect(repo.entries_.containsKey(('salah_asr', 20260612)), isFalse);
+      // togglePrayerToday respects the lock too.
+      await store.togglePrayerToday('salah_isha');
+      expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
+      // An unlocked salah works normally.
+      await store.setValue('salah_fajr', 1);
+      expect(repo.entries_[('salah_fajr', 20260612)], 1);
+    });
+
+    test('back-filling a past date unlocks every salah', () async {
+      final (store, repo) = await makeMuhasabaStore(
+        now: _fixedNow,
+        lockedSalahOn: (date) =>
+            date == DateTime(2026, 6, 12) ? {'salah_asr'} : {},
+      );
+      await store.selectDate(DateTime(2026, 6, 11));
+      expect(store.lockedSalah, isEmpty);
+      await store.setValue('salah_asr', 1);
+      expect(repo.entries_[('salah_asr', 20260611)], 1);
+    });
+
     test('stats refresh after entries and period changes', () async {
       final (store, _) = await makeMuhasabaStore(now: _fixedNow);
       await store.setValue('salah_fajr', 1);

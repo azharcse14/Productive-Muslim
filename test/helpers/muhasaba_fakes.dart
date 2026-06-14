@@ -150,9 +150,10 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
 Future<(MuhasabaStore, InMemoryMuhasabaRepository)> makeMuhasabaStore({
   DateTime Function()? now,
+  Set<String> Function(DateTime date)? lockedSalahOn,
 }) async {
   final repo = InMemoryMuhasabaRepository();
-  final store = MuhasabaStore(repo, now: now);
+  final store = MuhasabaStore(repo, now: now, lockedSalahOn: lockedSalahOn);
   await store.load();
   return (store, repo);
 }

@@ -48,6 +48,17 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         Localizations.localeOf(context).languageCode,
       );
 
+  void _showLockedToast(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.salahLockedToast),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -101,6 +112,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       for (final i in items)
         if (i.id.startsWith('salah_')) i,
     ];
+    // Salah whose waqt hasn't begun yet on the selected date.
+    final locked = _store.lockedSalah;
     final others = [
       for (final i in items)
         if (!i.id.startsWith('salah_')) i,
@@ -121,17 +134,28 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           runSpacing: QSpace.s2,
           children: [
             for (final item in salah)
-              QChip(
-                label: _nameOf(l10n, item),
-                active: _store.valueOf(item.id) > 0,
-                icon: Icons.mosque_outlined,
-                onTap: () => unawaited(
-                  _store.setValue(
-                    item.id,
-                    _store.valueOf(item.id) > 0 ? 0 : 1,
+              if (locked.contains(item.id))
+                // Waqt hasn't started yet — a tap explains why.
+                Opacity(
+                  opacity: 0.45,
+                  child: QChip(
+                    label: _nameOf(l10n, item),
+                    icon: Icons.schedule,
+                    onTap: () => _showLockedToast(context),
+                  ),
+                )
+              else
+                QChip(
+                  label: _nameOf(l10n, item),
+                  active: _store.valueOf(item.id) > 0,
+                  icon: Icons.mosque_outlined,
+                  onTap: () => unawaited(
+                    _store.setValue(
+                      item.id,
+                      _store.valueOf(item.id) > 0 ? 0 : 1,
+                    ),
                   ),
                 ),
-              ),
           ],
         ),
         const SizedBox(height: QSpace.s3),

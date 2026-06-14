@@ -52,6 +52,17 @@ final class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showLockedToast(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.salahLockedToast),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   String _formatCountdown(BuildContext context, Duration d) {
     String two(int v) => v.toString().padLeft(2, '0');
     final text =
@@ -197,6 +208,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                     jamaat: _store.jamaatConfig.value,
                     formatTime: (t) => _formatTime(context, t),
                     dense: compact,
+                    locked: _store.lockedPrayers.value,
+                    onLockedTap: (_) => _showLockedToast(context),
                     onSetJamaat: () =>
                         context.pushNamed(Routes.myMosque.name),
                     prayed: {
@@ -224,8 +237,22 @@ final class _HomeScreenState extends State<HomeScreen> {
                     if (stats == null) {
                       return const SizedBox.shrink();
                     }
+                    // The period range always ends today, so the last day
+                    // completion is today's.
+                    final today = stats.days.isEmpty
+                        ? 0.0
+                        : stats.days.last.completion;
+                    final items = _muhasaba.items.value;
+                    final entries = _muhasaba.entries.value;
+                    final doneToday = _muhasaba.selectedIsToday
+                        ? items
+                            .where((i) => i.isDone(entries[i.id] ?? 0))
+                            .length
+                        : (today * items.length).round();
                     return _MuhasabaCard(
-                      completion: stats.completion,
+                      completion: today,
+                      doneToday: doneToday,
+                      totalItems: items.length,
                       streak: stats.currentStreak,
                       onTap: () => context.goNamed(Routes.muhasaba.name),
                     );
@@ -274,16 +301,23 @@ final class _HomeScreenState extends State<HomeScreen> {
 }
 
 /// Minimal home summary of today's muhasaba track (design §4.3 hand-off
-/// to §4.7): a small completion ring + streak, tappable into the dashboard.
+/// to §4.7): completion ring + done/total count, with a compact streak,
+/// tappable into the dashboard.
 final class _MuhasabaCard extends StatelessWidget {
   const _MuhasabaCard({
     required this.completion,
+    required this.doneToday,
+    required this.totalItems,
     required this.streak,
     required this.onTap,
   });
 
-  /// This-week mean completion, 0..1.
+  /// Today's completion across active items, 0..1.
   final double completion;
+
+  /// Items completed today and the active-item total (the "3/8 done" line).
+  final int doneToday;
+  final int totalItems;
   final int streak;
   final VoidCallback onTap;
 
@@ -328,26 +362,29 @@ final class _MuhasabaCard extends StatelessWidget {
                     style: QType.titleSm.copyWith(color: q.ink),
                   ),
                   const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.local_fire_department_outlined,
-                        size: 14,
-                        color: q.ink2,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        LocaleDigits.localize(
-                          l10n.currentStreakLabel(streak),
-                          languageCode,
-                        ),
-                        style: QType.caption.copyWith(color: q.ink2),
-                      ),
-                    ],
+                  Text(
+                    LocaleDigits.localize(
+                      l10n.muhasabaDoneCount(doneToday, totalItems),
+                      languageCode,
+                    ),
+                    style: QType.num_(QType.caption).copyWith(color: q.ink2),
                   ),
                 ],
               ),
             ),
+            if (streak > 0) ...[
+              Icon(
+                Icons.local_fire_department_outlined,
+                size: 16,
+                color: q.primary,
+              ),
+              const SizedBox(width: 2),
+              Text(
+                LocaleDigits.localize('$streak', languageCode),
+                style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+              ),
+              const SizedBox(width: QSpace.s2),
+            ],
             Icon(Icons.chevron_right, size: 20, color: q.ink3),
           ],
         ),

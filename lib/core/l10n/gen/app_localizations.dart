@@ -1124,6 +1124,18 @@ abstract class AppLocalizations {
   /// **'Best: {count}'**
   String bestStreakLabel(int count);
 
+  /// No description provided for @salahLockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'This prayer\'s time hasn\'t started yet'**
+  String get salahLockedToast;
+
+  /// No description provided for @muhasabaDoneCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{done}/{total} done'**
+  String muhasabaDoneCount(int done, int total);
+
   /// No description provided for @vsPrevious.
   ///
   /// In en, this message translates to:

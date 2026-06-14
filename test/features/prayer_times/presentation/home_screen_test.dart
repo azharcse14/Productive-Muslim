@@ -142,10 +142,11 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
-      // Title + completion ring + streak line, all in one compact card.
+      // Title + completion ring + done/total count, all in one compact card.
       expect(find.text('Muhasaba'), findsOneWidget);
       expect(find.text('0%'), findsOneWidget);
-      expect(find.text('0 day streak'), findsOneWidget);
+      // 10 seeded default trackers, none done yet.
+      expect(find.text('0/10 done'), findsOneWidget);
     });
 
     testWidgets('countdown numeral ticks with the clock', (tester) async {
@@ -182,14 +183,27 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
-      // The check circles are the only circular InkWells in the table.
+      // Checkable circles wrap a Container; locked clock affordances wrap a
+      // SizedBox. At 4am only Fajr's waqt has started, so it's the lone
+      // checkable one; the later prayers are locked (quiet clock icons).
       final checks = find.byWidgetPredicate(
-        (w) => w is InkWell && w.customBorder is CircleBorder,
+        (w) =>
+            w is InkWell &&
+            w.customBorder is CircleBorder &&
+            w.child is Container,
       );
-      expect(checks, findsNWidgets(5));
+      expect(checks, findsOneWidget);
+      expect(find.byIcon(Icons.schedule), findsNWidgets(4));
+      // Tapping a locked prayer explains why with a toast.
+      await tester.tap(find.byIcon(Icons.schedule).first);
+      await tester.pump();
+      expect(find.text("This prayer's time hasn't started yet"),
+          findsOneWidget);
       await tester.tap(checks.first);
       await tester.pump();
       expect(_muhasabaRepo.entries_[('salah_fajr', 20260612)], 1);
+      // The summary card's count reflects the new done item live.
+      expect(find.text('1/10 done'), findsOneWidget);
       // Tapping again toggles off.
       await tester.tap(checks.first);
       await tester.pump();

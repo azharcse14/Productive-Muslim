@@ -241,6 +241,28 @@ void main() {
       expect(repo.valueOn('salah_fajr', DateTime.now()), 1);
     });
 
+    testWidgets('locked salah chip is disabled and ignores taps',
+        (tester) async {
+      await GetIt.I.reset();
+      final lockedRepo = InMemoryMuhasabaRepository();
+      final lockedStore = MuhasabaStore(
+        lockedRepo,
+        lockedSalahOn: (_) => {'salah_asr'},
+      );
+      await lockedStore.load();
+      GetIt.I.registerSingleton<MuhasabaStore>(lockedStore);
+
+      await pumpAndDismissWelcome(tester);
+      // The locked Asr chip carries a quiet clock icon instead of the mosque.
+      expect(find.byIcon(Icons.schedule), findsOneWidget);
+      await tester.tap(find.text('Asr prayer'));
+      await tester.pump();
+      // Value stays unset, and a toast explains why.
+      expect(lockedRepo.valueOn('salah_asr', DateTime.now()), 0);
+      expect(find.text("This prayer's time hasn't started yet"),
+          findsOneWidget);
+    });
+
     testWidgets('count stepper + persists the incremented value',
         (tester) async {
       await pumpAndDismissWelcome(tester);

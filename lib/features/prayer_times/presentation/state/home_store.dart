@@ -5,6 +5,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
+import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/countdown_target.dart';
@@ -105,6 +106,33 @@ final class HomeStore {
   /// Changes once per waqt — the table's highlight dependency.
   late final activeWaqt =
       computed(() => prayerDay.value?.activeWaqtAt(now.value));
+
+  /// Bitmask of prayers whose waqt has started today. Reads `now` every
+  /// second but its value only flips at a waqt boundary, so downstream
+  /// (the table) doesn't rebuild per second.
+  late final _startedMask = computed<int>(() {
+    final day = prayerDay.value;
+    if (day == null) {
+      return 0;
+    }
+    final n = now.value;
+    var mask = 0;
+    for (final (i, prayer) in Prayer.values.indexed) {
+      if (!n.isBefore(day.startOf(prayer))) {
+        mask |= 1 << i;
+      }
+    }
+    return mask;
+  });
+
+  /// Prayers whose waqt hasn't begun yet — not checkable on the table.
+  late final lockedPrayers = computed<Set<Prayer>>(() {
+    final mask = _startedMask.value;
+    return {
+      for (final (i, prayer) in Prayer.values.indexed)
+        if (mask & (1 << i) == 0) prayer,
+    };
+  });
 
   /// Per-second values, isolated so only the hero numeral subtree ticks.
   late final remaining = computed(() {

@@ -628,6 +628,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get salahLockedToast => 'This prayer\'s time hasn\'t started yet';
+
+  @override
+  String muhasabaDoneCount(int done, int total) {
+    return '$done/$total done';
+  }
+
+  @override
   String vsPrevious(String trend) {
     String _temp0 = intl.Intl.selectLogic(trend, {
       'up': 'Better than the last period',

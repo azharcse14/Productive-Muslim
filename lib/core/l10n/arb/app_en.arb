@@ -310,6 +310,18 @@
       }
     }
   },
+  "salahLockedToast": "This prayer's time hasn't started yet",
+  "muhasabaDoneCount": "{done}/{total} done",
+  "@muhasabaDoneCount": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "vsPrevious": "{trend, select, up{Better than the last period} same{Steady as the last period} down{A fresh start — keep going} other{—}}",
   "@vsPrevious": {
     "placeholders": {

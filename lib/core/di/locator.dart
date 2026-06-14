@@ -42,6 +42,7 @@ import '../../features/settings/data/datasources/timezone_clock.dart';
 import '../../features/settings/data/repositories/city_repository_impl.dart';
 import '../../features/settings/data/repositories/location_repository_impl.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/entities/prayer_params.dart';
 import '../../features/settings/domain/repositories/city_repository.dart';
 import '../../features/settings/domain/repositories/location_repository.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
@@ -101,7 +102,9 @@ Future<void> setupLocator() async {
     ..registerLazySingleton<MuhasabaRepository>(
       () => MuhasabaRepositoryImpl(locator()),
     )
-    ..registerLazySingleton(() => MuhasabaStore(locator()));
+    ..registerLazySingleton(
+      () => MuhasabaStore(locator(), lockedSalahOn: _lockedSalahOn),
+    );
 
   // ---- qibla ----
   locator
@@ -196,4 +199,34 @@ Future<void> setupLocator() async {
   await locator<MuhasabaStore>().load();
   await locator<AppLockStore>().load();
   await locator.isReady<QuranDatabase>();
+}
+
+/// Salah ids whose waqt hasn't begun on [date] at the location's clock —
+/// so muhasaba/home won't let them be checked off ahead of time. Past
+/// dates and no-location cases lock nothing (back-fill stays open).
+Set<String> _lockedSalahOn(DateTime date) {
+  final settings = locator<SettingsStore>();
+  final location = settings.location.value;
+  if (location == null) {
+    return const <String>{};
+  }
+  final now = locator<ZonedClock>().nowAt(location);
+  final today = DateTime(now.year, now.month, now.day);
+  final d = DateTime(date.year, date.month, date.day);
+  if (d != today) {
+    // Past: already happened, fully open. Future can't be selected anyway.
+    return const <String>{};
+  }
+  final day = locator<GetPrayerDay>()(
+    location: location,
+    params: settings.prayerParams.value,
+    date: today,
+  ).valueOrNull;
+  if (day == null) {
+    return const <String>{};
+  }
+  return {
+    for (final prayer in Prayer.values)
+      if (now.isBefore(day.startOf(prayer))) 'salah_${prayer.name}',
+  };
 }

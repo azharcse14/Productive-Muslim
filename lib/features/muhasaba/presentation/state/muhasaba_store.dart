@@ -11,11 +11,25 @@ enum MuhasabaPeriod { today, week, month, year }
 /// switching) and the dashboard aggregates. Shared with Home's
 /// prayer-check affordance.
 final class MuhasabaStore {
-  MuhasabaStore(this._repository, {DateTime Function()? now})
-      : _now = now ?? DateTime.now;
+  MuhasabaStore(
+    this._repository, {
+    DateTime Function()? now,
+    Set<String> Function(DateTime date)? lockedSalahOn,
+  })  : _now = now ?? DateTime.now,
+        _lockedSalahOn = lockedSalahOn;
 
   final MuhasabaRepository _repository;
   final DateTime Function() _now;
+
+  /// Salah ids whose waqt has not begun yet on a given date (so they can't
+  /// be checked off ahead of time). Past dates / no-location → empty.
+  /// Null in tests that don't wire prayer times → nothing is locked.
+  final Set<String> Function(DateTime date)? _lockedSalahOn;
+
+  /// Salah not yet checkable for [selectedDate] (waqt hasn't started).
+  /// Read inside a reactive build to track [selectedDate].
+  Set<String> get lockedSalah =>
+      _lockedSalahOn?.call(selectedDate.value) ?? const <String>{};
 
   late final items = signal(const <TrackerItem>[]);
   late final archivedItems = signal(const <TrackerItem>[]);
@@ -80,6 +94,10 @@ final class MuhasabaStore {
   int valueOf(String itemId) => entries.value[itemId] ?? 0;
 
   Future<void> setValue(String itemId, int value) async {
+    // Can't mark a salah whose waqt hasn't started yet (today only).
+    if (value > 0 && lockedSalah.contains(itemId)) {
+      return;
+    }
     final clamped = value < 0 ? 0 : value;
     entries.value = {
       ...entries.value,

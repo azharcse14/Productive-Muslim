@@ -20,6 +20,8 @@ final class PrayerTable extends StatelessWidget {
     this.onSetJamaat,
     this.prayed = const {},
     this.onTogglePrayed,
+    this.locked = const {},
+    this.onLockedTap,
     this.dense = false,
     super.key,
   });
@@ -27,6 +29,12 @@ final class PrayerTable extends StatelessWidget {
   final PrayerDay day;
   final Prayer? activePrayer;
   final JamaatConfig jamaat;
+
+  /// Prayers whose waqt hasn't started yet — check affordance disabled.
+  final Set<Prayer> locked;
+
+  /// Tapping a locked prayer's affordance (e.g. to explain why it's off).
+  final void Function(Prayer)? onLockedTap;
 
   /// Locale-aware time formatter (digits included).
   final String Function(DateTime) formatTime;
@@ -74,7 +82,11 @@ final class PrayerTable extends StatelessWidget {
                   dense: dense,
                   onSetJamaat: onSetJamaat,
                   done: prayed.contains(prayer),
-                  onToggleDone: onTogglePrayed == null
+                  locked: locked.contains(prayer),
+                  onLockedTap: onLockedTap == null
+                      ? null
+                      : () => onLockedTap!(prayer),
+                  onToggleDone: onTogglePrayed == null || locked.contains(prayer)
                       ? null
                       : () => onTogglePrayed!(prayer),
                 ),
@@ -95,8 +107,10 @@ final class _PrayerRow extends StatelessWidget {
     required this.first,
     required this.dense,
     required this.done,
+    required this.locked,
     this.onSetJamaat,
     this.onToggleDone,
+    this.onLockedTap,
   });
 
   final String name;
@@ -106,8 +120,10 @@ final class _PrayerRow extends StatelessWidget {
   final bool first;
   final bool dense;
   final bool done;
+  final bool locked;
   final VoidCallback? onSetJamaat;
   final VoidCallback? onToggleDone;
+  final VoidCallback? onLockedTap;
 
   @override
   Widget build(BuildContext context) {
@@ -178,27 +194,42 @@ final class _PrayerRow extends StatelessWidget {
                   ),
           ),
           const SizedBox(width: 10),
-          Semantics(
-            button: onToggleDone != null,
-            checked: done,
-            child: InkWell(
-              onTap: onToggleDone,
-              customBorder: const CircleBorder(),
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: done ? q.ok : null,
-                  border:
-                      done ? null : Border.all(color: q.ink3, width: 1.8),
+          if (locked)
+            // Waqt hasn't started — no check yet; a tap explains why.
+            Semantics(
+              button: onLockedTap != null,
+              child: InkWell(
+                onTap: onLockedTap,
+                customBorder: const CircleBorder(),
+                child: SizedBox(
+                  width: 26,
+                  height: 26,
+                  child: Icon(Icons.schedule, size: 18, color: q.ink3),
                 ),
-                child: done
-                    ? Icon(Icons.check, size: 15, color: q.okSoft)
-                    : null,
+              ),
+            )
+          else
+            Semantics(
+              button: onToggleDone != null,
+              checked: done,
+              child: InkWell(
+                onTap: onToggleDone,
+                customBorder: const CircleBorder(),
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: done ? q.ok : null,
+                    border:
+                        done ? null : Border.all(color: q.ink3, width: 1.8),
+                  ),
+                  child: done
+                      ? Icon(Icons.check, size: 15, color: q.okSoft)
+                      : null,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

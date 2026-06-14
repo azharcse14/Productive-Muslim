@@ -625,6 +625,14 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get salahLockedToast => 'এই নামাজের সময় এখনো শুরু হয়নি';
+
+  @override
+  String muhasabaDoneCount(int done, int total) {
+    return '$totalটির মধ্যে $doneটি সম্পন্ন';
+  }
+
+  @override
   String vsPrevious(String trend) {
     String _temp0 = intl.Intl.selectLogic(trend, {
       'up': 'গত সময়ের চেয়ে ভালো',
