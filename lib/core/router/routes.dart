@@ -41,6 +41,9 @@ abstract final class Routes {
   /// Hadith collection — reachable from More and the Home daily card.
   static const hadith = (name: 'hadith', path: '/hadith');
 
+  /// Ruqyah — Qur'anic & prophetic protection/healing (More tab).
+  static const ruqyah = (name: 'ruqyah', path: '/ruqyah');
+
   /// Islamic calculators hub (More tab) and its individual tools.
   static const calculators = (name: 'calculators', path: '/calculators');
   static const fitra = (name: 'fitra', path: '/calculators/fitra');

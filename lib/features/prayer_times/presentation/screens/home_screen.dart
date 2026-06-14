@@ -425,9 +425,9 @@ final class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => context.pushNamed(Routes.calendar.name),
                     ),
                     QuickAction(
-                      icon: Icons.calculate_outlined,
-                      label: l10n.calculatorsTitle,
-                      onTap: () => context.pushNamed(Routes.calculators.name),
+                      icon: Icons.shield_outlined,
+                      label: l10n.ruqyahTitle,
+                      onTap: () => context.pushNamed(Routes.ruqyah.name),
                     ),
                   ],
                 ),

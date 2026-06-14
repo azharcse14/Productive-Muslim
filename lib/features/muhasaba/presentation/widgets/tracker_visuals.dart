@@ -21,6 +21,10 @@ abstract final class TrackerVisuals {
     'people': Icons.groups_outlined,
     'globe': Icons.public_outlined,
     'library': Icons.local_library_outlined,
+    'shield': Icons.shield_outlined,
+    'healing': Icons.healing_outlined,
+    'eye': Icons.visibility_outlined,
+    'protect': Icons.security_outlined,
   };
 
   static IconData iconOf(String key) => icons[key] ?? Icons.auto_awesome;

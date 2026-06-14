@@ -25,6 +25,7 @@ import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/ramadan/presentation/screens/zakat_screen.dart';
+import '../../features/ruqyah/presentation/screens/ruqyah_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
@@ -209,6 +210,11 @@ GoRouter buildRouter() {
         name: Routes.hadith.name,
         path: Routes.hadith.path,
         builder: (context, state) => const HadithScreen(),
+      ),
+      GoRoute(
+        name: Routes.ruqyah.name,
+        path: Routes.ruqyah.path,
+        builder: (context, state) => const RuqyahScreen(),
       ),
       GoRoute(
         name: Routes.zakat.name,

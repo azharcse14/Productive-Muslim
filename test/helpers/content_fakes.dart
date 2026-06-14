@@ -7,6 +7,9 @@ import 'package:qalbee/features/quran/domain/entities/ayah.dart';
 import 'package:qalbee/features/quran/domain/entities/surah.dart';
 import 'package:qalbee/features/quran/domain/repositories/quran_repository.dart';
 import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
+import 'package:qalbee/features/ruqyah/domain/entities/ruqyah.dart';
+import 'package:qalbee/features/ruqyah/domain/repositories/ruqyah_repository.dart';
+import 'package:qalbee/features/ruqyah/presentation/state/ruqyah_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tiny in-memory Quran for shell-level widget tests.
@@ -107,6 +110,36 @@ final class FakeDuaRepository implements DuaRepository {
 
 Future<DuaStore> makeDuaStore() async {
   final store = DuaStore(FakeDuaRepository());
+  await store.load();
+  return store;
+}
+
+final class FakeRuqyahRepository implements RuqyahRepository {
+  @override
+  Future<Result<List<RuqyahCategory>>> categories() async =>
+      const Result.success([
+        RuqyahCategory(
+          id: 'protection',
+          icon: 'shield',
+          items: [
+            RuqyahItem(
+              id: 'ayatul_kursi',
+              titleEn: 'Ayatul Kursi',
+              titleBn: 'আয়াতুল কুরসি',
+              arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ',
+              transliteration: 'Allahu la ilaha illa huwa',
+              translationEn: 'Allah — there is no god but He',
+              translationBn: 'আল্লাহ — তিনি ছাড়া কোনো ইলাহ নেই',
+              reference: 'Qur\'an 2:255',
+              repeat: 3,
+            ),
+          ],
+        ),
+      ]);
+}
+
+Future<RuqyahStore> makeRuqyahStore() async {
+  final store = RuqyahStore(FakeRuqyahRepository());
   await store.load();
   return store;
 }

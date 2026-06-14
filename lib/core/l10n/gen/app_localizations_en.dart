@@ -921,6 +921,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get referenceLabel => 'Reference';
 
   @override
+  String get ruqyahTitle => 'Ruqyah';
+
+  @override
+  String get ruqyahSubtitle => 'Qur\'anic protection & healing';
+
+  @override
+  String get ruqyahHowToTitle => 'How to perform ruqyah';
+
+  @override
+  String get ruqyahHowToBody =>
+      'Recite these verses and supplications sincerely, with full trust that healing is from Allah alone. Blow lightly over yourself or the one being treated, or over water to drink. Ruqyah is from the Qur\'an and authentic Sunnah only — never seek out amulets or sorcerers.';
+
+  @override
+  String ruqyahCategoryName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'protection': 'Protection',
+      'three_quls': 'The three Quls',
+      'healing': 'Healing & sickness',
+      'evil_eye': 'Evil eye & envy',
+      'sihr_jinn': 'Sihr & jinn',
+      'anxiety_grief': 'Anxiety & grief',
+      'distress': 'Distress & hardship',
+      'fever_pain': 'Fever, pain & illness',
+      'sleep': 'Sleep & nightmares',
+      'morning_evening': 'Morning & evening',
+      'waswas': 'Whispers & doubts',
+      'enemies': 'Enemies & oppressors',
+      'travel': 'Travel & home',
+      'children': 'Protecting children',
+      'provision': 'Provision & debt',
+      'forgiveness': 'Repentance & forgiveness',
+      'guidance': 'Steadfastness & guidance',
+      'knowledge': 'Beneficial knowledge',
+      'parents': 'Mercy for parents',
+      'marriage': 'Marriage & spouse',
+      'fitan': 'Trials & the Dajjal',
+      'food_drink': 'Eating & drinking',
+      'mosque': 'Entering the mosque',
+      'rain': 'Rain & weather',
+      'night_worship': 'Night prayer',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String ruqyahCount(int count) {
+    return '$count passages';
+  }
+
+  @override
   String get tasbihTarget => 'Target';
 
   @override

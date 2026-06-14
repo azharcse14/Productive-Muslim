@@ -919,6 +919,57 @@ class AppLocalizationsBn extends AppLocalizations {
   String get referenceLabel => 'সূত্র';
 
   @override
+  String get ruqyahTitle => 'রুকইয়া';
+
+  @override
+  String get ruqyahSubtitle => 'কুরআনি সুরক্ষা ও আরোগ্য';
+
+  @override
+  String get ruqyahHowToTitle => 'রুকইয়া কীভাবে করবেন';
+
+  @override
+  String get ruqyahHowToBody =>
+      'এই আয়াত ও দোয়াগুলো আন্তরিকতার সাথে পড়ুন — দৃঢ় বিশ্বাস রাখুন যে আরোগ্য কেবল আল্লাহর পক্ষ থেকে। নিজের উপর বা যাকে রুকইয়া করা হচ্ছে তার উপর, কিংবা পান করার পানির উপর হালকা ফুঁ দিন। রুকইয়া কেবল কুরআন ও সহিহ সুন্নাহ থেকে — কখনো তাবিজ বা ঝাড়ফুঁককারীর কাছে যাবেন না।';
+
+  @override
+  String ruqyahCategoryName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'protection': 'সুরক্ষা',
+      'three_quls': 'তিন কুল',
+      'healing': 'আরোগ্য ও অসুস্থতা',
+      'evil_eye': 'বদনজর ও হিংসা',
+      'sihr_jinn': 'জাদু ও জিন',
+      'anxiety_grief': 'দুশ্চিন্তা ও দুঃখ',
+      'distress': 'বিপদ ও সংকট',
+      'fever_pain': 'জ্বর, ব্যথা ও অসুস্থতা',
+      'sleep': 'ঘুম ও দুঃস্বপ্ন',
+      'morning_evening': 'সকাল-সন্ধ্যা',
+      'waswas': 'ওয়াসওয়াসা ও সন্দেহ',
+      'enemies': 'শত্রু ও জুলুম',
+      'travel': 'সফর ও ঘর',
+      'children': 'সন্তানের সুরক্ষা',
+      'provision': 'রিযিক ও ঋণমুক্তি',
+      'forgiveness': 'তাওবা ও ক্ষমা',
+      'guidance': 'দৃঢ়তা ও হিদায়াত',
+      'knowledge': 'উপকারী জ্ঞান',
+      'parents': 'পিতামাতার জন্য',
+      'marriage': 'বিবাহ ও দাম্পত্য',
+      'fitan': 'ফিতনা ও দাজ্জাল',
+      'food_drink': 'পানাহার',
+      'mosque': 'মসজিদে প্রবেশ',
+      'rain': 'বৃষ্টি ও আবহাওয়া',
+      'night_worship': 'রাতের ইবাদত',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String ruqyahCount(int count) {
+    return '$countটি আমল';
+  }
+
+  @override
   String get tasbihTarget => 'লক্ষ্য';
 
   @override

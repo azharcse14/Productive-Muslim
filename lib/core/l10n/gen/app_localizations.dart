@@ -1574,6 +1574,42 @@ abstract class AppLocalizations {
   /// **'Reference'**
   String get referenceLabel;
 
+  /// No description provided for @ruqyahTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ruqyah'**
+  String get ruqyahTitle;
+
+  /// No description provided for @ruqyahSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qur\'anic protection & healing'**
+  String get ruqyahSubtitle;
+
+  /// No description provided for @ruqyahHowToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to perform ruqyah'**
+  String get ruqyahHowToTitle;
+
+  /// No description provided for @ruqyahHowToBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Recite these verses and supplications sincerely, with full trust that healing is from Allah alone. Blow lightly over yourself or the one being treated, or over water to drink. Ruqyah is from the Qur\'an and authentic Sunnah only — never seek out amulets or sorcerers.'**
+  String get ruqyahHowToBody;
+
+  /// No description provided for @ruqyahCategoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr & jinn} anxiety_grief{Anxiety & grief} distress{Distress & hardship} fever_pain{Fever, pain & illness} sleep{Sleep & nightmares} morning_evening{Morning & evening} waswas{Whispers & doubts} enemies{Enemies & oppressors} travel{Travel & home} children{Protecting children} provision{Provision & debt} forgiveness{Repentance & forgiveness} guidance{Steadfastness & guidance} knowledge{Beneficial knowledge} parents{Mercy for parents} marriage{Marriage & spouse} fitan{Trials & the Dajjal} food_drink{Eating & drinking} mosque{Entering the mosque} rain{Rain & weather} night_worship{Night prayer} other{{id}}}'**
+  String ruqyahCategoryName(String id);
+
+  /// No description provided for @ruqyahCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} passages'**
+  String ruqyahCount(int count);
+
   /// No description provided for @tasbihTarget.
   ///
   /// In en, this message translates to:

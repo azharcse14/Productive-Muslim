@@ -54,6 +54,10 @@ import '../../features/quran/data/datasources/quran_database.dart';
 import '../../features/quran/data/repositories/quran_repository_impl.dart';
 import '../../features/quran/domain/repositories/quran_repository.dart';
 import '../../features/quran/presentation/state/quran_store.dart';
+import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
+import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
+import '../../features/ruqyah/domain/repositories/ruqyah_repository.dart';
+import '../../features/ruqyah/presentation/state/ruqyah_store.dart';
 import '../../features/settings/data/datasources/city_asset_data_source.dart';
 import '../../features/settings/data/datasources/geolocator_data_source.dart';
 import '../../features/settings/data/datasources/settings_local_data_source.dart';
@@ -226,6 +230,14 @@ Future<void> setupLocator() async {
       () => DuaFavoritesStore(SharedPreferencesAsync()),
     )
     ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()));
+
+  // ---- ruqyah ----
+  locator
+    ..registerLazySingleton(() => RuqyahAssetDataSource(rootBundle))
+    ..registerLazySingleton<RuqyahRepository>(
+      () => RuqyahRepositoryImpl(locator()),
+    )
+    ..registerLazySingleton(() => RuqyahStore(locator()));
 
   // ---- hadith ----
   locator

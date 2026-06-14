@@ -1,0 +1,902 @@
+{
+  "categories": [
+    {
+      "id": "protection",
+      "icon": "shield",
+      "items": [
+        {
+          "id": "fatihah",
+          "titleEn": "Surah al-Fatihah",
+          "titleBn": "সূরা আল-ফাতিহা",
+          "ar": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَٰنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+          "tr": "Bismillāhir-raḥmānir-raḥīm. Al-ḥamdu lillāhi rabbil-ʿālamīn. Ar-raḥmānir-raḥīm. Māliki yawmid-dīn. Iyyāka naʿbudu wa iyyāka nastaʿīn. Ihdinaṣ-ṣirāṭal-mustaqīm. Ṣirāṭalladhīna anʿamta ʿalayhim ghayril-maghḍūbi ʿalayhim wa laḍ-ḍāllīn.",
+          "en": "In the name of Allah, the Most Gracious, the Most Merciful. All praise is for Allah, Lord of all worlds — the Most Gracious, the Most Merciful, Master of the Day of Judgement. You alone we worship and You alone we ask for help. Guide us to the straight path — the path of those You have blessed, not of those who incurred wrath, nor of those who went astray.",
+          "bn": "পরম করুণাময় অসীম দয়ালু আল্লাহর নামে। সমস্ত প্রশংসা আল্লাহর, যিনি সকল জগতের প্রতিপালক — পরম করুণাময়, অসীম দয়ালু, বিচার দিনের মালিক। আমরা কেবল আপনারই ইবাদত করি এবং কেবল আপনারই সাহায্য চাই। আমাদের সরল পথ দেখান — তাদের পথ যাদের আপনি অনুগ্রহ করেছেন, যাদের উপর ক্রোধ নেমে আসেনি এবং যারা পথভ্রষ্ট নয়।",
+          "ref": "Qur'an 1:1-7 — the Prophet ﷺ called it the greatest ruqyah (Bukhari 5736)",
+          "repeat": 1
+        },
+        {
+          "id": "ayatul_kursi",
+          "titleEn": "Ayatul Kursi",
+          "titleBn": "আয়াতুল কুরসি",
+          "ar": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+          "tr": "Allāhu lā ilāha illā huwal-ḥayyul-qayyūm. Lā ta'khudhuhu sinatun wa lā nawm. Lahu mā fis-samāwāti wa mā fil-arḍ. Man dhal-ladhī yashfaʿu ʿindahu illā bi'idhnih. Yaʿlamu mā bayna aydīhim wa mā khalfahum. Wa lā yuḥīṭūna bishay'in min ʿilmihi illā bimā shā'. Wasiʿa kursiyyuhus-samāwāti wal-arḍ. Wa lā ya'ūduhu ḥifẓuhumā. Wa huwal-ʿaliyyul-ʿaẓīm.",
+          "en": "Allah — there is no god but He, the Ever-Living, the Sustainer of all. Neither drowsiness nor sleep overtakes Him. To Him belongs whatever is in the heavens and the earth. Who can intercede with Him except by His permission? He knows what is before them and what is behind them, and they encompass nothing of His knowledge except what He wills. His Throne extends over the heavens and the earth, and preserving them does not tire Him. And He is the Most High, the Most Great.",
+          "bn": "আল্লাহ — তিনি ছাড়া কোনো ইলাহ নেই, তিনি চিরঞ্জীব, সর্বসত্তার ধারক। তাঁকে তন্দ্রা বা নিদ্রা স্পর্শ করে না। আসমান ও জমিনে যা কিছু আছে সবই তাঁর। কে আছে যে তাঁর অনুমতি ছাড়া তাঁর কাছে সুপারিশ করবে? তিনি জানেন তাদের সামনে ও পেছনে যা কিছু আছে, আর তারা তাঁর জ্ঞানের কিছুই আয়ত্ত করতে পারে না তিনি যা চান তা ছাড়া। তাঁর কুরসি আসমান ও জমিনকে পরিবেষ্টন করে আছে এবং এ দুটির রক্ষণাবেক্ষণ তাঁকে ক্লান্ত করে না। তিনি সুউচ্চ, মহান।",
+          "ref": "Qur'an 2:255 — whoever recites it at night, a guardian stays till morning (Bukhari 2311)",
+          "repeat": 1
+        },
+        {
+          "id": "baqarah_end",
+          "titleEn": "Last two verses of al-Baqarah",
+          "titleBn": "সূরা বাকারার শেষ দুই আয়াত",
+          "ar": "آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ ۚ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ ۚ وَقَالُوا سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۝ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+          "tr": "Āmanar-rasūlu bimā unzila ilayhi mir-rabbihi wal-mu'minūn. Kullun āmana billāhi wa malā'ikatihi wa kutubihi wa rusulih. Lā nufarriqu bayna aḥadin mir-rusulih. Wa qālū samiʿnā wa aṭaʿnā, ghufrānaka rabbanā wa ilaykal-maṣīr. Lā yukallifullāhu nafsan illā wusʿahā…",
+          "en": "The Messenger believes in what was revealed to him from his Lord, and so do the believers. Each believes in Allah, His angels, His books and His messengers… 'Our Lord, do not hold us accountable if we forget or err… and grant us victory over the disbelieving people.'",
+          "bn": "রাসূল তাঁর প্রতিপালকের পক্ষ থেকে যা অবতীর্ণ হয়েছে তার উপর ঈমান এনেছেন, আর মুমিনগণও। প্রত্যেকে ঈমান এনেছে আল্লাহ, তাঁর ফেরেশতাগণ, তাঁর কিতাবসমূহ ও তাঁর রাসূলগণের উপর… 'হে আমাদের প্রতিপালক, আমরা ভুলে গেলে বা ভুল করলে আমাদের পাকড়াও করবেন না… এবং কাফির সম্প্রদায়ের বিরুদ্ধে আমাদের সাহায্য করুন।'",
+          "ref": "Qur'an 2:285-286 — whoever recites them at night, they suffice him (Bukhari 5009)",
+          "repeat": 1
+        },
+        {
+          "id": "kafirun",
+          "titleEn": "Surah al-Kafirun",
+          "titleBn": "সূরা আল-কাফিরুন",
+          "ar": "قُلْ يَا أَيُّهَا الْكَافِرُونَ ۝ لَا أَعْبُدُ مَا تَعْبُدُونَ ۝ وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ وَلَا أَنَا عَابِدٌ مَّا عَبَدتُّمْ ۝ وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ لَكُمْ دِينُكُمْ وَلِيَ دِينِ",
+          "tr": "Qul yā ayyuhal-kāfirūn. Lā aʿbudu mā taʿbudūn. Wa lā antum ʿābidūna mā aʿbud. Wa lā ana ʿābidum-mā ʿabattum. Wa lā antum ʿābidūna mā aʿbud. Lakum dīnukum wa liya dīn.",
+          "en": "Say: O disbelievers, I do not worship what you worship, nor do you worship what I worship. I will not worship what you worship, nor will you worship what I worship. For you is your religion, and for me is mine.",
+          "bn": "বলুন, হে কাফিরগণ, আমি তার ইবাদত করি না যার ইবাদত তোমরা কর, আর তোমরাও তাঁর ইবাদতকারী নও যাঁর ইবাদত আমি করি। আমি ইবাদতকারী নই তোমরা যার ইবাদত করেছ, আর তোমরাও ইবাদতকারী নও যাঁর ইবাদত আমি করি। তোমাদের দীন তোমাদের, আমার দীন আমার।",
+          "ref": "Qur'an 109 — recite at sleep; it is freedom from shirk (Abu Dawud 5055)",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "three_quls",
+      "icon": "star",
+      "items": [
+        {
+          "id": "ikhlas",
+          "titleEn": "Surah al-Ikhlas",
+          "titleBn": "সূরা আল-ইখলাস",
+          "ar": "قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ",
+          "tr": "Qul huwallāhu aḥad. Allāhuṣ-ṣamad. Lam yalid wa lam yūlad. Wa lam yakul-lahu kufuwan aḥad.",
+          "en": "Say: He is Allah, the One. Allah, the Eternal Refuge. He neither begets nor is born, and there is none comparable to Him.",
+          "bn": "বলুন, তিনি আল্লাহ, এক ও অদ্বিতীয়। আল্লাহ অমুখাপেক্ষী। তিনি কাউকে জন্ম দেননি এবং তাঁকেও জন্ম দেওয়া হয়নি। আর তাঁর সমতুল্য কেউ নেই।",
+          "ref": "Qur'an 112 — recite 3× morning & evening (Abu Dawud 5082)",
+          "repeat": 3
+        },
+        {
+          "id": "falaq",
+          "titleEn": "Surah al-Falaq",
+          "titleBn": "সূরা আল-ফালাক",
+          "ar": "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+          "tr": "Qul aʿūdhu birabbil-falaq. Min sharri mā khalaq. Wa min sharri ghāsiqin idhā waqab. Wa min sharrin-naffāthāti fil-ʿuqad. Wa min sharri ḥāsidin idhā ḥasad.",
+          "en": "Say: I seek refuge in the Lord of daybreak, from the evil of what He created, from the evil of darkness when it settles, from the evil of those who blow on knots, and from the evil of an envier when he envies.",
+          "bn": "বলুন, আমি আশ্রয় চাই ভোরের প্রতিপালকের কাছে — তিনি যা সৃষ্টি করেছেন তার অনিষ্ট থেকে, অন্ধকার যখন ঘনিয়ে আসে তার অনিষ্ট থেকে, গিরায় ফুঁ দেওয়া জাদুকরদের অনিষ্ট থেকে, এবং হিংসুকের অনিষ্ট থেকে যখন সে হিংসা করে।",
+          "ref": "Qur'an 113 — recite 3× morning & evening (Abu Dawud 5082)",
+          "repeat": 3
+        },
+        {
+          "id": "nas",
+          "titleEn": "Surah an-Nas",
+          "titleBn": "সূরা আন-নাস",
+          "ar": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ",
+          "tr": "Qul aʿūdhu birabbin-nās. Malikin-nās. Ilāhin-nās. Min sharril-waswāsil-khannās. Alladhī yuwaswisu fī ṣudūrin-nās. Minal-jinnati wan-nās.",
+          "en": "Say: I seek refuge in the Lord of mankind, the King of mankind, the God of mankind, from the evil of the retreating whisperer who whispers in the hearts of mankind — from among jinn and mankind.",
+          "bn": "বলুন, আমি আশ্রয় চাই মানুষের প্রতিপালকের কাছে, মানুষের অধিপতি, মানুষের ইলাহ — সেই আত্মগোপনকারী কুমন্ত্রণাদাতার অনিষ্ট থেকে, যে মানুষের অন্তরে কুমন্ত্রণা দেয় — জিন ও মানুষের মধ্য থেকে।",
+          "ref": "Qur'an 114 — recite 3× morning & evening (Abu Dawud 5082)",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "healing",
+      "icon": "healing",
+      "items": [
+        {
+          "id": "adhhibil_bas",
+          "titleEn": "Remove the harm",
+          "titleBn": "কষ্ট দূর করুন",
+          "ar": "أَذْهِبِ الْبَاسَ رَبَّ النَّاسِ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا",
+          "tr": "Adhhibil-bāsa rabban-nās, ishfi antash-shāfī, lā shifā'a illā shifā'uka, shifā'an lā yughādiru saqamā.",
+          "en": "Remove the harm, O Lord of mankind, and heal — for You are the Healer. There is no cure but Your cure, a cure that leaves no illness behind.",
+          "bn": "হে মানুষের প্রতিপালক, কষ্ট দূর করুন এবং আরোগ্য দান করুন — আপনিই আরোগ্যদাতা। আপনার আরোগ্য ছাড়া কোনো আরোগ্য নেই — এমন আরোগ্য যা কোনো রোগ অবশিষ্ট রাখে না।",
+          "ref": "Bukhari 5743, Muslim 2191 — recited while placing the hand on the sick",
+          "repeat": 1
+        },
+        {
+          "id": "audhu_qudratih",
+          "titleEn": "For pain in the body (7×)",
+          "titleBn": "শরীরের ব্যথার জন্য (৭ বার)",
+          "ar": "بِسْمِ اللَّهِ (ثَلَاثًا) أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ",
+          "tr": "Bismillāh (3×). Aʿūdhu billāhi wa qudratihi min sharri mā ajidu wa uḥādhir.",
+          "en": "In the name of Allah (say 3×). I seek refuge in Allah and His power from the evil of what I feel and fear.",
+          "bn": "আল্লাহর নামে (৩ বার)। আমি আল্লাহ ও তাঁর শক্তির আশ্রয় চাই, আমি যা অনুভব করছি ও যা ভয় করছি তার অনিষ্ট থেকে।",
+          "ref": "Muslim 2202 — place the hand on the pain, say Bismillah 3×, then this 7×",
+          "repeat": 7
+        },
+        {
+          "id": "as_alullah",
+          "titleEn": "Ask Allah for cure (7×)",
+          "titleBn": "আল্লাহর কাছে আরোগ্য চাওয়া (৭ বার)",
+          "ar": "أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ",
+          "tr": "As'alullāhal-ʿaẓīma rabbal-ʿarshil-ʿaẓīmi an yashfiyak.",
+          "en": "I ask Allah the Magnificent, Lord of the Magnificent Throne, to cure you.",
+          "bn": "আমি মহান আল্লাহর কাছে, মহান আরশের অধিপতির কাছে প্রার্থনা করি যেন তিনি তোমাকে আরোগ্য দান করেন।",
+          "ref": "Abu Dawud 3106, Tirmidhi 2083 — said 7× by the sick or for them",
+          "repeat": 7
+        },
+        {
+          "id": "bismillah_arqik",
+          "titleEn": "Jibreel's ruqyah",
+          "titleBn": "জিবরীলের রুকইয়া",
+          "ar": "بِسْمِ اللَّهِ أَرْقِيكَ، مِنْ كُلِّ شَيْءٍ يُؤْذِيكَ، مِنْ شَرِّ كُلِّ نَفْسٍ أَوْ عَيْنِ حَاسِدٍ، اللَّهُ يَشْفِيكَ، بِسْمِ اللَّهِ أَرْقِيكَ",
+          "tr": "Bismillāhi arqīka, min kulli shay'in yu'dhīka, min sharri kulli nafsin aw ʿayni ḥāsid, Allāhu yashfīka, bismillāhi arqīk.",
+          "en": "In the name of Allah I perform ruqyah for you, from everything that harms you, from the evil of every soul or envious eye — may Allah heal you. In the name of Allah I perform ruqyah for you.",
+          "bn": "আল্লাহর নামে আমি তোমার জন্য রুকইয়া করছি — যা কিছু তোমাকে কষ্ট দেয় তা থেকে, প্রতিটি প্রাণ বা হিংসুক চোখের অনিষ্ট থেকে। আল্লাহ তোমাকে আরোগ্য দান করুন। আল্লাহর নামে আমি তোমার জন্য রুকইয়া করছি।",
+          "ref": "Muslim 2186 — Jibreel ﷺ recited this over the Prophet ﷺ",
+          "repeat": 3
+        },
+        {
+          "id": "la_basa",
+          "titleEn": "No harm, a purification",
+          "titleBn": "কোনো ক্ষতি নেই, এটি পবিত্রতা",
+          "ar": "لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
+          "tr": "Lā ba'sa ṭahūrun in shā'allāh.",
+          "en": "No harm, it is a purification, if Allah wills.",
+          "bn": "কোনো ক্ষতি নেই, ইনশাআল্লাহ এটি (গুনাহ থেকে) পবিত্রতা।",
+          "ref": "Bukhari 5656 — said when visiting the sick",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "evil_eye",
+      "icon": "eye",
+      "items": [
+        {
+          "id": "kalimat_tammat",
+          "titleEn": "Allah's perfect words",
+          "titleBn": "আল্লাহর পরিপূর্ণ বাণী",
+          "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+          "tr": "Aʿūdhu bikalimātillāhit-tāmmāti min sharri mā khalaq.",
+          "en": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+          "bn": "আমি আল্লাহর পরিপূর্ণ বাণীসমূহের আশ্রয় চাই তিনি যা সৃষ্টি করেছেন তার অনিষ্ট থেকে।",
+          "ref": "Muslim 2708 — recite 3× in the evening; protects from harm that night",
+          "repeat": 3
+        },
+        {
+          "id": "uidhukuma",
+          "titleEn": "Refuge for children",
+          "titleBn": "সন্তানদের জন্য আশ্রয়",
+          "ar": "أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ، مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
+          "tr": "Uʿīdhukumā bikalimātillāhit-tāmmah, min kulli shayṭānin wa hāmmah, wa min kulli ʿaynin lāmmah.",
+          "en": "I seek refuge for you both in the perfect words of Allah, from every devil and crawling creature, and from every evil eye.",
+          "bn": "আমি তোমাদের উভয়কে আল্লাহর পরিপূর্ণ বাণীসমূহের আশ্রয়ে রাখছি — প্রতিটি শয়তান ও বিষাক্ত প্রাণী থেকে, এবং প্রতিটি কুদৃষ্টি (বদনজর) থেকে।",
+          "ref": "Bukhari 3371 — the Prophet ﷺ sought refuge for Hasan and Husayn with it",
+          "repeat": 1
+        },
+        {
+          "id": "masha_allah",
+          "titleEn": "When admiring something",
+          "titleBn": "কিছু পছন্দ হলে",
+          "ar": "مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ",
+          "tr": "Mā shā'allāhu lā quwwata illā billāh.",
+          "en": "What Allah has willed; there is no power except with Allah.",
+          "bn": "আল্লাহ যা চেয়েছেন (তাই হয়েছে); আল্লাহ ছাড়া কোনো শক্তি নেই।",
+          "ref": "Qur'an 18:39 — said when something pleases you, to ward off the evil eye",
+          "repeat": 1
+        },
+        {
+          "id": "allahumma_barik",
+          "titleEn": "Ask blessing, not envy",
+          "titleBn": "হিংসা নয়, বরকতের দোয়া",
+          "ar": "اللَّهُمَّ بَارِكْ فِيهِ",
+          "tr": "Allāhumma bārik fīh.",
+          "en": "O Allah, bless it.",
+          "bn": "হে আল্লাহ, এতে বরকত দিন।",
+          "ref": "Ibn Majah 3509 — say it when you see something you admire, so your gaze does not harm",
+          "repeat": 1
+        },
+        {
+          "id": "bismillahilladhi",
+          "titleEn": "In the name of Allah by whose name…",
+          "titleBn": "আল্লাহর নামে যাঁর নামে…",
+          "ar": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+          "tr": "Bismillāhilladhī lā yaḍurru maʿasmihi shay'un fil-arḍi wa lā fis-samā'i wa huwas-samīʿul-ʿalīm.",
+          "en": "In the name of Allah, with whose name nothing on earth or in the heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+          "bn": "আল্লাহর নামে, যাঁর নামের সাথে জমিনে বা আসমানে কোনো কিছুই ক্ষতি করতে পারে না, আর তিনি সর্বশ্রোতা, সর্বজ্ঞ।",
+          "ref": "Abu Dawud 5088, Tirmidhi 3388 — say 3× morning & evening; no sudden harm reaches you",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "sihr_jinn",
+      "icon": "protect",
+      "items": [
+        {
+          "id": "audhu_kalimat_ghadab",
+          "titleEn": "Refuge from devils' whispers",
+          "titleBn": "শয়তানের কুমন্ত্রণা থেকে আশ্রয়",
+          "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ",
+          "tr": "Aʿūdhu bikalimātillāhit-tāmmāti min ghaḍabihi wa ʿiqābih, wa sharri ʿibādih, wa min hamazātish-shayāṭīni wa an yaḥḍurūn.",
+          "en": "I seek refuge in the perfect words of Allah from His anger and His punishment, from the evil of His servants, and from the whisperings of the devils and their presence.",
+          "bn": "আমি আল্লাহর পরিপূর্ণ বাণীসমূহের আশ্রয় চাই তাঁর ক্রোধ ও শাস্তি থেকে, তাঁর বান্দাদের অনিষ্ট থেকে, এবং শয়তানের কুমন্ত্রণা ও তাদের উপস্থিতি থেকে।",
+          "ref": "Abu Dawud 3893, Tirmidhi 3528",
+          "repeat": 1
+        },
+        {
+          "id": "istiadha",
+          "titleEn": "Seeking refuge from Shaytan",
+          "titleBn": "শয়তান থেকে আশ্রয়",
+          "ar": "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+          "tr": "Aʿūdhu billāhi minash-shayṭānir-rajīm.",
+          "en": "I seek refuge in Allah from the accursed Shaytan.",
+          "bn": "আমি অভিশপ্ত শয়তান থেকে আল্লাহর আশ্রয় চাই।",
+          "ref": "Qur'an 16:98 — say it against anger and the whisperings of Shaytan",
+          "repeat": 3
+        },
+        {
+          "id": "hasbiyallah",
+          "titleEn": "Allah is sufficient for me",
+          "titleBn": "আল্লাহই আমার জন্য যথেষ্ট",
+          "ar": "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ، وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+          "tr": "Ḥasbiyallāhu lā ilāha illā huwa, ʿalayhi tawakkaltu, wa huwa rabbul-ʿarshil-ʿaẓīm.",
+          "en": "Allah is sufficient for me. There is no god but He. In Him I put my trust, and He is the Lord of the Magnificent Throne.",
+          "bn": "আল্লাহই আমার জন্য যথেষ্ট। তিনি ছাড়া কোনো ইলাহ নেই। আমি তাঁরই উপর ভরসা করি, আর তিনি মহান আরশের অধিপতি।",
+          "ref": "Qur'an 9:129 — Abu Dawud 5081: say 7× morning & evening, Allah suffices your worries",
+          "repeat": 7
+        },
+        {
+          "id": "la_ilaha_wahdah",
+          "titleEn": "Tahlil — a fortress from Shaytan",
+          "titleBn": "তাহলীল — শয়তান থেকে দুর্গ",
+          "ar": "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
+          "tr": "Lā ilāha illallāhu waḥdahu lā sharīka lah, lahul-mulku wa lahul-ḥamd, wa huwa ʿalā kulli shay'in qadīr.",
+          "en": "There is no god but Allah alone, with no partner. His is the dominion and His is all praise, and He is able to do all things.",
+          "bn": "আল্লাহ ছাড়া কোনো ইলাহ নেই, তিনি একক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁরই, সমস্ত প্রশংসা তাঁরই, আর তিনি সর্ববিষয়ে সর্বশক্তিমান।",
+          "ref": "Bukhari 3293 — said 100× a day, it is a shield from Shaytan that day",
+          "repeat": 100
+        }
+      ]
+    },
+    {
+      "id": "anxiety_grief",
+      "icon": "heart",
+      "items": [
+        {
+          "id": "dua_hamm_hazan",
+          "titleEn": "Against worry and grief",
+          "titleBn": "দুশ্চিন্তা ও দুঃখের বিরুদ্ধে",
+          "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ",
+          "tr": "Allāhumma innī aʿūdhu bika minal-hammi wal-ḥazan, wal-ʿajzi wal-kasal, wal-bukhli wal-jubn, wa ḍalaʿid-dayni wa ghalabatir-rijāl.",
+          "en": "O Allah, I seek refuge in You from worry and grief, from helplessness and laziness, from miserliness and cowardice, from being heavily in debt and from being overpowered by men.",
+          "bn": "হে আল্লাহ, আমি আপনার কাছে আশ্রয় চাই দুশ্চিন্তা ও দুঃখ থেকে, অক্ষমতা ও অলসতা থেকে, কৃপণতা ও কাপুরুষতা থেকে, ঋণের বোঝা ও মানুষের দমন থেকে।",
+          "ref": "Bukhari 6369 — the Prophet ﷺ's frequent supplication",
+          "repeat": 3
+        },
+        {
+          "id": "dua_yunus",
+          "titleEn": "The supplication of Yunus ﷺ",
+          "titleBn": "ইউনুস (আঃ)-এর দোয়া",
+          "ar": "لَا إِلَٰهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+          "tr": "Lā ilāha illā anta subḥānaka innī kuntu minaẓ-ẓālimīn.",
+          "en": "There is no god but You; glory be to You. Indeed, I was among the wrongdoers.",
+          "bn": "আপনি ছাড়া কোনো ইলাহ নেই, আপনি পবিত্র, নিশ্চয়ই আমি ছিলাম যালিমদের অন্তর্ভুক্ত।",
+          "ref": "Qur'an 21:87 — Tirmidhi 3505: no distressed person says it but Allah relieves him",
+          "repeat": 3
+        },
+        {
+          "id": "hasbunallah",
+          "titleEn": "Allah is sufficient for us",
+          "titleBn": "আল্লাহই আমাদের জন্য যথেষ্ট",
+          "ar": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+          "tr": "Ḥasbunallāhu wa niʿmal-wakīl.",
+          "en": "Allah is sufficient for us, and He is the best Disposer of affairs.",
+          "bn": "আল্লাহই আমাদের জন্য যথেষ্ট, আর তিনিই সর্বোত্তম কর্মবিধায়ক।",
+          "ref": "Qur'an 3:173 — said by Ibrahim ﷺ in the fire and by the believers",
+          "repeat": 7
+        }
+      ]
+    },
+    {
+      "id": "distress",
+      "icon": "hands",
+      "items": [
+        {
+          "id": "dua_karb",
+          "titleEn": "Supplication of distress",
+          "titleBn": "বিপদের দোয়া",
+          "ar": "لَا إِلَٰهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَٰهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ",
+          "tr": "Lā ilāha illallāhul-ʿAẓīmul-Ḥalīm, lā ilāha illallāhu Rabbul-ʿArshil-ʿAẓīm, lā ilāha illallāhu Rabbus-samāwāti wa Rabbul-arḍi wa Rabbul-ʿArshil-Karīm.",
+          "en": "There is no god but Allah, the Mighty, the Forbearing. There is no god but Allah, Lord of the Magnificent Throne. There is no god but Allah, Lord of the heavens and Lord of the earth and Lord of the Noble Throne.",
+          "bn": "আল্লাহ ছাড়া কোনো ইলাহ নেই, যিনি মহান, পরম সহনশীল। আল্লাহ ছাড়া কোনো ইলাহ নেই, যিনি মহান আরশের রব। আল্লাহ ছাড়া কোনো ইলাহ নেই, যিনি আসমানসমূহের রব, জমিনের রব ও সম্মানিত আরশের রব।",
+          "ref": "Bukhari 6346, Muslim 2730 — said at times of distress",
+          "repeat": 1
+        },
+        {
+          "id": "ya_hayyu_ya_qayyum",
+          "titleEn": "By Your mercy I seek relief",
+          "titleBn": "আপনার রহমতের উসিলায়",
+          "ar": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَىٰ نَفْسِي طَرْفَةَ عَيْنٍ",
+          "tr": "Yā Ḥayyu yā Qayyūmu bi-raḥmatika astaghīth, aṣliḥ lī sha'nī kullahu wa lā takilnī ilā nafsī ṭarfata ʿayn.",
+          "en": "O Ever-Living, O Sustainer, by Your mercy I seek relief. Set right all my affairs and do not leave me to myself even for the blink of an eye.",
+          "bn": "হে চিরঞ্জীব, হে সর্বনিয়ন্তা, আপনার রহমতের উসিলায় আমি সাহায্য চাই। আমার সমস্ত বিষয় ঠিক করে দিন এবং চক্ষুর পলকের জন্যও আমাকে আমার নিজের কাছে ছেড়ে দেবেন না।",
+          "ref": "Nasa'i (Amal al-Yawm 575), Hakim — authenticated by al-Albani",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "fever_pain",
+      "icon": "healing",
+      "items": [
+        {
+          "id": "bismillah_pain",
+          "titleEn": "Hand on the site of pain",
+          "titleBn": "ব্যথার স্থানে হাত রেখে",
+          "ar": "بِسْمِ اللَّهِ (ثَلَاثًا) أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ",
+          "tr": "Bismillāh (×3). Aʿūdhu billāhi wa qudratihi min sharri mā ajidu wa uḥādhir.",
+          "en": "In the name of Allah (three times). I seek refuge in Allah and His power from the evil of what I feel and dread.",
+          "bn": "আল্লাহর নামে (তিনবার)। আমি আল্লাহ ও তাঁর কুদরতের আশ্রয় চাই, আমি যে কষ্ট পাচ্ছি ও ভয় করছি তার অনিষ্ট থেকে।",
+          "ref": "Muslim 2202 — place the hand on the painful spot",
+          "repeat": 7
+        },
+        {
+          "id": "as_alullaha_yashfi",
+          "titleEn": "Asking Allah for a cure",
+          "titleBn": "আল্লাহর কাছে আরোগ্য প্রার্থনা",
+          "ar": "أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ",
+          "tr": "As'alullāhal-ʿAẓīma Rabbal-ʿArshil-ʿAẓīmi an yashfiyak.",
+          "en": "I ask Allah the Magnificent, Lord of the Magnificent Throne, to cure you.",
+          "bn": "আমি মহান আল্লাহর কাছে প্রার্থনা করি, যিনি মহান আরশের রব, তিনি যেন আপনাকে আরোগ্য দান করেন।",
+          "ref": "Tirmidhi 2083, Abu Dawud 3106 — said 7× over the sick",
+          "repeat": 7
+        },
+        {
+          "id": "la_bas_tahurun",
+          "titleEn": "No harm, a purification",
+          "titleBn": "ক্ষতি নেই, পবিত্রতা",
+          "ar": "لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
+          "tr": "Lā ba'sa ṭahūrun in shā'Allāh.",
+          "en": "No harm, it is a purification, Allah willing.",
+          "bn": "কোনো ক্ষতি নেই, ইনশাআল্লাহ এটি পবিত্রতা (গুনাহ মোচনের কারণ)।",
+          "ref": "Bukhari 5656 — said when visiting the sick",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "sleep",
+      "icon": "moon",
+      "items": [
+        {
+          "id": "bismika_rabbi",
+          "titleEn": "On lying down to sleep",
+          "titleBn": "ঘুমাতে শোয়ার সময়",
+          "ar": "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
+          "tr": "Bismika Rabbī waḍaʿtu janbī, wa bika arfaʿuh, fa-in amsakta nafsī farḥamhā, wa in arsaltahā faḥfaẓhā bimā taḥfaẓu bihi ʿibādakaṣ-ṣāliḥīn.",
+          "en": "In Your name, my Lord, I lay down my side, and by You I raise it. If You take my soul, have mercy on it; and if You send it back, protect it as You protect Your righteous servants.",
+          "bn": "হে আমার রব, আপনার নামে আমি আমার পার্শ্ব রাখলাম এবং আপনার সাহায্যেই তা উঠাব। আপনি যদি আমার প্রাণ আটকে রাখেন তবে তার প্রতি দয়া করুন, আর ছেড়ে দিলে তা হেফাজত করুন যেভাবে আপনি আপনার নেক বান্দাদের হেফাজত করেন।",
+          "ref": "Bukhari 6320, Muslim 2714",
+          "repeat": 1
+        },
+        {
+          "id": "allahumma_aslamtu",
+          "titleEn": "Entrusting oneself before sleep",
+          "titleBn": "ঘুমের আগে আত্মসমর্পণ",
+          "ar": "اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ",
+          "tr": "Allāhumma aslamtu nafsī ilayk, wa fawwaḍtu amrī ilayk, wa alja'tu ẓahrī ilayk, raghbatan wa rahbatan ilayk, lā malja'a wa lā manjā minka illā ilayk.",
+          "en": "O Allah, I submit myself to You, entrust my affair to You, and turn my back to You for protection, in hope and fear of You. There is no refuge nor escape from You except to You.",
+          "bn": "হে আল্লাহ, আমি নিজেকে আপনার কাছে সঁপে দিলাম, আমার সকল বিষয় আপনার কাছে অর্পণ করলাম, আমার পিঠ আপনার আশ্রয়ে রাখলাম—আপনার প্রতি আশা ও ভয় নিয়ে। আপনার কাছ থেকে আশ্রয় ও পরিত্রাণ কেবল আপনার কাছেই।",
+          "ref": "Bukhari 6313, Muslim 2710 — die that night and you die upon the fitrah",
+          "repeat": 1
+        },
+        {
+          "id": "audhu_kalimat_ghadab_sleep",
+          "titleEn": "Against the evil of every soul",
+          "titleBn": "প্রতিটি প্রাণের অনিষ্ট থেকে",
+          "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ الَّتِي لَا يُجَاوِزُهُنَّ بَرٌّ وَلَا فَاجِرٌ مِنْ شَرِّ مَا خَلَقَ وَبَرَأَ وَذَرَأَ",
+          "tr": "Aʿūdhu bi-kalimātillāhit-tāmmātillatī lā yujāwizuhunna barrun wa lā fājirun min sharri mā khalaqa wa bara'a wa dhara'.",
+          "en": "I seek refuge in the perfect words of Allah, which neither the righteous nor the wicked can surpass, from the evil of all that He has created, made and originated.",
+          "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের আশ্রয় চাই, যা কোনো নেককার বা পাপী অতিক্রম করতে পারে না—তিনি যা সৃষ্টি করেছেন, বানিয়েছেন ও ছড়িয়ে দিয়েছেন তার অনিষ্ট থেকে।",
+          "ref": "Abu Dawud 3893, Ahmad — recited for protection at night",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "morning_evening",
+      "icon": "sun",
+      "items": [
+        {
+          "id": "sayyidul_istighfar",
+          "titleEn": "The chief of seeking forgiveness",
+          "titleBn": "সাইয়িদুল ইস্তিগফার",
+          "ar": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
+          "tr": "Allāhumma anta Rabbī lā ilāha illā anta, khalaqtanī wa anā ʿabduk, wa anā ʿalā ʿahdika wa waʿdika mastaṭaʿt, aʿūdhu bika min sharri mā ṣanaʿt, abū'u laka bi-niʿmatika ʿalayy, wa abū'u bi-dhanbī faghfir lī fa-innahu lā yaghfirudh-dhunūba illā ant.",
+          "en": "O Allah, You are my Lord, there is no god but You. You created me and I am Your servant, and I keep Your covenant and promise as best I can. I seek refuge in You from the evil I have done. I acknowledge Your favour upon me and I confess my sin, so forgive me, for none forgives sins but You.",
+          "bn": "হে আল্লাহ, আপনি আমার রব, আপনি ছাড়া কোনো ইলাহ নেই। আপনি আমাকে সৃষ্টি করেছেন এবং আমি আপনার বান্দা। আমি সাধ্যমতো আপনার অঙ্গীকার ও প্রতিশ্রুতির উপর আছি। আমি আমার কৃতকর্মের অনিষ্ট থেকে আপনার আশ্রয় চাই। আমার প্রতি আপনার নিয়ামত স্বীকার করছি এবং আমার পাপ স্বীকার করছি, তাই আমাকে ক্ষমা করুন; কেননা আপনি ছাড়া কেউ পাপ ক্ষমা করতে পারে না।",
+          "ref": "Bukhari 6306 — say it with certainty and enter Paradise if you die that day",
+          "repeat": 1
+        },
+        {
+          "id": "bismillahilladhi_la_yadurru",
+          "titleEn": "Nothing harms with His name",
+          "titleBn": "তাঁর নামে কিছুই ক্ষতি করে না",
+          "ar": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+          "tr": "Bismillāhil-ladhī lā yaḍurru maʿasmihi shay'un fil-arḍi wa lā fis-samā', wa huwas-Samīʿul-ʿAlīm.",
+          "en": "In the name of Allah, with whose name nothing on earth or in the heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+          "bn": "আল্লাহর নামে, যাঁর নামের সাথে জমিনে ও আসমানে কোনো কিছুই ক্ষতি করতে পারে না, আর তিনি সর্বশ্রোতা, সর্বজ্ঞ।",
+          "ref": "Abu Dawud 5088, Tirmidhi 3388 — said 3× morning and evening",
+          "repeat": 3
+        },
+        {
+          "id": "radhitu_billahi",
+          "titleEn": "Content with Allah as Lord",
+          "titleBn": "আল্লাহকে রব হিসেবে সন্তুষ্ট",
+          "ar": "رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",
+          "tr": "Raḍītu billāhi Rabban, wa bil-Islāmi dīnan, wa bi-Muḥammadin ﷺ nabiyyā.",
+          "en": "I am content with Allah as my Lord, with Islam as my religion, and with Muhammad ﷺ as my Prophet.",
+          "bn": "আমি সন্তুষ্ট আল্লাহকে রব হিসেবে, ইসলামকে দ্বীন হিসেবে এবং মুহাম্মদ ﷺ-কে নবী হিসেবে।",
+          "ref": "Abu Dawud 5072, Tirmidhi 3389 — Allah's promise to please him on the Day of Judgement",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "waswas",
+      "icon": "spark",
+      "items": [
+        {
+          "id": "audhu_min_shaytan",
+          "titleEn": "Refuge from the accursed Shaytan",
+          "titleBn": "অভিশপ্ত শয়তান থেকে আশ্রয়",
+          "ar": "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+          "tr": "Aʿūdhu billāhi minash-shayṭānir-rajīm.",
+          "en": "I seek refuge in Allah from Satan, the accursed.",
+          "bn": "আমি অভিশপ্ত শয়তান থেকে আল্লাহর আশ্রয় চাই।",
+          "ref": "Bukhari 3282 — the cure for anger and whispers; spit lightly to the left thrice",
+          "repeat": 3
+        },
+        {
+          "id": "amantu_billahi",
+          "titleEn": "When whispers question creation",
+          "titleBn": "সৃষ্টি নিয়ে ওয়াসওয়াসা এলে",
+          "ar": "آمَنْتُ بِاللَّهِ وَرُسُلِهِ، هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ",
+          "tr": "Āmantu billāhi wa rusulih. Huwal-Awwalu wal-Ākhiru waẓ-Ẓāhiru wal-Bāṭin, wa huwa bikulli shay'in ʿalīm.",
+          "en": "I believe in Allah and His messengers. He is the First and the Last, the Most High and the Most Near, and He has full knowledge of all things.",
+          "bn": "আমি আল্লাহ ও তাঁর রাসূলগণের প্রতি ঈমান আনলাম। তিনিই প্রথম ও শেষ, প্রকাশ্য ও গোপন, আর তিনি সর্ববিষয়ে সর্বজ্ঞ।",
+          "ref": "Muslim 134, Abu Dawud 5110 — say it when Shaytan asks 'who created Allah?'",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "enemies",
+      "icon": "protect",
+      "items": [
+        {
+          "id": "najaluka_fi_nuhurihim",
+          "titleEn": "Against the schemes of enemies",
+          "titleBn": "শত্রুর ষড়যন্ত্রের বিরুদ্ধে",
+          "ar": "اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِمْ، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ",
+          "tr": "Allāhumma innā najʿaluka fī nuḥūrihim, wa naʿūdhu bika min shurūrihim.",
+          "en": "O Allah, we place You before them, and we seek refuge in You from their evil.",
+          "bn": "হে আল্লাহ, আমরা আপনাকে তাদের সামনে স্থাপন করছি এবং তাদের অনিষ্ট থেকে আপনার আশ্রয় চাই।",
+          "ref": "Abu Dawud 1537 — said when fearing a people",
+          "repeat": 1
+        },
+        {
+          "id": "hasbiyallahu_enemies",
+          "titleEn": "Allah suffices, upon Him I rely",
+          "titleBn": "আল্লাহই যথেষ্ট, তাঁর উপরই ভরসা",
+          "ar": "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+          "tr": "Ḥasbiyallāhu lā ilāha illā huw, ʿalayhi tawakkaltu wa huwa Rabbul-ʿArshil-ʿAẓīm.",
+          "en": "Allah is sufficient for me; there is no god but Him. Upon Him I rely, and He is the Lord of the Magnificent Throne.",
+          "bn": "আল্লাহই আমার জন্য যথেষ্ট, তিনি ছাড়া কোনো ইলাহ নেই। তাঁরই উপর আমি ভরসা করলাম, আর তিনি মহান আরশের রব।",
+          "ref": "Qur'an 9:129 — Abu Dawud 5081: Allah suffices the one who says it 7×",
+          "repeat": 7
+        },
+        {
+          "id": "allahumma_munzilal_kitab",
+          "titleEn": "Router of the confederates",
+          "titleBn": "দলবদ্ধ শত্রু পরাজয়কারী",
+          "ar": "اللَّهُمَّ مُنْزِلَ الْكِتَابِ، سَرِيعَ الْحِسَابِ، اللَّهُمَّ اهْزِمِ الْأَحْزَابَ، اللَّهُمَّ اهْزِمْهُمْ وَزَلْزِلْهُمْ",
+          "tr": "Allāhumma munzilal-kitāb, sarīʿal-ḥisāb, Allāhummahzimil-aḥzāb, Allāhummahzimhum wa zalzilhum.",
+          "en": "O Allah, Revealer of the Book, Swift in reckoning, O Allah, rout the confederates. O Allah, defeat them and shake them.",
+          "bn": "হে আল্লাহ, কিতাব অবতীর্ণকারী, দ্রুত হিসাব গ্রহণকারী, হে আল্লাহ, শত্রুদলকে পরাজিত করুন; হে আল্লাহ, তাদের পরাস্ত করুন ও কাঁপিয়ে দিন।",
+          "ref": "Bukhari 2933, Muslim 1742 — the Prophet ﷺ's supplication against the confederates",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "icon": "walk",
+      "items": [
+        {
+          "id": "bismillah_tawakkaltu",
+          "titleEn": "On leaving the home",
+          "titleBn": "ঘর থেকে বের হওয়ার সময়",
+          "ar": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+          "tr": "Bismillāhi tawakkaltu ʿalallāh, wa lā ḥawla wa lā quwwata illā billāh.",
+          "en": "In the name of Allah, I rely upon Allah; there is no might nor power except with Allah.",
+          "bn": "আল্লাহর নামে, আমি আল্লাহর উপর ভরসা করলাম; আল্লাহ ছাড়া কোনো শক্তি ও ক্ষমতা নেই।",
+          "ref": "Abu Dawud 5095, Tirmidhi 3426 — you are guided, sufficed and protected; Shaytan withdraws",
+          "repeat": 1
+        },
+        {
+          "id": "dua_safar",
+          "titleEn": "The supplication of travel",
+          "titleBn": "সফরের দোয়া",
+          "ar": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَىٰ رَبِّنَا لَمُنْقَلِبُونَ",
+          "tr": "Subḥānal-ladhī sakhkhara lanā hādhā wa mā kunnā lahu muqrinīn, wa innā ilā Rabbinā lamunqalibūn.",
+          "en": "Glory be to Him who has subjected this to us, for we could never have done it by ourselves; and indeed, to our Lord we will return.",
+          "bn": "পবিত্র সেই সত্তা যিনি এটিকে আমাদের অধীন করে দিয়েছেন, নতুবা আমরা একে বশীভূত করতে সক্ষম ছিলাম না; আর নিশ্চয়ই আমরা আমাদের রবের কাছেই ফিরে যাব।",
+          "ref": "Qur'an 43:13-14 — Muslim 1342: recited when setting out on a journey",
+          "repeat": 1
+        },
+        {
+          "id": "audhu_kalimat_manzil",
+          "titleEn": "When stopping at a place",
+          "titleBn": "কোথাও যাত্রাবিরতির সময়",
+          "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+          "tr": "Aʿūdhu bi-kalimātillāhit-tāmmāti min sharri mā khalaq.",
+          "en": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+          "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের আশ্রয় চাই, তিনি যা সৃষ্টি করেছেন তার অনিষ্ট থেকে।",
+          "ref": "Muslim 2708 — nothing will harm him until he departs that place",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "children",
+      "icon": "people",
+      "items": [
+        {
+          "id": "uidhukuma_children",
+          "titleEn": "Seeking refuge for children",
+          "titleBn": "সন্তানের জন্য আশ্রয় প্রার্থনা",
+          "ar": "أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ، مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
+          "tr": "Uʿīdhukumā bi-kalimātillāhit-tāmmah, min kulli shayṭānin wa hāmmah, wa min kulli ʿaynin lāmmah.",
+          "en": "I seek protection for you both in the perfect words of Allah, from every devil and every poisonous creature, and from every evil, envious eye.",
+          "bn": "আমি তোমাদের উভয়ের জন্য আল্লাহর পরিপূর্ণ কালিমাসমূহের আশ্রয় চাইছি—প্রতিটি শয়তান ও বিষাক্ত প্রাণী থেকে এবং প্রতিটি অনিষ্টকারী বদনজর থেকে।",
+          "ref": "Bukhari 3371 — the Prophet ﷺ sought refuge for Hasan and Husayn with it",
+          "repeat": 1
+        },
+        {
+          "id": "rabbi_hablana",
+          "titleEn": "For righteous offspring",
+          "titleBn": "নেক সন্তানের জন্য",
+          "ar": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+          "tr": "Rabbanā hab lanā min azwājinā wa dhurriyyātinā qurrata aʿyunin wajʿalnā lil-muttaqīna imāmā.",
+          "en": "Our Lord, grant us from our spouses and offspring comfort to our eyes and make us a model for the righteous.",
+          "bn": "হে আমাদের রব, আমাদের স্ত্রী ও সন্তানদের মধ্য থেকে আমাদের চোখের শীতলতা দান করুন এবং আমাদের মুত্তাকীদের জন্য আদর্শ বানান।",
+          "ref": "Qur'an 25:74",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "provision",
+      "icon": "beads",
+      "items": [
+        {
+          "id": "allahumma_ikfini",
+          "titleEn": "For lawful provision and independence",
+          "titleBn": "হালাল রিযিক ও স্বনির্ভরতার জন্য",
+          "ar": "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+          "tr": "Allāhummakfinī bi-ḥalālika ʿan ḥarāmik, wa aghninī bi-faḍlika ʿamman siwāk.",
+          "en": "O Allah, suffice me with what You have made lawful against what You have forbidden, and enrich me by Your bounty so I need none besides You.",
+          "bn": "হে আল্লাহ, আপনার হালাল দিয়ে আমাকে হারাম থেকে যথেষ্ট করুন এবং আপনার অনুগ্রহ দিয়ে আমাকে আপনি ছাড়া সকলের মুখাপেক্ষিতা থেকে অভাবমুক্ত করুন।",
+          "ref": "Tirmidhi 3563 — it settles even a mountain of debt",
+          "repeat": 1
+        },
+        {
+          "id": "audhu_ma'tham_maghram",
+          "titleEn": "From sin and debt",
+          "titleBn": "পাপ ও ঋণ থেকে",
+          "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْمَأْثَمِ وَالْمَغْرَمِ",
+          "tr": "Allāhumma innī aʿūdhu bika minal-ma'thami wal-maghram.",
+          "en": "O Allah, I seek refuge in You from sin and from debt.",
+          "bn": "হে আল্লাহ, আমি আপনার কাছে আশ্রয় চাই পাপ থেকে এবং ঋণ থেকে।",
+          "ref": "Bukhari 832, Muslim 589 — recited in the prayer before the salam",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "forgiveness",
+      "icon": "book",
+      "items": [
+        {
+          "id": "astaghfirullah_hayyul_qayyum",
+          "titleEn": "Seeking forgiveness of the Ever-Living",
+          "titleBn": "চিরঞ্জীবের কাছে ক্ষমা প্রার্থনা",
+          "ar": "أَسْتَغْفِرُ اللَّهَ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ",
+          "tr": "Astaghfirullāhal-ladhī lā ilāha illā huwal-Ḥayyal-Qayyūma wa atūbu ilayh.",
+          "en": "I seek the forgiveness of Allah, besides whom there is no god, the Ever-Living, the Sustainer, and I turn to Him in repentance.",
+          "bn": "আমি আল্লাহর কাছে ক্ষমা চাই, যিনি ছাড়া কোনো ইলাহ নেই, যিনি চিরঞ্জীব, সর্বনিয়ন্তা, এবং আমি তাঁর কাছে তাওবা করি।",
+          "ref": "Abu Dawud 1517, Tirmidhi 3577 — forgiven even if one fled from battle",
+          "repeat": 3
+        },
+        {
+          "id": "rabbana_zalamna",
+          "titleEn": "The confession of Adam ﷺ",
+          "titleBn": "আদম (আঃ)-এর স্বীকারোক্তি",
+          "ar": "رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ",
+          "tr": "Rabbanā ẓalamnā anfusanā wa in lam taghfir lanā wa tarḥamnā lanakūnanna minal-khāsirīn.",
+          "en": "Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy on us, we will surely be among the losers.",
+          "bn": "হে আমাদের রব, আমরা নিজেদের প্রতি জুলুম করেছি; আপনি যদি আমাদের ক্ষমা না করেন ও দয়া না করেন, তবে নিশ্চয়ই আমরা ক্ষতিগ্রস্তদের অন্তর্ভুক্ত হব।",
+          "ref": "Qur'an 7:23",
+          "repeat": 1
+        },
+        {
+          "id": "rabbighfir_li_watub",
+          "titleEn": "Forgive me and accept my repentance",
+          "titleBn": "ক্ষমা করুন ও তাওবা কবুল করুন",
+          "ar": "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
+          "tr": "Rabbighfir lī wa tub ʿalayya innaka antat-Tawwābur-Raḥīm.",
+          "en": "My Lord, forgive me and accept my repentance; indeed You are the Ever-Relenting, the Most Merciful.",
+          "bn": "হে আমার রব, আমাকে ক্ষমা করুন এবং আমার তাওবা কবুল করুন; নিশ্চয়ই আপনি তাওবা কবুলকারী, পরম দয়ালু।",
+          "ref": "Abu Dawud 1516, Tirmidhi 3434 — counted in one sitting 100×",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "guidance",
+      "icon": "globe",
+      "items": [
+        {
+          "id": "rabbana_la_tuzigh",
+          "titleEn": "Keep our hearts from deviating",
+          "titleBn": "আমাদের অন্তর বিচ্যুত করবেন না",
+          "ar": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ الْوَهَّابُ",
+          "tr": "Rabbanā lā tuzigh qulūbanā baʿda idh hadaytanā wa hab lanā min ladunka raḥmah, innaka antal-Wahhāb.",
+          "en": "Our Lord, do not let our hearts deviate after You have guided us, and grant us mercy from Yourself; indeed You are the Bestower.",
+          "bn": "হে আমাদের রব, আপনি হিদায়াত দেওয়ার পর আমাদের অন্তরকে বক্র করবেন না এবং আপনার পক্ষ থেকে আমাদের রহমত দান করুন; নিশ্চয়ই আপনি মহাদাতা।",
+          "ref": "Qur'an 3:8",
+          "repeat": 1
+        },
+        {
+          "id": "ya_muqallibal_qulub",
+          "titleEn": "O Turner of hearts",
+          "titleBn": "হে অন্তর পরিবর্তনকারী",
+          "ar": "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَىٰ دِينِكَ",
+          "tr": "Yā muqallibal-qulūbi thabbit qalbī ʿalā dīnik.",
+          "en": "O Turner of the hearts, make my heart firm upon Your religion.",
+          "bn": "হে অন্তরসমূহের পরিবর্তনকারী, আমার অন্তরকে আপনার দ্বীনের উপর অবিচল রাখুন।",
+          "ref": "Tirmidhi 2140 — the Prophet ﷺ's frequent supplication",
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "knowledge",
+      "icon": "library",
+      "items": [
+        {
+          "id": "rabbi_zidni_ilma",
+          "titleEn": "Increase me in knowledge",
+          "titleBn": "আমার জ্ঞান বাড়িয়ে দিন",
+          "ar": "رَبِّ زِدْنِي عِلْمًا",
+          "tr": "Rabbi zidnī ʿilmā.",
+          "en": "My Lord, increase me in knowledge.",
+          "bn": "হে আমার রব, আমার জ্ঞান বৃদ্ধি করে দিন।",
+          "ref": "Qur'an 20:114",
+          "repeat": 1
+        },
+        {
+          "id": "allahumma_ilman_nafian",
+          "titleEn": "Beneficial knowledge and lawful provision",
+          "titleBn": "উপকারী জ্ঞান ও হালাল রিযিক",
+          "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا",
+          "tr": "Allāhumma innī as'aluka ʿilman nāfiʿā, wa rizqan ṭayyibā, wa ʿamalan mutaqabbalā.",
+          "en": "O Allah, I ask You for beneficial knowledge, wholesome provision, and accepted deeds.",
+          "bn": "হে আল্লাহ, আমি আপনার কাছে চাই উপকারী জ্ঞান, পবিত্র রিযিক ও কবুলযোগ্য আমল।",
+          "ref": "Ibn Majah 925 — said after the morning prayer",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "parents",
+      "icon": "people",
+      "items": [
+        {
+          "id": "rabbir_hamhuma",
+          "titleEn": "Mercy for one's parents",
+          "titleBn": "পিতামাতার প্রতি রহমত",
+          "ar": "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا",
+          "tr": "Rabbir-ḥamhumā kamā rabbayānī ṣaghīrā.",
+          "en": "My Lord, have mercy on them both as they raised me when I was small.",
+          "bn": "হে আমার রব, তাদের উভয়ের প্রতি দয়া করুন, যেমন তারা শৈশবে আমাকে লালন-পালন করেছেন।",
+          "ref": "Qur'an 17:24",
+          "repeat": 1
+        },
+        {
+          "id": "rabbanaghfir_walidayya",
+          "titleEn": "Forgiveness for parents and believers",
+          "titleBn": "পিতামাতা ও মুমিনদের জন্য ক্ষমা",
+          "ar": "رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+          "tr": "Rabbanaghfir lī wa li-wālidayya wa lil-mu'minīna yawma yaqūmul-ḥisāb.",
+          "en": "Our Lord, forgive me and my parents and the believers on the Day the reckoning takes place.",
+          "bn": "হে আমাদের রব, যেদিন হিসাব কায়েম হবে সেদিন আমাকে, আমার পিতামাতাকে এবং মুমিনদের ক্ষমা করুন।",
+          "ref": "Qur'an 14:41",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "marriage",
+      "icon": "heart",
+      "items": [
+        {
+          "id": "barakallahu_laka",
+          "titleEn": "Blessing the newly married",
+          "titleBn": "নবদম্পতির জন্য বরকতের দোয়া",
+          "ar": "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+          "tr": "Bārakallāhu laka wa bāraka ʿalayka wa jamaʿa baynakumā fī khayr.",
+          "en": "May Allah bless you, send blessings upon you, and join you both in goodness.",
+          "bn": "আল্লাহ আপনার জন্য বরকত দিন, আপনার উপর বরকত নাযিল করুন এবং আপনাদের উভয়কে কল্যাণে একত্র করুন।",
+          "ref": "Abu Dawud 2130, Tirmidhi 1091 — said to congratulate the married",
+          "repeat": 1
+        },
+        {
+          "id": "jannibnash_shaytan",
+          "titleEn": "Keeping Shaytan from offspring",
+          "titleBn": "শয়তানকে সন্তান থেকে দূরে রাখা",
+          "ar": "بِسْمِ اللَّهِ، اللَّهُمَّ جَنِّبْنَا الشَّيْطَانَ وَجَنِّبِ الشَّيْطَانَ مَا رَزَقْتَنَا",
+          "tr": "Bismillāh, Allāhumma jannibnash-shayṭāna wa jannibish-shayṭāna mā razaqtanā.",
+          "en": "In the name of Allah. O Allah, keep Shaytan away from us and keep Shaytan away from what You grant us.",
+          "bn": "আল্লাহর নামে। হে আল্লাহ, শয়তানকে আমাদের থেকে দূরে রাখুন এবং আপনি আমাদের যা দান করবেন তা থেকেও শয়তানকে দূরে রাখুন।",
+          "ref": "Bukhari 141, Muslim 1434 — said by spouses before intimacy",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "fitan",
+      "icon": "shield",
+      "items": [
+        {
+          "id": "four_refuges",
+          "titleEn": "The four refuges before salam",
+          "titleBn": "সালামের আগে চার আশ্রয়",
+          "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ",
+          "tr": "Allāhumma innī aʿūdhu bika min ʿadhābi jahannam, wa min ʿadhābil-qabr, wa min fitnatil-maḥyā wal-mamāt, wa min sharri fitnatil-masīḥid-dajjāl.",
+          "en": "O Allah, I seek refuge in You from the punishment of Hell, from the punishment of the grave, from the trials of life and death, and from the evil of the trial of the False Messiah (Dajjal).",
+          "bn": "হে আল্লাহ, আমি আপনার আশ্রয় চাই জাহান্নামের শাস্তি থেকে, কবরের শাস্তি থেকে, জীবন-মৃত্যুর ফিতনা থেকে এবং দাজ্জালের ফিতনার অনিষ্ট থেকে।",
+          "ref": "Muslim 588 — recited in every prayer before the salam",
+          "repeat": 1
+        },
+        {
+          "id": "kahf_against_dajjal",
+          "titleEn": "First ten verses of al-Kahf",
+          "titleBn": "সূরা কাহফের প্রথম দশ আয়াত",
+          "ar": "الْحَمْدُ لِلَّهِ الَّذِي أَنْزَلَ عَلَىٰ عَبْدِهِ الْكِتَابَ وَلَمْ يَجْعَلْ لَهُ عِوَجًا",
+          "tr": "Al-ḥamdu lillāhil-ladhī anzala ʿalā ʿabdihil-kitāba wa lam yajʿal lahu ʿiwajā…",
+          "en": "All praise is for Allah, who has sent down the Book to His servant and has not made therein any crookedness… (read the first ten verses of Surah al-Kahf).",
+          "bn": "সমস্ত প্রশংসা আল্লাহর, যিনি তাঁর বান্দার উপর কিতাব নাযিল করেছেন এবং তাতে কোনো বক্রতা রাখেননি… (সূরা কাহফের প্রথম দশ আয়াত পাঠ করুন)।",
+          "ref": "Muslim 809 — memorising them protects from the Dajjal",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "food_drink",
+      "icon": "food",
+      "items": [
+        {
+          "id": "bismillah_food",
+          "titleEn": "Beginning and forgetting Bismillah",
+          "titleBn": "খাবারের শুরুতে ও ভুলে গেলে",
+          "ar": "بِسْمِ اللَّهِ، فَإِنْ نَسِيَ: بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ",
+          "tr": "Bismillāh — fa-in nasiya: Bismillāhi awwalahu wa ākhirah.",
+          "en": "In the name of Allah. And if one forgets at the start: In the name of Allah at its beginning and its end.",
+          "bn": "আল্লাহর নামে। আর শুরুতে ভুলে গেলে: শুরু ও শেষে আল্লাহর নামে।",
+          "ref": "Bukhari 5376; Abu Dawud 3767, Tirmidhi 1858 for the forgotten case",
+          "repeat": 1
+        },
+        {
+          "id": "alhamdulillah_at'amani",
+          "titleEn": "After finishing a meal",
+          "titleBn": "খাওয়া শেষে",
+          "ar": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَٰذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+          "tr": "Al-ḥamdu lillāhil-ladhī aṭʿamanī hādhā wa razaqanīhi min ghayri ḥawlin minnī wa lā quwwah.",
+          "en": "All praise is for Allah who fed me this and provided it for me, without any might or power on my part.",
+          "bn": "সমস্ত প্রশংসা আল্লাহর, যিনি আমাকে এটি খাইয়েছেন এবং আমার কোনো শক্তি ও সামর্থ্য ছাড়াই তা রিযিক হিসেবে দিয়েছেন।",
+          "ref": "Abu Dawud 4023, Tirmidhi 3458 — past sins are forgiven",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "mosque",
+      "icon": "mosque",
+      "items": [
+        {
+          "id": "entering_mosque",
+          "titleEn": "On entering the mosque",
+          "titleBn": "মসজিদে প্রবেশের সময়",
+          "ar": "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
+          "tr": "Allāhummaftaḥ lī abwāba raḥmatik.",
+          "en": "O Allah, open for me the gates of Your mercy.",
+          "bn": "হে আল্লাহ, আমার জন্য আপনার রহমতের দরজাসমূহ খুলে দিন।",
+          "ref": "Muslim 713 — said when stepping in with the right foot",
+          "repeat": 1
+        },
+        {
+          "id": "leaving_mosque",
+          "titleEn": "On leaving the mosque",
+          "titleBn": "মসজিদ থেকে বের হওয়ার সময়",
+          "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
+          "tr": "Allāhumma innī as'aluka min faḍlik.",
+          "en": "O Allah, I ask You from Your bounty.",
+          "bn": "হে আল্লাহ, আমি আপনার অনুগ্রহ থেকে প্রার্থনা করি।",
+          "ref": "Muslim 713 — said when stepping out with the left foot",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "rain",
+      "icon": "water",
+      "items": [
+        {
+          "id": "allahumma_sayyiban",
+          "titleEn": "When the rain falls",
+          "titleBn": "বৃষ্টি নামলে",
+          "ar": "اللَّهُمَّ صَيِّبًا نَافِعًا",
+          "tr": "Allāhumma ṣayyiban nāfiʿā.",
+          "en": "O Allah, make it a beneficial rain.",
+          "bn": "হে আল্লাহ, এটিকে উপকারী বৃষ্টি বানান।",
+          "ref": "Bukhari 1032",
+          "repeat": 1
+        },
+        {
+          "id": "mutirna_bifadlillah",
+          "titleEn": "After the rain",
+          "titleBn": "বৃষ্টির পর",
+          "ar": "مُطِرْنَا بِفَضْلِ اللَّهِ وَرَحْمَتِهِ",
+          "tr": "Muṭirnā bi-faḍlillāhi wa raḥmatih.",
+          "en": "We have been given rain by the grace and mercy of Allah.",
+          "bn": "আল্লাহর অনুগ্রহ ও রহমতে আমাদের বৃষ্টি দেওয়া হয়েছে।",
+          "ref": "Bukhari 846 — the statement of faith after rainfall",
+          "repeat": 1
+        }
+      ]
+    },
+    {
+      "id": "night_worship",
+      "icon": "moon",
+      "items": [
+        {
+          "id": "dua_istiqadh",
+          "titleEn": "On waking from sleep",
+          "titleBn": "ঘুম থেকে জাগার সময়",
+          "ar": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+          "tr": "Al-ḥamdu lillāhil-ladhī aḥyānā baʿda mā amātanā wa ilayhin-nushūr.",
+          "en": "All praise is for Allah who gave us life after He caused us to die, and to Him is the resurrection.",
+          "bn": "সমস্ত প্রশংসা আল্লাহর, যিনি আমাদের মৃত্যুর (ঘুমের) পর জীবিত করেছেন এবং তাঁর কাছেই পুনরুত্থান।",
+          "ref": "Bukhari 6312",
+          "repeat": 1
+        },
+        {
+          "id": "tahlil_layl",
+          "titleEn": "On turning over at night",
+          "titleBn": "রাতে পাশ ফেরার সময়",
+          "ar": "لَا إِلَٰهَ إِلَّا اللَّهُ الْوَاحِدُ الْقَهَّارُ، رَبُّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الْعَزِيزُ الْغَفَّارُ",
+          "tr": "Lā ilāha illallāhul-Wāḥidul-Qahhār, Rabbus-samāwāti wal-arḍi wa mā baynahumal-ʿAzīzul-Ghaffār.",
+          "en": "There is no god but Allah, the One, the Subduer, Lord of the heavens and the earth and all between them, the Almighty, the Ever-Forgiving.",
+          "bn": "আল্লাহ ছাড়া কোনো ইলাহ নেই, যিনি এক, মহাপরাক্রমশালী, আসমান-জমিন ও এর মধ্যবর্তী সবকিছুর রব, পরাক্রমশালী, পরম ক্ষমাশীল।",
+          "ref": "Nasa'i (al-Kubra), Hakim — said on waking and turning during the night",
+          "repeat": 1
+        }
+      ]
+    }
+  ]
+}
