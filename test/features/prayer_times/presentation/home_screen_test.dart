@@ -8,6 +8,7 @@ import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:qalbee/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -290,6 +291,29 @@ void main() {
       expect(find.text('Set jamaat time'), findsOneWidget);
       // Maghrib got the default +5 offset from addProfile.
       expect(find.textContaining('4:30'), findsWidgets);
+    });
+
+    testWidgets('auto schedule shows the scheduled mosque with an Auto badge',
+        (tester) async {
+      await _register(withLocation: true);
+      final mosque = GetIt.I<MosqueStore>();
+      final office = await mosque.addProfile('Office');
+      final home = await mosque.addProfile('Home');
+      await mosque.setMode(ScheduleMode.auto);
+      // An all-day rule makes Office the scheduled mosque right now.
+      await mosque.addRule(
+        MosqueRule(
+          mosqueId: office.id,
+          start: const ClockTime(0, 0),
+          end: const ClockTime(0, 0),
+        ),
+      );
+      await mosque.setDefaultMosque(home.id);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      // The table's mosque strip names the scheduled mosque with an Auto chip.
+      expect(find.text('Office'), findsOneWidget);
+      expect(find.text('Auto'), findsOneWidget);
     });
   });
 }

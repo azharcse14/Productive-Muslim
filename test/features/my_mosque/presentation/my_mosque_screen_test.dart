@@ -55,6 +55,11 @@ void main() {
 
     testWidgets('renders all five prayer cards with mode segments',
         (tester) async {
+      // Tall surface so the schedule section + all five cards fit at once.
+      tester.view.physicalSize = const Size(1200, 2600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       await register(
         const MosqueState(
           profiles: [MosqueProfile(id: 'a', name: 'Home')],

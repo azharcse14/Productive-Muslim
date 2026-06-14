@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:qalbee/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:qalbee/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
 
@@ -84,6 +85,58 @@ void main() {
       await store.deleteProfile(a.id);
       expect(store.state.value.activeId, isNull);
       expect(store.activeConfig.value.entries, isEmpty);
+    });
+
+    test('setMode toggles auto and clears override on leaving auto', () async {
+      final (store, _) = await makeMosqueStore();
+      final a = await store.addProfile('A');
+      await store.setMode(ScheduleMode.auto);
+      await store.setOverride(a.id, null);
+      expect(store.state.value.activeOverride, isNotNull);
+      await store.setMode(ScheduleMode.manual);
+      expect(store.state.value.mode, ScheduleMode.manual);
+      expect(store.state.value.activeOverride, isNull);
+    });
+
+    test('add/update/remove rule mutate the ordered rules list', () async {
+      final (store, _) = await makeMosqueStore();
+      final a = await store.addProfile('A');
+      await store.addRule(
+        MosqueRule(
+          mosqueId: a.id,
+          start: const ClockTime(10, 0),
+          end: const ClockTime(18, 0),
+        ),
+      );
+      expect(store.rules.value.single.mosqueId, a.id);
+      await store.updateRule(
+        0,
+        store.rules.value.first.copyWith(days: {1, 2}),
+      );
+      expect(store.rules.value.single.days, {1, 2});
+      await store.removeRule(0);
+      expect(store.rules.value, isEmpty);
+    });
+
+    test('deleteProfile strips rules, default and override referencing it',
+        () async {
+      final (store, _) = await makeMosqueStore();
+      final a = await store.addProfile('A');
+      final b = await store.addProfile('B');
+      await store.setMode(ScheduleMode.auto);
+      await store.addRule(
+        MosqueRule(
+          mosqueId: b.id,
+          start: const ClockTime(0, 0),
+          end: const ClockTime(0, 0),
+        ),
+      );
+      await store.setDefaultMosque(b.id);
+      await store.setOverride(b.id, a.id);
+      await store.deleteProfile(b.id);
+      expect(store.rules.value, isEmpty);
+      expect(store.state.value.defaultId, isNull);
+      expect(store.state.value.activeOverride, isNull);
     });
 
     test('renameProfile keeps entries', () async {
