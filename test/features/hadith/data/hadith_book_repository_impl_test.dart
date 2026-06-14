@@ -180,6 +180,35 @@ void main() {
       expect(calls, hasLength(2));
     });
 
+    test('missing Bengali edition falls back to English, not a failure',
+        () async {
+      // ben-* 404s (like 40 Hadith Qudsi), ara-* and eng-* succeed.
+      final repo = makeRepo((url) async {
+        final u = url.toString();
+        if (u.contains('ben-')) throw const SocketishError();
+        if (u.contains('ara-')) return _section('ar');
+        return _section('en');
+      });
+      final book = (await repo.books()).valueOrNull!.first;
+
+      final result = await repo.section(book, book.sections.first, 'bn');
+      final items = result.valueOrNull;
+      expect(items, isNotNull, reason: 'should not fail when only bn is missing');
+      expect(items!.first.translation, 'en-text-1');
+    });
+
+    test('offline (English fallback also fails) is a failure', () async {
+      // Arabic loads but every translation edition is unreachable.
+      final repo = makeRepo((url) async {
+        if (url.toString().contains('ara-')) return _section('ar');
+        throw const SocketishError();
+      });
+      final book = (await repo.books()).valueOrNull!.first;
+
+      final result = await repo.section(book, book.sections.first, 'bn');
+      expect(result.isSuccess, isFalse);
+    });
+
     test('a network error becomes a failure result', () async {
       final repo = makeRepo((_) async => throw const SocketishError());
       final book = (await repo.books()).valueOrNull!.first;

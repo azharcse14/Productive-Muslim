@@ -32,9 +32,14 @@ final class HadithBookRemoteDataSource {
   ) async {
     final arabic = await _fetchEdition(book.editionAr, section.number);
     final translationEdition = book.translationEdition(languageCode);
+    // Preferred-language text. Some editions don't exist for every book (e.g.
+    // no Bengali "40 Hadith Qudsi") — tolerate that and lean on the English
+    // fallback rather than failing the whole section.
     final translation =
-        await _fetchEdition(translationEdition, section.number);
-    // English fallback for any gaps in a non-English translation edition.
+        await _fetchEditionOrEmpty(translationEdition, section.number);
+    // English fallback for gaps (or wholly missing) non-English editions.
+    // This one is NOT swallowed: if it also fails the section genuinely can't
+    // load (offline), so the error/retry screen should show.
     final fallback = translationEdition == book.editionEn
         ? const <int, _RawHadith>{}
         : {
@@ -67,6 +72,19 @@ final class HadithBookRemoteDataSource {
       return translation!.grade;
     }
     return sahih ? 'Sahih' : '';
+  }
+
+  /// Like [_fetchEdition] but returns an empty list instead of throwing —
+  /// used for the preferred-language edition, which may not exist for a book.
+  Future<List<_RawHadith>> _fetchEditionOrEmpty(
+    String edition,
+    int section,
+  ) async {
+    try {
+      return await _fetchEdition(edition, section);
+    } on Object {
+      return const [];
+    }
   }
 
   Future<List<_RawHadith>> _fetchEdition(String edition, int section) async {
