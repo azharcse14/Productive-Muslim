@@ -26,15 +26,15 @@ final class RuqyahCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (title.isNotEmpty) ...[
-            Text(
-              title,
-              style: QType.titleSm.copyWith(color: q.primary),
-            ),
+            Text(title, style: QType.titleSm.copyWith(color: q.primary)),
             const SizedBox(height: QSpace.s3),
           ],
           Text(
             item.arabic,
             textDirection: TextDirection.rtl,
+            // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
+            // transliteration instead so screen-reader users hear the words.
+            semanticsLabel: item.transliteration,
             style: QType.quran(24).copyWith(color: q.ink),
           ),
           const SizedBox(height: QSpace.s3),

@@ -13,6 +13,9 @@ final class NotificationTexts {
     required this.iftarBody,
     required this.muhasabaTitle,
     required this.muhasabaBody,
+    required this.dailyReminderTitle,
+    required this.dailyReminderBody,
+    required this.dailyReminderRoute,
     required this.markAsPrayedAction,
     required this.channelAzanName,
     required this.channelRemindersName,
@@ -30,6 +33,12 @@ final class NotificationTexts {
   final String iftarBody;
   final String muhasabaTitle;
   final String muhasabaBody;
+  final String dailyReminderTitle;
+  final String dailyReminderBody;
+
+  /// Deep-link route for the daily reminder, e.g. '/hadith' or '/dua',
+  /// chosen from the matrix's content kind by the caller.
+  final String dailyReminderRoute;
   final String markAsPrayedAction;
   final String channelAzanName;
   final String channelRemindersName;

@@ -2,13 +2,16 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../features/achievements/presentation/screens/achievements_screen.dart';
 import '../../features/calculators/presentation/screens/age_screen.dart';
 import '../../features/calculators/presentation/screens/calculators_screen.dart';
 import '../../features/calculators/presentation/screens/fitra_screen.dart';
 import '../../features/calculators/presentation/screens/inheritance_screen.dart';
 import '../../features/calculators/presentation/screens/qaza_screen.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
+import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
+import '../../features/fasting/presentation/screens/fasting_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
@@ -215,6 +218,21 @@ GoRouter buildRouter() {
         name: Routes.ruqyah.name,
         path: Routes.ruqyah.path,
         builder: (context, state) => const RuqyahScreen(),
+      ),
+      GoRoute(
+        name: Routes.asmaQuiz.name,
+        path: Routes.asmaQuiz.path,
+        builder: (context, state) => const AsmaQuizScreen(),
+      ),
+      GoRoute(
+        name: Routes.fasting.name,
+        path: Routes.fasting.path,
+        builder: (context, state) => const FastingScreen(),
+      ),
+      GoRoute(
+        name: Routes.achievements.name,
+        path: Routes.achievements.path,
+        builder: (context, state) => const AchievementsScreen(),
       ),
       GoRoute(
         name: Routes.zakat.name,

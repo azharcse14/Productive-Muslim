@@ -23,6 +23,7 @@ final class DuaSearchDelegate extends SearchDelegate<void> {
     return [
       for (final dua in _duas)
         if (dua.transliteration.toLowerCase().contains(q) ||
+            dua.transliterationBn.toLowerCase().contains(q) ||
             dua.translationEn.toLowerCase().contains(q) ||
             dua.translationBn.toLowerCase().contains(q) ||
             dua.reference.toLowerCase().contains(q))

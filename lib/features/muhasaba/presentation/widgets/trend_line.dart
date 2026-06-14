@@ -8,26 +8,37 @@ final class TrendLine extends StatelessWidget {
   const TrendLine({
     required this.values,
     this.height = 56,
+    this.semanticLabel,
     super.key,
   });
 
   final List<double> values;
   final double height;
 
+  /// Spoken summary of the trend; the polyline itself carries no meaning to a
+  /// screen reader and is excluded from the a11y tree.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: CustomPaint(
-        painter: _TrendPainter(
-          values: values,
-          color: q.primary,
-          track: q.line,
+    final chart = ExcludeSemantics(
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: CustomPaint(
+          painter: _TrendPainter(
+            values: values,
+            color: q.primary,
+            track: q.line,
+          ),
         ),
       ),
     );
+    if (semanticLabel == null) {
+      return chart;
+    }
+    return Semantics(label: semanticLabel, child: chart);
   }
 }
 

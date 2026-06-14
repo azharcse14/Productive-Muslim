@@ -38,38 +38,46 @@ Future<T?> showOptionSheet<T>({
                   shrinkWrap: true,
                   children: [
                     for (final option in options)
-                      InkWell(
-                        borderRadius: BorderRadius.circular(QRadius.md),
-                        onTap: () => Navigator.of(sheetContext).pop(option),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: QSpace.s2,
-                            vertical: QSpace.s3,
-                          ),
-                          child: Row(
-                            children: [
-                              _RadioDot(on: option == selected),
-                              const SizedBox(width: QSpace.s4),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      labelOf(option),
-                                      style: QType.titleSm
-                                          .copyWith(color: q.ink),
-                                    ),
-                                    if (sublabelOf != null)
-                                      Text(
-                                        sublabelOf(option),
-                                        style: QType.caption
-                                            .copyWith(color: q.ink2),
-                                      ),
-                                  ],
-                                ),
+                      MergeSemantics(
+                        child: Semantics(
+                          button: true,
+                          selected: option == selected,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(QRadius.md),
+                            onTap: () => Navigator.of(sheetContext).pop(option),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: QSpace.s2,
+                                vertical: QSpace.s3,
                               ),
-                            ],
+                              child: Row(
+                                children: [
+                                  _RadioDot(on: option == selected),
+                                  const SizedBox(width: QSpace.s4),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          labelOf(option),
+                                          style: QType.titleSm.copyWith(
+                                            color: q.ink,
+                                          ),
+                                        ),
+                                        if (sublabelOf != null)
+                                          Text(
+                                            sublabelOf(option),
+                                            style: QType.caption.copyWith(
+                                              color: q.ink2,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -97,10 +105,7 @@ final class _RadioDot extends StatelessWidget {
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: on ? q.primary : q.ink3,
-          width: on ? 6.5 : 2,
-        ),
+        border: Border.all(color: on ? q.primary : q.ink3, width: on ? 6.5 : 2),
       ),
     );
   }

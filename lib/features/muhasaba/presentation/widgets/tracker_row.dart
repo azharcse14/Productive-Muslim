@@ -73,33 +73,36 @@ final class TrackerRow extends StatelessWidget {
                 children: [
                   Text(
                     displayName,
-                    style: QType.titleSm
-                        .copyWith(fontSize: 15.5, color: q.ink),
+                    style: QType.titleSm.copyWith(fontSize: 15.5, color: q.ink),
                   ),
                   if (sub != null)
                     Text(
                       sub,
-                      style: QType.num_(QType.caption)
-                          .copyWith(color: q.ink2),
+                      style: QType.num_(QType.caption).copyWith(color: q.ink2),
                     ),
                 ],
               ),
             ),
             switch (item.kind) {
-              TrackerKind.yesNo => Switch(
+              TrackerKind.yesNo => Semantics(
+                label: displayName,
+                child: Switch(
                   value: value > 0,
                   onChanged: (v) => onChanged(v ? 1 : 0),
                 ),
+              ),
               TrackerKind.count => _Stepper(
-                  value: value,
-                  step: 1,
-                  onChanged: onChanged,
-                ),
+                value: value,
+                step: 1,
+                label: displayName,
+                onChanged: onChanged,
+              ),
               TrackerKind.duration => _Stepper(
-                  value: value,
-                  step: 5,
-                  onChanged: onChanged,
-                ),
+                value: value,
+                step: 5,
+                label: displayName,
+                onChanged: onChanged,
+              ),
             },
           ],
         ),
@@ -112,16 +115,21 @@ final class _Stepper extends StatelessWidget {
   const _Stepper({
     required this.value,
     required this.step,
+    required this.label,
     required this.onChanged,
   });
 
   final int value;
   final int step;
+
+  /// Item name, woven into the +/- buttons' screen-reader labels.
+  final String label;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -133,6 +141,7 @@ final class _Stepper extends StatelessWidget {
         children: [
           _StepButton(
             icon: Icons.remove,
+            semanticLabel: l10n.a11yDecrease(label),
             onTap: value > 0 ? () => onChanged(value - step) : null,
           ),
           SizedBox(
@@ -143,7 +152,11 @@ final class _Stepper extends StatelessWidget {
               style: QType.num_(QType.titleSm).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(icon: Icons.add, onTap: () => onChanged(value + step)),
+          _StepButton(
+            icon: Icons.add,
+            semanticLabel: l10n.a11yIncrease(label),
+            onTap: () => onChanged(value + step),
+          ),
         ],
       ),
     );
@@ -151,22 +164,33 @@ final class _Stepper extends StatelessWidget {
 }
 
 final class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.onTap});
+  const _StepButton({
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+  });
 
   final IconData icon;
+  final String semanticLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return InkWell(
-      borderRadius: BorderRadius.circular(QRadius.full),
-      onTap: onTap,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
-        child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(QRadius.full),
+        onTap: onTap,
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
+          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
+        ),
       ),
     );
   }

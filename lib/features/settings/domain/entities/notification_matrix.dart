@@ -1,3 +1,4 @@
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import 'prayer_params.dart';
 
 /// Per-prayer alert mode (Settings notification matrix, design §12).
@@ -14,6 +15,9 @@ final class NotificationMatrix {
     this.jamaatReminder = false,
     this.jamaatLead = const Duration(minutes: 15),
     this.muhasabaEveningReminder = false,
+    this.dailyReminder = false,
+    this.dailyReminderMinute = 9 * 60,
+    this.dailyReminderKind = DailyContentKind.hadith,
   });
 
   /// Missing key = [AzanMode.azan] (sound on by default).
@@ -25,6 +29,15 @@ final class NotificationMatrix {
   final Duration jamaatLead;
   final bool muhasabaEveningReminder;
 
+  /// "Hadith/Dua of the day" daily reminder toggle.
+  final bool dailyReminder;
+
+  /// Fire time as minutes past local midnight (0..1439). Default 09:00.
+  final int dailyReminderMinute;
+
+  /// Which content the daily reminder surfaces (drives copy + deep link).
+  final DailyContentKind dailyReminderKind;
+
   AzanMode modeFor(Prayer prayer) => prayerModes[prayer] ?? AzanMode.azan;
 
   NotificationMatrix copyWith({
@@ -35,6 +48,9 @@ final class NotificationMatrix {
     bool? jamaatReminder,
     Duration? jamaatLead,
     bool? muhasabaEveningReminder,
+    bool? dailyReminder,
+    int? dailyReminderMinute,
+    DailyContentKind? dailyReminderKind,
   }) {
     return NotificationMatrix(
       prayerModes: prayerModes ?? this.prayerModes,
@@ -45,6 +61,9 @@ final class NotificationMatrix {
       jamaatLead: jamaatLead ?? this.jamaatLead,
       muhasabaEveningReminder:
           muhasabaEveningReminder ?? this.muhasabaEveningReminder,
+      dailyReminder: dailyReminder ?? this.dailyReminder,
+      dailyReminderMinute: dailyReminderMinute ?? this.dailyReminderMinute,
+      dailyReminderKind: dailyReminderKind ?? this.dailyReminderKind,
     );
   }
 
@@ -57,6 +76,9 @@ final class NotificationMatrix {
         other.jamaatReminder != jamaatReminder ||
         other.jamaatLead != jamaatLead ||
         other.muhasabaEveningReminder != muhasabaEveningReminder ||
+        other.dailyReminder != dailyReminder ||
+        other.dailyReminderMinute != dailyReminderMinute ||
+        other.dailyReminderKind != dailyReminderKind ||
         other.prayerModes.length != prayerModes.length) {
       return false;
     }
@@ -76,6 +98,9 @@ final class NotificationMatrix {
         jamaatReminder,
         jamaatLead,
         muhasabaEveningReminder,
+        dailyReminder,
+        dailyReminderMinute,
+        dailyReminderKind,
         Object.hashAllUnordered(
           prayerModes.entries.map((e) => Object.hash(e.key, e.value)),
         ),

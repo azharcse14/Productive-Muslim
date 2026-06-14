@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/qalbee_tokens.dart';
 import '../../../../core/theme/qalbee_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -46,7 +48,16 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.asmaulHusnaTitle)),
+      appBar: AppBar(
+        title: Text(l10n.asmaulHusnaTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.quiz_outlined),
+            tooltip: l10n.asmaQuizTitle,
+            onPressed: () => context.pushNamed(Routes.asmaQuiz.name),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {

@@ -34,10 +34,8 @@ final class _QiblaScreenState extends State<QiblaScreen> {
     super.dispose();
   }
 
-  String _digits(BuildContext context, String text) => LocaleDigits.localize(
-        text,
-        Localizations.localeOf(context).languageCode,
-      );
+  String _digits(BuildContext context, String text) =>
+      LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +44,12 @@ final class _QiblaScreenState extends State<QiblaScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.qiblaTitle)),
       body: SafeArea(
-        child: SignalBuilder(builder: (context) {
-          final status = _store.status.value;
-          final bearing = _store.bearing.value;
-          return switch (status) {
-            QiblaStatus.needsLocation => _CenteredNote(
+        child: SignalBuilder(
+          builder: (context) {
+            final status = _store.status.value;
+            final bearing = _store.bearing.value;
+            return switch (status) {
+              QiblaStatus.needsLocation => _CenteredNote(
                 icon: Icons.place_outlined,
                 text: l10n.qiblaNeedsLocation,
                 action: QButton(
@@ -60,7 +59,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                       context.pushNamed(Routes.locationPicker.name),
                 ),
               ),
-            QiblaStatus.sensorUnavailable => _CenteredNote(
+              QiblaStatus.sensorUnavailable => _CenteredNote(
                 icon: Icons.explore_off_outlined,
                 text: l10n.qiblaSensorUnavailable,
                 detail: bearing == null
@@ -70,7 +69,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                         CompassMath.cardinal16(bearing),
                       ),
               ),
-            QiblaStatus.calibrating || QiblaStatus.ready => Column(
+              QiblaStatus.calibrating || QiblaStatus.ready => Column(
                 children: [
                   if (status == QiblaStatus.calibrating)
                     Padding(
@@ -89,60 +88,81 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                     ),
                   Expanded(
                     child: Center(
-                      child: SignalBuilder(builder: (context) {
-                        final heading = _store.heading.value ?? 0;
-                        final aligned = _store.aligned.value;
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CompassDial(
-                              heading: heading,
-                              bearing: bearing ?? 0,
-                              aligned: aligned,
-                              cardinals: const ['N', 'E', 'S', 'W'],
-                            ),
-                            const SizedBox(height: QSpace.s6),
-                            AnimatedDefaultTextStyle(
-                              duration: QMotion.med,
-                              curve: QMotion.ease,
-                              style: QType.title.copyWith(
-                                color: aligned ? q.accentStrong : q.ink,
+                      child: SignalBuilder(
+                        builder: (context) {
+                          final heading = _store.heading.value ?? 0;
+                          final aligned = _store.aligned.value;
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // The dial is a visual aid only; screen readers get
+                              // the spoken status (live region) and the standing
+                              // qibla-bearing line below instead.
+                              ExcludeSemantics(
+                                child: CompassDial(
+                                  heading: heading,
+                                  bearing: bearing ?? 0,
+                                  aligned: aligned,
+                                  cardinals: const ['N', 'E', 'S', 'W'],
+                                ),
                               ),
-                              child: Text(
-                                aligned
-                                    ? l10n.qiblaAligned
-                                    : l10n.qiblaHeading(
-                                        _digits(
-                                          context,
-                                          heading.round().toString(),
-                                        ),
-                                        CompassMath.cardinal16(heading),
-                                      ),
-                              ),
-                            ),
-                            if (_store.distanceKm.value
-                                case final double km) ...[
-                              const SizedBox(height: QSpace.s2),
-                              Text(
-                                l10n.qiblaDistance(
-                                  _digits(
-                                    context,
-                                    km.round().toString(),
+                              const SizedBox(height: QSpace.s6),
+                              Semantics(
+                                liveRegion: true,
+                                child: AnimatedDefaultTextStyle(
+                                  duration: QMotion.med,
+                                  curve: QMotion.ease,
+                                  style: QType.title.copyWith(
+                                    color: aligned ? q.accentStrong : q.ink,
+                                  ),
+                                  child: Text(
+                                    aligned
+                                        ? l10n.qiblaAligned
+                                        : l10n.qiblaHeading(
+                                            _digits(
+                                              context,
+                                              heading.round().toString(),
+                                            ),
+                                            CompassMath.cardinal16(heading),
+                                          ),
                                   ),
                                 ),
-                                style:
-                                    QType.caption.copyWith(color: q.ink3),
                               ),
+                              if (bearing != null) ...[
+                                const SizedBox(height: QSpace.s2),
+                                Text(
+                                  l10n.qiblaVerbalBearing(
+                                    _digits(
+                                      context,
+                                      bearing.round().toString(),
+                                    ),
+                                    CompassMath.cardinal16(bearing),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: QType.caption.copyWith(color: q.ink3),
+                                ),
+                              ],
+                              if (_store.distanceKm.value
+                                  case final double km) ...[
+                                const SizedBox(height: QSpace.s2),
+                                Text(
+                                  l10n.qiblaDistance(
+                                    _digits(context, km.round().toString()),
+                                  ),
+                                  style: QType.caption.copyWith(color: q.ink3),
+                                ),
+                              ],
                             ],
-                          ],
-                        );
-                      }),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
-          };
-        }),
+            };
+          },
+        ),
       ),
     );
   }
@@ -185,10 +205,7 @@ final class _CenteredNote extends StatelessWidget {
                 style: QType.title.copyWith(color: q.ink),
               ),
             ],
-            if (action != null) ...[
-              const SizedBox(height: QSpace.s6),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: QSpace.s6), action!],
           ],
         ),
       ),

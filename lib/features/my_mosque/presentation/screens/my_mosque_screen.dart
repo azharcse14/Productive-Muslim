@@ -82,9 +82,9 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
   Future<void> _pickFixedTime(MosqueProfile profile, Prayer prayer) async {
     final existing = switch (profile.entries[prayer]) {
       FixedJamaat(:final time) => TimeOfDay(
-          hour: time.hour,
-          minute: time.minute,
-        ),
+        hour: time.hour,
+        minute: time.minute,
+      ),
       _ => const TimeOfDay(hour: 13, minute: 15),
     };
     final picked = await showTimePicker(
@@ -140,84 +140,86 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     final q = context.q;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.myMosqueTitle)),
-      body: SignalBuilder(builder: (context) {
-        final state = _store.state.value;
-        final active = _store.activeProfile.value;
-        if (state.profiles.isEmpty) {
-          return _EmptyState(onAdd: () => unawaited(_addProfile()));
-        }
-        return ListView(
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final profile in state.profiles) ...[
+      body: SignalBuilder(
+        builder: (context) {
+          final state = _store.state.value;
+          final active = _store.activeProfile.value;
+          if (state.profiles.isEmpty) {
+            return _EmptyState(onAdd: () => unawaited(_addProfile()));
+          }
+          return ListView(
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final profile in state.profiles) ...[
+                      QChip(
+                        label: profile.name,
+                        icon: Icons.mosque_outlined,
+                        active: profile.id == state.activeId,
+                        onTap: () => unawaited(_store.setActive(profile.id)),
+                      ),
+                      const SizedBox(width: QSpace.s2),
+                    ],
                     QChip(
-                      label: profile.name,
-                      icon: Icons.mosque_outlined,
-                      active: profile.id == state.activeId,
-                      onTap: () => unawaited(_store.setActive(profile.id)),
+                      label: l10n.addProfile,
+                      icon: Icons.add,
+                      onTap: () => unawaited(_addProfile()),
                     ),
-                    const SizedBox(width: QSpace.s2),
                   ],
-                  QChip(
-                    label: l10n.addProfile,
-                    icon: Icons.add,
-                    onTap: () => unawaited(_addProfile()),
+                ),
+              ),
+              const SizedBox(height: QSpace.s5),
+              _ScheduleSection(
+                state: state,
+                formatTime: (t) => _formatTime(context, t),
+                onModeChanged: (m) => unawaited(_store.setMode(m)),
+                onAddRule: () => unawaited(_addRule(state)),
+                onRemoveRule: (i) => unawaited(_store.removeRule(i)),
+                onRuleChanged: (i, r) => unawaited(_store.updateRule(i, r)),
+                onDefaultChanged: (id) =>
+                    unawaited(_store.setDefaultMosque(id)),
+                onPickRuleTime: (i, {required bool isStart}) =>
+                    unawaited(_pickRuleTime(state, i, isStart: isStart)),
+              ),
+              const SizedBox(height: QSpace.s5),
+              if (active != null) ...[
+                for (final prayer in Prayer.values) ...[
+                  _PrayerJamaatCard(
+                    prayer: prayer,
+                    entry: active.entries[prayer] ?? const NoJamaat(),
+                    formatTime: (t) => _formatTime(context, t),
+                    onChanged: (entry) =>
+                        unawaited(_store.setEntry(active.id, prayer, entry)),
+                    onPickTime: () => unawaited(_pickFixedTime(active, prayer)),
                   ),
+                  const SizedBox(height: QSpace.s3),
                 ],
-              ),
-            ),
-            const SizedBox(height: QSpace.s5),
-            _ScheduleSection(
-              state: state,
-              formatTime: (t) => _formatTime(context, t),
-              onModeChanged: (m) => unawaited(_store.setMode(m)),
-              onAddRule: () => unawaited(_addRule(state)),
-              onRemoveRule: (i) => unawaited(_store.removeRule(i)),
-              onRuleChanged: (i, r) => unawaited(_store.updateRule(i, r)),
-              onDefaultChanged: (id) => unawaited(_store.setDefaultMosque(id)),
-              onPickRuleTime: (i, {required bool isStart}) =>
-                  unawaited(_pickRuleTime(state, i, isStart: isStart)),
-            ),
-            const SizedBox(height: QSpace.s5),
-            if (active != null) ...[
-              for (final prayer in Prayer.values) ...[
-                _PrayerJamaatCard(
-                  prayer: prayer,
-                  entry: active.entries[prayer] ?? const NoJamaat(),
-                  formatTime: (t) => _formatTime(context, t),
-                  onChanged: (entry) => unawaited(
-                    _store.setEntry(active.id, prayer, entry),
+                const SizedBox(height: QSpace.s2),
+                QBanner(
+                  text: l10n.jamaatReminderHint,
+                  icon: Icons.notifications_outlined,
+                  tone: q.surface2,
+                  foreground: q.ink2,
+                ),
+                const SizedBox(height: QSpace.s4),
+                Center(
+                  child: QButton(
+                    label: l10n.deleteProfile,
+                    kind: QButtonKind.ghost,
+                    small: true,
+                    icon: Icons.delete_outline,
+                    onPressed: () => unawaited(_deleteProfile(active)),
                   ),
-                  onPickTime: () => unawaited(_pickFixedTime(active, prayer)),
                 ),
-                const SizedBox(height: QSpace.s3),
               ],
-              const SizedBox(height: QSpace.s2),
-              QBanner(
-                text: l10n.jamaatReminderHint,
-                icon: Icons.notifications_outlined,
-                tone: q.surface2,
-                foreground: q.ink2,
-              ),
-              const SizedBox(height: QSpace.s4),
-              Center(
-                child: QButton(
-                  label: l10n.deleteProfile,
-                  kind: QButtonKind.ghost,
-                  small: true,
-                  icon: Icons.delete_outline,
-                  onPressed: () => unawaited(_deleteProfile(active)),
-                ),
-              ),
+              const SizedBox(height: QSpace.s10),
             ],
-            const SizedBox(height: QSpace.s10),
-          ],
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }
@@ -506,10 +508,7 @@ final class _MosqueDropdown extends StatelessWidget {
         for (final p in profiles)
           DropdownMenuItem(
             value: p.id,
-            child: Text(
-              p.name,
-              style: QType.titleSm.copyWith(color: q.ink),
-            ),
+            child: Text(p.name, style: QType.titleSm.copyWith(color: q.ink)),
           ),
       ],
       onChanged: onChanged,
@@ -533,10 +532,10 @@ final class _PrayerJamaatCard extends StatelessWidget {
   final VoidCallback onPickTime;
 
   int get _modeIndex => switch (entry) {
-        NoJamaat() => 0,
-        OffsetJamaat() => 1,
-        FixedJamaat() => 2,
-      };
+    NoJamaat() => 0,
+    OffsetJamaat() => 1,
+    FixedJamaat() => 2,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -576,68 +575,64 @@ final class _PrayerJamaatCard extends StatelessWidget {
           switch (entry) {
             NoJamaat() => const SizedBox.shrink(),
             OffsetJamaat(:final offset) => Padding(
-                padding: const EdgeInsets.only(top: QSpace.s3),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l10n.offsetAfterStart(offset.inMinutes),
-                        style: QType.caption.copyWith(color: q.ink2),
-                      ),
+              padding: const EdgeInsets.only(top: QSpace.s3),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.offsetAfterStart(offset.inMinutes),
+                      style: QType.caption.copyWith(color: q.ink2),
                     ),
-                    _StepButton(
-                      icon: Icons.remove,
-                      onTap: offset.inMinutes > 5
-                          ? () => onChanged(
-                                OffsetJamaat(
-                                  offset - const Duration(minutes: 5),
-                                ),
-                              )
-                          : null,
+                  ),
+                  _StepButton(
+                    icon: Icons.remove,
+                    semanticLabel: l10n.a11yDecrease(l10n.jamaatLabel),
+                    onTap: offset.inMinutes > 5
+                        ? () => onChanged(
+                            OffsetJamaat(offset - const Duration(minutes: 5)),
+                          )
+                        : null,
+                  ),
+                  SizedBox(
+                    width: 64,
+                    child: Text(
+                      l10n.minutesShort(offset.inMinutes),
+                      textAlign: TextAlign.center,
+                      style: QType.num_(QType.label).copyWith(color: q.ink),
                     ),
-                    SizedBox(
-                      width: 64,
-                      child: Text(
-                        l10n.minutesShort(offset.inMinutes),
-                        textAlign: TextAlign.center,
-                        style:
-                            QType.num_(QType.label).copyWith(color: q.ink),
-                      ),
-                    ),
-                    _StepButton(
-                      icon: Icons.add,
-                      onTap: offset.inMinutes < 60
-                          ? () => onChanged(
-                                OffsetJamaat(
-                                  offset + const Duration(minutes: 5),
-                                ),
-                              )
-                          : null,
-                    ),
-                  ],
-                ),
+                  ),
+                  _StepButton(
+                    icon: Icons.add,
+                    semanticLabel: l10n.a11yIncrease(l10n.jamaatLabel),
+                    onTap: offset.inMinutes < 60
+                        ? () => onChanged(
+                            OffsetJamaat(offset + const Duration(minutes: 5)),
+                          )
+                        : null,
+                  ),
+                ],
               ),
+            ),
             FixedJamaat(:final time) => Padding(
-                padding: const EdgeInsets.only(top: QSpace.s3),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l10n.fixedAtTime(formatTime(time)),
-                        style: QType.num_(QType.caption)
-                            .copyWith(color: q.ink2),
-                      ),
+              padding: const EdgeInsets.only(top: QSpace.s3),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.fixedAtTime(formatTime(time)),
+                      style: QType.num_(QType.caption).copyWith(color: q.ink2),
                     ),
-                    QButton(
-                      label: l10n.pickTime,
-                      kind: QButtonKind.tonal,
-                      small: true,
-                      icon: Icons.schedule,
-                      onPressed: onPickTime,
-                    ),
-                  ],
-                ),
+                  ),
+                  QButton(
+                    label: l10n.pickTime,
+                    kind: QButtonKind.tonal,
+                    small: true,
+                    icon: Icons.schedule,
+                    onPressed: onPickTime,
+                  ),
+                ],
               ),
+            ),
           },
         ],
       ),
@@ -646,22 +641,33 @@ final class _PrayerJamaatCard extends StatelessWidget {
 }
 
 final class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.onTap});
+  const _StepButton({
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+  });
 
   final IconData icon;
+  final String semanticLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return InkWell(
-      borderRadius: BorderRadius.circular(QRadius.full),
-      onTap: onTap,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(color: q.surface2, shape: BoxShape.circle),
-        child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(QRadius.full),
+        onTap: onTap,
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(color: q.surface2, shape: BoxShape.circle),
+          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
+        ),
       ),
     );
   }
@@ -701,8 +707,7 @@ final class _NameDialogState extends State<_NameDialog> {
           child: Text(l10n.cancel),
         ),
         FilledButton(
-          onPressed: () =>
-              Navigator.of(context).pop(_controller.text.trim()),
+          onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
           child: Text(l10n.save),
         ),
       ],
@@ -733,11 +738,7 @@ final class _EmptyState extends StatelessWidget {
               style: QType.body.copyWith(color: q.ink2),
             ),
             const SizedBox(height: QSpace.s6),
-            QButton(
-              label: l10n.addProfile,
-              icon: Icons.add,
-              onPressed: onAdd,
-            ),
+            QButton(label: l10n.addProfile, icon: Icons.add, onPressed: onAdd),
           ],
         ),
       ),

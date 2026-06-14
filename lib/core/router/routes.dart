@@ -44,6 +44,15 @@ abstract final class Routes {
   /// Ruqyah — Qur'anic & prophetic protection/healing (More tab).
   static const ruqyah = (name: 'ruqyah', path: '/ruqyah');
 
+  /// Asmaul Husna memorization quiz (entered from the names screen).
+  static const asmaQuiz = (name: 'asmaQuiz', path: '/asma-quiz');
+
+  /// Sunnah / nafl fasting tracker — recommended days + personal log.
+  static const fasting = (name: 'fasting', path: '/fasting');
+
+  /// Achievements / badges (More tab + muhasaba summary).
+  static const achievements = (name: 'achievements', path: '/achievements');
+
   /// Islamic calculators hub (More tab) and its individual tools.
   static const calculators = (name: 'calculators', path: '/calculators');
   static const fitra = (name: 'fitra', path: '/calculators/fitra');

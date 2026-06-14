@@ -604,6 +604,34 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifMuhasabaToggleSub => 'এশার পরে একটি মৃদু রিমাইন্ডার';
 
   @override
+  String get notifDailyToggle => 'দৈনিক রিমাইন্ডার';
+
+  @override
+  String get notifDailyToggleSub =>
+      'আপনার বেছে নেওয়া সময়ে আজকের হাদিস বা দোয়া';
+
+  @override
+  String get notifDailyKindHadith => 'হাদিস';
+
+  @override
+  String get notifDailyKindDua => 'দোয়া';
+
+  @override
+  String get notifDailyTimeLabel => 'রিমাইন্ডারের সময়';
+
+  @override
+  String get notifDailyHadithTitle => 'আজকের হাদিস';
+
+  @override
+  String get notifDailyHadithBody => 'আজকের হাদিস প্রস্তুত — পড়তে ট্যাপ করুন।';
+
+  @override
+  String get notifDailyDuaTitle => 'আজকের দোয়া';
+
+  @override
+  String get notifDailyDuaBody => 'আজকের দোয়া প্রস্তুত — পড়তে ট্যাপ করুন।';
+
+  @override
   String get leadTimeLabel => 'কত আগে';
 
   @override
@@ -890,6 +918,194 @@ class AppLocalizationsBn extends AppLocalizations {
   String get asmaulHusnaTitle => 'আসমাউল হুসনা';
 
   @override
+  String get asmaQuizTitle => 'নাম কুইজ';
+
+  @override
+  String get asmaQuizModeNameToMeaning => 'নাম → অর্থ';
+
+  @override
+  String get asmaQuizModeMeaningToName => 'অর্থ → নাম';
+
+  @override
+  String get asmaQuizPromptMeaning => 'এই নামের অর্থ কী?';
+
+  @override
+  String get asmaQuizPromptName => 'কোন নামের এই অর্থ?';
+
+  @override
+  String asmaQuizProgress(int current, int total) {
+    return '$total এর $current';
+  }
+
+  @override
+  String get asmaQuizNext => 'পরবর্তী';
+
+  @override
+  String get asmaQuizSeeResult => 'ফলাফল দেখুন';
+
+  @override
+  String get asmaQuizResultTitle => 'কুইজ সম্পন্ন';
+
+  @override
+  String get asmaQuizResultEncouragement =>
+      'যতবার এই নামগুলো ফিরে দেখবেন, ততই কাছে আসবেন। এখানে পাস-ফেল নেই — যখন ইচ্ছা ফিরে এসে আবার চেষ্টা করুন।';
+
+  @override
+  String asmaQuizScore(int score, int total) {
+    return '$score/$total';
+  }
+
+  @override
+  String asmaQuizBest(int best) {
+    return 'সেরা স্কোর: $best';
+  }
+
+  @override
+  String get asmaQuizPlayAgain => 'আবার চেষ্টা করুন';
+
+  @override
+  String get fastingTitle => 'সুন্নত রোজা';
+
+  @override
+  String get fastingSubtitle => 'প্রস্তাবিত দিন ও আপনার রেকর্ড';
+
+  @override
+  String get fastingTodayRecommended => 'আজ প্রস্তাবিত রোজা';
+
+  @override
+  String get fastingTodayNone => 'আজ কোনো নির্দিষ্ট সুন্নত রোজা নেই';
+
+  @override
+  String get fastingTodayNoneNote =>
+      'আজ নির্দিষ্ট কোনো সুন্নত রোজা নেই, তবে নফল রোজার সওয়াব সবসময়ই রয়েছে।';
+
+  @override
+  String get fastingLogToday => 'আজকের রোজা যোগ করুন';
+
+  @override
+  String get fastingLogVoluntary => 'নফল রোজা যোগ করুন';
+
+  @override
+  String get fastingLoggedToday => 'আজকের জন্য রেকর্ড হয়েছে';
+
+  @override
+  String get fastingLogTitle => 'আপনার রোজার রেকর্ড';
+
+  @override
+  String get fastingTotal => 'মোট';
+
+  @override
+  String get fastingThisMonth => 'এই মাসে';
+
+  @override
+  String get fastingThisHijriMonth => 'এই হিজরি মাসে';
+
+  @override
+  String get fastingFasted => 'রোজা রাখা হয়েছে';
+
+  @override
+  String fastingHeatmapLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'এই মাসে $countটি রোজা রেকর্ড হয়েছে',
+      one: 'এই মাসে ১টি রোজা রেকর্ড হয়েছে',
+      zero: 'এই মাসে কোনো রোজা রেকর্ড হয়নি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fastingUpcomingTitle => 'আসন্ন প্রস্তাবিত রোজা';
+
+  @override
+  String fastingKindName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'mondayThursday': 'সোম ও বৃহস্পতিবার',
+      'whiteDays': 'আইয়ামে বীজ (শুভ্র দিন)',
+      'ashura': 'আশুরা',
+      'arafah': 'আরাফার দিন',
+      'dhulHijjah': 'জিলহজের প্রথম দশ দিন',
+      'shawwal': 'শাওয়ালের ছয় রোজা',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String fastingKindNote(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'mondayThursday':
+          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays':
+          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura':
+          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'arafah':
+          'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
+      'dhulHijjah':
+          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'shawwal':
+          'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get achievementsTitle => 'অর্জন';
+
+  @override
+  String get achievementsSubtitle =>
+      'প্রতিটি ছোট পদক্ষেপই মূল্যবান — চালিয়ে যান।';
+
+  @override
+  String get achievementUnlocked => 'অর্জিত';
+
+  @override
+  String achievementsCount(int unlocked, int total) {
+    return '$totalটির মধ্যে $unlockedটি অর্জিত';
+  }
+
+  @override
+  String achievementCategory(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'streaks': 'ধারাবাহিকতা',
+      'salah': 'সালাত',
+      'dhikr': 'যিকর',
+      'quran': 'কুরআন',
+      'fasting': 'রোজা',
+      'other': 'অর্জন',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String achievementName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'streak_3': 'পরপর তিন দিন',
+      'streak_7': 'এক সপ্তাহের ধারা',
+      'streak_30': 'এক মাসের ইবাদত',
+      'streak_100': 'একশো দিন',
+      'salah_10': 'দশ দিন সালাত',
+      'salah_50': 'পঞ্চাশ দিন সালাত',
+      'salah_200': 'দুইশো দিন সালাত',
+      'dhikr_100': 'প্রথম একশো যিকর',
+      'dhikr_1000': 'এক হাজার যিকর',
+      'dhikr_10000': 'দশ হাজার যিকর',
+      'quran_start': 'কুরআন খোলা হলো',
+      'quran_days_7': 'কুরআনের সাথে এক সপ্তাহ',
+      'quran_days_30': 'কুরআনের সাথে এক মাস',
+      'quran_bookmark_5': 'পাঁচটি বুকমার্ক',
+      'fast_1': 'প্রথম রোজা',
+      'fast_10': 'দশটি রোজা',
+      'fast_30': 'ত্রিশটি রোজা',
+      'other': 'অর্জন',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String duaCategoryName(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
       'morning_evening': 'সকাল-সন্ধ্যা',
@@ -900,6 +1116,16 @@ class AppLocalizationsBn extends AppLocalizations {
       'travel': 'সফর',
       'salah': 'নামাজ',
       'distress': 'দুশ্চিন্তা ও মুক্তি',
+      'wudu': 'অজু',
+      'clothes': 'পোশাক পরিধান',
+      'weather': 'বৃষ্টি ও আবহাওয়া',
+      'istighfar': 'ইস্তিগফার',
+      'gratitude': 'কৃতজ্ঞতা',
+      'protection': 'হেফাজত',
+      'sneezing': 'হাঁচি',
+      'marketplace': 'বাজার',
+      'adhan': 'আযান ও ইকামত',
+      'toilet': 'টয়লেট',
       'other': '$id',
     });
     return '$_temp0';
@@ -1176,6 +1402,24 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appLockDisable => 'অ্যাপ লক বন্ধ করুন';
 
   @override
+  String get appLockDelete => 'শেষ সংখ্যা মুছুন';
+
+  @override
+  String appLockPinProgress(int entered) {
+    return '৪টির মধ্যে $enteredটি সংখ্যা দেওয়া হয়েছে';
+  }
+
+  @override
+  String a11yIncrease(String label) {
+    return '$label বাড়ান';
+  }
+
+  @override
+  String a11yDecrease(String label) {
+    return '$label কমান';
+  }
+
+  @override
   String get prayerSheetWindow => 'ওয়াক্তের সময়';
 
   @override
@@ -1215,6 +1459,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dailyAyahTitle => 'আজকের আয়াত';
+
+  @override
+  String get duaOfDayTitle => 'আজকের দোয়া';
 
   @override
   String dailyAyahReference(String surah, String ayah) {

@@ -1,9 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qalbee/core/utils/result.dart';
+import 'package:qalbee/features/hadith/data/hadith_book_bundled_data_source.dart';
 import 'package:qalbee/features/hadith/data/hadith_book_catalog_data_source.dart';
 import 'package:qalbee/features/hadith/data/hadith_book_remote_data_source.dart';
 import 'package:qalbee/features/hadith/data/hadith_book_repository_impl.dart';
+import 'package:qalbee/features/hadith/data/hadith_database.dart';
+
+import 'hadith_db_test_util.dart';
 
 final class _FakeAssetBundle extends AssetBundle {
   _FakeAssetBundle(this.assets);
@@ -97,12 +101,25 @@ String _section(String lang, {bool withGrade = false}) => '''
 ''';
 
 void main() {
+  // An empty bundled snapshot so every section() falls through to the remote
+  // path these tests exercise (the bundled path has its own test file).
+  late HadithDatabase emptyDb;
+  late HadithBookBundledDataSource emptyBundled;
+
+  setUpAll(() async {
+    emptyDb = await openTestHadithDb();
+    emptyBundled = HadithBookBundledDataSource(Future.value(emptyDb));
+  });
+
+  tearDownAll(() async => emptyDb.close());
+
   HadithBookRepositoryImpl makeRepo(HttpGet get) => HadithBookRepositoryImpl(
         HadithBookCatalogDataSource(
           _FakeAssetBundle(const {
             HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
           }),
         ),
+        emptyBundled,
         HadithBookRemoteDataSource(get),
       );
 
@@ -138,6 +155,7 @@ void main() {
     test('missing catalog asset yields a failure', () async {
       final repo = HadithBookRepositoryImpl(
         HadithBookCatalogDataSource(_FakeAssetBundle(const {})),
+        emptyBundled,
         HadithBookRemoteDataSource((_) async => ''),
       );
       final result = await repo.books();

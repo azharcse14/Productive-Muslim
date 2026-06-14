@@ -29,9 +29,7 @@ final class QHeatmapCell extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: level < 0
-            ? const Color(0x00000000)
-            : colorFor(context, level),
+        color: level < 0 ? const Color(0x00000000) : colorFor(context, level),
         borderRadius: BorderRadius.circular(3.5),
       ),
     );
@@ -45,6 +43,7 @@ final class QHeatmap extends StatelessWidget {
     required this.weeks,
     this.cellSize = 13,
     this.gap = 3.5,
+    this.semanticLabel,
     super.key,
   });
 
@@ -52,24 +51,35 @@ final class QHeatmap extends StatelessWidget {
   final double cellSize;
   final double gap;
 
+  /// Optional spoken summary of the grid (e.g. "12 of 30 days completed").
+  /// The individual cells carry no per-day meaning to a screen reader, so they
+  /// are excluded from the a11y tree and this label stands in for the whole map.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final (w, week) in weeks.indexed) ...[
-          if (w > 0) SizedBox(width: gap),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (d, level) in week.indexed) ...[
-                if (d > 0) SizedBox(height: gap),
-                QHeatmapCell(level: level, size: cellSize),
+    final grid = ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (w, week) in weeks.indexed) ...[
+            if (w > 0) SizedBox(width: gap),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (d, level) in week.indexed) ...[
+                  if (d > 0) SizedBox(height: gap),
+                  QHeatmapCell(level: level, size: cellSize),
+                ],
               ],
-            ],
-          ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
+    if (semanticLabel == null) {
+      return grid;
+    }
+    return Semantics(label: semanticLabel, child: grid);
   }
 }

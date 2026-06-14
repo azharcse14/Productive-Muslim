@@ -38,6 +38,9 @@ final class DuaCard extends StatelessWidget {
                 child: Text(
                   dua.arabic,
                   textDirection: TextDirection.rtl,
+                  // A non-Arabic TTS garbles raw Arabic glyphs; speak the
+                  // transliteration instead.
+                  semanticsLabel: dua.transliteration,
                   style: QType.quran(24).copyWith(color: q.ink),
                 ),
               ),
@@ -68,7 +71,7 @@ final class DuaCard extends StatelessWidget {
           ),
           const SizedBox(height: QSpace.s3),
           Text(
-            dua.transliteration,
+            dua.transliterationFor(languageCode),
             style: QType.caption.copyWith(
               color: q.ink2,
               fontStyle: FontStyle.italic,

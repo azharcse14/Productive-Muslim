@@ -16,6 +16,9 @@ void main() {
     'heart',
     'spark',
     'book',
+    'water',
+    'shield',
+    'speech',
   };
   const allowedRepeats = <int>{1, 3, 7, 33, 100};
   const duaFields = <String>['id', 'ar', 'tr', 'en', 'bn', 'ref', 'repeat'];
@@ -82,11 +85,11 @@ void main() {
     });
 
     test('has at least 8 categories', () {
-      expect(categories.length, greaterThanOrEqualTo(8));
+      expect(categories.length, greaterThanOrEqualTo(16));
     });
 
     test('has at least 32 duas in total', () {
-      expect(allDuas.length, greaterThanOrEqualTo(32));
+      expect(allDuas.length, greaterThanOrEqualTo(65));
     });
 
     test('every category has a non-empty id and an allowed icon', () {

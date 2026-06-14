@@ -603,6 +603,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifMuhasabaToggleSub => 'One gentle reminder after Isha';
 
   @override
+  String get notifDailyToggle => 'Daily reminder';
+
+  @override
+  String get notifDailyToggleSub => 'A hadith or dua of the day, at your time';
+
+  @override
+  String get notifDailyKindHadith => 'Hadith';
+
+  @override
+  String get notifDailyKindDua => 'Dua';
+
+  @override
+  String get notifDailyTimeLabel => 'Reminder time';
+
+  @override
+  String get notifDailyHadithTitle => 'Hadith of the day';
+
+  @override
+  String get notifDailyHadithBody =>
+      'Today\'s hadith is ready — tap to read it.';
+
+  @override
+  String get notifDailyDuaTitle => 'Dua of the day';
+
+  @override
+  String get notifDailyDuaBody => 'Today\'s dua is ready — tap to read it.';
+
+  @override
   String get leadTimeLabel => 'Lead time';
 
   @override
@@ -892,6 +920,193 @@ class AppLocalizationsEn extends AppLocalizations {
   String get asmaulHusnaTitle => 'Asmaul Husna';
 
   @override
+  String get asmaQuizTitle => 'Names quiz';
+
+  @override
+  String get asmaQuizModeNameToMeaning => 'Name → meaning';
+
+  @override
+  String get asmaQuizModeMeaningToName => 'Meaning → name';
+
+  @override
+  String get asmaQuizPromptMeaning => 'What is the meaning of this name?';
+
+  @override
+  String get asmaQuizPromptName => 'Which name has this meaning?';
+
+  @override
+  String asmaQuizProgress(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get asmaQuizNext => 'Next';
+
+  @override
+  String get asmaQuizSeeResult => 'See result';
+
+  @override
+  String get asmaQuizResultTitle => 'Quiz complete';
+
+  @override
+  String get asmaQuizResultEncouragement =>
+      'Every name you revisit draws you closer. There\'s no pass or fail here — return whenever you like and try again.';
+
+  @override
+  String asmaQuizScore(int score, int total) {
+    return '$score/$total';
+  }
+
+  @override
+  String asmaQuizBest(int best) {
+    return 'Best score: $best';
+  }
+
+  @override
+  String get asmaQuizPlayAgain => 'Try again';
+
+  @override
+  String get fastingTitle => 'Sunnah fasting';
+
+  @override
+  String get fastingSubtitle => 'Recommended days & your log';
+
+  @override
+  String get fastingTodayRecommended => 'Recommended fast today';
+
+  @override
+  String get fastingTodayNone => 'No recommended fast today';
+
+  @override
+  String get fastingTodayNoneNote =>
+      'There is no specific sunnah fast today, but a voluntary fast is always rewarded.';
+
+  @override
+  String get fastingLogToday => 'Log today';
+
+  @override
+  String get fastingLogVoluntary => 'Log a voluntary fast';
+
+  @override
+  String get fastingLoggedToday => 'Logged for today';
+
+  @override
+  String get fastingLogTitle => 'Your fasting log';
+
+  @override
+  String get fastingTotal => 'Total';
+
+  @override
+  String get fastingThisMonth => 'This month';
+
+  @override
+  String get fastingThisHijriMonth => 'This hijri month';
+
+  @override
+  String get fastingFasted => 'Fasted';
+
+  @override
+  String fastingHeatmapLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fasts logged this month',
+      one: '1 fast logged this month',
+      zero: 'No fasts logged this month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fastingUpcomingTitle => 'Upcoming recommended fasts';
+
+  @override
+  String fastingKindName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'mondayThursday': 'Monday & Thursday',
+      'whiteDays': 'White days (Ayyam al-Beed)',
+      'ashura': 'Ashura',
+      'arafah': 'Day of Arafah',
+      'dhulHijjah': 'First ten days of Dhul-Hijjah',
+      'shawwal': 'Six days of Shawwal',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String fastingKindNote(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'mondayThursday':
+          'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
+      'whiteDays':
+          'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
+      'ashura':
+          'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
+      'arafah':
+          'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
+      'dhulHijjah':
+          'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
+      'shawwal':
+          'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
+      'other': '',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String get achievementsSubtitle => 'Every small step counts — keep going.';
+
+  @override
+  String get achievementUnlocked => 'Unlocked';
+
+  @override
+  String achievementsCount(int unlocked, int total) {
+    return '$unlocked of $total earned';
+  }
+
+  @override
+  String achievementCategory(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'streaks': 'Streaks',
+      'salah': 'Salah',
+      'dhikr': 'Dhikr',
+      'quran': 'Quran',
+      'fasting': 'Fasting',
+      'other': 'Achievements',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String achievementName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'streak_3': 'Three in a row',
+      'streak_7': 'A steady week',
+      'streak_30': 'A month of devotion',
+      'streak_100': 'A hundred days',
+      'salah_10': 'Ten days of salah',
+      'salah_50': 'Fifty days of salah',
+      'salah_200': 'Two hundred days of salah',
+      'dhikr_100': 'First hundred dhikr',
+      'dhikr_1000': 'A thousand dhikr',
+      'dhikr_10000': 'Ten thousand dhikr',
+      'quran_start': 'Opened the Quran',
+      'quran_days_7': 'A week with the Quran',
+      'quran_days_30': 'A month with the Quran',
+      'quran_bookmark_5': 'Five bookmarks',
+      'fast_1': 'First fast',
+      'fast_10': 'Ten fasts',
+      'fast_30': 'Thirty fasts',
+      'other': 'Achievement',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String duaCategoryName(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
       'morning_evening': 'Morning & evening',
@@ -902,6 +1117,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'travel': 'Travel',
       'salah': 'Salah',
       'distress': 'Distress & relief',
+      'wudu': 'Wudu',
+      'clothes': 'Dressing',
+      'weather': 'Rain & weather',
+      'istighfar': 'Seeking forgiveness',
+      'gratitude': 'Gratitude',
+      'protection': 'Protection',
+      'sneezing': 'Sneezing',
+      'marketplace': 'Marketplace',
+      'adhan': 'Adhan & iqamah',
+      'toilet': 'Toilet',
       'other': '$id',
     });
     return '$_temp0';
@@ -1180,6 +1405,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockDisable => 'Turn off app lock';
 
   @override
+  String get appLockDelete => 'Delete last digit';
+
+  @override
+  String appLockPinProgress(int entered) {
+    return '$entered of 4 digits entered';
+  }
+
+  @override
+  String a11yIncrease(String label) {
+    return 'Increase $label';
+  }
+
+  @override
+  String a11yDecrease(String label) {
+    return 'Decrease $label';
+  }
+
+  @override
   String get prayerSheetWindow => 'Time window';
 
   @override
@@ -1219,6 +1462,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyAyahTitle => 'Ayah of the day';
+
+  @override
+  String get duaOfDayTitle => 'Dua of the day';
 
   @override
   String dailyAyahReference(String surah, String ayah) {

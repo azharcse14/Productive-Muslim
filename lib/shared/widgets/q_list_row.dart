@@ -69,8 +69,13 @@ final class QListRow extends StatelessWidget {
       ),
     );
     if (onTap == null) {
-      return row;
+      return MergeSemantics(child: row);
     }
-    return InkWell(onTap: onTap, child: row);
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(onTap: onTap, child: row),
+      ),
+    );
   }
 }

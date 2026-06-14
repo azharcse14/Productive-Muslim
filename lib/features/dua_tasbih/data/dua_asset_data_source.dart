@@ -81,11 +81,13 @@ final class DuaAssetDataSource {
       return null;
     }
     final bn = map['bn'];
+    final trBn = map['trBn'];
     final repeat = map['repeat'];
     return Dua(
       id: id,
       arabic: ar,
       transliteration: tr,
+      transliterationBn: trBn is String ? trBn : '',
       translationEn: en,
       translationBn: bn is String ? bn : '',
       reference: ref is String ? ref : '',

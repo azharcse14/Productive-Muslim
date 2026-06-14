@@ -168,6 +168,15 @@
   "notifJamaatToggleSub": "আমার মসজিদে জামাতের সময় লাগবে",
   "notifMuhasabaToggle": "সন্ধ্যার মুহাসাবা নাজ",
   "notifMuhasabaToggleSub": "এশার পরে একটি মৃদু রিমাইন্ডার",
+  "notifDailyToggle": "দৈনিক রিমাইন্ডার",
+  "notifDailyToggleSub": "আপনার বেছে নেওয়া সময়ে আজকের হাদিস বা দোয়া",
+  "notifDailyKindHadith": "হাদিস",
+  "notifDailyKindDua": "দোয়া",
+  "notifDailyTimeLabel": "রিমাইন্ডারের সময়",
+  "notifDailyHadithTitle": "আজকের হাদিস",
+  "notifDailyHadithBody": "আজকের হাদিস প্রস্তুত — পড়তে ট্যাপ করুন।",
+  "notifDailyDuaTitle": "আজকের দোয়া",
+  "notifDailyDuaBody": "আজকের দোয়া প্রস্তুত — পড়তে ট্যাপ করুন।",
   "leadTimeLabel": "কত আগে",
   "myMosqueTitle": "আমার মসজিদ",
   "myMosqueSubtitle": "আপনার মসজিদের জামাতের সময়",
@@ -242,7 +251,87 @@
   "duaTitle": "দুআ ও তাসবিহ",
   "tasbihTitle": "তাসবিহ",
   "asmaulHusnaTitle": "আসমাউল হুসনা",
-  "duaCategoryName": "{id, select, morning_evening{সকাল-সন্ধ্যা} sleep{ঘুম} waking{ঘুম থেকে ওঠা} food{খাবার-পানীয়} home{ঘরে প্রবেশ-প্রস্থান} travel{সফর} salah{নামাজ} distress{দুশ্চিন্তা ও মুক্তি} other{{id}}}",
+  "asmaQuizTitle": "নাম কুইজ",
+  "asmaQuizModeNameToMeaning": "নাম → অর্থ",
+  "asmaQuizModeMeaningToName": "অর্থ → নাম",
+  "asmaQuizPromptMeaning": "এই নামের অর্থ কী?",
+  "asmaQuizPromptName": "কোন নামের এই অর্থ?",
+  "asmaQuizProgress": "{total} এর {current}",
+  "@asmaQuizProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "asmaQuizNext": "পরবর্তী",
+  "asmaQuizSeeResult": "ফলাফল দেখুন",
+  "asmaQuizResultTitle": "কুইজ সম্পন্ন",
+  "asmaQuizResultEncouragement": "যতবার এই নামগুলো ফিরে দেখবেন, ততই কাছে আসবেন। এখানে পাস-ফেল নেই — যখন ইচ্ছা ফিরে এসে আবার চেষ্টা করুন।",
+  "asmaQuizScore": "{score}/{total}",
+  "@asmaQuizScore": {
+    "placeholders": {
+      "score": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "asmaQuizBest": "সেরা স্কোর: {best}",
+  "@asmaQuizBest": {
+    "placeholders": {
+      "best": { "type": "int" }
+    }
+  },
+  "asmaQuizPlayAgain": "আবার চেষ্টা করুন",
+  "fastingTitle": "সুন্নত রোজা",
+  "fastingSubtitle": "প্রস্তাবিত দিন ও আপনার রেকর্ড",
+  "fastingTodayRecommended": "আজ প্রস্তাবিত রোজা",
+  "fastingTodayNone": "আজ কোনো নির্দিষ্ট সুন্নত রোজা নেই",
+  "fastingTodayNoneNote": "আজ নির্দিষ্ট কোনো সুন্নত রোজা নেই, তবে নফল রোজার সওয়াব সবসময়ই রয়েছে।",
+  "fastingLogToday": "আজকের রোজা যোগ করুন",
+  "fastingLogVoluntary": "নফল রোজা যোগ করুন",
+  "fastingLoggedToday": "আজকের জন্য রেকর্ড হয়েছে",
+  "fastingLogTitle": "আপনার রোজার রেকর্ড",
+  "fastingTotal": "মোট",
+  "fastingThisMonth": "এই মাসে",
+  "fastingThisHijriMonth": "এই হিজরি মাসে",
+  "fastingFasted": "রোজা রাখা হয়েছে",
+  "fastingHeatmapLabel": "{count, plural, =0{এই মাসে কোনো রোজা রেকর্ড হয়নি} =1{এই মাসে ১টি রোজা রেকর্ড হয়েছে} other{এই মাসে {count}টি রোজা রেকর্ড হয়েছে}}",
+  "@fastingHeatmapLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
+  "fastingKindName": "{id, select, mondayThursday{সোম ও বৃহস্পতিবার} whiteDays{আইয়ামে বীজ (শুভ্র দিন)} ashura{আশুরা} arafah{আরাফার দিন} dhulHijjah{জিলহজের প্রথম দশ দিন} shawwal{শাওয়ালের ছয় রোজা} other{{id}}}",
+  "@fastingKindName": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "fastingKindNote": "{id, select, mondayThursday{সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)} whiteDays{প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)} ashura{আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)} arafah{আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)} dhulHijjah{এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)} shawwal{রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)} other{}}",
+  "@fastingKindNote": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "achievementsTitle": "অর্জন",
+  "achievementsSubtitle": "প্রতিটি ছোট পদক্ষেপই মূল্যবান — চালিয়ে যান।",
+  "achievementUnlocked": "অর্জিত",
+  "achievementsCount": "{total}টির মধ্যে {unlocked}টি অর্জিত",
+  "@achievementsCount": {
+    "placeholders": {
+      "unlocked": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "achievementCategory": "{key, select, streaks{ধারাবাহিকতা} salah{সালাত} dhikr{যিকর} quran{কুরআন} fasting{রোজা} other{অর্জন}}",
+  "@achievementCategory": {
+    "placeholders": { "key": { "type": "String" } }
+  },
+  "achievementName": "{id, select, streak_3{পরপর তিন দিন} streak_7{এক সপ্তাহের ধারা} streak_30{এক মাসের ইবাদত} streak_100{একশো দিন} salah_10{দশ দিন সালাত} salah_50{পঞ্চাশ দিন সালাত} salah_200{দুইশো দিন সালাত} dhikr_100{প্রথম একশো যিকর} dhikr_1000{এক হাজার যিকর} dhikr_10000{দশ হাজার যিকর} quran_start{কুরআন খোলা হলো} quran_days_7{কুরআনের সাথে এক সপ্তাহ} quran_days_30{কুরআনের সাথে এক মাস} quran_bookmark_5{পাঁচটি বুকমার্ক} fast_1{প্রথম রোজা} fast_10{দশটি রোজা} fast_30{ত্রিশটি রোজা} other{অর্জন}}",
+  "@achievementName": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "duaCategoryName": "{id, select, morning_evening{সকাল-সন্ধ্যা} sleep{ঘুম} waking{ঘুম থেকে ওঠা} food{খাবার-পানীয়} home{ঘরে প্রবেশ-প্রস্থান} travel{সফর} salah{নামাজ} distress{দুশ্চিন্তা ও মুক্তি} wudu{অজু} clothes{পোশাক পরিধান} weather{বৃষ্টি ও আবহাওয়া} istighfar{ইস্তিগফার} gratitude{কৃতজ্ঞতা} protection{হেফাজত} sneezing{হাঁচি} marketplace{বাজার} adhan{আযান ও ইকামত} toilet{টয়লেট} other{{id}}}",
   "duaCount": "{count}টি দুআ",
   "repeatTimes": "{count} বার পড়ুন",
   "referenceLabel": "সূত্র",
@@ -322,6 +411,10 @@
   "appLockEnable": "অ্যাপ লক",
   "appLockEnableSub": "কালবী খুলতে পিন (ও বায়োমেট্রিক) লাগবে",
   "appLockDisable": "অ্যাপ লক বন্ধ করুন",
+  "appLockDelete": "শেষ সংখ্যা মুছুন",
+  "appLockPinProgress": "৪টির মধ্যে {entered}টি সংখ্যা দেওয়া হয়েছে",
+  "a11yIncrease": "{label} বাড়ান",
+  "a11yDecrease": "{label} কমান",
   "prayerSheetWindow": "ওয়াক্তের সময়",
   "prayerSheetRakaat": "রাকাত",
   "rakaatFard": "ফরজ",
@@ -334,6 +427,7 @@
   "prayerFazilatMaghrib": "সূর্য ডোবার সাথে সাথেই পড়ে নাও। ফরজের পর দুই রাকাত হালকা সুন্নত রয়েছে।",
   "prayerFazilatIsha": "জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।",
   "dailyAyahTitle": "আজকের আয়াত",
+  "duaOfDayTitle": "আজকের দোয়া",
   "dailyAyahReference": "{surah}, আয়াত {ayah}",
   "@dailyAyahReference": {
     "placeholders": {

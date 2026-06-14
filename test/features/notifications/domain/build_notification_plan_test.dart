@@ -181,6 +181,29 @@ void main() {
     });
   });
 
+  group('buildNotificationPlan — daily reminder', () {
+    test('off by default, one per day at the chosen minute when enabled', () {
+      expect(
+        _plan().where((i) => i.kind == NotificationKind.dailyReminder),
+        isEmpty,
+      );
+      final plan = _plan(
+        matrix: const NotificationMatrix(
+          dailyReminder: true,
+          dailyReminderMinute: 8 * 60, // 08:00 (non-default to be meaningful)
+        ),
+      );
+      final reminders = plan
+          .where((i) => i.kind == NotificationKind.dailyReminder)
+          .toList();
+      // Days 12 & 13 at 08:00 fall in the 48h window; day 14 is past it.
+      expect(reminders.length, 2);
+      expect(reminders.first.at, DateTime(2026, 6, 12, 8));
+      final perDay = <int>{for (final r in reminders) r.at.day};
+      expect(perDay.length, reminders.length); // one per day
+    });
+  });
+
   group('buildNotificationPlan — general properties', () {
     test('plan is sorted by time', () {
       final plan = _plan(

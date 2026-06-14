@@ -4,6 +4,7 @@ import 'dart:ui' show Locale;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -64,6 +65,10 @@ final class NotificationController {
     );
   }
 
+  bool get _isDailyDua =>
+      _settings.settings.value.notifications.dailyReminderKind ==
+      DailyContentKind.dua;
+
   NotificationTexts _texts() {
     final l10n = lookupAppLocalizations(
       Locale(_settings.settings.value.localeCode),
@@ -79,6 +84,13 @@ final class NotificationController {
       iftarBody: l10n.notifIftarBody('{time}'),
       muhasabaTitle: l10n.notifMuhasabaTitle,
       muhasabaBody: l10n.notifMuhasabaBody,
+      dailyReminderTitle: _isDailyDua
+          ? l10n.notifDailyDuaTitle
+          : l10n.notifDailyHadithTitle,
+      dailyReminderBody: _isDailyDua
+          ? l10n.notifDailyDuaBody
+          : l10n.notifDailyHadithBody,
+      dailyReminderRoute: _isDailyDua ? '/dua' : '/hadith',
       markAsPrayedAction: l10n.notifMarkPrayed,
       channelAzanName: l10n.channelAzan,
       channelRemindersName: l10n.channelReminders,

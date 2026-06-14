@@ -109,22 +109,29 @@ final class _LockScreenState extends State<LockScreen> {
             const SizedBox(height: QSpace.s6),
             Text(title, style: QType.title.copyWith(color: q.ink)),
             const SizedBox(height: QSpace.s4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var i = 0; i < 4; i++)
-                  Container(
-                    width: 16,
-                    height: 16,
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: QSpace.s2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i < _entered.length ? q.primary : q.surface2,
-                      border: Border.all(color: q.line),
-                    ),
-                  ),
-              ],
+            Semantics(
+              liveRegion: true,
+              label: l10n.appLockPinProgress(_entered.length),
+              child: ExcludeSemantics(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var i = 0; i < 4; i++)
+                      Container(
+                        width: 16,
+                        height: 16,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: QSpace.s2,
+                        ),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: i < _entered.length ? q.primary : q.surface2,
+                          border: Border.all(color: q.line),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
             SizedBox(
               height: 24,
@@ -153,25 +160,32 @@ final class _LockScreenState extends State<LockScreen> {
                       padding: const EdgeInsets.all(QSpace.s2),
                       child: key.isEmpty
                           ? const SizedBox(width: 72, height: 72)
-                          : InkWell(
-                              borderRadius:
-                                  BorderRadius.circular(QRadius.full),
-                              onTap: () => key == '⌫'
-                                  ? _onBackspace()
-                                  : unawaited(_onDigit(key)),
-                              child: Container(
-                                width: 72,
-                                height: 72,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: q.surface,
-                                  border: Border.all(color: q.line),
+                          : Semantics(
+                              button: true,
+                              label: key == '⌫' ? l10n.appLockDelete : key,
+                              excludeSemantics: true,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(
+                                  QRadius.full,
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    key,
-                                    style: QType.num_(QType.title)
-                                        .copyWith(color: q.ink),
+                                onTap: () => key == '⌫'
+                                    ? _onBackspace()
+                                    : unawaited(_onDigit(key)),
+                                child: Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: q.surface,
+                                    border: Border.all(color: q.line),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      key,
+                                      style: QType.num_(
+                                        QType.title,
+                                      ).copyWith(color: q.ink),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -189,9 +203,7 @@ final class _LockScreenState extends State<LockScreen> {
                         small: true,
                         icon: Icons.fingerprint,
                         onPressed: () => unawaited(
-                          _store.unlockWithBiometric(
-                            l10n.appLockEnterPin,
-                          ),
+                          _store.unlockWithBiometric(l10n.appLockEnterPin),
                         ),
                       )
                     : const SizedBox.shrink(),

@@ -131,39 +131,50 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                 // The daily-touch surface: everything below the presets
                 // counts a bead.
                 Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  child: Semantics(
+                    button: true,
+                    liveRegion: true,
+                    label: l10n.tasbihTitle,
+                    value: LocaleDigits.localize('$count', languageCode),
                     onTap: _store.tap,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        QProgressRing(
-                          progress: target == 0 ? 0 : count / target,
-                          size: 240,
-                          strokeWidth: 12,
-                          color: reached ? q.accentStrong : q.primary,
-                          child: Text(
-                            LocaleDigits.localize('$count', languageCode),
-                            style: QType.num_(QType.countdown)
-                                .copyWith(color: q.ink),
-                          ),
-                        ),
-                        const SizedBox(height: QSpace.s5),
-                        AnimatedScale(
-                          scale: reached ? 1 : 0.85,
-                          duration: reduced ? Duration.zero : QMotion.slow,
-                          curve: QMotion.ease,
-                          child: Opacity(
-                            opacity: reached ? 1 : 0,
-                            child: Text(
-                              l10n.tasbihTargetReached,
-                              textAlign: TextAlign.center,
-                              style: QType.label
-                                  .copyWith(color: q.accentStrong),
+                    child: ExcludeSemantics(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _store.tap,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            QProgressRing(
+                              progress: target == 0 ? 0 : count / target,
+                              size: 240,
+                              strokeWidth: 12,
+                              color: reached ? q.accentStrong : q.primary,
+                              child: Text(
+                                LocaleDigits.localize('$count', languageCode),
+                                style: QType.num_(
+                                  QType.countdown,
+                                ).copyWith(color: q.ink),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: QSpace.s5),
+                            AnimatedScale(
+                              scale: reached ? 1 : 0.85,
+                              duration: reduced ? Duration.zero : QMotion.slow,
+                              curve: QMotion.ease,
+                              child: Opacity(
+                                opacity: reached ? 1 : 0,
+                                child: Text(
+                                  l10n.tasbihTargetReached,
+                                  textAlign: TextAlign.center,
+                                  style: QType.label.copyWith(
+                                    color: q.accentStrong,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -180,8 +191,9 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                         label: l10n.tasbihReset,
                         kind: QButtonKind.outline,
                         small: true,
-                        onPressed:
-                            count > 0 ? () => unawaited(_confirmReset()) : null,
+                        onPressed: count > 0
+                            ? () => unawaited(_confirmReset())
+                            : null,
                       ),
                       const SizedBox(height: QSpace.s3),
                       Text(

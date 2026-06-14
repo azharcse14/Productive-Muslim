@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
 import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
 import '../state/muhasaba_store.dart';
@@ -44,9 +45,9 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       item.isDefault ? l10n.trackerName(item.name) : item.name;
 
   String _percent(BuildContext context, double value) => LocaleDigits.localize(
-        '${(value * 100).round()}%',
-        Localizations.localeOf(context).languageCode,
-      );
+    '${(value * 100).round()}%',
+    Localizations.localeOf(context).languageCode,
+  );
 
   void _showLockedToast(BuildContext context) {
     final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
@@ -184,9 +185,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 value: _store.valueOf(item.id),
                 displayName: _nameOf(l10n, item),
                 onChanged: (_) {},
-                onLongPress: () => unawaited(
-                  showItemEditor(context, _store, existing: item),
-                ),
+                onLongPress: () =>
+                    unawaited(showItemEditor(context, _store, existing: item)),
               ),
             ),
             const SizedBox(height: QSpace.s3),
@@ -257,14 +257,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           icon: const Icon(Icons.chevron_right),
           onPressed: _store.canGoForward
               ? () => unawaited(
-                    _store.selectDate(
-                      DateTime(
-                        selected.year,
-                        selected.month,
-                        selected.day + 1,
-                      ),
-                    ),
-                  )
+                  _store.selectDate(
+                    DateTime(selected.year, selected.month, selected.day + 1),
+                  ),
+                )
               : null,
         ),
       ],
@@ -309,9 +305,13 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         else ...[
           _headerCard(context, stats),
           const SizedBox(height: QSpace.s4),
+          const AchievementsSummaryCard(),
+          const SizedBox(height: QSpace.s4),
           QCard(
             child: TrendLine(
               values: [for (final d in stats.days) d.completion],
+              semanticLabel:
+                  '${l10n.overallCompletion}: ${_percent(context, stats.completion)}',
             ),
           ),
           const SizedBox(height: QSpace.s4),
@@ -331,10 +331,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     final trend = delta == null
         ? null
         : delta > 0.05
-            ? 'up'
-            : delta < -0.05
-                ? 'down'
-                : 'same';
+        ? 'up'
+        : delta < -0.05
+        ? 'down'
+        : 'same';
     return QCard(
       child: Row(
         children: [
@@ -386,12 +386,12 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   static int _levelOf(double completion) => completion == 0
       ? 0
       : completion < 0.25
-          ? 1
-          : completion < 0.5
-              ? 2
-              : completion < 0.75
-                  ? 3
-                  : 4;
+      ? 1
+      : completion < 0.5
+      ? 2
+      : completion < 0.75
+      ? 3
+      : 4;
 
   static List<List<int>> _heatmapWeeks(List<DayCompletion> days) {
     if (days.isEmpty) {
@@ -420,7 +420,11 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             reverse: true,
-            child: QHeatmap(weeks: _heatmapWeeks(stats.days)),
+            child: QHeatmap(
+              weeks: _heatmapWeeks(stats.days),
+              semanticLabel:
+                  '${l10n.overallCompletion}: ${_percent(context, stats.completion)}',
+            ),
           ),
           const SizedBox(height: QSpace.s3),
           Row(
@@ -458,8 +462,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                     _nameOf(l10n, item),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: QType.caption
-                        .copyWith(fontSize: 12.5, color: q.ink),
+                    style: QType.caption.copyWith(fontSize: 12.5, color: q.ink),
                   ),
                 ),
                 const SizedBox(width: QSpace.s3),

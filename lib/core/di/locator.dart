@@ -6,16 +6,22 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals/signals.dart';
 
+import '../../features/achievements/presentation/state/achievement_store.dart';
+import '../../features/daily_content/presentation/state/daily_content_store.dart';
 import '../../features/dua_tasbih/data/dua_asset_data_source.dart';
 import '../../features/dua_tasbih/data/dua_repository_impl.dart';
 import '../../features/dua_tasbih/domain/repositories/dua_repository.dart';
+import '../../features/dua_tasbih/presentation/state/asma_quiz_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_store.dart';
 import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../features/fasting/presentation/state/fasting_store.dart';
 import '../../features/hadith/data/hadith_asset_data_source.dart';
+import '../../features/hadith/data/hadith_book_bundled_data_source.dart';
 import '../../features/hadith/data/hadith_book_catalog_data_source.dart';
 import '../../features/hadith/data/hadith_book_remote_data_source.dart';
 import '../../features/hadith/data/hadith_book_repository_impl.dart';
+import '../../features/hadith/data/hadith_database.dart';
 import '../../features/hadith/data/hadith_repository_impl.dart';
 import '../../features/hadith/data/http_fetcher.dart';
 import '../../features/hadith/domain/repositories/hadith_book_repository.dart';
@@ -229,7 +235,9 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(
       () => DuaFavoritesStore(SharedPreferencesAsync()),
     )
-    ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()));
+    ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()))
+    ..registerFactory(() => AsmaQuizStore(SharedPreferencesAsync()))
+    ..registerLazySingleton(() => DailyContentStore(locator()));
 
   // ---- ruqyah ----
   locator
@@ -239,6 +247,21 @@ Future<void> setupLocator() async {
     )
     ..registerLazySingleton(() => RuqyahStore(locator()));
 
+  // ---- fasting (sunnah / nafl tracker) ----
+  locator.registerLazySingleton(
+    () => FastingStore(SharedPreferencesAsync()),
+  );
+
+  // ---- achievements ----
+  locator.registerLazySingleton(
+    () => AchievementStore(
+      muhasaba: locator(),
+      tasbih: locator<TasbihStore>(),
+      quran: locator<QuranStore>(),
+      prefs: SharedPreferencesAsync(),
+    ),
+  );
+
   // ---- hadith ----
   locator
     ..registerLazySingleton(() => HadithAssetDataSource(rootBundle))
@@ -246,11 +269,14 @@ Future<void> setupLocator() async {
       () => HadithRepositoryImpl(locator()),
     )
     ..registerLazySingleton(() => HadithStore(locator()))
-    // Full-book browsing (online dataset).
+    // Full-book browsing — bundled snapshot first, network only as fallback.
     ..registerLazySingleton(() => HadithBookCatalogDataSource(rootBundle))
+    ..registerLazySingleton(
+      () => HadithBookBundledDataSource(HadithDatabase.open()),
+    )
     ..registerLazySingleton(() => HadithBookRemoteDataSource(httpGetString))
     ..registerLazySingleton<HadithBookRepository>(
-      () => HadithBookRepositoryImpl(locator(), locator()),
+      () => HadithBookRepositoryImpl(locator(), locator(), locator()),
     )
     ..registerLazySingleton(() => HadithBooksStore(locator()))
     ..registerFactory(() => HadithSectionStore(locator()));
@@ -269,6 +295,9 @@ Future<void> setupLocator() async {
   await locator<MuhasabaStore>().load();
   await locator<AppLockStore>().load();
   await locator<DuaFavoritesStore>().load();
+  await locator<FastingStore>().load();
+  await locator<TasbihStore>().load();
+  await locator<AchievementStore>().load();
   await locator.isReady<QuranDatabase>();
 
   _startWidgetUpdates();

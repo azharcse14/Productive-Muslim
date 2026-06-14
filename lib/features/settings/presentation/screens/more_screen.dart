@@ -66,6 +66,22 @@ final class MoreScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 QListRow(
+                  icon: Icons.no_food_outlined,
+                  title: context.l10n.fastingTitle,
+                  subtitle: context.l10n.fastingSubtitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.fasting.name),
+                ),
+                const Divider(),
+                QListRow(
+                  icon: Icons.emoji_events_outlined,
+                  title: context.l10n.achievementsTitle,
+                  subtitle: context.l10n.achievementsSubtitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.achievements.name),
+                ),
+                const Divider(),
+                QListRow(
                   icon: Icons.calculate_outlined,
                   title: context.l10n.calculatorsTitle,
                   subtitle: context.l10n.calculatorsSubtitle,

@@ -17,6 +17,10 @@ enum NotificationKind {
 
   /// Evening muhasaba nudge — max one per day.
   muhasabaEvening,
+
+  /// Daily content reminder ("Hadith/Dua of the day") at a user-chosen time —
+  /// max one per day. Deep-links to the chosen content screen.
+  dailyReminder,
 }
 
 /// One planned local notification, semantic only — text is resolved

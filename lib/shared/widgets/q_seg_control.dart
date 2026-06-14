@@ -34,34 +34,40 @@ final class QSegControl extends StatelessWidget {
               child: Semantics(
                 button: true,
                 selected: i == activeIndex,
-                child: GestureDetector(
-                  onTap: () => onChanged(i),
-                  child: AnimatedContainer(
-                    duration: QMotion.fast,
-                    curve: QMotion.ease,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 9,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: i == activeIndex ? q.surface : Colors.transparent,
-                      borderRadius: BorderRadius.circular(QRadius.sm),
-                      boxShadow: i == activeIndex
-                          ? [
-                              BoxShadow(
-                                color: q.ink.withValues(alpha: 0.07),
-                                offset: const Offset(0, 2),
-                                blurRadius: 6,
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Text(
-                      option,
-                      textAlign: TextAlign.center,
-                      style: QType.label.copyWith(
-                        fontSize: 13.5,
-                        color: i == activeIndex ? q.ink : q.ink2,
+                label: option,
+                onTap: () => onChanged(i),
+                child: ExcludeSemantics(
+                  child: GestureDetector(
+                    onTap: () => onChanged(i),
+                    child: AnimatedContainer(
+                      duration: QMotion.fast,
+                      curve: QMotion.ease,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 9,
+                        horizontal: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: i == activeIndex
+                            ? q.surface
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(QRadius.sm),
+                        boxShadow: i == activeIndex
+                            ? [
+                                BoxShadow(
+                                  color: q.ink.withValues(alpha: 0.07),
+                                  offset: const Offset(0, 2),
+                                  blurRadius: 6,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        option,
+                        textAlign: TextAlign.center,
+                        style: QType.label.copyWith(
+                          fontSize: 13.5,
+                          color: i == activeIndex ? q.ink : q.ink2,
+                        ),
                       ),
                     ),
                   ),

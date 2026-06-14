@@ -149,6 +149,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           androidScheduleMode: mode,
           payload: switch (item.kind) {
             NotificationKind.muhasabaEvening => '/muhasaba',
+            NotificationKind.dailyReminder => texts.dailyReminderRoute,
             _ => '/home',
           },
         );
@@ -180,6 +181,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       NotificationKind.muhasabaEvening => (
           f(t.muhasabaTitle),
           f(t.muhasabaBody),
+        ),
+      NotificationKind.dailyReminder => (
+          f(t.dailyReminderTitle),
+          f(t.dailyReminderBody),
         ),
     };
   }

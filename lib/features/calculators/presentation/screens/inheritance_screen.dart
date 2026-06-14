@@ -95,7 +95,10 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
-            Text(l10n.faraidSubtitle, style: QType.body.copyWith(color: q.ink2)),
+            Text(
+              l10n.faraidSubtitle,
+              style: QType.body.copyWith(color: q.ink2),
+            ),
             const SizedBox(height: QSpace.s4),
 
             // Estate value.
@@ -112,7 +115,10 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             const SizedBox(height: QSpace.s2),
             SegmentedButton<_Spouse>(
               segments: [
-                ButtonSegment(value: _Spouse.none, label: Text(l10n.faraidNone)),
+                ButtonSegment(
+                  value: _Spouse.none,
+                  label: Text(l10n.faraidNone),
+                ),
                 ButtonSegment(
                   value: _Spouse.husband,
                   label: Text(l10n.faraidHusband),
@@ -205,8 +211,8 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                                         _money(context, s.amount),
                                       )
                                     : '${_heirName(context, s.heirKey)}'
-                                        '${s.count > 1 ? ' ×${s.count}' : ''}'
-                                        ' · ${s.shareLabel}',
+                                          '${s.count > 1 ? ' ×${s.count}' : ''}'
+                                          ' · ${s.shareLabel}',
                                 style: QType.body.copyWith(color: q.ink),
                               ),
                             ),
@@ -214,8 +220,9 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                               const SizedBox(width: QSpace.s3),
                               Text(
                                 _money(context, s.amount),
-                                style: QType.num_(QType.titleSm)
-                                    .copyWith(color: q.ink),
+                                style: QType.num_(
+                                  QType.titleSm,
+                                ).copyWith(color: q.ink),
                               ),
                             ],
                           ],
@@ -273,9 +280,12 @@ final class _Stepper extends StatelessWidget {
     final q = context.q;
     return Row(
       children: [
-        Expanded(child: Text(label, style: QType.body.copyWith(color: q.ink))),
+        Expanded(
+          child: Text(label, style: QType.body.copyWith(color: q.ink)),
+        ),
         IconButton(
           icon: const Icon(Icons.remove_circle_outline),
+          tooltip: context.l10n.a11yDecrease(label),
           onPressed: value > min ? () => onChanged(value - 1) : null,
         ),
         Text(
@@ -287,6 +297,7 @@ final class _Stepper extends StatelessWidget {
         ),
         IconButton(
           icon: const Icon(Icons.add_circle_outline),
+          tooltip: context.l10n.a11yIncrease(label),
           onPressed: value < max ? () => onChanged(value + 1) : null,
         ),
       ],

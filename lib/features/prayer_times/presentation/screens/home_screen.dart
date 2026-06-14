@@ -18,6 +18,9 @@ import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
+import '../../../daily_content/presentation/state/daily_content_store.dart';
+import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
+import '../../../dua_tasbih/domain/entities/dua.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
@@ -65,6 +68,10 @@ final class _HomeScreenState extends State<HomeScreen> {
   late final HadithStore? _hadithStore = locator.isRegistered<HadithStore>()
       ? locator<HadithStore>()
       : null;
+  late final DailyContentStore? _daily =
+      locator.isRegistered<DailyContentStore>()
+          ? locator<DailyContentStore>()
+          : null;
 
   /// A small rotation of short, well-known verses; the day picks one so the
   /// "Ayah of the day" is stable for the whole day but varies day to day.
@@ -84,12 +91,14 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   Ayah? _ayah;
   Hadith? _hadithOfDay;
+  Dua? _duaOfDay;
 
   @override
   void initState() {
     super.initState();
     unawaited(_loadDailyAyah());
     unawaited(_loadHadith());
+    unawaited(_loadDuaOfDay());
     final tasbih = _tasbih;
     if (tasbih != null) {
       unawaited(tasbih.load());
@@ -107,6 +116,18 @@ final class _HomeScreenState extends State<HomeScreen> {
     final hadith = store.ofDay(_store.dateKey.value);
     if (mounted && hadith != null) {
       setState(() => _hadithOfDay = hadith);
+    }
+  }
+
+  Future<void> _loadDuaOfDay() async {
+    final daily = _daily;
+    if (daily == null) {
+      return;
+    }
+    await daily.load(_store.dateKey.value);
+    final dua = daily.duaOfDay.value;
+    if (mounted && dua != null) {
+      setState(() => _duaOfDay = dua);
     }
   }
 
@@ -141,6 +162,7 @@ final class _HomeScreenState extends State<HomeScreen> {
       if (tasbih != null) tasbih.load(),
       _loadDailyAyah(),
       _loadHadith(),
+      _loadDuaOfDay(),
     ]);
   }
 
@@ -669,6 +691,21 @@ final class _HomeScreenState extends State<HomeScreen> {
                     narrator: _hadithOfDay!.narrator,
                     reference: _hadithOfDay!.reference,
                     onTap: () => context.pushNamed(Routes.hadith.name),
+                  ),
+                ),
+              if (_duaOfDay != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    QSpace.s5,
+                    QSpace.s4,
+                    QSpace.s5,
+                    0,
+                  ),
+                  child: DuaOfDayCard(
+                    arabic: _duaOfDay!.arabic,
+                    translation: _duaOfDay!.translationFor(locale.languageCode),
+                    reference: _duaOfDay!.reference,
+                    onTap: () => context.goNamed(Routes.dua.name),
                   ),
                 ),
               // Sahri & Iftar — pinned to the very bottom of the home.

@@ -248,6 +248,15 @@
   "notifJamaatToggleSub": "Needs jamaat times in My Mosque",
   "notifMuhasabaToggle": "Evening muhasaba nudge",
   "notifMuhasabaToggleSub": "One gentle reminder after Isha",
+  "notifDailyToggle": "Daily reminder",
+  "notifDailyToggleSub": "A hadith or dua of the day, at your time",
+  "notifDailyKindHadith": "Hadith",
+  "notifDailyKindDua": "Dua",
+  "notifDailyTimeLabel": "Reminder time",
+  "notifDailyHadithTitle": "Hadith of the day",
+  "notifDailyHadithBody": "Today's hadith is ready — tap to read it.",
+  "notifDailyDuaTitle": "Dua of the day",
+  "notifDailyDuaBody": "Today's dua is ready — tap to read it.",
   "leadTimeLabel": "Lead time",
   "myMosqueTitle": "My Mosque",
   "myMosqueSubtitle": "Jamaat times for your mosque",
@@ -442,7 +451,87 @@
   "duaTitle": "Dua & Tasbih",
   "tasbihTitle": "Tasbih",
   "asmaulHusnaTitle": "Asmaul Husna",
-  "duaCategoryName": "{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} other{{id}}}",
+  "asmaQuizTitle": "Names quiz",
+  "asmaQuizModeNameToMeaning": "Name → meaning",
+  "asmaQuizModeMeaningToName": "Meaning → name",
+  "asmaQuizPromptMeaning": "What is the meaning of this name?",
+  "asmaQuizPromptName": "Which name has this meaning?",
+  "asmaQuizProgress": "{current} of {total}",
+  "@asmaQuizProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "asmaQuizNext": "Next",
+  "asmaQuizSeeResult": "See result",
+  "asmaQuizResultTitle": "Quiz complete",
+  "asmaQuizResultEncouragement": "Every name you revisit draws you closer. There's no pass or fail here — return whenever you like and try again.",
+  "asmaQuizScore": "{score}/{total}",
+  "@asmaQuizScore": {
+    "placeholders": {
+      "score": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "asmaQuizBest": "Best score: {best}",
+  "@asmaQuizBest": {
+    "placeholders": {
+      "best": { "type": "int" }
+    }
+  },
+  "asmaQuizPlayAgain": "Try again",
+  "fastingTitle": "Sunnah fasting",
+  "fastingSubtitle": "Recommended days & your log",
+  "fastingTodayRecommended": "Recommended fast today",
+  "fastingTodayNone": "No recommended fast today",
+  "fastingTodayNoneNote": "There is no specific sunnah fast today, but a voluntary fast is always rewarded.",
+  "fastingLogToday": "Log today",
+  "fastingLogVoluntary": "Log a voluntary fast",
+  "fastingLoggedToday": "Logged for today",
+  "fastingLogTitle": "Your fasting log",
+  "fastingTotal": "Total",
+  "fastingThisMonth": "This month",
+  "fastingThisHijriMonth": "This hijri month",
+  "fastingFasted": "Fasted",
+  "fastingHeatmapLabel": "{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}",
+  "@fastingHeatmapLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "fastingUpcomingTitle": "Upcoming recommended fasts",
+  "fastingKindName": "{id, select, mondayThursday{Monday & Thursday} whiteDays{White days (Ayyam al-Beed)} ashura{Ashura} arafah{Day of Arafah} dhulHijjah{First ten days of Dhul-Hijjah} shawwal{Six days of Shawwal} other{{id}}}",
+  "@fastingKindName": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "fastingKindNote": "{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}",
+  "@fastingKindNote": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "achievementsTitle": "Achievements",
+  "achievementsSubtitle": "Every small step counts — keep going.",
+  "achievementUnlocked": "Unlocked",
+  "achievementsCount": "{unlocked} of {total} earned",
+  "@achievementsCount": {
+    "placeholders": {
+      "unlocked": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "achievementCategory": "{key, select, streaks{Streaks} salah{Salah} dhikr{Dhikr} quran{Quran} fasting{Fasting} other{Achievements}}",
+  "@achievementCategory": {
+    "placeholders": { "key": { "type": "String" } }
+  },
+  "achievementName": "{id, select, streak_3{Three in a row} streak_7{A steady week} streak_30{A month of devotion} streak_100{A hundred days} salah_10{Ten days of salah} salah_50{Fifty days of salah} salah_200{Two hundred days of salah} dhikr_100{First hundred dhikr} dhikr_1000{A thousand dhikr} dhikr_10000{Ten thousand dhikr} quran_start{Opened the Quran} quran_days_7{A week with the Quran} quran_days_30{A month with the Quran} quran_bookmark_5{Five bookmarks} fast_1{First fast} fast_10{Ten fasts} fast_30{Thirty fasts} other{Achievement}}",
+  "@achievementName": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "duaCategoryName": "{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} other{{id}}}",
   "@duaCategoryName": {
     "placeholders": {
       "id": {
@@ -588,6 +677,27 @@
   "appLockEnable": "App lock",
   "appLockEnableSub": "Require a PIN (and biometrics) to open Qalbee",
   "appLockDisable": "Turn off app lock",
+  "appLockDelete": "Delete last digit",
+  "appLockPinProgress": "{entered} of 4 digits entered",
+  "@appLockPinProgress": {
+    "placeholders": {
+      "entered": { "type": "int" }
+    }
+  },
+  "a11yIncrease": "Increase {label}",
+  "@a11yIncrease": {
+    "description": "Screen-reader label for a stepper's increment button",
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "a11yDecrease": "Decrease {label}",
+  "@a11yDecrease": {
+    "description": "Screen-reader label for a stepper's decrement button",
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
   "prayerSheetWindow": "Time window",
   "prayerSheetRakaat": "Rakaat",
   "rakaatFard": "Fard",
@@ -600,6 +710,7 @@
   "prayerFazilatMaghrib": "Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.",
   "prayerFazilatIsha": "Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.",
   "dailyAyahTitle": "Ayah of the day",
+  "duaOfDayTitle": "Dua of the day",
   "dailyAyahReference": "{surah}, ayah {ayah}",
   "@dailyAyahReference": {
     "placeholders": {

@@ -4,6 +4,7 @@ final class Dua {
     required this.id,
     required this.arabic,
     required this.transliteration,
+    this.transliterationBn = '',
     required this.translationEn,
     required this.translationBn,
     required this.reference,
@@ -12,7 +13,12 @@ final class Dua {
 
   final String id;
   final String arabic;
+
+  /// Latin transliteration (always present).
   final String transliteration;
+
+  /// Bengali-script transliteration — empty for entries that lack one.
+  final String transliterationBn;
   final String translationEn;
   final String translationBn;
 
@@ -21,6 +27,11 @@ final class Dua {
 
   /// Authentic repetition count (1/3/7/33/100) — drives the repeat ring.
   final int repeat;
+
+  String transliterationFor(String languageCode) => switch (languageCode) {
+        'bn' when transliterationBn.isNotEmpty => transliterationBn,
+        _ => transliteration,
+      };
 
   String translationFor(String languageCode) => switch (languageCode) {
         'bn' when translationBn.isNotEmpty => translationBn,

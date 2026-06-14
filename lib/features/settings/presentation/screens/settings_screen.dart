@@ -38,150 +38,158 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     final q = context.q;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
-      body: SignalBuilder(builder: (context) {
-        final settings = _store.settings.value;
-        final params = settings.prayerParams;
-        return ListView(
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            _GroupHeader(l10n.groupCalculation),
-            QCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: QSpace.s4,
-                vertical: QSpace.s1,
+      body: SignalBuilder(
+        builder: (context) {
+          final settings = _store.settings.value;
+          final params = settings.prayerParams;
+          return ListView(
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              _GroupHeader(l10n.groupCalculation),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
+                    QListRow(
+                      icon: Icons.place_outlined,
+                      title: l10n.settingLocation,
+                      subtitle:
+                          settings.location?.displayName.isNotEmpty ?? false
+                          ? settings.location!.displayName
+                          : l10n.settingLocationNotSet,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () =>
+                          context.pushNamed(Routes.locationPicker.name),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.balance_outlined,
+                      title: l10n.settingMadhab,
+                      subtitle: l10n.madhabLabel(params.madhab),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickMadhab(params.madhab),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.functions_outlined,
+                      title: l10n.settingMethod,
+                      subtitle: l10n.methodLabel(params.method),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickMethod(params.method),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.tune_outlined,
+                      title: l10n.settingAdjustments,
+                      subtitle: l10n.settingAdjustmentsSub,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: _editAdjustments,
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.public_outlined,
+                      title: l10n.settingHighLat,
+                      subtitle: l10n.highLatLabel(params.highLatitudeRule),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickHighLat(params.highLatitudeRule),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  QListRow(
-                    icon: Icons.place_outlined,
-                    title: l10n.settingLocation,
-                    subtitle: settings.location?.displayName.isNotEmpty ?? false
-                        ? settings.location!.displayName
-                        : l10n.settingLocationNotSet,
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => context.pushNamed(Routes.locationPicker.name),
-                  ),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.balance_outlined,
-                    title: l10n.settingMadhab,
-                    subtitle: l10n.madhabLabel(params.madhab),
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => _pickMadhab(params.madhab),
-                  ),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.functions_outlined,
-                    title: l10n.settingMethod,
-                    subtitle: l10n.methodLabel(params.method),
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => _pickMethod(params.method),
-                  ),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.tune_outlined,
-                    title: l10n.settingAdjustments,
-                    subtitle: l10n.settingAdjustmentsSub,
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: _editAdjustments,
-                  ),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.public_outlined,
-                    title: l10n.settingHighLat,
-                    subtitle: l10n.highLatLabel(params.highLatitudeRule),
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => _pickHighLat(params.highLatitudeRule),
-                  ),
-                ],
+              _GroupHeader(l10n.groupNotifications),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: QListRow(
+                  icon: Icons.notifications_outlined,
+                  title: l10n.notifSettingsTitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () =>
+                      context.pushNamed(Routes.notificationSettings.name),
+                ),
               ),
-            ),
-            _GroupHeader(l10n.groupNotifications),
-            QCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: QSpace.s4,
-                vertical: QSpace.s1,
+              _GroupHeader(l10n.groupAppearance),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
+                    QListRow(
+                      icon: Icons.brightness_6_outlined,
+                      title: l10n.settingTheme,
+                      subtitle: l10n.themeLabel(settings.themeMode),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickTheme(settings.themeMode),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.translate_outlined,
+                      title: l10n.settingLanguage,
+                      subtitle: settings.localeCode == 'bn'
+                          ? 'বাংলা'
+                          : 'English',
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickLocale(settings.localeCode),
+                    ),
+                  ],
+                ),
               ),
-              child: QListRow(
-                icon: Icons.notifications_outlined,
-                title: l10n.notifSettingsTitle,
-                trailing: Icon(Icons.chevron_right, color: q.ink3),
-                onTap: () =>
-                    context.pushNamed(Routes.notificationSettings.name),
+              _GroupHeader(l10n.groupPrivacy),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
+                    SignalBuilder(
+                      builder: (context) {
+                        final lock = locator<AppLockStore>();
+                        return QListRow(
+                          icon: Icons.lock_outline,
+                          title: l10n.appLockEnable,
+                          subtitle: l10n.appLockEnableSub,
+                          trailing: Switch(
+                            value: lock.enabled.value,
+                            onChanged: (v) => unawaited(_toggleAppLock(v)),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.replay_outlined,
+                      title: l10n.settingRunSetup,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => unawaited(_runSetupAgain()),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            _GroupHeader(l10n.groupAppearance),
-            QCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: QSpace.s4,
-                vertical: QSpace.s1,
+              _GroupHeader(l10n.groupAbout),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: QListRow(
+                  icon: Icons.info_outline,
+                  title: l10n.settingCredits,
+                  subtitle: l10n.creditsBody,
+                ),
               ),
-              child: Column(
-                children: [
-                  QListRow(
-                    icon: Icons.brightness_6_outlined,
-                    title: l10n.settingTheme,
-                    subtitle: l10n.themeLabel(settings.themeMode),
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => _pickTheme(settings.themeMode),
-                  ),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.translate_outlined,
-                    title: l10n.settingLanguage,
-                    subtitle: settings.localeCode == 'bn' ? 'বাংলা' : 'English',
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => _pickLocale(settings.localeCode),
-                  ),
-                ],
-              ),
-            ),
-            _GroupHeader(l10n.groupPrivacy),
-            QCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: QSpace.s4,
-                vertical: QSpace.s1,
-              ),
-              child: Column(
-                children: [
-                  SignalBuilder(builder: (context) {
-                    final lock = locator<AppLockStore>();
-                    return QListRow(
-                      icon: Icons.lock_outline,
-                      title: l10n.appLockEnable,
-                      subtitle: l10n.appLockEnableSub,
-                      trailing: Switch(
-                        value: lock.enabled.value,
-                        onChanged: (v) => unawaited(_toggleAppLock(v)),
-                      ),
-                    );
-                  }),
-                  const Divider(),
-                  QListRow(
-                    icon: Icons.replay_outlined,
-                    title: l10n.settingRunSetup,
-                    trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => unawaited(_runSetupAgain()),
-                  ),
-                ],
-              ),
-            ),
-            _GroupHeader(l10n.groupAbout),
-            QCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: QSpace.s4,
-                vertical: QSpace.s1,
-              ),
-              child: QListRow(
-                icon: Icons.info_outline,
-                title: l10n.settingCredits,
-                subtitle: l10n.creditsBody,
-              ),
-            ),
-            const SizedBox(height: QSpace.s10),
-          ],
-        );
-      }),
+              const SizedBox(height: QSpace.s10),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -282,40 +290,42 @@ final class _SettingsScreenState extends State<SettingsScreen> {
       builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(QSpace.s5),
-          child: SignalBuilder(builder: (context) {
-            final params = _store.settings.value.prayerParams;
-            final q = sheetContext.q;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingAdjustments,
-                  style: QType.title.copyWith(color: q.ink),
-                ),
-                const SizedBox(height: QSpace.s3),
-                for (final prayer in Prayer.values)
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: QSpace.s1),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            l10n.prayerLabel(prayer),
-                            style: QType.titleSm.copyWith(color: q.ink),
-                          ),
-                        ),
-                        _AdjustmentStepper(
-                          value: params.adjustmentFor(prayer),
-                          onChanged: (v) => _store.setAdjustment(prayer, v),
-                        ),
-                      ],
-                    ),
+          child: SignalBuilder(
+            builder: (context) {
+              final params = _store.settings.value.prayerParams;
+              final q = sheetContext.q;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.settingAdjustments,
+                    style: QType.title.copyWith(color: q.ink),
                   ),
-              ],
-            );
-          }),
+                  const SizedBox(height: QSpace.s3),
+                  for (final prayer in Prayer.values)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: QSpace.s1),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.prayerLabel(prayer),
+                              style: QType.titleSm.copyWith(color: q.ink),
+                            ),
+                          ),
+                          _AdjustmentStepper(
+                            value: params.adjustmentFor(prayer),
+                            label: l10n.prayerLabel(prayer),
+                            onChanged: (v) => _store.setAdjustment(prayer, v),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -329,24 +339,32 @@ final class _GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(
-          top: QSpace.s6,
-          bottom: QSpace.s3,
-          left: QSpace.s1,
-        ),
-        child: Text(title.toUpperCase(), style: context.text.labelSmall),
-      );
+    padding: const EdgeInsets.only(
+      top: QSpace.s6,
+      bottom: QSpace.s3,
+      left: QSpace.s1,
+    ),
+    child: Text(title.toUpperCase(), style: context.text.labelSmall),
+  );
 }
 
 final class _AdjustmentStepper extends StatelessWidget {
-  const _AdjustmentStepper({required this.value, required this.onChanged});
+  const _AdjustmentStepper({
+    required this.value,
+    required this.label,
+    required this.onChanged,
+  });
 
   final int value;
+
+  /// Prayer name, woven into the +/- buttons' screen-reader labels.
+  final String label;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -358,17 +376,22 @@ final class _AdjustmentStepper extends StatelessWidget {
         children: [
           _StepButton(
             icon: Icons.remove,
+            semanticLabel: l10n.a11yDecrease(label),
             onTap: () => onChanged(value - 1),
           ),
           SizedBox(
             width: 56,
             child: Text(
-              context.l10n.minutesShort(value),
+              l10n.minutesShort(value),
               textAlign: TextAlign.center,
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(icon: Icons.add, onTap: () => onChanged(value + 1)),
+          _StepButton(
+            icon: Icons.add,
+            semanticLabel: l10n.a11yIncrease(label),
+            onTap: () => onChanged(value + 1),
+          ),
         ],
       ),
     );
@@ -376,22 +399,32 @@ final class _AdjustmentStepper extends StatelessWidget {
 }
 
 final class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.onTap});
+  const _StepButton({
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+  });
 
   final IconData icon;
+  final String semanticLabel;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return InkWell(
-      borderRadius: BorderRadius.circular(QRadius.full),
-      onTap: onTap,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
-        child: Icon(icon, size: 16, color: q.ink),
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(QRadius.full),
+        onTap: onTap,
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
+          child: Icon(icon, size: 16, color: q.ink),
+        ),
       ),
     );
   }

@@ -1106,6 +1106,60 @@ abstract class AppLocalizations {
   /// **'One gentle reminder after Isha'**
   String get notifMuhasabaToggleSub;
 
+  /// No description provided for @notifDailyToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get notifDailyToggle;
+
+  /// No description provided for @notifDailyToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A hadith or dua of the day, at your time'**
+  String get notifDailyToggleSub;
+
+  /// No description provided for @notifDailyKindHadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith'**
+  String get notifDailyKindHadith;
+
+  /// No description provided for @notifDailyKindDua.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua'**
+  String get notifDailyKindDua;
+
+  /// No description provided for @notifDailyTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get notifDailyTimeLabel;
+
+  /// No description provided for @notifDailyHadithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith of the day'**
+  String get notifDailyHadithTitle;
+
+  /// No description provided for @notifDailyHadithBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s hadith is ready — tap to read it.'**
+  String get notifDailyHadithBody;
+
+  /// No description provided for @notifDailyDuaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua of the day'**
+  String get notifDailyDuaTitle;
+
+  /// No description provided for @notifDailyDuaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s dua is ready — tap to read it.'**
+  String get notifDailyDuaBody;
+
   /// No description provided for @leadTimeLabel.
   ///
   /// In en, this message translates to:
@@ -1550,10 +1604,226 @@ abstract class AppLocalizations {
   /// **'Asmaul Husna'**
   String get asmaulHusnaTitle;
 
+  /// No description provided for @asmaQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Names quiz'**
+  String get asmaQuizTitle;
+
+  /// No description provided for @asmaQuizModeNameToMeaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Name → meaning'**
+  String get asmaQuizModeNameToMeaning;
+
+  /// No description provided for @asmaQuizModeMeaningToName.
+  ///
+  /// In en, this message translates to:
+  /// **'Meaning → name'**
+  String get asmaQuizModeMeaningToName;
+
+  /// No description provided for @asmaQuizPromptMeaning.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the meaning of this name?'**
+  String get asmaQuizPromptMeaning;
+
+  /// No description provided for @asmaQuizPromptName.
+  ///
+  /// In en, this message translates to:
+  /// **'Which name has this meaning?'**
+  String get asmaQuizPromptName;
+
+  /// No description provided for @asmaQuizProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String asmaQuizProgress(int current, int total);
+
+  /// No description provided for @asmaQuizNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get asmaQuizNext;
+
+  /// No description provided for @asmaQuizSeeResult.
+  ///
+  /// In en, this message translates to:
+  /// **'See result'**
+  String get asmaQuizSeeResult;
+
+  /// No description provided for @asmaQuizResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz complete'**
+  String get asmaQuizResultTitle;
+
+  /// No description provided for @asmaQuizResultEncouragement.
+  ///
+  /// In en, this message translates to:
+  /// **'Every name you revisit draws you closer. There\'s no pass or fail here — return whenever you like and try again.'**
+  String get asmaQuizResultEncouragement;
+
+  /// No description provided for @asmaQuizScore.
+  ///
+  /// In en, this message translates to:
+  /// **'{score}/{total}'**
+  String asmaQuizScore(int score, int total);
+
+  /// No description provided for @asmaQuizBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best score: {best}'**
+  String asmaQuizBest(int best);
+
+  /// No description provided for @asmaQuizPlayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get asmaQuizPlayAgain;
+
+  /// No description provided for @fastingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah fasting'**
+  String get fastingTitle;
+
+  /// No description provided for @fastingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended days & your log'**
+  String get fastingSubtitle;
+
+  /// No description provided for @fastingTodayRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended fast today'**
+  String get fastingTodayRecommended;
+
+  /// No description provided for @fastingTodayNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No recommended fast today'**
+  String get fastingTodayNone;
+
+  /// No description provided for @fastingTodayNoneNote.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no specific sunnah fast today, but a voluntary fast is always rewarded.'**
+  String get fastingTodayNoneNote;
+
+  /// No description provided for @fastingLogToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Log today'**
+  String get fastingLogToday;
+
+  /// No description provided for @fastingLogVoluntary.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a voluntary fast'**
+  String get fastingLogVoluntary;
+
+  /// No description provided for @fastingLoggedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged for today'**
+  String get fastingLoggedToday;
+
+  /// No description provided for @fastingLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fasting log'**
+  String get fastingLogTitle;
+
+  /// No description provided for @fastingTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get fastingTotal;
+
+  /// No description provided for @fastingThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get fastingThisMonth;
+
+  /// No description provided for @fastingThisHijriMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This hijri month'**
+  String get fastingThisHijriMonth;
+
+  /// No description provided for @fastingFasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasted'**
+  String get fastingFasted;
+
+  /// No description provided for @fastingHeatmapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}'**
+  String fastingHeatmapLabel(int count);
+
+  /// No description provided for @fastingUpcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming recommended fasts'**
+  String get fastingUpcomingTitle;
+
+  /// No description provided for @fastingKindName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, mondayThursday{Monday & Thursday} whiteDays{White days (Ayyam al-Beed)} ashura{Ashura} arafah{Day of Arafah} dhulHijjah{First ten days of Dhul-Hijjah} shawwal{Six days of Shawwal} other{{id}}}'**
+  String fastingKindName(String id);
+
+  /// No description provided for @fastingKindNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}'**
+  String fastingKindNote(String id);
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every small step counts — keep going.'**
+  String get achievementsSubtitle;
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementUnlocked;
+
+  /// No description provided for @achievementsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{unlocked} of {total} earned'**
+  String achievementsCount(int unlocked, int total);
+
+  /// No description provided for @achievementCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{key, select, streaks{Streaks} salah{Salah} dhikr{Dhikr} quran{Quran} fasting{Fasting} other{Achievements}}'**
+  String achievementCategory(String key);
+
+  /// No description provided for @achievementName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, streak_3{Three in a row} streak_7{A steady week} streak_30{A month of devotion} streak_100{A hundred days} salah_10{Ten days of salah} salah_50{Fifty days of salah} salah_200{Two hundred days of salah} dhikr_100{First hundred dhikr} dhikr_1000{A thousand dhikr} dhikr_10000{Ten thousand dhikr} quran_start{Opened the Quran} quran_days_7{A week with the Quran} quran_days_30{A month with the Quran} quran_bookmark_5{Five bookmarks} fast_1{First fast} fast_10{Ten fasts} fast_30{Thirty fasts} other{Achievement}}'**
+  String achievementName(String id);
+
   /// No description provided for @duaCategoryName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} other{{id}}}'**
+  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} other{{id}}}'**
   String duaCategoryName(String id);
 
   /// No description provided for @duaCount.
@@ -1946,6 +2216,30 @@ abstract class AppLocalizations {
   /// **'Turn off app lock'**
   String get appLockDisable;
 
+  /// No description provided for @appLockDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get appLockDelete;
+
+  /// No description provided for @appLockPinProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{entered} of 4 digits entered'**
+  String appLockPinProgress(int entered);
+
+  /// Screen-reader label for a stepper's increment button
+  ///
+  /// In en, this message translates to:
+  /// **'Increase {label}'**
+  String a11yIncrease(String label);
+
+  /// Screen-reader label for a stepper's decrement button
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease {label}'**
+  String a11yDecrease(String label);
+
   /// No description provided for @prayerSheetWindow.
   ///
   /// In en, this message translates to:
@@ -2017,6 +2311,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ayah of the day'**
   String get dailyAyahTitle;
+
+  /// No description provided for @duaOfDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua of the day'**
+  String get duaOfDayTitle;
 
   /// No description provided for @dailyAyahReference.
   ///

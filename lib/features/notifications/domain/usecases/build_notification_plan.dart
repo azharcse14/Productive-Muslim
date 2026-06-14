@@ -80,6 +80,20 @@ List<NotificationItem> buildNotificationPlan({
         );
       }
     }
+
+    // Daily "content of the day" reminder — once per day at the user's chosen
+    // local time (minutes past midnight). Anchored to the day's fajr date so a
+    // 3-day window yields at most one per calendar day.
+    if (matrix.dailyReminder) {
+      final base = day.fajr;
+      final remindAt = DateTime(base.year, base.month, base.day)
+          .add(Duration(minutes: matrix.dailyReminderMinute));
+      if (inWindow(remindAt)) {
+        items.add(
+          NotificationItem(kind: NotificationKind.dailyReminder, at: remindAt),
+        );
+      }
+    }
   }
 
   items.sort((a, b) => a.at.compareTo(b.at));

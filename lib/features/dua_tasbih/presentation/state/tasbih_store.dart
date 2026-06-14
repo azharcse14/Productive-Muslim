@@ -18,6 +18,7 @@ final class TasbihStore {
         _now = now ?? DateTime.now;
 
   static const _key = 'tasbih_today';
+  static const _lifetimeKey = 'tasbih_lifetime';
 
   final SharedPreferencesAsync _prefs;
   final void Function() _haptic;
@@ -29,6 +30,12 @@ final class TasbihStore {
 
   /// Counts saved to history today (current round not included).
   late final totalToday = signal(0);
+
+  /// Lifetime dhikr saved across all rounds (drives achievement badges).
+  late final lifetimeTotal = signal(0);
+
+  /// Lifetime number of saved tasbih rounds.
+  late final lifetimeSessions = signal(0);
 
   /// Pulses true the moment [count] reaches [target] (screen scale pulse).
   late final milestone = signal(false);
@@ -64,6 +71,28 @@ final class TasbihStore {
     } on FormatException {
       // Corrupt payload — start fresh.
     }
+    await _loadLifetime();
+  }
+
+  Future<void> _loadLifetime() async {
+    final raw = await _prefs.getString(_lifetimeKey);
+    if (raw == null) {
+      return;
+    }
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        final m = decoded.cast<String, Object?>();
+        if (m['total'] is int) {
+          lifetimeTotal.value = m['total']! as int;
+        }
+        if (m['sessions'] is int) {
+          lifetimeSessions.value = m['sessions']! as int;
+        }
+      }
+    } on FormatException {
+      // Corrupt payload — start fresh.
+    }
   }
 
   void tap() {
@@ -93,6 +122,15 @@ final class TasbihStore {
       await _prefs.setString(
         _key,
         jsonEncode({'date': _todayKey(), 'total': totalToday.value}),
+      );
+      lifetimeTotal.value = lifetimeTotal.value + count.value;
+      lifetimeSessions.value = lifetimeSessions.value + 1;
+      await _prefs.setString(
+        _lifetimeKey,
+        jsonEncode({
+          'total': lifetimeTotal.value,
+          'sessions': lifetimeSessions.value,
+        }),
       );
     }
     count.value = 0;

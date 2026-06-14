@@ -1,3 +1,4 @@
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/city.dart';
 import '../../domain/entities/location_config.dart';
@@ -47,6 +48,9 @@ abstract final class AppSettingsModel {
           'jamaatReminder': s.notifications.jamaatReminder,
           'jamaatLeadMin': s.notifications.jamaatLead.inMinutes,
           'muhasabaEvening': s.notifications.muhasabaEveningReminder,
+          'dailyReminder': s.notifications.dailyReminder,
+          'dailyReminderMinute': s.notifications.dailyReminderMinute,
+          'dailyReminderKind': s.notifications.dailyReminderKind.name,
         },
         'themeMode': s.themeMode.name,
         'localeCode': s.localeCode,
@@ -159,6 +163,14 @@ abstract final class AppSettingsModel {
       ),
       muhasabaEveningReminder:
           map['muhasabaEvening'] as bool? ?? defaults.muhasabaEveningReminder,
+      dailyReminder: map['dailyReminder'] as bool? ?? defaults.dailyReminder,
+      dailyReminderMinute:
+          map['dailyReminderMinute'] as int? ?? defaults.dailyReminderMinute,
+      dailyReminderKind: _enumOrDefault(
+        DailyContentKind.values,
+        map['dailyReminderKind'],
+        defaults.dailyReminderKind,
+      ),
     );
   }
 
