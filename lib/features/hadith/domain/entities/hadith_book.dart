@@ -7,6 +7,7 @@ final class HadithBook {
     required this.bn,
     required this.author,
     required this.kind,
+    this.authorBn = '',
     required this.total,
     required this.editionAr,
     required this.editionEn,
@@ -22,6 +23,9 @@ final class HadithBook {
   final String en;
   final String bn;
   final String author;
+
+  /// Bengali compiler name; falls back to [author] when empty.
+  final String authorBn;
 
   /// "sahih" — the whole book is rigorously authentic (Bukhari/Muslim);
   /// "graded" — authenticity varies per hadith, so a per-hadith grade shows.
@@ -66,6 +70,11 @@ final class HadithBook {
   String titleFor(String languageCode) => switch (languageCode) {
         'bn' when bn.isNotEmpty => bn,
         _ => en,
+      };
+
+  String authorFor(String languageCode) => switch (languageCode) {
+        'bn' when authorBn.isNotEmpty => authorBn,
+        _ => author,
       };
 
   /// Edition key for the reader's translation language.

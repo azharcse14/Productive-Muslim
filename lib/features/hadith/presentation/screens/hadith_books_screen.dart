@@ -145,9 +145,9 @@ final class _BookCard extends StatelessWidget {
                       style: QType.titleSm.copyWith(color: q.ink),
                     ),
                     const SizedBox(height: 2),
-                    if (book.author.isNotEmpty)
+                    if (book.authorFor(languageCode).isNotEmpty)
                       Text(
-                        book.author,
+                        book.authorFor(languageCode),
                         style: QType.caption.copyWith(color: q.ink3),
                       ),
                     const SizedBox(height: 2),

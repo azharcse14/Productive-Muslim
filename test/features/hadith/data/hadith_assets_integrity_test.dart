@@ -101,6 +101,13 @@ void main() {
       }
     });
 
+    test('every book has a Bengali author/compiler name', () {
+      for (final b in books) {
+        expect((b['author_bn']! as String).trim(), isNotEmpty,
+            reason: '${b['id']} should have author_bn');
+      }
+    });
+
     test('hadithbangla books carry a bn_folder and Bengali chapters', () {
       // The six canonical collections served in Bengali by the hadithbangla
       // repo must have both a folder and a non-empty Bengali chapter list.

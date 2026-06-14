@@ -43,6 +43,7 @@ final class HadithBookCatalogDataSource {
     }
     final bn = map['bn'];
     final author = map['author'];
+    final authorBn = map['author_bn'];
     final kind = map['kind'];
     final total = map['total'];
     final rawSections = map['sections'];
@@ -54,6 +55,7 @@ final class HadithBookCatalogDataSource {
       en: en,
       bn: bn is String ? bn : '',
       author: author is String ? author : '',
+      authorBn: authorBn is String ? authorBn : '',
       kind: kind is String ? kind : 'graded',
       bnAvailable: bnAvailable is bool ? bnAvailable : true,
       bnFolder: bnFolder is String ? bnFolder : '',
