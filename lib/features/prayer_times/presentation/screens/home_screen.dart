@@ -23,6 +23,7 @@ import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
 import '../../../hadith/presentation/widgets/hadith_card.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
+import '../../../nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
@@ -185,6 +186,29 @@ final class _HomeScreenState extends State<HomeScreen> {
         content: Text(context.l10n.salahLockedToast),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Opens Google Maps searching for mosques near the user's location.
+  /// Reuses the saved location when available; otherwise asks for a GPS fix.
+  /// Any failure (no maps app, or no resolvable location) surfaces a snackbar.
+  Future<void> _openNearbyMosques(BuildContext context) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+    final result = await locator<OpenNearbyMosques>()();
+    final message = result.fold(
+      (_) => null,
+      (failure) => failure is MapsLaunchFailed
+          ? l10n.nearbyMosquesLaunchError
+          : l10n.nearbyMosquesLocationError,
+    );
+    if (message == null) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -384,6 +408,11 @@ final class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.explore_outlined,
                       label: l10n.qiblaChipLabel,
                       onTap: () => context.pushNamed(Routes.qibla.name),
+                    ),
+                    QuickAction(
+                      icon: Icons.mosque_outlined,
+                      label: l10n.nearbyMosquesLabel,
+                      onTap: () => _openNearbyMosques(context),
                     ),
                     QuickAction(
                       icon: Icons.format_quote_outlined,

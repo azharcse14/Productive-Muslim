@@ -34,6 +34,9 @@ import '../../features/my_mosque/domain/repositories/mosque_repository.dart';
 import '../../features/my_mosque/domain/usecases/get_mosque_state.dart';
 import '../../features/my_mosque/domain/usecases/save_mosque_state.dart';
 import '../../features/my_mosque/presentation/state/mosque_store.dart';
+import '../../features/nearby_mosques/data/url_launcher_external.dart';
+import '../../features/nearby_mosques/domain/external_launcher.dart';
+import '../../features/nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../features/notifications/data/local_notifications_scheduler.dart';
 import '../../features/notifications/domain/repositories/notification_scheduler.dart';
 import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
@@ -144,6 +147,17 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(() => GetMosqueState(locator()))
     ..registerLazySingleton(() => SaveMosqueState(locator()))
     ..registerLazySingleton(() => MosqueStore(locator(), locator()));
+
+  // ---- nearby mosques ----
+  locator
+    ..registerLazySingleton<ExternalLauncher>(UrlLauncherExternal.new)
+    ..registerLazySingleton(
+      () => OpenNearbyMosques(
+        currentLocation: () => locator<SettingsStore>().location.value,
+        getCurrentLocation: locator(),
+        launcher: locator(),
+      ),
+    );
 
   // ---- notifications ----
   locator
