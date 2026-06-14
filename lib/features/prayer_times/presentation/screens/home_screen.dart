@@ -141,6 +141,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                 onLocationTap: () =>
                     context.pushNamed(Routes.locationPicker.name),
                 onQiblaTap: () => context.pushNamed(Routes.qibla.name),
+                onNotificationsTap: () =>
+                    context.pushNamed(Routes.notificationSettings.name),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -162,6 +164,18 @@ final class _HomeScreenState extends State<HomeScreen> {
                     big: _formatCountdown(context, _store.remaining.value),
                     sub: sub,
                     progress: _store.progress.value,
+                    footer: [
+                      (
+                        icon: Icons.wb_sunny_outlined,
+                        text:
+                            '${l10n.sunriseLabel} ${_formatTime(context, day.sunrise)}',
+                      ),
+                      (
+                        icon: Icons.wb_twilight_outlined,
+                        text:
+                            '${l10n.sunsetLabel} ${_formatTime(context, day.maghrib)}',
+                      ),
+                    ],
                     compact: compact,
                   );
                 }),

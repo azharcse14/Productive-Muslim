@@ -109,6 +109,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get madhabShafi => 'শাফেয়ি';
 
   @override
+  String get madhabMaliki => 'মালিকি';
+
+  @override
+  String get madhabHanbali => 'হাম্বলি';
+
+  @override
   String get madhabExplain => 'শুধু আসরের সময়ে প্রভাব ফেলে';
 
   @override
@@ -239,6 +245,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sunriseLabel => 'সূর্যোদয়';
+
+  @override
+  String get sunsetLabel => 'সূর্যাস্ত';
 
   @override
   String get sahriEndsLabel => 'সাহরি শেষ';

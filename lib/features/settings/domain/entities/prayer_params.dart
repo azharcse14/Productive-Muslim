@@ -1,8 +1,10 @@
 /// The five daily prayers.
 enum Prayer { fajr, dhuhr, asr, maghrib, isha }
 
-/// Asr juristic method — "affects Asr time only" (design §4.2).
-enum Madhab { hanafi, shafi }
+/// Juristic school — "affects Asr time only" (design §4.2).
+/// For Asr shadow length Shafiʿi, Maliki and Hanbali share the standard
+/// (1× shadow) rule; Hanafi uses 2× shadow.
+enum Madhab { hanafi, shafi, maliki, hanbali }
 
 /// Calculation methods exposed in Settings. Mapped to the calculation
 /// library inside the data layer (domain stays library-agnostic).

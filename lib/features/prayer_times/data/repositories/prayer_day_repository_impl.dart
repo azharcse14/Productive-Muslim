@@ -81,9 +81,10 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       CalculationMethodId.tehran =>
         adhan.CalculationMethodParameters.tehran(),
     };
+    // Shafiʿi, Maliki and Hanbali share the standard Asr shadow rule.
     calc.madhab = switch (params.madhab) {
       Madhab.hanafi => adhan.Madhab.hanafi,
-      Madhab.shafi => adhan.Madhab.shafi,
+      Madhab.shafi || Madhab.maliki || Madhab.hanbali => adhan.Madhab.shafi,
     };
     calc.highLatitudeRule = switch (params.highLatitudeRule) {
       HighLatitudeRule.middleOfTheNight =>

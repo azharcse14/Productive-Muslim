@@ -8,6 +8,8 @@ extension SettingLabels on AppLocalizations {
   String madhabLabel(Madhab m) => switch (m) {
         Madhab.hanafi => madhabHanafi,
         Madhab.shafi => madhabShafi,
+        Madhab.maliki => madhabMaliki,
+        Madhab.hanbali => madhabHanbali,
       };
 
   String methodLabel(CalculationMethodId m) => switch (m) {

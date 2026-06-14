@@ -11,6 +11,7 @@ final class HomeHeader extends StatelessWidget {
     required this.dates,
     required this.onLocationTap,
     this.onQiblaTap,
+    this.onNotificationsTap,
     super.key,
   });
 
@@ -20,6 +21,7 @@ final class HomeHeader extends StatelessWidget {
   final List<String> dates;
   final VoidCallback onLocationTap;
   final VoidCallback? onQiblaTap;
+  final VoidCallback? onNotificationsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +79,14 @@ final class HomeHeader extends StatelessWidget {
               IconButton(
                 onPressed: onQiblaTap,
                 icon: Icon(Icons.explore_outlined, size: 22, color: q.ink2),
+              ),
+              IconButton(
+                onPressed: onNotificationsTap,
+                icon: Icon(
+                  Icons.notifications_outlined,
+                  size: 22,
+                  color: q.ink2,
+                ),
               ),
             ],
           ),

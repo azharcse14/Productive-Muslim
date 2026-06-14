@@ -23,6 +23,7 @@ final class CountdownCard extends StatelessWidget {
     required this.big,
     required this.sub,
     required this.progress,
+    this.footer = const [],
     this.compact = false,
     super.key,
   });
@@ -40,6 +41,10 @@ final class CountdownCard extends StatelessWidget {
 
   /// 0..1 elapsed fraction of the current window.
   final double progress;
+
+  /// Optional pre-formatted info items under the progress bar
+  /// (e.g. sunrise/sunset context for the active waqt).
+  final List<({IconData icon, String text})> footer;
 
   /// Small-screen variant (360×640): 36px numeral.
   final bool compact;
@@ -164,6 +169,34 @@ final class CountdownCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (footer.isNotEmpty) ...[
+                    SizedBox(height: compact ? 8 : 12),
+                    Wrap(
+                      spacing: QSpace.s4,
+                      runSpacing: QSpace.s1,
+                      children: [
+                        for (final item in footer)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: 14,
+                                color: c.sub.withValues(alpha: 0.85),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                item.text,
+                                style: QType.num_(QType.caption).copyWith(
+                                  fontSize: 12,
+                                  color: c.sub.withValues(alpha: 0.85),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

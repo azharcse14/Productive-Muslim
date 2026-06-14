@@ -296,6 +296,18 @@ abstract class AppLocalizations {
   /// **'Shafiʿi'**
   String get madhabShafi;
 
+  /// No description provided for @madhabMaliki.
+  ///
+  /// In en, this message translates to:
+  /// **'Maliki'**
+  String get madhabMaliki;
+
+  /// No description provided for @madhabHanbali.
+  ///
+  /// In en, this message translates to:
+  /// **'Hanbali'**
+  String get madhabHanbali;
+
   /// No description provided for @madhabExplain.
   ///
   /// In en, this message translates to:
@@ -535,6 +547,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sunrise'**
   String get sunriseLabel;
+
+  /// No description provided for @sunsetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get sunsetLabel;
 
   /// No description provided for @sahriEndsLabel.
   ///
