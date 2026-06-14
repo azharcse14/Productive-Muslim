@@ -12,7 +12,8 @@ import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/prayer_day.dart';
 
 /// Daily prayer table (design §4.3): the 5 prayers; start–end range,
-/// jamaat column (quiet "Set jamaat" affordance when unset), and a
+/// jamaat column (the time, or an em-dash placeholder when unset — with a
+/// single centered "Set jamaat" CTA at the foot of the table), and a
 /// check→Muhasaba affordance (wired in Phase 7). Current waqt highlighted.
 final class PrayerTable extends StatelessWidget {
   const PrayerTable({
@@ -26,6 +27,9 @@ final class PrayerTable extends StatelessWidget {
     this.locked = const {},
     this.onLockedTap,
     this.onPrayerTap,
+    this.mosqueName,
+    this.mosqueBadge,
+    this.onSwitchMosque,
     this.dense = false,
     super.key,
   });
@@ -33,6 +37,16 @@ final class PrayerTable extends StatelessWidget {
   final PrayerDay day;
   final Prayer? activePrayer;
   final JamaatConfig jamaat;
+
+  /// Active mosque name shown in a header strip; null hides the strip
+  /// (e.g. when no profiles exist yet).
+  final String? mosqueName;
+
+  /// Small status chip beside the name, e.g. "Auto" or "Override".
+  final String? mosqueBadge;
+
+  /// Tapping the header strip opens the mosque switcher.
+  final VoidCallback? onSwitchMosque;
 
   /// Prayers whose waqt hasn't started yet — check affordance disabled.
   final Set<Prayer> locked;
@@ -75,6 +89,12 @@ final class PrayerTable extends StatelessWidget {
         borderRadius: BorderRadius.circular(QRadius.lg),
         child: Column(
           children: [
+            if (mosqueName case final name?)
+              _MosqueStrip(
+                name: name,
+                badge: mosqueBadge,
+                onTap: onSwitchMosque,
+              ),
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
                   prayer: prayer,
@@ -87,9 +107,8 @@ final class PrayerTable extends StatelessWidget {
                     final t => formatTime(t),
                   },
                   active: prayer == activePrayer,
-                  first: i == 0,
+                  first: i == 0 && mosqueName == null,
                   dense: dense,
-                  onSetJamaat: onSetJamaat,
                   done: prayed.contains(prayer),
                   locked: locked.contains(prayer),
                   onLockedTap: onLockedTap == null
@@ -101,6 +120,47 @@ final class PrayerTable extends StatelessWidget {
                   onTap: onPrayerTap == null ? null : () => onPrayerTap!(prayer),
                 ),
             ],
+            if (onSetJamaat != null)
+              _SetJamaatButton(dense: dense, onTap: onSetJamaat!),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A single centered "Set jamaat" CTA pinned to the foot of the table
+/// (replaces the per-row affordance) → opens the My Mosque jamaat editor.
+final class _SetJamaatButton extends StatelessWidget {
+  const _SetJamaatButton({required this.dense, required this.onTap});
+
+  final bool dense;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: BoxConstraints(minHeight: dense ? 40 : 48),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: q.line)),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.more_time, size: 17, color: q.primary),
+            const SizedBox(width: 7),
+            Text(
+              context.l10n.setJamaat,
+              style: QType.titleSm.copyWith(
+                fontSize: dense ? 13 : 14,
+                color: q.primary,
+                fontVariations: const [FontVariation('wght', 600)],
+              ),
+            ),
           ],
         ),
       ),
@@ -119,7 +179,6 @@ final class _PrayerRow extends StatelessWidget {
     required this.dense,
     required this.done,
     required this.locked,
-    this.onSetJamaat,
     this.onToggleDone,
     this.onLockedTap,
     this.onTap,
@@ -143,7 +202,6 @@ final class _PrayerRow extends StatelessWidget {
   final bool dense;
   final bool done;
   final bool locked;
-  final VoidCallback? onSetJamaat;
   final VoidCallback? onToggleDone;
   final VoidCallback? onLockedTap;
   final VoidCallback? onTap;
@@ -191,27 +249,16 @@ final class _PrayerRow extends StatelessWidget {
           ),
           SizedBox(
             width: dense ? 40 : 52,
-            child: jamaatTime != null
-                ? Text(
-                    jamaatTime!,
-                    textAlign: TextAlign.center,
-                    style: QType.num_(QType.caption).copyWith(
-                      color: fg ?? q.ink2,
-                      fontVariations: const [FontVariation('wght', 600)],
-                    ),
-                  )
-                : GestureDetector(
-                    onTap: onSetJamaat,
-                    child: Text(
-                      context.l10n.setJamaat,
-                      textAlign: TextAlign.center,
-                      style: QType.caption.copyWith(
-                        fontSize: 10.5,
-                        color: q.ink3,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
+            // Jamaat time, or a quiet em-dash placeholder when unset — the
+            // single "Set jamaat" CTA lives at the foot of the table.
+            child: Text(
+              jamaatTime ?? '—',
+              textAlign: TextAlign.center,
+              style: QType.num_(QType.caption).copyWith(
+                color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
+                fontVariations: const [FontVariation('wght', 600)],
+              ),
+            ),
           ),
           const SizedBox(width: 10),
           if (locked)
@@ -267,6 +314,69 @@ final class _PrayerRow extends StatelessWidget {
             ),
         ],
       ),
+      ),
+    );
+  }
+}
+
+/// Header strip naming the active mosque (with an Auto/Override chip) — tap to
+/// open the home mosque switcher. Shown only when ≥1 profile exists.
+final class _MosqueStrip extends StatelessWidget {
+  const _MosqueStrip({required this.name, this.badge, this.onTap});
+
+  final String name;
+  final String? badge;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 12, 8),
+        child: Row(
+          children: [
+            Icon(Icons.mosque_outlined, size: 16, color: q.primary),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: QType.titleSm.copyWith(
+                  fontSize: 13.5,
+                  color: q.ink,
+                  fontVariations: const [FontVariation('wght', 600)],
+                ),
+              ),
+            ),
+            if (badge case final b?) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: q.primarySoft,
+                  borderRadius: BorderRadius.circular(QRadius.full),
+                ),
+                child: Text(
+                  b,
+                  style: QType.caption.copyWith(
+                    fontSize: 10.5,
+                    color: q.onPrimarySoft,
+                    fontVariations: const [FontVariation('wght', 600)],
+                  ),
+                ),
+              ),
+            ],
+            if (onTap != null) ...[
+              const SizedBox(width: 6),
+              Icon(Icons.unfold_more, size: 18, color: q.ink3),
+            ],
+          ],
+        ),
       ),
     );
   }

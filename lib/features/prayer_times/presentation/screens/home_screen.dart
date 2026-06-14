@@ -35,6 +35,7 @@ import '../widgets/continue_reading_card.dart';
 import '../widgets/daily_ayah_card.dart';
 import '../widgets/day_timeline_sheet.dart';
 import '../widgets/home_header.dart';
+import '../widgets/mosque_switcher_sheet.dart';
 import '../widgets/prayer_detail_sheet.dart';
 import '../widgets/prayer_table.dart';
 import '../widgets/qibla_mini_chip.dart';
@@ -414,6 +415,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) {
                     final muhasaba = _muhasaba;
                     final entries = muhasaba.entries.value;
+                    final resolution = _store.mosqueResolution.value;
+                    final profiles = _store.mosqueProfiles.value;
                     return PrayerTable(
                       day: day,
                       activePrayer: _store.activeWaqt.value?.prayer,
@@ -424,6 +427,33 @@ final class _HomeScreenState extends State<HomeScreen> {
                       onLockedTap: (_) => _showLockedToast(context),
                       onSetJamaat: () =>
                           context.pushNamed(Routes.myMosque.name),
+                      mosqueName: resolution.profile?.name,
+                      mosqueBadge: !resolution.isAuto
+                          ? null
+                          : (resolution.isOverride
+                              ? l10n.mosqueOverrideBadge
+                              : l10n.mosqueAutoBadge),
+                      onSwitchMosque: profiles.isEmpty
+                          ? null
+                          : () => unawaited(
+                                showMosqueSwitcherSheet(
+                                  context,
+                                  mosques: [
+                                    for (final p in profiles)
+                                      (id: p.id, name: p.name),
+                                  ],
+                                  currentId: resolution.profile?.id,
+                                  isAuto: resolution.isAuto,
+                                  isOverride: resolution.isOverride,
+                                  onSelect: (id) =>
+                                      unawaited(_store.selectMosque(id)),
+                                  onResetToAuto: () => unawaited(
+                                    _store.clearMosqueOverride(),
+                                  ),
+                                  onManage: () =>
+                                      context.pushNamed(Routes.myMosque.name),
+                                ),
+                              ),
                       prayed: {
                         for (final prayer in Prayer.values)
                           if (muhasaba.selectedIsToday &&

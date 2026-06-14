@@ -1,24 +1,42 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/qalbee_tokens.dart';
 import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith.dart';
 import '../state/hadith_store.dart';
+import 'hadith_books_screen.dart';
+import 'hadith_topic_screen.dart';
 
-/// The full bundled hadith collection: a card per narration with Arabic,
-/// translation, narrator and reference.
+/// Hadith landing: a "full collections" entry on top, then the bundled
+/// topic-wise grid of authentic narrations.
 final class HadithScreen extends StatefulWidget {
   const HadithScreen({super.key});
 
   @override
   State<HadithScreen> createState() => _HadithScreenState();
 }
+
+/// Topic id → curated icon key (see [TrackerVisuals.icons]).
+const _topicIcons = <String, String>{
+  'intention': 'spark',
+  'faith': 'heart',
+  'character': 'star',
+  'speech': 'speech',
+  'knowledge': 'book',
+  'charity': 'hands',
+  'mercy': 'people',
+  'worship': 'mosque',
+  'dunya': 'globe',
+};
 
 final class _HadithScreenState extends State<HadithScreen> {
   // App-scoped store — never disposed here.
@@ -32,26 +50,55 @@ final class _HadithScreenState extends State<HadithScreen> {
     }
   }
 
+  void _push(Widget screen) {
+    unawaited(HapticFeedback.selectionClick());
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => screen),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.hadithTitle)),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
-            final hadiths = _store.items.value;
-            return ListView.separated(
+            final topics = _store.topics.value;
+            return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
                 QSpace.s3,
                 QSpace.s5,
                 QSpace.s5,
               ),
-              itemCount: hadiths.length,
-              separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-              itemBuilder: (context, index) =>
-                  _HadithCard(hadith: hadiths[index]),
+              children: [
+                _FullCollectionsCard(
+                  onTap: () => _push(const HadithBooksScreen()),
+                ),
+                const SizedBox(height: QSpace.s4),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: QSpace.s3,
+                  crossAxisSpacing: QSpace.s3,
+                  childAspectRatio: 1.35,
+                  children: [
+                    for (final topic in topics)
+                      _TopicCard(
+                        topic: topic,
+                        languageCode: languageCode,
+                        onTap: () =>
+                            _push(HadithTopicScreen(topic: topic)),
+                      ),
+                  ],
+                ),
+              ],
             );
           },
         ),
@@ -60,47 +107,118 @@ final class _HadithScreenState extends State<HadithScreen> {
   }
 }
 
-final class _HadithCard extends StatelessWidget {
-  const _HadithCard({required this.hadith});
+final class _FullCollectionsCard extends StatelessWidget {
+  const _FullCollectionsCard({required this.onTap});
 
-  final Hadith hadith;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return QCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (hadith.arabic.isNotEmpty) ...[
-            Text(
-              hadith.arabic,
-              textDirection: TextDirection.rtl,
-              style: QType.quran(24).copyWith(color: q.ink),
-            ),
-            const SizedBox(height: QSpace.s3),
-          ],
-          Text(
-            hadith.translationFor(languageCode),
-            style: QType.body.copyWith(color: q.ink),
+    return Semantics(
+      button: true,
+      label: l10n.hadithBooksTitle,
+      child: GestureDetector(
+        onTap: onTap,
+        child: QCard(
+          padding: const EdgeInsets.all(QSpace.s4),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: q.primarySoft,
+                  borderRadius: BorderRadius.circular(QRadius.sm),
+                ),
+                child: Icon(
+                  TrackerVisuals.iconOf('library'),
+                  size: 22,
+                  color: q.onPrimarySoft,
+                ),
+              ),
+              const SizedBox(width: QSpace.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.hadithBooksTitle,
+                      style: QType.titleSm.copyWith(color: q.ink),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.hadithBooksSubtitle,
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: q.ink3),
+            ],
           ),
-          if (hadith.narrator.isNotEmpty) ...[
-            const SizedBox(height: QSpace.s2),
-            Text(
-              l10n.hadithNarratedBy(hadith.narrator),
-              style: QType.caption.copyWith(color: q.ink3),
-            ),
-          ],
-          if (hadith.reference.isNotEmpty) ...[
-            const SizedBox(height: QSpace.s1),
-            Text(
-              hadith.reference,
-              style: QType.caption.copyWith(color: q.ink3),
-            ),
-          ],
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+final class _TopicCard extends StatelessWidget {
+  const _TopicCard({
+    required this.topic,
+    required this.languageCode,
+    required this.onTap,
+  });
+
+  final HadithTopic topic;
+  final String languageCode;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: QCard(
+          padding: const EdgeInsets.all(QSpace.s4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: q.primarySoft,
+                  borderRadius: BorderRadius.circular(QRadius.sm),
+                ),
+                child: Icon(
+                  TrackerVisuals.iconOf(_topicIcons[topic.id] ?? 'spark'),
+                  size: 19,
+                  color: q.onPrimarySoft,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                l10n.hadithTopicName(topic.id),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: QType.titleSm.copyWith(color: q.ink),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                LocaleDigits.localize(
+                  l10n.hadithCount(topic.items.length),
+                  languageCode,
+                ),
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

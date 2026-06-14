@@ -13,8 +13,15 @@ import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_store.dart';
 import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../features/hadith/data/hadith_asset_data_source.dart';
+import '../../features/hadith/data/hadith_book_catalog_data_source.dart';
+import '../../features/hadith/data/hadith_book_remote_data_source.dart';
+import '../../features/hadith/data/hadith_book_repository_impl.dart';
 import '../../features/hadith/data/hadith_repository_impl.dart';
+import '../../features/hadith/data/http_fetcher.dart';
+import '../../features/hadith/domain/repositories/hadith_book_repository.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
+import '../../features/hadith/presentation/state/hadith_books_store.dart';
+import '../../features/hadith/presentation/state/hadith_section_store.dart';
 import '../../features/hadith/presentation/state/hadith_store.dart';
 import '../../features/home_widget/data/prayer_widget_service.dart';
 import '../../features/muhasaba/data/database/muhasaba_database.dart';
@@ -212,7 +219,15 @@ Future<void> setupLocator() async {
     ..registerLazySingleton<HadithRepository>(
       () => HadithRepositoryImpl(locator()),
     )
-    ..registerLazySingleton(() => HadithStore(locator()));
+    ..registerLazySingleton(() => HadithStore(locator()))
+    // Full-book browsing (online dataset).
+    ..registerLazySingleton(() => HadithBookCatalogDataSource(rootBundle))
+    ..registerLazySingleton(() => HadithBookRemoteDataSource(httpGetString))
+    ..registerLazySingleton<HadithBookRepository>(
+      () => HadithBookRepositoryImpl(locator(), locator()),
+    )
+    ..registerLazySingleton(() => HadithBooksStore(locator()))
+    ..registerFactory(() => HadithSectionStore(locator()));
 
   // ---- home-screen widget ----
   locator.registerLazySingleton(

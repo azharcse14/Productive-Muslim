@@ -4,6 +4,10 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
+import '../../../my_mosque/domain/entities/jamaat_config.dart';
+import '../../../my_mosque/domain/entities/mosque_profile.dart';
+import '../../../my_mosque/domain/entities/mosque_schedule.dart';
+import '../../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
@@ -38,7 +42,18 @@ final class HomeStore {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       now.value = _wallNow();
     });
+    // Expire a temporary mosque override once the schedule crosses into a
+    // different window (the auto target no longer matches its baseline).
+    _overrideWatcher = effect(() {
+      final auto = _autoMosqueId.value; // memoized — fires only on a boundary
+      final override = _mosque.state.value.activeOverride;
+      if (override != null && override.baselineAutoId != auto) {
+        unawaited(_mosque.clearOverride());
+      }
+    });
   }
+
+  late final void Function() _overrideWatcher;
 
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
@@ -101,8 +116,39 @@ final class HomeStore {
   late final ramadanMode =
       computed(() => hijriDate.value.month == HijriDate.ramadanMonth);
 
-  /// The active mosque profile's jamaat times.
-  late final jamaatConfig = computed(() => _mosque.activeConfig.value);
+  /// The mosque active right now (manual selection, schedule, or override),
+  /// memoized so the home subtree rebuilds only when it actually changes.
+  late final mosqueResolution =
+      computed(() => resolveActiveMosque(_mosque.state.value, now.value));
+
+  /// The schedule's current target ignoring any override — drives override
+  /// expiry. Memoized (String?), so it flips only at a window boundary.
+  late final _autoMosqueId =
+      computed(() => resolveAutoMosqueId(_mosque.state.value, now.value));
+
+  /// The active mosque profile's jamaat times (schedule-resolved).
+  late final jamaatConfig =
+      computed(() => mosqueResolution.value.profile?.config ?? JamaatConfig.none);
+
+  /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
+  /// schedule's current target so it self-expires at the next window boundary.
+  Future<void> overrideMosque(String mosqueId) => _mosque.setOverride(
+        mosqueId,
+        resolveAutoMosqueId(_mosque.state.value, now.value),
+      );
+
+  Future<void> clearMosqueOverride() => _mosque.clearOverride();
+
+  /// All saved mosque profiles (for the home switcher).
+  late final mosqueProfiles =
+      computed<List<MosqueProfile>>(() => _mosque.state.value.profiles);
+
+  /// Picks a mosque from the home switcher: a temporary override in auto mode,
+  /// or a permanent active switch in manual mode.
+  Future<void> selectMosque(String id) =>
+      _mosque.state.value.mode == ScheduleMode.auto
+          ? overrideMosque(id)
+          : _mosque.setActive(id);
 
   late final countdownTarget = computed<CountdownTarget?>(() {
     final day = prayerDay.value;
@@ -194,5 +240,6 @@ final class HomeStore {
 
   void dispose() {
     _ticker.cancel();
+    _overrideWatcher();
   }
 }

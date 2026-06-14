@@ -12,6 +12,19 @@ final class HadithStore {
   late final items = signal(const <Hadith>[]);
   late final loaded = signal(false);
 
+  /// Hadith grouped by [Hadith.topic], in first-seen order — drives the
+  /// topic grid. Recomputes when [items] changes.
+  late final topics = computed<List<HadithTopic>>(() {
+    final byTopic = <String, List<Hadith>>{};
+    for (final hadith in items.value) {
+      (byTopic[hadith.topic] ??= []).add(hadith);
+    }
+    return [
+      for (final entry in byTopic.entries)
+        HadithTopic(id: entry.key, items: entry.value),
+    ];
+  });
+
   Future<void> load() async {
     final result = await _repository.all();
     if (result.valueOrNull case final value?) {

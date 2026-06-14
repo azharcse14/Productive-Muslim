@@ -4,8 +4,10 @@ import 'package:qalbee/features/hadith/domain/entities/hadith.dart';
 import 'package:qalbee/features/hadith/domain/repositories/hadith_repository.dart';
 import 'package:qalbee/features/hadith/presentation/state/hadith_store.dart';
 
-Hadith _hadith(String id) => Hadith(
+Hadith _hadith(String id, {String topic = 'character'}) => Hadith(
       id: id,
+      topic: topic,
+      grade: 'Sahih',
       arabic: 'ar-$id',
       en: 'en-$id',
       bn: 'bn-$id',
@@ -35,6 +37,27 @@ void main() {
 
       expect(store.loaded.value, isTrue);
       expect(store.items.value, hasLength(2));
+    });
+  });
+
+  group('HadithStore.topics', () {
+    test('groups items by topic in first-seen order', () async {
+      final store = storeWith([
+        _hadith('h001', topic: 'faith'),
+        _hadith('h002', topic: 'knowledge'),
+        _hadith('h003', topic: 'faith'),
+      ]);
+      await store.load();
+
+      final topics = store.topics.value;
+      expect(topics.map((t) => t.id).toList(), <String>['faith', 'knowledge']);
+      expect(topics.first.items, hasLength(2));
+      expect(topics.last.items, hasLength(1));
+    });
+
+    test('is empty before load', () {
+      final store = storeWith([_hadith('h001')]);
+      expect(store.topics.value, isEmpty);
     });
   });
 

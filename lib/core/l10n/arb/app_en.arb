@@ -169,7 +169,33 @@
   "specialDetailSalatZawal": "Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.",
   "specialDetailAwwabin": "Voluntary rak'ahs offered between the Maghrib and Isha prayers — the salah of the oft-returning (awwabin), beloved for turning back to Allah after the day's work.",
   "specialDetailTahajjud": "Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.",
-  "setJamaat": "Set jamaat",
+  "setJamaat": "Set jamaat time",
+  "switchMosqueTitle": "Jamaat mosque",
+  "mosqueAutoBadge": "Auto",
+  "mosqueOverrideBadge": "Override",
+  "mosqueAutoSubtitle": "Switching automatically by your schedule",
+  "mosqueOverrideSubtitle": "Temporary override — reset to resume the schedule",
+  "mosqueResetToSchedule": "Reset to schedule",
+  "mosqueManage": "Manage mosques & schedule",
+  "scheduleSectionTitle": "Auto-switch",
+  "scheduleModeManual": "Manual",
+  "scheduleModeAuto": "Auto",
+  "scheduleAutoHint": "Qalbee picks the mosque by day and time.",
+  "scheduleRulesTitle": "Rules",
+  "scheduleRulesEmpty": "No rules yet. Add one to switch automatically.",
+  "scheduleAddRule": "Add rule",
+  "scheduleDefaultMosque": "Default mosque",
+  "scheduleDefaultHint": "Used when no rule matches.",
+  "scheduleAllDay": "All day",
+  "scheduleEveryDay": "Every day",
+  "scheduleFrom": "From",
+  "scheduleTo": "To",
+  "weekdayShort": "{day, select, 1{Mon} 2{Tue} 3{Wed} 4{Thu} 5{Fri} 6{Sat} 7{Sun} other{}}",
+  "@weekdayShort": {
+    "placeholders": {
+      "day": { "type": "String" }
+    }
+  },
   "homeSetLocationTitle": "Where are you?",
   "homeSetLocationBody": "Pick your location once and Qalbee computes accurate prayer times for it — fully offline.",
   "homeSetLocationCta": "Set location",
@@ -686,6 +712,29 @@
   "@hadithNarratedBy": {
     "placeholders": { "narrator": { "type": "String" } }
   },
+  "hadithTopicName": "{id, select, intention{Intention & sincerity} faith{Faith} character{Character & manners} speech{Speech & the tongue} knowledge{Seeking knowledge} charity{Charity & kindness} mercy{Mercy & humility} worship{Worship} dunya{This world & the hereafter} other{Other}}",
+  "@hadithTopicName": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "hadithCount": "{count, plural, =1{1 hadith} other{{count} hadith}}",
+  "@hadithCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "hadithChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@hadithChapterCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "hadithBooksCardTitle": "Full collections",
+  "hadithBooksTitle": "Hadith collections",
+  "hadithBooksSubtitle": "Browse the full books, fetched from an open dataset",
+  "hadithBookAllSahih": "Every hadith authentic (Sahih)",
+  "hadithGradeLabel": "Grade: {grade}",
+  "@hadithGradeLabel": {
+    "placeholders": { "grade": { "type": "String" } }
+  },
+  "hadithLoadError": "Couldn't load. Check your connection and try again.",
+  "hadithRetry": "Try again",
+  "hadithSourceNote": "Source: fawazahmed0/hadith-api (public domain)",
   "duaSearchHint": "Search duas",
   "duaSearchTitle": "Search",
   "duaNoResults": "No duas found",

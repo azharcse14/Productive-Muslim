@@ -359,7 +359,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.';
 
   @override
-  String get setJamaat => 'Set jamaat';
+  String get setJamaat => 'Set jamaat time';
+
+  @override
+  String get switchMosqueTitle => 'Jamaat mosque';
+
+  @override
+  String get mosqueAutoBadge => 'Auto';
+
+  @override
+  String get mosqueOverrideBadge => 'Override';
+
+  @override
+  String get mosqueAutoSubtitle => 'Switching automatically by your schedule';
+
+  @override
+  String get mosqueOverrideSubtitle =>
+      'Temporary override — reset to resume the schedule';
+
+  @override
+  String get mosqueResetToSchedule => 'Reset to schedule';
+
+  @override
+  String get mosqueManage => 'Manage mosques & schedule';
+
+  @override
+  String get scheduleSectionTitle => 'Auto-switch';
+
+  @override
+  String get scheduleModeManual => 'Manual';
+
+  @override
+  String get scheduleModeAuto => 'Auto';
+
+  @override
+  String get scheduleAutoHint => 'Qalbee picks the mosque by day and time.';
+
+  @override
+  String get scheduleRulesTitle => 'Rules';
+
+  @override
+  String get scheduleRulesEmpty =>
+      'No rules yet. Add one to switch automatically.';
+
+  @override
+  String get scheduleAddRule => 'Add rule';
+
+  @override
+  String get scheduleDefaultMosque => 'Default mosque';
+
+  @override
+  String get scheduleDefaultHint => 'Used when no rule matches.';
+
+  @override
+  String get scheduleAllDay => 'All day';
+
+  @override
+  String get scheduleEveryDay => 'Every day';
+
+  @override
+  String get scheduleFrom => 'From';
+
+  @override
+  String get scheduleTo => 'To';
+
+  @override
+  String weekdayShort(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      '1': 'Mon',
+      '2': 'Tue',
+      '3': 'Wed',
+      '4': 'Thu',
+      '5': 'Fri',
+      '6': 'Sat',
+      '7': 'Sun',
+      'other': '',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get homeSetLocationTitle => 'Where are you?';
@@ -1357,6 +1434,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String hadithNarratedBy(String narrator) {
     return 'Narrated by $narrator';
   }
+
+  @override
+  String hadithTopicName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'intention': 'Intention & sincerity',
+      'faith': 'Faith',
+      'character': 'Character & manners',
+      'speech': 'Speech & the tongue',
+      'knowledge': 'Seeking knowledge',
+      'charity': 'Charity & kindness',
+      'mercy': 'Mercy & humility',
+      'worship': 'Worship',
+      'dunya': 'This world & the hereafter',
+      'other': 'Other',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String hadithCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hadith',
+      one: '1 hadith',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hadithChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters',
+      one: '1 chapter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hadithBooksCardTitle => 'Full collections';
+
+  @override
+  String get hadithBooksTitle => 'Hadith collections';
+
+  @override
+  String get hadithBooksSubtitle =>
+      'Browse the full books, fetched from an open dataset';
+
+  @override
+  String get hadithBookAllSahih => 'Every hadith authentic (Sahih)';
+
+  @override
+  String hadithGradeLabel(String grade) {
+    return 'Grade: $grade';
+  }
+
+  @override
+  String get hadithLoadError =>
+      'Couldn\'t load. Check your connection and try again.';
+
+  @override
+  String get hadithRetry => 'Try again';
+
+  @override
+  String get hadithSourceNote =>
+      'Source: fawazahmed0/hadith-api (public domain)';
 
   @override
   String get duaSearchHint => 'Search duas';

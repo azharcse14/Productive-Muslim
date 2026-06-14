@@ -749,8 +749,134 @@ abstract class AppLocalizations {
   /// No description provided for @setJamaat.
   ///
   /// In en, this message translates to:
-  /// **'Set jamaat'**
+  /// **'Set jamaat time'**
   String get setJamaat;
+
+  /// No description provided for @switchMosqueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat mosque'**
+  String get switchMosqueTitle;
+
+  /// No description provided for @mosqueAutoBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get mosqueAutoBadge;
+
+  /// No description provided for @mosqueOverrideBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Override'**
+  String get mosqueOverrideBadge;
+
+  /// No description provided for @mosqueAutoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching automatically by your schedule'**
+  String get mosqueAutoSubtitle;
+
+  /// No description provided for @mosqueOverrideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary override — reset to resume the schedule'**
+  String get mosqueOverrideSubtitle;
+
+  /// No description provided for @mosqueResetToSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to schedule'**
+  String get mosqueResetToSchedule;
+
+  /// No description provided for @mosqueManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage mosques & schedule'**
+  String get mosqueManage;
+
+  /// No description provided for @scheduleSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-switch'**
+  String get scheduleSectionTitle;
+
+  /// No description provided for @scheduleModeManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get scheduleModeManual;
+
+  /// No description provided for @scheduleModeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get scheduleModeAuto;
+
+  /// No description provided for @scheduleAutoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Qalbee picks the mosque by day and time.'**
+  String get scheduleAutoHint;
+
+  /// No description provided for @scheduleRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get scheduleRulesTitle;
+
+  /// No description provided for @scheduleRulesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules yet. Add one to switch automatically.'**
+  String get scheduleRulesEmpty;
+
+  /// No description provided for @scheduleAddRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add rule'**
+  String get scheduleAddRule;
+
+  /// No description provided for @scheduleDefaultMosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Default mosque'**
+  String get scheduleDefaultMosque;
+
+  /// No description provided for @scheduleDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when no rule matches.'**
+  String get scheduleDefaultHint;
+
+  /// No description provided for @scheduleAllDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get scheduleAllDay;
+
+  /// No description provided for @scheduleEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get scheduleEveryDay;
+
+  /// No description provided for @scheduleFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get scheduleFrom;
+
+  /// No description provided for @scheduleTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get scheduleTo;
+
+  /// No description provided for @weekdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, 1{Mon} 2{Tue} 3{Wed} 4{Thu} 5{Fri} 6{Sat} 7{Sun} other{}}'**
+  String weekdayShort(String day);
 
   /// No description provided for @homeSetLocationTitle.
   ///
@@ -2323,6 +2449,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Narrated by {narrator}'**
   String hadithNarratedBy(String narrator);
+
+  /// No description provided for @hadithTopicName.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, intention{Intention & sincerity} faith{Faith} character{Character & manners} speech{Speech & the tongue} knowledge{Seeking knowledge} charity{Charity & kindness} mercy{Mercy & humility} worship{Worship} dunya{This world & the hereafter} other{Other}}'**
+  String hadithTopicName(String id);
+
+  /// No description provided for @hadithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hadith} other{{count} hadith}}'**
+  String hadithCount(int count);
+
+  /// No description provided for @hadithChapterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 chapter} other{{count} chapters}}'**
+  String hadithChapterCount(int count);
+
+  /// No description provided for @hadithBooksCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Full collections'**
+  String get hadithBooksCardTitle;
+
+  /// No description provided for @hadithBooksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith collections'**
+  String get hadithBooksTitle;
+
+  /// No description provided for @hadithBooksSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse the full books, fetched from an open dataset'**
+  String get hadithBooksSubtitle;
+
+  /// No description provided for @hadithBookAllSahih.
+  ///
+  /// In en, this message translates to:
+  /// **'Every hadith authentic (Sahih)'**
+  String get hadithBookAllSahih;
+
+  /// No description provided for @hadithGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade: {grade}'**
+  String hadithGradeLabel(String grade);
+
+  /// No description provided for @hadithLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load. Check your connection and try again.'**
+  String get hadithLoadError;
+
+  /// No description provided for @hadithRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get hadithRetry;
+
+  /// No description provided for @hadithSourceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: fawazahmed0/hadith-api (public domain)'**
+  String get hadithSourceNote;
 
   /// No description provided for @duaSearchHint.
   ///

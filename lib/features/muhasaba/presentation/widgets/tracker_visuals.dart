@@ -15,6 +15,12 @@ abstract final class TrackerVisuals {
     'food': Icons.restaurant_outlined,
     'water': Icons.water_drop_outlined,
     'walk': Icons.directions_walk_outlined,
+    'star': Icons.star_outline,
+    'speech': Icons.chat_bubble_outline,
+    'hands': Icons.volunteer_activism_outlined,
+    'people': Icons.groups_outlined,
+    'globe': Icons.public_outlined,
+    'library': Icons.local_library_outlined,
   };
 
   static IconData iconOf(String key) => icons[key] ?? Icons.auto_awesome;

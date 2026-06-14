@@ -41,12 +41,16 @@ final class HadithAssetDataSource {
     final en = map['en'];
     final narrator = map['narrator'];
     final ref = map['ref'];
+    final topic = map['topic'];
+    final grade = map['grade'];
     if (id is! String || ar is! String || en is! String) {
       return null;
     }
     final bn = map['bn'];
     return Hadith(
       id: id,
+      topic: topic is String && topic.isNotEmpty ? topic : 'other',
+      grade: grade is String ? grade : '',
       arabic: ar,
       en: en,
       bn: bn is String ? bn : '',

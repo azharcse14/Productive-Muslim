@@ -108,7 +108,28 @@
   "specialDetailSalatZawal": "সূর্য মাথার উপর থেকে ঢলে পড়ার ঠিক পরে, যোহরের ফরজের আগমুহূর্তে আদায় করা হয়। রাসূলুল্লাহ ﷺ এই সময়ে নামাজ পড়তেন যখন আসমানের দরজাগুলো খুলে দেওয়া হয়।",
   "specialDetailAwwabin": "মাগরিব ও এশার মাঝে আদায় করা নফল রাকাত — আওয়াবিন (অধিক প্রত্যাবর্তনকারীদের) সালাত, দিনের কাজ শেষে আল্লাহর দিকে ফিরে আসার জন্য প্রিয়।",
   "specialDetailTahajjud": "রাতের শেষ তৃতীয়াংশে আদায় করা সালাত, সর্বোত্তম নফল সালাত। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।",
-  "setJamaat": "জামাত সেট করুন",
+  "setJamaat": "জামাতের সময় সেট করুন",
+  "switchMosqueTitle": "জামাতের মসজিদ",
+  "mosqueAutoBadge": "অটো",
+  "mosqueOverrideBadge": "ওভাররাইড",
+  "mosqueAutoSubtitle": "আপনার সময়সূচি অনুযায়ী স্বয়ংক্রিয়ভাবে পরিবর্তন হচ্ছে",
+  "mosqueOverrideSubtitle": "সাময়িক পরিবর্তন — সময়সূচিতে ফিরতে রিসেট করুন",
+  "mosqueResetToSchedule": "সময়সূচিতে ফিরুন",
+  "mosqueManage": "মসজিদ ও সময়সূচি ব্যবস্থাপনা",
+  "scheduleSectionTitle": "অটো-সুইচ",
+  "scheduleModeManual": "ম্যানুয়াল",
+  "scheduleModeAuto": "অটো",
+  "scheduleAutoHint": "দিন ও সময় অনুযায়ী কালবী মসজিদ বেছে নেবে।",
+  "scheduleRulesTitle": "নিয়ম",
+  "scheduleRulesEmpty": "এখনো কোনো নিয়ম নেই। স্বয়ংক্রিয় পরিবর্তনের জন্য একটি যোগ করুন।",
+  "scheduleAddRule": "নিয়ম যোগ করুন",
+  "scheduleDefaultMosque": "ডিফল্ট মসজিদ",
+  "scheduleDefaultHint": "কোনো নিয়ম না মিললে এটি ব্যবহৃত হবে।",
+  "scheduleAllDay": "সারাদিন",
+  "scheduleEveryDay": "প্রতিদিন",
+  "scheduleFrom": "শুরু",
+  "scheduleTo": "শেষ",
+  "weekdayShort": "{day, select, 1{সোম} 2{মঙ্গল} 3{বুধ} 4{বৃহ} 5{শুক্র} 6{শনি} 7{রবি} other{}}",
   "homeSetLocationTitle": "আপনি কোথায় আছেন?",
   "homeSetLocationBody": "একবার অবস্থান বেছে নিন — কালবী সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।",
   "homeSetLocationCta": "অবস্থান সেট করুন",
@@ -425,6 +446,29 @@
   "@hadithNarratedBy": {
     "placeholders": { "narrator": { "type": "String" } }
   },
+  "hadithTopicName": "{id, select, intention{নিয়ত ও ইখলাস} faith{ঈমান} character{চরিত্র ও আখলাক} speech{কথা ও জিহ্বা} knowledge{ইলম অর্জন} charity{দান ও কল্যাণ} mercy{দয়া ও বিনয়} worship{ইবাদত} dunya{দুনিয়া ও আখিরাত} other{অন্যান্য}}",
+  "@hadithTopicName": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "hadithCount": "{count, plural, =1{১টি হাদিস} other{{count}টি হাদিস}}",
+  "@hadithCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "hadithChapterCount": "{count, plural, =1{১টি অধ্যায়} other{{count}টি অধ্যায়}}",
+  "@hadithChapterCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "hadithBooksCardTitle": "পূর্ণ সংকলন",
+  "hadithBooksTitle": "হাদিস সংকলন",
+  "hadithBooksSubtitle": "ওপেন ডেটাসেট থেকে পূর্ণ কিতাব ব্রাউজ করুন",
+  "hadithBookAllSahih": "প্রতিটি হাদিস সহিহ",
+  "hadithGradeLabel": "মান: {grade}",
+  "@hadithGradeLabel": {
+    "placeholders": { "grade": { "type": "String" } }
+  },
+  "hadithLoadError": "লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
+  "hadithRetry": "আবার চেষ্টা করুন",
+  "hadithSourceNote": "সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)",
   "duaSearchHint": "দোয়া খুঁজুন",
   "duaSearchTitle": "খুঁজুন",
   "duaNoResults": "কোনো দোয়া পাওয়া যায়নি",

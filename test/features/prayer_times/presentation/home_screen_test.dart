@@ -146,8 +146,10 @@ void main() {
       expect(find.text('Isha'), findsOneWidget);
       // Sunrise was removed from the table (still in the countdown footer).
       expect(find.text('Sunrise'), findsNothing);
-      // Unconfigured jamaat shows the quiet affordance on all 5 rows.
-      expect(find.text('Set jamaat'), findsNWidgets(5));
+      // With no jamaat configured, each of the 5 rows shows an em-dash
+      // placeholder and the table carries a single "Set jamaat" CTA at its foot.
+      expect(find.text('—'), findsNWidgets(5));
+      expect(find.text('Set jamaat time'), findsOneWidget);
       // The meal row sits below the fold now (cards were added above it).
       await tester.scrollUntilVisible(
         find.text('Sahri ends'),
@@ -282,8 +284,10 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(find.text('JAMAAT IN'), findsOneWidget);
-      // Fajr row shows the jamaat time instead of "Set jamaat".
-      expect(find.text('Set jamaat'), findsNWidgets(3)); // dhuhr/asr/isha
+      // Fajr + Maghrib have a jamaat time; the other 3 rows (dhuhr/asr/isha)
+      // show the em-dash placeholder. The "Set jamaat" CTA stays at the foot.
+      expect(find.text('—'), findsNWidgets(3));
+      expect(find.text('Set jamaat time'), findsOneWidget);
       // Maghrib got the default +5 offset from addProfile.
       expect(find.textContaining('4:30'), findsWidgets);
     });

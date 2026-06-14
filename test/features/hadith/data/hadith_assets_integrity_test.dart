@@ -45,5 +45,60 @@ void main() {
         }
       }
     });
+
+    test('every entry is topic-tagged with a known topic', () {
+      const known = {
+        'intention', 'faith', 'character', 'speech', 'knowledge',
+        'charity', 'mercy', 'worship', 'dunya', 'other',
+      };
+      for (final h in hadith) {
+        expect(
+          known,
+          contains(h['topic']),
+          reason: 'unknown topic "${h['topic']}" on "${h['id']}"',
+        );
+      }
+    });
+
+    test('every hadith is graded authentic (Sahih or Hasan)', () {
+      for (final h in hadith) {
+        expect(
+          <String>['Sahih', 'Hasan'],
+          contains(h['grade']),
+          reason: '"${h['id']}" must be Sahih or Hasan, got "${h['grade']}"',
+        );
+      }
+    });
+  });
+
+  group('hadith_books.json catalog', () {
+    late List<Map<String, Object?>> books;
+
+    setUpAll(() {
+      final raw = File('assets/data/hadith_books.json').readAsStringSync();
+      final decoded =
+          (jsonDecode(raw) as Map<dynamic, dynamic>).cast<String, Object?>();
+      books = (decoded['books']! as List<Object?>)
+          .map((e) => (e as Map<dynamic, dynamic>).cast<String, Object?>())
+          .toList();
+    });
+
+    test('includes the two Sahihs marked as wholly authentic', () {
+      final sahih = books
+          .where((b) => b['kind'] == 'sahih')
+          .map((b) => b['id'])
+          .toSet();
+      expect(sahih, containsAll(<String>['bukhari', 'muslim']));
+    });
+
+    test('every book has edition keys and at least one section', () {
+      for (final b in books) {
+        for (final field in <String>['edition_ar', 'edition_en', 'edition_bn']) {
+          expect((b[field]! as String).trim(), isNotEmpty);
+        }
+        expect(b['sections'], isA<List<Object?>>());
+        expect(b['sections']! as List<Object?>, isNotEmpty);
+      }
+    });
   });
 }

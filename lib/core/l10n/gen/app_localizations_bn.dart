@@ -359,7 +359,85 @@ class AppLocalizationsBn extends AppLocalizations {
       'রাতের শেষ তৃতীয়াংশে আদায় করা সালাত, সর্বোত্তম নফল সালাত। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
 
   @override
-  String get setJamaat => 'জামাত সেট করুন';
+  String get setJamaat => 'জামাতের সময় সেট করুন';
+
+  @override
+  String get switchMosqueTitle => 'জামাতের মসজিদ';
+
+  @override
+  String get mosqueAutoBadge => 'অটো';
+
+  @override
+  String get mosqueOverrideBadge => 'ওভাররাইড';
+
+  @override
+  String get mosqueAutoSubtitle =>
+      'আপনার সময়সূচি অনুযায়ী স্বয়ংক্রিয়ভাবে পরিবর্তন হচ্ছে';
+
+  @override
+  String get mosqueOverrideSubtitle =>
+      'সাময়িক পরিবর্তন — সময়সূচিতে ফিরতে রিসেট করুন';
+
+  @override
+  String get mosqueResetToSchedule => 'সময়সূচিতে ফিরুন';
+
+  @override
+  String get mosqueManage => 'মসজিদ ও সময়সূচি ব্যবস্থাপনা';
+
+  @override
+  String get scheduleSectionTitle => 'অটো-সুইচ';
+
+  @override
+  String get scheduleModeManual => 'ম্যানুয়াল';
+
+  @override
+  String get scheduleModeAuto => 'অটো';
+
+  @override
+  String get scheduleAutoHint => 'দিন ও সময় অনুযায়ী কালবী মসজিদ বেছে নেবে।';
+
+  @override
+  String get scheduleRulesTitle => 'নিয়ম';
+
+  @override
+  String get scheduleRulesEmpty =>
+      'এখনো কোনো নিয়ম নেই। স্বয়ংক্রিয় পরিবর্তনের জন্য একটি যোগ করুন।';
+
+  @override
+  String get scheduleAddRule => 'নিয়ম যোগ করুন';
+
+  @override
+  String get scheduleDefaultMosque => 'ডিফল্ট মসজিদ';
+
+  @override
+  String get scheduleDefaultHint => 'কোনো নিয়ম না মিললে এটি ব্যবহৃত হবে।';
+
+  @override
+  String get scheduleAllDay => 'সারাদিন';
+
+  @override
+  String get scheduleEveryDay => 'প্রতিদিন';
+
+  @override
+  String get scheduleFrom => 'শুরু';
+
+  @override
+  String get scheduleTo => 'শেষ';
+
+  @override
+  String weekdayShort(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      '1': 'সোম',
+      '2': 'মঙ্গল',
+      '3': 'বুধ',
+      '4': 'বৃহ',
+      '5': 'শুক্র',
+      '6': 'শনি',
+      '7': 'রবি',
+      'other': '',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get homeSetLocationTitle => 'আপনি কোথায় আছেন?';
@@ -1354,6 +1432,73 @@ class AppLocalizationsBn extends AppLocalizations {
   String hadithNarratedBy(String narrator) {
     return 'বর্ণনায় $narrator';
   }
+
+  @override
+  String hadithTopicName(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'intention': 'নিয়ত ও ইখলাস',
+      'faith': 'ঈমান',
+      'character': 'চরিত্র ও আখলাক',
+      'speech': 'কথা ও জিহ্বা',
+      'knowledge': 'ইলম অর্জন',
+      'charity': 'দান ও কল্যাণ',
+      'mercy': 'দয়া ও বিনয়',
+      'worship': 'ইবাদত',
+      'dunya': 'দুনিয়া ও আখিরাত',
+      'other': 'অন্যান্য',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String hadithCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি হাদিস',
+      one: '১টি হাদিস',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hadithChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি অধ্যায়',
+      one: '১টি অধ্যায়',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hadithBooksCardTitle => 'পূর্ণ সংকলন';
+
+  @override
+  String get hadithBooksTitle => 'হাদিস সংকলন';
+
+  @override
+  String get hadithBooksSubtitle => 'ওপেন ডেটাসেট থেকে পূর্ণ কিতাব ব্রাউজ করুন';
+
+  @override
+  String get hadithBookAllSahih => 'প্রতিটি হাদিস সহিহ';
+
+  @override
+  String hadithGradeLabel(String grade) {
+    return 'মান: $grade';
+  }
+
+  @override
+  String get hadithLoadError =>
+      'লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get hadithRetry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get hadithSourceNote =>
+      'সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)';
 
   @override
   String get duaSearchHint => 'দোয়া খুঁজুন';
