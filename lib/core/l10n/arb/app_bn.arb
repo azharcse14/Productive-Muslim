@@ -469,6 +469,10 @@
   "hadithLoadError": "লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
   "hadithRetry": "আবার চেষ্টা করুন",
   "hadithSourceNote": "সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)",
+  "hadithSourceNoteBn": "বাংলা সূত্র: hadithbangla (ওপেন সোর্স)",
+  "hadithEnglishOnly": "শুধু ইংরেজি",
+  "hadithBengaliUnavailable": "বাংলা অনুবাদ নেই — ইংরেজি দেখানো হচ্ছে",
+  "hadithBengaliUnavailableSection": "এই কিতাবের বাংলা অনুবাদ এখনো নেই — ইংরেজি দেখানো হচ্ছে।",
   "duaSearchHint": "দোয়া খুঁজুন",
   "duaSearchTitle": "খুঁজুন",
   "duaNoResults": "কোনো দোয়া পাওয়া যায়নি",
@@ -476,5 +480,8 @@
   "duaFavoritesEmpty": "যেকোনো দোয়ার হার্ট আইকনে চাপ দিয়ে এখানে সংরক্ষণ করুন",
   "favoriteAddLabel": "প্রিয়তে যোগ করুন",
   "favoriteRemoveLabel": "প্রিয় থেকে সরান",
-  "widgetNextPrayerLabel": "পরবর্তী নামাজ"
+  "widgetNextPrayerLabel": "পরবর্তী নামাজ",
+  "nearbyMosquesLabel": "মসজিদ",
+  "nearbyMosquesLaunchError": "ম্যাপ খোলা গেল না। একটি ম্যাপ অ্যাপ ইনস্টল আছে কিনা দেখুন।",
+  "nearbyMosquesLocationError": "কাছের মসজিদ খুঁজতে আগে আপনার অবস্থান সেট করুন।"
 }

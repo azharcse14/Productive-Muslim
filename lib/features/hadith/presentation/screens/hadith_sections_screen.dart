@@ -32,7 +32,7 @@ final class HadithSectionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final sections = book.sections;
+    final sections = book.sectionsFor(languageCode);
     return Scaffold(
       appBar: AppBar(title: Text(book.titleFor(languageCode))),
       body: SafeArea(

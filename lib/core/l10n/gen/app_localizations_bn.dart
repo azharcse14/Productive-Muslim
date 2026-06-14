@@ -1501,6 +1501,20 @@ class AppLocalizationsBn extends AppLocalizations {
       'সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)';
 
   @override
+  String get hadithSourceNoteBn => 'বাংলা সূত্র: hadithbangla (ওপেন সোর্স)';
+
+  @override
+  String get hadithEnglishOnly => 'শুধু ইংরেজি';
+
+  @override
+  String get hadithBengaliUnavailable =>
+      'বাংলা অনুবাদ নেই — ইংরেজি দেখানো হচ্ছে';
+
+  @override
+  String get hadithBengaliUnavailableSection =>
+      'এই কিতাবের বাংলা অনুবাদ এখনো নেই — ইংরেজি দেখানো হচ্ছে।';
+
+  @override
   String get duaSearchHint => 'দোয়া খুঁজুন';
 
   @override
@@ -1524,4 +1538,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get widgetNextPrayerLabel => 'পরবর্তী নামাজ';
+
+  @override
+  String get nearbyMosquesLabel => 'মসজিদ';
+
+  @override
+  String get nearbyMosquesLaunchError =>
+      'ম্যাপ খোলা গেল না। একটি ম্যাপ অ্যাপ ইনস্টল আছে কিনা দেখুন।';
+
+  @override
+  String get nearbyMosquesLocationError =>
+      'কাছের মসজিদ খুঁজতে আগে আপনার অবস্থান সেট করুন।';
 }

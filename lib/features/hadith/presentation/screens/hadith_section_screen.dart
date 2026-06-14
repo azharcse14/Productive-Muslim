@@ -6,6 +6,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/qalbee_tokens.dart';
 import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../domain/entities/hadith_book.dart';
@@ -73,7 +74,14 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
                 onRetry: () => unawaited(_load()),
               );
             }
+            final lang = Localizations.localeOf(context).languageCode;
+            final bnSource = widget.book.usesBanglaSource(lang);
             final items = _store.items.value;
+            // Whole section came back English despite a bn request → one banner
+            // instead of a note on every card.
+            final allFallback =
+                items.isNotEmpty && items.every((h) => h.fallbackTranslation);
+            final leading = allFallback ? 1 : 0;
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -81,20 +89,30 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
                 QSpace.s5,
                 QSpace.s5,
               ),
-              itemCount: items.length + 1,
+              itemCount: items.length + leading + 1,
               separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
               itemBuilder: (context, index) {
-                if (index == items.length) {
+                if (allFallback && index == 0) {
+                  return _Banner(text: l10n.hadithBengaliUnavailableSection);
+                }
+                final i = index - leading;
+                if (i == items.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: QSpace.s2),
                     child: Text(
-                      l10n.hadithSourceNote,
+                      bnSource ? l10n.hadithSourceNoteBn : l10n.hadithSourceNote,
                       textAlign: TextAlign.center,
                       style: QType.caption.copyWith(color: context.q.ink3),
                     ),
                   );
                 }
-                return _BookHadithCard(hadith: items[index]);
+                return _BookHadithCard(
+                  hadith: items[i],
+                  // Per-hadith note only for scattered gaps (not when the whole
+                  // section is English — the banner covers that).
+                  showFallbackNote:
+                      !allFallback && items[i].fallbackTranslation,
+                );
               },
             );
           },
@@ -105,13 +123,16 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
 }
 
 final class _BookHadithCard extends StatelessWidget {
-  const _BookHadithCard({required this.hadith});
+  const _BookHadithCard({required this.hadith, this.showFallbackNote = false});
 
   final BookHadith hadith;
+  final bool showFallbackNote;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final q = context.q;
+    final languageCode = Localizations.localeOf(context).languageCode;
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -129,6 +150,20 @@ final class _BookHadithCard extends StatelessWidget {
               hadith.translation,
               style: QType.body.copyWith(color: q.ink),
             ),
+          if (hadith.narrator.isNotEmpty) ...[
+            const SizedBox(height: QSpace.s2),
+            Text(
+              l10n.hadithNarratedBy(hadith.narrator),
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
+          ],
+          if (showFallbackNote) ...[
+            const SizedBox(height: QSpace.s2),
+            Text(
+              l10n.hadithBengaliUnavailable,
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
+          ],
           const SizedBox(height: QSpace.s2),
           Row(
             children: [
@@ -138,12 +173,43 @@ final class _BookHadithCard extends StatelessWidget {
               ],
               Expanded(
                 child: Text(
-                  hadith.reference,
+                  LocaleDigits.localize(hadith.reference, languageCode),
                   textAlign: TextAlign.end,
                   style: QType.caption.copyWith(color: q.ink3),
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Thin info banner shown above a section whose Bengali translation is missing.
+final class _Banner extends StatelessWidget {
+  const _Banner({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return Container(
+      padding: const EdgeInsets.all(QSpace.s3),
+      decoration: BoxDecoration(
+        color: q.primarySoft,
+        borderRadius: BorderRadius.circular(QRadius.sm),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, size: 16, color: q.onPrimarySoft),
+          const SizedBox(width: QSpace.s2),
+          Expanded(
+            child: Text(
+              text,
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
           ),
         ],
       ),

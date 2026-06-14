@@ -108,9 +108,11 @@ final class _BookCard extends StatelessWidget {
     final subtitle = book.isSahih
         ? l10n.hadithBookAllSahih
         : LocaleDigits.localize(
-            l10n.hadithChapterCount(book.sections.length),
+            l10n.hadithChapterCount(book.sectionsFor(languageCode).length),
             languageCode,
           );
+    // Surface when a book has no Bengali translation in any source (Qudsi).
+    final englishOnly = languageCode == 'bn' && !book.bnAvailable;
     return Semantics(
       button: true,
       label: book.titleFor(languageCode),
@@ -155,6 +157,13 @@ final class _BookCard extends StatelessWidget {
                         color: book.isSahih ? q.ok : q.ink2,
                       ),
                     ),
+                    if (englishOnly) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.hadithEnglishOnly,
+                        style: QType.caption.copyWith(color: q.ink3),
+                      ),
+                    ],
                   ],
                 ),
               ),

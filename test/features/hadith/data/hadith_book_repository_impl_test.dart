@@ -50,9 +50,30 @@ const _catalogJson = '''
       "kind": "graded",
       "total": 3956,
       "sections": [{"n": 1, "name": "Purification", "first": 1, "last": 10}]
+    },
+    {
+      "id": "nasai",
+      "en": "Sunan an-Nasai",
+      "bn": "সুনানে নাসায়ি",
+      "author": "Imam an-Nasai",
+      "kind": "graded",
+      "bn_folder": "Al-Nasai",
+      "total": 5758,
+      "sections": [{"n": 1, "name": "Purification", "first": 1, "last": 9}],
+      "sections_bn": [{"n": 1, "name": "পবিত্রতা", "first": 1, "last": 8}]
     }
   ]
 }
+''';
+
+/// A hadithbangla per-chapter file (list of raw hadith objects).
+const _bnChapter = '''
+[
+  {"hadith_id": 1, "ar": "عربي-١", "bn": "বাংলা অনুবাদ ১",
+   "narrator": "আনাস (রাঃ)", "grade": "সহিহ হাদিস"},
+  {"hadith_id": 2, "ar": "عربي-٢", "bn": "বাংলা অনুবাদ ২",
+   "narrator": "উমর (রাঃ)", "grade": "হাসান হাদিস"}
+]
 ''';
 
 String _section(String lang, {bool withGrade = false}) => '''
@@ -91,7 +112,7 @@ void main() {
 
       final books = result.valueOrNull;
       expect(books, isNotNull);
-      expect(books!.map((b) => b.id), <String>['bukhari', 'tirmidhi']);
+      expect(books!.map((b) => b.id), <String>['bukhari', 'tirmidhi', 'nasai']);
 
       final bukhari = books.first;
       expect(bukhari.isSahih, isTrue);
@@ -99,7 +120,19 @@ void main() {
       expect(bukhari.titleFor('en'), 'Sahih al-Bukhari');
       expect(bukhari.sections, hasLength(2));
       expect(bukhari.sections.first.count, 7);
+      expect(bukhari.usesBanglaSource('bn'), isFalse); // no bn_folder
       expect(books[1].isSahih, isFalse);
+    });
+
+    test('a bn_folder book exposes Bengali chapters + source selection',
+        () async {
+      final nasai = (await makeRepo((_) async => '').books()).valueOrNull!.last;
+      expect(nasai.bnFolder, 'Al-Nasai');
+      expect(nasai.usesBanglaSource('bn'), isTrue);
+      expect(nasai.usesBanglaSource('en'), isFalse);
+      // bn locale shows the Bangla chapter list (own numbering/titles).
+      expect(nasai.sectionsFor('bn').first.name, 'পবিত্রতা');
+      expect(nasai.sectionsFor('en').first.name, 'Purification');
     });
 
     test('missing catalog asset yields a failure', () async {
@@ -216,6 +249,48 @@ void main() {
       final result = await repo.section(book, book.sections.first, 'en');
       expect(result.isSuccess, isFalse);
       expect(result, isA<FailureResult<Object?>>());
+    });
+
+    test('bn on a hadithbangla book reads the Bengali chapter source',
+        () async {
+      var hitBangla = false;
+      final repo = makeRepo((url) async {
+        if (url.toString().contains('hadithbangla')) {
+          hitBangla = true;
+          return _bnChapter;
+        }
+        // Must NOT touch fawazahmed0 for a hadithbangla book in bn.
+        return _section('SHOULD-NOT-BE-USED');
+      });
+      final nasai = (await repo.books()).valueOrNull!.last;
+
+      final items =
+          (await repo.section(nasai, nasai.sectionsFor('bn').first, 'bn'))
+              .valueOrNull!;
+
+      expect(hitBangla, isTrue);
+      expect(items, hasLength(2));
+      expect(items.first.translation, 'বাংলা অনুবাদ ১');
+      expect(items.first.narrator, 'আনাস (রাঃ)');
+      expect(items.first.grade, 'সহিহ হাদিস');
+      expect(items.first.reference, 'সুনানে নাসায়ি 1');
+      expect(items.first.fallbackTranslation, isFalse);
+      expect(items[1].grade, 'হাসান হাদিস');
+    });
+
+    test('en on a hadithbangla book still uses fawazahmed0 (English)',
+        () async {
+      final repo = makeRepo((url) async {
+        if (url.toString().contains('hadithbangla')) {
+          throw StateError('should not hit bangla source for en');
+        }
+        return _section(url.toString().contains('ara-') ? 'ar' : 'en');
+      });
+      final nasai = (await repo.books()).valueOrNull!.last;
+
+      final items =
+          (await repo.section(nasai, nasai.sections.first, 'en')).valueOrNull!;
+      expect(items.first.translation, 'en-text-1');
     });
   });
 }

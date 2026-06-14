@@ -1504,6 +1504,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Source: fawazahmed0/hadith-api (public domain)';
 
   @override
+  String get hadithSourceNoteBn => 'Bengali source: hadithbangla (open source)';
+
+  @override
+  String get hadithEnglishOnly => 'English only';
+
+  @override
+  String get hadithBengaliUnavailable =>
+      'No Bengali translation — showing English';
+
+  @override
+  String get hadithBengaliUnavailableSection =>
+      'Bengali isn\'t available for this book yet — showing English.';
+
+  @override
   String get duaSearchHint => 'Search duas';
 
   @override
@@ -1526,4 +1540,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetNextPrayerLabel => 'Next prayer';
+
+  @override
+  String get nearbyMosquesLabel => 'Mosques';
+
+  @override
+  String get nearbyMosquesLaunchError =>
+      'Couldn\'t open Maps. Make sure a maps app is installed.';
+
+  @override
+  String get nearbyMosquesLocationError =>
+      'Set your location first to find nearby mosques.';
 }

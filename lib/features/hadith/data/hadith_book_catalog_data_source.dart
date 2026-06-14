@@ -46,12 +46,17 @@ final class HadithBookCatalogDataSource {
     final kind = map['kind'];
     final total = map['total'];
     final rawSections = map['sections'];
+    final rawBnSections = map['sections_bn'];
+    final bnAvailable = map['bn_available'];
+    final bnFolder = map['bn_folder'];
     return HadithBook(
       id: id,
       en: en,
       bn: bn is String ? bn : '',
       author: author is String ? author : '',
       kind: kind is String ? kind : 'graded',
+      bnAvailable: bnAvailable is bool ? bnAvailable : true,
+      bnFolder: bnFolder is String ? bnFolder : '',
       total: total is int ? total : 0,
       editionAr: map['edition_ar'] is String
           ? map['edition_ar']! as String
@@ -65,6 +70,11 @@ final class HadithBookCatalogDataSource {
       sections: [
         if (rawSections is List)
           for (final s in rawSections)
+            if (_section(s) case final section?) section,
+      ],
+      bnSections: [
+        if (rawBnSections is List)
+          for (final s in rawBnSections)
             if (_section(s) case final section?) section,
       ],
     );

@@ -2516,6 +2516,30 @@ abstract class AppLocalizations {
   /// **'Source: fawazahmed0/hadith-api (public domain)'**
   String get hadithSourceNote;
 
+  /// No description provided for @hadithSourceNoteBn.
+  ///
+  /// In en, this message translates to:
+  /// **'Bengali source: hadithbangla (open source)'**
+  String get hadithSourceNoteBn;
+
+  /// No description provided for @hadithEnglishOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'English only'**
+  String get hadithEnglishOnly;
+
+  /// No description provided for @hadithBengaliUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bengali translation — showing English'**
+  String get hadithBengaliUnavailable;
+
+  /// No description provided for @hadithBengaliUnavailableSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Bengali isn\'t available for this book yet — showing English.'**
+  String get hadithBengaliUnavailableSection;
+
   /// No description provided for @duaSearchHint.
   ///
   /// In en, this message translates to:
@@ -2563,6 +2587,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next prayer'**
   String get widgetNextPrayerLabel;
+
+  /// No description provided for @nearbyMosquesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosques'**
+  String get nearbyMosquesLabel;
+
+  /// No description provided for @nearbyMosquesLaunchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open Maps. Make sure a maps app is installed.'**
+  String get nearbyMosquesLaunchError;
+
+  /// No description provided for @nearbyMosquesLocationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location first to find nearby mosques.'**
+  String get nearbyMosquesLocationError;
 }
 
 class _AppLocalizationsDelegate

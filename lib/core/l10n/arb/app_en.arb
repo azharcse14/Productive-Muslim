@@ -735,6 +735,10 @@
   "hadithLoadError": "Couldn't load. Check your connection and try again.",
   "hadithRetry": "Try again",
   "hadithSourceNote": "Source: fawazahmed0/hadith-api (public domain)",
+  "hadithSourceNoteBn": "Bengali source: hadithbangla (open source)",
+  "hadithEnglishOnly": "English only",
+  "hadithBengaliUnavailable": "No Bengali translation — showing English",
+  "hadithBengaliUnavailableSection": "Bengali isn't available for this book yet — showing English.",
   "duaSearchHint": "Search duas",
   "duaSearchTitle": "Search",
   "duaNoResults": "No duas found",
@@ -742,5 +746,8 @@
   "duaFavoritesEmpty": "Tap the heart on any dua to save it here",
   "favoriteAddLabel": "Add to favorites",
   "favoriteRemoveLabel": "Remove from favorites",
-  "widgetNextPrayerLabel": "Next prayer"
+  "widgetNextPrayerLabel": "Next prayer",
+  "nearbyMosquesLabel": "Mosques",
+  "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed.",
+  "nearbyMosquesLocationError": "Set your location first to find nearby mosques."
 }

@@ -100,5 +100,27 @@ void main() {
         expect(b['sections']! as List<Object?>, isNotEmpty);
       }
     });
+
+    test('hadithbangla books carry a bn_folder and Bengali chapters', () {
+      // The six canonical collections served in Bengali by the hadithbangla
+      // repo must have both a folder and a non-empty Bengali chapter list.
+      const bnBooks = {
+        'bukhari', 'muslim', 'abudawud', 'tirmidhi', 'nasai', 'ibnmajah',
+      };
+      for (final b in books) {
+        if (bnBooks.contains(b['id'])) {
+          expect((b['bn_folder']! as String).trim(), isNotEmpty,
+              reason: '${b['id']} should have a bn_folder');
+          expect(b['sections_bn']! as List<Object?>, isNotEmpty,
+              reason: '${b['id']} should have Bengali chapters');
+        }
+      }
+    });
+
+    test('a book with no Bengali anywhere is flagged bn_available=false', () {
+      final qudsi = books.firstWhere((b) => b['id'] == 'qudsi');
+      expect(qudsi['bn_available'], isFalse);
+      expect((qudsi['bn_folder'] as String?) ?? '', isEmpty);
+    });
   });
 }
