@@ -15,6 +15,10 @@ import '../../domain/usecases/get_prayer_day.dart';
 import '../../domain/usecases/resolve_countdown.dart';
 import '../../domain/usecases/resolve_special_times.dart';
 
+/// Coarse time-of-day buckets for the header greeting. Memoized so the home
+/// only rebuilds at a boundary, not every second.
+enum DayPart { morning, afternoon, evening, night }
+
 /// Home-screen state. ONE 1-second timer drives ONE `now` signal;
 /// everything else is `computed` (guide §4: derive, don't duplicate).
 /// Computed values memoize by ==, so only the countdown subtree sees
@@ -69,6 +73,22 @@ final class HomeStore {
       params: _settings.prayerParams.value,
       date: dateKey.value,
     ).valueOrNull;
+  });
+
+  /// Time-of-day bucket for the greeting; flips only at a boundary, so reading
+  /// it at the top of the home tree doesn't force a per-second rebuild.
+  late final daypart = computed<DayPart>(() {
+    final h = now.value.hour;
+    if (h >= 4 && h < 12) {
+      return DayPart.morning;
+    }
+    if (h >= 12 && h < 16) {
+      return DayPart.afternoon;
+    }
+    if (h >= 16 && h < 20) {
+      return DayPart.evening;
+    }
+    return DayPart.night;
   });
 
   late final hijriDate = computed(() => HijriDate.fromGregorian(dateKey.value));

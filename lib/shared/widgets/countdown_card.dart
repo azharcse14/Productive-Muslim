@@ -13,6 +13,12 @@ import '../painters/qalb_mark.dart';
 /// never used for missed deeds.
 enum CountdownState { calm, amber, urgent, sahri, iftar }
 
+/// Time-of-day tint for the calm hero, derived from the sun: a subtle wash
+/// drawn ONLY from the brand palette (teal `primarySoft`, honey `accentSoft`,
+/// neutral `surface2`) — never literal "sky" colours — so the hero feels alive
+/// across the day while staying on-brand and keeping the dark numeral readable.
+enum SkyPhase { dawn, morning, day, evening, night }
+
 /// The countdown hero card shell: eyebrow overline, large tabular numeral,
 /// caption, and a thin progress bar, over a ≤6% motif tiling.
 /// Phase 3 drives it from the prayer-times state machine.
@@ -25,11 +31,15 @@ final class CountdownCard extends StatelessWidget {
     required this.progress,
     this.footer = const [],
     this.corner,
+    this.skyPhase = SkyPhase.day,
     this.compact = false,
     super.key,
   });
 
   final CountdownState state;
+
+  /// Time-of-day tint applied to the calm state's background (see [SkyPhase]).
+  final SkyPhase skyPhase;
 
   /// Optional widget pinned to the card's top-right corner. Built with the
   /// card's current foreground color so it can tint itself to match the
@@ -98,15 +108,38 @@ final class CountdownCard extends StatelessWidget {
     };
   }
 
+  /// A faint top-to-bottom wash for the calm hero, tinted by [skyPhase] from
+  /// the brand palette only. Other (semantic) states keep their flat colour so
+  /// urgency reads cleanly. Returns null when no gradient should apply.
+  LinearGradient? _skyGradient(QalbeeColors q, Color bg) {
+    if (state != CountdownState.calm) {
+      return null;
+    }
+    final tint = switch (skyPhase) {
+      SkyPhase.dawn => q.primarySoft,
+      SkyPhase.morning => Color.lerp(bg, q.primarySoft, 0.6)!,
+      SkyPhase.day => q.surface2,
+      SkyPhase.evening => q.accentSoft,
+      SkyPhase.night => q.primarySoft,
+    };
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color.lerp(bg, tint, 0.7)!, bg],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = _colors(context.q);
+    final gradient = _skyGradient(context.q, c.bg);
     final numeralSize = compact ? 36.0 : 56.0;
     return AnimatedContainer(
       duration: QMotion.med,
       curve: QMotion.ease,
       decoration: BoxDecoration(
-        color: c.bg,
+        color: gradient == null ? c.bg : null,
+        gradient: gradient,
         borderRadius: BorderRadius.circular(QRadius.xl),
         border: Border.all(color: c.ring),
         boxShadow: [

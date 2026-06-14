@@ -179,6 +179,12 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
+      // The card sits below the fold (quick actions + hero are above it).
+      await tester.scrollUntilVisible(
+        find.text('Muhasaba'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       // Title + completion ring + done/total count, all in one compact card.
       expect(find.text('Muhasaba'), findsOneWidget);
       expect(find.text('0%'), findsOneWidget);
@@ -239,9 +245,20 @@ void main() {
       await tester.tap(checks.first);
       await tester.pump();
       expect(_muhasabaRepo.entries_[('salah_fajr', 20260612)], 1);
-      // The summary card's count reflects the new done item live.
+      // The summary card's count reflects the new done item live; it sits below
+      // the fold now, so scroll it into view to confirm.
+      await tester.scrollUntilVisible(
+        find.text('1/10 done'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('1/10 done'), findsOneWidget);
-      // Tapping again toggles off.
+      // Scroll back up to the table and tap again to toggle off.
+      await tester.scrollUntilVisible(
+        checks,
+        -300,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(checks.first);
       await tester.pump();
       expect(

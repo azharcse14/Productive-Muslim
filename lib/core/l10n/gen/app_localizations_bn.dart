@@ -256,6 +256,23 @@ class AppLocalizationsBn extends AppLocalizations {
   String get iftarLabel => 'ইফতার';
 
   @override
+  String get greetingMorning => 'শুভ সকাল';
+
+  @override
+  String get greetingAfternoon => 'শুভ দুপুর';
+
+  @override
+  String get greetingEvening => 'শুভ সন্ধ্যা';
+
+  @override
+  String get greetingNight => 'শুভ রাত্রি';
+
+  @override
+  String continueReadingAyah(String number) {
+    return 'আয়াত $number';
+  }
+
+  @override
   String get forbiddenTimesTitle => 'নিষিদ্ধ ওয়াক্ত';
 
   @override

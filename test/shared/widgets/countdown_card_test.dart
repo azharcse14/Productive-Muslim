@@ -28,6 +28,12 @@ AnimatedContainer _container(WidgetTester tester) =>
 Color _bgOf(WidgetTester tester) =>
     (_container(tester).decoration! as BoxDecoration).color!;
 
+LinearGradient? _gradientOf(WidgetTester tester) =>
+    (_container(tester).decoration! as BoxDecoration).gradient as LinearGradient?;
+
+Color? _flatColorOf(WidgetTester tester) =>
+    (_container(tester).decoration! as BoxDecoration).color;
+
 void main() {
   group('CountdownCard', () {
     testWidgets('renders eyebrow (uppercased), numeral, and sub',
@@ -38,9 +44,53 @@ void main() {
       expect(find.text('Jamaat at 5:15 pm'), findsOneWidget);
     });
 
-    testWidgets('calm state uses surface background', (tester) async {
+    testWidgets('calm state uses a brand sky gradient ending in surface',
+        (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
-      expect(_bgOf(tester), QalbeeColors.light.surface);
+      final gradient = _gradientOf(tester);
+      expect(gradient, isNotNull);
+      // The wash always resolves back to the surface at the bottom so the
+      // dark numeral stays readable; no flat colour when a gradient is set.
+      expect(gradient!.colors.last, QalbeeColors.light.surface);
+      expect(_flatColorOf(tester), isNull);
+    });
+
+    testWidgets('the sky phase shifts the calm gradient top tint',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CountdownCard(
+            state: CountdownState.calm,
+            skyPhase: SkyPhase.dawn,
+            eyebrow: 'a',
+            big: 'b',
+            sub: 'c',
+            progress: 0.1,
+          ),
+        ),
+      );
+      final dawnTint = _gradientOf(tester)!.colors.first;
+      await tester.pumpWidget(
+        _wrap(
+          const CountdownCard(
+            state: CountdownState.calm,
+            skyPhase: SkyPhase.evening,
+            eyebrow: 'a',
+            big: 'b',
+            sub: 'c',
+            progress: 0.1,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_gradientOf(tester)!.colors.first, isNot(dawnTint));
+    });
+
+    testWidgets('a semantic state keeps a flat colour (no gradient)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(_card(CountdownState.amber)));
+      expect(_gradientOf(tester), isNull);
+      expect(_flatColorOf(tester), QalbeeColors.light.warnSoft);
     });
 
     testWidgets('amber state uses warn-soft background', (tester) async {
@@ -65,7 +115,7 @@ void main() {
 
     testWidgets('dark theme resolves dark tokens', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm), dark: true));
-      expect(_bgOf(tester), QalbeeColors.dark.surface);
+      expect(_gradientOf(tester)!.colors.last, QalbeeColors.dark.surface);
     });
 
     testWidgets('progress is clamped to 0..1', (tester) async {

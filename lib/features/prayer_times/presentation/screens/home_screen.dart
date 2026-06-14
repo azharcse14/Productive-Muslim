@@ -17,6 +17,7 @@ import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
+import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
@@ -28,13 +29,16 @@ import '../../../quran/presentation/state/quran_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/countdown_target.dart';
+import '../../domain/entities/prayer_day.dart';
 import '../state/home_store.dart';
+import '../widgets/continue_reading_card.dart';
 import '../widgets/daily_ayah_card.dart';
 import '../widgets/day_timeline_sheet.dart';
 import '../widgets/home_header.dart';
 import '../widgets/prayer_detail_sheet.dart';
 import '../widgets/prayer_table.dart';
 import '../widgets/qibla_mini_chip.dart';
+import '../widgets/quick_actions_row.dart';
 import '../widgets/special_times_card.dart';
 import '../widgets/tasbih_quick_card.dart';
 
@@ -225,6 +229,32 @@ final class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
+  /// Time-of-day greeting shown in the header, from the memoized [DayPart].
+  String _greeting(AppLocalizations l10n, DayPart part) => switch (part) {
+    DayPart.morning => l10n.greetingMorning,
+    DayPart.afternoon => l10n.greetingAfternoon,
+    DayPart.evening => l10n.greetingEvening,
+    DayPart.night => l10n.greetingNight,
+  };
+
+  /// Maps the current moment within the day's sun events to a [SkyPhase] so the
+  /// calm hero card carries a subtle, on-brand time-of-day tint.
+  SkyPhase _skyPhase(DateTime now, PrayerDay day) {
+    if (now.isBefore(day.sunrise)) {
+      return SkyPhase.dawn;
+    }
+    if (now.isBefore(day.startOf(Prayer.dhuhr))) {
+      return SkyPhase.morning;
+    }
+    if (now.isBefore(day.startOf(Prayer.asr))) {
+      return SkyPhase.day;
+    }
+    if (now.isBefore(day.maghrib)) {
+      return SkyPhase.evening;
+    }
+    return SkyPhase.night;
+  }
+
   CountdownState _cardState(CountdownUrgency urgency) => switch (urgency) {
     CountdownUrgency.calm => CountdownState.calm,
     CountdownUrgency.amber => CountdownState.amber,
@@ -272,6 +302,356 @@ final class _HomeScreenState extends State<HomeScreen> {
                     location.longitude,
                   );
 
+            final sections = <Widget>[
+              // Smart countdown hero, tinted by the time of day.
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  compact ? QSpace.s3 : QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: SignalBuilder(
+                  builder: (context) {
+                    final target = _store.countdownTarget.value;
+                    if (target == null) {
+                      return const SizedBox.shrink();
+                    }
+                    final (eyebrow, sub) = _countdownLabels(
+                      l10n,
+                      context,
+                      target,
+                    );
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => unawaited(
+                        showDayTimelineSheet(
+                          context,
+                          day: day,
+                          now: _store.now.value,
+                          formatTime: (t) => _formatTime(context, t),
+                          activePrayer: _store.activeWaqt.value?.prayer,
+                        ),
+                      ),
+                      child: CountdownCard(
+                        state: _cardState(_store.urgency.value),
+                        skyPhase: _skyPhase(_store.now.value, day),
+                        eyebrow: eyebrow,
+                        big: _formatCountdown(
+                          context,
+                          _store.remaining.value,
+                        ),
+                        sub: sub,
+                        progress: _store.progress.value,
+                        corner: (fg) => QiblaMiniChip(
+                          bearing: qiblaBearing,
+                          heading: null,
+                          hasLocation: location != null,
+                          foreground: fg,
+                          onTap: () => context.pushNamed(Routes.qibla.name),
+                        ),
+                        footer: [
+                          (
+                            icon: Icons.wb_sunny_outlined,
+                            text:
+                                '${l10n.sunriseLabel} ${_formatTime(context, day.sunrise)}',
+                          ),
+                          (
+                            icon: Icons.wb_twilight_outlined,
+                            text:
+                                '${l10n.sunsetLabel} ${_formatTime(context, day.maghrib)}',
+                          ),
+                        ],
+                        compact: compact,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Tools hub: shortcuts to features that aren't a bottom-nav tab
+              // and don't already have their own home card.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: QuickActionsRow(
+                  actions: [
+                    QuickAction(
+                      icon: Icons.explore_outlined,
+                      label: l10n.qiblaChipLabel,
+                      onTap: () => context.pushNamed(Routes.qibla.name),
+                    ),
+                    QuickAction(
+                      icon: Icons.format_quote_outlined,
+                      label: l10n.hadithTitle,
+                      onTap: () => context.pushNamed(Routes.hadith.name),
+                    ),
+                    QuickAction(
+                      icon: Icons.calendar_month_outlined,
+                      label: l10n.calendarTitle,
+                      onTap: () => context.pushNamed(Routes.calendar.name),
+                    ),
+                    QuickAction(
+                      icon: Icons.calculate_outlined,
+                      label: l10n.calculatorsTitle,
+                      onTap: () => context.pushNamed(Routes.calculators.name),
+                    ),
+                  ],
+                ),
+              ),
+              // Today's prayer table.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: SignalBuilder(
+                  builder: (context) {
+                    final muhasaba = _muhasaba;
+                    final entries = muhasaba.entries.value;
+                    return PrayerTable(
+                      day: day,
+                      activePrayer: _store.activeWaqt.value?.prayer,
+                      jamaat: _store.jamaatConfig.value,
+                      formatTime: (t) => _formatTime(context, t),
+                      dense: compact,
+                      locked: _store.lockedPrayers.value,
+                      onLockedTap: (_) => _showLockedToast(context),
+                      onSetJamaat: () =>
+                          context.pushNamed(Routes.myMosque.name),
+                      prayed: {
+                        for (final prayer in Prayer.values)
+                          if (muhasaba.selectedIsToday &&
+                              (entries['salah_${prayer.name}'] ?? 0) > 0)
+                            prayer,
+                      },
+                      onTogglePrayed: (prayer) => unawaited(
+                        muhasaba.togglePrayerToday('salah_${prayer.name}'),
+                      ),
+                      onPrayerTap: (prayer) => unawaited(
+                        showPrayerDetailSheet(
+                          context,
+                          prayer: prayer,
+                          range:
+                              '${_formatTime(context, day.startOf(prayer))} – ${_formatTime(context, day.endOf(prayer))}',
+                          jamaatTime: switch (_store.jamaatConfig.value
+                              .timeFor(prayer, day.startOf(prayer))) {
+                            null => null,
+                            final t => _formatTime(context, t),
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // Muhasaba (daily-deeds) summary.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: SignalBuilder(
+                  builder: (context) {
+                    final stats = _muhasaba.stats.value;
+                    if (stats == null) {
+                      return const SizedBox.shrink();
+                    }
+                    // The period range always ends today, so the last day
+                    // completion is today's.
+                    final today = stats.days.isEmpty
+                        ? 0.0
+                        : stats.days.last.completion;
+                    final items = _muhasaba.items.value;
+                    final entries = _muhasaba.entries.value;
+                    final doneToday = _muhasaba.selectedIsToday
+                        ? items
+                              .where((i) => i.isDone(entries[i.id] ?? 0))
+                              .length
+                        : (today * items.length).round();
+                    return _MuhasabaCard(
+                      completion: today,
+                      doneToday: doneToday,
+                      totalItems: items.length,
+                      streak: stats.currentStreak,
+                      onTap: () => context.goNamed(Routes.muhasaba.name),
+                      milestone: _isStreakMilestone(stats.currentStreak),
+                    );
+                  },
+                ),
+              ),
+
+              // Continue reading the Quran from the last position.
+              if (_quran case final quran?)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    QSpace.s5,
+                    QSpace.s4,
+                    QSpace.s5,
+                    0,
+                  ),
+                  child: SignalBuilder(
+                    builder: (context) {
+                      final pos = quran.lastRead.value;
+                      if (pos == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return ContinueReadingCard(
+                        title: l10n.continueReading,
+                        surahName: _surahName(pos.surah),
+                        ayahLabel: l10n.continueReadingAyah(
+                          LocaleDigits.localize(
+                            '${pos.ayah}',
+                            locale.languageCode,
+                          ),
+                        ),
+                        onTap: () => context.goNamed(
+                          Routes.quranAyah.name,
+                          pathParameters: {
+                            'surah': '${pos.surah}',
+                            'ayah': '${pos.ayah}',
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              if (_tasbih case final tasbih?)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    QSpace.s5,
+                    QSpace.s4,
+                    QSpace.s5,
+                    0,
+                  ),
+                  child: SignalBuilder(
+                    builder: (context) => TasbihQuickCard(
+                      count: tasbih.count.value,
+                      target: tasbih.target.value,
+                      onTap: tasbih.tap,
+                      onReset: tasbih.count.value > 0
+                          ? () => unawaited(tasbih.reset(saveToHistory: true))
+                          : null,
+                      onOpen: () => context.goNamed(Routes.dua.name),
+                    ),
+                  ),
+                ),
+              // Forbidden & nafl windows.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  0,
+                ),
+                child: SignalBuilder(
+                  builder: (context) {
+                    final windows = _store.specialWindows.value;
+                    if (windows.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return SpecialTimesCard(
+                      windows: windows,
+                      active: _store.activeSpecial.value,
+                      formatTime: (t) => _formatTime(context, t),
+                      onTap: (kind) => context.pushNamed(
+                        Routes.specialTimes.name,
+                        extra: (
+                          kind,
+                          windows.where((w) => w.kind == kind).toList(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (_ayah != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    QSpace.s5,
+                    QSpace.s4,
+                    QSpace.s5,
+                    0,
+                  ),
+                  child: DailyAyahCard(
+                    arabic: _ayah!.arabic,
+                    translation: _ayah!.translationFor(locale.languageCode),
+                    surahName: _surahName(_ayah!.surah),
+                    ayahNumber: LocaleDigits.localize(
+                      '${_ayah!.number}',
+                      locale.languageCode,
+                    ),
+                    onTap: () => context.goNamed(
+                      Routes.quranAyah.name,
+                      pathParameters: {
+                        'surah': '${_ayah!.surah}',
+                        'ayah': '${_ayah!.number}',
+                      },
+                    ),
+                  ),
+                ),
+              if (_hadithOfDay != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    QSpace.s5,
+                    QSpace.s4,
+                    QSpace.s5,
+                    0,
+                  ),
+                  child: HadithCard(
+                    text: _hadithOfDay!.translationFor(locale.languageCode),
+                    narrator: _hadithOfDay!.narrator,
+                    reference: _hadithOfDay!.reference,
+                    onTap: () => context.pushNamed(Routes.hadith.name),
+                  ),
+                ),
+              // Sahri & Iftar — pinned to the very bottom of the home.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s4,
+                  QSpace.s5,
+                  QSpace.s5,
+                ),
+                child: QCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: QSpace.s5,
+                    vertical: QSpace.s4,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _MealTime(
+                          label: l10n.sahriEndsLabel,
+                          time: _formatTime(context, day.sahriEnd),
+                          icon: Icons.nightlight_outlined,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 36,
+                        color: context.q.line,
+                      ),
+                      const SizedBox(width: QSpace.s4),
+                      Expanded(
+                        child: _MealTime(
+                          label: l10n.iftarLabel,
+                          time: _formatTime(context, day.iftar),
+                          icon: Icons.wb_twilight_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ];
             return RefreshIndicator(
               onRefresh: _refresh,
               child: ListView(
@@ -279,6 +659,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   HomeHeader(
+                    greeting: _greeting(l10n, _store.daypart.value),
                     locationName: switch (location?.displayName) {
                       null || '' => l10n.locationCurrent,
                       final name => name,
@@ -290,274 +671,8 @@ final class _HomeScreenState extends State<HomeScreen> {
                     onNotificationsTap: () =>
                         context.pushNamed(Routes.notificationSettings.name),
                   ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      QSpace.s5,
-                      compact ? QSpace.s3 : QSpace.s4,
-                      QSpace.s5,
-                      0,
-                    ),
-                    child: SignalBuilder(
-                      builder: (context) {
-                        final target = _store.countdownTarget.value;
-                        if (target == null) {
-                          return const SizedBox.shrink();
-                        }
-                        final (eyebrow, sub) = _countdownLabels(
-                          l10n,
-                          context,
-                          target,
-                        );
-                        return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => unawaited(
-                            showDayTimelineSheet(
-                              context,
-                              day: day,
-                              now: _store.now.value,
-                              formatTime: (t) => _formatTime(context, t),
-                              activePrayer: _store.activeWaqt.value?.prayer,
-                            ),
-                          ),
-                          child: CountdownCard(
-                            state: _cardState(_store.urgency.value),
-                            eyebrow: eyebrow,
-                            big: _formatCountdown(
-                              context,
-                              _store.remaining.value,
-                            ),
-                            sub: sub,
-                            progress: _store.progress.value,
-                            corner: (fg) => QiblaMiniChip(
-                              bearing: qiblaBearing,
-                              heading: null,
-                              hasLocation: location != null,
-                              foreground: fg,
-                              onTap: () => context.pushNamed(Routes.qibla.name),
-                            ),
-                            footer: [
-                              (
-                                icon: Icons.wb_sunny_outlined,
-                                text:
-                                    '${l10n.sunriseLabel} ${_formatTime(context, day.sunrise)}',
-                              ),
-                              (
-                                icon: Icons.wb_twilight_outlined,
-                                text:
-                                    '${l10n.sunsetLabel} ${_formatTime(context, day.maghrib)}',
-                              ),
-                            ],
-                            compact: compact,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      QSpace.s5,
-                      QSpace.s4,
-                      QSpace.s5,
-                      0,
-                    ),
-                    child: SignalBuilder(
-                      builder: (context) {
-                        final muhasaba = _muhasaba;
-                        final entries = muhasaba.entries.value;
-                        return PrayerTable(
-                          day: day,
-                          activePrayer: _store.activeWaqt.value?.prayer,
-                          jamaat: _store.jamaatConfig.value,
-                          formatTime: (t) => _formatTime(context, t),
-                          dense: compact,
-                          locked: _store.lockedPrayers.value,
-                          onLockedTap: (_) => _showLockedToast(context),
-                          onSetJamaat: () =>
-                              context.pushNamed(Routes.myMosque.name),
-                          prayed: {
-                            for (final prayer in Prayer.values)
-                              if (muhasaba.selectedIsToday &&
-                                  (entries['salah_${prayer.name}'] ?? 0) > 0)
-                                prayer,
-                          },
-                          onTogglePrayed: (prayer) => unawaited(
-                            muhasaba.togglePrayerToday('salah_${prayer.name}'),
-                          ),
-                          onPrayerTap: (prayer) => unawaited(
-                            showPrayerDetailSheet(
-                              context,
-                              prayer: prayer,
-                              range:
-                                  '${_formatTime(context, day.startOf(prayer))} – ${_formatTime(context, day.endOf(prayer))}',
-                              jamaatTime: switch (_store.jamaatConfig.value
-                                  .timeFor(prayer, day.startOf(prayer))) {
-                                null => null,
-                                final t => _formatTime(context, t),
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      QSpace.s5,
-                      QSpace.s4,
-                      QSpace.s5,
-                      0,
-                    ),
-                    child: SignalBuilder(
-                      builder: (context) {
-                        final stats = _muhasaba.stats.value;
-                        if (stats == null) {
-                          return const SizedBox.shrink();
-                        }
-                        // The period range always ends today, so the last day
-                        // completion is today's.
-                        final today = stats.days.isEmpty
-                            ? 0.0
-                            : stats.days.last.completion;
-                        final items = _muhasaba.items.value;
-                        final entries = _muhasaba.entries.value;
-                        final doneToday = _muhasaba.selectedIsToday
-                            ? items
-                                  .where((i) => i.isDone(entries[i.id] ?? 0))
-                                  .length
-                            : (today * items.length).round();
-                        return _MuhasabaCard(
-                          completion: today,
-                          doneToday: doneToday,
-                          totalItems: items.length,
-                          streak: stats.currentStreak,
-                          onTap: () => context.goNamed(Routes.muhasaba.name),
-                          milestone: _isStreakMilestone(stats.currentStreak),
-                        );
-                      },
-                    ),
-                  ),
-                  if (_tasbih case final tasbih?)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        QSpace.s5,
-                        QSpace.s4,
-                        QSpace.s5,
-                        0,
-                      ),
-                      child: SignalBuilder(
-                        builder: (context) => TasbihQuickCard(
-                          count: tasbih.count.value,
-                          target: tasbih.target.value,
-                          onTap: tasbih.tap,
-                          onReset: tasbih.count.value > 0
-                              ? () =>
-                                    unawaited(tasbih.reset(saveToHistory: true))
-                              : null,
-                          onOpen: () => context.goNamed(Routes.dua.name),
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      QSpace.s5,
-                      QSpace.s4,
-                      QSpace.s5,
-                      0,
-                    ),
-                    child: QCard(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: QSpace.s5,
-                        vertical: QSpace.s4,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _MealTime(
-                              label: l10n.sahriEndsLabel,
-                              time: _formatTime(context, day.sahriEnd),
-                              icon: Icons.nightlight_outlined,
-                            ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 36,
-                            color: context.q.line,
-                          ),
-                          const SizedBox(width: QSpace.s4),
-                          Expanded(
-                            child: _MealTime(
-                              label: l10n.iftarLabel,
-                              time: _formatTime(context, day.iftar),
-                              icon: Icons.wb_twilight_outlined,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(QSpace.s5),
-                    child: SignalBuilder(
-                      builder: (context) {
-                        final windows = _store.specialWindows.value;
-                        if (windows.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        return SpecialTimesCard(
-                          windows: windows,
-                          active: _store.activeSpecial.value,
-                          formatTime: (t) => _formatTime(context, t),
-                          onTap: (kind) => context.pushNamed(
-                            Routes.specialTimes.name,
-                            extra: (
-                              kind,
-                              windows.where((w) => w.kind == kind).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (_ayah != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        QSpace.s5,
-                        0,
-                        QSpace.s5,
-                        0,
-                      ),
-                      child: DailyAyahCard(
-                        arabic: _ayah!.arabic,
-                        translation: _ayah!.translationFor(locale.languageCode),
-                        surahName: _surahName(_ayah!.surah),
-                        ayahNumber: LocaleDigits.localize(
-                          '${_ayah!.number}',
-                          locale.languageCode,
-                        ),
-                        onTap: () => context.goNamed(
-                          Routes.quranAyah.name,
-                          pathParameters: {
-                            'surah': '${_ayah!.surah}',
-                            'ayah': '${_ayah!.number}',
-                          },
-                        ),
-                      ),
-                    ),
-                  if (_hadithOfDay != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        QSpace.s5,
-                        QSpace.s4,
-                        QSpace.s5,
-                        QSpace.s5,
-                      ),
-                      child: HadithCard(
-                        text: _hadithOfDay!.translationFor(locale.languageCode),
-                        narrator: _hadithOfDay!.narrator,
-                        reference: _hadithOfDay!.reference,
-                        onTap: () => context.pushNamed(Routes.hadith.name),
-                      ),
-                    ),
+                  for (final (i, section) in sections.indexed)
+                    StaggeredEntrance(index: i, child: section),
                 ],
               ),
             );
@@ -608,18 +723,25 @@ final class _MuhasabaCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            QProgressRing(
-              progress: completion,
-              size: 44,
-              strokeWidth: 5,
-              child: Text(
-                LocaleDigits.localize(
-                  '${(completion * 100).round()}%',
-                  languageCode,
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: completion),
+              duration: MediaQuery.of(context).disableAnimations
+                  ? Duration.zero
+                  : QMotion.slow,
+              curve: QMotion.ease,
+              builder: (context, value, _) => QProgressRing(
+                progress: value,
+                size: 44,
+                strokeWidth: 5,
+                child: Text(
+                  LocaleDigits.localize(
+                    '${(completion * 100).round()}%',
+                    languageCode,
+                  ),
+                  style: QType.num_(
+                    QType.caption,
+                  ).copyWith(fontSize: 11, color: q.ink),
                 ),
-                style: QType.num_(
-                  QType.caption,
-                ).copyWith(fontSize: 11, color: q.ink),
               ),
             ),
             const SizedBox(width: QSpace.s4),

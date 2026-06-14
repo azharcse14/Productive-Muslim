@@ -10,10 +10,15 @@ final class HomeHeader extends StatelessWidget {
     required this.locationName,
     required this.dates,
     required this.onLocationTap,
+    this.greeting,
     this.onQiblaTap,
     this.onNotificationsTap,
     super.key,
   });
+
+  /// A short, time-of-day greeting shown above the location pill, e.g.
+  /// "Good morning". Hidden when null/empty.
+  final String? greeting;
 
   final String locationName;
 
@@ -31,6 +36,17 @@ final class HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (greeting case final g? when g.isNotEmpty)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4, bottom: 2),
+              child: Text(
+                g,
+                style: QType.caption.copyWith(
+                  color: q.primary,
+                  fontVariations: const [FontVariation('wght', 600)],
+                ),
+              ),
+            ),
           Row(
             children: [
               Flexible(

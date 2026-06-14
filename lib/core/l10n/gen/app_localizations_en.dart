@@ -256,6 +256,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iftarLabel => 'Iftar';
 
   @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get greetingNight => 'Peaceful night';
+
+  @override
+  String continueReadingAyah(String number) {
+    return 'Ayah $number';
+  }
+
+  @override
   String get forbiddenTimesTitle => 'Forbidden times';
 
   @override

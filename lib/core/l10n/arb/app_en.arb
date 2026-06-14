@@ -134,6 +134,16 @@
   "sunsetLabel": "Sunset",
   "sahriEndsLabel": "Sahri ends",
   "iftarLabel": "Iftar",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingNight": "Peaceful night",
+  "continueReadingAyah": "Ayah {number}",
+  "@continueReadingAyah": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
   "forbiddenTimesTitle": "Forbidden times",
   "naflTimesTitle": "Nafl times",
   "specialNow": "Now",
