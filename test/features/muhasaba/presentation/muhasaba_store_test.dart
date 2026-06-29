@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/tracker_item.dart';
-import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 
 import '../../../helpers/muhasaba_fakes.dart';
 

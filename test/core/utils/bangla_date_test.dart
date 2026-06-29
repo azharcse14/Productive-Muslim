@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/bangla_date.dart';
+import 'package:productive_muslim/core/utils/bangla_date.dart';
 
 void main() {
   group('BanglaDate (BD revised calendar)', () {

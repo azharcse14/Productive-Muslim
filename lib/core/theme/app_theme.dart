@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'qalbee_colors.dart';
-import 'qalbee_tokens.dart';
-import 'qalbee_typography.dart';
+import 'productive_muslim_colors.dart';
+import 'productive_muslim_tokens.dart';
+import 'productive_muslim_typography.dart';
 
 /// Builds the two designed themes. Dark is its own palette
 /// (comfortable at Fajr/Tahajjud) — never an inversion of light.
@@ -11,11 +11,11 @@ import 'qalbee_typography.dart';
 /// and must never be disabled; only M3 APIs (ColorScheme, WidgetState,
 /// NavigationBar theming) are used here.
 abstract final class AppTheme {
-  static ThemeData light() => _build(QalbeeColors.light, Brightness.light);
+  static ThemeData light() => _build(ProductiveMuslimColors.light, Brightness.light);
 
-  static ThemeData dark() => _build(QalbeeColors.dark, Brightness.dark);
+  static ThemeData dark() => _build(ProductiveMuslimColors.dark, Brightness.dark);
 
-  static ThemeData _build(QalbeeColors q, Brightness brightness) {
+  static ThemeData _build(ProductiveMuslimColors q, Brightness brightness) {
     final scheme = ColorScheme(
       brightness: brightness,
       primary: q.primary,

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/locator.dart';
-import '../../../../core/theme/qalbee_tokens.dart';
-import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/theme/productive_muslim_tokens.dart';
+import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/islamic_dates.dart';

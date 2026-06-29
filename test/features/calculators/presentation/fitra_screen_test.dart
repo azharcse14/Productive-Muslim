@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/features/calculators/presentation/screens/fitra_screen.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/calculators/presentation/screens/fitra_screen.dart';
 
 Widget _app() => MaterialApp(
       theme: AppTheme.light(),

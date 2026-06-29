@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/l10n/gen/app_localizations.dart';
-import '../../core/theme/qalbee_colors.dart';
+import '../../core/theme/productive_muslim_colors.dart';
 
 /// Convenience accessors used across all presentation code.
-extension QalbeeContext on BuildContext {
-  /// Qalbee color tokens — the only way feature widgets obtain colors.
-  QalbeeColors get q => Theme.of(this).extension<QalbeeColors>()!;
+extension ProductiveMuslimContext on BuildContext {
+  /// Productive Muslim color tokens — the only way feature widgets obtain colors.
+  ProductiveMuslimColors get q => Theme.of(this).extension<ProductiveMuslimColors>()!;
 
   TextTheme get text => Theme.of(this).textTheme;
 

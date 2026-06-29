@@ -1,12 +1,12 @@
-# Qalbee — Development Guide
+# Productive Muslim — Development Guide
 
-> **Audience of this document:** This guide instructs the coding agent ("Claude Code") building Qalbee. Follow it strictly. Where this document and convenience conflict, this document wins.
+> **Audience of this document:** This guide instructs the coding agent ("Claude Code") building Productive Muslim. Follow it strictly. Where this document and convenience conflict, this document wins.
 
 ---
 
 ## 1. Product Summary (context for every coding decision)
 
-**Qalbee** is an **offline-first, backend-less** Islamic lifestyle app in Flutter for a global audience. All core features work with zero network: prayer/sahri/iftar times (computed locally from coordinates), qibla compass (sensors), Quran/dua (bundled assets), Muhasaba tracker (local DB), Ramadan tools, Hijri calendar, jamaat-time configuration, notifications.
+**Productive Muslim** is an **offline-first, backend-less** Islamic lifestyle app in Flutter for a global audience. All core features work with zero network: prayer/sahri/iftar times (computed locally from coordinates), qibla compass (sensors), Quran/dua (bundled assets), Muhasaba tracker (local DB), Ramadan tools, Hijri calendar, jamaat-time configuration, notifications.
 
 There is **no server, no API of our own, no analytics SDK, no ads**. Do not introduce any network dependency for core features.
 

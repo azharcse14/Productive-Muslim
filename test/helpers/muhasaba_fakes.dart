@@ -1,9 +1,9 @@
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/daily_entry.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/period_stats.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/tracker_item.dart';
-import 'package:qalbee/features/muhasaba/domain/repositories/muhasaba_repository.dart';
-import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
+import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba_repository.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 
 /// In-memory MuhasabaRepository good enough for store/screen tests.
 /// Aggregation mirrors the domain semantics over its maps (bounded data).

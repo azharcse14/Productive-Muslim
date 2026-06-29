@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/shared/widgets/q_chip.dart';
-import 'package:qalbee/shared/widgets/q_heatmap.dart';
-import 'package:qalbee/shared/widgets/q_list_row.dart';
-import 'package:qalbee/shared/widgets/q_seg_control.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/shared/widgets/q_chip.dart';
+import 'package:productive_muslim/shared/widgets/q_heatmap.dart';
+import 'package:productive_muslim/shared/widgets/q_list_row.dart';
+import 'package:productive_muslim/shared/widgets/q_seg_control.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       theme: AppTheme.light(),

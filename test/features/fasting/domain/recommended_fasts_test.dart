@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/fasting/domain/entities/recommended_fast.dart';
-import 'package:qalbee/features/fasting/domain/usecases/recommended_fasts.dart';
+import 'package:productive_muslim/features/fasting/domain/entities/recommended_fast.dart';
+import 'package:productive_muslim/features/fasting/domain/usecases/recommended_fasts.dart';
 
 void main() {
   group('RecommendedFasts.on — weekly sunnah', () {

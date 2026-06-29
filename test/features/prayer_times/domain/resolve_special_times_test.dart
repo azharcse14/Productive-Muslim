@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/prayer_day.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/special_time.dart';
-import 'package:qalbee/features/prayer_times/domain/usecases/resolve_special_times.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/resolve_special_times.dart';
 
 // A representative day (wall clock).
 final _day = PrayerDay(

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import '../../core/theme/qalbee_colors.dart';
-import '../../core/theme/qalbee_tokens.dart';
-import '../../core/theme/qalbee_typography.dart';
+import '../../core/theme/productive_muslim_colors.dart';
+import '../../core/theme/productive_muslim_tokens.dart';
+import '../../core/theme/productive_muslim_typography.dart';
 import '../extensions/context_ext.dart';
 import '../painters/qalb_mark.dart';
 
@@ -66,7 +66,7 @@ final class CountdownCard extends StatelessWidget {
   final bool compact;
 
   ({Color bg, Color fg, Color sub, Color bar, Color ring}) _colors(
-    QalbeeColors q,
+    ProductiveMuslimColors q,
   ) {
     const none = Color(0x00000000);
     return switch (state) {
@@ -111,7 +111,7 @@ final class CountdownCard extends StatelessWidget {
   /// A faint top-to-bottom wash for the calm hero, tinted by [skyPhase] from
   /// the brand palette only. Other (semantic) states keep their flat colour so
   /// urgency reads cleanly. Returns null when no gradient should apply.
-  LinearGradient? _skyGradient(QalbeeColors q, Color bg) {
+  LinearGradient? _skyGradient(ProductiveMuslimColors q, Color bg) {
     if (state != CountdownState.calm) {
       return null;
     }

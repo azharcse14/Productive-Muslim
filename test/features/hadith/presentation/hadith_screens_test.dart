@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/hadith/domain/entities/hadith.dart';
-import 'package:qalbee/features/hadith/domain/entities/hadith_book.dart';
-import 'package:qalbee/features/hadith/domain/repositories/hadith_book_repository.dart';
-import 'package:qalbee/features/hadith/domain/repositories/hadith_repository.dart';
-import 'package:qalbee/features/hadith/presentation/screens/hadith_books_screen.dart';
-import 'package:qalbee/features/hadith/presentation/screens/hadith_screen.dart';
-import 'package:qalbee/features/hadith/presentation/screens/hadith_section_screen.dart';
-import 'package:qalbee/features/hadith/presentation/screens/hadith_sections_screen.dart';
-import 'package:qalbee/features/hadith/presentation/screens/hadith_topic_screen.dart';
-import 'package:qalbee/features/hadith/presentation/state/hadith_books_store.dart';
-import 'package:qalbee/features/hadith/presentation/state/hadith_section_store.dart';
-import 'package:qalbee/features/hadith/presentation/state/hadith_store.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
+import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
+import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_books_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_sections_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_topic_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_books_store.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_section_store.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_store.dart';
 
 Hadith _h(String id, String topic) => Hadith(
       id: id,

@@ -4,8 +4,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
-import '../../../../core/theme/qalbee_tokens.dart';
-import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/theme/productive_muslim_tokens.dart';
+import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../state/achievement_store.dart';

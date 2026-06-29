@@ -3,8 +3,8 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/hijri_date.dart';
-import 'package:qalbee/features/calculators/domain/usecases/age_calculator.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
+import 'package:productive_muslim/features/calculators/domain/usecases/age_calculator.dart';
 
 void main() {
   group('AgeCalculator.calculate — Gregorian', () {

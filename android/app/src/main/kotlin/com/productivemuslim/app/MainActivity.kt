@@ -1,4 +1,4 @@
-package com.qalbee.qalbee
+package com.productivemuslim.app
 
 import android.content.Context
 import io.flutter.embedding.android.FlutterActivity
@@ -7,7 +7,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
-    private val channelName = "com.qalbee.qalbee/widget"
+    private val channelName = "com.productivemuslim.app/widget"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -19,7 +19,7 @@ class MainActivity : FlutterActivity() {
                 "updateWidget" -> {
                     // Persist the Dart-formatted snapshot, then repaint.
                     val prefs = getSharedPreferences(
-                        QalbeeWidgetProvider.PREFS,
+                        ProductiveMuslimWidgetProvider.PREFS,
                         Context.MODE_PRIVATE
                     )
                     prefs.edit().apply {
@@ -28,7 +28,7 @@ class MainActivity : FlutterActivity() {
                         payload?.forEach { (key, value) -> putString(key, value?.toString() ?: "") }
                         apply()
                     }
-                    QalbeeWidgetProvider.updateAll(this)
+                    ProductiveMuslimWidgetProvider.updateAll(this)
                     result.success(null)
                 }
                 else -> result.notImplemented()

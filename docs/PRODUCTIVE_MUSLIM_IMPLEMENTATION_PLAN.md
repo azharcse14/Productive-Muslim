@@ -1,6 +1,6 @@
-# Qalbee — Implementation Plan
+# Productive Muslim — Implementation Plan
 
-> **Sources:** `docs/QALBEE_DEVELOPMENT_GUIDE.md` (binding engineering rules) and `docs/design_handoff_qalbee/` (binding visual design — tokens, components, ~90 artboards). Where this plan and those documents conflict, the guide and the design handoff win.
+> **Sources:** `docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md` (binding engineering rules) and `docs/design_handoff_productive_muslim/` (binding visual design — tokens, components, ~90 artboards). Where this plan and those documents conflict, the guide and the design handoff win.
 >
 > **Status:** Plan drafted 2026-06-12 against Flutter 3.44.0 stable. Re-verify package versions (§3 of the guide) at each phase's start.
 
@@ -16,7 +16,7 @@ The repo is a near-fresh Flutter scaffold (`lib/main.dart` is the counter demo) 
 | Recent commit added `intl`, `equatable`, `dartz` (currently not in `pubspec.yaml`; lockfile modified) | `dartz` violates §6 (in-house sealed `Result<T>` only, no external functional packages). `equatable` is unnecessary (immutable `final class` entities with manual `==`/records). `intl` stays (mandated for l10n). |
 | `assets/fonts/Inter-*.ttf` | Design mandates Schibsted Grotesk / Noto Sans Bengali / IBM Plex Sans Arabic / KFGQPC Uthmanic HAFS. Inter is unused → remove. |
 | `assets/animation/no_internet.json` + other Lottie files | "Offline is the normal state — never an error." No Lottie package is approved; signature motion is custom (tokens: 120/240/420ms). Remove. |
-| `assets/svg/*`, `assets/images/*` (generic template icons/placeholders) | Design uses its own 24px stroke icon set (`qalbee/base.jsx` `QI` map) and **no raster images**. Remove or replace during Phase 1. |
+| `assets/svg/*`, `assets/images/*` (generic template icons/placeholders) | Design uses its own 24px stroke icon set (`productive_muslim/base.jsx` `QI` map) and **no raster images**. Remove or replace during Phase 1. |
 
 **Toolchain:** Flutter 3.44.0 stable / Dart SDK `^3.10.1` — pin in README + CI per guide §2.
 
@@ -90,15 +90,15 @@ Order follows guide §7. Each phase ends with: `flutter analyze` zero warnings, 
 - Remove Firebase: `config/`, `env/`, plugin registrations (regenerate `GeneratedPluginRegistrant` / windows plugin cmake after dependency cleanup), any platform Gradle/Podfile references.
 - Remove `dartz`/`equatable` from the lockfile by cleaning `pubspec.yaml` deps; remove Inter fonts, Lottie JSONs, template SVG/PNG assets, `assets/json/demo.json`.
 - `analysis_options.yaml`: `flutter_lints` latest + `strict-casts`, `strict-inference`, `strict-raw-types`, `unawaited_futures`.
-- **Rewrite `README.md`** (currently the Flutter template stub): project description (what Qalbee is — offline-first, backend-less Islamic lifestyle app), feature pillars, pinned Flutter 3.44.0, setup/run instructions, architecture overview (diagram added in Phase 1), and the package policy summary linking to `docs/DEPENDENCIES.md`. The README is a living doc — every phase that adds a tool script, asset pipeline, or setup step updates it in the same change.
+- **Rewrite `README.md`** (currently the Flutter template stub): project description (what Productive Muslim is — offline-first, backend-less Islamic lifestyle app), feature pillars, pinned Flutter 3.44.0, setup/run instructions, architecture overview (diagram added in Phase 1), and the package policy summary linking to `docs/DEPENDENCIES.md`. The README is a living doc — every phase that adds a tool script, asset pipeline, or setup step updates it in the same change.
 - Add CI (analyze + test) if/when CI is introduced.
-- Set app id/name (`qalbee`), min SDK versions per current Flutter defaults.
+- Set app id/name (`productive_muslim`), min SDK versions per current Flutter defaults.
 - **Platform toolchain policy:** iOS/macOS use **Swift Package Manager only — no CocoaPods** (`flutter config --enable-swift-package-manager`; if a future plugin lacks SPM support, raise it before adding the dependency). Android stays on the **latest Flutter-template toolchain** (currently Gradle 9.1.0 / AGP 9.0.1 / Kotlin 2.3.20, Java 17) and is re-checked against the template at every Flutter upgrade.
 - **Done when:** `flutter analyze` clean, `flutter run` boots an empty Material 3 app, no Firebase symbol anywhere in the tree.
 
 ### Phase 1 — Foundation: Tokens, Theme, L10n, Shell (design canvas §01–02)
 **Goal: every later screen is assembled from these parts; no feature code yet.**
-- **Theme:** map `qalbee/tokens.css` 1:1 → `ColorScheme` + `ThemeExtension`s (`QalbeeColors` for bg/surface-2/ink-2/ink-3/line/primary-soft/accent/ok/warn/urgent + soft variants/scrim; `QalbeeMotion` 120/240/420ms; spacing 4pt consts; radius sm10/md14/lg20/xl28). Dark theme is its own designed palette, not an inversion. No inline `Color(0xFF…)` in feature widgets — lint-check by convention/review.
+- **Theme:** map `productive_muslim/tokens.css` 1:1 → `ColorScheme` + `ThemeExtension`s (`Productive MuslimColors` for bg/surface-2/ink-2/ink-3/line/primary-soft/accent/ok/warn/urgent + soft variants/scrim; `Productive MuslimMotion` 120/240/420ms; spacing 4pt consts; radius sm10/md14/lg20/xl28). Dark theme is its own designed palette, not an inversion. No inline `Color(0xFF…)` in feature widgets — lint-check by convention/review.
 - **Typography:** bundle Schibsted Grotesk (variable), Noto Sans Bengali, IBM Plex Sans Arabic, KFGQPC Uthmanic HAFS (verify license/attribution → About credits). Type scale per handoff (display 34 → overline 11; countdown numeral 56 tabular). Per-locale font fallback chains.
 - **L10n:** ARB setup (`en` template + `bn`), `intl` digit formatting helper (Western/Bengali/Eastern Arabic). Rule from day one: no hardcoded user-facing strings.
 - **Motif & icons:** port `QalbMark`/`Star8`/`MotifBg`/`HEART_PATH` from `base.jsx` to `CustomPainter`s in `shared/painters/`; recreate or substitute the 24px ~1.7px-stroke icon set.
@@ -189,7 +189,7 @@ Order follows guide §7. Each phase ends with: `flutter analyze` zero warnings, 
 - **`docs/DEPENDENCIES.md`** — created in Phase 1; every package logged (name, version, date checked, §3 checklist result, justification). Asset/data licenses (fonts, city DB, Tanzil/QUL, dua sources) logged here too.
 - **Testing bar — every feature ships with test cases (hard rule, user-mandated):** no phase closes without tests for the feature it built. Per feature that means: unit tests for all domain logic (entities, use cases, pure functions), repository/datasource tests where there is mapping or query logic, and widget tests for the feature's key screens/components and their states (loading/empty/error included). Domain layer targets near-full coverage. Priority suites: countdown state machine > muhasaba aggregations/streaks > hijri conversion > timezone conversion > jamaat resolution > zakat. Run `flutter analyze` + `flutter test` before every commit; zero warnings and a green suite are hard gates. Test files mirror `lib/` structure under `test/`.
 - **L10n discipline:** every new string lands in `en` ARB + `bn` translation in the same change.
-- **Design fidelity:** each phase's screens compared against the corresponding artboards (`Qalbee Design.html`) in both themes before the phase closes.
+- **Design fidelity:** each phase's screens compared against the corresponding artboards (`Productive Muslim Design.html`) in both themes before the phase closes.
 - **Airplane-mode check:** at the end of every phase, core flows verified with all radios off.
 
 ## 6. Definition of Done (release gate — mirrors the two hard-rules checklists)

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/features/prayer_times/presentation/widgets/continue_reading_card.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/continue_reading_card.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       theme: AppTheme.light(),

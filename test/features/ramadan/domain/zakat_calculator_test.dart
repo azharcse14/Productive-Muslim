@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/ramadan/domain/usecases/zakat_calculator.dart';
+import 'package:productive_muslim/features/ramadan/domain/usecases/zakat_calculator.dart';
 
 void main() {
   // Realistic-ish prices in an arbitrary currency.

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/hijri_date.dart';
-import 'package:qalbee/core/utils/islamic_dates.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
+import 'package:productive_muslim/core/utils/islamic_dates.dart';
 
 void main() {
   group('IslamicDates.all', () {

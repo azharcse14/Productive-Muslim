@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
-import 'package:qalbee/features/hadith/data/hadith_blob_codec.dart';
-import 'package:qalbee/features/hadith/data/hadith_database.dart';
-import 'package:qalbee/features/hadith/data/hadith_section_assembler.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_database.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 
 /// An in-memory [HadithDatabase] with the bundled schema created but no rows.
 /// Mirrors tool/hadith_db_build.dart so tests exercise the real queries +

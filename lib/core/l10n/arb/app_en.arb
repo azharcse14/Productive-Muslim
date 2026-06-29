@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Qalbee",
+  "appTitle": "Productive Muslim",
   "@appTitle": {
     "description": "The application name shown in the launcher and app bars"
   },
@@ -85,7 +85,7 @@
   "locationUseGpsSub": "GPS — works fully offline after the first fix",
   "locationChooseCity": "Choose city manually",
   "locationSearchHint": "Search city…",
-  "locationPrimingBody": "Qalbee uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.",
+  "locationPrimingBody": "Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.",
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
   "locationServiceOff": "Location services are turned off. Pick your city below, or enable location and try again.",
   "locationCurrent": "Current location",
@@ -180,7 +180,7 @@
   "scheduleSectionTitle": "Auto-switch",
   "scheduleModeManual": "Manual",
   "scheduleModeAuto": "Auto",
-  "scheduleAutoHint": "Qalbee picks the mosque by day and time.",
+  "scheduleAutoHint": "Productive Muslim picks the mosque by day and time.",
   "scheduleRulesTitle": "Rules",
   "scheduleRulesEmpty": "No rules yet. Add one to switch automatically.",
   "scheduleAddRule": "Add rule",
@@ -197,7 +197,7 @@
     }
   },
   "homeSetLocationTitle": "Where are you?",
-  "homeSetLocationBody": "Pick your location once and Qalbee computes accurate prayer times for it — fully offline.",
+  "homeSetLocationBody": "Pick your location once and Productive Muslim computes accurate prayer times for it — fully offline.",
   "homeSetLocationCta": "Set location",
   "hijriMonthName": "{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}",
   "@hijriMonthName": {
@@ -230,11 +230,11 @@
   "channelReminders": "Reminders",
   "channelSilent": "Silent prayer alerts",
   "notifSettingsTitle": "Notifications",
-  "notifPermissionDeniedBanner": "Notifications are off in system settings. Qalbee stays fully useful — enable them to get azan and reminders.",
+  "notifPermissionDeniedBanner": "Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.",
   "notifEnableCta": "Enable notifications",
-  "notifExactAlarmBanner": "For azan at the exact minute, allow \"Alarms & reminders\" for Qalbee in system settings.",
+  "notifExactAlarmBanner": "For azan at the exact minute, allow \"Alarms & reminders\" for Productive Muslim in system settings.",
   "notifExactAlarmCta": "Allow exact alarms",
-  "notifBatteryHint": "If reminders arrive late, exclude Qalbee from battery optimization in system settings.",
+  "notifBatteryHint": "If reminders arrive late, exclude Productive Muslim from battery optimization in system settings.",
   "notifPerPrayerHeader": "Prayer alerts",
   "azanModeAzan": "Azan",
   "azanModeBeep": "Beep",
@@ -436,7 +436,7 @@
   "showTranslation": "Show translation",
   "ayahCopied": "Ayah copied",
   "bookmarkLabel": "Bookmark",
-  "quranFirstOpen": "Bismillah — start reading and Qalbee will remember where you left off.",
+  "quranFirstOpen": "Bismillah — start reading and Productive Muslim will remember where you left off.",
   "ayahShareSuffix": "— Quran {surah}:{ayah}",
   "@ayahShareSuffix": {
     "placeholders": {
@@ -675,7 +675,7 @@
   "appLockWrongPin": "Wrong PIN — try again",
   "appLockUseBiometric": "Use fingerprint / face",
   "appLockEnable": "App lock",
-  "appLockEnableSub": "Require a PIN (and biometrics) to open Qalbee",
+  "appLockEnableSub": "Require a PIN (and biometrics) to open Productive Muslim",
   "appLockDisable": "Turn off app lock",
   "appLockDelete": "Delete last digit",
   "appLockPinProgress": "{entered} of 4 digits entered",

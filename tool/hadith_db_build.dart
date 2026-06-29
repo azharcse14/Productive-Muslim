@@ -30,8 +30,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:qalbee/features/hadith/data/hadith_blob_codec.dart';
-import 'package:qalbee/features/hadith/data/hadith_section_assembler.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 /// Bump together with [HadithDatabase.bundledVersion] to force a re-copy of the
@@ -56,7 +56,7 @@ Future<void> main() async {
   final catalog = jsonDecode(await File(_catalogPath).readAsString());
   final books = (catalog as Map)['books'] as List;
 
-  final tmp = Directory.systemTemp.createTempSync('qalbee_hadith');
+  final tmp = Directory.systemTemp.createTempSync('productive_muslim_hadith');
   final dbPath = '${tmp.path}/hadith.db';
   final db = sqlite3.open(dbPath);
   final http = HttpClient()..connectionTimeout = const Duration(seconds: 30);

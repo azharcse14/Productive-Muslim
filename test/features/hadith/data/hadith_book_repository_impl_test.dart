@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/hadith/data/hadith_book_bundled_data_source.dart';
-import 'package:qalbee/features/hadith/data/hadith_book_catalog_data_source.dart';
-import 'package:qalbee/features/hadith/data/hadith_book_remote_data_source.dart';
-import 'package:qalbee/features/hadith/data/hadith_book_repository_impl.dart';
-import 'package:qalbee/features/hadith/data/hadith_database.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_book_bundled_data_source.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_book_catalog_data_source.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_book_remote_data_source.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_book_repository_impl.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_database.dart';
 
 import 'hadith_db_test_util.dart';
 

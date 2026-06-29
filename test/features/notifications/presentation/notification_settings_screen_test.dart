@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/notifications/domain/entities/notification_item.dart';
-import 'package:qalbee/features/notifications/domain/entities/notification_texts.dart';
-import 'package:qalbee/features/notifications/domain/repositories/notification_scheduler.dart';
-import 'package:qalbee/features/notifications/presentation/screens/notification_settings_screen.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/entities/notification_matrix.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
-import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
-import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
-import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
-import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
+import 'package:productive_muslim/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
@@ -145,7 +145,7 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(
-        find.textContaining('Qalbee stays fully useful'),
+        find.textContaining('Productive Muslim stays fully useful'),
         findsOneWidget,
       );
       expect(find.text('Enable notifications'), findsOneWidget);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/qalbee_typography.dart';
+import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 
 /// Home header (design §4.3): tappable location pill + tri-calendar date

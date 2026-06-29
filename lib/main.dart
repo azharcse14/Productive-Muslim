@@ -16,20 +16,20 @@ Future<void> main() async {
   await setupLocator();
   // Schedule the next ~48h of notifications; never blocks first frame.
   unawaited(locator<NotificationController>().start());
-  runApp(const QalbeeApp());
+  runApp(const ProductiveMuslimApp());
 }
 
 /// Root widget: themed, localized, routed. Theme mode and locale are
 /// driven by the app-scoped [SettingsStore] signals; the router instance
 /// survives those rebuilds.
-final class QalbeeApp extends StatefulWidget {
-  const QalbeeApp({super.key});
+final class ProductiveMuslimApp extends StatefulWidget {
+  const ProductiveMuslimApp({super.key});
 
   @override
-  State<QalbeeApp> createState() => _QalbeeAppState();
+  State<ProductiveMuslimApp> createState() => _ProductiveMuslimAppState();
 }
 
-final class _QalbeeAppState extends State<QalbeeApp> {
+final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
   final SettingsStore _store = locator<SettingsStore>();
   late final GoRouter _router = buildRouter();
 

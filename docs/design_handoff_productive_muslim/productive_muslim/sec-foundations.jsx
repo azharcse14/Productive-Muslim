@@ -1,4 +1,4 @@
-// qalbee/sec-foundations.jsx — tokens & theme spec boards
+// productive_muslim/sec-foundations.jsx — tokens & theme spec boards
 /* global React, DCArtboard, QalbMark, Star8, MotifBg, QIcon, SpecLabel, SpecNote, bnD, arD */
 
 const Swatch = ({ name, hex, varName, on, border }) => (

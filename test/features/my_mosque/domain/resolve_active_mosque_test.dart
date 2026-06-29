@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_profile.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_schedule.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_state.dart';
-import 'package:qalbee/features/my_mosque/domain/usecases/resolve_active_mosque.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/resolve_active_mosque.dart';
 
 const _a = MosqueProfile(id: 'a', name: 'Office');
 const _b = MosqueProfile(id: 'b', name: 'Home');

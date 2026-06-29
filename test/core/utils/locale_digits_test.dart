@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/locale_digits.dart';
+import 'package:productive_muslim/core/utils/locale_digits.dart';
 
 void main() {
   group('LocaleDigits.localize', () {

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/countdown_target.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/prayer_day.dart';
-import 'package:qalbee/features/prayer_times/domain/usecases/resolve_countdown.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/countdown_target.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/resolve_countdown.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 // A representative day (wall clock).
 final _day = PrayerDay(

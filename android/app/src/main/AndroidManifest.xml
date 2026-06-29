@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <application
-        android:label="Qalbee"
+        android:label="Productive Muslim"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -60,14 +60,14 @@
         <!-- Home-screen widget: next prayer at a glance. Updated from Dart
              via the home_widget plugin (PrayerWidgetService). -->
         <receiver
-            android:name=".QalbeeWidgetProvider"
+            android:name=".ProductiveMuslimWidgetProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/qalbee_widget_info" />
+                android:resource="@xml/productive_muslim_widget_info" />
         </receiver>
     </application>
     <!-- Required to query activities that can process text, see:

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/daily_entry.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/period_stats.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/tracker_item.dart';
-import 'package:qalbee/features/muhasaba/domain/repositories/muhasaba_repository.dart';
-import 'package:qalbee/features/muhasaba/presentation/screens/muhasaba_screen.dart';
-import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
-import 'package:qalbee/features/muhasaba/presentation/widgets/tracker_row.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
+import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba_repository.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/screens/muhasaba_screen.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/widgets/tracker_row.dart';
 
 /// In-memory [MuhasabaRepository] — just enough behavior for the screen.
 final class InMemoryMuhasabaRepository implements MuhasabaRepository {

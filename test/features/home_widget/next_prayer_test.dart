@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/home_widget/domain/next_prayer.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/prayer_day.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/home_widget/domain/next_prayer.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 PrayerDay _day(DateTime d) => PrayerDay(
       fajr: DateTime(d.year, d.month, d.day, 4, 30),

@@ -7,9 +7,9 @@ private let qSoft = Color(red: 0.655, green: 0.855, blue: 0.804)        // #A7DA
 private let qFaint = Color(red: 0.863, green: 0.914, blue: 0.894)       // #DCE9E4
 
 /// App Group shared with the Flutter app (see AppDelegate + entitlements).
-private let appGroup = "group.com.qalbee.qalbee"
+private let appGroup = "group.com.productivemuslim.app"
 
-struct QalbeeEntry: TimelineEntry {
+struct ProductiveMuslimEntry: TimelineEntry {
   let date: Date
   let configured: Bool
   let label: String
@@ -20,16 +20,16 @@ struct QalbeeEntry: TimelineEntry {
 }
 
 struct Provider: TimelineProvider {
-  func placeholder(in context: Context) -> QalbeeEntry {
-    QalbeeEntry(date: Date(), configured: false, label: "Qalbee",
+  func placeholder(in context: Context) -> ProductiveMuslimEntry {
+    ProductiveMuslimEntry(date: Date(), configured: false, label: "Productive Muslim",
                 prayer: "Set up", time: "", location: "", times: "")
   }
 
-  func getSnapshot(in context: Context, completion: @escaping (QalbeeEntry) -> Void) {
+  func getSnapshot(in context: Context, completion: @escaping (ProductiveMuslimEntry) -> Void) {
     completion(read())
   }
 
-  func getTimeline(in context: Context, completion: @escaping (Timeline<QalbeeEntry>) -> Void) {
+  func getTimeline(in context: Context, completion: @escaping (Timeline<ProductiveMuslimEntry>) -> Void) {
     // The app pushes fresh data on open / settings change; between those we
     // refresh roughly every 15 minutes so the "next prayer" stays current.
     let next = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
@@ -37,10 +37,10 @@ struct Provider: TimelineProvider {
     completion(Timeline(entries: [read()], policy: .after(next)))
   }
 
-  private func read() -> QalbeeEntry {
+  private func read() -> ProductiveMuslimEntry {
     let d = UserDefaults(suiteName: appGroup)
     let configured = (d?.string(forKey: "widget_configured") ?? "0") == "1"
-    return QalbeeEntry(
+    return ProductiveMuslimEntry(
       date: Date(),
       configured: configured,
       label: d?.string(forKey: "widget_label") ?? "",
@@ -52,7 +52,7 @@ struct Provider: TimelineProvider {
   }
 }
 
-struct QalbeeWidgetEntryView: View {
+struct ProductiveMuslimWidgetEntryView: View {
   var entry: Provider.Entry
 
   var body: some View {
@@ -82,7 +82,7 @@ struct QalbeeWidgetEntryView: View {
           .foregroundColor(qFaint)
           .lineLimit(1)
       } else {
-        Text("Qalbee")
+        Text("Productive Muslim")
           .font(.headline)
           .foregroundColor(.white)
         Text("Open the app to set your location")
@@ -95,17 +95,17 @@ struct QalbeeWidgetEntryView: View {
 }
 
 @main
-struct QalbeeWidget: Widget {
-  let kind = "QalbeeWidget"
+struct ProductiveMuslimWidget: Widget {
+  let kind = "ProductiveMuslimWidget"
 
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       if #available(iOS 17.0, *) {
-        QalbeeWidgetEntryView(entry: entry)
+        ProductiveMuslimWidgetEntryView(entry: entry)
           .padding(16)
           .containerBackground(qBackground, for: .widget)
       } else {
-        QalbeeWidgetEntryView(entry: entry)
+        ProductiveMuslimWidgetEntryView(entry: entry)
           .padding(16)
           .background(qBackground)
       }

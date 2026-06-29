@@ -1,4 +1,4 @@
-// qalbee/base.jsx — shared primitives: motif, icons, phone frame, controls
+// productive_muslim/base.jsx — shared primitives: motif, icons, phone frame, controls
 /* global React */
 const { useState } = React;
 

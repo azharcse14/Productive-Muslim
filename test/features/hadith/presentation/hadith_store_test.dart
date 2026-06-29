@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/hadith/domain/entities/hadith.dart';
-import 'package:qalbee/features/hadith/domain/repositories/hadith_repository.dart';
-import 'package:qalbee/features/hadith/presentation/state/hadith_store.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
+import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_store.dart';
 
 Hadith _hadith(String id, {String topic = 'character'}) => Hadith(
       id: id,

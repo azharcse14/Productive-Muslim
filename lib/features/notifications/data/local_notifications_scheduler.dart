@@ -21,7 +21,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         _formatTime = formatTime,
         _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
-  static const _azanCategoryId = 'qalbee_azan';
+  static const _azanCategoryId = 'productive_muslim_azan';
   static const _markPrayedActionId = 'mark_prayed';
 
   final FlutterLocalNotificationsPlugin _plugin;
@@ -192,12 +192,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   NotificationDetails _details(NotificationItem item, NotificationTexts t) {
     final (channelId, channelName, sound) = switch (item.kind) {
       NotificationKind.azan when item.silent => (
-          'qalbee_silent',
+          'productive_muslim_silent',
           t.channelSilentName,
           false,
         ),
-      NotificationKind.azan => ('qalbee_azan', t.channelAzanName, true),
-      _ => ('qalbee_reminders', t.channelRemindersName, true),
+      NotificationKind.azan => ('productive_muslim_azan', t.channelAzanName, true),
+      _ => ('productive_muslim_reminders', t.channelRemindersName, true),
     };
     return NotificationDetails(
       android: AndroidNotificationDetails(

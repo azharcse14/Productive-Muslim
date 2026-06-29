@@ -3,7 +3,7 @@
 // ignore_for_file: avoid_redundant_argument_values
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/calculators/domain/usecases/qaza_calculator.dart';
+import 'package:productive_muslim/features/calculators/domain/usecases/qaza_calculator.dart';
 
 void main() {
   group('QazaCalculator.calculate', () {

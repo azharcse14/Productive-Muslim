@@ -37,7 +37,7 @@ const _attributionLines = [
 ];
 
 Future<void> main() async {
-  final tmp = Directory.systemTemp.createTempSync('qalbee_quran');
+  final tmp = Directory.systemTemp.createTempSync('productive_muslim_quran');
   try {
     final arabic = _downloadVerses(_arabicUrl, '${tmp.path}/ara.json');
     final english = _downloadVerses(_englishUrl, '${tmp.path}/eng.json');

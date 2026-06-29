@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_profile.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_state.dart';
-import 'package:qalbee/features/my_mosque/presentation/screens/my_mosque_screen.dart';
-import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/screens/my_mosque_screen.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 import '../../../helpers/mosque_fakes.dart';
 

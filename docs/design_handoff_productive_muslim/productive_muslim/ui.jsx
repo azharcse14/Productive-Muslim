@@ -1,4 +1,4 @@
-// qalbee/ui.jsx — Qalbee core components (countdown, prayer table, tracker, heatmap, compass, tasbih, nav)
+// productive_muslim/ui.jsx — Productive Muslim core components (countdown, prayer table, tracker, heatmap, compass, tasbih, nav)
 /* global React, QIcon, QalbMark, MotifBg, bnD, Card, Chip */
 
 /* ---------- smart countdown card ---------- */
@@ -226,7 +226,7 @@ const AppHeader = ({ city = "Dhaka, Bangladesh", dates, lang = "en", trail, styl
 );
 
 /* ---------- notification mockup cards ---------- */
-const NotifCard = ({ os = "android", app = "Qalbee", time = "now", title, body, actions, tone, dark, style }) => (
+const NotifCard = ({ os = "android", app = "Productive Muslim", time = "now", title, body, actions, tone, dark, style }) => (
   <div className={dark ? "q-dark" : "q-light"} style={{ background: "var(--surface)", borderRadius: 18, padding: "13px 15px",
     boxShadow: "var(--e-2)", border: "1px solid var(--line)", fontFamily: "var(--font-ui)", color: "var(--ink)", ...style }}>
     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>

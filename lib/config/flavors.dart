@@ -1,4 +1,4 @@
-/// Build flavors. Qalbee has no backend, so flavors only gate
+/// Build flavors. Productive Muslim has no backend, so flavors only gate
 /// development-time affordances (e.g. the widget gallery route).
 enum Flavor {
   dev,

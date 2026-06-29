@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/theme/qalbee_colors.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
 
 void main() {
   group('AppTheme', () {
-    test('light theme registers the QalbeeColors extension with light tokens',
+    test('light theme registers the ProductiveMuslimColors extension with light tokens',
         () {
       final theme = AppTheme.light();
-      final q = theme.extension<QalbeeColors>();
+      final q = theme.extension<ProductiveMuslimColors>();
       expect(q, isNotNull);
       expect(q!.bg, const Color(0xFFF6F4EE));
       expect(q.primary, const Color(0xFF15564D));
@@ -17,7 +17,7 @@ void main() {
 
     test('dark theme is the designed palette, not an inversion', () {
       final theme = AppTheme.dark();
-      final q = theme.extension<QalbeeColors>()!;
+      final q = theme.extension<ProductiveMuslimColors>()!;
       expect(q.bg, const Color(0xFF0E1513));
       expect(q.ink, const Color(0xFFE4E9E4));
       expect(q.primary, const Color(0xFF79C7B6));
@@ -32,14 +32,14 @@ void main() {
     test('scaffold background uses the bg token, not surface', () {
       expect(
         AppTheme.light().scaffoldBackgroundColor,
-        QalbeeColors.light.bg,
+        ProductiveMuslimColors.light.bg,
       );
-      expect(AppTheme.dark().scaffoldBackgroundColor, QalbeeColors.dark.bg);
+      expect(AppTheme.dark().scaffoldBackgroundColor, ProductiveMuslimColors.dark.bg);
     });
 
-    test('QalbeeColors lerp interpolates between themes', () {
-      final mid = QalbeeColors.light.lerp(QalbeeColors.dark, 0.5);
-      expect(mid.bg, Color.lerp(QalbeeColors.light.bg, QalbeeColors.dark.bg, 0.5));
+    test('ProductiveMuslimColors lerp interpolates between themes', () {
+      final mid = ProductiveMuslimColors.light.lerp(ProductiveMuslimColors.dark, 0.5);
+      expect(mid.bg, Color.lerp(ProductiveMuslimColors.light.bg, ProductiveMuslimColors.dark.bg, 0.5));
     });
   });
 }

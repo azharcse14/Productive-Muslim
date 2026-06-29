@@ -1,9 +1,9 @@
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/mosque_state.dart';
-import 'package:qalbee/features/my_mosque/domain/repositories/mosque_repository.dart';
-import 'package:qalbee/features/my_mosque/domain/usecases/get_mosque_state.dart';
-import 'package:qalbee/features/my_mosque/domain/usecases/save_mosque_state.dart';
-import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/repositories/mosque_repository.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/get_mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/save_mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 
 final class InMemoryMosqueRepository implements MosqueRepository {
   InMemoryMosqueRepository([this.stored = const MosqueState()]);

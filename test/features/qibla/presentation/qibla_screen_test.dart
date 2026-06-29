@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/qibla/data/datasources/sensor_data_source.dart';
-import 'package:qalbee/features/qibla/presentation/screens/qibla_screen.dart';
-import 'package:qalbee/features/qibla/presentation/state/qibla_store.dart';
-import 'package:qalbee/features/qibla/presentation/widgets/compass_dial.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/entities/city.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
-import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
-import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
-import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/qibla/data/datasources/sensor_data_source.dart';
+import 'package:productive_muslim/features/qibla/presentation/screens/qibla_screen.dart';
+import 'package:productive_muslim/features/qibla/presentation/state/qibla_store.dart';
+import 'package:productive_muslim/features/qibla/presentation/widgets/compass_dial.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 final class _NeverSensors implements CompassSensorSource {
   @override

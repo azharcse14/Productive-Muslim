@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:qalbee/features/settings/data/datasources/geolocator_data_source.dart';
-import 'package:qalbee/features/settings/data/repositories/location_repository_impl.dart';
-import 'package:qalbee/features/settings/domain/repositories/location_repository.dart';
+import 'package:productive_muslim/features/settings/data/datasources/geolocator_data_source.dart';
+import 'package:productive_muslim/features/settings/data/repositories/location_repository_impl.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/location_repository.dart';
 
 final class _FakeSource implements DeviceLocationSource {
   _FakeSource({

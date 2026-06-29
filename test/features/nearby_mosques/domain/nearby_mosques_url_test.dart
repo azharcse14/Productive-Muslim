@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/nearby_mosques/domain/nearby_mosques_url.dart';
+import 'package:productive_muslim/features/nearby_mosques/domain/nearby_mosques_url.dart';
 
 void main() {
   group('NearbyMosquesUrl', () {

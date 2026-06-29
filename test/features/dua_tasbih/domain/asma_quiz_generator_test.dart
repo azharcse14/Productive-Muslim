@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/dua_tasbih/domain/entities/asma_quiz.dart';
-import 'package:qalbee/features/dua_tasbih/domain/entities/dua.dart';
+import 'package:productive_muslim/features/dua_tasbih/domain/entities/asma_quiz.dart';
+import 'package:productive_muslim/features/dua_tasbih/domain/entities/dua.dart';
 
 List<AsmaName> _names(int count) => [
       for (var n = 1; n <= count; n++)

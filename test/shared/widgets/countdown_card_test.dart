@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/theme/qalbee_colors.dart';
-import 'package:qalbee/shared/widgets/countdown_card.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
+import 'package:productive_muslim/shared/widgets/countdown_card.dart';
 
 Widget _wrap(Widget child, {bool dark = false}) => MaterialApp(
       theme: dark ? AppTheme.dark() : AppTheme.light(),
@@ -51,7 +51,7 @@ void main() {
       expect(gradient, isNotNull);
       // The wash always resolves back to the surface at the bottom so the
       // dark numeral stays readable; no flat colour when a gradient is set.
-      expect(gradient!.colors.last, QalbeeColors.light.surface);
+      expect(gradient!.colors.last, ProductiveMuslimColors.light.surface);
       expect(_flatColorOf(tester), isNull);
     });
 
@@ -90,32 +90,32 @@ void main() {
         (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.amber)));
       expect(_gradientOf(tester), isNull);
-      expect(_flatColorOf(tester), QalbeeColors.light.warnSoft);
+      expect(_flatColorOf(tester), ProductiveMuslimColors.light.warnSoft);
     });
 
     testWidgets('amber state uses warn-soft background', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.amber)));
-      expect(_bgOf(tester), QalbeeColors.light.warnSoft);
+      expect(_bgOf(tester), ProductiveMuslimColors.light.warnSoft);
     });
 
     testWidgets('urgent state uses urgent-soft background', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.urgent)));
-      expect(_bgOf(tester), QalbeeColors.light.urgentSoft);
+      expect(_bgOf(tester), ProductiveMuslimColors.light.urgentSoft);
     });
 
     testWidgets('sahri state uses primary background', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.sahri)));
-      expect(_bgOf(tester), QalbeeColors.light.primary);
+      expect(_bgOf(tester), ProductiveMuslimColors.light.primary);
     });
 
     testWidgets('iftar state uses accent-soft background', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.iftar)));
-      expect(_bgOf(tester), QalbeeColors.light.accentSoft);
+      expect(_bgOf(tester), ProductiveMuslimColors.light.accentSoft);
     });
 
     testWidgets('dark theme resolves dark tokens', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm), dark: true));
-      expect(_gradientOf(tester)!.colors.last, QalbeeColors.dark.surface);
+      expect(_gradientOf(tester)!.colors.last, ProductiveMuslimColors.dark.surface);
     });
 
     testWidgets('progress is clamped to 0..1', (tester) async {

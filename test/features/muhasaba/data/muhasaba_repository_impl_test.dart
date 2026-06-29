@@ -1,11 +1,11 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/muhasaba/data/database/muhasaba_database.dart';
-import 'package:qalbee/features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/daily_entry.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/period_stats.dart';
-import 'package:qalbee/features/muhasaba/domain/entities/tracker_item.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/muhasaba/data/database/muhasaba_database.dart';
+import 'package:productive_muslim/features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
+import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
 
 void main() {
   late MuhasabaDatabase db;

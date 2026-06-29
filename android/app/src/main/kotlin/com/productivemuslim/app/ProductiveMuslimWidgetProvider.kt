@@ -1,4 +1,4 @@
-package com.qalbee.qalbee
+package com.productivemuslim.app
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -14,7 +14,7 @@ import android.widget.RemoteViews
  * a MethodChannel ([MainActivity]) which stores them in [PREFS]; this
  * provider only renders. Tapping the widget opens the app.
  */
-class QalbeeWidgetProvider : AppWidgetProvider() {
+class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -25,13 +25,13 @@ class QalbeeWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        const val PREFS = "qalbee_widget"
+        const val PREFS = "productive_muslim_widget"
 
         /** Repaints every placed instance of the widget. */
         fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(
-                ComponentName(context, QalbeeWidgetProvider::class.java)
+                ComponentName(context, ProductiveMuslimWidgetProvider::class.java)
             )
             ids.forEach { renderWidget(context, manager, it) }
         }
@@ -44,7 +44,7 @@ class QalbeeWidgetProvider : AppWidgetProvider() {
             val data = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val configured = data.getString("widget_configured", "0") == "1"
 
-            val views = RemoteViews(context.packageName, R.layout.qalbee_widget).apply {
+            val views = RemoteViews(context.packageName, R.layout.productive_muslim_widget).apply {
                 if (configured) {
                     setTextViewText(R.id.widget_label, data.getString("widget_label", "") ?: "")
                     setTextViewText(R.id.widget_prayer, data.getString("widget_prayer", "—") ?: "—")
@@ -52,7 +52,7 @@ class QalbeeWidgetProvider : AppWidgetProvider() {
                     setTextViewText(R.id.widget_location, data.getString("widget_location", "") ?: "")
                     setTextViewText(R.id.widget_times, data.getString("widget_times", "") ?: "")
                 } else {
-                    setTextViewText(R.id.widget_label, "Qalbee")
+                    setTextViewText(R.id.widget_label, "Productive Muslim")
                     setTextViewText(R.id.widget_prayer, "Set up")
                     setTextViewText(R.id.widget_time, "")
                     setTextViewText(R.id.widget_location, "")

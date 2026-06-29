@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/home_widget/data/widget_bridge.dart';
+import 'package:productive_muslim/features/home_widget/data/widget_bridge.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('com.qalbee.qalbee/widget');
+  const channel = MethodChannel('com.productivemuslim.app/widget');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

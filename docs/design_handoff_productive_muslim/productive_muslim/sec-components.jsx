@@ -1,4 +1,4 @@
-// qalbee/sec-components.jsx — core component library
+// productive_muslim/sec-components.jsx — core component library
 /* global React, DCArtboard, DCSection, CountdownCard, PrayerTable, TrackerToggle, TrackerCount, TrackerDuration,
    Heatmap, HM_LEVELS, ProgressRing, BottomNav, CompassDial, Btn, Toggle, Chip, Field, SegControl, Radio, CheckBox,
    Stepper, Skel, QIcon, QalbMark, SpecLabel, SpecNote, bnD */

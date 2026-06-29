@@ -15,7 +15,7 @@ import 'dart:io';
 const _dumpUrl = 'https://download.geonames.org/export/dump/cities15000.zip';
 
 Future<void> main() async {
-  final tmp = Directory.systemTemp.createTempSync('qalbee_cities');
+  final tmp = Directory.systemTemp.createTempSync('productive_muslim_cities');
   try {
     final zipPath = '${tmp.path}/cities15000.zip';
     stdout.writeln('Downloading $_dumpUrl …');

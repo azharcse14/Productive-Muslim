@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/special_time.dart';
-import 'package:qalbee/features/prayer_times/presentation/widgets/special_times_card.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/special_times_card.dart';
 
 final _windows = [
   SpecialWindow(

@@ -1,4 +1,4 @@
-// qalbee/sec-splash-onboarding.jsx
+// productive_muslim/sec-splash-onboarding.jsx
 /* global React, DCArtboard, DCSection, Phone, HomeBar, QalbMark, MotifBg, QIcon, Btn, Chip, Field, Radio, Banner, ListRow, SpecNote */
 
 /* ---------- splash ---------- */
@@ -7,7 +7,7 @@ const SplashScreen = ({ dark }) => (
     <MotifBg opacity={dark ? 0.05 : 0.045} cell={130} style={{ color: "var(--primary)" }}></MotifBg>
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, position: "relative" }}>
       <QalbMark size={128} color="var(--primary)" accent="var(--accent)" sw={2.2}></QalbMark>
-      <div className="t-display" style={{ marginTop: 26, letterSpacing: "-.5px" }}>Qalbee</div>
+      <div className="t-display" style={{ marginTop: 26, letterSpacing: "-.5px" }}>Productive Muslim</div>
       <div className="t-body c-2" style={{ marginTop: 6 }}>a companion for the heart’s daily deen</div>
     </div>
     <div className="t-caption c-3" style={{ textAlign: "center", paddingBottom: 26 }}>works fully offline · v1.0</div>
@@ -49,7 +49,7 @@ const ObWelcome = ({ dark }) => (
       <QalbMark size={84} color="var(--primary)" accent="var(--accent)" sw={2.4}></QalbMark>
       <div className="t-display" style={{ marginTop: 26 }}>Assalamu alaikum.</div>
       <div className="t-body c-2" style={{ marginTop: 12, fontSize: 16.5, lineHeight: 1.55 }}>
-        Qalbee keeps your prayers, Quran, and daily self-accounting in one quiet place — accurate anywhere on earth, no internet needed.
+        Productive Muslim keeps your prayers, Quran, and daily self-accounting in one quiet place — accurate anywhere on earth, no internet needed.
       </div>
     </div>
     <div style={{ padding: "14px 22px 6px" }}><Btn kind="primary" full>Begin</Btn></div>
@@ -93,7 +93,7 @@ const ObLocation = ({ dark }) => (
       ))}
     </div>
     <Banner icon="info" style={{ marginTop: 16 }}>
-      Next, your phone will ask for location permission — Qalbee uses it only to calculate prayer times and qibla, only while open.
+      Next, your phone will ask for location permission — Productive Muslim uses it only to calculate prayer times and qibla, only while open.
     </Banner>
   </ObFrame>
 );
@@ -101,7 +101,7 @@ const ObLocation = ({ dark }) => (
 /* 3b · manual city picker (also the permission-denied fallback) */
 const ObCityPicker = ({ dark, denied }) => (
   <ObFrame dark={dark} step={1} title={denied ? "No problem at all" : "Choose your city"}
-    sub={denied ? "GPS is off — everything still works. Pick your city and Qalbee calculates locally, fully offline." : "Search any city in the world."} cta="Confirm city">
+    sub={denied ? "GPS is off — everything still works. Pick your city and Productive Muslim calculates locally, fully offline." : "Search any city in the world."} cta="Confirm city">
     {denied && (
       <Banner icon="info" tone="var(--accent-soft)" color="var(--on-accent-soft)" style={{ marginBottom: 14 }}>
         Changed your mind? Enable location anytime in Settings → Location.
@@ -161,7 +161,7 @@ const ObMethod = ({ dark }) => (
 /* 6 · notification priming + denied */
 const ObNotif = ({ dark, denied }) => (
   <ObFrame dark={dark} step={4} title={denied ? "Notifications are off" : "Gentle reminders"}
-    sub={denied ? "Qalbee stays useful without them — open the app anytime for live countdowns. Re-enable whenever you like." : "Choose what Qalbee may remind you about. Your phone will ask once."}
+    sub={denied ? "Productive Muslim stays useful without them — open the app anytime for live countdowns. Re-enable whenever you like." : "Choose what Productive Muslim may remind you about. Your phone will ask once."}
     cta={denied ? "Continue without reminders" : "Allow notifications"} ctaKind={denied ? "tonal" : "primary"}
     secondary={denied ? <Btn kind="ghost" full>Open system settings</Btn> : <Btn kind="ghost" full>Maybe later</Btn>}>
     {[["bell", "Azan at each waqt", "Sound, beep, or silent — per prayer", !denied], ["mosque", "Jamaat reminder", "A nudge before congregation at your mosque", !denied], ["moon", "Sahri & iftar alerts", "During Ramadan", !denied], ["heart", "Evening muhasaba", "One quiet check-in, never more", !denied]].map(([ic, t, s, on]) => (
@@ -180,7 +180,7 @@ const ObFinish = ({ dark }) => (
       <div className="t-headline" style={{ marginTop: 14 }}>You’re all set, alhamdulillah.</div>
       <div className="t-body c-2" style={{ marginTop: 10 }}>Dhaka · Hanafi · Karachi method.<br></br>Everything can be changed in Settings.</div>
     </div>
-    <div style={{ padding: "14px 22px 6px" }}><Btn kind="primary" full icon="heart">Open Qalbee</Btn></div>
+    <div style={{ padding: "14px 22px 6px" }}><Btn kind="primary" full icon="heart">Open Productive Muslim</Btn></div>
     <HomeBar></HomeBar>
   </Phone>
 );

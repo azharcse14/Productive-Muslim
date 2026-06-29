@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/hijri_date.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 
 void main() {
   group('HijriDate (tabular, civil epoch)', () {

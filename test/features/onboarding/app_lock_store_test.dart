@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/onboarding/data/app_lock_data_source.dart';
-import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
+import 'package:productive_muslim/features/onboarding/data/app_lock_data_source.dart';
+import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';

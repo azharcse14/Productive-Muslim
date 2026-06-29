@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/settings/data/models/app_settings_model.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/entities/city.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/entities/notification_matrix.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/settings/data/models/app_settings_model.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 void main() {
   group('AppSettingsModel', () {

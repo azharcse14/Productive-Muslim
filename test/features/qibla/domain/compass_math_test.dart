@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/qibla/domain/usecases/compass_math.dart';
+import 'package:productive_muslim/features/qibla/domain/usecases/compass_math.dart';
 
 /// Shortest circular distance between two headings (independent of the
 /// implementation under test), for wrap-safe ≈0°/≈360° assertions.

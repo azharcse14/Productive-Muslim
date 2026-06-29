@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
-import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
-import 'package:qalbee/features/settings/domain/entities/city.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 const _dhaka = ManualCityLocation(
   City(

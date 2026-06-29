@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/shared/widgets/staggered_entrance.dart';
+import 'package:productive_muslim/shared/widgets/staggered_entrance.dart';
 
 void main() {
   group('StaggeredEntrance', () {

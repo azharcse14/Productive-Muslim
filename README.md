@@ -1,6 +1,6 @@
-# Qalbee
+# Productive Muslim
 
-**Qalbee** (from *qalb*, قلب — the heart) is an **offline-first, backend-less** Islamic lifestyle app built with Flutter for a global Muslim audience. Every core feature works with zero network — there is no server, no API of our own, no analytics SDK, and no ads.
+**Productive Muslim** is an **offline-first, backend-less** Islamic lifestyle app built with Flutter for a global Muslim audience. Every core feature works with zero network — there is no server, no API of our own, no analytics SDK, and no ads.
 
 ## Feature Pillars
 
@@ -46,11 +46,11 @@ features/    one folder per feature, each with domain / data / presentation
 - **domain** is pure Dart (no Flutter imports); **data** is the only layer touching plugins/DB; **presentation** depends on domain only.
 - State management is **signals** (`signals_flutter`), DI is **get_it** (single composition root), routing is **go_router** (single route table). Nothing parallel to these is permitted.
 
-Full details: [`docs/QALBEE_DEVELOPMENT_GUIDE.md`](docs/QALBEE_DEVELOPMENT_GUIDE.md) (binding engineering rules), [`docs/QALBEE_IMPLEMENTATION_PLAN.md`](docs/QALBEE_IMPLEMENTATION_PLAN.md) (phased plan), [`docs/QALBEE_PROGRESS.md`](docs/QALBEE_PROGRESS.md) (live progress).
+Full details: [`docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md`](docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md) (binding engineering rules), [`docs/PRODUCTIVE_MUSLIM_IMPLEMENTATION_PLAN.md`](docs/PRODUCTIVE_MUSLIM_IMPLEMENTATION_PLAN.md) (phased plan), [`docs/PRODUCTIVE_MUSLIM_PROGRESS.md`](docs/PRODUCTIVE_MUSLIM_PROGRESS.md) (live progress).
 
 ## Design
 
-The complete high-fidelity design (tokens, components, ~90 artboards, light + dark + RTL) lives in [`docs/design_handoff_qalbee/`](docs/design_handoff_qalbee/) — open `Qalbee Design.html` in a browser. `qalbee/tokens.css` is the canonical token source and maps 1:1 to `lib/core/theme/` (`QalbeeColors` ThemeExtension + QSpace/QRadius/QMotion + QType scale).
+The complete high-fidelity design (tokens, components, ~90 artboards, light + dark + RTL) lives in [`docs/design_handoff_productive_muslim/`](docs/design_handoff_productive_muslim/) — open `Productive Muslim Design.html` in a browser. `productive_muslim/tokens.css` is the canonical token source and maps 1:1 to `lib/core/theme/` (`ProductiveMuslimColors` ThemeExtension + QSpace/QRadius/QMotion + QType scale).
 
 - **Fonts (bundled):** Schibsted Grotesk (UI), Noto Sans Bengali, IBM Plex Sans Arabic, KFGQPC Uthmanic HAFS (Quran only). Licenses in `docs/DEPENDENCIES.md`.
 - **L10n:** ARB files in `lib/core/l10n/arb` (en template + bn); run `flutter gen-l10n` after editing.

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// The application name shown in the launcher and app bars
   ///
   /// In en, this message translates to:
-  /// **'Qalbee'**
+  /// **'Productive Muslim'**
   String get appTitle;
 
   /// Bottom navigation label for the Home tab
@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPrimingBody.
   ///
   /// In en, this message translates to:
-  /// **'Qalbee uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.'**
+  /// **'Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.'**
   String get locationPrimingBody;
 
   /// No description provided for @locationDeniedFallback.
@@ -815,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleAutoHint.
   ///
   /// In en, this message translates to:
-  /// **'Qalbee picks the mosque by day and time.'**
+  /// **'Productive Muslim picks the mosque by day and time.'**
   String get scheduleAutoHint;
 
   /// No description provided for @scheduleRulesTitle.
@@ -887,7 +887,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeSetLocationBody.
   ///
   /// In en, this message translates to:
-  /// **'Pick your location once and Qalbee computes accurate prayer times for it — fully offline.'**
+  /// **'Pick your location once and Productive Muslim computes accurate prayer times for it — fully offline.'**
   String get homeSetLocationBody;
 
   /// No description provided for @homeSetLocationCta.
@@ -1001,7 +1001,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifPermissionDeniedBanner.
   ///
   /// In en, this message translates to:
-  /// **'Notifications are off in system settings. Qalbee stays fully useful — enable them to get azan and reminders.'**
+  /// **'Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.'**
   String get notifPermissionDeniedBanner;
 
   /// No description provided for @notifEnableCta.
@@ -1013,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifExactAlarmBanner.
   ///
   /// In en, this message translates to:
-  /// **'For azan at the exact minute, allow \"Alarms & reminders\" for Qalbee in system settings.'**
+  /// **'For azan at the exact minute, allow \"Alarms & reminders\" for Productive Muslim in system settings.'**
   String get notifExactAlarmBanner;
 
   /// No description provided for @notifExactAlarmCta.
@@ -1025,7 +1025,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifBatteryHint.
   ///
   /// In en, this message translates to:
-  /// **'If reminders arrive late, exclude Qalbee from battery optimization in system settings.'**
+  /// **'If reminders arrive late, exclude Productive Muslim from battery optimization in system settings.'**
   String get notifBatteryHint;
 
   /// No description provided for @notifPerPrayerHeader.
@@ -1577,7 +1577,7 @@ abstract class AppLocalizations {
   /// No description provided for @quranFirstOpen.
   ///
   /// In en, this message translates to:
-  /// **'Bismillah — start reading and Qalbee will remember where you left off.'**
+  /// **'Bismillah — start reading and Productive Muslim will remember where you left off.'**
   String get quranFirstOpen;
 
   /// No description provided for @ayahShareSuffix.
@@ -2207,7 +2207,7 @@ abstract class AppLocalizations {
   /// No description provided for @appLockEnableSub.
   ///
   /// In en, this message translates to:
-  /// **'Require a PIN (and biometrics) to open Qalbee'**
+  /// **'Require a PIN (and biometrics) to open Productive Muslim'**
   String get appLockEnableSub;
 
   /// No description provided for @appLockDisable.

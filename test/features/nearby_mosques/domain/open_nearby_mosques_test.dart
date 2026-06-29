@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/nearby_mosques/domain/external_launcher.dart';
-import 'package:qalbee/features/nearby_mosques/domain/usecases/open_nearby_mosques.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/repositories/location_repository.dart';
-import 'package:qalbee/features/settings/domain/usecases/get_current_location.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
+import 'package:productive_muslim/features/nearby_mosques/domain/usecases/open_nearby_mosques.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/location_repository.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_current_location.dart';
 
 final class _FakeLauncher implements ExternalLauncher {
   _FakeLauncher({this.result = true});

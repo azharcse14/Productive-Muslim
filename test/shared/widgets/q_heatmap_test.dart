@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/theme/qalbee_colors.dart';
-import 'package:qalbee/shared/widgets/q_heatmap.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
+import 'package:productive_muslim/shared/widgets/q_heatmap.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       theme: AppTheme.light(),
@@ -40,11 +40,11 @@ void main() {
       );
       expect(
         QHeatmapCell.colorFor(ctx, 0),
-        QalbeeColors.light.surface2,
+        ProductiveMuslimColors.light.surface2,
       );
       expect(
         QHeatmapCell.colorFor(ctx, 0),
-        isNot(QalbeeColors.light.urgent),
+        isNot(ProductiveMuslimColors.light.urgent),
       );
     });
 
@@ -60,7 +60,7 @@ void main() {
           ),
         ),
       );
-      expect(QHeatmapCell.colorFor(ctx, 4), QalbeeColors.light.primary);
+      expect(QHeatmapCell.colorFor(ctx, 4), ProductiveMuslimColors.light.primary);
     });
   });
 }

@@ -1,4 +1,4 @@
-// qalbee/sec-quran-dua.jsx
+// productive_muslim/sec-quran-dua.jsx
 /* global React, DCArtboard, DCSection, Phone, HomeBar, BottomNav, QIcon, QalbMark, Star8, MotifBg, Btn, Chip, Field,
    Card, SegControl, Banner, ProgressRing, Skel, SpecNote, arD */
 
@@ -52,7 +52,7 @@ const SurahList = ({ dark, firstOpen, searchEmpty }) => (
           {firstOpen ? (
             <div style={{ borderRadius: "var(--r-lg)", padding: 16, background: "var(--primary-soft)", color: "var(--on-primary-soft)", display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
               <QIcon name="book" size={24}></QIcon>
-              <span className="t-caption" style={{ fontSize: 12.5, lineHeight: 1.5 }}>Welcome. Start anywhere — Qalbee will remember your place and offer to resume here.</span>
+              <span className="t-caption" style={{ fontSize: 12.5, lineHeight: 1.5 }}>Welcome. Start anywhere — Productive Muslim will remember your place and offer to resume here.</span>
             </div>
           ) : (
             <div style={{ borderRadius: "var(--r-lg)", padding: "14px 16px", background: "var(--primary)", color: "var(--on-primary)", position: "relative", overflow: "hidden", marginBottom: 12 }}>

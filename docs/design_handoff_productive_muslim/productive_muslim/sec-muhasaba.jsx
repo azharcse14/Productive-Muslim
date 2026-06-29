@@ -1,4 +1,4 @@
-// qalbee/sec-muhasaba.jsx — the differentiator
+// productive_muslim/sec-muhasaba.jsx — the differentiator
 /* global React, DCArtboard, DCSection, Phone, HomeBar, BottomNav, TrackerToggle, TrackerCount, TrackerDuration,
    Heatmap, ProgressRing, QIcon, QalbMark, Star8, MotifBg, Btn, Chip, Field, SegControl, Radio, Banner, Toggle, SpecNote, bnD, HEART_PATH */
 
@@ -105,7 +105,7 @@ const MhCustomField = ({ dark, archive }) => (
             <Btn kind="tonal" small>Archive</Btn>
           </div>
           <div className="t-caption c-2" style={{ marginTop: 8 }}>
-            Archiving hides it from your daily list. <b>All history is preserved</b> in your dashboard, and you can restore it anytime. Nothing in Qalbee is ever “failed” or erased.
+            Archiving hides it from your daily list. <b>All history is preserved</b> in your dashboard, and you can restore it anytime. Nothing in Productive Muslim is ever “failed” or erased.
           </div>
         </div>
       )}
@@ -180,7 +180,7 @@ const MhEmpty = ({ dark, kind }) => (
         <React.Fragment>
           <QIcon name="cal" size={40} color="var(--ink-3)" style={{ margin: "0 auto" }}></QIcon>
           <div className="t-title" style={{ marginTop: 14 }}>Nothing recorded in this range</div>
-          <div className="t-body c-2" style={{ marginTop: 8 }}>You started Qalbee on 2 June — try a range after that, or widen to “Year”.</div>
+          <div className="t-body c-2" style={{ marginTop: 8 }}>You started Productive Muslim on 2 June — try a range after that, or widen to “Year”.</div>
           <div style={{ marginTop: 18 }}><Btn kind="tonal" small>Jump to my first week</Btn></div>
         </React.Fragment>
       ) : (
@@ -234,7 +234,7 @@ const MhShareCard = () => (
     <MotifBg opacity={0.08} cell={110}></MotifBg>
     <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
       <QalbMark size={34} color="var(--on-primary)" accent="var(--accent)" sw={3.2}></QalbMark>
-      <span className="t-title-sm">Qalbee</span>
+      <span className="t-title-sm">Productive Muslim</span>
       <span style={{ flex: 1 }}></span>
       <span className="t-caption" style={{ opacity: 0.75 }}>Ramadan 1447</span>
     </div>

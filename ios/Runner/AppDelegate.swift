@@ -5,9 +5,9 @@ import WidgetKit
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   /// Shared App Group between the app and the WidgetKit extension. Must
-  /// match `QalbeeWidget`'s suite and both .entitlements files.
-  private let appGroup = "group.com.qalbee.qalbee"
-  private let channelName = "com.qalbee.qalbee/widget"
+  /// match `ProductiveMuslimWidget`'s suite and both .entitlements files.
+  private let appGroup = "group.com.productivemuslim.app"
+  private let channelName = "com.productivemuslim.app/widget"
 
   override func application(
     _ application: UIApplication,

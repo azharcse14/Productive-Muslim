@@ -1,4 +1,4 @@
-// qalbee/sec-home-qibla.jsx
+// productive_muslim/sec-home-qibla.jsx
 /* global React, DCArtboard, DCSection, Phone, HomeBar, AppHeader, CountdownCard, PrayerTable, BottomNav, CompassDial,
    QIcon, QalbMark, Btn, Banner, Card, MotifBg, SpecNote */
 

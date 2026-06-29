@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/qalbee_typography.dart';
+import '../../core/theme/productive_muslim_typography.dart';
 import '../extensions/context_ext.dart';
 
 /// Standard list row: tonal icon tile, title + optional subtitle, trailing

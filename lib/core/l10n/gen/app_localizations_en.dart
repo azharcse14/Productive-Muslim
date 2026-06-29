@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Qalbee';
+  String get appTitle => 'Productive Muslim';
 
   @override
   String get tabHome => 'Home';
@@ -195,7 +195,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPrimingBody =>
-      'Qalbee uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.';
+      'Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.';
 
   @override
   String get locationDeniedFallback =>
@@ -393,7 +393,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleModeAuto => 'Auto';
 
   @override
-  String get scheduleAutoHint => 'Qalbee picks the mosque by day and time.';
+  String get scheduleAutoHint =>
+      'Productive Muslim picks the mosque by day and time.';
 
   @override
   String get scheduleRulesTitle => 'Rules';
@@ -443,7 +444,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSetLocationBody =>
-      'Pick your location once and Qalbee computes accurate prayer times for it — fully offline.';
+      'Pick your location once and Productive Muslim computes accurate prayer times for it — fully offline.';
 
   @override
   String get homeSetLocationCta => 'Set location';
@@ -547,21 +548,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifPermissionDeniedBanner =>
-      'Notifications are off in system settings. Qalbee stays fully useful — enable them to get azan and reminders.';
+      'Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.';
 
   @override
   String get notifEnableCta => 'Enable notifications';
 
   @override
   String get notifExactAlarmBanner =>
-      'For azan at the exact minute, allow \"Alarms & reminders\" for Qalbee in system settings.';
+      'For azan at the exact minute, allow \"Alarms & reminders\" for Productive Muslim in system settings.';
 
   @override
   String get notifExactAlarmCta => 'Allow exact alarms';
 
   @override
   String get notifBatteryHint =>
-      'If reminders arrive late, exclude Qalbee from battery optimization in system settings.';
+      'If reminders arrive late, exclude Productive Muslim from battery optimization in system settings.';
 
   @override
   String get notifPerPrayerHeader => 'Prayer alerts';
@@ -903,7 +904,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quranFirstOpen =>
-      'Bismillah — start reading and Qalbee will remember where you left off.';
+      'Bismillah — start reading and Productive Muslim will remember where you left off.';
 
   @override
   String ayahShareSuffix(int surah, int ayah) {
@@ -1399,7 +1400,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockEnableSub =>
-      'Require a PIN (and biometrics) to open Qalbee';
+      'Require a PIN (and biometrics) to open Productive Muslim';
 
   @override
   String get appLockDisable => 'Turn off app lock';

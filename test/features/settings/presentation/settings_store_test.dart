@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/entities/city.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
-import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
-import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
-import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
-import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();

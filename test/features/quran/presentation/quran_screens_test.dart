@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodCall, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/quran/domain/entities/ayah.dart';
-import 'package:qalbee/features/quran/domain/entities/surah.dart';
-import 'package:qalbee/features/quran/domain/repositories/quran_repository.dart';
-import 'package:qalbee/features/quran/presentation/screens/quran_reader_screen.dart';
-import 'package:qalbee/features/quran/presentation/screens/quran_screen.dart';
-import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
+import 'package:productive_muslim/features/quran/domain/entities/surah.dart';
+import 'package:productive_muslim/features/quran/domain/repositories/quran_repository.dart';
+import 'package:productive_muslim/features/quran/presentation/screens/quran_reader_screen.dart';
+import 'package:productive_muslim/features/quran/presentation/screens/quran_screen.dart';
+import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -181,7 +181,7 @@ void main() {
       // No last-read position yet → quiet first-open banner, no resume card.
       expect(
         find.text(
-          'Bismillah — start reading and Qalbee will remember '
+          'Bismillah — start reading and Productive Muslim will remember '
           'where you left off.',
         ),
         findsOneWidget,

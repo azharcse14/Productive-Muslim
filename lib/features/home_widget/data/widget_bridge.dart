@@ -9,7 +9,7 @@ import '../domain/widget_payload.dart';
 /// impure call site keeps [buildWidgetPayload] fully testable.
 final class WidgetBridge {
   const WidgetBridge([
-    this._channel = const MethodChannel('com.qalbee.qalbee/widget'),
+    this._channel = const MethodChannel('com.productivemuslim.app/widget'),
   ]);
 
   final MethodChannel _channel;

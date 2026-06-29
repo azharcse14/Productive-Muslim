@@ -1,4 +1,4 @@
-// qalbee/sec-rtl-notif-store.jsx — RTL set · notifications · icon & store
+// productive_muslim/sec-rtl-notif-store.jsx — RTL set · notifications · icon & store
 /* global React, DCArtboard, DCSection, Phone, HomeBar, AppHeader, CountdownCard, PrayerTable, BottomNav, NotifCard,
    ProgressRing, Heatmap, CompassDial, QIcon, QalbMark, Star8, MotifBg, Btn, Toggle, Banner, SegControl, SpecNote, arD, HEART_PATH */
 
@@ -129,19 +129,19 @@ const NotifDeniedEdu = ({ dark }) => (
         <span style={{ width: 58, height: 58, borderRadius: 20, display: "inline-grid", placeItems: "center", background: "var(--surface-2)", color: "var(--ink-2)" }}>
           <QIcon name="bellOff" size={26}></QIcon>
         </span>
-        <div className="t-title" style={{ marginTop: 14 }}>Notifications are off for Qalbee</div>
+        <div className="t-title" style={{ marginTop: 14 }}>Notifications are off for Productive Muslim</div>
         <div className="t-body c-2" style={{ marginTop: 8, textAlign: "start" }}>
           That’s okay — nothing breaks. Countdowns, prayer times, and muhasaba all work whenever you open the app.
           If you’d like the azan and gentle reminders back:
         </div>
         <div style={{ textAlign: "start", marginTop: 12 }} className="t-body c-2">
-          <div style={{ display: "flex", gap: 10, marginBottom: 8 }}><b style={{ color: "var(--primary)" }}>1</b><span>Open your phone’s <b style={{ color: "var(--ink)" }}>Settings → Apps → Qalbee</b></span></div>
+          <div style={{ display: "flex", gap: 10, marginBottom: 8 }}><b style={{ color: "var(--primary)" }}>1</b><span>Open your phone’s <b style={{ color: "var(--ink)" }}>Settings → Apps → Productive Muslim</b></span></div>
           <div style={{ display: "flex", gap: 10, marginBottom: 8 }}><b style={{ color: "var(--primary)" }}>2</b><span>Tap <b style={{ color: "var(--ink)" }}>Notifications</b> and allow</span></div>
           <div style={{ display: "flex", gap: 10 }}><b style={{ color: "var(--primary)" }}>3</b><span>Come back — your per-prayer choices are saved</span></div>
         </div>
         <div style={{ marginTop: 18 }}><Btn kind="primary" full>Open system settings</Btn></div>
       </div>
-      <Banner icon="info" style={{ marginTop: 14 }}>Qalbee never uses notifications for promotions — only what you chose: azan, jamaat, sahri/iftar, and one evening muhasaba nudge.</Banner>
+      <Banner icon="info" style={{ marginTop: 14 }}>Productive Muslim never uses notifications for promotions — only what you chose: azan, jamaat, sahri/iftar, and one evening muhasaba nudge.</Banner>
     </div>
     <HomeBar style={{ marginTop: "auto" }}></HomeBar>
   </Phone>
@@ -183,7 +183,7 @@ const FeatureGraphic = () => (
     <div style={{ position: "relative", color: "var(--on-primary)", flex: 1 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <QalbMark size={44} color="var(--on-primary)" accent="var(--accent)" sw={3}></QalbMark>
-        <span style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-.5px" }}>Qalbee</span>
+        <span style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-.5px" }}>Productive Muslim</span>
       </div>
       <div style={{ fontSize: 17, opacity: 0.85, marginTop: 10, maxWidth: 330, lineHeight: 1.45 }}>A companion for the heart’s daily deen — prayer, Quran & muhasaba, fully offline.</div>
     </div>

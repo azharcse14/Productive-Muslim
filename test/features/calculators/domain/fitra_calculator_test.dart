@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/calculators/domain/usecases/fitra_calculator.dart';
+import 'package:productive_muslim/features/calculators/domain/usecases/fitra_calculator.dart';
 
 void main() {
   group('FitraCalculator.weightKgPerPerson', () {

@@ -1,15 +1,15 @@
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/dua_tasbih/domain/entities/dua.dart';
-import 'package:qalbee/features/dua_tasbih/domain/repositories/dua_repository.dart';
-import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
-import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
-import 'package:qalbee/features/quran/domain/entities/ayah.dart';
-import 'package:qalbee/features/quran/domain/entities/surah.dart';
-import 'package:qalbee/features/quran/domain/repositories/quran_repository.dart';
-import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
-import 'package:qalbee/features/ruqyah/domain/entities/ruqyah.dart';
-import 'package:qalbee/features/ruqyah/domain/repositories/ruqyah_repository.dart';
-import 'package:qalbee/features/ruqyah/presentation/state/ruqyah_store.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/dua_tasbih/domain/entities/dua.dart';
+import 'package:productive_muslim/features/dua_tasbih/domain/repositories/dua_repository.dart';
+import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
+import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
+import 'package:productive_muslim/features/quran/domain/entities/surah.dart';
+import 'package:productive_muslim/features/quran/domain/repositories/quran_repository.dart';
+import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/features/ruqyah/domain/entities/ruqyah.dart';
+import 'package:productive_muslim/features/ruqyah/domain/repositories/ruqyah_repository.dart';
+import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tiny in-memory Quran for shell-level widget tests.

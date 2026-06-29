@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/settings/data/datasources/city_asset_data_source.dart';
-import 'package:qalbee/features/settings/data/repositories/city_repository_impl.dart';
+import 'package:productive_muslim/features/settings/data/datasources/city_asset_data_source.dart';
+import 'package:productive_muslim/features/settings/data/repositories/city_repository_impl.dart';
 
 final class _FakeBundle extends CachingAssetBundle {
   _FakeBundle(this.payload);

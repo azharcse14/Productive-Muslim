@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/dua_tasbih/data/dua_asset_data_source.dart';
-import 'package:qalbee/features/dua_tasbih/data/dua_repository_impl.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/dua_tasbih/data/dua_asset_data_source.dart';
+import 'package:productive_muslim/features/dua_tasbih/data/dua_repository_impl.dart';
 
 /// Serves canned strings; counts loads so caching is observable.
 final class _FakeAssetBundle extends AssetBundle {

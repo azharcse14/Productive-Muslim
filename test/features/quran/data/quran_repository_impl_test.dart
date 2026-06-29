@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/quran/data/datasources/quran_database.dart';
-import 'package:qalbee/features/quran/data/repositories/quran_repository_impl.dart';
-import 'package:qalbee/features/quran/domain/entities/ayah.dart';
+import 'package:productive_muslim/features/quran/data/datasources/quran_database.dart';
+import 'package:productive_muslim/features/quran/data/repositories/quran_repository_impl.dart';
+import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
 
 void main() {
   // The committed asset must never be written to (the beforeOpen hook
@@ -14,7 +14,7 @@ void main() {
   late QuranRepositoryImpl repo;
 
   setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('qalbee_quran_db_test');
+    tempDir = await Directory.systemTemp.createTemp('productive_muslim_quran_db_test');
     final copy = File('${tempDir.path}/quran.db');
     await File('assets/data/quran.db').copy(copy.path);
     db = QuranDatabase(NativeDatabase(copy));

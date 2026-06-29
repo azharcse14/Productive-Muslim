@@ -1,6 +1,6 @@
-# Qalbee analyzer configuration.
+# Productive Muslim analyzer configuration.
 #
-# Policy (docs/QALBEE_DEVELOPMENT_GUIDE.md §6): flutter_lints latest, plus
+# Policy (docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md §6): flutter_lints latest, plus
 # strict language modes. Zero analyzer warnings, zero deprecated API usage.
 
 include: package:flutter_lints/flutter.yaml

@@ -1,12 +1,12 @@
-# Qalbee — Design Brief
+# Productive Muslim — Design Brief
 
-> **Audience of this document:** This brief instructs the design agent ("Claude Design") to produce the complete visual design system and screen designs for Qalbee. Read this entire document before producing any design. Nothing listed here may be skipped or merged away.
+> **Audience of this document:** This brief instructs the design agent ("Claude Design") to produce the complete visual design system and screen designs for Productive Muslim. Read this entire document before producing any design. Nothing listed here may be skipped or merged away.
 
 ---
 
 ## 1. Product Overview
 
-**Qalbee** (from *qalb*, قلب — the heart) is an offline-first Islamic lifestyle app for a **global Muslim audience**. It is built in Flutter, has **no backend**, and works fully without internet.
+**Productive Muslim** (from *qalb*, قلب — the heart) is an offline-first Islamic lifestyle app for a **global Muslim audience**. It is built in Flutter, has **no backend**, and works fully without internet.
 
 Core promise: *a companion for the heart's daily deen* — accurate prayer times anywhere on earth, qibla direction, Quran, dua, and a unique self-accountability (Muhasaba) tracker.
 
@@ -25,7 +25,7 @@ Core promise: *a companion for the heart's daily deen* — accurate prayer times
 
 ### Identity
 - The brand concept is the **qalb (heart)** — purification, reflection, tranquility. The design should feel like a quiet moment of worship: calm, warm, dignified. Not corporate, not gamified-loud, not template "green mosque app".
-- Avoid the clichés of the category: no glossy mosque-dome photo headers, no harsh neon green, no cluttered ad-style home screens (the Muslim Pro look). Qalbee should feel closer to a premium habit/meditation app in polish, but unmistakably Islamic in soul.
+- Avoid the clichés of the category: no glossy mosque-dome photo headers, no harsh neon green, no cluttered ad-style home screens (the Muslim Pro look). Productive Muslim should feel closer to a premium habit/meditation app in polish, but unmistakably Islamic in soul.
 - A subtle geometric Islamic pattern language (derived from one chosen motif — e.g. an 8-fold star or a heart-derived arabesque) may be used as the **signature element**, applied with restraint (backgrounds at low opacity, section dividers, the splash mark). Choose ONE motif and use it consistently everywhere.
 
 ### Color
@@ -68,10 +68,10 @@ Core promise: *a companion for the heart's daily deen* — accurate prayer times
 
 ### 4.1 Splash Screen
 - Animated brand mark (the qalb/heart-pattern motif resolving into the logo). Duration ≤ 2s, skippable feel — splash never blocks on network (there is no network dependency).
-- Light + dark variants. App name "Qalbee" with tagline.
+- Light + dark variants. App name "Productive Muslim" with tagline.
 
 ### 4.2 Onboarding (first launch only — design the full flow)
-1. **Welcome** — brand story in one screen (what Qalbee is, 1 line).
+1. **Welcome** — brand story in one screen (what Productive Muslim is, 1 line).
 2. **Language selection** — English default; Bangla, (later Arabic, Urdu, Indonesian, Turkish). This screen appears before anything else after welcome.
 3. **Location setup** — two paths side by side: "Use my location (GPS)" and "Choose city manually" (search list with country flags). Include the permission-priming explanation BEFORE the OS dialog, and the **permission-denied fallback state** (gracefully routes to manual city picker).
 4. **Madhab selection** — Hanafi / Shafiʿi with a one-line friendly explanation ("affects Asr time only"). Default pre-selected by region.

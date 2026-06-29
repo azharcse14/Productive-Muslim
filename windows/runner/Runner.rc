@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.qalbee" "\0"
-            VALUE "FileDescription", "qalbee" "\0"
+            VALUE "CompanyName", "com.productivemuslim" "\0"
+            VALUE "FileDescription", "Productive Muslim" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "qalbee" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.qalbee. All rights reserved." "\0"
-            VALUE "OriginalFilename", "qalbee.exe" "\0"
-            VALUE "ProductName", "qalbee" "\0"
+            VALUE "InternalName", "productive_muslim" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.productivemuslim. All rights reserved." "\0"
+            VALUE "OriginalFilename", "productive_muslim.exe" "\0"
+            VALUE "ProductName", "Productive Muslim" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

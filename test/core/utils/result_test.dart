@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/result.dart';
 
 void main() {
   group('Result', () {

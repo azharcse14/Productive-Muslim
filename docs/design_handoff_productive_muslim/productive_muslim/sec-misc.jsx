@@ -1,4 +1,4 @@
-// qalbee/sec-misc.jsx — Ramadan · My Mosque · Settings · Calendar
+// productive_muslim/sec-misc.jsx — Ramadan · My Mosque · Settings · Calendar
 /* global React, DCArtboard, DCSection, Phone, HomeBar, BottomNav, CountdownCard, QIcon, QalbMark, MotifBg, Btn, Chip,
    Field, SegControl, Radio, Toggle, Banner, ListRow, Stepper, SpecNote, bnD */
 

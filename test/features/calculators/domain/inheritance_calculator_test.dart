@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/calculators/domain/usecases/inheritance_calculator.dart';
+import 'package:productive_muslim/features/calculators/domain/usecases/inheritance_calculator.dart';
 
 /// Looks up a single heir group by key. Fails if absent.
 HeirShare _share(InheritanceResult r, String key) =>

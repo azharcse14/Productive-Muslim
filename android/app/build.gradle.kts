@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qalbee.qalbee"
+    namespace = "com.productivemuslim.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.qalbee.qalbee"
+        applicationId = "com.productivemuslim.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

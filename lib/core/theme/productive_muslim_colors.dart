@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// All Qalbee color tokens beyond Material's [ColorScheme], mapped 1:1 from
-/// `docs/design_handoff_qalbee/qalbee/tokens.css`. Feature widgets read these
-/// via `Theme.of(context).extension<QalbeeColors>()` — never inline colors.
+/// All Productive Muslim color tokens beyond Material's [ColorScheme], mapped 1:1 from
+/// `docs/design_handoff_productive_muslim/productive_muslim/tokens.css`. Feature widgets read these
+/// via `Theme.of(context).extension<ProductiveMuslimColors>()` — never inline colors.
 @immutable
-final class QalbeeColors extends ThemeExtension<QalbeeColors> {
-  const QalbeeColors({
+final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors> {
+  const ProductiveMuslimColors({
     required this.bg,
     required this.surface,
     required this.surface2,
@@ -82,7 +82,7 @@ final class QalbeeColors extends ThemeExtension<QalbeeColors> {
   /// Sheet/dialog scrim.
   final Color scrim;
 
-  static const light = QalbeeColors(
+  static const light = ProductiveMuslimColors(
     bg: Color(0xFFF6F4EE),
     surface: Color(0xFFFFFFFF),
     surface2: Color(0xFFEFEBE1),
@@ -107,7 +107,7 @@ final class QalbeeColors extends ThemeExtension<QalbeeColors> {
     scrim: Color.fromRGBO(20, 28, 26, 0.45),
   );
 
-  static const dark = QalbeeColors(
+  static const dark = ProductiveMuslimColors(
     bg: Color(0xFF0E1513),
     surface: Color(0xFF16201D),
     surface2: Color(0xFF1D2A26),
@@ -133,7 +133,7 @@ final class QalbeeColors extends ThemeExtension<QalbeeColors> {
   );
 
   @override
-  QalbeeColors copyWith({
+  ProductiveMuslimColors copyWith({
     Color? bg,
     Color? surface,
     Color? surface2,
@@ -157,7 +157,7 @@ final class QalbeeColors extends ThemeExtension<QalbeeColors> {
     Color? urgentSoft,
     Color? scrim,
   }) {
-    return QalbeeColors(
+    return ProductiveMuslimColors(
       bg: bg ?? this.bg,
       surface: surface ?? this.surface,
       surface2: surface2 ?? this.surface2,
@@ -184,11 +184,11 @@ final class QalbeeColors extends ThemeExtension<QalbeeColors> {
   }
 
   @override
-  QalbeeColors lerp(QalbeeColors? other, double t) {
+  ProductiveMuslimColors lerp(ProductiveMuslimColors? other, double t) {
     if (other == null) {
       return this;
     }
-    return QalbeeColors(
+    return ProductiveMuslimColors(
       bg: Color.lerp(bg, other.bg, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       surface2: Color.lerp(surface2, other.surface2, t)!,

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import '../../../../core/theme/qalbee_colors.dart';
+import '../../../../core/theme/productive_muslim_colors.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 
@@ -70,7 +70,7 @@ final class _DialPainter extends CustomPainter {
     required this.cardinals,
   });
 
-  final QalbeeColors colors;
+  final ProductiveMuslimColors colors;
   final double heading;
   final double bearing;
   final bool aligned;

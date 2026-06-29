@@ -1,14 +1,14 @@
-# Handoff: Qalbee — Islamic Lifestyle App (full design system + all screens)
+# Handoff: Productive Muslim — Islamic Lifestyle App (full design system + all screens)
 
 ## Overview
-Qalbee is an **offline-first Islamic lifestyle app** (Flutter, no backend) for a global Muslim audience: prayer times, qibla compass, Quran reader, dua/tasbih, Ramadan tools, and its differentiator — **Muhasaba**, a daily self-accountability tracker. This handoff contains the complete visual design: design tokens (light + dark), the core component library, and every screen/state, including RTL examples, notification artifacts, and store assets.
+Productive Muslim is an **offline-first Islamic lifestyle app** (Flutter, no backend) for a global Muslim audience: prayer times, qibla compass, Quran reader, dua/tasbih, Ramadan tools, and its differentiator — **Muhasaba**, a daily self-accountability tracker. This handoff contains the complete visual design: design tokens (light + dark), the core component library, and every screen/state, including RTL examples, notification artifacts, and store assets.
 
-**Read `QALBEE_DESIGN_BRIEF.md` first** — it is the original product brief and contains hard product rules (positive framing, offline-is-normal, permission fallbacks) that are binding for implementation, not just design.
+**Read `PRODUCTIVE_MUSLIM_DESIGN_BRIEF.md` first** — it is the original product brief and contains hard product rules (positive framing, offline-is-normal, permission fallbacks) that are binding for implementation, not just design.
 
 ## About the Design Files
 The files in this bundle are **design references created in HTML/JSX** — they show intended look, states, and behavior. They are **not production code**. The task is to **recreate these designs in Flutter** (the target per the brief) using idiomatic Flutter: `ThemeData` + `ThemeExtension` for tokens, real widgets, real localization (`intl`/ARB), real sensors. If the target environment ever changes, recreate in that stack's conventions instead.
 
-View the designs by opening `Qalbee Design.html` in a browser (needs internet for fonts/React CDN). It is a pan/zoom canvas: 16 sections, ~90 artboards. Every artboard is labeled.
+View the designs by opening `Productive Muslim Design.html` in a browser (needs internet for fonts/React CDN). It is a pan/zoom canvas: 16 sections, ~90 artboards. Every artboard is labeled.
 
 ## Fidelity
 **High-fidelity.** Colors, type sizes, spacing, radii, copy, and states are final and should be matched closely. The only stand-ins:
@@ -17,7 +17,7 @@ View the designs by opening `Qalbee Design.html` in a browser (needs internet fo
 - Prayer-time values are sample data (Dhaka, June 2026) — compute via a calculation library (e.g. `adhan-dart`).
 
 ## Design Tokens
-Canonical source: **`qalbee/tokens.css`** — every `--*` variable maps 1:1 to a Flutter theme field. Two complete themes; **dark is designed, not inverted** (teal-black `#0E1513` base, soft-white ink `#E4E9E4`, lifted low-chroma brand colors — comfortable at Fajr/Tahajjud).
+Canonical source: **`productive_muslim/tokens.css`** — every `--*` variable maps 1:1 to a Flutter theme field. Two complete themes; **dark is designed, not inverted** (teal-black `#0E1513` base, soft-white ink `#E4E9E4`, lifted low-chroma brand colors — comfortable at Fajr/Tahajjud).
 
 ### Colors (light / dark)
 | Token | Light | Dark | Use |
@@ -61,7 +61,7 @@ Type scale (size/line-height · weight): display 34/1.12·700 (−0.6 tracking) 
 - Touch targets ≥ 48dp.
 
 ### Signature motif — the qalb mark
-One motif everywhere: an **8-fold star (two interlaced squares, rounded corners) holding a heart**. SVG geometry in `qalbee/base.jsx` (`QalbMark`, `Star8`, `MotifBg`, `HEART_PATH`). Rules: max one motif treatment per screen; background tiling ≤6% opacity (hero cards & splash only); never rotated off-axis; the heart appears only in the full mark, app icon, and Muhasaba tab icon.
+One motif everywhere: an **8-fold star (two interlaced squares, rounded corners) holding a heart**. SVG geometry in `productive_muslim/base.jsx` (`QalbMark`, `Star8`, `MotifBg`, `HEART_PATH`). Rules: max one motif treatment per screen; background tiling ≤6% opacity (hero cards & splash only); never rotated off-axis; the heart appears only in the full mark, app icon, and Muhasaba tab icon.
 
 ## Screens / Views
 Implementation order and full layout/state detail are in the canvas (section numbers match):
@@ -99,15 +99,15 @@ Implementation order and full layout/state detail are in the canvas (section num
 
 ## Assets
 - Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (Google Fonts / bundle); **KFGQPC Uthmanic Script HAFS** from KFGQPC (license permits app embedding — verify attribution requirements).
-- Qalb mark + motif: vector geometry in `qalbee/base.jsx` (export to SVG/Flutter `CustomPainter`).
-- Icons: 24px stroke set (~1.7px) defined in `qalbee/base.jsx` `QI` map — recreate or substitute a matching stroke icon set.
+- Qalb mark + motif: vector geometry in `productive_muslim/base.jsx` (export to SVG/Flutter `CustomPainter`).
+- Icons: 24px stroke set (~1.7px) defined in `productive_muslim/base.jsx` `QI` map — recreate or substitute a matching stroke icon set.
 - No raster images anywhere in the design.
 
 ## Files
-- `Qalbee Design.html` — open this; the full canvas (all sections/artboards).
-- `QALBEE_DESIGN_BRIEF.md` — original product brief (binding rules + full screen inventory checklist).
-- `qalbee/tokens.css` — **canonical design tokens**, light + dark.
-- `qalbee/base.jsx` — motif, icon set, phone frame, primitive controls.
-- `qalbee/ui.jsx` — countdown card, prayer table, tracker items, heatmap, ring, nav, compass, notification card.
-- `qalbee/sec-*.jsx` — per-section screen definitions (foundations, components, splash/onboarding, home/qibla, quran/dua, muhasaba, misc, rtl/notif/store).
+- `Productive Muslim Design.html` — open this; the full canvas (all sections/artboards).
+- `PRODUCTIVE_MUSLIM_DESIGN_BRIEF.md` — original product brief (binding rules + full screen inventory checklist).
+- `productive_muslim/tokens.css` — **canonical design tokens**, light + dark.
+- `productive_muslim/base.jsx` — motif, icon set, phone frame, primitive controls.
+- `productive_muslim/ui.jsx` — countdown card, prayer table, tracker items, heatmap, ring, nav, compass, notification card.
+- `productive_muslim/sec-*.jsx` — per-section screen definitions (foundations, components, splash/onboarding, home/qibla, quran/dua, muhasaba, misc, rtl/notif/store).
 - `design-canvas.jsx` — canvas viewer shell (not part of the app design).

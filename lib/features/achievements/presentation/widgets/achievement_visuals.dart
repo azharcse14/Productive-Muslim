@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/qalbee_colors.dart';
+import '../../../../core/theme/productive_muslim_colors.dart';
 import '../../domain/achievements.dart';
 
 /// Icon + tier-color scheme for badges. Reuses the muhasaba icon vocabulary
@@ -21,14 +21,14 @@ abstract final class AchievementIcons {
   static IconData of(String key) => icons[key] ?? Icons.auto_awesome;
 
   /// Tier accent (used only on unlocked badges) — token-derived.
-  static Color tierColor(QalbeeColors q, AchievementTier tier) =>
+  static Color tierColor(ProductiveMuslimColors q, AchievementTier tier) =>
       switch (tier) {
         AchievementTier.bronze => q.primary,
         AchievementTier.silver => q.accentStrong,
         AchievementTier.gold => q.accent,
       };
 
-  static Color tierSoft(QalbeeColors q, AchievementTier tier) =>
+  static Color tierSoft(ProductiveMuslimColors q, AchievementTier tier) =>
       switch (tier) {
         AchievementTier.bronze => q.primarySoft,
         AchievementTier.silver => q.accentSoft,

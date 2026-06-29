@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/notifications/domain/entities/notification_item.dart';
-import 'package:qalbee/features/notifications/domain/entities/notification_texts.dart';
-import 'package:qalbee/features/notifications/domain/repositories/notification_scheduler.dart';
-import 'package:qalbee/features/notifications/domain/usecases/reschedule_notifications.dart';
-import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
-import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
-import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/entities/city.dart';
-import 'package:qalbee/features/settings/domain/entities/location_config.dart';
-import 'package:qalbee/features/settings/domain/repositories/zoned_clock.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
+import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
+import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
+import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 
 final class _FakeScheduler implements NotificationScheduler {
   List<NotificationItem>? lastPlan;

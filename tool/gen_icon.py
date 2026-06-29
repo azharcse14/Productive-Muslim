@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate Qalbee app icons (heart 'qalb' + crescent motif) using Pillow.
+"""Generate Productive Muslim app icons (heart 'qalb' + crescent motif) using Pillow.
 
-Brand palette (from lib/core/theme/qalbee_colors.dart):
+Brand palette (from lib/core/theme/productive_muslim_colors.dart):
   teal    #15564D   gold #C08A2E / #E2B264   cream #F6F4EE
 Outputs (all squares, supersampled then LANCZOS-downsampled for clean edges):
-  assets/icon/qalbee_icon.png             1024  full icon w/ teal background
-  assets/icon/qalbee_icon_foreground.png  1024  heart only, transparent bg (adaptive)
+  assets/icon/productive_muslim_icon.png             1024  full icon w/ teal background
+  assets/icon/productive_muslim_icon_foreground.png  1024  heart only, transparent bg (adaptive)
 """
 import math
 from PIL import Image, ImageDraw
@@ -112,7 +112,7 @@ def main():
     # ---- compose full icon ----
     full = Image.alpha_composite(bg, heart)
     full = full.resize((S, S), Image.LANCZOS)
-    full.save(f"{OUT}/qalbee_icon.png")
+    full.save(f"{OUT}/productive_muslim_icon.png")
 
     # ---- adaptive foreground: heart on transparent, scaled down (safe zone) ----
     fg = Image.new("RGBA", (W, W), (0, 0, 0, 0))
@@ -122,9 +122,9 @@ def main():
     canvas = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     pos = (S - fg_small.width) // 2
     canvas.alpha_composite(fg_small, (pos, pos))
-    canvas.save(f"{OUT}/qalbee_icon_foreground.png")
+    canvas.save(f"{OUT}/productive_muslim_icon_foreground.png")
 
-    print("wrote", f"{OUT}/qalbee_icon.png", "and foreground")
+    print("wrote", f"{OUT}/productive_muslim_icon.png", "and foreground")
 
 
 if __name__ == "__main__":

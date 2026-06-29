@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/my_mosque/domain/entities/jamaat_config.dart';
-import 'package:qalbee/features/notifications/domain/entities/notification_item.dart';
-import 'package:qalbee/features/notifications/domain/usecases/build_notification_plan.dart';
-import 'package:qalbee/features/prayer_times/domain/entities/prayer_day.dart';
-import 'package:qalbee/features/settings/domain/entities/notification_matrix.dart';
-import 'package:qalbee/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
+import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 PrayerDay _day(int day) => PrayerDay(
       ishaYesterday: DateTime(2026, 6, day - 1, 20, 15),

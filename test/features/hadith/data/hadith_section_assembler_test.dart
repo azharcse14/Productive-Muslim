@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/hadith/data/hadith_section_assembler.dart';
-import 'package:qalbee/features/hadith/domain/entities/hadith_book.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 
 HadithBook _book({String kind = 'sahih'}) => HadithBook(
       id: 'bukhari',

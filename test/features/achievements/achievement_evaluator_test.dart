@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/achievements/domain/achievements.dart';
+import 'package:productive_muslim/features/achievements/domain/achievements.dart';
 
 AchievementProgress _find(List<AchievementProgress> list, String id) =>
     list.firstWhere((p) => p.achievement.id == id);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/qalbee_colors.dart';
+import '../../../../core/theme/productive_muslim_colors.dart';
 
 /// Curated icon set for tracker items (keys are stored in the DB).
 abstract final class TrackerVisuals {
@@ -30,7 +30,7 @@ abstract final class TrackerVisuals {
   static IconData iconOf(String key) => icons[key] ?? Icons.auto_awesome;
 
   /// Curated palette — token-derived, no raw colors in feature widgets.
-  static List<Color> palette(QalbeeColors q) => [
+  static List<Color> palette(ProductiveMuslimColors q) => [
         q.primary,
         q.accentStrong,
         q.ok,
@@ -39,7 +39,7 @@ abstract final class TrackerVisuals {
         q.ink2,
       ];
 
-  static Color colorOf(QalbeeColors q, int index) {
+  static Color colorOf(ProductiveMuslimColors q, int index) {
     final colors = palette(q);
     return colors[index % colors.length];
   }

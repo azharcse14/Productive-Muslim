@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalbee/features/daily_content/domain/usecases/pick_daily_content.dart';
+import 'package:productive_muslim/features/daily_content/domain/usecases/pick_daily_content.dart';
 
 void main() {
   group('pickDailyContent — determinism', () {

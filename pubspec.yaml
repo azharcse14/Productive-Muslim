@@ -1,5 +1,5 @@
-name: qalbee
-description: "Qalbee — an offline-first, backend-less Islamic lifestyle app: prayer times, qibla, Quran, dua & tasbih, and the Muhasaba self-accountability tracker."
+name: productive_muslim
+description: "Productive Muslim — an offline-first, backend-less Islamic lifestyle app: prayer times, qibla, Quran, dua & tasbih, and the Muhasaba self-accountability tracker."
 
 publish_to: 'none'
 
@@ -43,10 +43,10 @@ dev_dependencies:
   shared_preferences_platform_interface: ^2.4.2
 
 flutter_launcher_icons:
-  image_path: "assets/icon/qalbee_icon.png"
+  image_path: "assets/icon/productive_muslim_icon.png"
   android: true
   adaptive_icon_background: "#15564D"
-  adaptive_icon_foreground: "assets/icon/qalbee_icon_foreground.png"
+  adaptive_icon_foreground: "assets/icon/productive_muslim_icon_foreground.png"
   ios: true
   remove_alpha_ios: true
   web:

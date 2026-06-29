@@ -1,22 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/utils/result.dart';
-import 'package:qalbee/features/dua_tasbih/presentation/state/dua_store.dart';
-import 'package:qalbee/features/dua_tasbih/presentation/state/tasbih_store.dart';
-import 'package:qalbee/features/muhasaba/presentation/state/muhasaba_store.dart';
-import 'package:qalbee/features/my_mosque/presentation/state/mosque_store.dart';
-import 'package:qalbee/features/onboarding/presentation/state/app_lock_store.dart';
-import 'package:qalbee/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
-import 'package:qalbee/features/prayer_times/domain/usecases/get_prayer_day.dart';
-import 'package:qalbee/features/prayer_times/presentation/state/home_store.dart';
-import 'package:qalbee/features/quran/presentation/state/quran_store.dart';
-import 'package:qalbee/features/settings/data/datasources/timezone_clock.dart';
-import 'package:qalbee/features/settings/domain/entities/app_settings.dart';
-import 'package:qalbee/features/settings/domain/repositories/settings_repository.dart';
-import 'package:qalbee/features/settings/domain/usecases/get_settings.dart';
-import 'package:qalbee/features/settings/domain/usecases/save_settings.dart';
-import 'package:qalbee/features/settings/presentation/state/settings_store.dart';
-import 'package:qalbee/main.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
+import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
+import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
+import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/state/home_store.dart';
+import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/main.dart';
 
 import 'helpers/content_fakes.dart';
 import 'helpers/lock_fakes.dart';
@@ -67,7 +67,7 @@ void main() {
           mosque: mosqueStore,
         ),
       );
-    await tester.pumpWidget(const QalbeeApp());
+    await tester.pumpWidget(const ProductiveMuslimApp());
     await tester.pump(const Duration(milliseconds: 1300)); // splash timer
     await tester.pumpAndSettle();
     expect(find.text('Quran'), findsOneWidget);

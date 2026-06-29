@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../core/theme/qalbee_tokens.dart';
+import '../../core/theme/productive_muslim_tokens.dart';
 import '../extensions/context_ext.dart';
 
 /// Resting card (elevation level e-1): surface, lg radius, hairline border.

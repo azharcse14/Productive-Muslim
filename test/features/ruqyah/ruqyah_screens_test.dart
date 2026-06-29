@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qalbee/core/l10n/gen/app_localizations.dart';
-import 'package:qalbee/core/theme/app_theme.dart';
-import 'package:qalbee/features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
-import 'package:qalbee/features/ruqyah/presentation/screens/ruqyah_screen.dart';
-import 'package:qalbee/features/ruqyah/presentation/state/ruqyah_store.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
+import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_screen.dart';
+import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_store.dart';
 
 import '../../helpers/content_fakes.dart';
 

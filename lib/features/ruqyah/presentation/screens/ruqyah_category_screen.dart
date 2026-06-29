@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/qalbee_tokens.dart';
+import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../domain/entities/ruqyah.dart';
 import '../widgets/ruqyah_card.dart';
