@@ -127,7 +127,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: QSpace.s3,
                   crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.35,
+                  childAspectRatio: 1.2,
                   children: [
                     for (final category in categories)
                       _CategoryCard(

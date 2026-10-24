@@ -87,7 +87,7 @@ final class _HadithScreenState extends State<HadithScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: QSpace.s3,
                   crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.35,
+                  childAspectRatio: 1.2,
                   children: [
                     for (final topic in topics)
                       _TopicCard(
