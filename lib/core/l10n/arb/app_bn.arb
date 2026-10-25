@@ -570,6 +570,7 @@
   "faraidHeirSister": "বোন",
   "hadithOfDayTitle": "আজকের হাদিস",
   "hadithTitle": "হাদিস",
+  "hadithNotFound": "এই হাদিসটি পাওয়া যায়নি।",
   "hadithSubtitle": "চিন্তা-ভাবনার জন্য সহিহ বর্ণনা",
   "hadithNarratedBy": "বর্ণনায় {narrator}",
   "@hadithNarratedBy": {

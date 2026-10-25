@@ -1789,6 +1789,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithTitle => 'Hadith';
 
   @override
+  String get hadithNotFound => 'This hadith isn\'t available.';
+
+  @override
   String get hadithSubtitle => 'Authentic narrations to reflect on';
 
   @override

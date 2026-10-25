@@ -1787,6 +1787,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithTitle => 'হাদিস';
 
   @override
+  String get hadithNotFound => 'এই হাদিসটি পাওয়া যায়নি।';
+
+  @override
   String get hadithSubtitle => 'চিন্তা-ভাবনার জন্য সহিহ বর্ণনা';
 
   @override

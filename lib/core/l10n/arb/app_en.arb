@@ -858,6 +858,7 @@
   "faraidHeirSister": "Sister",
   "hadithOfDayTitle": "Hadith of the day",
   "hadithTitle": "Hadith",
+  "hadithNotFound": "This hadith isn't available.",
   "hadithSubtitle": "Authentic narrations to reflect on",
   "hadithNarratedBy": "Narrated by {narrator}",
   "@hadithNarratedBy": {

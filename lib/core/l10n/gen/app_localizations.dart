@@ -2864,6 +2864,12 @@ abstract class AppLocalizations {
   /// **'Hadith'**
   String get hadithTitle;
 
+  /// No description provided for @hadithNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This hadith isn\'t available.'**
+  String get hadithNotFound;
+
   /// No description provided for @hadithSubtitle.
   ///
   /// In en, this message translates to:

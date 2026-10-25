@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
+import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_detail_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_store.dart';
+import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_card.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
@@ -14,6 +21,10 @@ import 'package:productive_muslim/features/prayer_times/data/repositories/prayer
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/screens/home_screen.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/state/home_store.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/home_muhasaba_card.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/prayer_table.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/quick_actions_row.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/sahri_iftar_card.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
@@ -25,6 +36,7 @@ import 'package:productive_muslim/features/settings/domain/repositories/zoned_cl
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/shared/widgets/countdown_card.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
@@ -79,11 +91,15 @@ final class _FakeClock implements ZonedClock {
 late _FakeClock _clock;
 late InMemoryMuhasabaRepository _muhasabaRepo;
 
-Future<void> _register({required bool withLocation}) async {
+Future<void> _register({
+  required bool withLocation,
+  DateTime? now,
+  HadithStore? hadith,
+}) async {
   SharedPreferencesAsyncPlatform.instance =
       InMemorySharedPreferencesAsync.empty();
   TimezoneClock.initialize();
-  _clock = _FakeClock(DateTime(2026, 6, 12, 4)); // inside fajr waqt
+  _clock = _FakeClock(now ?? DateTime(2026, 6, 12, 4)); // inside fajr waqt
   final settingsRepo = _InMemorySettingsRepo(
     AppSettings(location: withLocation ? _dhaka : null),
   );
@@ -112,6 +128,32 @@ Future<void> _register({required bool withLocation}) async {
         mosque: mosqueStore,
       ),
     );
+  if (hadith != null) {
+    GetIt.I.registerSingleton<HadithStore>(hadith);
+  }
+}
+
+final class _OneHadithRepo implements HadithRepository {
+  @override
+  Future<Result<List<Hadith>>> all() async => const Result.success([
+        Hadith(
+          id: 'h42',
+          topic: 'intention',
+          grade: 'sahih',
+          arabic: '',
+          en: 'Actions are judged by intentions.',
+          bn: '',
+          narrator: 'Umar',
+          reference: 'Bukhari 1',
+        ),
+      ]);
+}
+
+/// Tall viewport so the whole (lazy) home list is laid out at once.
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 5000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
 }
 
 Widget _app() => MaterialApp(
@@ -315,6 +357,89 @@ void main() {
       // The table's mosque strip names the scheduled mosque with an Auto chip.
       expect(find.text('Office'), findsOneWidget);
       expect(find.text('Auto'), findsOneWidget);
+    });
+
+    testWidgets('qibla is not a quick action (header + countdown chip only)',
+        (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final row = tester.widget<QuickActionsRow>(find.byType(QuickActionsRow));
+      expect(row.actions, hasLength(4));
+      expect(row.actions.map((a) => a.label), isNot(contains('Qibla')));
+    });
+
+    testWidgets('outside Ramadan, sahri & iftar sits right under the table',
+        (tester) async {
+      _tall(tester);
+      await _register(withLocation: true); // 12 Jun 2026: Dhul-Hijjah
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final table = tester.getRect(find.byType(PrayerTable));
+      final meal = tester.getRect(find.byType(SahriIftarCard));
+      final muhasaba = tester.getRect(find.byType(HomeMuhasabaCard));
+      expect(meal.top, greaterThan(table.bottom));
+      expect(meal.bottom, lessThan(muhasaba.top));
+    });
+
+    testWidgets('in Ramadan, sahri & iftar sits right under the countdown',
+        (tester) async {
+      _tall(tester);
+      // 20 Feb 2026, 10:00 = 3 Ramadan 1447 (tabular).
+      await _register(withLocation: true, now: DateTime(2026, 2, 20, 10));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final countdown = tester.getRect(find.byType(CountdownCard));
+      final meal = tester.getRect(find.byType(SahriIftarCard));
+      final actions = tester.getRect(find.byType(QuickActionsRow));
+      expect(meal.top, greaterThan(countdown.bottom));
+      expect(meal.bottom, lessThan(actions.top));
+    });
+
+    testWidgets('hadith of the day opens that hadith', (tester) async {
+      _tall(tester);
+      final hadith = HadithStore(_OneHadithRepo());
+      await _register(withLocation: true, hadith: hadith);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            name: Routes.hadith.name,
+            path: Routes.hadith.path,
+            builder: (context, state) => const SizedBox(),
+            routes: [
+              GoRoute(
+                name: Routes.hadithItem.name,
+                path: Routes.hadithItem.path,
+                builder: (context, state) =>
+                    HadithDetailScreen(id: state.pathParameters['id']!),
+              ),
+            ],
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      // The home ticks every second, so it never settles; pump instead.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(find.byType(HadithCard));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(HadithDetailScreen), findsOneWidget);
+      expect(router.state.uri.path, '/hadith/item/h42');
+      expect(find.text('Intention & sincerity'), findsOneWidget);
+      expect(find.text('Actions are judged by intentions.'), findsOneWidget);
     });
   });
 }
