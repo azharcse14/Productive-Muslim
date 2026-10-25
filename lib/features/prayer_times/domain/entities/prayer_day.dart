@@ -20,7 +20,7 @@ final class ActiveWaqt {
 }
 
 /// One civil day of prayer times, all in the LOCATION's wall clock
-/// (guide §5). Sahri end = Fajr start; Iftar = Maghrib.
+/// (guide §5). Sahri end = Fajr start minus [sahriSafety]; Iftar = Maghrib.
 final class PrayerDay {
   const PrayerDay({
     required this.fajr,
@@ -31,6 +31,7 @@ final class PrayerDay {
     required this.isha,
     required this.fajrTomorrow,
     required this.ishaYesterday,
+    this.sahriSafety = Duration.zero,
   });
 
   final DateTime fajr;
@@ -46,7 +47,10 @@ final class PrayerDay {
   /// Start of the overnight isha waqt that may still be running pre-fajr.
   final DateTime ishaYesterday;
 
-  DateTime get sahriEnd => fajr;
+  /// Ihtiyat margin before Fajr (the user's sahri safety setting).
+  final Duration sahriSafety;
+
+  DateTime get sahriEnd => fajr.subtract(sahriSafety);
   DateTime get iftar => maghrib;
 
   DateTime startOf(Prayer prayer) => switch (prayer) {

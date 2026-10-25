@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
@@ -85,6 +86,21 @@ void main() {
       expect(adjusted.fajr.difference(base.fajr).inMinutes, 10);
       expect(adjusted.dhuhr, base.dhuhr);
       expect(adjusted.maghrib, base.maghrib);
+    });
+
+    test('sahri safety margin moves sahri end only', () {
+      PrayerDay at(int minutes) => repo
+          .prayerDay(
+            location: _dhaka,
+            params: PrayerParams(sahriSafetyMinutes: minutes),
+            date: date,
+          )
+          .valueOrNull!;
+      final none = at(0);
+      final ten = at(10);
+      expect(none.sahriEnd, none.fajr);
+      expect(ten.fajr, none.fajr);
+      expect(ten.sahriEnd, none.fajr.subtract(const Duration(minutes: 10)));
     });
 
     test('calculation method changes fajr/isha', () {

@@ -50,6 +50,8 @@
   "settingHijriOffsetSub": "Match your local moon-sighting",
   "hijriOffsetValue": "{count, plural, =1{{sign}1 day} other{{sign}{count} days}}",
   "@hijriOffsetValue": { "placeholders": { "count": { "type": "int" }, "sign": { "type": "String" } } },
+  "settingSahriSafety": "Sahri safety margin",
+  "settingSahriSafetySub": "End sahri this many minutes before Fajr",
   "settingTheme": "Theme",
   "themeSystem": "System",
   "themeLight": "Light",

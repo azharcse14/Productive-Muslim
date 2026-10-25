@@ -44,6 +44,7 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           isha: wall(times.isha),
           fajrTomorrow: wall(times.fajrAfter),
           ishaYesterday: wall(times.ishaBefore),
+          sahriSafety: Duration(minutes: params.sahriSafetyMinutes),
         ),
       );
     } on Object catch (e) {

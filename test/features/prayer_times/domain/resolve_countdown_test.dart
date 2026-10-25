@@ -97,6 +97,34 @@ void main() {
   });
 
   group('resolveCountdownTarget — Ramadan overrides', () {
+    test('sahri end honours the safety margin', () {
+      final day = PrayerDay(
+        ishaYesterday: _day.ishaYesterday,
+        fajr: _day.fajr,
+        sunrise: _day.sunrise,
+        dhuhr: _day.dhuhr,
+        asr: _day.asr,
+        maghrib: _day.maghrib,
+        isha: _day.isha,
+        fajrTomorrow: _day.fajrTomorrow,
+        sahriSafety: const Duration(minutes: 10),
+      );
+      expect(day.sahriEnd, DateTime(2026, 6, 12, 3, 35));
+      CountdownTarget at(DateTime now) => resolveCountdownTarget(
+            now: now,
+            day: day,
+            jamaat: JamaatConfig.none,
+            ramadanMode: true,
+          );
+      final before = at(DateTime(2026, 6, 12, 3, 30));
+      expect(before.kind, CountdownKind.sahriEnd);
+      expect(before.at, DateTime(2026, 6, 12, 3, 35));
+      // Inside the margin, sahri is over: fall back to the isha waqt end.
+      final inMargin = at(DateTime(2026, 6, 12, 3, 40));
+      expect(inMargin.kind, CountdownKind.waqtEnd);
+      expect(inMargin.at, _day.fajr);
+    });
+
     test('pre-fajr targets sahri end', () {
       final t = _resolve(DateTime(2026, 6, 12, 2), ramadan: true);
       expect(t.kind, CountdownKind.sahriEnd);

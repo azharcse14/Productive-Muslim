@@ -126,5 +126,25 @@ void main() {
       expect(repo.stored.hijriOffsetDays, -1);
       expect(find.text('−1 day'), findsOneWidget);
     });
+
+    testWidgets('sahri safety stepper adjusts and clamps at 0',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      final stepper = find.byKey(const ValueKey('sahri-safety-stepper'));
+      await tester.scrollUntilVisible(stepper, 100);
+      expect(find.text('Sahri safety margin'), findsOneWidget);
+      Finder button(String verb) => find.descendant(
+            of: stepper,
+            matching: find.bySemanticsLabel(RegExp('$verb Sahri safety')),
+          );
+      await tester.tap(button('Decrease'));
+      await tester.pump();
+      expect(repo.stored.prayerParams.sahriSafetyMinutes, 0);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(button('Increase'));
+        await tester.pump();
+      }
+      expect(repo.stored.prayerParams.sahriSafetyMinutes, 3);
+    });
   });
 }

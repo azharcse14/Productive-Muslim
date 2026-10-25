@@ -91,6 +91,12 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get settingSahriSafety => 'সাহরির সতর্কতা সময়';
+
+  @override
+  String get settingSahriSafetySub => 'ফজরের এত মিনিট আগে সাহরি শেষ করুন';
+
+  @override
   String get settingTheme => 'থিম';
 
   @override

@@ -32,6 +32,7 @@ abstract final class AppSettingsModel {
           'method': s.prayerParams.method.name,
           'madhab': s.prayerParams.madhab.name,
           'highLat': s.prayerParams.highLatitudeRule.name,
+          'sahriSafety': s.prayerParams.sahriSafetyMinutes,
           'adjustments': {
             for (final e in s.prayerParams.adjustments.entries)
               e.key.name: e.value,
@@ -133,6 +134,8 @@ abstract final class AppSettingsModel {
           if (rawAdjustments[prayer.name] is int)
             prayer: rawAdjustments[prayer.name]! as int,
       },
+      sahriSafetyMinutes: (map['sahriSafety'] as num?)?.toInt() ??
+          defaults.sahriSafetyMinutes,
     );
   }
 

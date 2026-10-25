@@ -7,7 +7,7 @@ import '../entities/prayer_day.dart';
 /// exhaustive tests. Rules:
 ///
 /// 1. Ramadan overrides:
-///    - before Fajr → "Sahri ends in" (targets Fajr)
+///    - before sahri end → "Sahri ends in" (Fajr minus the safety margin)
 ///    - Asr start → Maghrib → "Iftar in" (targets Maghrib)
 /// 2. Between waqts (sunrise→dhuhr gap) → next waqt start.
 /// 3. Inside a waqt, jamaat configured for it AND still in the future →
@@ -19,7 +19,7 @@ CountdownTarget resolveCountdownTarget({
   required bool ramadanMode,
 }) {
   if (ramadanMode) {
-    if (now.isBefore(day.fajr)) {
+    if (now.isBefore(day.sahriEnd)) {
       return CountdownTarget(
         kind: CountdownKind.sahriEnd,
         prayer: Prayer.fajr,

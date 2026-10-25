@@ -25,6 +25,8 @@
   "settingHijriOffset": "হিজরি তারিখ সমন্বয়",
   "settingHijriOffsetSub": "আপনার এলাকার চাঁদ দেখার সাথে মেলান",
   "hijriOffsetValue": "{count, plural, other{{sign}{count} দিন}}",
+  "settingSahriSafety": "সাহরির সতর্কতা সময়",
+  "settingSahriSafetySub": "ফজরের এত মিনিট আগে সাহরি শেষ করুন",
   "settingTheme": "থিম",
   "themeSystem": "সিস্টেম",
   "themeLight": "লাইট",

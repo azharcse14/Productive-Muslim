@@ -92,6 +92,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingSahriSafety => 'Sahri safety margin';
+
+  @override
+  String get settingSahriSafetySub => 'End sahri this many minutes before Fajr';
+
+  @override
   String get settingTheme => 'Theme';
 
   @override

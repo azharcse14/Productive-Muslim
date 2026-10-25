@@ -100,6 +100,33 @@ void main() {
       expect(sahri.first.at, DateTime(2026, 6, 12, 3, 15)); // 30 min before
     });
 
+    test('sahri warning counts back from the safety-adjusted sahri end', () {
+      PrayerDay withMargin(int d) {
+        final b = _day(d);
+        return PrayerDay(
+          ishaYesterday: b.ishaYesterday,
+          fajr: b.fajr,
+          sunrise: b.sunrise,
+          dhuhr: b.dhuhr,
+          asr: b.asr,
+          maghrib: b.maghrib,
+          isha: b.isha,
+          fajrTomorrow: b.fajrTomorrow,
+          sahriSafety: const Duration(minutes: 5),
+        );
+      }
+
+      final plan = buildNotificationPlan(
+        from: DateTime(2026, 6, 12, 2),
+        days: [withMargin(12), withMargin(13)],
+        matrix: const NotificationMatrix(),
+        jamaat: JamaatConfig.none,
+      );
+      final sahri =
+          plan.where((i) => i.kind == NotificationKind.sahriWarning).first;
+      expect(sahri.at, DateTime(2026, 6, 12, 3, 10)); // 3:45 − 5 − 30
+    });
+
     test('sahri toggle off removes warnings', () {
       final plan = _plan(matrix: const NotificationMatrix(sahriAlert: false));
       expect(

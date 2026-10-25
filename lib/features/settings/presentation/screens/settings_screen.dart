@@ -99,6 +99,18 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     const Divider(),
                     QListRow(
                       icon: Icons.nightlight_outlined,
+                      title: l10n.settingSahriSafety,
+                      subtitle: l10n.settingSahriSafetySub,
+                      trailing: _AdjustmentStepper(
+                        key: const ValueKey('sahri-safety-stepper'),
+                        value: params.sahriSafetyMinutes,
+                        label: l10n.settingSahriSafety,
+                        onChanged: _store.setSahriSafety,
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.nightlight_outlined,
                       title: l10n.settingHijriOffset,
                       subtitle: l10n.settingHijriOffsetSub,
                       trailing: _AdjustmentStepper(

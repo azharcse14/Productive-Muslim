@@ -248,6 +248,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{{sign}1 day} other{{sign}{count} days}}'**
   String hijriOffsetValue(int count, String sign);
 
+  /// No description provided for @settingSahriSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri safety margin'**
+  String get settingSahriSafety;
+
+  /// No description provided for @settingSahriSafetySub.
+  ///
+  /// In en, this message translates to:
+  /// **'End sahri this many minutes before Fajr'**
+  String get settingSahriSafetySub;
+
   /// No description provided for @settingTheme.
   ///
   /// In en, this message translates to:

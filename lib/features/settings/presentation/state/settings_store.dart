@@ -76,6 +76,13 @@ final class SettingsStore {
 
   /// Onboarding gate (router redirect reads this).
   /// Clamped to −2..+2 by [AppSettings].
+  Future<void> setSahriSafety(int minutes) => _update(
+        settings.value.copyWith(
+          prayerParams: settings.value.prayerParams
+              .copyWith(sahriSafetyMinutes: minutes),
+        ),
+      );
+
   Future<void> setHijriOffset(int days) =>
       _update(settings.value.copyWith(hijriOffsetDays: days));
 
