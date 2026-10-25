@@ -19,6 +19,7 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.drift.dart"
     - "lib/core/l10n/gen/**"
+    - "test/**/generated/**"
     - build/**
     - android/**
     - ios/**
