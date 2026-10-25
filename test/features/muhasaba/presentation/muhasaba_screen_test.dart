@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/achievements/presentation/state/achievement_store.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
@@ -11,6 +12,9 @@ import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba
 import 'package:productive_muslim/features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/widgets/tracker_row.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 /// In-memory [MuhasabaRepository] — just enough behavior for the screen.
 final class InMemoryMuhasabaRepository implements MuhasabaRepository {
@@ -194,6 +198,12 @@ void main() {
     store = MuhasabaStore(repo);
     await store.load();
     GetIt.I.registerSingleton<MuhasabaStore>(store);
+    // The dashboard embeds the achievements summary card.
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    GetIt.I.registerSingleton<AchievementStore>(
+      AchievementStore(muhasaba: repo, prefs: SharedPreferencesAsync()),
+    );
   });
 
   tearDown(() => GetIt.I.reset());
