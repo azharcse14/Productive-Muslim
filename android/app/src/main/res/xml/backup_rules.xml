@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup (Android ≤11). Re-creatable bundled databases (hadith.db,
+     filesDir/bundled — Dart `bundledDbFile`) are excluded: at 25 MB they alone
+     would hit the 25 MB backup quota and stop the whole app being backed up. -->
+<full-backup-content>
+    <exclude domain="file" path="bundled/" />
+</full-backup-content>

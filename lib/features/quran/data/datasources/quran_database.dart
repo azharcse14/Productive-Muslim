@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
+
+import '../../../../core/storage/bundled_db_file.dart';
 
 /// Raw-SQL drift handle over the bundled Quran database (guide §5).
 ///
@@ -44,18 +46,23 @@ final class QuranDatabase extends GeneratedDatabase {
         },
       );
 
-  /// Copies the bundled asset into the documents directory on first run
-  /// (or on a version bump, preserving bookmarks/last-read) and opens it.
+  /// Copies the bundled asset into Application Support on first run (or on
+  /// a version bump, preserving bookmarks/last-read) and opens it. Not in
+  /// the backup-excluded `bundled/` dir: it holds the user's bookmarks.
   static Future<QuranDatabase> open() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}${Platform.pathSeparator}$_fileName');
-    await _ensureCopied(file);
+    final file = await bundledDbFile(_fileName);
+    await ensureCopied(file, () => rootBundle.load(_assetPath));
     return QuranDatabase(NativeDatabase(file));
   }
 
-  /// Skips the copy when [file] already matches [bundledVersion];
-  /// otherwise re-copies the asset, carrying user state across.
-  static Future<void> _ensureCopied(File file) async {
+  /// Skips the copy when [file] already matches [bundledVersion]; otherwise
+  /// atomically replaces it with the asset from [load], with user state
+  /// written into the new copy before it takes [file]'s place.
+  @visibleForTesting
+  static Future<void> ensureCopied(
+    File file,
+    Future<ByteData> Function() load,
+  ) async {
     _UserState? preserved;
     if (file.existsSync()) {
       final existing = sqlite.sqlite3.open(file.path);
@@ -68,19 +75,21 @@ final class QuranDatabase extends GeneratedDatabase {
         existing.close();
       }
     }
-    final bytes = await rootBundle.load(_assetPath);
-    await file.writeAsBytes(
+    final bytes = await load();
+    await writeDbAtomically(
+      file,
       bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-      flush: true,
+      prepare: preserved == null
+          ? null
+          : (tmpPath) {
+              final fresh = sqlite.sqlite3.open(tmpPath);
+              try {
+                preserved!.writeInto(fresh);
+              } finally {
+                fresh.close();
+              }
+            },
     );
-    if (preserved != null) {
-      final fresh = sqlite.sqlite3.open(file.path);
-      try {
-        preserved.writeInto(fresh);
-      } finally {
-        fresh.close();
-      }
-    }
   }
 }
 
