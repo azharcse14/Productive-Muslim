@@ -30,7 +30,7 @@ const PaletteBoard = ({ dark }) => (
     <Swatch name="accentWarmContainer" hex={dark ? "#322817" : "#F4E6C8"} varName="--accent-soft" on="--on-accent-soft"></Swatch>
     <SpecLabel style={{ color: "var(--ink-3)" }}>Semantic countdown — AA on this bg</SpecLabel>
     <Swatch name="stateOk · time remaining" hex={dark ? "#84C9A0" : "#246B45"} varName="--ok"></Swatch>
-    <Swatch name="stateSoon · jamaat ≤ 10 min" hex={dark ? "#E2B264" : "#8F5E12"} varName="--warn"></Swatch>
+    <Swatch name="stateSoon · jamaat ≤ 10 min" hex={dark ? "#E2B264" : "#8E5E12"} varName="--warn"></Swatch>
     <Swatch name="stateUrgent · makruh window" hex={dark ? "#E78D77" : "#A93B29"} varName="--urgent"></Swatch>
     {dark && <SpecNote style={{ marginTop: 14, background: "var(--surface)", borderColor: "var(--line)", color: "var(--ink-2)" }}>
       Dark is designed, not inverted: teal-black base (never #000), soft white ink (never #FFF), lifted low-chroma brand colors. Comfortable at Fajr/Tahajjud.</SpecNote>}
