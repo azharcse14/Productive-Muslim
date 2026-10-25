@@ -302,6 +302,18 @@ abstract class AppLocalizations {
   /// **'Run setup again'**
   String get settingRunSetup;
 
+  /// No description provided for @settingShowAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Show achievements'**
+  String get settingShowAchievements;
+
+  /// No description provided for @settingShowAchievementsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges and streak milestones in Muhasaba'**
+  String get settingShowAchievementsSub;
+
   /// No description provided for @settingCredits.
   ///
   /// In en, this message translates to:

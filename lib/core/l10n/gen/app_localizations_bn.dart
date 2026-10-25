@@ -118,6 +118,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingRunSetup => 'আবার সেটআপ চালান';
 
   @override
+  String get settingShowAchievements => 'অর্জন দেখান';
+
+  @override
+  String get settingShowAchievementsSub =>
+      'মুহাসাবায় ব্যাজ ও ধারাবাহিকতার মাইলফলক';
+
+  @override
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
 
   @override

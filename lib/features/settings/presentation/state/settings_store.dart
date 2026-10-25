@@ -86,6 +86,9 @@ final class SettingsStore {
   Future<void> setHijriOffset(int days) =>
       _update(settings.value.copyWith(hijriOffsetDays: days));
 
+  Future<void> setShowAchievements({required bool show}) =>
+      _update(settings.value.copyWith(showAchievements: show));
+
   Future<void> setSetupComplete({required bool complete}) =>
       _update(settings.value.copyWith(setupComplete: complete));
 

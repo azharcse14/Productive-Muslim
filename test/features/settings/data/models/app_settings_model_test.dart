@@ -38,6 +38,7 @@ void main() {
         localeCode: 'bn',
         setupComplete: true,
         hijriOffsetDays: -1,
+        showAchievements: true,
       );
 
       final restored =
@@ -91,6 +92,10 @@ void main() {
         -2,
       );
       expect(const AppSettings(hijriOffsetDays: 1).hijriOffsetDays, 1);
+    });
+
+    test('showAchievements defaults to off', () {
+      expect(AppSettingsModel.fromMap(const {}).showAchievements, isFalse);
     });
 
     test('missing sahriSafety → 0; out-of-range values are clamped', () {

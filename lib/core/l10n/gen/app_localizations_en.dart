@@ -119,6 +119,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingRunSetup => 'Run setup again';
 
   @override
+  String get settingShowAchievements => 'Show achievements';
+
+  @override
+  String get settingShowAchievementsSub =>
+      'Badges and streak milestones in Muhasaba';
+
+  @override
   String get settingCredits => 'Credits & attributions';
 
   @override

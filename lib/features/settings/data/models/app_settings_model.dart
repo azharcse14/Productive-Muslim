@@ -56,6 +56,7 @@ abstract final class AppSettingsModel {
         'themeMode': s.themeMode.name,
         'localeCode': s.localeCode,
         'setupComplete': s.setupComplete,
+        'showAchievements': s.showAchievements,
         'hijriOffsetDays': s.hijriOffsetDays,
       };
 
@@ -73,6 +74,8 @@ abstract final class AppSettingsModel {
       localeCode: map['localeCode'] as String? ?? defaults.localeCode,
       setupComplete:
           map['setupComplete'] as bool? ?? defaults.setupComplete,
+      showAchievements:
+          map['showAchievements'] as bool? ?? defaults.showAchievements,
       hijriOffsetDays:
           (map['hijriOffsetDays'] as num?)?.toInt() ?? defaults.hijriOffsetDays,
     );

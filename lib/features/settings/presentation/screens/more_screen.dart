@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../state/settings_store.dart';
 
 /// More tab — entry point to Settings (Ramadan/Calendar entries arrive in
 /// Phase 10). In debug builds it also links to the widget gallery.
@@ -14,8 +17,12 @@ final class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => SignalBuilder(builder: _build);
+
+  Widget _build(BuildContext context) {
     final q = context.q;
+    final showAchievements =
+        locator<SettingsStore>().settings.value.showAchievements;
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.tabMore)),
       body: ListView(
@@ -72,14 +79,16 @@ final class MoreScreen extends StatelessWidget {
                   trailing: Icon(Icons.chevron_right, color: q.ink3),
                   onTap: () => context.pushNamed(Routes.fasting.name),
                 ),
-                const Divider(),
-                QListRow(
-                  icon: Icons.emoji_events_outlined,
-                  title: context.l10n.achievementsTitle,
-                  subtitle: context.l10n.achievementsSubtitle,
-                  trailing: Icon(Icons.chevron_right, color: q.ink3),
-                  onTap: () => context.pushNamed(Routes.achievements.name),
-                ),
+                if (showAchievements) ...[
+                  const Divider(),
+                  QListRow(
+                    icon: Icons.emoji_events_outlined,
+                    title: context.l10n.achievementsTitle,
+                    subtitle: context.l10n.achievementsSubtitle,
+                    trailing: Icon(Icons.chevron_right, color: q.ink3),
+                    onTap: () => context.pushNamed(Routes.achievements.name),
+                  ),
+                ],
                 const Divider(),
                 QListRow(
                   icon: Icons.calculate_outlined,

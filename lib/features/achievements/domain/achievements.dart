@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
-
 /// Immutable snapshot of the user's real activity, assembled from the
 /// existing muhasaba / tasbih / quran stores. The pure achievement layer
 /// reads ONLY these fields — never DateTime.now, Random, or Flutter — so
 /// every threshold is unit-testable by passing values in.
-@immutable
 final class AchievementStats {
   const AchievementStats({
     this.currentStreak = 0,
@@ -66,7 +63,6 @@ enum AchievementTier { bronze, silver, gold }
 /// A single, pure achievement definition. [threshold] is the value the
 /// measured stat must reach; [measure] extracts that stat from
 /// [AchievementStats] so progress can be computed generically.
-@immutable
 final class Achievement {
   const Achievement({
     required this.id,
@@ -103,7 +99,6 @@ final class Achievement {
 }
 
 /// Evaluated view of one badge for the UI.
-@immutable
 final class AchievementProgress {
   const AchievementProgress({
     required this.achievement,

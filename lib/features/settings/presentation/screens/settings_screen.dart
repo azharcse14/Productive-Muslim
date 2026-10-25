@@ -193,6 +193,17 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const Divider(),
                     QListRow(
+                      icon: Icons.emoji_events_outlined,
+                      title: l10n.settingShowAchievements,
+                      subtitle: l10n.settingShowAchievementsSub,
+                      trailing: Switch(
+                        value: settings.showAchievements,
+                        onChanged: (v) =>
+                            unawaited(_store.setShowAchievements(show: v)),
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
                       icon: Icons.replay_outlined,
                       title: l10n.settingRunSetup,
                       trailing: Icon(Icons.chevron_right, color: q.ink3),

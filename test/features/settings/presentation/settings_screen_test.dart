@@ -34,6 +34,13 @@ Widget _app() => MaterialApp(
       home: const SettingsScreen(),
     );
 
+/// Tall viewport so the whole (lazy) settings list is laid out at once.
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 3000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   late _InMemoryRepo repo;
 
@@ -51,15 +58,32 @@ void main() {
 
   group('SettingsScreen', () {
     testWidgets('renders all five groups', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app());
-      expect(find.text('PRAYER CALCULATION'), findsOneWidget);
-      expect(find.text('NOTIFICATIONS'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('APPEARANCE & LANGUAGE'), 200);
-      expect(find.text('APPEARANCE & LANGUAGE'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('PRIVACY'), 200);
-      expect(find.text('PRIVACY'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('ABOUT'), 200);
-      expect(find.text('ABOUT'), findsOneWidget);
+      for (final group in [
+        'PRAYER CALCULATION',
+        'NOTIFICATIONS',
+        'APPEARANCE & LANGUAGE',
+        'PRIVACY',
+        'ABOUT',
+      ]) {
+        expect(find.text(group), findsOneWidget, reason: group);
+      }
+    });
+
+    testWidgets('show achievements switch persists (default off)',
+        (tester) async {
+      _tall(tester);
+      await tester.pumpWidget(_app());
+      final row = find.text('Show achievements');
+      final toggle = find.descendant(
+        of: find.ancestor(of: row, matching: find.byType(Row)).first,
+        matching: find.byType(Switch),
+      );
+      expect(tester.widget<Switch>(toggle).value, isFalse);
+      await tester.tap(toggle);
+      await tester.pump();
+      expect(repo.stored.showAchievements, isTrue);
     });
 
     testWidgets('location row shows "Not set" before setup', (tester) async {

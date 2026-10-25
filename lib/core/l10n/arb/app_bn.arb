@@ -34,6 +34,8 @@
   "settingLanguage": "ভাষা",
   "settingAppLock": "অ্যাপ লক",
   "settingRunSetup": "আবার সেটআপ চালান",
+  "settingShowAchievements": "অর্জন দেখান",
+  "settingShowAchievementsSub": "মুহাসাবায় ব্যাজ ও ধারাবাহিকতার মাইলফলক",
   "settingCredits": "কৃতজ্ঞতা ও স্বীকৃতি",
   "creditsBody": "নামাজের সময় ডিভাইসেই হিসাব করা হয়। শহরের ডেটাবেস © GeoNames (CC BY 4.0)। ফন্ট: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © কিং ফাহদ গ্লোরিয়াস কুরআন প্রিন্টিং কমপ্লেক্স।",
   "madhabHanafi": "হানাফি",

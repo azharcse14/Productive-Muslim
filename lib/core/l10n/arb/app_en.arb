@@ -59,6 +59,8 @@
   "settingLanguage": "Language",
   "settingAppLock": "App lock",
   "settingRunSetup": "Run setup again",
+  "settingShowAchievements": "Show achievements",
+  "settingShowAchievementsSub": "Badges and streak milestones in Muhasaba",
   "settingCredits": "Credits & attributions",
   "creditsBody": "Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.",
   "madhabHanafi": "Hanafi",
