@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/honorific.dart';
+
 /// Integrity checks for the bundled Dua collection and Asmaul Husna data
 /// assets. Reads the JSON files directly from disk (flutter test runs with
 /// the project root as the working directory).
@@ -139,5 +141,22 @@ void main() {
       final ids = allDuas.map((Map<String, Object?> d) => d['id']).toList();
       expect(ids.toSet(), hasLength(ids.length), reason: 'duplicate dua ids found');
     });
+  });
+
+  test('ﷺ in duas.json only follows the Prophet / Messenger / Muhammad', () {
+    final decoded =
+        jsonDecode(File('assets/data/duas.json').readAsStringSync());
+    expect(misplacedSalawat(decoded), isEmpty);
+  });
+
+  test('the honorific check flags other prophets and angels', () {
+    expect(
+      misplacedSalawat(['Jibreel ﷺ recited', 'the Prophet ﷺ said']),
+      hasLength(1),
+    );
+    expect(
+      misplacedSalawat({'bn': 'মুহাম্মাদ (ﷺ)', 'x': 'রাসূলুল্লাহ্‌ (ﷺ)'}),
+      isEmpty,
+    );
   });
 }
