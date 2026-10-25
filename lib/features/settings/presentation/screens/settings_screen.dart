@@ -355,10 +355,10 @@ final class _GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(
+    padding: const EdgeInsetsDirectional.only(
       top: QSpace.s6,
       bottom: QSpace.s3,
-      left: QSpace.s1,
+      start: QSpace.s1,
     ),
     child: Text(title.toUpperCase(), style: context.text.labelSmall),
   );

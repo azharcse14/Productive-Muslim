@@ -68,8 +68,8 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
                   if (byCategory[category] case final items?
                       when items.isNotEmpty) ...[
                     Padding(
-                      padding: const EdgeInsets.only(
-                        left: QSpace.s1,
+                      padding: const EdgeInsetsDirectional.only(
+                        start: QSpace.s1,
                         bottom: QSpace.s3,
                       ),
                       child: Text(

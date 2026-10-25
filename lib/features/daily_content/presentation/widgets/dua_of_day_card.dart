@@ -52,7 +52,7 @@ final class DuaOfDayCard extends StatelessWidget {
           const SizedBox(height: QSpace.s3),
           Text(
             arabic,
-            textAlign: TextAlign.right,
+            textAlign: TextAlign.start,
             textDirection: TextDirection.rtl,
             style: QType.quran(22).copyWith(color: q.ink),
           ),

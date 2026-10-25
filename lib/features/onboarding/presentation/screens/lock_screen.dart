@@ -239,11 +239,7 @@ final class _LockScreenState extends State<LockScreen> {
                       child: message == null
                           ? null
                           : Padding(
-                              padding: const EdgeInsets.only(
-                                top: QSpace.s2,
-                                left: QSpace.s5,
-                                right: QSpace.s5,
-                              ),
+                              padding: const EdgeInsets.fromLTRB(QSpace.s5, QSpace.s2, QSpace.s5, 0),
                               child: Semantics(
                                 liveRegion: true,
                                 child: Text(
