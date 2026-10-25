@@ -54,6 +54,7 @@ void main() {
       await tester.pumpWidget(_app());
       expect(find.text('PRAYER CALCULATION'), findsOneWidget);
       expect(find.text('NOTIFICATIONS'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('APPEARANCE & LANGUAGE'), 200);
       expect(find.text('APPEARANCE & LANGUAGE'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('PRIVACY'), 200);
       expect(find.text('PRIVACY'), findsOneWidget);
@@ -95,6 +96,35 @@ void main() {
         200,
       );
       expect(find.textContaining('KFGQPC'), findsOneWidget);
+    });
+
+    testWidgets('Hijri offset stepper adjusts and clamps at +2',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      final stepper = find.byKey(const ValueKey('hijri-offset-stepper'));
+      await tester.scrollUntilVisible(stepper, 100);
+      expect(find.text('Match your local moon-sighting'), findsOneWidget);
+      expect(find.text('0 days'), findsOneWidget);
+      final plus = find.descendant(
+        of: stepper,
+        matching: find.bySemanticsLabel(RegExp('Increase Hijri date')),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(plus);
+        await tester.pump();
+      }
+      expect(repo.stored.hijriOffsetDays, 2);
+      expect(find.text('+2 days'), findsOneWidget);
+      final minus = find.descendant(
+        of: stepper,
+        matching: find.bySemanticsLabel(RegExp('Decrease Hijri date')),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(minus);
+        await tester.pump();
+      }
+      expect(repo.stored.hijriOffsetDays, -1);
+      expect(find.text('−1 day'), findsOneWidget);
     });
   });
 }

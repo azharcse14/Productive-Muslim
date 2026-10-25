@@ -32,7 +32,12 @@ final class RamadanStore {
     return DateTime(n.year, n.month, n.day);
   });
 
-  late final hijriToday = computed(() => HijriDate.fromGregorian(today.value));
+  /// User's moon-sighting adjustment, applied to every Hijri conversion.
+  late final _offset = computed(() => _settings.settings.value.hijriOffsetDays);
+
+  late final hijriToday = computed(
+    () => HijriDate.fromGregorian(today.value, offsetDays: _offset.value),
+  );
 
   late final isRamadan =
       computed(() => RamadanUtils.isRamadan(hijriToday.value));
@@ -43,7 +48,9 @@ final class RamadanStore {
   /// Hijri year of the current (or next) Ramadan, and days until its first
   /// day — 0 when today is already inside it.
   late final nextRamadan =
-      computed(() => RamadanUtils.nextRamadan(today.value));
+      computed(
+    () => RamadanUtils.nextRamadan(today.value, offsetDays: _offset.value),
+  );
 
   /// Number of days in that Ramadan (29 or 30).
   late final ramadanLength =
@@ -64,7 +71,11 @@ final class RamadanStore {
     }
     final params = _settings.prayerParams.value;
     final rows = <RamadanRow>[];
-    for (final day in RamadanUtils.gregorianDaysOf(nextRamadan.value.$1)) {
+    final days = RamadanUtils.gregorianDaysOf(
+      nextRamadan.value.$1,
+      offsetDays: _offset.value,
+    );
+    for (final day in days) {
       final prayerDay = _getPrayerDay(
         location: location,
         params: params,

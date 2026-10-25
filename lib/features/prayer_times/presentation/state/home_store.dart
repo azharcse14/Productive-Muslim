@@ -106,13 +106,17 @@ final class HomeStore {
     return DayPart.night;
   });
 
-  late final hijriDate = computed(() => HijriDate.fromGregorian(dateKey.value));
+  late final hijriDate = computed(
+    () => HijriDate.fromGregorian(
+      dateKey.value,
+      offsetDays: _settings.settings.value.hijriOffsetDays,
+    ),
+  );
   late final banglaDate =
       computed(() => BanglaDate.fromGregorian(dateKey.value));
 
-  /// Tabular hijri can be ±1 day off actual sighting; treated as Ramadan
-  /// when the tabular month is Ramadan (refined in Phase 10 with a user
-  /// offset setting).
+  /// Ramadan per the offset-adjusted [hijriDate] (drives the countdown's
+  /// sahri/iftar overrides).
   late final ramadanMode =
       computed(() => hijriDate.value.month == HijriDate.ramadanMonth);
 

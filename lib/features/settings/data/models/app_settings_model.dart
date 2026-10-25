@@ -55,6 +55,7 @@ abstract final class AppSettingsModel {
         'themeMode': s.themeMode.name,
         'localeCode': s.localeCode,
         'setupComplete': s.setupComplete,
+        'hijriOffsetDays': s.hijriOffsetDays,
       };
 
   static AppSettings fromMap(Map<String, Object?> map) {
@@ -71,6 +72,8 @@ abstract final class AppSettingsModel {
       localeCode: map['localeCode'] as String? ?? defaults.localeCode,
       setupComplete:
           map['setupComplete'] as bool? ?? defaults.setupComplete,
+      hijriOffsetDays:
+          (map['hijriOffsetDays'] as num?)?.toInt() ?? defaults.hijriOffsetDays,
     );
   }
 

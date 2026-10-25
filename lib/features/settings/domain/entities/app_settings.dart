@@ -16,7 +16,16 @@ final class AppSettings {
     this.themeMode = AppThemeMode.system,
     this.localeCode = 'en',
     this.setupComplete = false,
-  });
+    int hijriOffsetDays = 0,
+  }) : hijriOffsetDays = hijriOffsetDays < minHijriOffset
+            ? minHijriOffset
+            : (hijriOffsetDays > maxHijriOffset
+                ? maxHijriOffset
+                : hijriOffsetDays);
+
+  /// Bounds for [hijriOffsetDays].
+  static const minHijriOffset = -2;
+  static const maxHijriOffset = 2;
 
   /// Null until onboarding/location setup picks one.
   final LocationConfig? location;
@@ -30,6 +39,10 @@ final class AppSettings {
   /// Onboarding gate flag read by the router redirect (Phase 11).
   final bool setupComplete;
 
+  /// Moon-sighting adjustment applied to every Hijri date (−2..+2 days,
+  /// clamped): the tabular calendar can differ from local sighting.
+  final int hijriOffsetDays;
+
   AppSettings copyWith({
     LocationConfig? location,
     PrayerParams? prayerParams,
@@ -37,6 +50,7 @@ final class AppSettings {
     AppThemeMode? themeMode,
     String? localeCode,
     bool? setupComplete,
+    int? hijriOffsetDays,
   }) {
     return AppSettings(
       location: location ?? this.location,
@@ -45,6 +59,7 @@ final class AppSettings {
       themeMode: themeMode ?? this.themeMode,
       localeCode: localeCode ?? this.localeCode,
       setupComplete: setupComplete ?? this.setupComplete,
+      hijriOffsetDays: hijriOffsetDays ?? this.hijriOffsetDays,
     );
   }
 
@@ -56,7 +71,8 @@ final class AppSettings {
       other.notifications == notifications &&
       other.themeMode == themeMode &&
       other.localeCode == localeCode &&
-      other.setupComplete == setupComplete;
+      other.setupComplete == setupComplete &&
+      other.hijriOffsetDays == hijriOffsetDays;
 
   @override
   int get hashCode => Object.hash(
@@ -66,5 +82,6 @@ final class AppSettings {
         themeMode,
         localeCode,
         setupComplete,
+        hijriOffsetDays,
       );
 }

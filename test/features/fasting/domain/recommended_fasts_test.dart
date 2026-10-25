@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/features/fasting/domain/entities/recommended_fast.dart';
 import 'package:productive_muslim/features/fasting/domain/usecases/recommended_fasts.dart';
 
@@ -87,6 +88,59 @@ void main() {
     test('from a Monday, that Monday is the first upcoming day', () {
       final list = RecommendedFasts.upcoming(DateTime(2026, 6, 15), count: 1);
       expect(list.first.fast.date, DateTime(2026, 6, 15));
+    });
+  });
+
+  group('RecommendedFasts with a moon-sighting offset', () {
+    // Tabular: Eid al-Fitr 1447 = 2026-03-20, Eid al-Adha = 2026-05-27,
+    // Tashreeq = 28–30 May.
+    test('offset −1: adjusted Eid al-Fitr (2026-03-21) is not recommended',
+        () {
+      // At offset 0 it is 2 Shawwal (six-of-Shawwal).
+      expect(RecommendedFasts.isRecommended(DateTime(2026, 3, 21)), isTrue);
+      expect(
+        RecommendedFasts.on(DateTime(2026, 3, 21), offsetDays: -1),
+        isEmpty,
+      );
+    });
+
+    test('offset +1: adjusted Eid al-Fitr (2026-03-19, a Thursday) is not '
+        'recommended', () {
+      expect(DateTime(2026, 3, 19).weekday, DateTime.thursday);
+      expect(RecommendedFasts.isRecommended(DateTime(2026, 3, 19)), isTrue);
+      expect(
+        RecommendedFasts.on(DateTime(2026, 3, 19), offsetDays: 1),
+        isEmpty,
+      );
+    });
+
+    test('offset ±1: no adjusted Eid/Tashreeq day is ever recommended', () {
+      for (final offset in [-1, 1]) {
+        final start = DateTime(2026);
+        for (var i = 0; i < 400; i++) {
+          final day = DateTime(start.year, start.month, start.day + i);
+          final h = HijriDate.fromGregorian(day, offsetDays: offset);
+          if (RecommendedFasts.isForbidden(h)) {
+            expect(
+              RecommendedFasts.on(day, offsetDays: offset),
+              isEmpty,
+              reason: '$day is forbidden at offset $offset',
+            );
+          }
+        }
+        final upcoming = RecommendedFasts.upcoming(
+          DateTime(2026, 3),
+          count: 120,
+          offsetDays: offset,
+        );
+        expect(
+          upcoming.any((u) => RecommendedFasts.isForbidden(u.hijri)),
+          isFalse,
+        );
+        final eidAdha =
+            const HijriDate(1447, 12, 10).toGregorian(offsetDays: offset);
+        expect(upcoming.any((u) => u.fast.date == eidAdha), isFalse);
+      }
     });
   });
 }

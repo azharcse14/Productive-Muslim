@@ -62,4 +62,30 @@ void main() {
       expect(HijriDate.ramadanMonth, 9);
     });
   });
+
+  group('HijriDate moon-sighting offset', () {
+    test('offset shifts the Gregorian date before conversion', () {
+      final d = DateTime(2026, 2, 18); // tabular 1 Ramadan 1447
+      for (final offset in [-2, -1, 0, 1, 2]) {
+        expect(
+          HijriDate.fromGregorian(d, offsetDays: offset),
+          HijriDate.fromGregorian(DateTime(2026, 2, 18 + offset)),
+        );
+      }
+      expect(
+        HijriDate.fromGregorian(d, offsetDays: -1),
+        const HijriDate(1447, 8, 29),
+      );
+    });
+
+    test('toGregorian inverts fromGregorian for the same offset', () {
+      for (final offset in [-2, -1, 0, 1, 2]) {
+        for (var i = 0; i < 400; i += 7) {
+          final d = DateTime(2026, 1, 1 + i);
+          final h = HijriDate.fromGregorian(d, offsetDays: offset);
+          expect(h.toGregorian(offsetDays: offset), d);
+        }
+      }
+    });
+  });
 }

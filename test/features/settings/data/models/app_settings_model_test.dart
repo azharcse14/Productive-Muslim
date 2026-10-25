@@ -36,6 +36,7 @@ void main() {
         themeMode: AppThemeMode.dark,
         localeCode: 'bn',
         setupComplete: true,
+        hijriOffsetDays: -1,
       );
 
       final restored =
@@ -75,6 +76,20 @@ void main() {
         'location': {'type': 'city', 'lat': 'not-a-number'},
       });
       expect(restored.location, isNull);
+    });
+
+    test('missing hijriOffsetDays → 0; out-of-range values are clamped', () {
+      expect(AppSettingsModel.fromMap(const {}).hijriOffsetDays, 0);
+      expect(
+        AppSettingsModel.fromMap(const {'hijriOffsetDays': 5}).hijriOffsetDays,
+        2,
+      );
+      expect(
+        AppSettingsModel.fromMap(const {'hijriOffsetDays': -9})
+            .hijriOffsetDays,
+        -2,
+      );
+      expect(const AppSettings(hijriOffsetDays: 1).hijriOffsetDays, 1);
     });
   });
 }

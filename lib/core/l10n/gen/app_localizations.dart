@@ -230,6 +230,24 @@ abstract class AppLocalizations {
   /// **'Advanced — for extreme latitudes'**
   String get settingHighLatSub;
 
+  /// No description provided for @settingHijriOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri date adjustment'**
+  String get settingHijriOffset;
+
+  /// No description provided for @settingHijriOffsetSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Match your local moon-sighting'**
+  String get settingHijriOffsetSub;
+
+  /// No description provided for @hijriOffsetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{sign}1 day} other{{sign}{count} days}}'**
+  String hijriOffsetValue(int count, String sign);
+
   /// No description provided for @settingTheme.
   ///
   /// In en, this message translates to:

@@ -253,7 +253,10 @@ Future<void> setupLocator() async {
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(
-    () => FastingStore(SharedPreferencesAsync()),
+    () => FastingStore(
+      SharedPreferencesAsync(),
+      hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
+    ),
   );
 
   // ---- achievements ----
