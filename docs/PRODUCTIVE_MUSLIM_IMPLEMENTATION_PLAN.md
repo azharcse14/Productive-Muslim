@@ -98,7 +98,7 @@ Order follows guide §7. Each phase ends with: `flutter analyze` zero warnings, 
 
 ### Phase 1 — Foundation: Tokens, Theme, L10n, Shell (design canvas §01–02)
 **Goal: every later screen is assembled from these parts; no feature code yet.**
-- **Theme:** map `productive_muslim/tokens.css` 1:1 → `ColorScheme` + `ThemeExtension`s (`Productive MuslimColors` for bg/surface-2/ink-2/ink-3/line/primary-soft/accent/ok/warn/urgent + soft variants/scrim; `Productive MuslimMotion` 120/240/420ms; spacing 4pt consts; radius sm10/md14/lg20/xl28). Dark theme is its own designed palette, not an inversion. No inline `Color(0xFF…)` in feature widgets — lint-check by convention/review.
+- **Theme:** map `productive_muslim/tokens.css` 1:1 → `ColorScheme` + `ThemeExtension`s (`ProductiveMuslimColors` for bg/surface-2/ink-2/ink-3/line/primary-soft/accent/ok/warn/urgent + soft variants/scrim; `QMotion` 120/240/420ms; spacing 4pt consts; radius sm10/md14/lg20/xl28). Dark theme is its own designed palette, not an inversion. No inline `Color(0xFF…)` in feature widgets — lint-check by convention/review.
 - **Typography:** bundle Schibsted Grotesk (variable), Noto Sans Bengali, IBM Plex Sans Arabic, KFGQPC Uthmanic HAFS (verify license/attribution → About credits). Type scale per handoff (display 34 → overline 11; countdown numeral 56 tabular). Per-locale font fallback chains.
 - **L10n:** ARB setup (`en` template + `bn`), `intl` digit formatting helper (Western/Bengali/Eastern Arabic). Rule from day one: no hardcoded user-facing strings.
 - **Motif & icons:** port `QalbMark`/`Star8`/`MotifBg`/`HEART_PATH` from `base.jsx` to `CustomPainter`s in `shared/painters/`; recreate or substitute the 24px ~1.7px-stroke icon set.

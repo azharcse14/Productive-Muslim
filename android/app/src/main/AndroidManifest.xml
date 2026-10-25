@@ -60,7 +60,8 @@
         </receiver>
 
         <!-- Home-screen widget: next prayer at a glance. Updated from Dart
-             via the home_widget plugin (PrayerWidgetService). -->
+             through the com.productivemuslim.app/widget MethodChannel
+             (PrayerWidgetService → WidgetBridge → MainActivity). -->
         <receiver
             android:name=".ProductiveMuslimWidgetProvider"
             android:exported="false">
