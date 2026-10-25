@@ -2264,6 +2264,42 @@ abstract class AppLocalizations {
   /// **'Delete last digit'**
   String get appLockDelete;
 
+  /// No description provided for @appLockThrottled.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in {time}.'**
+  String appLockThrottled(String time);
+
+  /// No description provided for @appLockForgotPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN?'**
+  String get appLockForgotPin;
+
+  /// No description provided for @appLockForgotReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to reset your app PIN'**
+  String get appLockForgotReason;
+
+  /// No description provided for @appLockNoDeviceLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reset the PIN here'**
+  String get appLockNoDeviceLockTitle;
+
+  /// No description provided for @appLockNoDeviceLockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.'**
+  String get appLockNoDeviceLockBody;
+
+  /// No description provided for @appLockNewPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new 4-digit PIN'**
+  String get appLockNewPin;
+
   /// No description provided for @appLockPinProgress.
   ///
   /// In en, this message translates to:

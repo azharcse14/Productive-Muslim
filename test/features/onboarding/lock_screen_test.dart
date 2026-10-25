@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/onboarding/data/app_lock_data_source.dart';
+import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
+import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../helpers/lock_fakes.dart';
+
+Widget _app() => MaterialApp(
+      theme: AppTheme.light(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const LockScreen(),
+    );
+
+late DateTime _clock;
+
+Future<AppLockStore> _register(FakeBiometric biometric) async {
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
+  _clock = DateTime(2026, 6, 1, 12);
+  final store = AppLockStore(
+    AppLockDataSource(SharedPreferencesAsync()),
+    biometric,
+    now: () => _clock,
+  );
+  await store.enable('1234', biometric: false);
+  await store.load();
+  GetIt.I.registerSingleton<AppLockStore>(store);
+  return store;
+}
+
+Future<void> _enter(WidgetTester tester, String pin) async {
+  for (final digit in pin.split('')) {
+    await tester.tap(find.text(digit));
+    await tester.pump();
+  }
+}
+
+void main() {
+  tearDown(() => GetIt.I.reset());
+
+  testWidgets('throttled: shows remaining time and ignores digits',
+      (tester) async {
+    final store = await _register(FakeBiometric());
+    await tester.runAsync(() async {
+      for (var i = 0; i < AppLockStore.freeAttempts; i++) {
+        await store.unlockWithPin('0000');
+      }
+    });
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    final message = find.byKey(const ValueKey('lock-message'));
+    expect(
+      tester.widget<Text>(message).data,
+      'Too many attempts. Try again in 0:30.',
+    );
+    await _enter(tester, '1234');
+    expect(store.locked.value, isTrue);
+    // The countdown ticks.
+    _clock = _clock.add(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      tester.widget<Text>(message).data,
+      'Too many attempts. Try again in 0:28.',
+    );
+    await tester.pumpWidget(const SizedBox()); // cancels the ticker
+  });
+
+  testWidgets('forgot PIN: device lock, then a new PIN unlocks',
+      (tester) async {
+    final store = await _register(FakeBiometric());
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.tap(find.text('Forgot PIN?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Set a new 4-digit PIN'), findsOneWidget);
+    expect(find.text('Forgot PIN?'), findsNothing);
+    await _enter(tester, '9876');
+    expect(find.text('Confirm your PIN'), findsOneWidget);
+    await tester.runAsync(() => _enter(tester, '9876'));
+    await tester.pump();
+    expect(store.locked.value, isFalse);
+    expect(await tester.runAsync(() => store.unlockWithPin('9876')), isTrue);
+  });
+
+  testWidgets('forgot PIN without a device screen lock explains why',
+      (tester) async {
+    final store = await _register(FakeBiometric()..deviceLock = false);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.tap(find.text('Forgot PIN?'));
+    await tester.pumpAndSettle();
+    expect(find.text("Can't reset the PIN here"), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter your PIN'), findsOneWidget);
+    expect(store.locked.value, isTrue);
+  });
+}

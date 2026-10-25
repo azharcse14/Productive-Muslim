@@ -301,6 +301,7 @@ Future<void> setupLocator() async {
   await locator<MosqueStore>().load();
   await locator<MuhasabaStore>().load();
   await locator<AppLockStore>().load();
+  locator<AppLockStore>().watchLifecycle();
   await locator<DuaFavoritesStore>().load();
   await locator<FastingStore>().load();
   await locator<TasbihStore>().load();

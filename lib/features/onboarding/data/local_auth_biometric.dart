@@ -19,6 +19,26 @@ final class LocalAuthBiometric implements BiometricAuth {
   }
 
   @override
+  Future<bool> canUseDeviceLock() async {
+    try {
+      // True when biometrics OR a device credential (PIN/pattern/password)
+      // is set up.
+      return await _auth.isDeviceSupported();
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> authenticateWithDeviceLock(String reason) async {
+    try {
+      return await _auth.authenticate(localizedReason: reason);
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
   Future<bool> authenticate(String reason) async {
     try {
       return await _auth.authenticate(localizedReason: reason);

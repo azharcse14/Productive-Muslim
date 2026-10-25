@@ -1441,6 +1441,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockDelete => 'Delete last digit';
 
   @override
+  String appLockThrottled(String time) {
+    return 'Too many attempts. Try again in $time.';
+  }
+
+  @override
+  String get appLockForgotPin => 'Forgot PIN?';
+
+  @override
+  String get appLockForgotReason => 'Confirm it\'s you to reset your app PIN';
+
+  @override
+  String get appLockNoDeviceLockTitle => 'Can\'t reset the PIN here';
+
+  @override
+  String get appLockNoDeviceLockBody =>
+      'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.';
+
+  @override
+  String get appLockNewPin => 'Set a new 4-digit PIN';
+
+  @override
   String appLockPinProgress(int entered) {
     return '$entered of 4 digits entered';
   }

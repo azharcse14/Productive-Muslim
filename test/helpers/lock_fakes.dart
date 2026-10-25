@@ -13,6 +13,16 @@ final class FakeBiometric implements BiometricAuth {
   @override
   Future<bool> canAuthenticate() async => available;
 
+  bool deviceLock = true;
+  bool deviceLockSucceeds = true;
+
+  @override
+  Future<bool> canUseDeviceLock() async => deviceLock;
+
+  @override
+  Future<bool> authenticateWithDeviceLock(String reason) async =>
+      deviceLockSucceeds;
+
   @override
   Future<bool> authenticate(String reason) async => succeeds;
 }

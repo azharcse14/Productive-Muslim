@@ -687,6 +687,13 @@
   "appLockEnableSub": "Require a PIN (and biometrics) to open Productive Muslim",
   "appLockDisable": "Turn off app lock",
   "appLockDelete": "Delete last digit",
+  "appLockThrottled": "Too many attempts. Try again in {time}.",
+  "@appLockThrottled": { "placeholders": { "time": { "type": "String" } } },
+  "appLockForgotPin": "Forgot PIN?",
+  "appLockForgotReason": "Confirm it's you to reset your app PIN",
+  "appLockNoDeviceLockTitle": "Can't reset the PIN here",
+  "appLockNoDeviceLockBody": "Your device has no screen lock, so we can't confirm it's you. Set up a screen lock in your device settings and try again. Clearing the app's data also removes the PIN, but erases your saved progress.",
+  "appLockNewPin": "Set a new 4-digit PIN",
   "appLockPinProgress": "{entered} of 4 digits entered",
   "@appLockPinProgress": {
     "placeholders": {

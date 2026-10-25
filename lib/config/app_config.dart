@@ -22,6 +22,10 @@ abstract final class AppConfig {
   /// (the keep-alive nudge counts toward this).
   static const iosMaxPendingNotifications = 60;
 
+  /// App lock re-engages after the app has been in the background at least
+  /// this long.
+  static const appLockGracePeriod = Duration(seconds: 30);
+
   /// Qibla alignment tolerance in degrees (design: ±3°).
   static const qiblaAlignmentToleranceDeg = 3.0;
 

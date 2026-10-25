@@ -62,9 +62,23 @@ GoRouter buildRouter() {
       }
       final locked = locator<AppLockStore>().locked.value;
       if (locked) {
-        return path == Routes.lock.path ? null : Routes.lock.path;
+        // Remember where the user was so a background re-lock returns
+        // them there after unlocking.
+        return path == Routes.lock.path
+            ? null
+            : Uri(
+                path: Routes.lock.path,
+                queryParameters: {_lockFromParam: state.uri.toString()},
+              ).toString();
       }
-      if (path == Routes.lock.path || path == Routes.onboarding.path) {
+      if (path == Routes.lock.path) {
+        final from = state.uri.queryParameters[_lockFromParam];
+        // Only in-app paths; never an absolute URL.
+        return from != null && from.startsWith('/') && !from.startsWith('//')
+            ? from
+            : Routes.home.path;
+      }
+      if (path == Routes.onboarding.path) {
         return Routes.home.path; // gates passed — nothing to show here
       }
       return null;
@@ -272,6 +286,9 @@ GoRouter buildRouter() {
     ],
   );
 }
+
+/// Query parameter carrying the pre-lock location through the PIN gate.
+const _lockFromParam = 'from';
 
 /// Re-runs the router redirect whenever a gate signal flips
 /// (lock/unlock, setup completion).

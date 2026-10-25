@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Productive Muslim uses Face ID to unlock the app when app lock is on.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.</string>
 	<key>UIApplicationSceneManifest</key>
