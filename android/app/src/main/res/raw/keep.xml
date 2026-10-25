@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resources looked up by name at runtime, so shrinkResources can't see them.
+     flutter_local_notifications resolves its small icon ('@mipmap/ic_launcher')
+     via getIdentifier; if it is stripped, notifications fail silently. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@mipmap/ic_launcher,@drawable/*" />

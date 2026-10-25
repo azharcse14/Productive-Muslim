@@ -32,6 +32,31 @@ flutter test           # must pass
 - **iOS/macOS:** Swift Package Manager **only** — no CocoaPods, no Podfile. Plugins must support SPM.
 - **Android:** latest Flutter-template toolchain — Gradle 9.1.0, AGP 9.0.1, Kotlin 2.3.20, Java 17. Re-sync with the Flutter template on every Flutter upgrade.
 
+## Android release signing
+
+Release builds are signed from `android/key.properties`. It and the keystore
+are gitignored (`key.properties`, `*.jks`, `*.keystore`) — never commit them;
+back the keystore up somewhere safe, losing it means you can't update the app.
+
+```sh
+keytool -genkey -v -keystore ~/productive-muslim-upload.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+`android/key.properties`:
+
+```properties
+storePassword=<store password>
+keyPassword=<key password>
+keyAlias=upload
+storeFile=/Users/<you>/productive-muslim-upload.jks
+```
+
+Without that file a release build falls back to the debug key (with a Gradle
+warning) — fine for `flutter run --release`, never for the Play Store.
+Release builds run R8 (minify + shrinkResources); keep rules live in
+`android/app/proguard-rules.pro` and `android/app/src/main/res/raw/keep.xml`.
+
 ## Architecture
 
 Clean Architecture, feature-first. Top-level layout under `lib/`:
