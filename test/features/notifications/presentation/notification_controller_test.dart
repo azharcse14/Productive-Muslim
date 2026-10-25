@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
@@ -23,6 +24,7 @@ final class _CountingScheduler implements NotificationScheduler {
   int initCalls = 0;
   int rescheduleCalls = 0;
   NotificationTexts? lastTexts;
+  List<NotificationItem>? lastPlan;
 
   @override
   Future<void> initialize(NotificationTexts texts) async {
@@ -50,6 +52,7 @@ final class _CountingScheduler implements NotificationScheduler {
   ) async {
     rescheduleCalls++;
     lastTexts = texts;
+    lastPlan = items;
     return const Result.success(null);
   }
 
@@ -81,8 +84,62 @@ const _dhaka = ManualCityLocation(
   ),
 );
 
+Future<(NotificationController, _CountingScheduler)> _controller() async {
+  final scheduler = _CountingScheduler();
+  final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
+  final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
+  await settings.load();
+  final (mosqueStore, _) = await makeMosqueStore();
+  final controller = NotificationController(
+    reschedule: RescheduleNotifications(
+      getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      scheduler: scheduler,
+      clock: TimezoneClock(),
+    ),
+    scheduler: scheduler,
+    settings: settings,
+    mosque: mosqueStore,
+  );
+  return (controller, scheduler);
+}
+
 void main() {
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(TimezoneClock.initialize);
+
+  test('resuming from background reschedules', () async {
+    final (controller, scheduler) = await _controller();
+    await controller.start();
+    expect(scheduler.rescheduleCalls, 1);
+    // Let the initial effect's debounce settle.
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    final before = scheduler.rescheduleCalls;
+
+    binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before, reason: 'no reschedule on pause');
+
+    binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before + 1);
+    controller.dispose();
+  });
+
+  test('scheduledUntil is the last reminder, excluding keep-alive', () async {
+    final (controller, scheduler) = await _controller();
+    expect(controller.scheduledUntil.value, isNull);
+    await controller.start();
+    final plan = scheduler.lastPlan!;
+    expect(plan.last.kind, NotificationKind.keepAlive);
+    expect(controller.scheduledUntil.value, plan[plan.length - 2].at);
+    controller.dispose();
+  });
 
   test('start initializes, schedules once, and reschedules on changes',
       () async {

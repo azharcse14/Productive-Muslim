@@ -75,6 +75,28 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingHighLatSub => 'অ্যাডভান্সড — চরম অক্ষাংশের জন্য';
 
   @override
+  String get settingHijriOffset => 'হিজরি তারিখ সমন্বয়';
+
+  @override
+  String get settingHijriOffsetSub => 'আপনার এলাকার চাঁদ দেখার সাথে মেলান';
+
+  @override
+  String hijriOffsetValue(int count, String sign) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$sign$count দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingSahriSafety => 'সাহরির সতর্কতা সময়';
+
+  @override
+  String get settingSahriSafetySub => 'ফজরের এত মিনিট আগে সাহরি শেষ করুন';
+
+  @override
   String get settingTheme => 'থিম';
 
   @override
@@ -94,6 +116,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingRunSetup => 'আবার সেটআপ চালান';
+
+  @override
+  String get settingShowAchievements => 'অর্জন দেখান';
+
+  @override
+  String get settingShowAchievementsSub =>
+      'মুহাসাবায় ব্যাজ ও ধারাবাহিকতার মাইলফলক';
 
   @override
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
@@ -195,7 +224,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get locationPrimingBody =>
-      'কালবী আপনার অবস্থান শুধু এই ডিভাইসে নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। কোনো তথ্য ফোনের বাইরে যায় না।';
+      'কালবী আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।';
 
   @override
   String get locationDeniedFallback =>
@@ -532,6 +561,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifMuhasabaBody => 'আজকের মুহাসাবার জন্য এক মিনিট সময় হবে?';
 
   @override
+  String get notifKeepAliveTitle => 'রিমাইন্ডার চালু রাখুন';
+
+  @override
+  String get notifKeepAliveBody =>
+      'সুযোগ হলে একবার অ্যাপটি খুলুন, যাতে নামাজের রিমাইন্ডার চলতে থাকে।';
+
+  @override
+  String notifScheduledUntil(String when) {
+    return 'রিমাইন্ডার নির্ধারিত আছে $when পর্যন্ত';
+  }
+
+  @override
+  String get notifScheduledNone => 'এই মুহূর্তে কোনো রিমাইন্ডার নির্ধারিত নেই।';
+
+  @override
   String get notifMarkPrayed => 'নামাজ পড়েছি';
 
   @override
@@ -837,6 +881,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get salahLockedToast => 'এই নামাজের সময় এখনো শুরু হয়নি';
 
   @override
+  String a11yMarkPrayed(String prayer) {
+    return '$prayer নামাজ পড়া হয়েছে হিসেবে চিহ্নিত করুন';
+  }
+
+  @override
+  String a11yPrayerLocked(String prayer) {
+    return '$prayer: এর সময় এখনো শুরু হয়নি';
+  }
+
+  @override
   String muhasabaDoneCount(int done, int total) {
     return '$totalটির মধ্যে $doneটি সম্পন্ন';
   }
@@ -1126,6 +1180,8 @@ class AppLocalizationsBn extends AppLocalizations {
       'marketplace': 'বাজার',
       'adhan': 'আযান ও ইকামত',
       'toilet': 'টয়লেট',
+      'knowledge': 'জ্ঞান ও হিদায়াত',
+      'family': 'পরিবার ও বিবাহ',
       'other': '$id',
     });
     return '$_temp0';
@@ -1164,27 +1220,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'three_quls': 'তিন কুল',
       'healing': 'আরোগ্য ও অসুস্থতা',
       'evil_eye': 'বদনজর ও হিংসা',
-      'sihr_jinn': 'জাদু ও জিন',
-      'anxiety_grief': 'দুশ্চিন্তা ও দুঃখ',
-      'distress': 'বিপদ ও সংকট',
-      'fever_pain': 'জ্বর, ব্যথা ও অসুস্থতা',
+      'sihr_jinn': 'জাদু, জিন ও ওয়াসওয়াসা',
+      'anxiety_grief': 'দুশ্চিন্তা, দুঃখ ও বিপদ',
       'sleep': 'ঘুম ও দুঃস্বপ্ন',
       'morning_evening': 'সকাল-সন্ধ্যা',
-      'waswas': 'ওয়াসওয়াসা ও সন্দেহ',
       'enemies': 'শত্রু ও জুলুম',
-      'travel': 'সফর ও ঘর',
       'children': 'সন্তানের সুরক্ষা',
-      'provision': 'রিযিক ও ঋণমুক্তি',
-      'forgiveness': 'তাওবা ও ক্ষমা',
-      'guidance': 'দৃঢ়তা ও হিদায়াত',
-      'knowledge': 'উপকারী জ্ঞান',
-      'parents': 'পিতামাতার জন্য',
-      'marriage': 'বিবাহ ও দাম্পত্য',
       'fitan': 'ফিতনা ও দাজ্জাল',
-      'food_drink': 'পানাহার',
-      'mosque': 'মসজিদে প্রবেশ',
-      'rain': 'বৃষ্টি ও আবহাওয়া',
-      'night_worship': 'রাতের ইবাদত',
       'other': '$id',
     });
     return '$_temp0';
@@ -1403,6 +1445,28 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get appLockDelete => 'শেষ সংখ্যা মুছুন';
+
+  @override
+  String appLockThrottled(String time) {
+    return 'অনেকবার ভুল হয়েছে। $time পরে আবার চেষ্টা করুন।';
+  }
+
+  @override
+  String get appLockForgotPin => 'পিন ভুলে গেছেন?';
+
+  @override
+  String get appLockForgotReason =>
+      'অ্যাপের পিন রিসেট করতে নিশ্চিত করুন যে এটি আপনি';
+
+  @override
+  String get appLockNoDeviceLockTitle => 'এখানে পিন রিসেট করা যাচ্ছে না';
+
+  @override
+  String get appLockNoDeviceLockBody =>
+      'আপনার ডিভাইসে কোনো স্ক্রিন লক নেই, তাই আপনাকে যাচাই করা যাচ্ছে না। ডিভাইসের সেটিংসে স্ক্রিন লক চালু করে আবার চেষ্টা করুন। অ্যাপের ডেটা মুছে ফেললেও পিন সরে যায়, তবে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockNewPin => 'নতুন ৪-সংখ্যার পিন দিন';
 
   @override
   String appLockPinProgress(int entered) {
@@ -1722,6 +1786,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get hadithTitle => 'হাদিস';
+
+  @override
+  String get hadithNotFound => 'এই হাদিসটি পাওয়া যায়নি।';
 
   @override
   String get hadithSubtitle => 'চিন্তা-ভাবনার জন্য সহিহ বর্ণনা';

@@ -4,9 +4,8 @@ import '../../../../core/utils/hijri_date.dart';
 /// (guide §6: domain logic is static, side-effect free, exhaustively
 /// tested).
 ///
-/// Like the underlying tabular calendar, results can differ from
-/// moon-sighted dates by ±1 day; callers that need sighting accuracy apply
-/// their own adjustment.
+/// Gregorian ↔ Hijri conversions take the user's moon-sighting
+/// [offsetDays] (see [HijriDate.fromGregorian]); 0 = pure tabular.
 abstract final class RamadanUtils {
   /// Whether [d] falls inside Ramadan.
   static bool isRamadan(HijriDate d) => d.month == HijriDate.ramadanMonth;
@@ -20,28 +19,37 @@ abstract final class RamadanUtils {
       HijriDate.daysInMonth(hijriYear, HijriDate.ramadanMonth);
 
   /// Gregorian civil date of 1 Ramadan [hijriYear].
-  static DateTime firstDayOf(int hijriYear) =>
-      HijriDate(hijriYear, HijriDate.ramadanMonth, 1).toGregorian();
+  static DateTime firstDayOf(int hijriYear, {int offsetDays = 0}) =>
+      HijriDate(hijriYear, HijriDate.ramadanMonth, 1)
+          .toGregorian(offsetDays: offsetDays);
 
   /// Every Gregorian civil date of Ramadan [hijriYear], in order. The
   /// length always equals [ramadanLength].
-  static List<DateTime> gregorianDaysOf(int hijriYear) => [
+  static List<DateTime> gregorianDaysOf(int hijriYear, {int offsetDays = 0}) =>
+      [
         for (var day = 1; day <= ramadanLength(hijriYear); day++)
-          HijriDate(hijriYear, HijriDate.ramadanMonth, day).toGregorian(),
+          HijriDate(hijriYear, HijriDate.ramadanMonth, day)
+              .toGregorian(offsetDays: offsetDays),
       ];
 
   /// The hijri year of the next (or current) Ramadan relative to [today],
   /// and how many days remain until its first day — 0 when [today] is
   /// already inside that Ramadan.
-  static (int year, int daysUntil) nextRamadan(DateTime today) {
+  static (int year, int daysUntil) nextRamadan(
+    DateTime today, {
+    int offsetDays = 0,
+  }) {
     final date = DateTime(today.year, today.month, today.day);
-    final hijri = HijriDate.fromGregorian(date);
+    final hijri = HijriDate.fromGregorian(date, offsetDays: offsetDays);
     if (hijri.month == HijriDate.ramadanMonth) {
       return (hijri.year, 0);
     }
     final year = hijri.month < HijriDate.ramadanMonth
         ? hijri.year
         : hijri.year + 1;
-    return (year, firstDayOf(year).difference(date).inDays);
+    return (
+      year,
+      firstDayOf(year, offsetDays: offsetDays).difference(date).inDays,
+    );
   }
 }

@@ -96,6 +96,34 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: Icon(Icons.chevron_right, color: q.ink3),
                       onTap: () => _pickHighLat(params.highLatitudeRule),
                     ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.nightlight_outlined,
+                      title: l10n.settingSahriSafety,
+                      subtitle: l10n.settingSahriSafetySub,
+                      trailing: _AdjustmentStepper(
+                        key: const ValueKey('sahri-safety-stepper'),
+                        value: params.sahriSafetyMinutes,
+                        label: l10n.settingSahriSafety,
+                        onChanged: _store.setSahriSafety,
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.nightlight_outlined,
+                      title: l10n.settingHijriOffset,
+                      subtitle: l10n.settingHijriOffsetSub,
+                      trailing: _AdjustmentStepper(
+                        key: const ValueKey('hijri-offset-stepper'),
+                        value: settings.hijriOffsetDays,
+                        label: l10n.settingHijriOffset,
+                        format: (v) => l10n.hijriOffsetValue(
+                          v.abs(),
+                          v > 0 ? '+' : (v < 0 ? '−' : ''),
+                        ),
+                        onChanged: _store.setHijriOffset,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -162,6 +190,17 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         );
                       },
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.emoji_events_outlined,
+                      title: l10n.settingShowAchievements,
+                      subtitle: l10n.settingShowAchievementsSub,
+                      trailing: Switch(
+                        value: settings.showAchievements,
+                        onChanged: (v) =>
+                            unawaited(_store.setShowAchievements(show: v)),
+                      ),
                     ),
                     const Divider(),
                     QListRow(
@@ -339,10 +378,10 @@ final class _GroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(
+    padding: const EdgeInsetsDirectional.only(
       top: QSpace.s6,
       bottom: QSpace.s3,
-      left: QSpace.s1,
+      start: QSpace.s1,
     ),
     child: Text(title.toUpperCase(), style: context.text.labelSmall),
   );
@@ -353,13 +392,18 @@ final class _AdjustmentStepper extends StatelessWidget {
     required this.value,
     required this.label,
     required this.onChanged,
+    this.format,
+    super.key,
   });
 
   final int value;
 
-  /// Prayer name, woven into the +/- buttons' screen-reader labels.
+  /// Setting name, woven into the +/- buttons' screen-reader labels.
   final String label;
   final ValueChanged<int> onChanged;
+
+  /// Value text; defaults to minutes.
+  final String Function(int)? format;
 
   @override
   Widget build(BuildContext context) {
@@ -380,9 +424,9 @@ final class _AdjustmentStepper extends StatelessWidget {
             onTap: () => onChanged(value - 1),
           ),
           SizedBox(
-            width: 56,
+            width: format == null ? 56 : 72,
             child: Text(
-              l10n.minutesShort(value),
+              format?.call(value) ?? l10n.minutesShort(value),
               textAlign: TextAlign.center,
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),

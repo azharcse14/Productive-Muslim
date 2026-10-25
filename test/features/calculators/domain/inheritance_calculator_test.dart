@@ -284,4 +284,64 @@ void main() {
       _expectConservation(r);
     });
   });
+
+  group("InheritanceCalculator — 'Umariyyatayn with siblings", () {
+    test('husband + father + mother + 1 full brother (120,000)', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 120000,
+          hasHusband: true,
+          hasFather: true,
+          hasMother: true,
+          fullBrothers: 1,
+        ),
+      );
+      // One sibling is blocked by the father and does not reduce the mother.
+      expect(r.note, 'umariyyatayn');
+      expect(_share(r, 'husband').amount, closeTo(60000, 0.001));
+      expect(_share(r, 'mother').amount, closeTo(20000, 0.001));
+      expect(_share(r, 'father').amount, closeTo(40000, 0.001));
+      expect(_has(r, 'brother'), isFalse);
+      _expectConservation(r);
+    });
+
+    test('wife + father + mother + 1 full sister → 1/4, 1/4, 1/2', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 120000,
+          wives: 1,
+          hasFather: true,
+          hasMother: true,
+          fullSisters: 1,
+        ),
+      );
+      expect(r.note, 'umariyyatayn');
+      expect(_share(r, 'wife').fraction, closeTo(1 / 4, 1e-9));
+      expect(_share(r, 'mother').fraction, closeTo(1 / 4, 1e-9));
+      expect(_share(r, 'father').fraction, closeTo(1 / 2, 1e-9));
+      expect(_has(r, 'sister'), isFalse);
+      _expectConservation(r);
+    });
+
+    test('2+ siblings: mother stays at 1/6 (normal path)', () {
+      for (final (brothers, sisters) in [(2, 0), (0, 2), (1, 1), (3, 2)]) {
+        final r = InheritanceCalculator.calculate(
+          InheritanceInput(
+            estate: 120000,
+            hasHusband: true,
+            hasFather: true,
+            hasMother: true,
+            fullBrothers: brothers,
+            fullSisters: sisters,
+          ),
+        );
+        expect(r.note, isNot('umariyyatayn'));
+        expect(_share(r, 'husband').fraction, closeTo(1 / 2, 1e-9));
+        expect(_share(r, 'mother').fraction, closeTo(1 / 6, 1e-9));
+        expect(_share(r, 'father').fraction, closeTo(1 / 3, 1e-9));
+        expect(_has(r, 'brother') || _has(r, 'sister'), isFalse);
+        _expectConservation(r);
+      }
+    });
+  });
 }

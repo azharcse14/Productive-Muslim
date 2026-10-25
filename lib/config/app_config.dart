@@ -13,8 +13,18 @@ abstract final class AppConfig {
   /// Default Maghrib jamaat offset (design: "Maghrib defaults to offset +5").
   static const defaultMaghribJamaatOffset = Duration(minutes: 5);
 
-  /// Notifications are scheduled this far ahead on app open (guide §5).
-  static const notificationSchedulingWindow = Duration(hours: 48);
+  /// Notifications are scheduled this far ahead on app open/resume. There is
+  /// no background refresh, so the window is long; a keep-alive nudge at its
+  /// end asks the user to open the app.
+  static const notificationSchedulingWindow = Duration(days: 7);
+
+  /// iOS keeps at most 64 pending local notifications per app; stay under it
+  /// (the keep-alive nudge counts toward this).
+  static const iosMaxPendingNotifications = 60;
+
+  /// App lock re-engages after the app has been in the background at least
+  /// this long.
+  static const appLockGracePeriod = Duration(seconds: 30);
 
   /// Qibla alignment tolerance in degrees (design: ±3°).
   static const qiblaAlignmentToleranceDeg = 3.0;

@@ -35,6 +35,9 @@ final class _CalendarScreenState extends State<CalendarScreen> {
 
   late DateTime _month = DateTime(_today.year, _today.month);
 
+  /// User's moon-sighting adjustment, applied to every Hijri conversion.
+  int get _offset => _settings.hijriOffsetDays.value;
+
   DateTime get _today {
     final location = _settings.location.value;
     final now = location == null ? DateTime.now() : _clock.nowAt(location);
@@ -56,9 +59,10 @@ final class _CalendarScreenState extends State<CalendarScreen> {
   /// "Dhul-Qadah – Dhul-Hijjah 1447".
   String _hijriRange(BuildContext context) {
     final l10n = context.l10n;
-    final first = HijriDate.fromGregorian(_month);
+    final first = HijriDate.fromGregorian(_month, offsetDays: _offset);
     final last = HijriDate.fromGregorian(
       DateTime(_month.year, _month.month + 1, 0),
+      offsetDays: _offset,
     );
     final from = l10n.hijriMonthName('m${first.month}');
     final to = l10n.hijriMonthName('m${last.month}');
@@ -83,7 +87,11 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
-        builder: (sheetContext) => _DaySheet(day: day, prayerDay: prayerDay),
+        builder: (sheetContext) => _DaySheet(
+          day: day,
+          prayerDay: prayerDay,
+          offsetDays: _offset,
+        ),
       ),
     );
   }
@@ -97,7 +105,11 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       context,
       DateFormat.yMMMM(locale.toString()).format(_month),
     );
-    final events = IslamicDates.inGregorianMonth(_month.year, _month.month);
+    final events = IslamicDates.inGregorianMonth(
+      _month.year,
+      _month.month,
+      offsetDays: _offset,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.calendarTitle)),
       body: SafeArea(
@@ -142,6 +154,7 @@ final class _CalendarScreenState extends State<CalendarScreen> {
             _MonthGrid(
               month: _month,
               today: _today,
+              offsetDays: _offset,
               onDayTap: (day) => _openDaySheet(context, day),
             ),
             if (events.isNotEmpty) ...[
@@ -189,11 +202,13 @@ final class _MonthGrid extends StatelessWidget {
   const _MonthGrid({
     required this.month,
     required this.today,
+    required this.offsetDays,
     required this.onDayTap,
   });
 
   final DateTime month;
   final DateTime today;
+  final int offsetDays;
   final ValueChanged<DateTime> onDayTap;
 
   @override
@@ -220,6 +235,7 @@ final class _MonthGrid extends StatelessWidget {
           key: ValueKey('calendar-day-$day'),
           date: DateTime(month.year, month.month, day),
           isToday: DateTime(month.year, month.month, day) == today,
+          offsetDays: offsetDays,
           onTap: onDayTap,
         ),
     ];
@@ -238,10 +254,12 @@ final class _DayCell extends StatelessWidget {
     required this.date,
     required this.isToday,
     required this.onTap,
+    required this.offsetDays,
     super.key,
   });
 
   final DateTime date;
+  final int offsetDays;
   final bool isToday;
   final ValueChanged<DateTime> onTap;
 
@@ -249,7 +267,7 @@ final class _DayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final language = Localizations.localeOf(context).languageCode;
-    final hijri = HijriDate.fromGregorian(date);
+    final hijri = HijriDate.fromGregorian(date, offsetDays: offsetDays);
     final hasEvent = IslamicDates.of(hijri) != null;
     return InkWell(
       borderRadius: BorderRadius.circular(QRadius.sm),
@@ -288,9 +306,14 @@ final class _DayCell extends StatelessWidget {
 }
 
 final class _DaySheet extends StatelessWidget {
-  const _DaySheet({required this.day, required this.prayerDay});
+  const _DaySheet({
+    required this.day,
+    required this.prayerDay,
+    required this.offsetDays,
+  });
 
   final DateTime day;
+  final int offsetDays;
   final PrayerDay? prayerDay;
 
   String _digits(BuildContext context, String text) => LocaleDigits.localize(
@@ -311,7 +334,7 @@ final class _DaySheet extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     final locale = Localizations.localeOf(context);
-    final hijri = HijriDate.fromGregorian(day);
+    final hijri = HijriDate.fromGregorian(day, offsetDays: offsetDays);
     final bangla = BanglaDate.fromGregorian(day);
     final event = IslamicDates.of(hijri);
     final localPrayerDay = prayerDay;

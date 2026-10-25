@@ -41,9 +41,20 @@ const _dhaka = ManualCityLocation(
 void main() {
   setUpAll(TimezoneClock.initialize);
 
-  Future<RamadanStore> make({bool withLocation = true}) async {
+  Future<RamadanStore> make({
+    bool withLocation = true,
+    int hijriOffset = 0,
+    DateTime? now,
+  }) async {
     final settings = SettingsStore(
-      GetSettings(_Repo(AppSettings(location: withLocation ? _dhaka : null))),
+      GetSettings(
+        _Repo(
+          AppSettings(
+            location: withLocation ? _dhaka : null,
+            hijriOffsetDays: hijriOffset,
+          ),
+        ),
+      ),
       SaveSettings(_Repo(const AppSettings())),
     );
     await settings.load();
@@ -51,7 +62,7 @@ void main() {
       GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
       settings,
       // 2026-03-01 is inside Ramadan 1447 (1 Ramadan = 18 Feb 2026).
-      now: () => DateTime(2026, 3, 1, 10),
+      now: () => now ?? DateTime(2026, 3, 1, 10),
     );
     store.load();
     return store;
@@ -76,6 +87,33 @@ void main() {
     test('no location → empty rows', () async {
       final store = await make(withLocation: false);
       expect(store.monthRows.value, isEmpty);
+    });
+  });
+
+  group('RamadanStore with a Hijri offset', () {
+    test('offset shifts the roza day', () async {
+      expect((await make(hijriOffset: -1)).rozaDay.value, 11);
+      expect((await make(hijriOffset: 1)).rozaDay.value, 13);
+      expect((await make(hijriOffset: 2)).rozaDay.value, 14);
+    });
+
+    test('offset −1: tabular 1 Ramadan is still Sha\'ban', () async {
+      final store =
+          await make(hijriOffset: -1, now: DateTime(2026, 2, 18, 10));
+      expect(store.isRamadan.value, isFalse);
+      expect(store.rozaDay.value, isNull);
+      expect(store.nextRamadan.value, (1447, 1));
+    });
+
+    test('offset +1: Ramadan starts a day before the tabular date', () async {
+      final store = await make(hijriOffset: 1, now: DateTime(2026, 2, 17, 10));
+      expect(store.isRamadan.value, isTrue);
+      expect(store.rozaDay.value, 1);
+    });
+
+    test('month table follows the offset', () async {
+      final store = await make(hijriOffset: -1);
+      expect(store.monthRows.value.first.$1, DateTime(2026, 2, 19));
     });
   });
 }

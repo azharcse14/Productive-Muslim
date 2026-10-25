@@ -46,6 +46,12 @@
   "settingAdjustmentsSub": "Fine-tune each prayer ±minutes",
   "settingHighLat": "High-latitude rule",
   "settingHighLatSub": "Advanced — for extreme latitudes",
+  "settingHijriOffset": "Hijri date adjustment",
+  "settingHijriOffsetSub": "Match your local moon-sighting",
+  "hijriOffsetValue": "{count, plural, =1{{sign}1 day} other{{sign}{count} days}}",
+  "@hijriOffsetValue": { "placeholders": { "count": { "type": "int" }, "sign": { "type": "String" } } },
+  "settingSahriSafety": "Sahri safety margin",
+  "settingSahriSafetySub": "End sahri this many minutes before Fajr",
   "settingTheme": "Theme",
   "themeSystem": "System",
   "themeLight": "Light",
@@ -53,6 +59,8 @@
   "settingLanguage": "Language",
   "settingAppLock": "App lock",
   "settingRunSetup": "Run setup again",
+  "settingShowAchievements": "Show achievements",
+  "settingShowAchievementsSub": "Badges and streak milestones in Muhasaba",
   "settingCredits": "Credits & attributions",
   "creditsBody": "Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.",
   "madhabHanafi": "Hanafi",
@@ -85,7 +93,7 @@
   "locationUseGpsSub": "GPS — works fully offline after the first fix",
   "locationChooseCity": "Choose city manually",
   "locationSearchHint": "Search city…",
-  "locationPrimingBody": "Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.",
+  "locationPrimingBody": "Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.",
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
   "locationServiceOff": "Location services are turned off. Pick your city below, or enable location and try again.",
   "locationCurrent": "Current location",
@@ -225,6 +233,11 @@
   "notifIftarBody": "May Allah accept your fast. Iftar at {time}.",
   "notifMuhasabaTitle": "Evening reflection",
   "notifMuhasabaBody": "A quiet minute for today's muhasaba?",
+  "notifKeepAliveTitle": "Keep reminders running",
+  "notifKeepAliveBody": "Open Productive Muslim when you have a moment, so your prayer reminders continue.",
+  "notifScheduledUntil": "Reminders scheduled until {when}",
+  "@notifScheduledUntil": { "placeholders": { "when": { "type": "String" } } },
+  "notifScheduledNone": "No reminders are scheduled right now.",
   "notifMarkPrayed": "Mark as prayed",
   "channelAzan": "Azan",
   "channelReminders": "Reminders",
@@ -381,6 +394,10 @@
     }
   },
   "salahLockedToast": "This prayer's time hasn't started yet",
+  "a11yMarkPrayed": "Mark {prayer} as prayed",
+  "@a11yMarkPrayed": { "placeholders": { "prayer": { "type": "String" } } },
+  "a11yPrayerLocked": "{prayer}: its time hasn't started yet",
+  "@a11yPrayerLocked": { "placeholders": { "prayer": { "type": "String" } } },
   "muhasabaDoneCount": "{done}/{total} done",
   "@muhasabaDoneCount": {
     "placeholders": {
@@ -531,7 +548,7 @@
   "@achievementName": {
     "placeholders": { "id": { "type": "String" } }
   },
-  "duaCategoryName": "{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} other{{id}}}",
+  "duaCategoryName": "{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} knowledge{Knowledge & guidance} family{Family & marriage} other{{id}}}",
   "@duaCategoryName": {
     "placeholders": {
       "id": {
@@ -560,7 +577,7 @@
   "ruqyahSubtitle": "Qur'anic protection & healing",
   "ruqyahHowToTitle": "How to perform ruqyah",
   "ruqyahHowToBody": "Recite these verses and supplications sincerely, with full trust that healing is from Allah alone. Blow lightly over yourself or the one being treated, or over water to drink. Ruqyah is from the Qur'an and authentic Sunnah only — never seek out amulets or sorcerers.",
-  "ruqyahCategoryName": "{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr & jinn} anxiety_grief{Anxiety & grief} distress{Distress & hardship} fever_pain{Fever, pain & illness} sleep{Sleep & nightmares} morning_evening{Morning & evening} waswas{Whispers & doubts} enemies{Enemies & oppressors} travel{Travel & home} children{Protecting children} provision{Provision & debt} forgiveness{Repentance & forgiveness} guidance{Steadfastness & guidance} knowledge{Beneficial knowledge} parents{Mercy for parents} marriage{Marriage & spouse} fitan{Trials & the Dajjal} food_drink{Eating & drinking} mosque{Entering the mosque} rain{Rain & weather} night_worship{Night prayer} other{{id}}}",
+  "ruqyahCategoryName": "{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr, jinn & whispers} anxiety_grief{Anxiety, grief & distress} sleep{Sleep & nightmares} morning_evening{Morning & evening} enemies{Enemies & oppressors} children{Protecting children} fitan{Trials & the Dajjal} other{{id}}}",
   "@ruqyahCategoryName": {
     "placeholders": {
       "id": {
@@ -678,6 +695,13 @@
   "appLockEnableSub": "Require a PIN (and biometrics) to open Productive Muslim",
   "appLockDisable": "Turn off app lock",
   "appLockDelete": "Delete last digit",
+  "appLockThrottled": "Too many attempts. Try again in {time}.",
+  "@appLockThrottled": { "placeholders": { "time": { "type": "String" } } },
+  "appLockForgotPin": "Forgot PIN?",
+  "appLockForgotReason": "Confirm it's you to reset your app PIN",
+  "appLockNoDeviceLockTitle": "Can't reset the PIN here",
+  "appLockNoDeviceLockBody": "Your device has no screen lock, so we can't confirm it's you. Set up a screen lock in your device settings and try again. Clearing the app's data also removes the PIN, but erases your saved progress.",
+  "appLockNewPin": "Set a new 4-digit PIN",
   "appLockPinProgress": "{entered} of 4 digits entered",
   "@appLockPinProgress": {
     "placeholders": {
@@ -838,6 +862,7 @@
   "faraidHeirSister": "Sister",
   "hadithOfDayTitle": "Hadith of the day",
   "hadithTitle": "Hadith",
+  "hadithNotFound": "This hadith isn't available.",
   "hadithSubtitle": "Authentic narrations to reflect on",
   "hadithNarratedBy": "Narrated by {narrator}",
   "@hadithNarratedBy": {

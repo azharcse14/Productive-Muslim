@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/achievements/presentation/state/achievement_store.dart';
+import 'package:productive_muslim/features/achievements/presentation/widgets/achievements_summary_card.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
@@ -11,6 +13,13 @@ import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba
 import 'package:productive_muslim/features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/widgets/tracker_row.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../../helpers/settings_fakes.dart';
 
 /// In-memory [MuhasabaRepository] — just enough behavior for the screen.
 final class InMemoryMuhasabaRepository implements MuhasabaRepository {
@@ -194,6 +203,13 @@ void main() {
     store = MuhasabaStore(repo);
     await store.load();
     GetIt.I.registerSingleton<MuhasabaStore>(store);
+    // The dashboard embeds the achievements summary card.
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    GetIt.I.registerSingleton<AchievementStore>(
+      AchievementStore(muhasaba: repo, prefs: SharedPreferencesAsync()),
+    );
+    GetIt.I.registerSingleton<SettingsStore>(await makeSettingsStore());
   });
 
   tearDown(() => GetIt.I.reset());
@@ -289,6 +305,30 @@ void main() {
       expect(find.text('Year'), findsOneWidget);
       expect(find.text('Overall completion'), findsOneWidget);
       expect(find.text('1 day streak'), findsOneWidget);
+    });
+
+    testWidgets('achievements card is hidden by default, shown when enabled',
+        (tester) async {
+      await store.setValue('salah_fajr', 1);
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Dashboard'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AchievementsSummaryCard), findsNothing);
+
+      await GetIt.I.reset();
+      GetIt.I
+        ..registerSingleton<MuhasabaStore>(store)
+        ..registerSingleton<AchievementStore>(
+          AchievementStore(muhasaba: repo, prefs: SharedPreferencesAsync()),
+        )
+        ..registerSingleton<SettingsStore>(
+          await makeSettingsStore(const AppSettings(showAchievements: true)),
+        );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Dashboard'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AchievementsSummaryCard), findsOneWidget);
     });
 
     testWidgets('app bar add button opens the item editor sheet',

@@ -186,10 +186,13 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           f(t.dailyReminderTitle),
           f(t.dailyReminderBody),
         ),
+      NotificationKind.keepAlive => (t.keepAliveTitle, t.keepAliveBody),
     };
   }
 
   NotificationDetails _details(NotificationItem item, NotificationTexts t) {
+    // Quiet like a silent azan: no sound, low priority, passive on iOS.
+    final quiet = item.silent || item.kind == NotificationKind.keepAlive;
     final (channelId, channelName, sound) = switch (item.kind) {
       NotificationKind.azan when item.silent => (
           'productive_muslim_silent',
@@ -197,14 +200,21 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           false,
         ),
       NotificationKind.azan => ('productive_muslim_azan', t.channelAzanName, true),
+      // Own low-importance channel: Android 8+ takes importance from the
+      // channel, not the notification.
+      NotificationKind.keepAlive => (
+          'productive_muslim_keep_alive',
+          t.keepAliveTitle,
+          false,
+        ),
       _ => ('productive_muslim_reminders', t.channelRemindersName, true),
     };
     return NotificationDetails(
       android: AndroidNotificationDetails(
         channelId,
         channelName,
-        importance: item.silent ? Importance.low : Importance.high,
-        priority: item.silent ? Priority.low : Priority.high,
+        importance: quiet ? Importance.low : Importance.high,
+        priority: quiet ? Priority.low : Priority.high,
         playSound: sound,
         category: AndroidNotificationCategory.reminder,
         actions: item.kind == NotificationKind.azan
@@ -221,7 +231,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         categoryIdentifier:
             item.kind == NotificationKind.azan ? _azanCategoryId : null,
         presentSound: sound,
-        interruptionLevel: item.silent
+        interruptionLevel: quiet
             ? InterruptionLevel.passive
             : InterruptionLevel.timeSensitive,
       ),

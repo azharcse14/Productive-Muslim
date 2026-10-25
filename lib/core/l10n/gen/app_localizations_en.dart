@@ -75,6 +75,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingHighLatSub => 'Advanced — for extreme latitudes';
 
   @override
+  String get settingHijriOffset => 'Hijri date adjustment';
+
+  @override
+  String get settingHijriOffsetSub => 'Match your local moon-sighting';
+
+  @override
+  String hijriOffsetValue(int count, String sign) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$sign$count days',
+      one: '${sign}1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingSahriSafety => 'Sahri safety margin';
+
+  @override
+  String get settingSahriSafetySub => 'End sahri this many minutes before Fajr';
+
+  @override
   String get settingTheme => 'Theme';
 
   @override
@@ -94,6 +117,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingRunSetup => 'Run setup again';
+
+  @override
+  String get settingShowAchievements => 'Show achievements';
+
+  @override
+  String get settingShowAchievementsSub =>
+      'Badges and streak milestones in Muhasaba';
 
   @override
   String get settingCredits => 'Credits & attributions';
@@ -195,7 +225,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPrimingBody =>
-      'Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.';
+      'Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.';
 
   @override
   String get locationDeniedFallback =>
@@ -532,6 +562,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifMuhasabaBody => 'A quiet minute for today\'s muhasaba?';
 
   @override
+  String get notifKeepAliveTitle => 'Keep reminders running';
+
+  @override
+  String get notifKeepAliveBody =>
+      'Open Productive Muslim when you have a moment, so your prayer reminders continue.';
+
+  @override
+  String notifScheduledUntil(String when) {
+    return 'Reminders scheduled until $when';
+  }
+
+  @override
+  String get notifScheduledNone => 'No reminders are scheduled right now.';
+
+  @override
   String get notifMarkPrayed => 'Mark as prayed';
 
   @override
@@ -840,6 +885,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salahLockedToast => 'This prayer\'s time hasn\'t started yet';
 
   @override
+  String a11yMarkPrayed(String prayer) {
+    return 'Mark $prayer as prayed';
+  }
+
+  @override
+  String a11yPrayerLocked(String prayer) {
+    return '$prayer: its time hasn\'t started yet';
+  }
+
+  @override
   String muhasabaDoneCount(int done, int total) {
     return '$done/$total done';
   }
@@ -1128,6 +1183,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'marketplace': 'Marketplace',
       'adhan': 'Adhan & iqamah',
       'toilet': 'Toilet',
+      'knowledge': 'Knowledge & guidance',
+      'family': 'Family & marriage',
       'other': '$id',
     });
     return '$_temp0';
@@ -1166,27 +1223,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'three_quls': 'The three Quls',
       'healing': 'Healing & sickness',
       'evil_eye': 'Evil eye & envy',
-      'sihr_jinn': 'Sihr & jinn',
-      'anxiety_grief': 'Anxiety & grief',
-      'distress': 'Distress & hardship',
-      'fever_pain': 'Fever, pain & illness',
+      'sihr_jinn': 'Sihr, jinn & whispers',
+      'anxiety_grief': 'Anxiety, grief & distress',
       'sleep': 'Sleep & nightmares',
       'morning_evening': 'Morning & evening',
-      'waswas': 'Whispers & doubts',
       'enemies': 'Enemies & oppressors',
-      'travel': 'Travel & home',
       'children': 'Protecting children',
-      'provision': 'Provision & debt',
-      'forgiveness': 'Repentance & forgiveness',
-      'guidance': 'Steadfastness & guidance',
-      'knowledge': 'Beneficial knowledge',
-      'parents': 'Mercy for parents',
-      'marriage': 'Marriage & spouse',
       'fitan': 'Trials & the Dajjal',
-      'food_drink': 'Eating & drinking',
-      'mosque': 'Entering the mosque',
-      'rain': 'Rain & weather',
-      'night_worship': 'Night prayer',
       'other': '$id',
     });
     return '$_temp0';
@@ -1407,6 +1450,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockDelete => 'Delete last digit';
+
+  @override
+  String appLockThrottled(String time) {
+    return 'Too many attempts. Try again in $time.';
+  }
+
+  @override
+  String get appLockForgotPin => 'Forgot PIN?';
+
+  @override
+  String get appLockForgotReason => 'Confirm it\'s you to reset your app PIN';
+
+  @override
+  String get appLockNoDeviceLockTitle => 'Can\'t reset the PIN here';
+
+  @override
+  String get appLockNoDeviceLockBody =>
+      'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.';
+
+  @override
+  String get appLockNewPin => 'Set a new 4-digit PIN';
 
   @override
   String appLockPinProgress(int entered) {
@@ -1724,6 +1788,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hadithTitle => 'Hadith';
+
+  @override
+  String get hadithNotFound => 'This hadith isn\'t available.';
 
   @override
   String get hadithSubtitle => 'Authentic narrations to reflect on';

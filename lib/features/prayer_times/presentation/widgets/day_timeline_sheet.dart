@@ -129,7 +129,7 @@ final class _TimelineRow extends StatelessWidget {
           const SizedBox(width: QSpace.s3),
           Expanded(
             child: Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Text(
                 l10n.prayerLabel(prayer),
                 style: QType.titleSm.copyWith(
@@ -146,7 +146,7 @@ final class _TimelineRow extends StatelessWidget {
             const SizedBox(width: QSpace.s2),
           ],
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd,
             child: Text(
               formatTime(start),
               style: QType.num_(QType.caption).copyWith(

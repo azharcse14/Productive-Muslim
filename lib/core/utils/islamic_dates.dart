@@ -49,8 +49,8 @@ final class IslamicDate {
 
 /// Lookup of important Islamic dates over the tabular [HijriDate] calendar.
 ///
-/// Dates carry the same ±1 day caveat as [HijriDate] itself: actual
-/// moon-sighted observances can differ.
+/// Gregorian lookups take the user's moon-sighting offset (see
+/// [HijriDate.fromGregorian]).
 abstract final class IslamicDates {
   /// All known events, in calendar order.
   static const List<IslamicDate> all = [
@@ -82,13 +82,17 @@ abstract final class IslamicDates {
   /// Implemented by walking every day of the month: a Gregorian month can
   /// span two hijri months (and, around Muharram, two hijri years), so a
   /// simple per-hijri-month conversion would miss events.
-  static List<(IslamicDay, DateTime)> inGregorianMonth(int year, int month) {
+  static List<(IslamicDay, DateTime)> inGregorianMonth(
+    int year,
+    int month, {
+    int offsetDays = 0,
+  }) {
     final results = <(IslamicDay, DateTime)>[];
     // Day 0 of the next month = last day of this month.
     final daysInMonth = DateTime(year, month + 1, 0).day;
     for (var day = 1; day <= daysInMonth; day++) {
       final date = DateTime(year, month, day);
-      final event = of(HijriDate.fromGregorian(date));
+      final event = of(HijriDate.fromGregorian(date, offsetDays: offsetDays));
       if (event != null) {
         results.add((event, date));
       }

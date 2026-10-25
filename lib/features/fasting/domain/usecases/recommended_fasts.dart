@@ -4,8 +4,9 @@ import '../entities/recommended_fast.dart';
 /// Pure recommended-fast math over the in-house tabular [HijriDate] calendar
 /// (guide §6: domain logic is static, side-effect free, exhaustively tested).
 ///
-/// Like the underlying tabular calendar, results can differ from
-/// moon-sighted dates by ±1 day.
+/// Every query takes the user's moon-sighting [offsetDays] (see
+/// [HijriDate.fromGregorian]) so the forbidden-day exclusion tracks the
+/// locally observed Eid, not the tabular one.
 ///
 /// FORBIDDEN DAYS — fasting is prohibited and is therefore NEVER recommended
 /// on the two Eids (1 Shawwal and 10 Dhul-Hijjah) and the three days of
@@ -36,9 +37,9 @@ abstract final class RecommendedFasts {
   ///
   /// A single date can carry several reasons (e.g. a white day that also
   /// falls on a Monday) — all are returned, in [FastingKind] order.
-  static List<RecommendedFast> on(DateTime date) {
+  static List<RecommendedFast> on(DateTime date, {int offsetDays = 0}) {
     final day = DateTime(date.year, date.month, date.day);
-    final h = HijriDate.fromGregorian(day);
+    final h = HijriDate.fromGregorian(day, offsetDays: offsetDays);
     if (isForbidden(h)) {
       return const [];
     }
@@ -77,7 +78,8 @@ abstract final class RecommendedFasts {
   }
 
   /// Whether [date] carries at least one recommended fast.
-  static bool isRecommended(DateTime date) => on(date).isNotEmpty;
+  static bool isRecommended(DateTime date, {int offsetDays = 0}) =>
+      on(date, offsetDays: offsetDays).isNotEmpty;
 
   /// The next [count] Gregorian dates from (and including) [from] that carry
   /// a recommended fast, each paired with its hijri date and first/primary
@@ -87,17 +89,21 @@ abstract final class RecommendedFasts {
     DateTime from, {
     int count = 7,
     int maxScanDays = 430,
+    int offsetDays = 0,
   }) {
     final start = DateTime(from.year, from.month, from.day);
     final results = <UpcomingFast>[];
     for (var i = 0; i < maxScanDays && results.length < count; i++) {
       final day = start.add(Duration(days: i));
-      final fasts = on(day);
+      final fasts = on(day, offsetDays: offsetDays);
       if (fasts.isEmpty) {
         continue;
       }
       results.add(
-        UpcomingFast(fast: fasts.first, hijri: HijriDate.fromGregorian(day)),
+        UpcomingFast(
+          fast: fasts.first,
+          hijri: HijriDate.fromGregorian(day, offsetDays: offsetDays),
+        ),
       );
     }
     return results;

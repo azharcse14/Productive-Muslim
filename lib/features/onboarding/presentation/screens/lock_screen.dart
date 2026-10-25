@@ -6,6 +6,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -31,10 +32,19 @@ final class _LockScreenState extends State<LockScreen> {
   String? _firstPin;
   String? _error;
 
+  /// "Forgot PIN?" verified via the device lock: collect a new PIN.
+  bool _resetting = false;
+
+  /// Repaints the cooldown countdown once a second while throttled.
+  Timer? _cooldownTicker;
+
+  bool get _settingPin => widget.mode == LockScreenMode.setup || _resetting;
+
   @override
   void initState() {
     super.initState();
     if (widget.mode == LockScreenMode.unlock) {
+      _syncCooldownTicker();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           unawaited(_store.unlockWithBiometric(context.l10n.appLockEnterPin));
@@ -43,8 +53,81 @@ final class _LockScreenState extends State<LockScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _cooldownTicker?.cancel();
+    super.dispose();
+  }
+
+  /// Remaining cooldown, or null when PIN entry is allowed.
+  Duration? get _cooldownLeft =>
+      _settingPin ? null : _store.cooldownRemaining();
+
+  void _syncCooldownTicker() {
+    if (_cooldownLeft == null) {
+      _cooldownTicker?.cancel();
+      _cooldownTicker = null;
+      return;
+    }
+    _cooldownTicker ??= Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+      if (_cooldownLeft == null) {
+        _cooldownTicker?.cancel();
+        _cooldownTicker = null;
+      }
+    });
+  }
+
+  String _formatCooldown(BuildContext context, Duration left) {
+    final seconds = (left.inMilliseconds / 1000).ceil();
+    final text =
+        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    return LocaleDigits.localize(
+      text,
+      Localizations.localeOf(context).languageCode,
+    );
+  }
+
+  Future<void> _forgotPin() async {
+    final l10n = context.l10n;
+    final result = await _store.authenticateForPinReset(
+      l10n.appLockForgotReason,
+    );
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case PinResetAuth.verified:
+        setState(() {
+          _resetting = true;
+          _entered = '';
+          _firstPin = null;
+          _error = null;
+        });
+      case PinResetAuth.noDeviceLock:
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(l10n.appLockNoDeviceLockTitle),
+            content: Text(l10n.appLockNoDeviceLockBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              ),
+            ],
+          ),
+        );
+      case PinResetAuth.failed:
+        break;
+    }
+  }
+
   Future<void> _onDigit(String digit) async {
-    if (_entered.length >= 4) {
+    if (_entered.length >= 4 || _cooldownLeft != null) {
       return;
     }
     setState(() {
@@ -55,25 +138,31 @@ final class _LockScreenState extends State<LockScreen> {
       return;
     }
     final l10n = context.l10n;
-    switch (widget.mode) {
-      case LockScreenMode.unlock:
+    switch (_settingPin) {
+      case false:
         final ok = await _store.unlockWithPin(_entered);
         if (!ok && mounted) {
           setState(() {
             _entered = '';
             _error = l10n.appLockWrongPin;
           });
+          _syncCooldownTicker();
         }
-      case LockScreenMode.setup:
+      case true:
         if (_firstPin == null) {
           setState(() {
             _firstPin = _entered;
             _entered = '';
           });
         } else if (_firstPin == _entered) {
-          await _store.enable(_entered, biometric: true);
-          if (mounted) {
-            Navigator.of(context).pop(true);
+          if (_resetting) {
+            // Unlocking flips the router gate; no navigation needed.
+            await _store.resetPin(_entered);
+          } else {
+            await _store.enable(_entered, biometric: true);
+            if (mounted) {
+              Navigator.of(context).pop(true);
+            }
           }
         } else {
           setState(() {
@@ -95,121 +184,164 @@ final class _LockScreenState extends State<LockScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    final title = switch ((widget.mode, _firstPin)) {
-      (LockScreenMode.unlock, _) => l10n.appLockEnterPin,
-      (LockScreenMode.setup, null) => l10n.appLockSetPin,
-      (LockScreenMode.setup, _) => l10n.appLockConfirmPin,
+    final title = switch ((_settingPin, _firstPin)) {
+      (false, _) => l10n.appLockEnterPin,
+      (true, null) => _resetting ? l10n.appLockNewPin : l10n.appLockSetPin,
+      (true, _) => l10n.appLockConfirmPin,
     };
+    final cooldown = _cooldownLeft;
+    final message = cooldown != null
+        ? l10n.appLockThrottled(_formatCooldown(context, cooldown))
+        : _error;
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            QalbMark(size: 64, color: q.primary, accent: q.primary),
-            const SizedBox(height: QSpace.s6),
-            Text(title, style: QType.title.copyWith(color: q.ink)),
-            const SizedBox(height: QSpace.s4),
-            Semantics(
-              liveRegion: true,
-              label: l10n.appLockPinProgress(_entered.length),
-              child: ExcludeSemantics(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        // Spacers spread the gate on tall screens; short ones scroll.
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
                   children: [
-                    for (var i = 0; i < 4; i++)
-                      Container(
-                        width: 16,
-                        height: 16,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: QSpace.s2,
+                    const Spacer(),
+                    QalbMark(size: 64, color: q.primary, accent: q.primary),
+                    const SizedBox(height: QSpace.s6),
+                    Text(title, style: QType.title.copyWith(color: q.ink)),
+                    const SizedBox(height: QSpace.s4),
+                    Semantics(
+                      liveRegion: true,
+                      label: l10n.appLockPinProgress(_entered.length),
+                      child: ExcludeSemantics(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (var i = 0; i < 4; i++)
+                              Container(
+                                width: 16,
+                                height: 16,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: QSpace.s2,
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: i < _entered.length
+                                      ? q.primary
+                                      : q.surface2,
+                                  border: Border.all(color: q.line),
+                                ),
+                              ),
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: i < _entered.length ? q.primary : q.surface2,
-                          border: Border.all(color: q.line),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-              child: _error == null
-                  ? null
-                  : Padding(
-                      padding: const EdgeInsets.only(top: QSpace.s2),
-                      child: Text(
-                        _error!,
-                        style: QType.caption.copyWith(color: q.urgent),
                       ),
                     ),
-            ),
-            const Spacer(),
-            for (final row in const [
-              ['1', '2', '3'],
-              ['4', '5', '6'],
-              ['7', '8', '9'],
-              ['', '0', '⌫'],
-            ])
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (final key in row)
-                    Padding(
-                      padding: const EdgeInsets.all(QSpace.s2),
-                      child: key.isEmpty
-                          ? const SizedBox(width: 72, height: 72)
-                          : Semantics(
-                              button: true,
-                              label: key == '⌫' ? l10n.appLockDelete : key,
-                              excludeSemantics: true,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(
-                                  QRadius.full,
-                                ),
-                                onTap: () => key == '⌫'
-                                    ? _onBackspace()
-                                    : unawaited(_onDigit(key)),
-                                child: Container(
-                                  width: 72,
-                                  height: 72,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: q.surface,
-                                    border: Border.all(color: q.line),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      key,
-                                      style: QType.num_(
-                                        QType.title,
-                                      ).copyWith(color: q.ink),
-                                    ),
+                    SizedBox(
+                      height: 40,
+                      child: message == null
+                          ? null
+                          : Padding(
+                              padding: const EdgeInsets.fromLTRB(QSpace.s5, QSpace.s2, QSpace.s5, 0),
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  message,
+                                  key: const ValueKey('lock-message'),
+                                  textAlign: TextAlign.center,
+                                  style: QType.caption.copyWith(
+                                    color: q.urgent,
                                   ),
                                 ),
                               ),
                             ),
                     ),
-                ],
+                    const Spacer(),
+                    for (final row in const [
+                      ['1', '2', '3'],
+                      ['4', '5', '6'],
+                      ['7', '8', '9'],
+                      ['', '0', '⌫'],
+                    ])
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (final key in row)
+                            Padding(
+                              padding: const EdgeInsets.all(QSpace.s2),
+                              child: key.isEmpty
+                                  ? const SizedBox(width: 72, height: 72)
+                                  : Semantics(
+                                      button: true,
+                                      enabled: cooldown == null,
+                                      label: key == '⌫'
+                                          ? l10n.appLockDelete
+                                          : key,
+                                      excludeSemantics: true,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(
+                                          QRadius.full,
+                                        ),
+                                        onTap: cooldown != null
+                                            ? null
+                                            : () => key == '⌫'
+                                                  ? _onBackspace()
+                                                  : unawaited(_onDigit(key)),
+                                        child: Container(
+                                          width: 72,
+                                          height: 72,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: q.surface,
+                                            border: Border.all(color: q.line),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              key,
+                                              style: QType.num_(
+                                                QType.title,
+                                              ).copyWith(color: q.ink),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                        ],
+                      ),
+                    const SizedBox(height: QSpace.s4),
+                    if (!_settingPin)
+                      // One row keeps the gate within short screens.
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: QSpace.s2,
+                        children: [
+                          SignalBuilder(
+                            builder: (context) => _store.biometricEnabled.value
+                                ? QButton(
+                                    label: l10n.appLockUseBiometric,
+                                    kind: QButtonKind.ghost,
+                                    small: true,
+                                    icon: Icons.fingerprint,
+                                    onPressed: () => unawaited(
+                                      _store.unlockWithBiometric(
+                                        l10n.appLockEnterPin,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                          QButton(
+                            label: l10n.appLockForgotPin,
+                            kind: QButtonKind.ghost,
+                            small: true,
+                            onPressed: () => unawaited(_forgotPin()),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: QSpace.s6),
+                  ],
+                ),
               ),
-            const SizedBox(height: QSpace.s4),
-            if (widget.mode == LockScreenMode.unlock)
-              SignalBuilder(
-                builder: (context) => _store.biometricEnabled.value
-                    ? QButton(
-                        label: l10n.appLockUseBiometric,
-                        kind: QButtonKind.ghost,
-                        small: true,
-                        icon: Icons.fingerprint,
-                        onPressed: () => unawaited(
-                          _store.unlockWithBiometric(l10n.appLockEnterPin),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            const SizedBox(height: QSpace.s6),
-          ],
+            ),
+          ),
         ),
       ),
     );

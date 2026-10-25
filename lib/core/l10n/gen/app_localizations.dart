@@ -230,6 +230,36 @@ abstract class AppLocalizations {
   /// **'Advanced — for extreme latitudes'**
   String get settingHighLatSub;
 
+  /// No description provided for @settingHijriOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri date adjustment'**
+  String get settingHijriOffset;
+
+  /// No description provided for @settingHijriOffsetSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Match your local moon-sighting'**
+  String get settingHijriOffsetSub;
+
+  /// No description provided for @hijriOffsetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{sign}1 day} other{{sign}{count} days}}'**
+  String hijriOffsetValue(int count, String sign);
+
+  /// No description provided for @settingSahriSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri safety margin'**
+  String get settingSahriSafety;
+
+  /// No description provided for @settingSahriSafetySub.
+  ///
+  /// In en, this message translates to:
+  /// **'End sahri this many minutes before Fajr'**
+  String get settingSahriSafetySub;
+
   /// No description provided for @settingTheme.
   ///
   /// In en, this message translates to:
@@ -271,6 +301,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Run setup again'**
   String get settingRunSetup;
+
+  /// No description provided for @settingShowAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Show achievements'**
+  String get settingShowAchievements;
+
+  /// No description provided for @settingShowAchievementsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges and streak milestones in Muhasaba'**
+  String get settingShowAchievementsSub;
 
   /// No description provided for @settingCredits.
   ///
@@ -467,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPrimingBody.
   ///
   /// In en, this message translates to:
-  /// **'Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.'**
+  /// **'Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.'**
   String get locationPrimingBody;
 
   /// No description provided for @locationDeniedFallback.
@@ -967,6 +1009,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A quiet minute for today\'s muhasaba?'**
   String get notifMuhasabaBody;
+
+  /// No description provided for @notifKeepAliveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep reminders running'**
+  String get notifKeepAliveTitle;
+
+  /// No description provided for @notifKeepAliveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Productive Muslim when you have a moment, so your prayer reminders continue.'**
+  String get notifKeepAliveBody;
+
+  /// No description provided for @notifScheduledUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders scheduled until {when}'**
+  String notifScheduledUntil(String when);
+
+  /// No description provided for @notifScheduledNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders are scheduled right now.'**
+  String get notifScheduledNone;
 
   /// No description provided for @notifMarkPrayed.
   ///
@@ -1490,6 +1556,18 @@ abstract class AppLocalizations {
   /// **'This prayer\'s time hasn\'t started yet'**
   String get salahLockedToast;
 
+  /// No description provided for @a11yMarkPrayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {prayer} as prayed'**
+  String a11yMarkPrayed(String prayer);
+
+  /// No description provided for @a11yPrayerLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}: its time hasn\'t started yet'**
+  String a11yPrayerLocked(String prayer);
+
   /// No description provided for @muhasabaDoneCount.
   ///
   /// In en, this message translates to:
@@ -1823,7 +1901,7 @@ abstract class AppLocalizations {
   /// No description provided for @duaCategoryName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} other{{id}}}'**
+  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} knowledge{Knowledge & guidance} family{Family & marriage} other{{id}}}'**
   String duaCategoryName(String id);
 
   /// No description provided for @duaCount.
@@ -1871,7 +1949,7 @@ abstract class AppLocalizations {
   /// No description provided for @ruqyahCategoryName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr & jinn} anxiety_grief{Anxiety & grief} distress{Distress & hardship} fever_pain{Fever, pain & illness} sleep{Sleep & nightmares} morning_evening{Morning & evening} waswas{Whispers & doubts} enemies{Enemies & oppressors} travel{Travel & home} children{Protecting children} provision{Provision & debt} forgiveness{Repentance & forgiveness} guidance{Steadfastness & guidance} knowledge{Beneficial knowledge} parents{Mercy for parents} marriage{Marriage & spouse} fitan{Trials & the Dajjal} food_drink{Eating & drinking} mosque{Entering the mosque} rain{Rain & weather} night_worship{Night prayer} other{{id}}}'**
+  /// **'{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr, jinn & whispers} anxiety_grief{Anxiety, grief & distress} sleep{Sleep & nightmares} morning_evening{Morning & evening} enemies{Enemies & oppressors} children{Protecting children} fitan{Trials & the Dajjal} other{{id}}}'**
   String ruqyahCategoryName(String id);
 
   /// No description provided for @ruqyahCount.
@@ -2221,6 +2299,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete last digit'**
   String get appLockDelete;
+
+  /// No description provided for @appLockThrottled.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in {time}.'**
+  String appLockThrottled(String time);
+
+  /// No description provided for @appLockForgotPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN?'**
+  String get appLockForgotPin;
+
+  /// No description provided for @appLockForgotReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to reset your app PIN'**
+  String get appLockForgotReason;
+
+  /// No description provided for @appLockNoDeviceLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reset the PIN here'**
+  String get appLockNoDeviceLockTitle;
+
+  /// No description provided for @appLockNoDeviceLockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.'**
+  String get appLockNoDeviceLockBody;
+
+  /// No description provided for @appLockNewPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new 4-digit PIN'**
+  String get appLockNewPin;
 
   /// No description provided for @appLockPinProgress.
   ///
@@ -2773,6 +2887,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hadith'**
   String get hadithTitle;
+
+  /// No description provided for @hadithNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This hadith isn\'t available.'**
+  String get hadithNotFound;
 
   /// No description provided for @hadithSubtitle.
   ///

@@ -27,17 +27,17 @@ Canonical source: **`productive_muslim/tokens.css`** — every `--*` variable ma
 | `surface-2` | `#EFEBE1` | `#1D2A26` | skeletons, seg-control track, heatmap level 0 |
 | `ink` | `#1F2A26` | `#E4E9E4` | primary text |
 | `ink-2` | `#5A6661` | `#9BABA3` | secondary text |
-| `ink-3` | `#8B958F` | `#6C7B74` | hints, disabled |
+| `ink-3` | `#656C68` | `#80928A` | hints, disabled |
 | `line` | `#E4DFD3` | `#243029` | hairlines, card borders |
 | `primary` | `#15564D` | `#79C7B6` | brand teal ("qalb teal") |
 | `on-primary` | `#F2F7F5` | `#07231D` | text on primary |
 | `primary-soft` | `#DCE9E4` | `#1C332D` | tonal containers, active row highlight |
 | `on-primary-soft` | `#123F39` | `#A7DACD` | text on primary-soft |
 | `accent` | `#C08A2E` | `#E2B264` | warm honey — celebrations ONLY (streaks, iftar, qibla lock) |
-| `accent-strong` | `#8F5E12` | `#E2B264` | AA-safe accent text on light |
+| `accent-strong` | `#8E5E12` | `#E2B264` | AA-safe accent text on light |
 | `accent-soft` | `#F4E6C8` | `#322817` | accent containers |
 | `ok` / `ok-soft` | `#246B45` / `#DCEBDF` | `#84C9A0` / `#16271E` | completed/prayed |
-| `warn` / `warn-soft` | `#8F5E12` / `#F4E6C8` | `#E2B264` / `#322817` | countdown "soon" (jamaat ≤10 min) |
+| `warn` / `warn-soft` | `#8E5E12` / `#F4E6C8` | `#E2B264` / `#322817` | countdown "soon" (jamaat ≤10 min) |
 | `urgent` / `urgent-soft` | `#A93B29` / `#F6DDD6` | `#E78D77` / `#36201B` | countdown "urgent" (makruh / last 20 min) — **never used for missed deeds** |
 | `scrim` | `rgba(20,28,26,.45)` | `rgba(4,8,7,.6)` | sheet/dialog scrim |
 

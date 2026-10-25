@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
+
+import '../../../core/storage/bundled_db_file.dart';
 
 /// Raw-SQL drift handle over the bundled, read-only hadith database
 /// (`assets/data/hadith.db`, built by tool/hadith_db_build.dart).
@@ -32,19 +34,22 @@ final class HadithDatabase extends GeneratedDatabase {
   @override
   int get schemaVersion => bundledVersion;
 
-  /// Copies the bundled asset into the documents directory on first run (or on
-  /// a version bump — the file is read-only, so it's simply overwritten) and
-  /// opens it.
+  /// Copies the bundled asset into Application Support/bundled (excluded
+  /// from device backups — it is re-creatable) on first run or a version
+  /// bump, and opens it.
   static Future<HadithDatabase> open() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}${Platform.pathSeparator}$_fileName');
-    await _ensureCopied(file);
+    final file = await bundledDbFile(_fileName, subdir: 'bundled');
+    await ensureCopied(file, () => rootBundle.load(_assetPath));
     return HadithDatabase(NativeDatabase(file));
   }
 
   /// Skips the copy when [file] already matches [bundledVersion]; otherwise
-  /// re-copies the asset from the bundle.
-  static Future<void> _ensureCopied(File file) async {
+  /// atomically replaces it with the asset from [load].
+  @visibleForTesting
+  static Future<void> ensureCopied(
+    File file,
+    Future<ByteData> Function() load,
+  ) async {
     if (file.existsSync()) {
       final existing = sqlite.sqlite3.open(file.path);
       try {
@@ -55,10 +60,10 @@ final class HadithDatabase extends GeneratedDatabase {
         existing.close();
       }
     }
-    final bytes = await rootBundle.load(_assetPath);
-    await file.writeAsBytes(
+    final bytes = await load();
+    await writeDbAtomically(
+      file,
       bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-      flush: true,
     );
   }
 

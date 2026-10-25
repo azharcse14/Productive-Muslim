@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals/signals.dart';
 
+import '../../config/app_config.dart';
 import '../../features/achievements/presentation/state/achievement_store.dart';
 import '../../features/daily_content/presentation/state/daily_content_store.dart';
 import '../../features/dua_tasbih/data/dua_asset_data_source.dart';
@@ -189,6 +191,8 @@ Future<void> setupLocator() async {
         getPrayerDay: locator(),
         scheduler: locator(),
         clock: locator(),
+        window: AppConfig.notificationSchedulingWindow,
+        maxItems: notificationCapFor(defaultTargetPlatform),
       ),
     )
     ..registerLazySingleton(
@@ -249,7 +253,10 @@ Future<void> setupLocator() async {
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(
-    () => FastingStore(SharedPreferencesAsync()),
+    () => FastingStore(
+      SharedPreferencesAsync(),
+      hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
+    ),
   );
 
   // ---- achievements ----
@@ -294,6 +301,7 @@ Future<void> setupLocator() async {
   await locator<MosqueStore>().load();
   await locator<MuhasabaStore>().load();
   await locator<AppLockStore>().load();
+  locator<AppLockStore>().watchLifecycle();
   await locator<DuaFavoritesStore>().load();
   await locator<FastingStore>().load();
   await locator<TasbihStore>().load();
@@ -306,6 +314,15 @@ Future<void> setupLocator() async {
 /// Keeps the home-screen widget in sync. Runs once now (app open) and again
 /// whenever the location, prayer parameters, or locale change. Best-effort:
 /// [PrayerWidgetService.update] swallows its own errors.
+/// Pending-notification cap per platform: iOS holds at most 64 per app;
+/// Android has no practical limit at a 7-day window (~100 items).
+int? notificationCapFor(TargetPlatform platform) => switch (platform) {
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS =>
+        AppConfig.iosMaxPendingNotifications,
+      _ => null,
+    };
+
 void _startWidgetUpdates() {
   final settings = locator<SettingsStore>();
   final widget = locator<PrayerWidgetService>();

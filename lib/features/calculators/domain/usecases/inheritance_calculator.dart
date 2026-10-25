@@ -195,7 +195,6 @@ abstract final class InheritanceCalculator {
 
     final descendant = sons > 0 || daughters > 0;
     final siblingCount = brothers + sisters;
-    final hasSiblings = siblingCount > 0;
 
     // Father blocks ALL full siblings; siblings also act only when no son.
     final siblingsActive = !hasFather && sons == 0 && (brothers > 0 || sisters > 0);
@@ -215,15 +214,17 @@ abstract final class InheritanceCalculator {
       fard.add(_Allocation('wife', wives, descendant ? '1/8' : '1/4', f));
     }
 
-    // 2. 'Umariyyatayn detection: ONLY heirs are a spouse + father + mother,
-    //    no descendant, no siblings. Mother takes 1/3 of the residue after
-    //    the spouse; father takes the rest.
+    // 2. 'Umariyyatayn detection: spouse + father + mother, no descendant,
+    //    and fewer than two siblings. A single sibling is blocked by the
+    //    father and does not reduce the mother, so the case still applies;
+    //    2+ siblings reduce the mother to 1/6 (normal path). Mother takes
+    //    1/3 of the residue after the spouse; father takes the rest.
     final spousePresent = hasHusband || hasWife;
     final isUmariyyatayn = spousePresent &&
         hasFather &&
         hasMother &&
         !descendant &&
-        !hasSiblings;
+        siblingCount < 2;
 
     var note = '';
 
@@ -291,7 +292,9 @@ abstract final class InheritanceCalculator {
     // 5. Full siblings — only when no son and no father.
     if (siblingsActive) {
       if (daughters > 0) {
-        // 'Asaba ma'a al-ghair': sisters (with brothers) take the residue.
+        // Siblings take the residue after the daughters' fard: with brothers,
+        // sisters are 'asaba bil-ghayr (2:1 with the brothers); sisters alone
+        // with daughters are 'asaba ma'a al-ghayr.
         asaba = _SiblingsAsaba(brothers, sisters);
       } else {
         // No descendant, no father, no son.

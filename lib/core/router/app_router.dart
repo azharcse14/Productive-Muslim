@@ -12,6 +12,7 @@ import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/fasting/presentation/screens/fasting_screen.dart';
+import '../../features/hadith/presentation/screens/hadith_detail_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
@@ -62,9 +63,23 @@ GoRouter buildRouter() {
       }
       final locked = locator<AppLockStore>().locked.value;
       if (locked) {
-        return path == Routes.lock.path ? null : Routes.lock.path;
+        // Remember where the user was so a background re-lock returns
+        // them there after unlocking.
+        return path == Routes.lock.path
+            ? null
+            : Uri(
+                path: Routes.lock.path,
+                queryParameters: {_lockFromParam: state.uri.toString()},
+              ).toString();
       }
-      if (path == Routes.lock.path || path == Routes.onboarding.path) {
+      if (path == Routes.lock.path) {
+        final from = state.uri.queryParameters[_lockFromParam];
+        // Only in-app paths; never an absolute URL.
+        return from != null && from.startsWith('/') && !from.startsWith('//')
+            ? from
+            : Routes.home.path;
+      }
+      if (path == Routes.onboarding.path) {
         return Routes.home.path; // gates passed — nothing to show here
       }
       return null;
@@ -213,6 +228,14 @@ GoRouter buildRouter() {
         name: Routes.hadith.name,
         path: Routes.hadith.path,
         builder: (context, state) => const HadithScreen(),
+        routes: [
+          GoRoute(
+            name: Routes.hadithItem.name,
+            path: Routes.hadithItem.path,
+            builder: (context, state) =>
+                HadithDetailScreen(id: state.pathParameters['id'] ?? ''),
+          ),
+        ],
       ),
       GoRoute(
         name: Routes.ruqyah.name,
@@ -272,6 +295,9 @@ GoRouter buildRouter() {
     ],
   );
 }
+
+/// Query parameter carrying the pre-lock location through the PIN gate.
+const _lockFromParam = 'from';
 
 /// Re-runs the router redirect whenever a gate signal flips
 /// (lock/unlock, setup completion).

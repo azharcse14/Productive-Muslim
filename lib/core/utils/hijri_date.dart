@@ -2,8 +2,9 @@
 /// widely used Kuwaiti algorithm (guide §3.1: no package for date math).
 ///
 /// Tabular calendars are arithmetic approximations; actual moon-sighted
-/// dates (e.g. Umm al-Qura) can differ by ±1 day. Good enough for the
-/// header/calendar; Ramadan detection allows for this in callers.
+/// dates (e.g. Umm al-Qura, or regional sighting such as Bangladesh) can
+/// differ by a day or two; the user corrects this with a −2..+2 offset that
+/// callers pass to [fromGregorian]/[toGregorian].
 final class HijriDate {
   const HijriDate(this.year, this.month, this.day)
       : assert(month >= 1 && month <= 12, 'month out of range'),
@@ -38,10 +39,19 @@ final class HijriDate {
     return month.isOdd ? 30 : 29;
   }
 
-  static HijriDate fromGregorian(DateTime date) =>
-      _fromJdn(_gregorianToJdn(date.year, date.month, date.day));
+  /// The single Gregorian → Hijri conversion every consumer routes through.
+  ///
+  /// [offsetDays] is the user's moon-sighting adjustment
+  /// (`AppSettings.hijriOffsetDays`): the Gregorian date is shifted by it
+  /// before conversion, so −1 means the local Hijri date is one day behind
+  /// the tabular one. Pass it for anything that reflects local observance
+  /// (today's date, Ramadan, Eid, recommended fasts, calendar events).
+  static HijriDate fromGregorian(DateTime date, {int offsetDays = 0}) =>
+      _fromJdn(_gregorianToJdn(date.year, date.month, date.day) + offsetDays);
 
-  DateTime toGregorian() => _jdnToGregorian(_toJdn());
+  /// Inverse of [fromGregorian] for the same [offsetDays].
+  DateTime toGregorian({int offsetDays = 0}) =>
+      _jdnToGregorian(_toJdn() - offsetDays);
 
   int _toJdn() {
     final priorCycles = (year - 1) ~/ 30;

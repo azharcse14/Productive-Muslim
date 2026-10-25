@@ -8,6 +8,8 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_prof
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/widgets/mosque_schedule_section.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/widgets/prayer_jamaat_card.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 import '../../../helpers/mosque_fakes.dart';
@@ -73,6 +75,8 @@ void main() {
       expect(find.text('None'), findsNWidgets(5));
       expect(find.text('Offset'), findsNWidgets(5));
       expect(find.text('Fixed'), findsNWidgets(5));
+      expect(find.byType(MosqueScheduleSection), findsOneWidget);
+      expect(find.byType(PrayerJamaatCard), findsNWidgets(5));
     });
 
     testWidgets('choosing Offset persists a default 15-minute entry',

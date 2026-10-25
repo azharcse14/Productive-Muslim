@@ -4,17 +4,26 @@ import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../entities/notification_item.dart';
 
-/// Builds the ~48h notification plan (guide §5) as pure logic.
+/// Builds the notification plan (guide §5) as pure logic.
 ///
 /// [days] are consecutive [PrayerDay]s starting at [from]'s day — pass
-/// three so a late-evening [from] still fills the whole window.
-/// Only items strictly after [from] and within [window] are planned.
+/// enough to cover [window] plus one so a late-evening [from] still fills
+/// the whole window. Only items strictly after [from] and within [window]
+/// are planned.
+///
+/// [maxItems] caps the plan (iOS allows only 64 pending notifications);
+/// the earliest items are kept. With [keepAlive], one extra low-priority
+/// [NotificationKind.keepAlive] item fires a minute after the last planned
+/// item, asking the user to open the app so the schedule is refilled. It
+/// counts toward [maxItems].
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
   required NotificationMatrix matrix,
   required JamaatConfig jamaat,
   Duration window = const Duration(hours: 48),
+  int? maxItems,
+  bool keepAlive = false,
 }) {
   final until = from.add(window);
   final items = <NotificationItem>[];
@@ -97,5 +106,17 @@ List<NotificationItem> buildNotificationPlan({
   }
 
   items.sort((a, b) => a.at.compareTo(b.at));
-  return items;
+  final cap = maxItems == null ? null : maxItems - (keepAlive ? 1 : 0);
+  final plan = cap != null && items.length > cap
+      ? items.sublist(0, cap < 0 ? 0 : cap)
+      : items;
+  if (keepAlive && plan.isNotEmpty) {
+    plan.add(
+      NotificationItem(
+        kind: NotificationKind.keepAlive,
+        at: plan.last.at.add(const Duration(minutes: 1)),
+      ),
+    );
+  }
+  return plan;
 }

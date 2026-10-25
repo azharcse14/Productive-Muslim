@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,7 @@ final class AppLockDataSource {
   const AppLockDataSource(this._prefs);
 
   static const _key = 'app_lock_v1';
+  static const _throttleKey = 'app_lock_throttle_v1';
 
   final SharedPreferencesAsync _prefs;
 
@@ -27,8 +29,15 @@ final class AppLockDataSource {
     );
   }
 
+  /// 16 random bytes from the OS CSPRNG. Older installs used a timestamp
+  /// salt; [verify] reads whatever salt is stored, so those still verify.
+  static String _newSalt() {
+    final random = Random.secure();
+    return base64Url.encode([for (var i = 0; i < 16; i++) random.nextInt(256)]);
+  }
+
   Future<void> enable(String pin, {required bool biometric}) async {
-    final salt = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+    final salt = _newSalt();
     await _prefs.setString(
       _key,
       jsonEncode({
@@ -50,4 +59,37 @@ final class AppLockDataSource {
   }
 
   Future<void> disable() => _prefs.remove(_key);
+
+  /// Wrong-PIN throttle state, persisted so an app restart can't reset it.
+  Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() async {
+    final raw = await _prefs.getString(_throttleKey);
+    if (raw == null) {
+      return (failedAttempts: 0, lockedUntil: null);
+    }
+    final map = (jsonDecode(raw) as Map).cast<String, Object?>();
+    final untilMs = (map['untilMs'] as num?)?.toInt();
+    return (
+      failedAttempts: (map['failed'] as num?)?.toInt() ?? 0,
+      lockedUntil: untilMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(untilMs),
+    );
+  }
+
+  Future<void> writeThrottle({
+    required int failedAttempts,
+    required DateTime? lockedUntil,
+  }) async {
+    if (failedAttempts == 0 && lockedUntil == null) {
+      await _prefs.remove(_throttleKey);
+      return;
+    }
+    await _prefs.setString(
+      _throttleKey,
+      jsonEncode({
+        'failed': failedAttempts,
+        'untilMs': lockedUntil?.millisecondsSinceEpoch,
+      }),
+    );
+  }
 }

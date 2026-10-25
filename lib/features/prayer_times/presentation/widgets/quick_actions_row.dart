@@ -20,7 +20,7 @@ final class QuickAction {
 
 /// Home-screen quick-actions row (design §4.3 hub): a row of round, soft-tinted
 /// icon buttons sitting just under the header for one-tap access to the key
-/// features (Quran · Qibla · Tasbih · Dua). Purely presentational — labels and
+/// features. Purely presentational — labels and
 /// taps come in via [actions].
 final class QuickActionsRow extends StatelessWidget {
   const QuickActionsRow({required this.actions, super.key});

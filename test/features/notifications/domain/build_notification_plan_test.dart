@@ -25,6 +25,8 @@ List<NotificationItem> _plan({
   JamaatConfig jamaat = JamaatConfig.none,
   DateTime? from,
   Duration window = const Duration(hours: 48),
+  int? maxItems,
+  bool keepAlive = false,
 }) =>
     buildNotificationPlan(
       from: from ?? _from,
@@ -32,6 +34,8 @@ List<NotificationItem> _plan({
       matrix: matrix,
       jamaat: jamaat,
       window: window,
+      maxItems: maxItems,
+      keepAlive: keepAlive,
     );
 
 void main() {
@@ -94,6 +98,33 @@ void main() {
           .where((i) => i.kind == NotificationKind.sahriWarning)
           .toList();
       expect(sahri.first.at, DateTime(2026, 6, 12, 3, 15)); // 30 min before
+    });
+
+    test('sahri warning counts back from the safety-adjusted sahri end', () {
+      PrayerDay withMargin(int d) {
+        final b = _day(d);
+        return PrayerDay(
+          ishaYesterday: b.ishaYesterday,
+          fajr: b.fajr,
+          sunrise: b.sunrise,
+          dhuhr: b.dhuhr,
+          asr: b.asr,
+          maghrib: b.maghrib,
+          isha: b.isha,
+          fajrTomorrow: b.fajrTomorrow,
+          sahriSafety: const Duration(minutes: 5),
+        );
+      }
+
+      final plan = buildNotificationPlan(
+        from: DateTime(2026, 6, 12, 2),
+        days: [withMargin(12), withMargin(13)],
+        matrix: const NotificationMatrix(),
+        jamaat: JamaatConfig.none,
+      );
+      final sahri =
+          plan.where((i) => i.kind == NotificationKind.sahriWarning).first;
+      expect(sahri.at, DateTime(2026, 6, 12, 3, 10)); // 3:45 − 5 − 30
     });
 
     test('sahri toggle off removes warnings', () {
@@ -239,6 +270,46 @@ void main() {
       expect(plan.every((i) => !i.at.isAfter(_from.add(const Duration(hours: 12)))),
           isTrue);
       expect(plan.any((i) => i.at.day == 13), isFalse);
+    });
+  });
+
+  group('buildNotificationPlan — cap & keep-alive', () {
+    test('maxItems keeps the earliest items chronologically', () {
+      final full = _plan();
+      final capped = _plan(maxItems: 5);
+      expect(capped, full.take(5).toList());
+    });
+
+    test('maxItems larger than the plan changes nothing', () {
+      expect(_plan(maxItems: 1000), _plan());
+    });
+
+    test('keep-alive is the final item, a minute after the last reminder',
+        () {
+      final full = _plan();
+      final plan = _plan(keepAlive: true);
+      expect(plan.length, full.length + 1);
+      expect(plan.last.kind, NotificationKind.keepAlive);
+      expect(plan.last.at, full.last.at.add(const Duration(minutes: 1)));
+      expect(plan.last.prayer, isNull);
+    });
+
+    test('keep-alive counts toward the cap and follows the trimmed tail', () {
+      final full = _plan();
+      final plan = _plan(maxItems: 5, keepAlive: true);
+      expect(plan.length, 5);
+      expect(plan.take(4).toList(), full.take(4).toList());
+      expect(plan.last.kind, NotificationKind.keepAlive);
+      expect(plan.last.at, full[3].at.add(const Duration(minutes: 1)));
+    });
+
+    test('no keep-alive when nothing is planned', () {
+      final allOff = NotificationMatrix(
+        prayerModes: {for (final p in Prayer.values) p: AzanMode.off},
+        sahriAlert: false,
+        iftarAlert: false,
+      );
+      expect(_plan(matrix: allOff, keepAlive: true), isEmpty);
     });
   });
 }

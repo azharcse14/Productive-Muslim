@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/domain/usecases/regional_defaults.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 
@@ -62,27 +63,20 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  /// Region-suggested calculation method from the selected city's country.
-  CalculationMethodId _suggestedMethod() {
-    final location = _settings.location.value;
-    final country = switch (location?.displayName.split(', ').lastOrNull) {
-      final c? when c.length == 2 => c,
-      _ => '',
-    };
-    return switch (country) {
-      'SA' || 'YE' || 'OM' => CalculationMethodId.ummAlQura,
-      'AE' => CalculationMethodId.dubai,
-      'QA' => CalculationMethodId.qatar,
-      'KW' => CalculationMethodId.kuwait,
-      'EG' || 'SD' || 'LY' => CalculationMethodId.egyptian,
-      'BD' || 'PK' || 'IN' || 'AF' => CalculationMethodId.karachi,
-      'SG' || 'MY' || 'ID' => CalculationMethodId.singapore,
-      'TR' => CalculationMethodId.turkiye,
-      'IR' => CalculationMethodId.tehran,
-      'US' || 'CA' => CalculationMethodId.northAmerica,
-      'GB' => CalculationMethodId.moonsightingCommittee,
-      _ => CalculationMethodId.muslimWorldLeague,
-    };
+  /// Set once the user picks a madhab, so the region default never
+  /// overrides an explicit choice.
+  var _madhabChosen = false;
+
+  /// Leaving the location step: pre-select the region's default madhab,
+  /// unless the user already chose one or changed it from the app default.
+  Future<void> _applyRegionalMadhab() async {
+    if (_madhabChosen ||
+        _settings.prayerParams.value.madhab != const PrayerParams().madhab) {
+      return;
+    }
+    await _settings.setMadhab(
+      defaultMadhabFor(countryCodeOf(_settings.location.value)),
+    );
   }
 
   @override
@@ -239,7 +233,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           builder: (context) => _nextButton(
             onTap: _settings.location.value == null
                 ? () => context.pushNamed(Routes.locationPicker.name)
-                : () => _go(_step + 1),
+                : () {
+                    unawaited(_applyRegionalMadhab());
+                    _go(_step + 1);
+                  },
           ),
         ),
       );
@@ -258,7 +255,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                   trailing: current == madhab
                       ? Icon(Icons.check_circle, color: context.q.primary)
                       : null,
-                  onTap: () => unawaited(_settings.setMadhab(madhab)),
+                  onTap: () {
+                    _madhabChosen = true;
+                    unawaited(_settings.setMadhab(madhab));
+                  },
                 ),
             ],
           );
@@ -271,7 +271,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
         note: context.l10n.onboardingMethodNote,
         child: SignalBuilder(builder: (context) {
           final current = _settings.prayerParams.value.method;
-          final suggested = _suggestedMethod();
+          final suggested = suggestedMethodFor(
+            countryCodeOf(_settings.location.value),
+          );
           final ordered = [
             suggested,
             for (final m in CalculationMethodId.values)

@@ -13,6 +13,7 @@ import WidgetKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    excludeBundledDataFromBackup()
     let launched = super.application(application, didFinishLaunchingWithOptions: launchOptions)
 
     if let controller = window?.rootViewController as? FlutterViewController {
@@ -42,6 +43,20 @@ import WidgetKit
     }
 
     return launched
+  }
+
+  /// Re-creatable bundled databases (hadith.db) live in
+  /// `Application Support/bundled/` (Dart: `bundledDbFile`). Flagging the
+  /// directory keeps it and everything in it out of iCloud/iTunes backups.
+  /// Runs before the engine starts, so the flag exists before Dart copies.
+  private func excludeBundledDataFromBackup() {
+    guard var dir = FileManager.default
+      .urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+      .appendingPathComponent("bundled", isDirectory: true) else { return }
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = true
+    try? dir.setResourceValues(values)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {

@@ -31,6 +31,8 @@ final class SettingsStore {
   late final locale = computed(() => Locale(settings.value.localeCode));
   late final location = computed(() => settings.value.location);
   late final prayerParams = computed(() => settings.value.prayerParams);
+  late final hijriOffsetDays =
+      computed(() => settings.value.hijriOffsetDays);
 
   Future<void> load() async {
     final result = await _getSettings();
@@ -73,6 +75,20 @@ final class SettingsStore {
       _update(settings.value.copyWith(notifications: matrix));
 
   /// Onboarding gate (router redirect reads this).
+  /// Clamped to −2..+2 by [AppSettings].
+  Future<void> setSahriSafety(int minutes) => _update(
+        settings.value.copyWith(
+          prayerParams: settings.value.prayerParams
+              .copyWith(sahriSafetyMinutes: minutes),
+        ),
+      );
+
+  Future<void> setHijriOffset(int days) =>
+      _update(settings.value.copyWith(hijriOffsetDays: days));
+
+  Future<void> setShowAchievements({required bool show}) =>
+      _update(settings.value.copyWith(showAchievements: show));
+
   Future<void> setSetupComplete({required bool complete}) =>
       _update(settings.value.copyWith(setupComplete: complete));
 

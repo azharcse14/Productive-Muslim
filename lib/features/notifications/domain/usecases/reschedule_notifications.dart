@@ -9,23 +9,31 @@ import '../entities/notification_texts.dart';
 import '../repositories/notification_scheduler.dart';
 import 'build_notification_plan.dart';
 
-/// Orchestrates a full reschedule: compute the next three prayer days,
-/// build the ~48h plan, and hand it to the scheduler. Called on app open
-/// and whenever settings/location/jamaat change (guide §5).
+/// Orchestrates a full reschedule: compute the prayer days covering
+/// [window], build the plan (capped at [maxItems], ending with a keep-alive
+/// nudge), and hand it to the scheduler. Called on app open/resume and
+/// whenever settings/location/jamaat change (guide §5).
 final class RescheduleNotifications {
   const RescheduleNotifications({
     required GetPrayerDay getPrayerDay,
     required NotificationScheduler scheduler,
     required ZonedClock clock,
+    Duration window = const Duration(hours: 48),
+    int? maxItems,
   })  : _getPrayerDay = getPrayerDay,
         _scheduler = scheduler,
-        _clock = clock;
+        _clock = clock,
+        _window = window,
+        _maxItems = maxItems;
 
   final GetPrayerDay _getPrayerDay;
   final NotificationScheduler _scheduler;
   final ZonedClock _clock;
+  final Duration _window;
+  final int? _maxItems;
 
-  Future<Result<int>> call({
+  /// Returns the scheduled plan (empty when there is no location).
+  Future<Result<NotificationPlan>> call({
     required AppSettings settings,
     required NotificationTexts texts,
     JamaatConfig jamaat = JamaatConfig.none,
@@ -33,12 +41,14 @@ final class RescheduleNotifications {
     final location = settings.location;
     if (location == null) {
       await _scheduler.cancelAll();
-      return const Result.success(0);
+      return const Result.success([]);
     }
 
     final now = _clock.nowAt(location);
     final days = <PrayerDay>[];
-    for (var offset = 0; offset < 3; offset++) {
+    // Whole days in the window, plus today and one spare for a late start.
+    final dayCount = (_window.inHours / 24).ceil() + 2;
+    for (var offset = 0; offset < dayCount; offset++) {
       final result = _getPrayerDay(
         location: location,
         params: settings.prayerParams,
@@ -57,11 +67,13 @@ final class RescheduleNotifications {
       days: days,
       matrix: settings.notifications,
       jamaat: jamaat,
+      window: _window,
+      maxItems: _maxItems,
+      keepAlive: true,
     );
     final scheduled = await _scheduler.reschedule(plan, texts);
-    return scheduled.map((_) => plan.length);
+    return scheduled.map((_) => plan);
   }
 }
 
-/// Re-exported for callers that only need the plan size for diagnostics.
 typedef NotificationPlan = List<NotificationItem>;

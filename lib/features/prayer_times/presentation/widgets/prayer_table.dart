@@ -216,7 +216,11 @@ final class _PrayerRow extends StatelessWidget {
       onTap: onTap,
       child: Container(
       constraints: BoxConstraints(minHeight: dense ? 40 : 54),
-      padding: EdgeInsetsDirectional.symmetric(horizontal: dense ? 12 : 16),
+      // End inset is reduced by the check's 11dp hit-box overhang.
+      padding: EdgeInsetsDirectional.only(
+        start: dense ? 12 : 16,
+        end: (dense ? 12 : 16) - _HitBox.overhang,
+      ),
       decoration: BoxDecoration(
         color: active ? q.primarySoft : null,
         border: first ? null : Border(top: BorderSide(color: q.line)),
@@ -260,33 +264,35 @@ final class _PrayerRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          // The 48dp hit boxes below carry their own 11dp side inset, so
+          // the visual 26dp circle sits where it did with a 10dp gap.
           if (locked)
             // Waqt hasn't started — no check yet; a tap explains why.
+            // container: its own node, not merged into the row's tap node.
             Semantics(
+              container: true,
               button: onLockedTap != null,
-              child: InkWell(
+              label: context.l10n.a11yPrayerLocked(name),
+              excludeSemantics: true,
+              child: _HitBox(
                 onTap: onLockedTap,
-                customBorder: const CircleBorder(),
-                child: SizedBox(
-                  width: 26,
-                  height: 26,
-                  child: Icon(Icons.schedule, size: 18, color: q.ink3),
-                ),
+                child: Icon(Icons.schedule, size: 18, color: q.ink3),
               ),
             )
           else
             Semantics(
+              container: true,
               button: onToggleDone != null,
               checked: done,
-              child: InkWell(
+              label: context.l10n.a11yMarkPrayed(name),
+              excludeSemantics: true,
+              child: _HitBox(
                 onTap: onToggleDone == null
                     ? null
                     : () {
                         unawaited(HapticFeedback.selectionClick());
                         onToggleDone!();
                       },
-                customBorder: const CircleBorder(),
                 child: AnimatedContainer(
                   duration: QMotion.fast,
                   curve: QMotion.ease,
@@ -448,4 +454,28 @@ class _WaqtIconState extends State<_WaqtIcon>
     }
     return ScaleTransition(scale: _scale, child: icon);
   }
+}
+
+/// A ≥48×48dp tap target around a smaller visual (Material minimum touch
+/// target), so the check doesn't compete with the row's own tap.
+final class _HitBox extends StatelessWidget {
+  const _HitBox({required this.child, this.onTap});
+
+  static const size = 48.0;
+
+  /// How far the box extends past a 26dp visual on each side.
+  static const overhang = (size - 26) / 2;
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: size,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Center(child: child),
+        ),
+      );
 }

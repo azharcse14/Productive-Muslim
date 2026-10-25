@@ -21,6 +21,10 @@ enum NotificationKind {
   /// Daily content reminder ("Hadith/Dua of the day") at a user-chosen time —
   /// max one per day. Deep-links to the chosen content screen.
   dailyReminder,
+
+  /// Low-priority nudge at the end of the planned window: the OS only
+  /// holds a finite schedule, so opening the app refills it.
+  keepAlive,
 }
 
 /// One planned local notification, semantic only — text is resolved

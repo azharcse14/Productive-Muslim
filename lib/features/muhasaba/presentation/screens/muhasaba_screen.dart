@@ -17,6 +17,7 @@ import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
+import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
 import '../state/muhasaba_store.dart';
@@ -305,8 +306,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         else ...[
           _headerCard(context, stats),
           const SizedBox(height: QSpace.s4),
-          const AchievementsSummaryCard(),
-          const SizedBox(height: QSpace.s4),
+          if (locator<SettingsStore>().settings.value.showAchievements) ...[
+            const AchievementsSummaryCard(),
+            const SizedBox(height: QSpace.s4),
+          ],
           QCard(
             child: TrendLine(
               values: [for (final d in stats.days) d.completion],

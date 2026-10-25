@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/arabic.dart';
+import '../helpers/honorific.dart';
+
 /// Integrity checks for the bundled ruqyah collection. Reads the JSON file
 /// directly from disk (flutter test runs with the project root as the
 /// working directory).
@@ -53,41 +56,38 @@ void main() {
           .toList();
     });
 
-    test('has the 25 expected categories', () {
+    test('has exactly the ruqyah categories (everyday duas live in duas.json)',
+        () {
       expect(
         categories.map((Map<String, Object?> c) => c['id']),
-        containsAll(<String>[
+        <String>[
           'protection',
           'three_quls',
           'healing',
           'evil_eye',
           'sihr_jinn',
           'anxiety_grief',
-          'distress',
-          'fever_pain',
           'sleep',
           'morning_evening',
-          'waswas',
           'enemies',
-          'travel',
           'children',
-          'provision',
-          'forgiveness',
-          'guidance',
-          'knowledge',
-          'parents',
-          'marriage',
           'fitan',
-          'food_drink',
-          'mosque',
-          'rain',
-          'night_worship',
-        ]),
+        ],
       );
     });
 
-    test('has at least 60 ruqyah passages in total', () {
-      expect(allItems.length, greaterThanOrEqualTo(60));
+    test('has at least 37 ruqyah passages in total', () {
+      expect(allItems.length, greaterThanOrEqualTo(37));
+    });
+
+    test('no passage appears twice', () {
+      final seen = <String, Object?>{};
+      for (final item in allItems) {
+        final key = bareArabic(item['ar']! as String);
+        expect(seen[key], isNull,
+            reason: '${item['id']} duplicates ${seen[key]}');
+        seen[key] = item['id'];
+      }
     });
 
     test('every category has a non-empty id and an allowed icon', () {
@@ -149,5 +149,22 @@ void main() {
           .toList();
       expect(ids, containsAll(<String>['ikhlas', 'falaq', 'nas']));
     });
+  });
+
+  test('ﷺ in ruqyah.json only follows the Prophet / Messenger / Muhammad', () {
+    final decoded =
+        jsonDecode(File('assets/data/ruqyah.json').readAsStringSync());
+    expect(misplacedSalawat(decoded), isEmpty);
+  });
+
+  test('the honorific check flags other prophets and angels', () {
+    expect(
+      misplacedSalawat(['Jibreel ﷺ recited', 'the Prophet ﷺ said']),
+      hasLength(1),
+    );
+    expect(
+      misplacedSalawat({'bn': 'মুহাম্মাদ (ﷺ)', 'x': 'রাসূলুল্লাহ্‌ (ﷺ)'}),
+      isEmpty,
+    );
   });
 }

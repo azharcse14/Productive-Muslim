@@ -24,6 +24,7 @@ void main() {
           madhab: Madhab.shafi,
           highLatitudeRule: HighLatitudeRule.twilightAngle,
           adjustments: {Prayer.fajr: 2, Prayer.isha: -3},
+          sahriSafetyMinutes: 5,
         ),
         notifications: NotificationMatrix(
           prayerModes: {Prayer.fajr: AzanMode.beep, Prayer.isha: AzanMode.off},
@@ -36,6 +37,8 @@ void main() {
         themeMode: AppThemeMode.dark,
         localeCode: 'bn',
         setupComplete: true,
+        hijriOffsetDays: -1,
+        showAchievements: true,
       );
 
       final restored =
@@ -75,6 +78,36 @@ void main() {
         'location': {'type': 'city', 'lat': 'not-a-number'},
       });
       expect(restored.location, isNull);
+    });
+
+    test('missing hijriOffsetDays → 0; out-of-range values are clamped', () {
+      expect(AppSettingsModel.fromMap(const {}).hijriOffsetDays, 0);
+      expect(
+        AppSettingsModel.fromMap(const {'hijriOffsetDays': 5}).hijriOffsetDays,
+        2,
+      );
+      expect(
+        AppSettingsModel.fromMap(const {'hijriOffsetDays': -9})
+            .hijriOffsetDays,
+        -2,
+      );
+      expect(const AppSettings(hijriOffsetDays: 1).hijriOffsetDays, 1);
+    });
+
+    test('showAchievements defaults to off', () {
+      expect(AppSettingsModel.fromMap(const {}).showAchievements, isFalse);
+    });
+
+    test('missing sahriSafety → 0; out-of-range values are clamped', () {
+      int read(Object? v) => AppSettingsModel.fromMap({
+            'prayerParams': {'sahriSafety': v},
+          }).prayerParams.sahriSafetyMinutes;
+      expect(AppSettingsModel.fromMap(const {}).prayerParams.sahriSafetyMinutes,
+          0);
+      expect(read(null), 0);
+      expect(read(7), 7);
+      expect(read(25), 10);
+      expect(read(-3), 0);
     });
   });
 }

@@ -32,6 +32,7 @@ abstract final class AppSettingsModel {
           'method': s.prayerParams.method.name,
           'madhab': s.prayerParams.madhab.name,
           'highLat': s.prayerParams.highLatitudeRule.name,
+          'sahriSafety': s.prayerParams.sahriSafetyMinutes,
           'adjustments': {
             for (final e in s.prayerParams.adjustments.entries)
               e.key.name: e.value,
@@ -55,6 +56,8 @@ abstract final class AppSettingsModel {
         'themeMode': s.themeMode.name,
         'localeCode': s.localeCode,
         'setupComplete': s.setupComplete,
+        'showAchievements': s.showAchievements,
+        'hijriOffsetDays': s.hijriOffsetDays,
       };
 
   static AppSettings fromMap(Map<String, Object?> map) {
@@ -71,6 +74,10 @@ abstract final class AppSettingsModel {
       localeCode: map['localeCode'] as String? ?? defaults.localeCode,
       setupComplete:
           map['setupComplete'] as bool? ?? defaults.setupComplete,
+      showAchievements:
+          map['showAchievements'] as bool? ?? defaults.showAchievements,
+      hijriOffsetDays:
+          (map['hijriOffsetDays'] as num?)?.toInt() ?? defaults.hijriOffsetDays,
     );
   }
 
@@ -130,6 +137,8 @@ abstract final class AppSettingsModel {
           if (rawAdjustments[prayer.name] is int)
             prayer: rawAdjustments[prayer.name]! as int,
       },
+      sahriSafetyMinutes: (map['sahriSafety'] as num?)?.toInt() ??
+          defaults.sahriSafetyMinutes,
     );
   }
 

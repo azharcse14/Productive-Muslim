@@ -34,6 +34,13 @@ Widget _app() => MaterialApp(
       home: const SettingsScreen(),
     );
 
+/// Tall viewport so the whole (lazy) settings list is laid out at once.
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 3000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   late _InMemoryRepo repo;
 
@@ -51,14 +58,32 @@ void main() {
 
   group('SettingsScreen', () {
     testWidgets('renders all five groups', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app());
-      expect(find.text('PRAYER CALCULATION'), findsOneWidget);
-      expect(find.text('NOTIFICATIONS'), findsOneWidget);
-      expect(find.text('APPEARANCE & LANGUAGE'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('PRIVACY'), 200);
-      expect(find.text('PRIVACY'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('ABOUT'), 200);
-      expect(find.text('ABOUT'), findsOneWidget);
+      for (final group in [
+        'PRAYER CALCULATION',
+        'NOTIFICATIONS',
+        'APPEARANCE & LANGUAGE',
+        'PRIVACY',
+        'ABOUT',
+      ]) {
+        expect(find.text(group), findsOneWidget, reason: group);
+      }
+    });
+
+    testWidgets('show achievements switch persists (default off)',
+        (tester) async {
+      _tall(tester);
+      await tester.pumpWidget(_app());
+      final row = find.text('Show achievements');
+      final toggle = find.descendant(
+        of: find.ancestor(of: row, matching: find.byType(Row)).first,
+        matching: find.byType(Switch),
+      );
+      expect(tester.widget<Switch>(toggle).value, isFalse);
+      await tester.tap(toggle);
+      await tester.pump();
+      expect(repo.stored.showAchievements, isTrue);
     });
 
     testWidgets('location row shows "Not set" before setup', (tester) async {
@@ -95,6 +120,55 @@ void main() {
         200,
       );
       expect(find.textContaining('KFGQPC'), findsOneWidget);
+    });
+
+    testWidgets('Hijri offset stepper adjusts and clamps at +2',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      final stepper = find.byKey(const ValueKey('hijri-offset-stepper'));
+      await tester.scrollUntilVisible(stepper, 100);
+      expect(find.text('Match your local moon-sighting'), findsOneWidget);
+      expect(find.text('0 days'), findsOneWidget);
+      final plus = find.descendant(
+        of: stepper,
+        matching: find.bySemanticsLabel(RegExp('Increase Hijri date')),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(plus);
+        await tester.pump();
+      }
+      expect(repo.stored.hijriOffsetDays, 2);
+      expect(find.text('+2 days'), findsOneWidget);
+      final minus = find.descendant(
+        of: stepper,
+        matching: find.bySemanticsLabel(RegExp('Decrease Hijri date')),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(minus);
+        await tester.pump();
+      }
+      expect(repo.stored.hijriOffsetDays, -1);
+      expect(find.text('−1 day'), findsOneWidget);
+    });
+
+    testWidgets('sahri safety stepper adjusts and clamps at 0',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      final stepper = find.byKey(const ValueKey('sahri-safety-stepper'));
+      await tester.scrollUntilVisible(stepper, 100);
+      expect(find.text('Sahri safety margin'), findsOneWidget);
+      Finder button(String verb) => find.descendant(
+            of: stepper,
+            matching: find.bySemanticsLabel(RegExp('$verb Sahri safety')),
+          );
+      await tester.tap(button('Decrease'));
+      await tester.pump();
+      expect(repo.stored.prayerParams.sahriSafetyMinutes, 0);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(button('Increase'));
+        await tester.pump();
+      }
+      expect(repo.stored.prayerParams.sahriSafetyMinutes, 3);
     });
   });
 }

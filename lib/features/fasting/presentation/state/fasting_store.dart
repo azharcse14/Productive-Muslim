@@ -12,13 +12,22 @@ import '../../domain/usecases/recommended_fasts.dart';
 /// [DuaFavoritesStore]'s string-list persistence). All recommended-fast
 /// queries delegate to the pure [RecommendedFasts] domain.
 final class FastingStore {
-  FastingStore(this._prefs, {DateTime Function()? now})
-      : _now = now ?? DateTime.now;
+  FastingStore(
+    this._prefs, {
+    DateTime Function()? now,
+    int Function()? hijriOffset,
+  })  : _now = now ?? DateTime.now,
+        _hijriOffset = hijriOffset ?? _noOffset;
+
+  static int _noOffset() => 0;
 
   static const _key = 'fasting_log_v1';
 
   final SharedPreferencesAsync _prefs;
   final DateTime Function() _now;
+
+  /// User's moon-sighting adjustment (AppSettings.hijriOffsetDays).
+  final int Function() _hijriOffset;
 
   /// Logged fast days, each encoded as `year * 10000 + month * 100 + day`.
   late final logged = signal(const <int>{});
@@ -62,16 +71,21 @@ final class FastingStore {
 
   /// The recommended fasts (if any) for [date].
   List<RecommendedFast> recommendedOn(DateTime date) =>
-      RecommendedFasts.on(date);
+      RecommendedFasts.on(date, offsetDays: _hijriOffset());
 
   /// The next [count] recommended fasting days from today onward.
   List<UpcomingFast> upcoming({int count = 7}) =>
-      RecommendedFasts.upcoming(today, count: count);
+      RecommendedFasts.upcoming(
+        today,
+        count: count,
+        offsetDays: _hijriOffset(),
+      );
 
   /// Simple, no-shame stats over the log.
   FastingStats stats() {
     final t = today;
-    final h = HijriDate.fromGregorian(t);
+    final offset = _hijriOffset();
+    final h = HijriDate.fromGregorian(t, offsetDays: offset);
     var thisMonth = 0;
     var thisHijri = 0;
     for (final stamp in logged.value) {
@@ -81,7 +95,10 @@ final class FastingStore {
       if (year == t.year && month == t.month) {
         thisMonth++;
       }
-      final hijri = HijriDate.fromGregorian(DateTime(year, month, day));
+      final hijri = HijriDate.fromGregorian(
+        DateTime(year, month, day),
+        offsetDays: offset,
+      );
       if (hijri.year == h.year && hijri.month == h.month) {
         thisHijri++;
       }
