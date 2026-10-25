@@ -7,14 +7,23 @@ import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
+import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
 import 'package:productive_muslim/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:productive_muslim/features/notifications/presentation/state/notification_controller.dart';
+import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
+import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+
+import '../../../helpers/mosque_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
@@ -70,14 +79,30 @@ final class _FakeScheduler implements NotificationScheduler {
 }
 
 late _InMemoryRepo _repo;
+late NotificationController _controller;
 
-Future<void> _register(_FakeScheduler scheduler) async {
-  _repo = _InMemoryRepo();
+Future<void> _register(
+  _FakeScheduler scheduler, {
+  AppSettings settings = const AppSettings(),
+}) async {
+  _repo = _InMemoryRepo()..stored = settings;
   final store = SettingsStore(GetSettings(_repo), SaveSettings(_repo));
   await store.load();
+  final (mosque, _) = await makeMosqueStore();
+  _controller = NotificationController(
+    reschedule: RescheduleNotifications(
+      getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      scheduler: scheduler,
+      clock: TimezoneClock(),
+    ),
+    scheduler: scheduler,
+    settings: store,
+    mosque: mosque,
+  );
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
-    ..registerSingleton<NotificationScheduler>(scheduler);
+    ..registerSingleton<NotificationScheduler>(scheduler)
+    ..registerSingleton<NotificationController>(_controller);
 }
 
 Widget _app() => MaterialApp(
@@ -88,7 +113,11 @@ Widget _app() => MaterialApp(
     );
 
 void main() {
-  tearDown(() => GetIt.I.reset());
+  setUpAll(TimezoneClock.initialize);
+  tearDown(() async {
+    _controller.dispose();
+    await GetIt.I.reset();
+  });
 
   group('NotificationSettingsScreen', () {
     testWidgets('renders the per-prayer matrix for all 5 prayers',
@@ -161,6 +190,44 @@ void main() {
       await tester.tap(find.text('Allow exact alarms'));
       await tester.pump();
       expect(scheduler.exactRequested, isTrue);
+    });
+  
+    testWidgets('nothing scheduled says so', (tester) async {
+      await _register(_FakeScheduler());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.scrollUntilVisible(
+        find.text('No reminders are scheduled right now.'),
+        200,
+      );
+      expect(
+        find.text('No reminders are scheduled right now.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows how far ahead reminders are scheduled',
+        (tester) async {
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(
+          location: ManualCityLocation(
+            City(
+              name: 'Dhaka',
+              countryCode: 'BD',
+              latitude: 23.7104,
+              longitude: 90.4074,
+              timezone: 'Asia/Dhaka',
+            ),
+          ),
+        ),
+      );
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final until = find.textContaining('Reminders scheduled until ');
+      await tester.scrollUntilVisible(until, 200);
+      expect(until, findsOneWidget);
     });
   });
 }

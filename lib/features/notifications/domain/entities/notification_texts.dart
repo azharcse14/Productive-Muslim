@@ -16,6 +16,8 @@ final class NotificationTexts {
     required this.dailyReminderTitle,
     required this.dailyReminderBody,
     required this.dailyReminderRoute,
+    required this.keepAliveTitle,
+    required this.keepAliveBody,
     required this.markAsPrayedAction,
     required this.channelAzanName,
     required this.channelRemindersName,
@@ -39,6 +41,8 @@ final class NotificationTexts {
   /// Deep-link route for the daily reminder, e.g. '/hadith' or '/dua',
   /// chosen from the matrix's content kind by the caller.
   final String dailyReminderRoute;
+  final String keepAliveTitle;
+  final String keepAliveBody;
   final String markAsPrayedAction;
   final String channelAzanName;
   final String channelRemindersName;

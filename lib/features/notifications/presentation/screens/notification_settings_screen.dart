@@ -20,6 +20,7 @@ import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/repositories/notification_scheduler.dart';
+import '../state/notification_controller.dart';
 
 /// Notification matrix (design §12/§15): per-prayer azan/beep/silent/off,
 /// sahri & iftar alerts, jamaat reminder + lead, evening muhasaba nudge.
@@ -37,6 +38,7 @@ final class _NotificationSettingsScreenState
     extends State<NotificationSettingsScreen> {
   final SettingsStore _store = locator<SettingsStore>();
   final NotificationScheduler _scheduler = locator<NotificationScheduler>();
+  final NotificationController _controller = locator<NotificationController>();
 
   final _permission = signal(NotificationPermission.notRequested);
   final _exactAlarms = signal(true);
@@ -65,6 +67,19 @@ final class _NotificationSettingsScreenState
       DateFormat.jm(locale.toString()).format(dt),
       locale.languageCode,
     );
+  }
+
+  String _scheduledUntilText(BuildContext context) {
+    final until = _controller.scheduledUntil.value;
+    if (until == null) {
+      return context.l10n.notifScheduledNone;
+    }
+    final locale = Localizations.localeOf(context);
+    final when = LocaleDigits.localize(
+      DateFormat.MMMEd(locale.toString()).add_jm().format(until),
+      locale.languageCode,
+    );
+    return context.l10n.notifScheduledUntil(when);
   }
 
   @override
@@ -306,6 +321,13 @@ final class _NotificationSettingsScreenState
                 ),
               ),
               const SizedBox(height: QSpace.s4),
+              QBanner(
+                text: _scheduledUntilText(context),
+                icon: Icons.event_available_outlined,
+                tone: q.surface2,
+                foreground: q.ink2,
+              ),
+              const SizedBox(height: QSpace.s2),
               QBanner(
                 text: l10n.notifBatteryHint,
                 icon: Icons.battery_saver_outlined,

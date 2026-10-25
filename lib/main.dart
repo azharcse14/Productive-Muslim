@@ -14,7 +14,7 @@ import 'features/settings/presentation/state/settings_store.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
-  // Schedule the next ~48h of notifications; never blocks first frame.
+  // Schedule the notification window; never blocks first frame.
   unawaited(locator<NotificationController>().start());
   runApp(const ProductiveMuslimApp());
 }

@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -532,6 +533,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifMuhasabaBody => 'আজকের মুহাসাবার জন্য এক মিনিট সময় হবে?';
 
   @override
+  String get notifKeepAliveTitle => 'রিমাইন্ডার চালু রাখুন';
+
+  @override
+  String get notifKeepAliveBody =>
+      'সুযোগ হলে একবার অ্যাপটি খুলুন, যাতে নামাজের রিমাইন্ডার চলতে থাকে।';
+
+  @override
+  String notifScheduledUntil(String when) {
+    return 'রিমাইন্ডার নির্ধারিত আছে $when পর্যন্ত';
+  }
+
+  @override
+  String get notifScheduledNone => 'এই মুহূর্তে কোনো রিমাইন্ডার নির্ধারিত নেই।';
+
+  @override
   String get notifMarkPrayed => 'নামাজ পড়েছি';
 
   @override
@@ -1035,16 +1051,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday':
-          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays':
-          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura':
-          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah':
-          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'dhulHijjah': 'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',

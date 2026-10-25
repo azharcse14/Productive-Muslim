@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/config/app_config.dart';
+import 'package:productive_muslim/core/di/locator.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
@@ -10,6 +13,7 @@ import 'package:productive_muslim/features/settings/data/datasources/timezone_cl
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 
 final class _FakeScheduler implements NotificationScheduler {
@@ -80,6 +84,8 @@ const _texts = NotificationTexts(
   dailyReminderTitle: '',
   dailyReminderBody: '',
   dailyReminderRoute: '/hadith',
+  keepAliveTitle: '',
+  keepAliveBody: '',
   markAsPrayedAction: '',
   channelAzanName: '',
   channelRemindersName: '',
@@ -112,7 +118,7 @@ void main() {
         settings: const AppSettings(),
         texts: _texts,
       );
-      expect(result.valueOrNull, 0);
+      expect(result.valueOrNull, isEmpty);
       expect(scheduler.cancelCalls, 1);
       expect(scheduler.lastPlan, isNull);
     });
@@ -129,18 +135,73 @@ void main() {
         texts: _texts,
       );
       final plan = scheduler.lastPlan!;
-      expect(result.valueOrNull, plan.length);
+      expect(result.valueOrNull, plan);
       // Defaults: azan×5/day + sahri + iftar within window — at least a
-      // dozen items, all in the future and inside 48h.
+      // dozen items, all in the future and inside 48h (keep-alive excepted).
       expect(plan.length, greaterThanOrEqualTo(12));
       final from = DateTime(2026, 6, 12, 4);
       expect(plan.every((i) => i.at.isAfter(from)), isTrue);
+      final reminders =
+          plan.where((i) => i.kind != NotificationKind.keepAlive);
       expect(
-        plan.every(
+        reminders.every(
           (i) => !i.at.isAfter(from.add(const Duration(hours: 48))),
         ),
         isTrue,
       );
+      expect(plan.last.kind, NotificationKind.keepAlive);
+    });
+
+    Future<List<NotificationItem>> planFor(TargetPlatform platform) async {
+      final scheduler = _FakeScheduler();
+      await RescheduleNotifications(
+        getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+        scheduler: scheduler,
+        clock: _FixedClock(DateTime(2026, 6, 12, 4), TimezoneClock()),
+        window: AppConfig.notificationSchedulingWindow,
+        maxItems: notificationCapFor(platform),
+      )(
+        // 9 items/day × 7 days exceeds the iOS cap.
+        settings: const AppSettings(
+          location: _dhaka,
+          notifications: NotificationMatrix(
+            muhasabaEveningReminder: true,
+            dailyReminder: true,
+          ),
+        ),
+        texts: _texts,
+      );
+      return scheduler.lastPlan!;
+    }
+
+    test('Android fills the full 7-day window, uncapped', () async {
+      final plan = await planFor(TargetPlatform.android);
+      final from = DateTime(2026, 6, 12, 4);
+      final azans = plan.where((i) => i.kind == NotificationKind.azan);
+      // 5 prayers × 7 days (fajr on day one may already be past).
+      expect(azans.length, greaterThanOrEqualTo(34));
+      expect(
+        azans.every((i) => !i.at.isAfter(from.add(const Duration(days: 7)))),
+        isTrue,
+      );
+      expect(azans.last.at.isAfter(from.add(const Duration(days: 6))), isTrue);
+      expect(plan.last.kind, NotificationKind.keepAlive);
+    });
+
+    test('iOS caps at 60 pending items, keeping the earliest', () async {
+      final ios = await planFor(TargetPlatform.iOS);
+      final android = await planFor(TargetPlatform.android);
+      expect(android.length, greaterThan(60));
+      expect(ios.length, 60);
+      final iosReminders =
+          ios.where((i) => i.kind != NotificationKind.keepAlive).toList();
+      final androidReminders =
+          android.where((i) => i.kind != NotificationKind.keepAlive).toList();
+      expect(
+        iosReminders,
+        androidReminders.take(iosReminders.length).toList(),
+      );
+      expect(ios.last.kind, NotificationKind.keepAlive);
     });
   });
 

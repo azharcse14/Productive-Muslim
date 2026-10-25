@@ -968,6 +968,30 @@ abstract class AppLocalizations {
   /// **'A quiet minute for today\'s muhasaba?'**
   String get notifMuhasabaBody;
 
+  /// No description provided for @notifKeepAliveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep reminders running'**
+  String get notifKeepAliveTitle;
+
+  /// No description provided for @notifKeepAliveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Productive Muslim when you have a moment, so your prayer reminders continue.'**
+  String get notifKeepAliveBody;
+
+  /// No description provided for @notifScheduledUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders scheduled until {when}'**
+  String notifScheduledUntil(String when);
+
+  /// No description provided for @notifScheduledNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders are scheduled right now.'**
+  String get notifScheduledNone;
+
   /// No description provided for @notifMarkPrayed.
   ///
   /// In en, this message translates to:
