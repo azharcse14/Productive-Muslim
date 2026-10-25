@@ -21,6 +21,7 @@ void main() {
     'water',
     'shield',
     'speech',
+    'people',
   };
   const allowedRepeats = <int>{1, 3, 7, 33, 100};
   const duaFields = <String>['id', 'ar', 'tr', 'en', 'bn', 'ref', 'repeat'];
@@ -135,6 +136,33 @@ void main() {
           reason: 'dua "${dua['id']}" has an invalid repeat value',
         );
       }
+    });
+
+    test('passages moved from ruqyah.json sit in their dua categories', () {
+      const moved = <String, String>{
+        'bismillah_tawakkaltu': 'home',
+        'dua_safar': 'travel',
+        'allahumma_ikfini': 'distress',
+        "audhu_ma'tham_maghram": 'salah',
+        'rabbana_zalamna': 'istighfar',
+        'bismillah_food': 'food',
+        'tahlil_layl': 'waking',
+        'rabbana_la_tuzigh': 'knowledge',
+        'ya_muqallibal_qulub': 'knowledge',
+        'rabbi_zidni_ilma': 'knowledge',
+        'rabbir_hamhuma': 'family',
+        'rabbanaghfir_walidayya': 'family',
+        'barakallahu_laka': 'family',
+        'jannibnash_shaytan': 'family',
+      };
+      final where = {
+        for (final c in categories)
+          for (final dua in c['duas']! as List<Object?>)
+            (dua! as Map<dynamic, dynamic>)['id']: c['id'],
+      };
+      moved.forEach((id, category) {
+        expect(where[id], category, reason: id);
+      });
     });
 
     test('dua ids are unique across the whole collection', () {

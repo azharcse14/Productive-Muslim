@@ -1901,7 +1901,7 @@ abstract class AppLocalizations {
   /// No description provided for @duaCategoryName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} other{{id}}}'**
+  /// **'{id, select, morning_evening{Morning & evening} sleep{Sleep} waking{Waking up} food{Food & drink} home{Entering & leaving home} travel{Travel} salah{Salah} distress{Distress & relief} wudu{Wudu} clothes{Dressing} weather{Rain & weather} istighfar{Seeking forgiveness} gratitude{Gratitude} protection{Protection} sneezing{Sneezing} marketplace{Marketplace} adhan{Adhan & iqamah} toilet{Toilet} knowledge{Knowledge & guidance} family{Family & marriage} other{{id}}}'**
   String duaCategoryName(String id);
 
   /// No description provided for @duaCount.
@@ -1949,7 +1949,7 @@ abstract class AppLocalizations {
   /// No description provided for @ruqyahCategoryName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr & jinn} anxiety_grief{Anxiety & grief} distress{Distress & hardship} fever_pain{Fever, pain & illness} sleep{Sleep & nightmares} morning_evening{Morning & evening} waswas{Whispers & doubts} enemies{Enemies & oppressors} travel{Travel & home} children{Protecting children} provision{Provision & debt} forgiveness{Repentance & forgiveness} guidance{Steadfastness & guidance} knowledge{Beneficial knowledge} parents{Mercy for parents} marriage{Marriage & spouse} fitan{Trials & the Dajjal} food_drink{Eating & drinking} mosque{Entering the mosque} rain{Rain & weather} night_worship{Night prayer} other{{id}}}'**
+  /// **'{id, select, protection{Protection} three_quls{The three Quls} healing{Healing & sickness} evil_eye{Evil eye & envy} sihr_jinn{Sihr, jinn & whispers} anxiety_grief{Anxiety, grief & distress} sleep{Sleep & nightmares} morning_evening{Morning & evening} enemies{Enemies & oppressors} children{Protecting children} fitan{Trials & the Dajjal} other{{id}}}'**
   String ruqyahCategoryName(String id);
 
   /// No description provided for @ruqyahCount.
