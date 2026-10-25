@@ -1532,6 +1532,18 @@ abstract class AppLocalizations {
   /// **'This prayer\'s time hasn\'t started yet'**
   String get salahLockedToast;
 
+  /// No description provided for @a11yMarkPrayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {prayer} as prayed'**
+  String a11yMarkPrayed(String prayer);
+
+  /// No description provided for @a11yPrayerLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer}: its time hasn\'t started yet'**
+  String a11yPrayerLocked(String prayer);
+
   /// No description provided for @muhasabaDoneCount.
   ///
   /// In en, this message translates to:

@@ -868,6 +868,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get salahLockedToast => 'এই নামাজের সময় এখনো শুরু হয়নি';
 
   @override
+  String a11yMarkPrayed(String prayer) {
+    return '$prayer নামাজ পড়া হয়েছে হিসেবে চিহ্নিত করুন';
+  }
+
+  @override
+  String a11yPrayerLocked(String prayer) {
+    return '$prayer: এর সময় এখনো শুরু হয়নি';
+  }
+
+  @override
   String muhasabaDoneCount(int done, int total) {
     return '$totalটির মধ্যে $doneটি সম্পন্ন';
   }

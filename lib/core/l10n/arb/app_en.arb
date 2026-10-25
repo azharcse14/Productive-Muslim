@@ -390,6 +390,10 @@
     }
   },
   "salahLockedToast": "This prayer's time hasn't started yet",
+  "a11yMarkPrayed": "Mark {prayer} as prayed",
+  "@a11yMarkPrayed": { "placeholders": { "prayer": { "type": "String" } } },
+  "a11yPrayerLocked": "{prayer}: its time hasn't started yet",
+  "@a11yPrayerLocked": { "placeholders": { "prayer": { "type": "String" } } },
   "muhasabaDoneCount": "{done}/{total} done",
   "@muhasabaDoneCount": {
     "placeholders": {

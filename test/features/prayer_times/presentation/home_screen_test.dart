@@ -229,14 +229,15 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
-      // Checkable circles wrap an AnimatedContainer; locked clock affordances
-      // wrap a SizedBox. At 4am only Fajr's waqt has started, so it's the lone
-      // checkable one; the later prayers are locked (quiet clock icons).
+      // Checkable circles center an AnimatedContainer in a 48dp hit box;
+      // locked ones center a clock icon. At 4am only Fajr's waqt has started,
+      // so it's the lone checkable one; the later prayers are locked.
       final checks = find.byWidgetPredicate(
         (w) =>
             w is InkWell &&
             w.customBorder is CircleBorder &&
-            w.child is AnimatedContainer,
+            w.child is Center &&
+            (w.child! as Center).child is AnimatedContainer,
       );
       expect(checks, findsOneWidget);
       expect(find.byIcon(Icons.schedule), findsNWidgets(4));

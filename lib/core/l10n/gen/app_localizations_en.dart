@@ -872,6 +872,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salahLockedToast => 'This prayer\'s time hasn\'t started yet';
 
   @override
+  String a11yMarkPrayed(String prayer) {
+    return 'Mark $prayer as prayed';
+  }
+
+  @override
+  String a11yPrayerLocked(String prayer) {
+    return '$prayer: its time hasn\'t started yet';
+  }
+
+  @override
   String muhasabaDoneCount(int done, int total) {
     return '$done/$total done';
   }

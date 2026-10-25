@@ -239,6 +239,8 @@
   "currentStreakLabel": "{count, plural, =1{১ দিনের ধারা} other{{count} দিনের ধারা}}",
   "bestStreakLabel": "সেরা: {count}",
   "salahLockedToast": "এই নামাজের সময় এখনো শুরু হয়নি",
+  "a11yMarkPrayed": "{prayer} নামাজ পড়া হয়েছে হিসেবে চিহ্নিত করুন",
+  "a11yPrayerLocked": "{prayer}: এর সময় এখনো শুরু হয়নি",
   "muhasabaDoneCount": "{total}টির মধ্যে {done}টি সম্পন্ন",
   "vsPrevious": "{trend, select, up{গত সময়ের চেয়ে ভালো} same{গত সময়ের মতোই অবিচল} down{নতুন করে শুরু — চালিয়ে যান} other{—}}",
   "emptyRange": "এই সময়ে এখনো কোনো এন্ট্রি নেই",
