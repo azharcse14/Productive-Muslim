@@ -485,7 +485,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPrimingBody.
   ///
   /// In en, this message translates to:
-  /// **'Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.'**
+  /// **'Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.'**
   String get locationPrimingBody;
 
   /// No description provided for @locationDeniedFallback.

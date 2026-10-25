@@ -89,7 +89,7 @@
   "locationUseGpsSub": "GPS — works fully offline after the first fix",
   "locationChooseCity": "Choose city manually",
   "locationSearchHint": "Search city…",
-  "locationPrimingBody": "Productive Muslim uses your location only to compute prayer times and qibla direction on this device. Nothing ever leaves your phone.",
+  "locationPrimingBody": "Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.",
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
   "locationServiceOff": "Location services are turned off. Pick your city below, or enable location and try again.",
   "locationCurrent": "Current location",

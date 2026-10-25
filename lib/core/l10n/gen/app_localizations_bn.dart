@@ -211,7 +211,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get locationPrimingBody =>
-      'কালবী আপনার অবস্থান শুধু এই ডিভাইসে নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। কোনো তথ্য ফোনের বাইরে যায় না।';
+      'কালবী আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।';
 
   @override
   String get locationDeniedFallback =>
