@@ -206,6 +206,17 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const Divider(),
                     QListRow(
+                      icon: Icons.vibration,
+                      title: l10n.settingHaptics,
+                      subtitle: l10n.settingHapticsSub,
+                      trailing: Switch(
+                        value: settings.hapticsEnabled,
+                        onChanged: (v) =>
+                            unawaited(_store.setHapticsEnabled(enabled: v)),
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
                       icon: Icons.replay_outlined,
                       title: l10n.settingRunSetup,
                       trailing: Icon(Icons.chevron_right, color: q.ink3),

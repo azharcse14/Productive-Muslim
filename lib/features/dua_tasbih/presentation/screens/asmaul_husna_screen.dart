@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -9,6 +8,7 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
@@ -37,7 +37,7 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
   }
 
   Future<void> _showDetail(AsmaName name) async {
-    unawaited(HapticFeedback.selectionClick());
+    Haptics.selection();
     await showModalBottomSheet<void>(
       context: context,
       builder: (_) => _AsmaDetailSheet(name: name),

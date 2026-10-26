@@ -332,6 +332,18 @@ abstract class AppLocalizations {
   /// **'Badges and streak milestones in Muhasaba'**
   String get settingShowAchievementsSub;
 
+  /// No description provided for @settingHaptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic feedback'**
+  String get settingHaptics;
+
+  /// No description provided for @settingHapticsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate on taps and tasbih counts'**
+  String get settingHapticsSub;
+
   /// No description provided for @settingCredits.
   ///
   /// In en, this message translates to:
@@ -3385,6 +3397,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}'**
   String expenseCategoryBudgetTitle(String id);
+
+  /// No description provided for @expenseBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get expenseBackup;
+
+  /// No description provided for @expenseExportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy CSV backup'**
+  String get expenseExportCsv;
+
+  /// No description provided for @expenseImportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from copied CSV'**
+  String get expenseImportCsv;
+
+  /// No description provided for @expenseExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. Paste it into Notes, email or a spreadsheet to keep it safe.'**
+  String get expenseExported;
+
+  /// No description provided for @expenseImportInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The clipboard doesn\'t hold an expense backup.'**
+  String get expenseImportInvalid;
+
+  /// No description provided for @expenseImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing new to restore} =1{1 expense restored} other{{count} expenses restored}}'**
+  String expenseImported(int count);
 }
 
 class _AppLocalizationsDelegate

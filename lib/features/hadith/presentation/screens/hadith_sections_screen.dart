@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
@@ -18,7 +18,7 @@ final class HadithSectionsScreen extends StatelessWidget {
   final HadithBook book;
 
   void _open(BuildContext context, HadithSection section) {
-    unawaited(HapticFeedback.selectionClick());
+    Haptics.selection();
     unawaited(
       Navigator.of(context).push(
         MaterialPageRoute<void>(

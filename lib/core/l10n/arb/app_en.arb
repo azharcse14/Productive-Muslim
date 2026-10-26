@@ -64,6 +64,8 @@
   "settingRunSetup": "Run setup again",
   "settingShowAchievements": "Show achievements",
   "settingShowAchievementsSub": "Badges and streak milestones in Muhasaba",
+  "settingHaptics": "Haptic feedback",
+  "settingHapticsSub": "Vibrate on taps and tasbih counts",
   "settingCredits": "Credits & attributions",
   "creditsBody": "Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.",
   "madhabHanafi": "Hanafi",
@@ -1002,6 +1004,17 @@
   "@expenseCategoryBudgetTitle": {
     "placeholders": {
       "id": {"type": "String"}
+    }
+  },
+  "expenseBackup": "Backup",
+  "expenseExportCsv": "Copy CSV backup",
+  "expenseImportCsv": "Restore from copied CSV",
+  "expenseExported": "Copied. Paste it into Notes, email or a spreadsheet to keep it safe.",
+  "expenseImportInvalid": "The clipboard doesn't hold an expense backup.",
+  "expenseImported": "{count, plural, =0{Nothing new to restore} =1{1 expense restored} other{{count} expenses restored}}",
+  "@expenseImported": {
+    "placeholders": {
+      "count": {"type": "int"}
     }
   }
 }

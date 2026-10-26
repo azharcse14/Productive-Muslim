@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/haptics.dart';
 import 'package:productive_muslim/shared/widgets/q_button.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
@@ -48,6 +50,28 @@ void main() {
       for (final kind in QButtonKind.values) {
         expect(find.text(kind.name), findsOneWidget);
       }
+    });
+
+    testWidgets('tap buzzes only while haptics are enabled', (tester) async {
+      var buzzes = 0;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'HapticFeedback.vibrate') {
+            buzzes++;
+          }
+          return null;
+        },
+      );
+      addTearDown(() => Haptics.enabled = true);
+      await tester.pumpWidget(_wrap(QButton(label: 'Tap', onPressed: () {})));
+
+      await tester.tap(find.text('Tap'));
+      expect(buzzes, 1);
+
+      Haptics.enabled = false;
+      await tester.tap(find.text('Tap'));
+      expect(buzzes, 1);
     });
 
     testWidgets('exposes button semantics', (tester) async {

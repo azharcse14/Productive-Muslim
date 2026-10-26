@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 /// Round −/+ stepper button: a small visual circle inside a full
@@ -37,7 +38,12 @@ final class QStepButton extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: onTap,
+        onTap: onTap == null
+            ? null
+            : () {
+                Haptics.selection();
+                onTap!();
+              },
         child: SizedBox.square(
           dimension: QTouch.minTarget,
           child: Center(

@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
@@ -37,7 +37,7 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
   }
 
   void _open(Widget screen) {
-    unawaited(HapticFeedback.selectionClick());
+    Haptics.selection();
     unawaited(
       Navigator.of(
         context,

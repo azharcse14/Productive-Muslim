@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
-import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -87,6 +87,7 @@ import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
 import '../router/app_router.dart';
+import '../utils/haptics.dart';
 import '../utils/locale_digits.dart';
 
 /// Global service locator. The ONLY place registrations happen
@@ -148,7 +149,7 @@ Future<void> setupLocator() async {
       () => QiblaStore(
         sensors: locator(),
         settings: locator(),
-        onAligned: HapticFeedback.mediumImpact,
+        onAligned: Haptics.medium,
       ),
     );
 
@@ -262,7 +263,11 @@ Future<void> setupLocator() async {
 
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
-    () => ExpenseStore(SharedPreferencesAsync(), now: _wallNow),
+    () => ExpenseStore(
+      SharedPreferencesAsync(),
+      now: _wallNow,
+      onSadaqah: (date) => locator<MuhasabaStore>().markDoneOn('sadaqah', date),
+    ),
   );
 
   // ---- achievements ----

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -304,7 +304,7 @@ final class _PrayerRow extends StatelessWidget {
                 onTap: onToggleDone == null
                     ? null
                     : () {
-                        unawaited(HapticFeedback.selectionClick());
+                        Haptics.selection();
                         onToggleDone!();
                       },
                 child: AnimatedContainer(

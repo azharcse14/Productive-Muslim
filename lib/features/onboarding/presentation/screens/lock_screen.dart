@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
@@ -165,7 +165,7 @@ final class _LockScreenState extends State<LockScreen> {
       case false:
         final ok = await _store.unlockWithPin(_entered);
         if (!ok && mounted) {
-          unawaited(HapticFeedback.heavyImpact());
+          Haptics.heavy();
           setState(() {
             _entered = '';
             _error = l10n.appLockWrongPin;
@@ -193,7 +193,7 @@ final class _LockScreenState extends State<LockScreen> {
             }
           }
         } else {
-          unawaited(HapticFeedback.heavyImpact());
+          Haptics.heavy();
           setState(() {
             _firstPin = null;
             _entered = '';

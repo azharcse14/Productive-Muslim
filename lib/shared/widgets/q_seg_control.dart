@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 /// Segmented control on a surface-2 track; the active segment is a lifted
@@ -17,6 +18,13 @@ final class QSegControl extends StatelessWidget {
   final List<String> options;
   final int activeIndex;
   final ValueChanged<int> onChanged;
+
+  void _select(int i) {
+    if (i != activeIndex) {
+      Haptics.selection();
+    }
+    onChanged(i);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +43,11 @@ final class QSegControl extends StatelessWidget {
                 button: true,
                 selected: i == activeIndex,
                 label: option,
-                onTap: () => onChanged(i),
+                onTap: () => _select(i),
                 child: ExcludeSemantics(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => onChanged(i),
+                    onTap: () => _select(i),
                     child: AnimatedContainer(
                       duration: QMotion.fast,
                       curve: QMotion.ease,

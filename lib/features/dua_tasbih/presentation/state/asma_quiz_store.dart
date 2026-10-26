@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/utils/haptics.dart';
 import '../../domain/entities/asma_quiz.dart';
 import '../../domain/entities/dua.dart';
 
@@ -56,10 +56,10 @@ final class AsmaQuizStore {
   });
 
   static void _defaultCorrectHaptic() =>
-      unawaited(HapticFeedback.lightImpact());
+      Haptics.light();
 
   static void _defaultWrongHaptic() =>
-      unawaited(HapticFeedback.mediumImpact());
+      Haptics.medium();
 
   String _bestKey(AsmaQuizMode mode) => '$_bestKeyPrefix${mode.name}';
 

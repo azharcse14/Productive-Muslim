@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 enum QButtonKind { primary, tonal, outline, ghost, accent }
@@ -107,7 +108,12 @@ final class _QButtonState extends State<QButton> {
             onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
             onTapCancel: () => setState(() => _pressed = false),
             onTapUp: (_) => setState(() => _pressed = false),
-            onTap: widget.onPressed,
+            onTap: _enabled
+                ? () {
+                    Haptics.selection();
+                    widget.onPressed!();
+                  }
+                : null,
             child: child,
           ),
         ),

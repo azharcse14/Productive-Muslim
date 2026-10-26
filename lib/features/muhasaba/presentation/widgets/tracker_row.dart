@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_step_button.dart';
@@ -45,7 +46,17 @@ final class TrackerRow extends StatelessWidget {
       (TrackerKind.duration, null) => l10n.minutesValue(value),
       _ => null,
     };
-    final onChanged = this.onChanged;
+    final changed = this.onChanged;
+    final target = item.dailyTarget;
+    final onChanged = changed == null
+        ? null
+        : (int next) {
+            // A firmer buzz the moment the daily target is reached.
+            if (target != null && value < target && next >= target) {
+              Haptics.medium();
+            }
+            changed(next);
+          };
     return Material(
       color: q.surface,
       shape: RoundedRectangleBorder(
@@ -54,7 +65,12 @@ final class TrackerRow extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onEdit,
+        onTap: onEdit == null
+            ? null
+            : () {
+                Haptics.selection();
+                onEdit!();
+              },
         onLongPress: onEdit,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -107,7 +123,10 @@ final class TrackerRow extends StatelessWidget {
                     value: value > 0,
                     onChanged: onChanged == null
                         ? null
-                        : (v) => onChanged(v ? 1 : 0),
+                        : (v) {
+                            Haptics.light();
+                            onChanged(v ? 1 : 0);
+                          },
                   ),
                 ),
                 TrackerKind.count => _Stepper(
