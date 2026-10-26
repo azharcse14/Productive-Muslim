@@ -14,6 +14,7 @@ import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -364,7 +365,9 @@ final class _LeadRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.remove,
             semanticLabel: context.l10n.a11yDecrease(label),
             onTap: minutes > 5 ? () => onChanged(minutes - 5) : null,
@@ -377,7 +380,9 @@ final class _LeadRow extends StatelessWidget {
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.add,
             semanticLabel: context.l10n.a11yIncrease(label),
             onTap: minutes < 60 ? () => onChanged(minutes + 5) : null,
@@ -388,38 +393,6 @@ final class _LeadRow extends StatelessWidget {
   }
 }
 
-final class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Semantics(
-      button: true,
-      enabled: onTap != null,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QRadius.full),
-        onTap: onTap,
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(color: q.surface2, shape: BoxShape.circle),
-          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
-        ),
-      ),
-    );
-  }
-}
 
 /// A stepper row for a wall-clock time stored as minutes past midnight.
 /// Steps by 15 minutes, wrapping across midnight, mirroring [_LeadRow].
@@ -449,7 +422,9 @@ final class _TimeRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.remove,
             semanticLabel: context.l10n.a11yDecrease(label),
             onTap: () => onChanged(wrap(minuteOfDay - _step)),
@@ -462,7 +437,9 @@ final class _TimeRow extends StatelessWidget {
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.add,
             semanticLabel: context.l10n.a11yIncrease(label),
             onTap: () => onChanged(wrap(minuteOfDay + _step)),

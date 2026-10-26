@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
 import 'tracker_visuals.dart';
 
@@ -77,7 +78,7 @@ final class TrackerRow extends StatelessWidget {
                   ),
                   if (sub != null)
                     Text(
-                      sub,
+                      context.digits(sub),
                       style: QType.num_(QType.caption).copyWith(color: q.ink2),
                     ),
                 ],
@@ -131,7 +132,6 @@ final class _Stepper extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     return Container(
-      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: q.surface2,
         borderRadius: BorderRadius.circular(QRadius.full),
@@ -139,7 +139,7 @@ final class _Stepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(
+          QStepButton(
             icon: Icons.remove,
             semanticLabel: l10n.a11yDecrease(label),
             onTap: value > 0 ? () => onChanged(value - step) : null,
@@ -147,12 +147,12 @@ final class _Stepper extends StatelessWidget {
           SizedBox(
             width: 38,
             child: Text(
-              '$value',
+              context.digits('$value'),
               textAlign: TextAlign.center,
               style: QType.num_(QType.titleSm).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(
+          QStepButton(
             icon: Icons.add,
             semanticLabel: l10n.a11yIncrease(label),
             onTap: () => onChanged(value + step),
@@ -163,35 +163,3 @@ final class _Stepper extends StatelessWidget {
   }
 }
 
-final class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Semantics(
-      button: true,
-      enabled: onTap != null,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QRadius.full),
-        onTap: onTap,
-        child: Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
-          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
-        ),
-      ),
-    );
-  }
-}

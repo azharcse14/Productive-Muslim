@@ -273,7 +273,7 @@ final class _LockScreenState extends State<LockScreen> {
                                       enabled: cooldown == null,
                                       label: key == '⌫'
                                           ? l10n.appLockDelete
-                                          : key,
+                                          : context.digits(key),
                                       excludeSemantics: true,
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(
@@ -294,7 +294,7 @@ final class _LockScreenState extends State<LockScreen> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              key,
+                                              context.digits(key),
                                               style: QType.num_(
                                                 QType.title,
                                               ).copyWith(color: q.ink),

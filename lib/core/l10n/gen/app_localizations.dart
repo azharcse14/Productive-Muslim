@@ -1640,6 +1640,30 @@ abstract class AppLocalizations {
   /// **'Show translation'**
   String get showTranslation;
 
+  /// No description provided for @readerSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading settings'**
+  String get readerSettings;
+
+  /// No description provided for @copyAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ayah'**
+  String get copyAyah;
+
+  /// No description provided for @previousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get previousDay;
+
+  /// No description provided for @nextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get nextDay;
+
   /// No description provided for @ayahCopied.
   ///
   /// In en, this message translates to:

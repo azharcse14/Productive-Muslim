@@ -8,6 +8,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
 import '../state/muhasaba_store.dart';
 import 'tracker_visuals.dart';
@@ -230,8 +231,8 @@ final class _TargetStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final l10n = context.l10n;
     return Container(
-      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: q.surface2,
         borderRadius: BorderRadius.circular(QRadius.full),
@@ -239,41 +240,25 @@ final class _TargetStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(QRadius.full),
+          QStepButton(
+            icon: Icons.remove,
+            semanticLabel: l10n.a11yDecrease(l10n.targetLabel),
             onTap: value == null
                 ? null
                 : () => onChanged(value! - step <= 0 ? null : value! - step),
-            child: Container(
-              width: 34,
-              height: 34,
-              decoration:
-                  BoxDecoration(color: q.surface, shape: BoxShape.circle),
-              child: Icon(
-                Icons.remove,
-                size: 16,
-                color: value == null ? q.ink3 : q.ink,
-              ),
-            ),
           ),
           SizedBox(
             width: 44,
             child: Text(
-              value?.toString() ?? '—',
+              value == null ? '—' : context.digits('$value'),
               textAlign: TextAlign.center,
               style: QType.num_(QType.titleSm).copyWith(color: q.ink),
             ),
           ),
-          InkWell(
-            borderRadius: BorderRadius.circular(QRadius.full),
+          QStepButton(
+            icon: Icons.add,
+            semanticLabel: l10n.a11yIncrease(l10n.targetLabel),
             onTap: () => onChanged((value ?? 0) + step),
-            child: Container(
-              width: 34,
-              height: 34,
-              decoration:
-                  BoxDecoration(color: q.surface, shape: BoxShape.circle),
-              child: Icon(Icons.add, size: 16, color: q.ink),
-            ),
           ),
         ],
       ),

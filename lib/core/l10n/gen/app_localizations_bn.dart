@@ -82,10 +82,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String hijriOffsetValue(int count, String sign) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$sign$count দিন',
+      other: '$sign$countString দিন',
     );
     return '$_temp0';
   }
@@ -242,7 +246,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String minutesShort(int count) {
-    return '$count মিনিট';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString মিনিট';
   }
 
   @override
@@ -712,7 +720,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String offsetAfterStart(int count) {
-    return 'ওয়াক্ত শুরুর $count মিনিট পরে';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'ওয়াক্ত শুরুর $countString মিনিট পরে';
   }
 
   @override
@@ -863,10 +875,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String currentStreakLabel(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count দিনের ধারা',
+      other: '$countString দিনের ধারা',
       one: '১ দিনের ধারা',
     );
     return '$_temp0';
@@ -874,7 +890,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String bestStreakLabel(int count) {
-    return 'সেরা: $count';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'সেরা: $countString';
   }
 
   @override
@@ -892,7 +912,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String muhasabaDoneCount(int done, int total) {
-    return '$totalটির মধ্যে $doneটি সম্পন্ন';
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalStringটির মধ্যে $doneStringটি সম্পন্ন';
   }
 
   @override
@@ -911,7 +939,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String minutesValue(int count) {
-    return '$count মিনিট';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString মিনিট';
   }
 
   @override
@@ -928,7 +960,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String surahMeta(int count, String place) {
-    return '$count আয়াত · $place';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString আয়াত · $place';
   }
 
   @override
@@ -946,6 +982,18 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get showTranslation => 'অনুবাদ দেখান';
+
+  @override
+  String get readerSettings => 'পড়ার সেটিংস';
+
+  @override
+  String get copyAyah => 'আয়াত কপি করুন';
+
+  @override
+  String get previousDay => 'আগের দিন';
+
+  @override
+  String get nextDay => 'পরের দিন';
 
   @override
   String get ayahCopied => 'আয়াত কপি হয়েছে';
@@ -966,7 +1014,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String ayahShareSuffix(int surah, int ayah) {
-    return '— কুরআন $surah:$ayah';
+    final intl.NumberFormat surahNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String surahString = surahNumberFormat.format(surah);
+    final intl.NumberFormat ayahNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String ayahString = ayahNumberFormat.format(ayah);
+
+    return '— কুরআন $surahString:$ayahString';
   }
 
   @override
@@ -995,7 +1051,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String asmaQuizProgress(int current, int total) {
-    return '$total এর $current';
+    final intl.NumberFormat currentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String currentString = currentNumberFormat.format(current);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalString এর $currentString';
   }
 
   @override
@@ -1013,12 +1076,24 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String asmaQuizScore(int score, int total) {
-    return '$score/$total';
+    final intl.NumberFormat scoreNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String scoreString = scoreNumberFormat.format(score);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$scoreString/$totalString';
   }
 
   @override
   String asmaQuizBest(int best) {
-    return 'সেরা স্কোর: $best';
+    final intl.NumberFormat bestNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String bestString = bestNumberFormat.format(best);
+
+    return 'সেরা স্কোর: $bestString';
   }
 
   @override
@@ -1080,10 +1155,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String fastingHeatmapLabel(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'এই মাসে $countটি রোজা রেকর্ড হয়েছে',
+      other: 'এই মাসে $countStringটি রোজা রেকর্ড হয়েছে',
       one: 'এই মাসে ১টি রোজা রেকর্ড হয়েছে',
       zero: 'এই মাসে কোনো রোজা রেকর্ড হয়নি',
     );
@@ -1139,7 +1218,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String achievementsCount(int unlocked, int total) {
-    return '$totalটির মধ্যে $unlockedটি অর্জিত';
+    final intl.NumberFormat unlockedNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String unlockedString = unlockedNumberFormat.format(unlocked);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalStringটির মধ্যে $unlockedStringটি অর্জিত';
   }
 
   @override
@@ -1210,12 +1296,20 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String duaCount(int count) {
-    return '$countটি দুআ';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countStringটি দুআ';
   }
 
   @override
   String repeatTimes(int count) {
-    return '$count বার পড়ুন';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString বার পড়ুন';
   }
 
   @override
@@ -1255,7 +1349,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String ruqyahCount(int count) {
-    return '$countটি আমল';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countStringটি আমল';
   }
 
   @override
@@ -1272,7 +1370,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String tasbihSessionLine(int count) {
-    return 'আজ: $count গণনা';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'আজ: $countString গণনা';
   }
 
   @override
@@ -1283,15 +1385,27 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String rozaDayOf(int day, int total) {
-    return '$total দিনের $dayতম রোজা';
+    final intl.NumberFormat dayNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String dayString = dayNumberFormat.format(day);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalString দিনের $dayStringতম রোজা';
   }
 
   @override
   String daysUntilRamadan(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'রমজানের আর $count দিন',
+      other: 'রমজানের আর $countString দিন',
       one: 'রমজানের আর ১ দিন',
     );
     return '$_temp0';
@@ -1498,7 +1612,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String appLockPinProgress(int entered) {
-    return '৪টির মধ্যে $enteredটি সংখ্যা দেওয়া হয়েছে';
+    final intl.NumberFormat enteredNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String enteredString = enteredNumberFormat.format(entered);
+
+    return '৪টির মধ্যে $enteredStringটি সংখ্যা দেওয়া হয়েছে';
   }
 
   @override
@@ -1577,7 +1695,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String streakMilestone(int count) {
-    return '$count দিনের ধারা! 🎉';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString দিনের ধারা! 🎉';
   }
 
   @override
@@ -1845,10 +1967,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String hadithCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countটি হাদিস',
+      other: '$countStringটি হাদিস',
       one: '১টি হাদিস',
     );
     return '$_temp0';
@@ -1856,10 +1982,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String hadithChapterCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countটি অধ্যায়',
+      other: '$countStringটি অধ্যায়',
       one: '১টি অধ্যায়',
     );
     return '$_temp0';

@@ -257,6 +257,10 @@
   "revelationName": "{place, select, meccan{মক্কী} medinan{মাদানী} other{—}}",
   "readerFontSize": "আরবি লেখার আকার",
   "showTranslation": "অনুবাদ দেখান",
+  "readerSettings": "পড়ার সেটিংস",
+  "copyAyah": "আয়াত কপি করুন",
+  "previousDay": "আগের দিন",
+  "nextDay": "পরের দিন",
   "ayahCopied": "আয়াত কপি হয়েছে",
   "bookmarksTitle": "বুকমার্ক",
   "bookmarksEmpty": "এখনো কোনো বুকমার্ক নেই। যেকোনো আয়াতের বুকমার্ক আইকনে চাপ দিলে এখানে জমা হবে।",
@@ -274,8 +278,8 @@
   "asmaQuizProgress": "{total} এর {current}",
   "@asmaQuizProgress": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizNext": "পরবর্তী",
@@ -285,14 +289,14 @@
   "asmaQuizScore": "{score}/{total}",
   "@asmaQuizScore": {
     "placeholders": {
-      "score": { "type": "int" },
-      "total": { "type": "int" }
+      "score": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizBest": "সেরা স্কোর: {best}",
   "@asmaQuizBest": {
     "placeholders": {
-      "best": { "type": "int" }
+      "best": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizPlayAgain": "আবার চেষ্টা করুন",
@@ -316,7 +320,7 @@
   "fastingHeatmapLabel": "{count, plural, =0{এই মাসে কোনো রোজা রেকর্ড হয়নি} =1{এই মাসে ১টি রোজা রেকর্ড হয়েছে} other{এই মাসে {count}টি রোজা রেকর্ড হয়েছে}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
@@ -338,8 +342,8 @@
   "achievementsCount": "{total}টির মধ্যে {unlocked}টি অর্জিত",
   "@achievementsCount": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "achievementCategory": "{key, select, streaks{ধারাবাহিকতা} salah{সালাত} dhikr{যিকর} quran{কুরআন} fasting{রোজা} other{অর্জন}}",
@@ -370,7 +374,8 @@
   "@ruqyahCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -470,7 +475,7 @@
   "streakMilestone": "{count} দিনের ধারা! 🎉",
   "@streakMilestone": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "calculatorsTitle": "ক্যালকুলেটর",
@@ -594,11 +599,11 @@
   },
   "hadithCount": "{count, plural, =1{১টি হাদিস} other{{count}টি হাদিস}}",
   "@hadithCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithChapterCount": "{count, plural, =1{১টি অধ্যায়} other{{count}টি অধ্যায়}}",
   "@hadithChapterCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithBooksCardTitle": "পূর্ণ সংকলন",
   "hadithBooksTitle": "হাদিস সংকলন",

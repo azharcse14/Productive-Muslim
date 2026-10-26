@@ -173,6 +173,7 @@ final class _RuleCard extends StatelessWidget {
                 ),
               ),
               IconButton(
+                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                 onPressed: onRemove,
                 icon: Icon(Icons.delete_outline, size: 20, color: q.ink3),
               ),

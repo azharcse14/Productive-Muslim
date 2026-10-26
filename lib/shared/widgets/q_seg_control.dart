@@ -38,10 +38,16 @@ final class QSegControl extends StatelessWidget {
                 onTap: () => onChanged(i),
                 child: ExcludeSemantics(
                   child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => onChanged(i),
                     child: AnimatedContainer(
                       duration: QMotion.fast,
                       curve: QMotion.ease,
+                      // + the 4dp track inset = a 48dp tap target.
+                      constraints: const BoxConstraints(
+                        minHeight: QTouch.minTarget - 8,
+                      ),
+                      alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                         vertical: 9,
                         horizontal: 8,

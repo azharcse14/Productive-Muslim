@@ -210,9 +210,11 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                                     ? l10n.faraidUnallocated(
                                         _money(context, s.amount),
                                       )
-                                    : '${_heirName(context, s.heirKey)}'
-                                          '${s.count > 1 ? ' ×${s.count}' : ''}'
-                                          ' · ${s.shareLabel}',
+                                    : context.digits(
+                                        '${_heirName(context, s.heirKey)}'
+                                        '${s.count > 1 ? ' ×${s.count}' : ''}'
+                                        ' · ${s.shareLabel}',
+                                      ),
                                 style: QType.body.copyWith(color: q.ink),
                               ),
                             ),

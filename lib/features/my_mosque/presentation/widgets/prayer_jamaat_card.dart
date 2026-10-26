@@ -6,6 +6,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/jamaat_config.dart';
@@ -79,7 +80,9 @@ final class PrayerJamaatCard extends StatelessWidget {
                       style: QType.caption.copyWith(color: q.ink2),
                     ),
                   ),
-                  _StepButton(
+                  QStepButton(
+                    fill: context.q.surface2,
+                    size: 32,
                     icon: Icons.remove,
                     semanticLabel: l10n.a11yDecrease(l10n.jamaatLabel),
                     onTap: offset.inMinutes > 5
@@ -96,7 +99,9 @@ final class PrayerJamaatCard extends StatelessWidget {
                       style: QType.num_(QType.label).copyWith(color: q.ink),
                     ),
                   ),
-                  _StepButton(
+                  QStepButton(
+                    fill: context.q.surface2,
+                    size: 32,
                     icon: Icons.add,
                     semanticLabel: l10n.a11yIncrease(l10n.jamaatLabel),
                     onTap: offset.inMinutes < 60
@@ -135,35 +140,3 @@ final class PrayerJamaatCard extends StatelessWidget {
   }
 }
 
-final class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Semantics(
-      button: true,
-      enabled: onTap != null,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QRadius.full),
-        onTap: onTap,
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(color: q.surface2, shape: BoxShape.circle),
-          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
-        ),
-      ),
-    );
-  }
-}

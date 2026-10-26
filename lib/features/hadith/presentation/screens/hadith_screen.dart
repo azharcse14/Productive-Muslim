@@ -53,9 +53,9 @@ final class _HadithScreenState extends State<HadithScreen> {
   void _push(Widget screen) {
     unawaited(HapticFeedback.selectionClick());
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => screen),
-      ),
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
     );
   }
 
@@ -87,14 +87,13 @@ final class _HadithScreenState extends State<HadithScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: QSpace.s3,
                   crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.2 / context.textGrowth,
                   children: [
                     for (final topic in topics)
                       _TopicCard(
                         topic: topic,
                         languageCode: languageCode,
-                        onTap: () =>
-                            _push(HadithTopicScreen(topic: topic)),
+                        onTap: () => _push(HadithTopicScreen(topic: topic)),
                       ),
                   ],
                 ),
@@ -119,45 +118,43 @@ final class _FullCollectionsCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: l10n.hadithBooksTitle,
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf('library'),
-                  size: 22,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const SizedBox(width: QSpace.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.hadithBooksTitle,
-                      style: QType.titleSm.copyWith(color: q.ink),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.hadithBooksSubtitle,
-                      style: QType.caption.copyWith(color: q.ink2),
-                    ),
-                  ],
-                ),
+              child: Icon(
+                TrackerVisuals.iconOf('library'),
+                size: 22,
+                color: q.onPrimarySoft,
               ),
-              Icon(Icons.chevron_right, color: q.ink3),
-            ],
-          ),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.hadithBooksTitle,
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.hadithBooksSubtitle,
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: q.ink3),
+          ],
         ),
       ),
     );
@@ -181,43 +178,41 @@ final class _TopicCard extends StatelessWidget {
     final q = context.q;
     return Semantics(
       button: true,
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf(_topicIcons[topic.id] ?? 'spark'),
-                  size: 19,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const Spacer(),
-              Text(
-                l10n.hadithTopicName(topic.id),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: QType.titleSm.copyWith(color: q.ink),
+              child: Icon(
+                TrackerVisuals.iconOf(_topicIcons[topic.id] ?? 'spark'),
+                size: 19,
+                color: q.onPrimarySoft,
               ),
-              const SizedBox(height: 2),
-              Text(
-                LocaleDigits.localize(
-                  l10n.hadithCount(topic.items.length),
-                  languageCode,
-                ),
-                style: QType.caption.copyWith(color: q.ink2),
+            ),
+            const Spacer(),
+            Text(
+              l10n.hadithTopicName(topic.id),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: QType.titleSm.copyWith(color: q.ink),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              LocaleDigits.localize(
+                l10n.hadithCount(topic.items.length),
+                languageCode,
               ),
-            ],
-          ),
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
+          ],
         ),
       ),
     );

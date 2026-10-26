@@ -116,60 +116,58 @@ final class _BookCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: book.titleFor(languageCode),
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf('book'),
-                  size: 22,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const SizedBox(width: QSpace.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: Icon(
+                TrackerVisuals.iconOf('book'),
+                size: 22,
+                color: q.onPrimarySoft,
+              ),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.titleFor(languageCode),
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  if (book.authorFor(languageCode).isNotEmpty)
                     Text(
-                      book.titleFor(languageCode),
-                      style: QType.titleSm.copyWith(color: q.ink),
+                      book.authorFor(languageCode),
+                      style: QType.caption.copyWith(color: q.ink3),
                     ),
-                    const SizedBox(height: 2),
-                    if (book.authorFor(languageCode).isNotEmpty)
-                      Text(
-                        book.authorFor(languageCode),
-                        style: QType.caption.copyWith(color: q.ink3),
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: QType.caption.copyWith(
+                      color: book.isSahih ? q.ok : q.ink2,
+                    ),
+                  ),
+                  if (englishOnly) ...[
                     const SizedBox(height: 2),
                     Text(
-                      subtitle,
-                      style: QType.caption.copyWith(
-                        color: book.isSahih ? q.ok : q.ink2,
-                      ),
+                      l10n.hadithEnglishOnly,
+                      style: QType.caption.copyWith(color: q.ink3),
                     ),
-                    if (englishOnly) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        l10n.hadithEnglishOnly,
-                        style: QType.caption.copyWith(color: q.ink3),
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
-              Icon(Icons.chevron_right, color: q.ink3),
-            ],
-          ),
+            ),
+            Icon(Icons.chevron_right, color: q.ink3),
+          ],
         ),
       ),
     );

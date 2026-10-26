@@ -119,38 +119,49 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: _store.tap,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            QProgressRing(
-                              progress: target == 0 ? 0 : count / target,
-                              size: 240,
-                              strokeWidth: 12,
-                              color: reached ? q.accentStrong : q.primary,
-                              child: Text(
-                                LocaleDigits.localize('$count', languageCode),
-                                style: QType.num_(
-                                  QType.countdown,
-                                ).copyWith(color: q.ink),
-                              ),
-                            ),
-                            const SizedBox(height: QSpace.s5),
-                            AnimatedScale(
-                              scale: reached ? 1 : 0.85,
-                              duration: reduced ? Duration.zero : QMotion.slow,
-                              curve: QMotion.ease,
-                              child: Opacity(
-                                opacity: reached ? 1 : 0,
-                                child: Text(
-                                  l10n.tasbihTargetReached,
-                                  textAlign: TextAlign.center,
-                                  style: QType.label.copyWith(
-                                    color: q.accentStrong,
+                        // The 240dp ring shrinks to fit short screens.
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                QProgressRing(
+                                  progress: target == 0 ? 0 : count / target,
+                                  size: 240,
+                                  strokeWidth: 12,
+                                  color: reached ? q.accentStrong : q.primary,
+                                  child: Text(
+                                    LocaleDigits.localize(
+                                      '$count',
+                                      languageCode,
+                                    ),
+                                    style: QType.num_(
+                                      QType.countdown,
+                                    ).copyWith(color: q.ink),
                                   ),
                                 ),
-                              ),
+                                const SizedBox(height: QSpace.s5),
+                                AnimatedScale(
+                                  scale: reached ? 1 : 0.85,
+                                  duration: reduced
+                                      ? Duration.zero
+                                      : QMotion.slow,
+                                  curve: QMotion.ease,
+                                  child: Opacity(
+                                    opacity: reached ? 1 : 0,
+                                    child: Text(
+                                      l10n.tasbihTargetReached,
+                                      textAlign: TextAlign.center,
+                                      style: QType.label.copyWith(
+                                        color: q.accentStrong,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

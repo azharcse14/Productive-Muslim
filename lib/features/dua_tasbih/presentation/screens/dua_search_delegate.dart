@@ -65,6 +65,7 @@ final class DuaSearchDelegate extends SearchDelegate<void> {
   List<Widget> buildActions(BuildContext context) => [
         if (query.isNotEmpty)
           IconButton(
+            tooltip: MaterialLocalizations.of(context).clearButtonTooltip,
             icon: const Icon(Icons.clear),
             onPressed: () => query = '',
           ),
@@ -72,6 +73,7 @@ final class DuaSearchDelegate extends SearchDelegate<void> {
 
   @override
   Widget buildLeading(BuildContext context) => IconButton(
+        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         icon: const BackButtonIcon(),
         onPressed: () => close(context, null),
       );

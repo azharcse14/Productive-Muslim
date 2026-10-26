@@ -49,7 +49,7 @@
   "settingHijriOffset": "Hijri date adjustment",
   "settingHijriOffsetSub": "Match your local moon-sighting",
   "hijriOffsetValue": "{count, plural, =1{{sign}1 day} other{{sign}{count} days}}",
-  "@hijriOffsetValue": { "placeholders": { "count": { "type": "int" }, "sign": { "type": "String" } } },
+  "@hijriOffsetValue": { "placeholders": { "count": { "type": "int", "format": "decimalPattern" }, "sign": { "type": "String" } } },
   "settingSahriSafety": "Sahri safety margin",
   "settingSahriSafetySub": "End sahri this many minutes before Fajr",
   "settingTheme": "Theme",
@@ -102,7 +102,8 @@
   "@minutesShort": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -292,7 +293,8 @@
   "@offsetAfterStart": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -381,7 +383,8 @@
   "@currentStreakLabel": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -389,7 +392,8 @@
   "@bestStreakLabel": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -402,10 +406,12 @@
   "@muhasabaDoneCount": {
     "placeholders": {
       "done": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -422,7 +428,8 @@
   "@minutesValue": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -434,7 +441,8 @@
   "@surahMeta": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "place": {
         "type": "String"
@@ -451,6 +459,10 @@
   },
   "readerFontSize": "Arabic text size",
   "showTranslation": "Show translation",
+  "readerSettings": "Reading settings",
+  "copyAyah": "Copy ayah",
+  "previousDay": "Previous day",
+  "nextDay": "Next day",
   "ayahCopied": "Ayah copied",
   "bookmarksTitle": "Bookmarks",
   "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
@@ -460,10 +472,12 @@
   "@ayahShareSuffix": {
     "placeholders": {
       "surah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -478,8 +492,8 @@
   "asmaQuizProgress": "{current} of {total}",
   "@asmaQuizProgress": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizNext": "Next",
@@ -489,14 +503,14 @@
   "asmaQuizScore": "{score}/{total}",
   "@asmaQuizScore": {
     "placeholders": {
-      "score": { "type": "int" },
-      "total": { "type": "int" }
+      "score": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizBest": "Best score: {best}",
   "@asmaQuizBest": {
     "placeholders": {
-      "best": { "type": "int" }
+      "best": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizPlayAgain": "Try again",
@@ -520,7 +534,7 @@
   "fastingHeatmapLabel": "{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "fastingUpcomingTitle": "Upcoming recommended fasts",
@@ -542,8 +556,8 @@
   "achievementsCount": "{unlocked} of {total} earned",
   "@achievementsCount": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "achievementCategory": "{key, select, streaks{Streaks} salah{Salah} dhikr{Dhikr} quran{Quran} fasting{Fasting} other{Achievements}}",
@@ -566,7 +580,8 @@
   "@duaCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -574,7 +589,8 @@
   "@repeatTimes": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -595,7 +611,8 @@
   "@ruqyahCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -607,7 +624,8 @@
   "@tasbihSessionLine": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -617,10 +635,12 @@
   "@rozaDayOf": {
     "placeholders": {
       "day": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -628,7 +648,8 @@
   "@daysUntilRamadan": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -713,7 +734,7 @@
   "appLockPinProgress": "{entered} of 4 digits entered",
   "@appLockPinProgress": {
     "placeholders": {
-      "entered": { "type": "int" }
+      "entered": { "type": "int", "format": "decimalPattern" }
     }
   },
   "a11yIncrease": "Increase {label}",
@@ -758,7 +779,7 @@
   "streakMilestone": "{count}-day streak! 🎉",
   "@streakMilestone": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "calculatorsTitle": "Calculators",
@@ -882,11 +903,11 @@
   },
   "hadithCount": "{count, plural, =1{1 hadith} other{{count} hadith}}",
   "@hadithCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
   "@hadithChapterCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithBooksCardTitle": "Full collections",
   "hadithBooksTitle": "Hadith collections",

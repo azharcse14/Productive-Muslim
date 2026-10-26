@@ -197,6 +197,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: context.l10n.readerSettings,
             icon: const Icon(Icons.tune),
             onPressed: () => unawaited(_openReaderSettings(context)),
           ),
@@ -312,14 +313,12 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                 onPressed: () => unawaited(_store.toggleBookmark(ayah.id)),
               ),
               IconButton(
+                tooltip: l10n.copyAyah,
                 icon: Icon(Icons.copy_outlined, color: q.ink3),
                 onPressed: () => unawaited(_copyAyah(context, ayah)),
               ),
-              // Share lands with the share-sheet integration phase.
-              IconButton(
-                icon: Icon(Icons.share_outlined, color: q.ink3),
-                onPressed: null,
-              ),
+              // Share returns with the share-sheet integration phase; a
+              // permanently disabled button just looked broken.
             ],
           ),
         ],

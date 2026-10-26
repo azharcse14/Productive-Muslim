@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../extensions/context_ext.dart';
@@ -10,6 +10,7 @@ final class QCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(18),
     this.tone,
     this.radius = QRadius.lg,
+    this.onTap,
     super.key,
   });
 
@@ -19,6 +20,9 @@ final class QCard extends StatelessWidget {
   /// Overrides the surface color (e.g. soft tonal cards).
   final Color? tone;
   final double radius;
+
+  /// Makes the whole card tappable with an ink ripple clipped to its shape.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,15 @@ final class QCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: Padding(padding: padding, child: child),
+        child: onTap == null
+            ? Padding(padding: padding, child: child)
+            : Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: onTap,
+                  child: Padding(padding: padding, child: child),
+                ),
+              ),
       ),
     );
   }

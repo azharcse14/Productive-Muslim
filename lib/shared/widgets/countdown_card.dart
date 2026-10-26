@@ -182,11 +182,18 @@ final class CountdownCard extends StatelessWidget {
                       top: compact ? 5 : 8,
                       bottom: compact ? 4 : 6,
                     ),
-                    child: Text(
-                      big,
-                      style: QType.countdown.copyWith(
-                        fontSize: numeralSize,
-                        color: c.fg,
+                    // Shrinks rather than wrapping mid-digits at large text
+                    // sizes on narrow phones.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        big,
+                        maxLines: 1,
+                        style: QType.countdown.copyWith(
+                          fontSize: numeralSize,
+                          color: c.fg,
+                        ),
                       ),
                     ),
                   ),

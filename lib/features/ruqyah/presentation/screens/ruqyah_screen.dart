@@ -39,9 +39,9 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
   void _open(Widget screen) {
     unawaited(HapticFeedback.selectionClick());
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => screen),
-      ),
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
     );
   }
 
@@ -70,7 +70,7 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: QSpace.s3,
                   crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.2 / context.textGrowth,
                   children: [
                     for (final category in categories)
                       _CategoryCard(
@@ -111,10 +111,7 @@ final class _GuidanceCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: QSpace.s2),
-          Text(
-            l10n.ruqyahHowToBody,
-            style: QType.body.copyWith(color: q.ink2),
-          ),
+          Text(l10n.ruqyahHowToBody, style: QType.body.copyWith(color: q.ink2)),
         ],
       ),
     );
@@ -134,43 +131,41 @@ final class _CategoryCard extends StatelessWidget {
     final languageCode = Localizations.localeOf(context).languageCode;
     return Semantics(
       button: true,
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf(category.icon),
-                  size: 19,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const Spacer(),
-              Text(
-                l10n.ruqyahCategoryName(category.id),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: QType.titleSm.copyWith(color: q.ink),
+              child: Icon(
+                TrackerVisuals.iconOf(category.icon),
+                size: 19,
+                color: q.onPrimarySoft,
               ),
-              const SizedBox(height: 2),
-              Text(
-                LocaleDigits.localize(
-                  l10n.ruqyahCount(category.items.length),
-                  languageCode,
-                ),
-                style: QType.caption.copyWith(color: q.ink2),
+            ),
+            const Spacer(),
+            Text(
+              l10n.ruqyahCategoryName(category.id),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: QType.titleSm.copyWith(color: q.ink),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              LocaleDigits.localize(
+                l10n.ruqyahCount(category.items.length),
+                languageCode,
               ),
-            ],
-          ),
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
+          ],
         ),
       ),
     );
