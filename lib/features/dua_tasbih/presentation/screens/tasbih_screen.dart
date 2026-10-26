@@ -176,13 +176,24 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                   ),
                   child: Column(
                     children: [
-                      QButton(
-                        label: l10n.tasbihReset,
-                        kind: QButtonKind.outline,
-                        small: true,
-                        onPressed: count > 0
-                            ? () => unawaited(_confirmReset())
-                            : null,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          QButton(
+                            label: l10n.tasbihReset,
+                            kind: QButtonKind.outline,
+                            small: true,
+                            onPressed: count > 0
+                                ? () => unawaited(_confirmReset())
+                                : null,
+                          ),
+                          const SizedBox(width: QSpace.s2),
+                          IconButton(
+                            tooltip: l10n.tasbihUndo,
+                            onPressed: count > 0 ? _store.undo : null,
+                            icon: const Icon(Icons.undo),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: QSpace.s3),
                       Text(
@@ -253,15 +264,20 @@ final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
 /// card, so a stray tap never ends a round silently.
 Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
   final l10n = context.l10n;
-  final confirmed = await showDialog<bool>(
+  // null = cancel, false = discard the round, true = save it.
+  final save = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: Text(l10n.tasbihReset),
       content: Text(l10n.tasbihResetConfirm),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
+          onPressed: () => Navigator.of(dialogContext).pop(),
           child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.tasbihDiscard),
         ),
         FilledButton(
           onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -270,7 +286,7 @@ Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
       ],
     ),
   );
-  if (confirmed ?? false) {
-    await store.reset(saveToHistory: true);
+  if (save != null) {
+    await store.reset(saveToHistory: save);
   }
 }

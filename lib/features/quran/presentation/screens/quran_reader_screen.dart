@@ -12,6 +12,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
@@ -47,6 +48,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
 
   final ScrollController _controller = ScrollController();
   final _ayahs = signal(const <Ayah>[]);
+  final _failed = signal(false);
   final _progress = signal(0.0);
 
   /// Contexts of the currently built ayah items, keyed by index — used to
@@ -72,7 +74,10 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   }
 
   Future<void> _load() async {
-    _ayahs.value = await _store.ayahsOf(widget.surahId);
+    _failed.value = false;
+    final ayahs = await _store.ayahsOf(widget.surahId);
+    _failed.value = ayahs == null;
+    _ayahs.value = ayahs ?? const [];
     final initial = widget.initialAyah;
     if (initial != null && initial > 1) {
       final index = _ayahs.value.indexWhere((a) => a.number == initial);
@@ -217,6 +222,13 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         child: SignalBuilder(
           builder: (context) {
             final ayahs = _ayahs.value;
+            if (_failed.value) {
+              return QErrorRetry(
+                message: context.l10n.quranLoadError,
+                retryLabel: context.l10n.hadithRetry,
+                onRetry: () => unawaited(_load()),
+              );
+            }
             if (ayahs.isEmpty) {
               return ListView(
                 padding: const EdgeInsets.all(QSpace.s5),

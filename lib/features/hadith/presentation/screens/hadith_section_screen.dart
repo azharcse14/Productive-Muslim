@@ -9,6 +9,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_section_store.dart';
 import '../widgets/hadith_list_card.dart';
@@ -68,7 +69,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (_store.failed.value) {
-              return _ErrorRetry(
+              return QErrorRetry(
                 message: l10n.hadithLoadError,
                 retryLabel: l10n.hadithRetry,
                 onRetry: () => unawaited(_load()),
@@ -217,38 +218,3 @@ final class _Banner extends StatelessWidget {
   }
 }
 
-final class _ErrorRetry extends StatelessWidget {
-  const _ErrorRetry({
-    required this.message,
-    required this.retryLabel,
-    required this.onRetry,
-  });
-
-  final String message;
-  final String retryLabel;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(QSpace.s6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_outlined, size: 40, color: q.ink3),
-            const SizedBox(height: QSpace.s3),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
-            const SizedBox(height: QSpace.s4),
-            FilledButton(onPressed: onRetry, child: Text(retryLabel)),
-          ],
-        ),
-      ),
-    );
-  }
-}

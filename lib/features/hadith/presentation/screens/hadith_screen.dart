@@ -10,6 +10,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith.dart';
 import '../state/hadith_store.dart';
@@ -89,6 +90,9 @@ final class _HadithScreenState extends State<HadithScreen> {
                   crossAxisSpacing: QSpace.s3,
                   childAspectRatio: 1.2 / context.textGrowth,
                   children: [
+                    if (!_store.loaded.value)
+                      for (var i = 0; i < 6; i++)
+                        const QSkeleton(height: 120, radius: QRadius.lg),
                     for (final topic in topics)
                       _TopicCard(
                         topic: topic,

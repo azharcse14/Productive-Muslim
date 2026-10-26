@@ -18,6 +18,10 @@ final class TasbihStore {
         _now = now ?? DateTime.now;
 
   static const _key = 'tasbih_today';
+
+  /// The in-progress round ({count, target}), so an OS kill mid-round
+  /// doesn't lose it.
+  static const _roundKey = 'tasbih_round';
   static const _lifetimeKey = 'tasbih_lifetime';
 
   final SharedPreferencesAsync _prefs;
@@ -62,7 +66,37 @@ final class TasbihStore {
     totalToday.value = await _readTotal(today);
     _totalDay = today;
     await _loadLifetime();
+    await _loadRound();
   }
+
+  Future<void> _loadRound() async {
+    final raw = await _prefs.getString(_roundKey);
+    if (raw == null) {
+      return;
+    }
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        final m = decoded.cast<String, Object?>();
+        if (m['count'] case final int c when c >= 0) {
+          count.value = c;
+        }
+        if (m['target'] case final int t when t >= 1) {
+          target.value = t;
+        }
+      }
+    } on FormatException {
+      // Corrupt payload — start fresh.
+    }
+  }
+
+  // ponytail: one prefs write per bead; debounce if taps ever get heavy.
+  void _saveRound() => unawaited(
+        _prefs.setString(
+          _roundKey,
+          jsonEncode({'count': count.value, 'target': target.value}),
+        ),
+      );
 
   Future<int> _readTotal(String today) async {
     final raw = await _prefs.getString(_key);
@@ -122,6 +156,19 @@ final class TasbihStore {
       milestone.value = true;
       _milestoneHaptic();
     }
+    _saveRound();
+  }
+
+  /// Takes back one stray bead.
+  void undo() {
+    if (count.value == 0) {
+      return;
+    }
+    count.value = count.value - 1;
+    if (count.value < target.value) {
+      milestone.value = false;
+    }
+    _saveRound();
   }
 
   void setTarget(int n) {
@@ -132,6 +179,7 @@ final class TasbihStore {
     if (count.value < n) {
       milestone.value = false;
     }
+    _saveRound();
   }
 
   /// Ends the round. With [saveToHistory] the round is added to today's
@@ -156,5 +204,6 @@ final class TasbihStore {
     }
     count.value = 0;
     milestone.value = false;
+    _saveRound();
   }
 }

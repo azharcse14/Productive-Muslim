@@ -10,6 +10,8 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
@@ -55,6 +57,24 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
         child: SignalBuilder(
           builder: (context) {
             final books = _store.books.value;
+            if (!_store.loaded.value) {
+              return ListView(
+                padding: const EdgeInsets.all(QSpace.s5),
+                children: [
+                  for (var i = 0; i < 5; i++) ...[
+                    const QSkeleton(height: 76, radius: QRadius.lg),
+                    const SizedBox(height: QSpace.s3),
+                  ],
+                ],
+              );
+            }
+            if (_store.failed.value && books.isEmpty) {
+              return QErrorRetry(
+                message: l10n.hadithLoadError,
+                retryLabel: l10n.hadithRetry,
+                onRetry: () => unawaited(_store.load()),
+              );
+            }
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,

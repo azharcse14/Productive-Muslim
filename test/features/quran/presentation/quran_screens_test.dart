@@ -100,13 +100,17 @@ final class FakeQuranRepository implements QuranRepository {
   /// Per-test ayah overrides (e.g. a long surah for scroll tests).
   final extraAyahs = <int, List<Ayah>>{};
 
+  /// Makes `ayahsOf` fail (a broken bundled DB).
+  bool failAyahs = false;
+
   @override
   Future<Result<List<Surah>>> surahs() async =>
       const Result.success(surahsData);
 
   @override
-  Future<Result<List<Ayah>>> ayahsOf(int surah) async =>
-      Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
+  Future<Result<List<Ayah>>> ayahsOf(int surah) async => failAyahs
+      ? const Result.failure(UnexpectedFailure('broken'))
+      : Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
 
   @override
   Future<Result<List<Surah>>> searchSurahs(String query) async {
@@ -411,6 +415,20 @@ void main() {
       expect((tester.getTopLeft(card).dy - listTop).abs(), lessThan(40));
       // The programmatic jump is not a read.
       expect(repo.storedLastRead, isNull);
+    });
+
+    testWidgets('a failed load shows a retry instead of an endless skeleton',
+        (tester) async {
+      repo.failAyahs = true;
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+      expect(find.text('Try again'), findsOneWidget);
+
+      repo.failAyahs = false;
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      expect(find.text('In the name of Allah'), findsOneWidget);
+      await flushMarkRead(tester);
     });
 
     testWidgets('records as soon as the scroll settles (leaving right after)',

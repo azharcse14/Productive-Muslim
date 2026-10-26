@@ -22,6 +22,10 @@ abstract interface class NotificationScheduler {
   /// Opens the OS exact-alarm consent screen (Android; no-op elsewhere).
   Future<void> requestExactAlarmPermission();
 
+  /// Opens this app's page in system settings — the only way back once
+  /// notifications were denied (the OS won't prompt again).
+  Future<void> openSystemSettings();
+
   /// Replaces the entire pending schedule with [items].
   Future<Result<void>> reschedule(
     List<NotificationItem> items,

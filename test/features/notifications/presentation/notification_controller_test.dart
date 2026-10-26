@@ -64,6 +64,9 @@ final class _CountingScheduler implements NotificationScheduler {
   Future<void> requestExactAlarmPermission() async {}
 
   @override
+  Future<void> openSystemSettings() async {}
+
+  @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,

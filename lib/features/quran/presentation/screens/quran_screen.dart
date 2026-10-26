@@ -10,6 +10,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/surah.dart';
@@ -267,6 +268,13 @@ final class _QuranScreenState extends State<QuranScreen> {
   Widget _surahList(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
+    if (_store.failed.value) {
+      return QErrorRetry(
+        message: l10n.quranLoadError,
+        retryLabel: l10n.hadithRetry,
+        onRetry: () => unawaited(_store.load()),
+      );
+    }
     if (!_store.loaded.value) {
       return ListView(
         padding: const EdgeInsets.all(QSpace.s5),

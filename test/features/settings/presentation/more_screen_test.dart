@@ -33,6 +33,11 @@ void main() {
 
     await store.setShowAchievements(show: true);
     await tester.pump();
+    // It lives in the bottom "You" group.
+    await tester.scrollUntilVisible(
+      find.byIcon(Icons.emoji_events_outlined),
+      200,
+    );
     expect(find.byIcon(Icons.emoji_events_outlined), findsOneWidget);
   });
 }

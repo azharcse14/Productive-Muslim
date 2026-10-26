@@ -34,6 +34,9 @@
   },
   "settingsTitle": "Settings",
   "groupCalculation": "Prayer calculation",
+  "moreGroupWorship": "Worship",
+  "moreGroupTools": "Tools",
+  "moreGroupYou": "You",
   "groupNotifications": "Notifications",
   "groupAppearance": "Appearance & language",
   "groupPrivacy": "Privacy",
@@ -345,6 +348,7 @@
       }
     }
   },
+  "qiblaFinding": "Finding direction…",
   "qiblaNeedsLocation": "Set your location to find the qibla direction",
   "muhasabaTitle": "Muhasaba",
   "muhasabaFirstDayTitle": "Your daily muhasaba",
@@ -463,6 +467,7 @@
   "copyAyah": "Copy ayah",
   "previousDay": "Previous day",
   "nextDay": "Next day",
+  "quranLoadError": "Couldn't open the Quran text. Please try again.",
   "ayahCopied": "Ayah copied",
   "bookmarksTitle": "Bookmarks",
   "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
@@ -619,6 +624,8 @@
   "tasbihTarget": "Target",
   "tasbihCustom": "Custom",
   "tasbihReset": "Reset",
+  "tasbihDiscard": "Discard",
+  "tasbihUndo": "Undo last count",
   "tasbihResetConfirm": "Save this round to history and reset?",
   "tasbihSessionLine": "Today: {count} counted",
   "@tasbihSessionLine": {
@@ -706,6 +713,7 @@
   "onboardingMethodNote": "Suggested for your region. You can change this later in Settings.",
   "onboardingNotifTitle": "Stay gently reminded",
   "onboardingNotifBody": "Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.",
+  "onboardingNotifDenied": "Notifications are off. You can turn them on any time from Settings → Notifications.",
   "onboardingNotifAllow": "Allow notifications",
   "onboardingNotifSkip": "Maybe later",
   "onboardingFinishTitle": "Bismillah",
@@ -762,6 +770,7 @@
   "prayerFazilatAsr": "Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.",
   "prayerFazilatMaghrib": "Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.",
   "prayerFazilatIsha": "Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.",
+  "dailyKindAyah": "Ayah",
   "dailyAyahTitle": "Ayah of the day",
   "duaOfDayTitle": "Dua of the day",
   "dailyAyahReference": "{surah}, ayah {ayah}",
@@ -814,6 +823,7 @@
   "qazaSelectDate": "Select date",
   "qazaIncludeWitr": "Include Witr (Hanafi)",
   "qazaAlreadyMadeUp": "Already made up (per prayer)",
+  "qazaEndBeforeStart": "The end date is before the start date.",
   "qazaCalculate": "Calculate",
   "qazaDays": "Period: {count} days",
   "@qazaDays": {

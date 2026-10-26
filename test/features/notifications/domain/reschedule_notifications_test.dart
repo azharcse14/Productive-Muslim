@@ -38,6 +38,9 @@ final class _FakeScheduler implements NotificationScheduler {
   Future<void> requestExactAlarmPermission() async {}
 
   @override
+  Future<void> openSystemSettings() async {}
+
+  @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,

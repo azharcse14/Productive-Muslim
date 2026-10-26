@@ -158,6 +158,24 @@ abstract class AppLocalizations {
   /// **'Prayer calculation'**
   String get groupCalculation;
 
+  /// No description provided for @moreGroupWorship.
+  ///
+  /// In en, this message translates to:
+  /// **'Worship'**
+  String get moreGroupWorship;
+
+  /// No description provided for @moreGroupTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get moreGroupTools;
+
+  /// No description provided for @moreGroupYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get moreGroupYou;
+
   /// No description provided for @groupNotifications.
   ///
   /// In en, this message translates to:
@@ -1376,6 +1394,12 @@ abstract class AppLocalizations {
   /// **'Qibla is at {degrees}° {cardinal} from north'**
   String qiblaVerbalBearing(String degrees, String cardinal);
 
+  /// No description provided for @qiblaFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding direction…'**
+  String get qiblaFinding;
+
   /// No description provided for @qiblaNeedsLocation.
   ///
   /// In en, this message translates to:
@@ -1663,6 +1687,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next day'**
   String get nextDay;
+
+  /// No description provided for @quranLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the Quran text. Please try again.'**
+  String get quranLoadError;
 
   /// No description provided for @ayahCopied.
   ///
@@ -2036,6 +2066,18 @@ abstract class AppLocalizations {
   /// **'Reset'**
   String get tasbihReset;
 
+  /// No description provided for @tasbihDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get tasbihDiscard;
+
+  /// No description provided for @tasbihUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last count'**
+  String get tasbihUndo;
+
   /// No description provided for @tasbihResetConfirm.
   ///
   /// In en, this message translates to:
@@ -2263,6 +2305,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.'**
   String get onboardingNotifBody;
+
+  /// No description provided for @onboardingNotifDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off. You can turn them on any time from Settings → Notifications.'**
+  String get onboardingNotifDenied;
 
   /// No description provided for @onboardingNotifAllow.
   ///
@@ -2492,6 +2540,12 @@ abstract class AppLocalizations {
   /// **'Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.'**
   String get prayerFazilatIsha;
 
+  /// No description provided for @dailyKindAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah'**
+  String get dailyKindAyah;
+
   /// No description provided for @dailyAyahTitle.
   ///
   /// In en, this message translates to:
@@ -2683,6 +2737,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already made up (per prayer)'**
   String get qazaAlreadyMadeUp;
+
+  /// No description provided for @qazaEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get qazaEndBeforeStart;
 
   /// No description provided for @qazaCalculate.
   ///

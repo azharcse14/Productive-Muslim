@@ -39,6 +39,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get groupCalculation => 'নামাজের হিসাব';
 
   @override
+  String get moreGroupWorship => 'ইবাদত';
+
+  @override
+  String get moreGroupTools => 'টুলস';
+
+  @override
+  String get moreGroupYou => 'আপনি';
+
+  @override
   String get groupNotifications => 'নোটিফিকেশন';
 
   @override
@@ -776,6 +785,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get qiblaFinding => 'দিক খোঁজা হচ্ছে…';
+
+  @override
   String get qiblaNeedsLocation => 'কিবলার দিক পেতে আগে অবস্থান সেট করুন';
 
   @override
@@ -994,6 +1006,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get nextDay => 'পরের দিন';
+
+  @override
+  String get quranLoadError => 'কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get ayahCopied => 'আয়াত কপি হয়েছে';
@@ -1366,6 +1381,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tasbihReset => 'রিসেট';
 
   @override
+  String get tasbihDiscard => 'বাদ দিন';
+
+  @override
+  String get tasbihUndo => 'শেষ গণনা ফেরত নিন';
+
+  @override
   String get tasbihResetConfirm => 'এই রাউন্ড ইতিহাসে রেখে রিসেট করবেন?';
 
   @override
@@ -1534,6 +1555,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্রতি ওয়াক্তে আজান, সাহরি-ইফতার অ্যালার্ট, আর সন্ধ্যার মুহাসাবা নাজ — সব আপনার ডিভাইসেই হিসাব হয়।';
 
   @override
+  String get onboardingNotifDenied =>
+      'নোটিফিকেশন বন্ধ আছে। যেকোনো সময় সেটিংস → নোটিফিকেশন থেকে চালু করতে পারবেন।';
+
+  @override
   String get onboardingNotifAllow => 'নোটিফিকেশন চালু করুন';
 
   @override
@@ -1668,6 +1693,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।';
 
   @override
+  String get dailyKindAyah => 'আয়াত';
+
+  @override
   String get dailyAyahTitle => 'আজকের আয়াত';
 
   @override
@@ -1777,6 +1805,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qazaAlreadyMadeUp => 'ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)';
+
+  @override
+  String get qazaEndBeforeStart => 'শেষের তারিখ শুরুর তারিখের আগে পড়েছে।';
 
   @override
   String get qazaCalculate => 'হিসাব করুন';

@@ -213,6 +213,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('More'));
       await tester.pumpAndSettle();
+      // The Tools group sits below the fold, under the bottom bar.
+      await tester.scrollUntilVisible(find.text('Calculators'), 200);
+      await tester.ensureVisible(find.text('Calculators'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Calculators'));
       await tester.pumpAndSettle();
       // Hub lists all five calculators.
@@ -229,6 +233,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
       await tester.tap(find.text('More'));
+      await tester.pumpAndSettle();
+      // The Tools group sits below the fold, under the bottom bar.
+      await tester.scrollUntilVisible(find.text('Calculators'), 200);
+      await tester.ensureVisible(find.text('Calculators'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Calculators'));
       await tester.pumpAndSettle();

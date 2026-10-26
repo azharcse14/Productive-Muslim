@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
@@ -16,7 +17,7 @@ final class TrackerRow extends StatelessWidget {
     required this.value,
     required this.displayName,
     required this.onChanged,
-    this.onLongPress,
+    this.onEdit,
     super.key,
   });
 
@@ -25,8 +26,12 @@ final class TrackerRow extends StatelessWidget {
 
   /// Localized name (default items resolve via l10n keys).
   final String displayName;
-  final ValueChanged<int> onChanged;
-  final VoidCallback? onLongPress;
+
+  /// null renders the controls disabled (archived items).
+  final ValueChanged<int>? onChanged;
+
+  /// Tapping (or long-pressing) the row outside its controls edits it.
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -40,72 +45,86 @@ final class TrackerRow extends StatelessWidget {
       (TrackerKind.duration, null) => l10n.minutesValue(value),
       _ => null,
     };
-    return GestureDetector(
-      onLongPress: onLongPress,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: QSpace.s4,
-          vertical: QSpace.s3,
-        ),
-        decoration: BoxDecoration(
-          color: q.surface,
-          borderRadius: BorderRadius.circular(QRadius.md),
-          border: Border.all(color: q.line),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: q.primarySoft,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Icon(
-                TrackerVisuals.iconOf(item.icon),
-                size: 20,
-                color: tone,
-              ),
-            ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: QType.titleSm.copyWith(fontSize: 15.5, color: q.ink),
-                  ),
-                  if (sub != null)
-                    Text(
-                      context.digits(sub),
-                      style: QType.num_(QType.caption).copyWith(color: q.ink2),
-                    ),
-                ],
-              ),
-            ),
-            switch (item.kind) {
-              TrackerKind.yesNo => Semantics(
-                label: displayName,
-                child: Switch(
-                  value: value > 0,
-                  onChanged: (v) => onChanged(v ? 1 : 0),
+    final onChanged = this.onChanged;
+    return Material(
+      color: q.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(QRadius.md),
+        side: BorderSide(color: q.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onEdit,
+        onLongPress: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpace.s4,
+            vertical: QSpace.s3,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: q.primarySoft,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  TrackerVisuals.iconOf(item.icon),
+                  size: 20,
+                  color: tone,
                 ),
               ),
-              TrackerKind.count => _Stepper(
-                value: value,
-                step: 1,
-                label: displayName,
-                onChanged: onChanged,
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: QType.titleSm.copyWith(
+                        fontSize: 15.5,
+                        color: q.ink,
+                      ),
+                    ),
+                    if (sub != null)
+                      Text(
+                        context.digits(sub),
+                        style: QType.num_(
+                          QType.caption,
+                        ).copyWith(color: q.ink2),
+                      ),
+                  ],
+                ),
               ),
-              TrackerKind.duration => _Stepper(
-                value: value,
-                step: 5,
-                label: displayName,
-                onChanged: onChanged,
-              ),
-            },
-          ],
+              switch (item.kind) {
+                // container: its own node, not merged into the row's tap.
+                TrackerKind.yesNo => Semantics(
+                  container: true,
+                  label: displayName,
+                  child: Switch(
+                    value: value > 0,
+                    onChanged: onChanged == null
+                        ? null
+                        : (v) => onChanged(v ? 1 : 0),
+                  ),
+                ),
+                TrackerKind.count => _Stepper(
+                  value: value,
+                  step: 1,
+                  label: displayName,
+                  onChanged: onChanged,
+                ),
+                TrackerKind.duration => _Stepper(
+                  value: value,
+                  step: 5,
+                  label: displayName,
+                  onChanged: onChanged,
+                ),
+              },
+            ],
+          ),
         ),
       ),
     );
@@ -125,7 +144,41 @@ final class _Stepper extends StatelessWidget {
 
   /// Item name, woven into the +/- buttons' screen-reader labels.
   final String label;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int>? onChanged;
+
+  /// Typing beats 12 taps of +5 for an hour of tahajjud.
+  Future<void> _typeValue(BuildContext context) async {
+    final l10n = context.l10n;
+    final controller = TextEditingController(text: '$value');
+    final typed = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) {
+        void submit() => Navigator.of(
+          dialogContext,
+        ).pop(int.tryParse(LocaleDigits.toAscii(controller.text.trim())));
+        return AlertDialog(
+          title: Text(label),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            onSubmitted: (_) => submit(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(onPressed: submit, child: Text(l10n.save)),
+          ],
+        );
+      },
+    );
+    controller.dispose();
+    if (typed != null && typed >= 0) {
+      onChanged?.call(typed);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,24 +195,30 @@ final class _Stepper extends StatelessWidget {
           QStepButton(
             icon: Icons.remove,
             semanticLabel: l10n.a11yDecrease(label),
-            onTap: value > 0 ? () => onChanged(value - step) : null,
+            onTap: onChanged != null && value > 0
+                ? () => onChanged!(value - step < 0 ? 0 : value - step)
+                : null,
           ),
-          SizedBox(
-            width: 38,
-            child: Text(
-              context.digits('$value'),
-              textAlign: TextAlign.center,
-              style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+          InkWell(
+            onTap: onChanged == null ? null : () => _typeValue(context),
+            child: SizedBox(
+              width: 38,
+              height: QTouch.minTarget,
+              child: Center(
+                child: Text(
+                  context.digits('$value'),
+                  style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+                ),
+              ),
             ),
           ),
           QStepButton(
             icon: Icons.add,
             semanticLabel: l10n.a11yIncrease(label),
-            onTap: () => onChanged(value + step),
+            onTap: onChanged == null ? null : () => onChanged!(value + step),
           ),
         ],
       ),
     );
   }
 }
-

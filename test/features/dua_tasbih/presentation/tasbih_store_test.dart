@@ -55,6 +55,28 @@ void main() {
       expect(milestones, 1);
     });
 
+    test('an in-progress round survives a restart; undo takes one back',
+        () async {
+      final store = makeStore()..setTarget(100);
+      store
+        ..tap()
+        ..tap()
+        ..tap()
+        ..undo();
+      await pumpEventQueue();
+
+      final restored = makeStore();
+      await restored.load();
+      expect(restored.count.value, 2);
+      expect(restored.target.value, 100);
+
+      restored
+        ..undo()
+        ..undo()
+        ..undo();
+      expect(restored.count.value, 0);
+    });
+
     test('reset(saveToHistory: true) adds the round to today and persists',
         () async {
       final store = makeStore();

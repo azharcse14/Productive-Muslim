@@ -168,7 +168,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             value: _store.valueOf(item.id),
             displayName: _nameOf(l10n, item),
             onChanged: (v) => unawaited(_store.setValue(item.id, v)),
-            onLongPress: () =>
+            onEdit: () =>
                 unawaited(showItemEditor(context, _store, existing: item)),
           ),
           const SizedBox(height: QSpace.s3),
@@ -186,8 +186,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 item: item,
                 value: _store.valueOf(item.id),
                 displayName: _nameOf(l10n, item),
-                onChanged: (_) {},
-                onLongPress: () =>
+                onChanged: null,
+                onEdit: () =>
                     unawaited(showItemEditor(context, _store, existing: item)),
               ),
             ),

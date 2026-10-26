@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/utils/result.dart';
@@ -139,6 +140,11 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   @override
   Future<void> requestExactAlarmPermission() async =>
       _android?.requestExactAlarmsPermission();
+
+  // geolocator is already a dependency and opens the app's settings page
+  // on both platforms.
+  @override
+  Future<void> openSystemSettings() async => Geolocator.openAppSettings();
 
   @override
   Future<Result<void>> reschedule(

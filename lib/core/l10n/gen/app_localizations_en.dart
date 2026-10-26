@@ -39,6 +39,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupCalculation => 'Prayer calculation';
 
   @override
+  String get moreGroupWorship => 'Worship';
+
+  @override
+  String get moreGroupTools => 'Tools';
+
+  @override
+  String get moreGroupYou => 'You';
+
+  @override
   String get groupNotifications => 'Notifications';
 
   @override
@@ -779,6 +788,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get qiblaFinding => 'Finding direction…';
+
+  @override
   String get qiblaNeedsLocation =>
       'Set your location to find the qibla direction';
 
@@ -998,6 +1010,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextDay => 'Next day';
+
+  @override
+  String get quranLoadError =>
+      'Couldn\'t open the Quran text. Please try again.';
 
   @override
   String get ayahCopied => 'Ayah copied';
@@ -1369,6 +1385,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasbihReset => 'Reset';
 
   @override
+  String get tasbihDiscard => 'Discard';
+
+  @override
+  String get tasbihUndo => 'Undo last count';
+
+  @override
   String get tasbihResetConfirm => 'Save this round to history and reset?';
 
   @override
@@ -1538,6 +1560,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.';
 
   @override
+  String get onboardingNotifDenied =>
+      'Notifications are off. You can turn them on any time from Settings → Notifications.';
+
+  @override
   String get onboardingNotifAllow => 'Allow notifications';
 
   @override
@@ -1672,6 +1698,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.';
 
   @override
+  String get dailyKindAyah => 'Ayah';
+
+  @override
   String get dailyAyahTitle => 'Ayah of the day';
 
   @override
@@ -1780,6 +1809,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qazaAlreadyMadeUp => 'Already made up (per prayer)';
+
+  @override
+  String get qazaEndBeforeStart => 'The end date is before the start date.';
 
   @override
   String get qazaCalculate => 'Calculate';

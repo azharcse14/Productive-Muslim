@@ -13,6 +13,7 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
+import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
@@ -246,11 +247,14 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Setup stays complete while re-running, so the flow can be closed
+  /// part-way (each step saves as it goes).
   Future<void> _runSetupAgain() async {
-    await _store.setSetupComplete(complete: false);
-    if (mounted) {
-      context.goNamed(Routes.onboarding.name);
-    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const OnboardingScreen(rerun: true),
+      ),
+    );
   }
 
   Future<void> _pickMadhab(Madhab current) async {

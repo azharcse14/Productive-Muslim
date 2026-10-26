@@ -29,8 +29,13 @@ final class QuranStore {
   late final showTranslation = signal(true);
   late final loaded = signal(false);
 
+  /// The surah index failed to load; the Quran tab offers a retry.
+  late final failed = signal(false);
+
   Future<void> load() async {
-    surahs.value = (await _repository.surahs()).valueOrNull ?? const [];
+    final index = (await _repository.surahs()).valueOrNull;
+    failed.value = index == null;
+    surahs.value = index ?? const [];
     lastRead.value = (await _repository.lastRead()).valueOrNull;
     bookmarks.value =
         (await _repository.bookmarkedAyahIds()).valueOrNull ?? const {};
@@ -45,9 +50,10 @@ final class QuranStore {
   Future<List<Surah>> search(String query) async =>
       (await _repository.searchSurahs(query)).valueOrNull ?? const [];
 
-  /// Ayahs for the reader, ordered by number within the surah.
-  Future<List<Ayah>> ayahsOf(int surah) async =>
-      (await _repository.ayahsOf(surah)).valueOrNull ?? const [];
+  /// Ayahs for the reader, ordered by number within the surah; null when
+  /// the read failed (distinct from still loading).
+  Future<List<Ayah>?> ayahsOf(int surah) async =>
+      (await _repository.ayahsOf(surah)).valueOrNull;
 
   /// Records the reading position; the reader calls this as ayahs become
   /// visible, so the Quran tab can offer "continue reading".
