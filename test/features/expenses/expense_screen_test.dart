@@ -110,4 +110,59 @@ void main() {
     await tester.pump();
     expect(find.text('Enter a whole amount'), findsOneWidget);
   });
+
+  testWidgets('swipe deletes; the Undo SnackBar restores and does not linger',
+      (tester) async {
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.drag(find.text('tea'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(store.entries.value, isEmpty);
+    expect(tester.widget<SnackBar>(find.byType(SnackBar)).persist, isFalse);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(store.entries.value.single.note, 'tea');
+  });
+
+  testWidgets('a failed save keeps the sheet open with Save re-enabled',
+      (tester) async {
+    final prefs = _FailingWrites();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    register();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '120');
+    await tester.pump();
+    prefs.fail = true;
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.text("Couldn't save. Please try again."), findsOneWidget);
+    expect(store.entries.value, isEmpty);
+    prefs.fail = false;
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(store.entries.value, hasLength(1));
+  });
+}
+
+base class _FailingWrites extends InMemorySharedPreferencesAsync {
+  _FailingWrites() : super.empty();
+
+  bool fail = false;
+
+  @override
+  Future<bool> setString(
+    String key,
+    String value,
+    SharedPreferencesOptions options,
+  ) {
+    if (fail) {
+      throw StateError('disk full');
+    }
+    return super.setString(key, value, options);
+  }
 }

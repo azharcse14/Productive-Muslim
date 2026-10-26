@@ -1985,6 +1985,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseUndo => 'ফিরিয়ে আনুন';
 
   @override
+  String get expenseSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get expenseAmountInvalid => 'পূর্ণ সংখ্যায় পরিমাণ লিখুন';
 
   @override

@@ -637,6 +637,7 @@
   "expenseEdit": "খরচ সম্পাদনা",
   "expenseDeleted": "খরচ মুছে ফেলা হয়েছে",
   "expenseUndo": "ফিরিয়ে আনুন",
+  "expenseSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
   "expenseAmountInvalid": "পূর্ণ সংখ্যায় পরিমাণ লিখুন",
   "expenseBudget": "মাসিক বাজেট",
   "expenseBudgetClear": "বাজেট মুছুন",

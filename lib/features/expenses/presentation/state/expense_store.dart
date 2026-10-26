@@ -51,9 +51,11 @@ final class ExpenseStore {
 
   static const _key = 'expenses_v1';
 
-  /// Raw payload kept aside when some records couldn't be read, so the next
-  /// save (which drops them) never destroys the only copy.
-  static const _corruptKey = 'expenses_v1_unreadable';
+  /// Records (or a whole payload) that couldn't be read, kept as a JSON list
+  /// of raw strings so a save — which drops them from [_key] — never
+  /// destroys the only copy. Every load retries them, so records written by
+  /// a newer version come back after upgrading again.
+  static const _unreadableKey = 'expenses_v1_unreadable_records';
   static const _budgetKey = 'expense_budget_v1';
   static const _categoryBudgetKey = 'expense_category_budgets_v1';
 
@@ -76,7 +78,7 @@ final class ExpenseStore {
   /// Whole-unit amount from user text (Bengali/Arabic digits and ','
   /// grouping accepted); null unless 1..[maxAmount].
   static int? parseAmount(String text) {
-    final v = int.tryParse(LocaleDigits.toAscii(text.trim()));
+    final v = int.tryParse(LocaleDigits.toAscii(text.trim()), radix: 10);
     return v == null || v <= 0 || v > maxAmount ? null : v;
   }
 
@@ -87,28 +89,64 @@ final class ExpenseStore {
 
   /// Loads once per store; every mutation awaits it first, so a write can
   /// never land before (and be clobbered by, or clobber) the stored list.
-  Future<void> load() => _loading ??= _load();
+  /// A failed load is forgotten, so the next call (or write) retries it.
+  Future<void> load() => _loading ??= () async {
+    try {
+      await _load();
+    } on Object {
+      _loading = null;
+      rethrow;
+    }
+  }();
 
   Future<void> _load() async {
     final stored = await _prefs.getString(_key);
+    final unreadable = <String>[
+      for (final r in _decodeList(await _prefs.getString(_unreadableKey)))
+        if (r is String) r,
+    ];
+    final before = unreadable.length;
+    final read = <Expense>[];
     if (stored != null) {
-      final read = <Expense>[];
-      var skipped = false;
       try {
         for (final j in jsonDecode(stored) as List) {
           try {
             read.add(Expense.fromJson(j as Map<String, dynamic>));
           } on Object {
-            skipped = true; // one bad record (e.g. a future category)
+            // One bad record (e.g. a category from a newer version).
+            final raw = jsonEncode(j);
+            if (!unreadable.contains(raw)) {
+              unreadable.add(raw);
+            }
           }
         }
       } on Object {
-        skipped = true; // whole payload unreadable
+        if (!unreadable.contains(stored)) {
+          unreadable.add(stored); // whole payload unreadable
+        }
       }
-      if (skipped && await _prefs.getString(_corruptKey) == null) {
-        await _prefs.setString(_corruptKey, stored);
+    }
+    // Retry the kept records; any that read now rejoin the list.
+    final recovered = <Expense>[];
+    for (final raw in [...unreadable]) {
+      try {
+        recovered.add(Expense.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+        unreadable.remove(raw);
+      } on Object {
+        // Still unreadable — keep it.
       }
+    }
+    if (unreadable.length != before || recovered.isNotEmpty) {
+      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+    }
+    if (recovered.isEmpty) {
       entries.value = read;
+    } else {
+      var list = read;
+      for (final e in recovered) {
+        list = _withEntry(list, e);
+      }
+      await _save(list);
     }
     budget.value = await _prefs.getInt(_budgetKey);
     final storedBudgets = await _prefs.getString(_categoryBudgetKey);
@@ -213,23 +251,53 @@ final class ExpenseStore {
     ]);
   }
 
-  /// Puts a removed [expense] back as it was (undo).
+  /// Puts a removed [expense] back (undo). Same fields; a fresh id only if
+  /// a later add has taken its old one.
   Future<void> restore(Expense expense) async {
     await load();
-    if (entries.value.any((e) => e.id == expense.id)) {
-      return;
-    }
-    await _save(
-      [expense, ...entries.value]..sort((a, b) => b.date.compareTo(a.date)),
-    );
+    await _save(_withEntry(entries.value, expense));
   }
 
+  /// [list] plus [e], re-ided when its id is taken, newest first.
+  static List<Expense> _withEntry(List<Expense> list, Expense e) {
+    final taken = list.any((x) => x.id == e.id);
+    final entry = taken
+        ? Expense(
+            id: list.fold(0, (m, x) => x.id > m ? x.id : m) + 1,
+            amount: e.amount,
+            category: e.category,
+            date: e.date,
+            note: e.note,
+          )
+        : e;
+    return [entry, ...list]..sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  static List<Object?> _decodeList(String? raw) {
+    if (raw == null) {
+      return const [];
+    }
+    try {
+      return jsonDecode(raw) as List<Object?>;
+    } on Object {
+      return const [];
+    }
+  }
+
+  /// Shows [next] at once (a swiped-away row must leave the tree now) and
+  /// rolls back if the write fails, so the list never shows unsaved data.
   Future<void> _save(List<Expense> next) async {
+    final previous = entries.value;
     entries.value = next;
-    await _prefs.setString(
-      _key,
-      jsonEncode([for (final e in next) e.toJson()]),
-    );
+    try {
+      await _prefs.setString(
+        _key,
+        jsonEncode([for (final e in next) e.toJson()]),
+      );
+    } on Object {
+      entries.value = previous;
+      rethrow;
+    }
   }
 
   /// First day of the month [offset] months from the current one.
