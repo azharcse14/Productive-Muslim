@@ -281,6 +281,112 @@ void main() {
       expect(marked, [later]);
     },
   );
+
+  const rec7 =
+      '{"id":7,"amount":9,"category":"family",'
+      '"date":"2026-10-02T10:00:00.000","note":"kept"}';
+
+  test('recovered records survive a failed save during load', () async {
+    final prefs = _FlakyPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    await SharedPreferencesAsync().setString(
+      'expenses_v1_unreadable_records',
+      '[${jsonEncode(rec7)}]',
+    );
+    prefs.failWriteCount = 1;
+    final s = store();
+    await expectLater(s.load(), throwsStateError);
+    await s.load();
+    expect(s.entries.value.map((e) => e.note), ['kept']);
+  });
+
+  test('a record both stored and kept aside comes back once', () async {
+    final prefs = SharedPreferencesAsync();
+    await prefs.setString('expenses_v1', '[$rec7]');
+    await prefs.setString(
+      'expenses_v1_unreadable_records',
+      '[${jsonEncode(rec7)}]',
+    );
+    final s = store();
+    await s.load();
+    expect(s.entries.value.map((e) => e.id), [7]);
+    expect(await prefs.getString('expenses_v1_unreadable_records'), '[]');
+  });
+
+  test(
+    'restore of an entry still present (failed remove) is a no-op',
+    () async {
+      final s = store();
+      await s.add(amount: 30, category: ExpenseCategory.need);
+      final e = s.entries.value.single;
+      await s.restore(e);
+      expect(s.entries.value, hasLength(1));
+    },
+  );
+
+  test('a failed write never hides a later one that succeeded', () async {
+    final prefs = _FlakyPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    await s.load();
+    prefs.failWriteCount = 1;
+    final first = expectLater(
+      s.add(amount: 1, category: ExpenseCategory.need),
+      throwsStateError,
+    );
+    await s.add(amount: 2, category: ExpenseCategory.need);
+    await first;
+    final stored =
+        jsonDecode(
+              (await prefs.getString(
+                'expenses_v1',
+                const SharedPreferencesOptions(),
+              ))!,
+            )
+            as List<dynamic>;
+    expect(s.entries.value.map((e) => e.amount).toSet(), {
+      for (final j in stored) (j as Map)['amount'],
+    }, reason: 'UI shows what is stored');
+  });
+
+  test('import keeps identical rows; re-import adds nothing', () async {
+    final s = store();
+    const csv =
+        'date,category,amount,note\n'
+        '2026-10-01T10:00:00.000,need,50,"tea"\n'
+        '2026-10-01T10:00:00.000,need,50,"tea"';
+    expect(await s.importCsv(csv), 2);
+    expect(await s.importCsv(csv), 0);
+    expect(s.entries.value, hasLength(2));
+  });
+
+  test('import rejects hex amounts and UTC dates', () async {
+    final s = store();
+    expect(
+      await s.importCsv(
+        'date,category,amount,note\n2026-10-01T10:00:00.000,need,0x10,""',
+      ),
+      isNull,
+    );
+    expect(
+      await s.importCsv(
+        'date,category,amount,note\n2026-10-31T23:00:00.000Z,need,5,""',
+      ),
+      isNull,
+    );
+    expect(s.entries.value, isEmpty);
+  });
+
+  test('import tolerates blank lines and a loosely typed header', () async {
+    final s = store();
+    expect(
+      await s.importCsv(
+        'Date, Category ,Amount,Note\r\n\r\n'
+        '2026-10-01T10:00:00.000,need,5,""\r\n\r\n',
+      ),
+      1,
+    );
+  });
 }
 
 /// In-memory prefs that can fail reads (a set number of times) or writes.
@@ -289,6 +395,10 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
 
   int failReads = 0;
   bool failWrites = false;
+
+  /// Fails this many upcoming writes of the expense list, asynchronously
+  /// like a platform call.
+  int failWriteCount = 0;
 
   @override
   Future<String?> getString(String key, SharedPreferencesOptions options) {
@@ -307,6 +417,12 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
   ) {
     if (failWrites) {
       throw StateError('disk full');
+    }
+    if (failWriteCount > 0 && key == 'expenses_v1') {
+      failWriteCount--;
+      return Future<void>.delayed(
+        Duration.zero,
+      ).then((_) => throw StateError('disk full'));
     }
     return super.setString(key, value, options);
   }

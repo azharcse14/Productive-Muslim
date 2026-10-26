@@ -146,17 +146,18 @@ final class ExpenseStore {
         // Still unreadable — keep it.
       }
     }
-    if (unreadable.length != before || recovered.isNotEmpty) {
-      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
-    }
-    if (recovered.isEmpty) {
-      entries.value = read;
-    } else {
+    entries.value = _persisted = read;
+    if (recovered.isNotEmpty) {
       var list = read;
       for (final e in recovered) {
         list = _withEntry(list, e);
       }
       await _save(list);
+    }
+    // Only after the recovered records are saved: shortening this list
+    // first would lose them if that save failed.
+    if (unreadable.length != before || recovered.isNotEmpty) {
+      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
     }
     budget.value = await _prefs.getInt(_budgetKey);
     final storedBudgets = await _prefs.getString(_categoryBudgetKey);
@@ -280,15 +281,21 @@ final class ExpenseStore {
   }
 
   /// Puts a removed [expense] back (undo). Same fields; a fresh id only if
-  /// a later add has taken its old one.
+  /// a later add has taken its old one; a no-op if it's still there (the
+  /// remove failed).
   Future<void> restore(Expense expense) async {
     await load();
     await _save(_withEntry(entries.value, expense));
   }
 
-  /// [list] plus [e], re-ided when its id is taken, newest first.
+  /// [list] plus [e], re-ided when another entry holds its id, newest
+  /// first; [list] itself when an identical entry is already there.
   static List<Expense> _withEntry(List<Expense> list, Expense e) {
-    final taken = list.any((x) => x.id == e.id);
+    final holder = list.where((x) => x.id == e.id).firstOrNull;
+    if (holder != null && _same(holder, e)) {
+      return list;
+    }
+    final taken = holder != null;
     final entry = taken
         ? Expense(
             id: list.fold(0, (m, x) => x.id > m ? x.id : m) + 1,
@@ -301,6 +308,9 @@ final class ExpenseStore {
     return [entry, ...list]..sort((a, b) => b.date.compareTo(a.date));
   }
 
+  static bool _same(Expense a, Expense b) =>
+      jsonEncode(a.toJson()) == jsonEncode(b.toJson());
+
   static List<Object?> _decodeList(String? raw) {
     if (raw == null) {
       return const [];
@@ -312,18 +322,32 @@ final class ExpenseStore {
     }
   }
 
+  /// What [_key] holds after the last successful write.
+  var _persisted = const <Expense>[];
+  Future<void> _lastWrite = Future.value();
+
   /// Shows [next] at once (a swiped-away row must leave the tree now) and
-  /// rolls back if the write fails, so the list never shows unsaved data.
+  /// writes it after any earlier write. On failure, rolls back to what's
+  /// stored — unless a later change is already showing; its own write
+  /// (which includes this one) settles the list then.
   Future<void> _save(List<Expense> next) async {
-    final previous = entries.value;
     entries.value = next;
+    final write = _lastWrite
+        .catchError((Object _) => false)
+        .then(
+          (_) => _prefs.setString(
+            _key,
+            jsonEncode([for (final e in next) e.toJson()]),
+          ),
+        );
+    _lastWrite = write;
     try {
-      await _prefs.setString(
-        _key,
-        jsonEncode([for (final e in next) e.toJson()]),
-      );
+      await write;
+      _persisted = next;
     } on Object {
-      entries.value = previous;
+      if (identical(entries.value, next)) {
+        entries.value = _persisted;
+      }
       rethrow;
     }
   }
@@ -369,8 +393,13 @@ final class ExpenseStore {
   /// is imported then).
   Future<int?> importCsv(String csv) async {
     await load();
-    final rows = _parseCsv(csv.trim());
-    if (rows.isEmpty || rows.first.join(',') != _csvHeader) {
+    final rows = [
+      // Spreadsheets often leave blank lines.
+      for (final r in _parseCsv(csv.trim()))
+        if (r.length > 1 || r.single.trim().isNotEmpty) r,
+    ];
+    if (rows.isEmpty ||
+        rows.first.map((f) => f.trim().toLowerCase()).join(',') != _csvHeader) {
       return null;
     }
     final parsed = <Expense>[];
@@ -378,14 +407,12 @@ final class ExpenseStore {
       if (r.length != 4) {
         return null;
       }
-      final date = DateTime.tryParse(r[0]);
-      final category = ExpenseCategory.values.asNameMap()[r[1]];
-      final amount = int.tryParse(r[2]);
-      if (date == null ||
-          category == null ||
-          amount == null ||
-          amount <= 0 ||
-          amount > maxAmount) {
+      final date = DateTime.tryParse(r[0].trim());
+      final category = ExpenseCategory.values.asNameMap()[r[1].trim()];
+      final amount = parseAmount(r[2]);
+      // toCsv writes wall-clock times; a UTC one would land on the wrong
+      // day (and never match its local twin when deduping).
+      if (date == null || date.isUtc || category == null || amount == null) {
         return null;
       }
       parsed.add(
@@ -400,11 +427,22 @@ final class ExpenseStore {
     }
     String sig(Expense e) =>
         '${e.date.toIso8601String()}|${e.category.name}|${e.amount}|${e.note}';
-    final seen = {for (final e in entries.value) sig(e)};
+    // Counted, not a set: two identical real entries both survive, while
+    // re-importing the same backup still adds nothing.
+    final have = <String, int>{};
+    for (final e in entries.value) {
+      have.update(sig(e), (n) => n + 1, ifAbsent: () => 1);
+    }
+    bool isNew(Expense e) {
+      final n = have[sig(e)] ?? 0;
+      have[sig(e)] = n - 1;
+      return n <= 0;
+    }
+
     var nextId = entries.value.fold(0, (m, e) => e.id > m ? e.id : m);
     final added = [
       for (final e in parsed)
-        if (seen.add(sig(e)))
+        if (isNew(e))
           Expense(
             id: ++nextId,
             amount: e.amount,

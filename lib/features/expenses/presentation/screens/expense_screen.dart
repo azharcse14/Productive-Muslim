@@ -39,6 +39,9 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// 0 = current month, -1 = previous, …
   int _offset = 0;
 
+  /// Bumped per swipe-delete; part of each row's key.
+  int _dismissals = 0;
+
   @override
   void initState() {
     super.initState();
@@ -195,7 +198,9 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                   ),
                 for (final e in items)
                   Dismissible(
-                    key: ValueKey(e.id),
+                    // Fresh keys after each swipe: a row put back by a
+                    // failed delete must not reuse the dismissed widget.
+                    key: ValueKey((e.id, _dismissals)),
                     direction: DismissDirection.endToStart,
                     background: Container(
                       alignment: AlignmentDirectional.centerEnd,
@@ -205,7 +210,10 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                       color: q.urgentSoft,
                       child: Icon(Icons.delete_outline, color: q.urgent),
                     ),
-                    onDismissed: (_) => _removeWithUndo(context, _store, e),
+                    onDismissed: (_) {
+                      setState(() => _dismissals++);
+                      _removeWithUndo(context, _store, e);
+                    },
                     child: ListTile(
                       onTap: () =>
                           _showExpenseSheet(context, _store, existing: e),
@@ -242,8 +250,10 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
 void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
-  void failed(Object _) =>
-      messenger.showSnackBar(SnackBar(content: Text(l10n.expenseSaveFailed)));
+  // Replaces the Undo bar: the entry is back, so Undo would duplicate it.
+  void failed(Object _) => messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(l10n.expenseSaveFailed)));
   unawaited(store.remove(e.id).catchError(failed));
   messenger
     ..hideCurrentSnackBar()
