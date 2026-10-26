@@ -34,6 +34,7 @@ final class NotificationItem {
     required this.kind,
     required this.at,
     this.prayer,
+    this.prayerDay,
     this.silent = false,
     this.beepOnly = false,
   });
@@ -45,6 +46,10 @@ final class NotificationItem {
 
   /// Set for azan/jamaat items.
   final Prayer? prayer;
+
+  /// Azan only: the prayer day (date of its fajr) [at] belongs to — differs
+  /// from [at]'s date when isha falls after midnight (high latitudes).
+  final DateTime? prayerDay;
 
   /// Matrix mode [AzanMode.silent]: show without sound.
   final bool silent;

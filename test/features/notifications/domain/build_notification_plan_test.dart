@@ -353,4 +353,29 @@ void main() {
       expect(_plan(matrix: allOff, keepAlive: true), isEmpty);
     });
   });
+
+  test('an after-midnight isha keeps its prayer day (mark-as-prayed date)',
+      () {
+    // High-latitude summer: isha of the 12th falls at 00:40 on the 13th.
+    final late = PrayerDay(
+      ishaYesterday: DateTime(2026, 6, 12, 0, 30),
+      fajr: DateTime(2026, 6, 12, 2, 40),
+      sunrise: DateTime(2026, 6, 12, 3, 50),
+      dhuhr: DateTime(2026, 6, 12, 13, 20),
+      asr: DateTime(2026, 6, 12, 17, 50),
+      maghrib: DateTime(2026, 6, 12, 22, 40),
+      isha: DateTime(2026, 6, 13, 0, 40),
+      fajrTomorrow: DateTime(2026, 6, 13, 2, 40),
+    );
+    final isha = buildNotificationPlan(
+      from: DateTime(2026, 6, 12, 1),
+      days: [late],
+      matrix: const NotificationMatrix(),
+      jamaat: JamaatConfig.none,
+    ).singleWhere(
+      (i) => i.kind == NotificationKind.azan && i.prayer == Prayer.isha,
+    );
+    expect(isha.at.day, 13);
+    expect(isha.prayerDay, DateTime(2026, 6, 12));
+  });
 }

@@ -909,5 +909,45 @@
   "widgetNextPrayerLabel": "Next prayer",
   "nearbyMosquesLabel": "Mosques",
   "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed.",
-  "nearbyMosquesLocationError": "Set your location first to find nearby mosques."
+  "nearbyMosquesLocationError": "Set your location first to find nearby mosques.",
+  "expenseTitle": "Expense tracker",
+  "expenseSubtitle": "Monthly hisab, no israf",
+  "expenseAdd": "Add expense",
+  "expenseSave": "Save",
+  "expenseAmountHint": "Amount",
+  "expenseNoteHint": "Note (optional)",
+  "expenseMonthTotal": "Spent this month",
+  "expensePrevMonth": "Previous month",
+  "expenseNextMonth": "Next month",
+  "expenseEmpty": "No expenses logged this month.",
+  "expenseIsrafReminder": "“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)",
+  "expenseCategory": "{id, select, need{Needs} family{Family} sadaqah{Sadaqah} want{Wants} other{{id}}}",
+  "@expenseCategory": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "expenseEdit": "Edit expense",
+  "expenseBudget": "Monthly budget",
+  "expenseBudgetClear": "Remove budget",
+  "expenseBudgetLeft": "{left} left of {budget}",
+  "expenseBudgetOver": "{amount} over budget — rethink the wants",
+  "@expenseBudgetLeft": {
+    "placeholders": {
+      "left": {"type": "String"},
+      "budget": {"type": "String"}
+    }
+  },
+  "@expenseBudgetOver": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "expenseCategoryBudgetHint": "Tap a category to set its budget (sadaqah: a goal)",
+  "expenseCategoryBudgetTitle": "{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}",
+  "@expenseCategoryBudgetTitle": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  }
 }

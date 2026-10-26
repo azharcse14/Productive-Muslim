@@ -3085,6 +3085,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set your location first to find nearby mosques.'**
   String get nearbyMosquesLocationError;
+
+  /// No description provided for @expenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense tracker'**
+  String get expenseTitle;
+
+  /// No description provided for @expenseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly hisab, no israf'**
+  String get expenseSubtitle;
+
+  /// No description provided for @expenseAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get expenseAdd;
+
+  /// No description provided for @expenseSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get expenseSave;
+
+  /// No description provided for @expenseAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expenseAmountHint;
+
+  /// No description provided for @expenseNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get expenseNoteHint;
+
+  /// No description provided for @expenseMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent this month'**
+  String get expenseMonthTotal;
+
+  /// No description provided for @expensePrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get expensePrevMonth;
+
+  /// No description provided for @expenseNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get expenseNextMonth;
+
+  /// No description provided for @expenseEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses logged this month.'**
+  String get expenseEmpty;
+
+  /// No description provided for @expenseIsrafReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)'**
+  String get expenseIsrafReminder;
+
+  /// No description provided for @expenseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, need{Needs} family{Family} sadaqah{Sadaqah} want{Wants} other{{id}}}'**
+  String expenseCategory(String id);
+
+  /// No description provided for @expenseEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get expenseEdit;
+
+  /// No description provided for @expenseBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budget'**
+  String get expenseBudget;
+
+  /// No description provided for @expenseBudgetClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove budget'**
+  String get expenseBudgetClear;
+
+  /// No description provided for @expenseBudgetLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left of {budget}'**
+  String expenseBudgetLeft(String left, String budget);
+
+  /// No description provided for @expenseBudgetOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over budget — rethink the wants'**
+  String expenseBudgetOver(String amount);
+
+  /// No description provided for @expenseCategoryBudgetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a category to set its budget (sadaqah: a goal)'**
+  String get expenseCategoryBudgetHint;
+
+  /// No description provided for @expenseCategoryBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}'**
+  String expenseCategoryBudgetTitle(String id);
 }
 
 class _AppLocalizationsDelegate

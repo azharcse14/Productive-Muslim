@@ -139,9 +139,10 @@ final class MuhasabaStore {
   /// selected date — e.g. a notification action for a prayer whose azan
   /// already fired, so no waqt lock applies.
   Future<void> markDoneOn(String itemId, DateTime date) async {
-    // No future guard: the azan date is the location's, which can run a
-    // day ahead of the device's for a manual city east of it.
     final day = DateTime(date.year, date.month, date.day);
+    if (day.isAfter(_today())) {
+      return;
+    }
     final existing = await _repository.entriesOn(day);
     if ((existing.valueOrNull ?? const <DailyEntry>[])
         .any((e) => e.itemId == itemId && e.value > 0)) {

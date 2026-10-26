@@ -11,6 +11,7 @@ import '../../features/calculators/presentation/screens/qaza_screen.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
+import '../../features/expenses/presentation/screens/expense_screen.dart';
 import '../../features/fasting/presentation/screens/fasting_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_detail_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_screen.dart';
@@ -259,6 +260,11 @@ GoRouter buildRouter() {
         name: Routes.fasting.name,
         path: Routes.fasting.path,
         builder: (context, state) => const FastingScreen(),
+      ),
+      GoRoute(
+        name: Routes.expenses.name,
+        path: Routes.expenses.path,
+        builder: (context, state) => const ExpenseScreen(),
       ),
       GoRoute(
         name: Routes.achievements.name,

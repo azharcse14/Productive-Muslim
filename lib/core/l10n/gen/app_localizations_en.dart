@@ -1930,4 +1930,85 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nearbyMosquesLocationError =>
       'Set your location first to find nearby mosques.';
+
+  @override
+  String get expenseTitle => 'Expense tracker';
+
+  @override
+  String get expenseSubtitle => 'Monthly hisab, no israf';
+
+  @override
+  String get expenseAdd => 'Add expense';
+
+  @override
+  String get expenseSave => 'Save';
+
+  @override
+  String get expenseAmountHint => 'Amount';
+
+  @override
+  String get expenseNoteHint => 'Note (optional)';
+
+  @override
+  String get expenseMonthTotal => 'Spent this month';
+
+  @override
+  String get expensePrevMonth => 'Previous month';
+
+  @override
+  String get expenseNextMonth => 'Next month';
+
+  @override
+  String get expenseEmpty => 'No expenses logged this month.';
+
+  @override
+  String get expenseIsrafReminder =>
+      '“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)';
+
+  @override
+  String expenseCategory(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'need': 'Needs',
+      'family': 'Family',
+      'sadaqah': 'Sadaqah',
+      'want': 'Wants',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get expenseEdit => 'Edit expense';
+
+  @override
+  String get expenseBudget => 'Monthly budget';
+
+  @override
+  String get expenseBudgetClear => 'Remove budget';
+
+  @override
+  String expenseBudgetLeft(String left, String budget) {
+    return '$left left of $budget';
+  }
+
+  @override
+  String expenseBudgetOver(String amount) {
+    return '$amount over budget — rethink the wants';
+  }
+
+  @override
+  String get expenseCategoryBudgetHint =>
+      'Tap a category to set its budget (sadaqah: a goal)';
+
+  @override
+  String expenseCategoryBudgetTitle(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'need': 'Needs budget',
+      'family': 'Family budget',
+      'sadaqah': 'Monthly sadaqah goal',
+      'want': 'Wants budget',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
 }

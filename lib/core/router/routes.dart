@@ -53,6 +53,9 @@ abstract final class Routes {
   /// Sunnah / nafl fasting tracker — recommended days + personal log.
   static const fasting = (name: 'fasting', path: '/fasting');
 
+  /// Islamic expense tracker — monthly hisab, no israf (More tab).
+  static const expenses = (name: 'expenses', path: '/expenses');
+
   /// Achievements / badges (More tab + muhasaba summary).
   static const achievements = (name: 'achievements', path: '/achievements');
 
