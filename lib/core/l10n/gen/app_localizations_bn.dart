@@ -2235,4 +2235,31 @@ class AppLocalizationsBn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get expenseBackup => 'ব্যাকআপ';
+
+  @override
+  String get expenseExportCsv => 'CSV ব্যাকআপ কপি করুন';
+
+  @override
+  String get expenseImportCsv => 'কপি করা CSV থেকে ফেরত আনুন';
+
+  @override
+  String get expenseExported =>
+      'কপি হয়েছে। নিরাপদে রাখতে নোট, ইমেইল বা স্প্রেডশিটে পেস্ট করুন।';
+
+  @override
+  String get expenseImportInvalid => 'ক্লিপবোর্ডে খরচের ব্যাকআপ নেই।';
+
+  @override
+  String expenseImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি খরচ ফেরত আনা হয়েছে',
+      zero: 'ফেরত আনার মতো নতুন কিছু নেই',
+    );
+    return '$_temp0';
+  }
 }

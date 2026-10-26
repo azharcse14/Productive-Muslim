@@ -48,6 +48,31 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
     }
   }
 
+  // ponytail: clipboard as transport — swap for a share sheet / file once
+  // share_plus (or similar) is a dependency.
+  Future<void> _export() async {
+    await Clipboard.setData(ClipboardData(text: _store.toCsv()));
+    if (mounted) {
+      _snack(context.l10n.expenseExported);
+    }
+  }
+
+  Future<void> _import() async {
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
+    final added = text == null ? null : await _store.importCsv(text);
+    if (mounted) {
+      _snack(
+        added == null
+            ? context.l10n.expenseImportInvalid
+            : context.l10n.expenseImported(added),
+      );
+    }
+  }
+
+  void _snack(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -70,6 +95,14 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
               current: _store.budget.value,
               onSave: _store.setBudget,
             ),
+          ),
+          PopupMenuButton<bool>(
+            tooltip: l10n.expenseBackup,
+            onSelected: (export) => export ? _export() : _import(),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: true, child: Text(l10n.expenseExportCsv)),
+              PopupMenuItem(value: false, child: Text(l10n.expenseImportCsv)),
+            ],
           ),
         ],
       ),

@@ -2239,4 +2239,33 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get expenseBackup => 'Backup';
+
+  @override
+  String get expenseExportCsv => 'Copy CSV backup';
+
+  @override
+  String get expenseImportCsv => 'Restore from copied CSV';
+
+  @override
+  String get expenseExported =>
+      'Copied. Paste it into Notes, email or a spreadsheet to keep it safe.';
+
+  @override
+  String get expenseImportInvalid =>
+      'The clipboard doesn\'t hold an expense backup.';
+
+  @override
+  String expenseImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses restored',
+      one: '1 expense restored',
+      zero: 'Nothing new to restore',
+    );
+    return '$_temp0';
+  }
 }

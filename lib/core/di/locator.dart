@@ -262,7 +262,11 @@ Future<void> setupLocator() async {
 
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
-    () => ExpenseStore(SharedPreferencesAsync(), now: _wallNow),
+    () => ExpenseStore(
+      SharedPreferencesAsync(),
+      now: _wallNow,
+      onSadaqah: (date) => locator<MuhasabaStore>().markDoneOn('sadaqah', date),
+    ),
   );
 
   // ---- achievements ----
