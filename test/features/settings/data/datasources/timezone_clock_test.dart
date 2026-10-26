@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 const _dhaka = ManualCityLocation(
   City(
@@ -26,6 +30,17 @@ const _london = ManualCityLocation(
 void main() {
   setUpAll(TimezoneClock.initialize);
   final clock = TimezoneClock();
+
+  test('every bundled city zone resolves (aliases included)', () {
+    final rows = jsonDecode(File('assets/data/cities.json').readAsStringSync())
+        as List<dynamic>;
+    final zones = {for (final r in rows) (r as List<dynamic>)[4] as String};
+    final missing = [
+      for (final z in zones)
+        if (!tz.timeZoneDatabase.locations.containsKey(z)) z,
+    ];
+    expect(missing, isEmpty);
+  });
 
   group('TimezoneClock — manual city wall clocks (guide §5)', () {
     test('converts a UTC instant to Dhaka time (UTC+6, no DST)', () {

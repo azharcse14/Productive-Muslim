@@ -94,6 +94,47 @@ void main() {
       expect(tomorrow.totalToday.value, 0);
     });
 
+    test('same (app-scoped) store resets today total after midnight',
+        () async {
+      var now = DateTime(2026, 6, 12, 23, 59);
+      final store = makeStore(now: () => now);
+      await store.load();
+      store.tap();
+      await store.reset(saveToHistory: true);
+      expect(store.totalToday.value, 1);
+
+      now = DateTime(2026, 6, 13, 0, 1);
+      // Re-reading on the new day drops yesterday's total ...
+      await store.load();
+      expect(store.totalToday.value, 0);
+
+      // ... and so does adding without a reload: a round started on the
+      // 13th but saved on the 14th starts the 14th's total afresh.
+      store.tap();
+      await store.reset(saveToHistory: true);
+      expect(store.totalToday.value, 1);
+      store.tap();
+      now = DateTime(2026, 6, 14, 8);
+      await store.reset(saveToHistory: true);
+      expect(store.totalToday.value, 1);
+    });
+
+    test('lifetime stats load even with no / corrupt today payload',
+        () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('tasbih_lifetime', '{"total": 99, "sessions": 3}');
+
+      final fresh = makeStore();
+      await fresh.load();
+      expect(fresh.lifetimeTotal.value, 99);
+      expect(fresh.lifetimeSessions.value, 3);
+
+      await prefs.setString('tasbih_today', '{"date": ');
+      final corrupt = makeStore();
+      await corrupt.load();
+      expect(corrupt.lifetimeTotal.value, 99);
+    });
+
     test('custom target drives the milestone; invalid targets are ignored',
         () {
       var milestones = 0;

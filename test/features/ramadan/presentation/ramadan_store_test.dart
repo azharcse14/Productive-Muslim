@@ -41,12 +41,14 @@ const _dhaka = ManualCityLocation(
 void main() {
   setUpAll(TimezoneClock.initialize);
 
+  late SettingsStore settings;
+
   Future<RamadanStore> make({
     bool withLocation = true,
     int hijriOffset = 0,
     DateTime? now,
   }) async {
-    final settings = SettingsStore(
+    settings = SettingsStore(
       GetSettings(
         _Repo(
           AppSettings(
@@ -64,7 +66,6 @@ void main() {
       // 2026-03-01 is inside Ramadan 1447 (1 Ramadan = 18 Feb 2026).
       now: () => now ?? DateTime(2026, 3, 1, 10),
     );
-    store.load();
     return store;
   }
 
@@ -87,6 +88,13 @@ void main() {
     test('no location → empty rows', () async {
       final store = await make(withLocation: false);
       expect(store.monthRows.value, isEmpty);
+    });
+
+    test('rows appear once a location is set later', () async {
+      final store = await make(withLocation: false);
+      expect(store.monthRows.value, isEmpty);
+      await settings.setLocation(_dhaka);
+      expect(store.monthRows.value.length, RamadanUtils.ramadanLength(1447));
     });
   });
 

@@ -47,7 +47,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     setState(() {
       _result = InheritanceCalculator.calculate(
         InheritanceInput(
-          estate: double.tryParse(_estate.text.trim()) ?? 0,
+          estate: double.tryParse(LocaleDigits.toAscii(_estate.text)) ?? 0,
           hasHusband: _spouse == _Spouse.husband,
           wives: _spouse == _Spouse.wife ? _wives : 0,
           hasFather: _father,

@@ -16,6 +16,9 @@ final class HadithSectionStore {
   /// True when the last load failed — the screen offers a retry.
   late final failed = signal(false);
 
+  /// The screen can be popped mid-load; signals must not be written after.
+  var _disposed = false;
+
   Future<void> load(
     HadithBook book,
     HadithSection section,
@@ -25,6 +28,9 @@ final class HadithSectionStore {
     failed.value = false;
     final result =
         await _repository.section(book, section, languageCode);
+    if (_disposed) {
+      return;
+    }
     if (result.valueOrNull case final value?) {
       items.value = value;
     } else {
@@ -34,6 +40,7 @@ final class HadithSectionStore {
   }
 
   void dispose() {
+    _disposed = true;
     items.dispose();
     loading.dispose();
     failed.dispose();

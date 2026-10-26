@@ -171,11 +171,15 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final itemStats = await _itemStats(startCode, endCode, periodDays);
 
       // c) Streaks: SQL day-has-done-item flags, bounded walks in Dart.
+      // One scan covers both the current-streak lookback and the range,
+      // so the best streak always includes (so is >=) the current one.
       final today0 = DateTime(today.year, today.month, today.day);
       final streakFrom =
           DateTime(today0.year, today0.month, today0.day - 399);
+      final scanFrom = start.isBefore(streakFrom) ? start : streakFrom;
+      final scanTo = end.isAfter(today0) ? end : today0;
       final recentDone =
-          await _doneDates(_encodeDate(streakFrom), _encodeDate(today0));
+          await _doneDates(_encodeDate(scanFrom), _encodeDate(scanTo));
       var anchor = today0;
       if (!recentDone.contains(_encodeDate(anchor))) {
         // Today has nothing done yet — the streak survives until the day
@@ -189,17 +193,16 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
       }
 
-      final rangeDone = await _doneDates(startCode, endCode);
       var bestStreak = 0;
       var run = 0;
-      for (var i = 0; i < periodDays; i++) {
-        final day = DateTime(start.year, start.month, start.day + i);
-        if (rangeDone.contains(_encodeDate(day))) {
-          run++;
-          if (run > bestStreak) bestStreak = run;
-        } else {
-          run = 0;
-        }
+      DateTime? prev;
+      for (final code in recentDone.toList()..sort()) {
+        final day = _decodeDate(code);
+        final follows = prev != null &&
+            DateTime(prev.year, prev.month, prev.day + 1) == day;
+        run = follows ? run + 1 : 1;
+        if (run > bestStreak) bestStreak = run;
+        prev = day;
       }
 
       // d) Equal-length window immediately before [start].
@@ -231,6 +234,30 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       return Result.failure(
         UnexpectedFailure('Failed to compute period stats', e),
       );
+    }
+  }
+
+  @override
+  Future<Result<Set<DateTime>>> doneDates(Set<String> itemIds) async {
+    if (itemIds.isEmpty) {
+      return const Result.success(<DateTime>{});
+    }
+    try {
+      // Archived items included on purpose: history is never lost.
+      final rows = await _db.customSelect(
+        'SELECT DISTINCT e.date AS day '
+        'FROM daily_entries e '
+        'INNER JOIN tracker_items i ON i.id = e.item_id '
+        'WHERE e.item_id IN (${List.filled(itemIds.length, '?').join(', ')}) '
+        'AND ($_doneCase)',
+        variables: [for (final id in itemIds) Variable<String>(id)],
+        readsFrom: {_db.dailyEntries, _db.trackerItems},
+      ).get();
+      return Result.success({
+        for (final row in rows) _decodeDate(row.read<int>('day')),
+      });
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Failed to load done dates', e));
     }
   }
 

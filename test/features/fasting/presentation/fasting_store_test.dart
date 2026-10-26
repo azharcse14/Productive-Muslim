@@ -44,6 +44,17 @@ void main() {
       await s.toggle(DateTime(2026, 6, 15, 23, 59));
       expect(s.isLogged(DateTime(2026, 6, 15)), isTrue);
     });
+
+    test('future and forbidden days cannot be logged', () async {
+      final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 6, 16)); // tomorrow
+      expect(s.isLogged(DateTime(2026, 6, 16)), isFalse);
+      // Eid al-Adha 1447 (tabular) — in the past relative to `now`.
+      await s.toggle(DateTime(2026, 5, 27));
+      expect(s.isLogged(DateTime(2026, 5, 27)), isFalse);
+      expect(s.isForbidden(DateTime(2026, 5, 27)), isTrue);
+    });
   });
 
   group('FastingStore — stats', () {
@@ -51,7 +62,7 @@ void main() {
       final s = store();
       await s.load();
       await s.toggle(DateTime(2026, 6, 15)); // this Gregorian + hijri month
-      await s.toggle(DateTime(2026, 6, 18)); // same month
+      await s.toggle(DateTime(2026, 6, 11)); // same month
       await s.toggle(DateTime(2026, 1, 5)); // a different month
 
       final stats = s.stats();

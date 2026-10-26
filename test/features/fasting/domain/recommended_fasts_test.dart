@@ -107,7 +107,13 @@ void main() {
     test('offset +1: adjusted Eid al-Fitr (2026-03-19, a Thursday) is not '
         'recommended', () {
       expect(DateTime(2026, 3, 19).weekday, DateTime.thursday);
-      expect(RecommendedFasts.isRecommended(DateTime(2026, 3, 19)), isTrue);
+      // (At offset 0 it is 30 Ramadan, so not nafl either way.)
+      expect(
+        RecommendedFasts.isForbidden(
+          HijriDate.fromGregorian(DateTime(2026, 3, 19), offsetDays: 1),
+        ),
+        isTrue,
+      );
       expect(
         RecommendedFasts.on(DateTime(2026, 3, 19), offsetDays: 1),
         isEmpty,
@@ -142,5 +148,27 @@ void main() {
         expect(upcoming.any((u) => u.fast.date == eidAdha), isFalse);
       }
     });
+  });
+
+  // DST-sensitive: only bites when the suite runs in a DST zone (e.g.
+  // TZ=America/New_York, where 2033-11-06 used to appear twice); the
+  // invariant holds in every zone.
+  test('upcoming never repeats a date across DST changes', () {
+    for (var y = 2026; y < 2036; y++) {
+      for (var m = 1; m <= 12; m++) {
+        final dates = RecommendedFasts.upcoming(DateTime(y, m)).map(
+          (u) => u.fast.date,
+        );
+        expect(dates.toSet().length, dates.length, reason: 'from $y-$m');
+      }
+    }
+  });
+
+  test('Ramadan days are never offered as nafl', () {
+    // 1447 Ramadan (tabular) — includes Mondays/Thursdays and white days.
+    for (var d = 1; d <= 30; d++) {
+      final day = HijriDate(1447, 9, d).toGregorian();
+      expect(RecommendedFasts.on(day), isEmpty, reason: '$day');
+    }
   });
 }

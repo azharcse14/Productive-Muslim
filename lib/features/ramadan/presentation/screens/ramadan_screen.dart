@@ -37,7 +37,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
     locator<GetPrayerDay>(),
     _settings,
     now: _wallNow,
-  )..load();
+  );
 
   DateTime _wallNow() {
     final location = _settings.location.value;

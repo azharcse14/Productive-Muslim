@@ -1034,6 +1034,20 @@ class AppLocalizationsBn extends AppLocalizations {
       'আজ নির্দিষ্ট কোনো সুন্নত রোজা নেই, তবে নফল রোজার সওয়াব সবসময়ই রয়েছে।';
 
   @override
+  String get fastingTodayForbidden => 'আজ রোজা রাখা নিষিদ্ধ';
+
+  @override
+  String get fastingTodayForbiddenNote =>
+      'দুই ঈদের দিন এবং আইয়ামে তাশরীকে (১১–১৩ জিলহজ) রোজা রাখা নিষিদ্ধ।';
+
+  @override
+  String get fastingTodayRamadan => 'রমজান — ফরজ রোজা';
+
+  @override
+  String get fastingTodayRamadanNote =>
+      'আজ রমজানের দিন, ফরজ রোজা। আল্লাহ কবুল করুন।';
+
+  @override
   String get fastingLogToday => 'আজকের রোজা যোগ করুন';
 
   @override

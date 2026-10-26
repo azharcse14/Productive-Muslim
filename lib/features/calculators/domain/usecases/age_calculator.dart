@@ -73,7 +73,11 @@ abstract final class AgeCalculator {
       );
     }
 
-    final totalDays = on.difference(birth).inDays;
+    // UTC midnights: a local-time difference loses an hour across DST and
+    // `.inDays` would truncate e.g. 182 days down to 181.
+    final totalDays = DateTime.utc(on.year, on.month, on.day)
+        .difference(DateTime.utc(birth.year, birth.month, birth.day))
+        .inDays;
 
     final gregorian = _diff(
       startYear: birth.year,
@@ -129,7 +133,12 @@ abstract final class AgeCalculator {
         prevMonth = 12;
         prevYear -= 1;
       }
-      days += daysInPrecedingMonth(prevYear, prevMonth);
+      // Anchor on the start day within that month, clamped to its length
+      // (born 31st, previous month has 28 days → anchor on the 28th), then
+      // count forward to the end day. Never negative.
+      final prevLength = daysInPrecedingMonth(prevYear, prevMonth);
+      final anchor = startDay < prevLength ? startDay : prevLength;
+      days = prevLength - anchor + endDay;
       months -= 1;
     }
 

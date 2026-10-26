@@ -61,9 +61,10 @@ void main() {
     test('days are contiguous civil dates', () {
       final days = RamadanUtils.gregorianDaysOf(1447);
       for (var i = 1; i < days.length; i++) {
+        final prev = days[i - 1];
         expect(
-          days[i].difference(days[i - 1]).inDays,
-          1,
+          days[i],
+          DateTime(prev.year, prev.month, prev.day + 1),
           reason: 'gap between ${days[i - 1]} and ${days[i]}',
         );
       }
@@ -127,5 +128,21 @@ void main() {
       );
       expect(RamadanUtils.nextRamadan(lateEvening), (1447, 1));
     });
+  });
+
+  // DST-sensitive: only bites in a DST zone (e.g. TZ=America/New_York,
+  // where 2034-12-12 gave 324 instead of 325); holds in every zone.
+  test('nextRamadan daysUntil is exact across DST changes', () {
+    for (var d = DateTime(2026);
+        d.year < 2036;
+        d = DateTime(d.year, d.month, d.day + 1)) {
+      final (year, n) = RamadanUtils.nextRamadan(d);
+      final first = RamadanUtils.firstDayOf(year);
+      expect(
+        DateTime(d.year, d.month, d.day + n),
+        n == 0 ? d : first,
+        reason: '$d',
+      );
+    }
   });
 }

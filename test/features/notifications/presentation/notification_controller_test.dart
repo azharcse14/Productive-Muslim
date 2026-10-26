@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
@@ -25,6 +29,11 @@ final class _CountingScheduler implements NotificationScheduler {
   int rescheduleCalls = 0;
   NotificationTexts? lastTexts;
   List<NotificationItem>? lastPlan;
+
+  /// When set, reschedule() parks until it completes (overlap tests).
+  Completer<void>? gate;
+  int inFlight = 0;
+  int maxInFlight = 0;
 
   @override
   Future<void> initialize(NotificationTexts texts) async {
@@ -51,6 +60,12 @@ final class _CountingScheduler implements NotificationScheduler {
     NotificationTexts texts,
   ) async {
     rescheduleCalls++;
+    inFlight++;
+    if (inFlight > maxInFlight) {
+      maxInFlight = inFlight;
+    }
+    await gate?.future;
+    inFlight--;
     lastTexts = texts;
     lastPlan = items;
     return const Result.success(null);
@@ -84,12 +99,17 @@ const _dhaka = ManualCityLocation(
   ),
 );
 
+SettingsStore? _lastSettings;
+MosqueStore? _lastMosque;
+
 Future<(NotificationController, _CountingScheduler)> _controller() async {
   final scheduler = _CountingScheduler();
   final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
   final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await settings.load();
   final (mosqueStore, _) = await makeMosqueStore();
+  _lastSettings = settings;
+  _lastMosque = mosqueStore;
   final controller = NotificationController(
     reschedule: RescheduleNotifications(
       getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
@@ -162,6 +182,9 @@ void main() {
     await controller.start();
     expect(scheduler.initCalls, 1);
     expect(scheduler.rescheduleCalls, 1);
+    // No redundant follow-up from the effect's initial subscription run.
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, 1);
 
     // A prayer-param change triggers a debounced reschedule.
     await settings.setMadhab(Madhab.shafi);
@@ -178,6 +201,40 @@ void main() {
     await controller.start();
     expect(scheduler.initCalls, 1);
 
+    controller.dispose();
+  });
+
+  test('overlapping reschedules are serialized; the newest runs last',
+      () async {
+    final (controller, scheduler) = await _controller();
+    await controller.start();
+    final settings = _lastSettings!;
+
+    scheduler.gate = Completer<void>();
+    await settings.setMadhab(Madhab.shafi);
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    expect(scheduler.inFlight, 1, reason: 'first run parked in the scheduler');
+
+    await settings.setLocale('bn');
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    expect(scheduler.maxInFlight, 1, reason: 'second run waits its turn');
+
+    scheduler.gate!.complete();
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(scheduler.rescheduleCalls, 3);
+    expect(scheduler.maxInFlight, 1);
+    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+    controller.dispose();
+  });
+
+  test('mosque state changes (not just the active profile) reschedule',
+      () async {
+    final (controller, scheduler) = await _controller();
+    await controller.start();
+    final mosque = _lastMosque!;
+    await mosque.setMode(ScheduleMode.auto);
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, 2);
     controller.dispose();
   });
 }

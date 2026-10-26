@@ -20,7 +20,7 @@ final class CompassDial extends StatelessWidget {
     super.key,
   });
 
-  /// Smoothed magnetic heading, degrees.
+  /// Smoothed true heading (declination-corrected), degrees.
   final double heading;
 
   /// Qibla bearing from north, degrees.

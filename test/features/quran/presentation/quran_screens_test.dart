@@ -11,6 +11,7 @@ import 'package:productive_muslim/features/quran/domain/repositories/quran_repos
 import 'package:productive_muslim/features/quran/presentation/screens/quran_reader_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/screens/quran_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/shared/widgets/q_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -96,13 +97,16 @@ final class FakeQuranRepository implements QuranRepository {
   QuranPosition? storedLastRead;
   final storedBookmarks = <int>{};
 
+  /// Per-test ayah overrides (e.g. a long surah for scroll tests).
+  final extraAyahs = <int, List<Ayah>>{};
+
   @override
   Future<Result<List<Surah>>> surahs() async =>
       const Result.success(surahsData);
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async =>
-      Result.success(ayahsData[surah] ?? const []);
+      Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
 
   @override
   Future<Result<List<Surah>>> searchSurahs(String query) async {
@@ -250,7 +254,8 @@ void main() {
       expect(find.text('All praise is due to Allah'), findsOneWidget);
 
       await flushMarkRead(tester);
-      expect(repo.storedLastRead?.surah, 1);
+      // Opening without scrolling must not overwrite last-read with ayah 1.
+      expect(repo.storedLastRead, isNull);
     });
 
     testWidgets('settings sheet switch hides the translation',
@@ -314,6 +319,43 @@ void main() {
       await flushMarkRead(tester);
       // Let the snackbar finish so no timers leak past the test.
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('after a user scroll, records the ayah at the top edge',
+        (tester) async {
+      repo.extraAyahs[1] = [
+        for (var i = 1; i <= 40; i++)
+          Ayah(
+            id: 1000 + i,
+            surah: 1,
+            number: i,
+            arabic: 'arabic $i',
+            translationEn: 'translation $i',
+            translationBn: 'অনুবাদ $i',
+          ),
+      ];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -1500));
+      await tester.pump();
+      await flushMarkRead(tester);
+
+      // Expected: the last built card whose top is at/above the list top.
+      final listTop = tester.getTopLeft(find.byType(ListView)).dy;
+      var expected = 0;
+      for (var i = 1; i <= 40; i++) {
+        final card = find.ancestor(
+          of: find.text('arabic $i'),
+          matching: find.byType(QCard),
+        );
+        if (card.evaluate().isNotEmpty &&
+            tester.getTopLeft(card).dy <= listTop + 0.5) {
+          expected = i;
+        }
+      }
+      expect(expected, greaterThan(1));
+      expect(repo.storedLastRead?.ayah, expected);
     });
   });
 }

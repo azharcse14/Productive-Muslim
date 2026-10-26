@@ -91,12 +91,22 @@ final class _HomeScreenState extends State<HomeScreen> {
   Hadith? _hadithOfDay;
   Dua? _duaOfDay;
 
+  /// (Re)loads the "of the day" cards now and whenever the day flips.
+  late final EffectCleanup _dayWatcher;
+
   @override
   void initState() {
     super.initState();
-    unawaited(_loadDailyAyah());
-    unawaited(_loadHadith());
-    unawaited(_loadDuaOfDay());
+    _dayWatcher = effect(() {
+      _store.dateKey.value;
+      untracked(() {
+        // Roll muhasaba's "today" over if the app stayed open past midnight.
+        unawaited(_muhasaba.rollOverIfNewDay());
+        unawaited(_loadDailyAyah());
+        unawaited(_loadHadith());
+        unawaited(_loadDuaOfDay());
+      });
+    });
     final tasbih = _tasbih;
     if (tasbih != null) {
       unawaited(tasbih.load());
@@ -137,9 +147,13 @@ final class _HomeScreenState extends State<HomeScreen> {
     if (!quran.loaded.value) {
       await quran.load();
     }
-    final dayOfYear = _store.dateKey.value
-        .difference(DateTime(_store.dateKey.value.year))
-        .inDays;
+    final d = _store.dateKey.value;
+    // UTC on both sides: a local-date difference is off by an hour on DST.
+    final dayOfYear = DateTime.utc(
+      d.year,
+      d.month,
+      d.day,
+    ).difference(DateTime.utc(d.year)).inDays;
     final (surah, number) = _dailyVerses[dayOfYear % _dailyVerses.length];
     final ayahs = await quran.ayahsOf(surah);
     Ayah? match;
@@ -179,6 +193,7 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _dayWatcher();
     _store.dispose();
     super.dispose();
   }

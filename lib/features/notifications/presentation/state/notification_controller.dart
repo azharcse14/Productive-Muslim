@@ -6,6 +6,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
+import '../../../my_mosque/domain/entities/jamaat_config.dart';
+import '../../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -39,6 +41,10 @@ final class NotificationController {
   Timer? _debounce;
   var _started = false;
 
+  /// The reschedule currently running. Runs are serialized so a stale run
+  /// can never schedule after a newer run's cancelAll.
+  Future<void>? _inFlight;
+
   final _scheduledUntil = signal<DateTime?>(null);
 
   /// Wall-clock time (at the configured location) of the last scheduled
@@ -52,13 +58,20 @@ final class NotificationController {
     _started = true;
     await _scheduler.initialize(_texts());
     await _rescheduleNow();
+    var first = true;
     _stopEffect = effect(() {
       // Subscribe to everything the plan depends on.
       _settings.location.value;
       _settings.prayerParams.value;
       _settings.settings.value.notifications;
       _settings.settings.value.localeCode;
-      _mosque.activeConfig.value;
+      _settings.settings.value.hijriOffsetDays;
+      _mosque.state.value; // profiles, rules, mode, override
+      // The first run only subscribes — start() just scheduled.
+      if (first) {
+        first = false;
+        return;
+      }
       _scheduleDebounced();
     });
     // The OS holds a finite schedule; refill it whenever the user returns.
@@ -74,10 +87,29 @@ final class NotificationController {
   }
 
   Future<void> _rescheduleNow() async {
+    for (var running = _inFlight; running != null; running = _inFlight) {
+      await running;
+    }
+    final run = _inFlight = _run();
+    try {
+      await run;
+    } finally {
+      if (identical(_inFlight, run)) {
+        _inFlight = null;
+      }
+    }
+  }
+
+  Future<void> _run() async {
+    // ponytail: jamaat resolves once for "now", so a schedule rule switching
+    // mosques mid-window applies on the next reschedule (resume/edit), not
+    // per prayer. Resolve per item in buildNotificationPlan if that matters.
     final result = await _reschedule(
       settings: _settings.settings.value,
       texts: _texts(),
-      jamaat: _mosque.activeConfig.value,
+      jamaatAt: (now) =>
+          resolveActiveMosque(_mosque.state.value, now).profile?.config ??
+          JamaatConfig.none,
     );
     final plan = result.valueOrNull;
     if (plan != null) {

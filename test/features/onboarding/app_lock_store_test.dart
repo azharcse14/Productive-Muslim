@@ -35,11 +35,16 @@ final class _FakeBiometric implements BiometricAuth {
   }
 }
 
-AppLockStore _store({BiometricAuth? biometric, DateTime Function()? now}) =>
+AppLockStore _store({
+  BiometricAuth? biometric,
+  DateTime Function()? now,
+  Duration Function()? elapsed,
+}) =>
     AppLockStore(
       AppLockDataSource(SharedPreferencesAsync()),
       biometric ?? _FakeBiometric(),
       now: now,
+      elapsed: elapsed,
     );
 
 /// Biometric fake whose prompt drives lifecycle events mid-auth, like the
@@ -252,6 +257,36 @@ void main() {
         restarted.lockedUntil.value,
         clock.add(const Duration(seconds: 60)),
       );
+    });
+
+    test('moving the device clock forward does not skip the cooldown',
+        () async {
+      var mono = Duration.zero;
+      final store = _store(now: () => clock, elapsed: () => mono);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      clock = clock.add(const Duration(days: 1)); // wall clock jump only
+      expect(await store.unlockWithPin('1234'), isFalse);
+      mono += const Duration(seconds: 30); // real time passes
+      expect(await store.unlockWithPin('1234'), isTrue);
+    });
+
+    test('a clock set backwards cannot stretch a persisted cooldown',
+        () async {
+      final store = _store(now: () => clock);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      clock = clock.subtract(const Duration(days: 365));
+      final restarted = _store(now: () => clock);
+      await restarted.load();
+      // Clamped to the 30s this attempt count earns, not a year.
+      expect(restarted.cooldownRemaining(), const Duration(seconds: 30));
     });
 
     test('a correct PIN resets the attempt count', () async {

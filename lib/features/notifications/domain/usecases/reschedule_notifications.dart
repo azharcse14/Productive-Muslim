@@ -33,10 +33,13 @@ final class RescheduleNotifications {
   final int? _maxItems;
 
   /// Returns the scheduled plan (empty when there is no location).
+  /// [jamaatAt], when given, resolves the jamaat config for the location's
+  /// current wall clock and takes precedence over [jamaat].
   Future<Result<NotificationPlan>> call({
     required AppSettings settings,
     required NotificationTexts texts,
     JamaatConfig jamaat = JamaatConfig.none,
+    JamaatConfig Function(DateTime now)? jamaatAt,
   }) async {
     final location = settings.location;
     if (location == null) {
@@ -66,10 +69,11 @@ final class RescheduleNotifications {
       from: now,
       days: days,
       matrix: settings.notifications,
-      jamaat: jamaat,
+      jamaat: jamaatAt?.call(now) ?? jamaat,
       window: _window,
       maxItems: _maxItems,
       keepAlive: true,
+      hijriOffsetDays: settings.hijriOffsetDays,
     );
     final scheduled = await _scheduler.reschedule(plan, texts);
     return scheduled.map((_) => plan);

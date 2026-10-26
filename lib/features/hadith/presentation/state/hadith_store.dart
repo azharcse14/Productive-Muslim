@@ -40,7 +40,10 @@ final class HadithStore {
     if (list.isEmpty) {
       return null;
     }
-    final dayOfYear = date.difference(DateTime(date.year)).inDays;
+    // UTC on both sides: a DST shift would otherwise drop a day (23h).
+    final dayOfYear = DateTime.utc(date.year, date.month, date.day)
+        .difference(DateTime.utc(date.year))
+        .inDays;
     return list[dayOfYear % list.length];
   }
 }

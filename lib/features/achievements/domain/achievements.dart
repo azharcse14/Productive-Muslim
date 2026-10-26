@@ -24,14 +24,13 @@ final class AchievementStats {
   /// All-time best streak — from [PeriodStats.bestStreak].
   final int bestStreak;
 
-  /// All-time days at least one salah was checked off (sum of the five
-  /// `salah_*` items' done-days over a wide window).
+  /// All-time distinct days at least one salah was checked off.
   final int salahDaysDone;
 
   /// All-time days the `quran` tracker was completed.
   final int quranDaysDone;
 
-  /// All-time days the `roza` (fasting) tracker was completed.
+  /// All-time distinct fast days: muhasaba `roza` ∪ the fasting tracker log.
   final int fastingDaysDone;
 
   /// All-time days the `tahajjud` tracker was completed.

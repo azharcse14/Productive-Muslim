@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../domain/entities/daily_entry.dart';
@@ -55,6 +58,10 @@ final class MuhasabaStore {
     return nothingEver;
   });
 
+  /// The "today" [stats] were last computed for (null before [load]).
+  DateTime? _statsDay;
+  AppLifecycleListener? _lifecycle;
+
   DateTime _today() {
     final n = _now();
     return DateTime(n.year, n.month, n.day);
@@ -66,6 +73,25 @@ final class MuhasabaStore {
     await selectDate(_today());
     await refreshStats();
     loaded.value = true;
+    // App-scoped store outlives midnight: re-check the day on every resume.
+    _lifecycle ??= AppLifecycleListener(
+      onResume: () => unawaited(rollOverIfNewDay()),
+    );
+  }
+
+  /// Follows the calendar after midnight: if [selectedDate] was "today" it
+  /// moves to the new today (a back-filled past date stays put), and the
+  /// dashboard/streak are recomputed. No-op on the same day.
+  Future<void> rollOverIfNewDay() async {
+    final previous = _statsDay;
+    final today = _today();
+    if (previous == null || previous == today) {
+      return;
+    }
+    if (selectedDate.value == previous) {
+      await selectDate(today);
+    }
+    await refreshStats();
   }
 
   Future<void> _reloadItems() async {
@@ -127,26 +153,28 @@ final class MuhasabaStore {
     return switch (period.value) {
       MuhasabaPeriod.today => (today, today),
       MuhasabaPeriod.week => (
-          today.subtract(const Duration(days: 6)),
+          DateTime(today.year, today.month, today.day - 6),
           today,
         ),
       MuhasabaPeriod.month => (
-          today.subtract(const Duration(days: 29)),
+          DateTime(today.year, today.month, today.day - 29),
           today,
         ),
       MuhasabaPeriod.year => (
-          today.subtract(const Duration(days: 364)),
+          DateTime(today.year, today.month, today.day - 364),
           today,
         ),
     };
   }
 
   Future<void> refreshStats() async {
+    final today = _today();
+    _statsDay = today;
     final (start, end) = _range();
     final result = await _repository.periodStats(
       start: start,
       end: end,
-      today: _today(),
+      today: today,
     );
     if (result.valueOrNull case final value?) {
       stats.value = value;
@@ -176,6 +204,8 @@ final class MuhasabaStore {
   Future<void> updateItem(TrackerItem item) async {
     await _repository.upsertItem(item);
     await _reloadItems();
+    // A target change flips done-days, so the dashboard must follow.
+    await refreshStats();
   }
 
   Future<void> setArchived(String id, {required bool archived}) async {
@@ -183,4 +213,6 @@ final class MuhasabaStore {
     await _reloadItems();
     await refreshStats();
   }
+
+  void dispose() => _lifecycle?.dispose();
 }

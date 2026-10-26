@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../../fasting/presentation/state/fasting_store.dart';
 import '../../../muhasaba/domain/entities/tracker_item.dart';
 import '../../../muhasaba/domain/repositories/muhasaba_repository.dart';
 import '../../../quran/presentation/state/quran_store.dart';
@@ -21,10 +22,12 @@ final class AchievementStore {
     required SharedPreferencesAsync prefs,
     TasbihStore? tasbih,
     QuranStore? quran,
+    FastingStore? fasting,
     DateTime Function()? now,
   })  : _muhasaba = muhasaba,
         _tasbih = tasbih,
         _quran = quran,
+        _fasting = fasting,
         _prefs = prefs,
         _now = now ?? DateTime.now;
 
@@ -33,6 +36,9 @@ final class AchievementStore {
   final MuhasabaRepository _muhasaba;
   final TasbihStore? _tasbih;
   final QuranStore? _quran;
+
+  /// Nafl-fast tracker log — unioned with muhasaba `roza` days.
+  final FastingStore? _fasting;
   final SharedPreferencesAsync _prefs;
   final DateTime Function() _now;
 
@@ -84,8 +90,14 @@ final class AchievementStore {
   /// Re-reads every source and rebuilds [stats]. Call after returning to the
   /// achievements screen so totals reflect the latest activity.
   Future<void> refresh() async {
+    // Bookmarks / last-read live in QuranStore, which is otherwise only
+    // loaded by the Quran screen.
+    final quran = _quran;
+    if (quran != null && !quran.loaded.value) {
+      await quran.load();
+    }
     final today = _today();
-    // Wide window so per-item done-day totals are effectively all-time.
+    // Wide window so the best streak is effectively all-time.
     final start = DateTime(today.year - 10, today.month, today.day);
     final result = await _muhasaba.periodStats(
       start: start,
@@ -94,35 +106,27 @@ final class AchievementStore {
     );
     final ps = result.valueOrNull;
 
-    var salahDays = 0;
-    var quranDays = 0;
-    var fastingDays = 0;
-    var tahajjudDays = 0;
-    var sadaqahDays = 0;
-    if (ps != null) {
-      for (final it in ps.items) {
-        if (DefaultTrackers.salahIds.contains(it.itemId)) {
-          salahDays += it.daysDone;
-        } else if (it.itemId == 'quran') {
-          quranDays = it.daysDone;
-        } else if (it.itemId == 'roza') {
-          fastingDays = it.daysDone;
-        } else if (it.itemId == 'tahajjud') {
-          tahajjudDays = it.daysDone;
-        } else if (it.itemId == 'sadaqah') {
-          sadaqahDays = it.daysDone;
-        }
-      }
-    }
+    // Distinct done dates per badge family, archived items included.
+    Future<Set<DateTime>> doneOn(Set<String> ids) async =>
+        (await _muhasaba.doneDates(ids)).valueOrNull ?? const {};
+    final salahDays = await doneOn(DefaultTrackers.salahIds.toSet());
+    final quranDays = await doneOn(const {'quran'});
+    final fastingDays = {
+      ...await doneOn(const {'roza'}),
+      for (final s in _fasting?.logged.value ?? const <int>{})
+        DateTime(s ~/ 10000, (s ~/ 100) % 100, s % 100),
+    };
+    final tahajjudDays = await doneOn(const {'tahajjud'});
+    final sadaqahDays = await doneOn(const {'sadaqah'});
 
     stats.value = AchievementStats(
       currentStreak: ps?.currentStreak ?? 0,
       bestStreak: ps?.bestStreak ?? 0,
-      salahDaysDone: salahDays,
-      quranDaysDone: quranDays,
-      fastingDaysDone: fastingDays,
-      tahajjudDaysDone: tahajjudDays,
-      sadaqahDaysDone: sadaqahDays,
+      salahDaysDone: salahDays.length,
+      quranDaysDone: quranDays.length,
+      fastingDaysDone: fastingDays.length,
+      tahajjudDaysDone: tahajjudDays.length,
+      sadaqahDaysDone: sadaqahDays.length,
       totalDhikr: _tasbih?.lifetimeTotal.value ?? 0,
       tasbihSessions: _tasbih?.lifetimeSessions.value ?? 0,
       quranBookmarks: _quran?.bookmarks.value.length ?? 0,

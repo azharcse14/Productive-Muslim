@@ -60,5 +60,38 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Upcoming recommended fasts'), findsOneWidget);
     });
+
+    testWidgets('a forbidden day (Eid al-Adha) offers no log button',
+        (tester) async {
+      await GetIt.I.reset();
+      GetIt.I.registerSingleton<FastingStore>(
+        FastingStore(
+          SharedPreferencesAsync(),
+          now: () => DateTime(2026, 5, 27, 10), // 10 Dhul-Hijjah 1447
+        ),
+      );
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Fasting is not permitted today'), findsOneWidget);
+      expect(find.text('Log a voluntary fast'), findsNothing);
+      expect(find.text('Log today'), findsNothing);
+    });
+
+    testWidgets('a Ramadan day is the obligatory fast, not voluntary',
+        (tester) async {
+      await GetIt.I.reset();
+      GetIt.I.registerSingleton<FastingStore>(
+        FastingStore(
+          SharedPreferencesAsync(),
+          now: () => DateTime(2026, 3, 2, 10), // ~12 Ramadan 1447, a Monday
+        ),
+      );
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ramadan — the obligatory fast'), findsOneWidget);
+      expect(find.text('Log a voluntary fast'), findsNothing);
+    });
   });
 }

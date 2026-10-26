@@ -102,6 +102,35 @@ void main() {
       expect(r.gregorian.days, 26);
     });
 
+    test('start day past end of borrowed month: 2001-01-31 → 2001-03-01',
+        () {
+      final r = AgeCalculator.calculate(
+        birthDate: DateTime(2001, 1, 31),
+        onDate: DateTime(2001, 3, 1),
+      );
+      expect(r.gregorian.years, 0);
+      expect(r.gregorian.months, 1);
+      expect(r.gregorian.days, 1);
+    });
+
+    test('31st into a 30-day month: 2000-03-31 → 2000-05-01 = 0y 1m 1d', () {
+      final r = AgeCalculator.calculate(
+        birthDate: DateTime(2000, 3, 31),
+        onDate: DateTime(2000, 5, 1),
+      );
+      expect(r.gregorian.months, 1);
+      expect(r.gregorian.days, 1);
+    });
+
+    test('totalDays across DST change (fails under local-time diff in '
+        'DST zones, e.g. TZ=America/New_York)', () {
+      final r = AgeCalculator.calculate(
+        birthDate: DateTime(2020, 1, 1),
+        onDate: DateTime(2020, 6, 30),
+      );
+      expect(r.totalDays, 181);
+    });
+
     test('totalDays equals raw day difference', () {
       final r = AgeCalculator.calculate(
         birthDate: DateTime(2020, 1, 1),

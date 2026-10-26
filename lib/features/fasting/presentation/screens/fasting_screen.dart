@@ -69,6 +69,8 @@ final class _FastingScreenState extends State<FastingScreen> {
                 _TodayCard(
                   date: today,
                   fasts: todays,
+                  forbidden: _store.isForbidden(today),
+                  ramadan: _store.isRamadan(today),
                   logged: _store.isLogged(today),
                   onToggle: () => _toggle(today),
                 ),
@@ -78,6 +80,7 @@ final class _FastingScreenState extends State<FastingScreen> {
                 _UpcomingCard(
                   upcoming: upcoming,
                   isLogged: _store.isLogged,
+                  canLog: _store.canLog,
                   onToggle: _toggle,
                 ),
               ],
@@ -94,12 +97,20 @@ final class _TodayCard extends StatelessWidget {
   const _TodayCard({
     required this.date,
     required this.fasts,
+    required this.forbidden,
+    required this.ramadan,
     required this.logged,
     required this.onToggle,
   });
 
   final DateTime date;
   final List<RecommendedFast> fasts;
+
+  /// Eid / Tashreeq — fasting is not permitted, so no log button.
+  final bool forbidden;
+
+  /// Ramadan — the obligatory fast, logged as such (not "voluntary").
+  final bool ramadan;
   final bool logged;
   final VoidCallback onToggle;
 
@@ -127,7 +138,11 @@ final class _TodayCard extends StatelessWidget {
                 child: Text(
                   recommended
                       ? l10n.fastingTodayRecommended
-                      : l10n.fastingTodayNone,
+                      : forbidden
+                          ? l10n.fastingTodayForbidden
+                          : ramadan
+                              ? l10n.fastingTodayRamadan
+                              : l10n.fastingTodayNone,
                   style: QType.titleSm.copyWith(
                     color: recommended ? q.onPrimarySoft : q.ink,
                   ),
@@ -156,17 +171,25 @@ final class _TodayCard extends StatelessWidget {
               expand: true,
               onPressed: onToggle,
             ),
+          ] else if (forbidden) ...[
+            const SizedBox(height: QSpace.s2),
+            Text(
+              l10n.fastingTodayForbiddenNote,
+              style: QType.body.copyWith(color: q.ink2),
+            ),
           ] else ...[
             const SizedBox(height: QSpace.s2),
             Text(
-              l10n.fastingTodayNoneNote,
+              ramadan ? l10n.fastingTodayRamadanNote : l10n.fastingTodayNoneNote,
               style: QType.body.copyWith(color: q.ink2),
             ),
             const SizedBox(height: QSpace.s4),
             QButton(
               label: logged
                   ? l10n.fastingLoggedToday
-                  : l10n.fastingLogVoluntary,
+                  : ramadan
+                      ? l10n.fastingLogToday
+                      : l10n.fastingLogVoluntary,
               icon: logged ? Icons.check_circle_outline : Icons.add,
               kind: logged ? QButtonKind.tonal : QButtonKind.outline,
               expand: true,
@@ -277,11 +300,13 @@ final class _UpcomingCard extends StatelessWidget {
   const _UpcomingCard({
     required this.upcoming,
     required this.isLogged,
+    required this.canLog,
     required this.onToggle,
   });
 
   final List<UpcomingFast> upcoming;
   final bool Function(DateTime) isLogged;
+  final bool Function(DateTime) canLog;
   final void Function(DateTime) onToggle;
 
   @override
@@ -307,7 +332,10 @@ final class _UpcomingCard extends StatelessWidget {
                 code,
               ),
               logged: isLogged(item.fast.date),
-              onToggle: () => onToggle(item.fast.date),
+              // Future days can't be logged yet (un-logging stays allowed).
+              onToggle: isLogged(item.fast.date) || canLog(item.fast.date)
+                  ? () => onToggle(item.fast.date)
+                  : null,
             ),
           ],
         ],
@@ -327,7 +355,9 @@ final class _UpcomingRow extends StatelessWidget {
   final UpcomingFast item;
   final String subtitle;
   final bool logged;
-  final VoidCallback onToggle;
+
+  /// Null when the day can't be logged yet (it's in the future).
+  final VoidCallback? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -335,6 +365,7 @@ final class _UpcomingRow extends StatelessWidget {
     final q = context.q;
     return Semantics(
       button: true,
+      enabled: onToggle != null,
       child: InkWell(
         onTap: onToggle,
         child: Padding(
@@ -358,7 +389,11 @@ final class _UpcomingRow extends StatelessWidget {
                 ),
               ),
               Icon(
-                logged ? Icons.check_circle : Icons.radio_button_unchecked,
+                logged
+                    ? Icons.check_circle
+                    : onToggle == null
+                        ? Icons.schedule
+                        : Icons.radio_button_unchecked,
                 size: 22,
                 color: logged ? q.primary : q.ink3,
               ),

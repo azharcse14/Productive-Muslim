@@ -31,4 +31,17 @@ void main() {
       expect(LocaleDigits.localize('৫ and 5', 'bn'), '৫ and ৫');
     });
   });
+
+  group('LocaleDigits.toAscii', () {
+    test('maps Bengali and Arabic-Indic digits, strips separators', () {
+      expect(LocaleDigits.toAscii('১২,৫০০'), '12500');
+      expect(LocaleDigits.toAscii(' ١٬٢٣٤٫٥ '), '1234.5');
+      expect(LocaleDigits.toAscii('۱۲۳'), '123');
+      expect(double.tryParse(LocaleDigits.toAscii('1,234.50')), 1234.5);
+    });
+
+    test('round-trips localize', () {
+      expect(LocaleDigits.toAscii(LocaleDigits.localize('9876', 'bn')), '9876');
+    });
+  });
 }

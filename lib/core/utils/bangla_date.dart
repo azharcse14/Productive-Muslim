@@ -30,8 +30,10 @@ final class BanglaDate {
         (date.month > 4 || (date.month == 4 && date.day >= 14))
             ? date.year
             : date.year - 1;
-    final start = DateTime(startYear, 4, 14);
-    var remaining = DateTime(date.year, date.month, date.day)
+    // UTC on both sides: local midnights can be 23h apart across a DST
+    // change, which truncates inDays one short.
+    final start = DateTime.utc(startYear, 4, 14);
+    var remaining = DateTime.utc(date.year, date.month, date.day)
         .difference(start)
         .inDays;
     final lengths = _monthLengths(startYear);

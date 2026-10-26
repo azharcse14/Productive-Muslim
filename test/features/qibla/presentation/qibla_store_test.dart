@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/qibla/data/datasources/sensor_data_source.dart';
+import 'package:productive_muslim/features/qibla/domain/usecases/magnetic_declination.dart';
 import 'package:productive_muslim/features/qibla/presentation/state/qibla_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
@@ -83,6 +84,7 @@ Future<(QiblaStore, _FakeSensors, List<int>)> _make({
     sensors: sensors,
     settings: settings,
     onAligned: () => haptics.add(1),
+    now: () => DateTime.utc(2026, 7, 2, 12),
   );
   return (store, sensors, haptics);
 }
@@ -112,6 +114,23 @@ void main() {
       store.dispose();
     });
 
+    test('heading is corrected from magnetic to true north', () async {
+      final (store, sensors, _) = await _make();
+      expect(
+        store.declination.value,
+        MagneticDeclination.at(
+          _dhaka.latitude,
+          _dhaka.longitude,
+          DateTime.utc(2026, 7, 2, 12),
+        ),
+      );
+      expect(store.declination.value, isNot(0));
+      sensors.emitHeading(10);
+      await Future<void>.delayed(Duration.zero);
+      expect(store.heading.value, closeTo(10 + store.declination.value, 1e-9));
+      store.dispose();
+    });
+
     test('weak magnetic field flags calibration', () async {
       final (store, sensors, _) = await _make();
       sensors.emitWeakField();
@@ -132,7 +151,8 @@ void main() {
 
     test('haptic fires once on entering alignment', () async {
       final (store, sensors, haptics) = await _make();
-      final bearing = store.bearing.value!;
+      // The sensor reads magnetic north; the store adds the declination.
+      final bearing = store.bearing.value! - store.declination.value;
       // Repeat so exponential smoothing converges within tolerance.
       for (var i = 0; i < 60; i++) {
         sensors.emitHeading(bearing);

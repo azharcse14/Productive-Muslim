@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:intl/intl.dart';
 
@@ -8,6 +10,7 @@ import '../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../settings/domain/repositories/zoned_clock.dart';
 import '../../settings/presentation/state/settings_store.dart';
 import '../../settings/presentation/widgets/setting_labels.dart';
+import '../domain/next_prayer.dart';
 import '../domain/widget_payload.dart';
 import 'widget_bridge.dart';
 
@@ -31,10 +34,15 @@ final class PrayerWidgetService {
   final SettingsStore _settings;
   final WidgetBridge _bridge;
 
+  /// Fires [update] at the next prayer start or midnight, whichever first,
+  /// so the snapshot doesn't go stale while the app stays open.
+  Timer? _boundary;
+
   /// Recomputes the snapshot for the configured location and locale and
-  /// repaints the widget. Safe to call on app open and on any
-  /// location/params/locale change.
+  /// repaints the widget. Safe to call on app open, resume, and on any
+  /// location/params/locale change; re-arms itself for the next boundary.
   Future<void> update() async {
+    _boundary?.cancel();
     try {
       final appSettings = _settings.settings.value;
       final code = appSettings.localeCode;
@@ -70,6 +78,16 @@ final class PrayerWidgetService {
         formatTime: formatTime,
         locationLabel: locationLabel,
       );
+
+      if (day != null) {
+        final next = resolveNextPrayer(day, now).at;
+        final midnight = DateTime(now.year, now.month, now.day + 1);
+        final at = next.isBefore(midnight) ? next : midnight;
+        _boundary = Timer(
+          at.difference(now) + const Duration(seconds: 1),
+          () => unawaited(update()),
+        );
+      }
 
       await _bridge.push(payload);
     } on Object {

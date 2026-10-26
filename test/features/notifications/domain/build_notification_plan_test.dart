@@ -6,19 +6,20 @@ import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_d
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
-PrayerDay _day(int day) => PrayerDay(
-      ishaYesterday: DateTime(2026, 6, day - 1, 20, 15),
-      fajr: DateTime(2026, 6, day, 3, 45),
-      sunrise: DateTime(2026, 6, day, 5, 10),
-      dhuhr: DateTime(2026, 6, day, 12),
-      asr: DateTime(2026, 6, day, 16, 30),
-      maghrib: DateTime(2026, 6, day, 18, 45),
-      isha: DateTime(2026, 6, day, 20, 15),
-      fajrTomorrow: DateTime(2026, 6, day + 1, 3, 45),
+// March 2026 falls in Ramadan 1447, so sahri/iftar alerts are active.
+PrayerDay _day(int day, {int month = 3}) => PrayerDay(
+      ishaYesterday: DateTime(2026, month, day - 1, 20, 15),
+      fajr: DateTime(2026, month, day, 3, 45),
+      sunrise: DateTime(2026, month, day, 5, 10),
+      dhuhr: DateTime(2026, month, day, 12),
+      asr: DateTime(2026, month, day, 16, 30),
+      maghrib: DateTime(2026, month, day, 18, 45),
+      isha: DateTime(2026, month, day, 20, 15),
+      fajrTomorrow: DateTime(2026, month, day + 1, 3, 45),
     );
 
 final _days = [_day(12), _day(13), _day(14)];
-final _from = DateTime(2026, 6, 12, 3); // before fajr on day one
+final _from = DateTime(2026, 3, 12, 3); // before fajr on day one
 
 List<NotificationItem> _plan({
   NotificationMatrix matrix = const NotificationMatrix(),
@@ -81,12 +82,12 @@ void main() {
     });
 
     test('past items are never scheduled', () {
-      final plan = _plan(from: DateTime(2026, 6, 12, 13)); // after dhuhr
+      final plan = _plan(from: DateTime(2026, 3, 12, 13)); // after dhuhr
       final day12Azans = plan.where(
         (i) =>
             i.kind == NotificationKind.azan &&
             i.at.day == 12 &&
-            i.at.isBefore(DateTime(2026, 6, 12, 13)),
+            i.at.isBefore(DateTime(2026, 3, 12, 13)),
       );
       expect(day12Azans, isEmpty);
     });
@@ -97,7 +98,7 @@ void main() {
       final sahri = _plan()
           .where((i) => i.kind == NotificationKind.sahriWarning)
           .toList();
-      expect(sahri.first.at, DateTime(2026, 6, 12, 3, 15)); // 30 min before
+      expect(sahri.first.at, DateTime(2026, 3, 12, 3, 15)); // 30 min before
     });
 
     test('sahri warning counts back from the safety-adjusted sahri end', () {
@@ -117,14 +118,14 @@ void main() {
       }
 
       final plan = buildNotificationPlan(
-        from: DateTime(2026, 6, 12, 2),
+        from: DateTime(2026, 3, 12, 2),
         days: [withMargin(12), withMargin(13)],
         matrix: const NotificationMatrix(),
         jamaat: JamaatConfig.none,
       );
       final sahri =
           plan.where((i) => i.kind == NotificationKind.sahriWarning).first;
-      expect(sahri.at, DateTime(2026, 6, 12, 3, 10)); // 3:45 − 5 − 30
+      expect(sahri.at, DateTime(2026, 3, 12, 3, 10)); // 3:45 − 5 − 30
     });
 
     test('sahri toggle off removes warnings', () {
@@ -145,10 +146,33 @@ void main() {
       expect(sahris.first.at.day, 13);
     });
 
+    test('sahri & iftar are Ramadan-only (hijri offset applied)', () {
+      List<NotificationItem> ramadanItems(int month, int day, {int offset = 0}) =>
+          buildNotificationPlan(
+            from: DateTime(2026, month, day),
+            days: [_day(day, month: month)],
+            matrix: const NotificationMatrix(),
+            jamaat: JamaatConfig.none,
+            hijriOffsetDays: offset,
+          )
+              .where(
+                (i) =>
+                    i.kind == NotificationKind.sahriWarning ||
+                    i.kind == NotificationKind.iftar,
+              )
+              .toList();
+
+      expect(ramadanItems(3, 12), hasLength(2)); // 23 Ramadan 1447
+      expect(ramadanItems(6, 12), isEmpty); // Dhul-Hijjah
+      // 17 Feb 2026 is 29 Sha'ban; a +1 day offset makes it 1 Ramadan.
+      expect(ramadanItems(2, 17), isEmpty);
+      expect(ramadanItems(2, 17, offset: 1), hasLength(2));
+    });
+
     test('iftar fires at maghrib when enabled', () {
       final iftars =
           _plan().where((i) => i.kind == NotificationKind.iftar).toList();
-      expect(iftars.first.at, DateTime(2026, 6, 12, 18, 45));
+      expect(iftars.first.at, DateTime(2026, 3, 12, 18, 45));
       expect(iftars.length, 2);
     });
   });
@@ -171,7 +195,7 @@ void main() {
       );
       final reminders =
           plan.where((i) => i.kind == NotificationKind.jamaat).toList();
-      expect(reminders.first.at, DateTime(2026, 6, 12, 13)); // 15 min lead
+      expect(reminders.first.at, DateTime(2026, 3, 12, 13)); // 15 min lead
       expect(reminders.length, 2); // day 12 + 13
     });
 
@@ -189,7 +213,7 @@ void main() {
       final reminder =
           plan.firstWhere((i) => i.kind == NotificationKind.jamaat);
       // 18:45 + 5 − 10 = 18:40.
-      expect(reminder.at, DateTime(2026, 6, 12, 18, 40));
+      expect(reminder.at, DateTime(2026, 3, 12, 18, 40));
     });
   });
 
@@ -206,7 +230,7 @@ void main() {
           .where((i) => i.kind == NotificationKind.muhasabaEvening)
           .toList();
       expect(nudges.length, 2);
-      expect(nudges.first.at, DateTime(2026, 6, 12, 21));
+      expect(nudges.first.at, DateTime(2026, 3, 12, 21));
       final perDay = <int>{for (final n in nudges) n.at.day};
       expect(perDay.length, nudges.length); // one per day
     });
@@ -229,9 +253,26 @@ void main() {
           .toList();
       // Days 12 & 13 at 08:00 fall in the 48h window; day 14 is past it.
       expect(reminders.length, 2);
-      expect(reminders.first.at, DateTime(2026, 6, 12, 8));
+      expect(reminders.first.at, DateTime(2026, 3, 12, 8));
       final perDay = <int>{for (final r in reminders) r.at.day};
       expect(perDay.length, reminders.length); // one per day
+    });
+
+    test('keeps its wall-clock time on a DST day', () {
+      // US zones spring forward on 8 Mar 2026: midnight + 8h30 of Duration
+      // lands on 09:30 there (run with TZ=America/New_York to exercise it).
+      final plan = buildNotificationPlan(
+        from: DateTime(2026, 3, 8),
+        days: [_day(8)],
+        matrix: const NotificationMatrix(
+          dailyReminder: true,
+          dailyReminderMinute: 8 * 60 + 30,
+        ),
+        jamaat: JamaatConfig.none,
+      );
+      final reminder =
+          plan.singleWhere((i) => i.kind == NotificationKind.dailyReminder);
+      expect(reminder.at, DateTime(2026, 3, 8, 8, 30));
     });
   });
 

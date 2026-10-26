@@ -53,7 +53,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   }
 
   double _valueOf(TextEditingController controller) =>
-      double.tryParse(controller.text.trim()) ?? 0;
+      double.tryParse(LocaleDigits.toAscii(controller.text)) ?? 0;
 
   void _calculate() {
     setState(() {
