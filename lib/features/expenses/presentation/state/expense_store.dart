@@ -46,8 +46,12 @@ final class Expense {
 /// Personal expense log (hisab). Persisted as one JSON string, mirroring
 /// [FastingStore]'s prefs persistence.
 final class ExpenseStore {
-  ExpenseStore(this._prefs, {DateTime Function()? now})
-    : _now = now ?? DateTime.now;
+  ExpenseStore(
+    this._prefs, {
+    DateTime Function()? now,
+    Future<void> Function(DateTime date)? onSadaqah,
+  }) : _now = now ?? DateTime.now,
+       _onSadaqah = onSadaqah;
 
   static const _key = 'expenses_v1';
 
@@ -61,6 +65,10 @@ final class ExpenseStore {
 
   final SharedPreferencesAsync _prefs;
   final DateTime Function() _now;
+
+  /// Called with the date of each sadaqah added or edited — marks that
+  /// day's muhasaba sadaqah done. Never unmarks (it may be ticked by hand).
+  final Future<void> Function(DateTime date)? _onSadaqah;
 
   /// Newest first.
   late final entries = signal(const <Expense>[]);
@@ -130,7 +138,9 @@ final class ExpenseStore {
     final recovered = <Expense>[];
     for (final raw in [...unreadable]) {
       try {
-        recovered.add(Expense.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+        recovered.add(
+          Expense.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+        );
         unreadable.remove(raw);
       } on Object {
         // Still unreadable — keep it.
@@ -198,6 +208,13 @@ final class ExpenseStore {
     final next = [e, ...entries.value]
       ..sort((a, b) => b.date.compareTo(a.date));
     await _save(next);
+    await _markSadaqah(e);
+  }
+
+  Future<void> _markSadaqah(Expense e) async {
+    if (e.category == ExpenseCategory.sadaqah) {
+      await _onSadaqah?.call(e.date);
+    }
   }
 
   /// Sets [category]'s monthly budget; null or non-positive clears it.
@@ -241,6 +258,9 @@ final class ExpenseStore {
           e,
     ]..sort((a, b) => b.date.compareTo(a.date));
     await _save(next);
+    if (category == ExpenseCategory.sadaqah) {
+      await _onSadaqah?.call(date);
+    }
   }
 
   Future<void> remove(int id) async {
@@ -318,5 +338,114 @@ final class ExpenseStore {
       totals[e.category] = totals[e.category]! + e.amount;
     }
     return totals;
+  }
+
+  static const _csvHeader = 'date,category,amount,note';
+
+  /// All entries as CSV (oldest first) — opens in any spreadsheet and is
+  /// the backup format [importCsv] reads back. Budgets are not included.
+  String toCsv() {
+    String quote(String v) => '"${v.replaceAll('"', '""')}"';
+    return [
+      _csvHeader,
+      for (final e in entries.value.reversed)
+        '${e.date.toIso8601String()},${e.category.name},${e.amount},'
+            '${quote(e.note)}',
+    ].join('\n');
+  }
+
+  /// Merges entries from [csv] (as written by [toCsv]), skipping ones
+  /// already present, so re-importing the same backup is a no-op. Returns
+  /// how many were added, or null if [csv] isn't a valid backup (nothing
+  /// is imported then).
+  Future<int?> importCsv(String csv) async {
+    final rows = _parseCsv(csv.trim());
+    if (rows.isEmpty || rows.first.join(',') != _csvHeader) {
+      return null;
+    }
+    final parsed = <Expense>[];
+    for (final r in rows.skip(1)) {
+      if (r.length != 4) {
+        return null;
+      }
+      final date = DateTime.tryParse(r[0]);
+      final category = ExpenseCategory.values.asNameMap()[r[1]];
+      final amount = int.tryParse(r[2]);
+      if (date == null || category == null || amount == null || amount <= 0) {
+        return null;
+      }
+      parsed.add(
+        Expense(
+          id: 0,
+          amount: amount,
+          category: category,
+          date: date,
+          note: r[3],
+        ),
+      );
+    }
+    String sig(Expense e) =>
+        '${e.date.toIso8601String()}|${e.category.name}|${e.amount}|${e.note}';
+    final seen = {for (final e in entries.value) sig(e)};
+    var nextId = entries.value.fold(0, (m, e) => e.id > m ? e.id : m);
+    final added = [
+      for (final e in parsed)
+        if (seen.add(sig(e)))
+          Expense(
+            id: ++nextId,
+            amount: e.amount,
+            category: e.category,
+            date: e.date,
+            note: e.note,
+          ),
+    ];
+    if (added.isNotEmpty) {
+      await _save(
+        [...entries.value, ...added]..sort((a, b) => b.date.compareTo(a.date)),
+      );
+    }
+    return added.length;
+  }
+
+  /// Minimal RFC 4180 reader: quoted fields may hold commas, newlines and
+  /// doubled quotes.
+  static List<List<String>> _parseCsv(String input) {
+    final rows = <List<String>>[];
+    var row = <String>[];
+    final field = StringBuffer();
+    var quoted = false;
+    for (var i = 0; i < input.length; i++) {
+      final ch = input[i];
+      if (quoted) {
+        if (ch == '"' && i + 1 < input.length && input[i + 1] == '"') {
+          field.write('"');
+          i++;
+        } else if (ch == '"') {
+          quoted = false;
+        } else {
+          field.write(ch);
+        }
+      } else if (ch == '"') {
+        quoted = true;
+      } else if (ch == ',') {
+        row.add(field.toString());
+        field.clear();
+      } else if (ch == '\n' || ch == '\r') {
+        if (ch == '\r' && i + 1 < input.length && input[i + 1] == '\n') {
+          i++;
+        }
+        row.add(field.toString());
+        field.clear();
+        rows.add(row);
+        row = <String>[];
+      } else {
+        field.write(ch);
+      }
+    }
+    if (input.isNotEmpty) {
+      row.add(field.toString());
+      rows.add(row);
+    }
+    return rows;
   }
 }

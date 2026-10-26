@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
 import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:get_it/get_it.dart';
@@ -110,9 +111,7 @@ Future<void> setupLocator() async {
     ..registerLazySingleton<SettingsRepository>(
       () => SettingsRepositoryImpl(locator()),
     )
-    ..registerLazySingleton<CityRepository>(
-      () => CityRepositoryImpl(locator()),
-    )
+    ..registerLazySingleton<CityRepository>(() => CityRepositoryImpl(locator()))
     ..registerLazySingleton<LocationRepository>(
       () => LocationRepositoryImpl(locator()),
     )
@@ -124,9 +123,7 @@ Future<void> setupLocator() async {
 
   // ---- onboarding / app lock ----
   locator
-    ..registerLazySingleton(
-      () => AppLockDataSource(SharedPreferencesAsync()),
-    )
+    ..registerLazySingleton(() => AppLockDataSource(SharedPreferencesAsync()))
     ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
     ..registerLazySingleton(() => AppLockStore(locator(), locator()));
 
@@ -186,10 +183,7 @@ Future<void> setupLocator() async {
         currentLocation: () => locator<SettingsStore>().location.value,
         formatTime: (dt) {
           final code = locator<SettingsStore>().settings.value.localeCode;
-          return LocaleDigits.localize(
-            DateFormat.jm(code).format(dt),
-            code,
-          );
+          return LocaleDigits.localize(DateFormat.jm(code).format(dt), code);
         },
         onTap: _onNotificationTap,
       ),
@@ -240,13 +234,9 @@ Future<void> setupLocator() async {
   // ---- dua & tasbih ----
   locator
     ..registerLazySingleton(() => DuaAssetDataSource(rootBundle))
-    ..registerLazySingleton<DuaRepository>(
-      () => DuaRepositoryImpl(locator()),
-    )
+    ..registerLazySingleton<DuaRepository>(() => DuaRepositoryImpl(locator()))
     ..registerLazySingleton(() => DuaStore(locator()))
-    ..registerLazySingleton(
-      () => DuaFavoritesStore(SharedPreferencesAsync()),
-    )
+    ..registerLazySingleton(() => DuaFavoritesStore(SharedPreferencesAsync()))
     ..registerLazySingleton(
       () => TasbihStore(SharedPreferencesAsync(), now: _wallNow),
     )
@@ -332,11 +322,10 @@ Future<void> setupLocator() async {
 /// Pending-notification cap per platform: iOS holds at most 64 per app;
 /// Android has no practical limit at a 7-day window (~100 items).
 int? notificationCapFor(TargetPlatform platform) => switch (platform) {
-      TargetPlatform.iOS ||
-      TargetPlatform.macOS =>
-        AppConfig.iosMaxPendingNotifications,
-      _ => null,
-    };
+  TargetPlatform.iOS ||
+  TargetPlatform.macOS => AppConfig.iosMaxPendingNotifications,
+  _ => null,
+};
 
 /// Keeps the home-screen widget in sync. Runs once now (app open), on every
 /// resume, at each next-prayer/midnight boundary, and whenever the location,
@@ -368,8 +357,7 @@ void _onNotificationTap(String? payload, String? actionId) {
       Prayer.values.any((p) => p.name == prayer)) {
     final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
     unawaited(
-      locator<MuhasabaStore>()
-          .markDoneOn('salah_$prayer', date ?? _wallNow()),
+      locator<MuhasabaStore>().markDoneOn('salah_$prayer', date ?? _wallNow()),
     );
   }
   openDeepLink(uri.path);

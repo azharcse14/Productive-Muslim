@@ -93,25 +93,30 @@ void main() {
     expect(fresh.categoryBudgets.value, {ExpenseCategory.sadaqah: 500});
   });
 
-  const good = '{"id":1,"amount":5,"category":"need",'
+  const good =
+      '{"id":1,"amount":5,"category":"need",'
       '"date":"2026-10-01T10:00:00.000","note":""}';
-  const zakat = '{"id":2,"amount":9,"category":"zakat",'
+  const zakat =
+      '{"id":2,"amount":9,"category":"zakat",'
       '"date":"2026-10-02T10:00:00.000","note":""}';
-  const sadaqahLater = '{"id":3,"amount":4,"category":"zakat2",'
+  const sadaqahLater =
+      '{"id":3,"amount":4,"category":"zakat2",'
       '"date":"2026-10-03T10:00:00.000","note":""}';
 
-  test('an unreadable record is skipped, kept aside, and survives saves',
-      () async {
-    final prefs = SharedPreferencesAsync();
-    await prefs.setString('expenses_v1', '[$good,$zakat]');
-    final s = store();
-    await s.load();
-    expect(s.entries.value.map((e) => e.id), [1]);
-    await s.add(amount: 7, category: ExpenseCategory.want);
-    expect(s.entries.value, hasLength(2), reason: 'history not wiped');
-    final kept = await prefs.getString('expenses_v1_unreadable_records');
-    expect(kept, contains('zakat'));
-  });
+  test(
+    'an unreadable record is skipped, kept aside, and survives saves',
+    () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('expenses_v1', '[$good,$zakat]');
+      final s = store();
+      await s.load();
+      expect(s.entries.value.map((e) => e.id), [1]);
+      await s.add(amount: 7, category: ExpenseCategory.want);
+      expect(s.entries.value, hasLength(2), reason: 'history not wiped');
+      final kept = await prefs.getString('expenses_v1_unreadable_records');
+      expect(kept, contains('zakat'));
+    },
+  );
 
   test('a second incident is kept too (not just the first)', () async {
     final prefs = SharedPreferencesAsync();
@@ -119,9 +124,9 @@ void main() {
     await store().load();
     await prefs.setString('expenses_v1', '[$good,$sadaqahLater]');
     await store().load();
-    final kept = jsonDecode(
-      (await prefs.getString('expenses_v1_unreadable_records'))!,
-    ) as List<dynamic>;
+    final kept =
+        jsonDecode((await prefs.getString('expenses_v1_unreadable_records'))!)
+            as List<dynamic>;
     final categories = [
       for (final r in kept) (jsonDecode(r as String) as Map)['category'],
     ];
@@ -131,7 +136,8 @@ void main() {
   test('kept records rejoin once readable (re-ided on collision)', () async {
     final prefs = SharedPreferencesAsync();
     // Kept earlier with a category this build reads, e.g. after upgrading.
-    const later = '{"id":1,"amount":9,"category":"family",'
+    const later =
+        '{"id":1,"amount":9,"category":"family",'
         '"date":"2026-10-02T10:00:00.000","note":"back"}';
     await prefs.setString('expenses_v1', '[$good]');
     await prefs.setString(
@@ -179,8 +185,7 @@ void main() {
     expect(s.entries.value.map((e) => e.id).toSet(), hasLength(2));
   });
 
-  test('a write before load finishes waits for it (no clobbering)',
-      () async {
+  test('a write before load finishes waits for it (no clobbering)', () async {
     final first = store();
     await first.load();
     await first.add(amount: 100, category: ExpenseCategory.need);

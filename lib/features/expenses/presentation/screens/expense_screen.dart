@@ -242,9 +242,8 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
 void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
-  void failed(Object _) => messenger.showSnackBar(
-    SnackBar(content: Text(l10n.expenseSaveFailed)),
-  );
+  void failed(Object _) =>
+      messenger.showSnackBar(SnackBar(content: Text(l10n.expenseSaveFailed)));
   unawaited(store.remove(e.id).catchError(failed));
   messenger
     ..hideCurrentSnackBar()
@@ -262,10 +261,9 @@ void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
     );
 }
 
-void _showSaveFailed(BuildContext context) =>
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.expenseSaveFailed)),
-    );
+void _showSaveFailed(BuildContext context) => ScaffoldMessenger.of(
+  context,
+).showSnackBar(SnackBar(content: Text(context.l10n.expenseSaveFailed)));
 
 /// One category line: spent, and either its share of the month or, with a
 /// budget, progress against it. Sadaqah's budget is a goal — exceeding it
@@ -347,8 +345,7 @@ Future<void> _showBudgetDialog(
   required Future<void> Function(int?) onSave,
 }) => showDialog<void>(
   context: context,
-  builder: (_) =>
-      _BudgetDialog(title: title, current: current, onSave: onSave),
+  builder: (_) => _BudgetDialog(title: title, current: current, onSave: onSave),
 );
 
 /// Owns its controller so it lives until the route (and its exit
@@ -384,8 +381,7 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final text = _controller.text.trim();
-    final invalid =
-        text.isNotEmpty && ExpenseStore.parseAmount(text) == null;
+    final invalid = text.isNotEmpty && ExpenseStore.parseAmount(text) == null;
     return AlertDialog(
       title: Text(widget.title),
       content: TextField(

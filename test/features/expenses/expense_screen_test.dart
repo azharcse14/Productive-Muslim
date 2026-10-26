@@ -25,11 +25,11 @@ base class _SlowPrefs extends InMemorySharedPreferencesAsync {
 }
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const ExpenseScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const ExpenseScreen(),
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -50,8 +50,9 @@ void main() {
 
   tearDown(() => GetIt.I.reset());
 
-  testWidgets('double-tapping Save adds once and keeps the screen',
-      (tester) async {
+  testWidgets('double-tapping Save adds once and keeps the screen', (
+    tester,
+  ) async {
     SharedPreferencesAsyncPlatform.instance = _SlowPrefs();
     register();
     await tester.pumpWidget(_app());
@@ -69,8 +70,9 @@ void main() {
     expect(find.byType(ExpenseScreen), findsOneWidget);
   });
 
-  testWidgets('budget dialog saves without a disposed-controller error',
-      (tester) async {
+  testWidgets('budget dialog saves without a disposed-controller error', (
+    tester,
+  ) async {
     register();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -83,8 +85,9 @@ void main() {
     expect(store.budget.value, 5000);
   });
 
-  testWidgets('editor Delete removes the entry and Undo restores it',
-      (tester) async {
+  testWidgets('editor Delete removes the entry and Undo restores it', (
+    tester,
+  ) async {
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
@@ -99,8 +102,9 @@ void main() {
     expect(store.entries.value.single.note, 'tea');
   });
 
-  testWidgets('a decimal amount shows an error instead of silently failing',
-      (tester) async {
+  testWidgets('a decimal amount shows an error instead of silently failing', (
+    tester,
+  ) async {
     register();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -111,8 +115,9 @@ void main() {
     expect(find.text('Enter a whole amount'), findsOneWidget);
   });
 
-  testWidgets('swipe deletes; the Undo SnackBar restores and does not linger',
-      (tester) async {
+  testWidgets('swipe deletes; the Undo SnackBar restores and does not linger', (
+    tester,
+  ) async {
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
@@ -126,8 +131,9 @@ void main() {
     expect(store.entries.value.single.note, 'tea');
   });
 
-  testWidgets('a failed save keeps the sheet open with Save re-enabled',
-      (tester) async {
+  testWidgets('a failed save keeps the sheet open with Save re-enabled', (
+    tester,
+  ) async {
     final prefs = _FailingWrites();
     SharedPreferencesAsyncPlatform.instance = prefs;
     register();
