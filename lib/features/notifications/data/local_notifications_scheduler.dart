@@ -15,14 +15,18 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     required ZonedClock clock,
     required LocationConfig? Function() currentLocation,
     required String Function(DateTime) formatTime,
+    void Function(String? payload, String? actionId)? onTap,
     FlutterLocalNotificationsPlugin? plugin,
   })  : _clock = clock,
         _currentLocation = currentLocation,
         _formatTime = formatTime,
+        _onTap = onTap,
         _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _azanCategoryId = 'productive_muslim_azan';
-  static const _markPrayedActionId = 'mark_prayed';
+
+  /// Action id of the azan "mark as prayed" button.
+  static const markPrayedActionId = 'mark_prayed';
 
   final FlutterLocalNotificationsPlugin _plugin;
   final ZonedClock _clock;
@@ -32,6 +36,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
 
   /// Locale-aware time formatting injected from the composition root.
   final String Function(DateTime) _formatTime;
+
+  /// Tap / action callback with the item's payload (an in-app route).
+  final void Function(String? payload, String? actionId)? _onTap;
+
+  void _dispatch(NotificationResponse response) =>
+      _onTap?.call(response.payload, response.actionId);
 
   bool _initialized = false;
 
@@ -51,17 +61,26 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             DarwinNotificationCategory(
               _azanCategoryId,
               actions: [
+                // Foreground: opens the app so the in-app handler records it.
                 DarwinNotificationAction.plain(
-                  _markPrayedActionId,
+                  markPrayedActionId,
                   texts.markAsPrayedAction,
+                  options: {DarwinNotificationActionOption.foreground},
                 ),
               ],
             ),
           ],
         ),
       ),
+      onDidReceiveNotificationResponse: _dispatch,
     );
     _initialized = true;
+    // Cold start from a tap: replay it once the app is up.
+    final launch = await _plugin.getNotificationAppLaunchDetails();
+    final response = launch?.notificationResponse;
+    if ((launch?.didNotificationLaunchApp ?? false) && response != null) {
+      _dispatch(response);
+    }
   }
 
   AndroidFlutterLocalNotificationsPlugin? get _android =>
@@ -150,6 +169,8 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           payload: switch (item.kind) {
             NotificationKind.muhasabaEvening => '/muhasaba',
             NotificationKind.dailyReminder => texts.dailyReminderRoute,
+            // The prayer rides along for the "mark as prayed" action.
+            NotificationKind.azan => '/home?prayer=${item.prayer?.name}',
             _ => '/home',
           },
         );
@@ -220,7 +241,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         actions: item.kind == NotificationKind.azan
             ? [
                 AndroidNotificationAction(
-                  _markPrayedActionId,
+                  markPrayedActionId,
                   t.markAsPrayedAction,
                   showsUserInterface: true,
                 ),

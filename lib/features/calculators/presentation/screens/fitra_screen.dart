@@ -38,8 +38,8 @@ final class _FitraScreenState extends State<FitraScreen> {
       _result = FitraCalculator.calculate(
         FitraInput(
           staple: _staple,
-          pricePerKg: double.tryParse(_price.text.trim()) ?? 0,
-          numberOfPeople: int.tryParse(_people.text.trim()) ?? 0,
+          pricePerKg: double.tryParse(LocaleDigits.toAscii(_price.text)) ?? 0,
+          numberOfPeople: int.tryParse(LocaleDigits.toAscii(_people.text)) ?? 0,
         ),
       );
     });

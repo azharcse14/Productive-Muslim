@@ -7,6 +7,9 @@ import '../../../helpers/muhasaba_fakes.dart';
 DateTime _fixedNow() => DateTime(2026, 6, 12, 21, 30);
 
 void main() {
+  // load() attaches an AppLifecycleListener (midnight roll-over on resume).
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('MuhasabaStore', () {
     test('load seeds defaults once and splits archived', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
@@ -122,6 +125,42 @@ void main() {
         store.archivedItems.value.any((i) => i.id == custom.id),
         isTrue,
       );
+    });
+
+    test('rolls over to the new day when "today" was selected', () async {
+      var clock = DateTime(2026, 6, 12, 23, 50);
+      final (store, repo) = await makeMuhasabaStore(now: () => clock);
+      await store.setValue('salah_isha', 1);
+      clock = DateTime(2026, 6, 13, 0, 10);
+      await store.rollOverIfNewDay();
+      expect(store.selectedDate.value, DateTime(2026, 6, 13));
+      expect(store.stats.value!.days.last.date, DateTime(2026, 6, 13));
+      // Check-ins now land on the new day, not yesterday.
+      await store.togglePrayerToday('salah_fajr');
+      expect(repo.entries_[('salah_fajr', 20260613)], 1);
+    });
+
+    test('roll-over keeps a back-filled date', () async {
+      var clock = DateTime(2026, 6, 12, 23, 50);
+      final (store, _) = await makeMuhasabaStore(now: () => clock);
+      await store.selectDate(DateTime(2026, 6, 10));
+      clock = DateTime(2026, 6, 13, 0, 10);
+      await store.rollOverIfNewDay();
+      expect(store.selectedDate.value, DateTime(2026, 6, 10));
+      expect(store.stats.value!.days.last.date, DateTime(2026, 6, 13));
+    });
+
+    test('updateItem refreshes stats (target change flips done-days)',
+        () async {
+      final (store, _) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setValue('azkar', 50); // below the 100 target
+      int azkarDone() => store.stats.value!.items
+          .firstWhere((i) => i.itemId == 'azkar')
+          .daysDone;
+      expect(azkarDone(), 0);
+      final azkar = store.items.value.firstWhere((i) => i.id == 'azkar');
+      await store.updateItem(azkar.copyWith(dailyTarget: () => 33));
+      expect(azkarDone(), 1);
     });
   });
 }

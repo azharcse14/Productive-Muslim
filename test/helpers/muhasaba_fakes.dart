@@ -146,6 +146,14 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
       ),
     );
   }
+
+  @override
+  Future<Result<Set<DateTime>>> doneDates(Set<String> itemIds) async =>
+      Result.success({
+        for (final MapEntry(key: (id, day), value: v) in entries_.entries)
+          if (itemIds.contains(id) && (items_[id]?.isDone(v) ?? false))
+            DateTime(day ~/ 10000, (day % 10000) ~/ 100, day % 100),
+      });
 }
 
 Future<(MuhasabaStore, InMemoryMuhasabaRepository)> makeMuhasabaStore({

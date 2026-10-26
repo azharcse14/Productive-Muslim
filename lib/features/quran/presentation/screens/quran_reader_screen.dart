@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -17,8 +18,8 @@ import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
 
-/// Estimated ayah-card extent for index→offset jumps and the visible-ayah
-/// estimate (cards are not fixed-extent; an estimate is acceptable here).
+/// Estimated ayah-card extent for the initial index→offset jump (cards are
+/// not fixed-extent; an estimate is acceptable for a resume jump).
 const _estimatedCardExtent = 180.0;
 
 /// Surah reader (design §4.5): ayah cards with the Uthmanic HAFS script at
@@ -49,7 +50,15 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   final _progress = signal(0.0);
 
   Timer? _markReadDebounce;
-  int _lastBuiltIndex = 0;
+
+  /// Contexts of the currently built ayah items, keyed by index — used to
+  /// find the ayah actually at the top of the viewport.
+  final Map<int, BuildContext> _itemContexts = {};
+
+  /// Last-read is only recorded once the user has scrolled themselves, so
+  /// opening and leaving (or the programmatic resume jump) never overwrites
+  /// it with ayah 1.
+  bool _userScrolled = false;
 
   @override
   void initState() {
@@ -86,29 +95,47 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     _progress.value = position.maxScrollExtent <= 0
         ? 0
         : (position.pixels / position.maxScrollExtent).clamp(0.0, 1.0).toDouble();
+    if (_userScrolled) {
+      // After 500ms of quiet, record the ayah at the top of the viewport.
+      _markReadDebounce?.cancel();
+      _markReadDebounce = Timer(const Duration(milliseconds: 500), _markRead);
+    }
   }
 
-  /// Cheap visibility tracking: remember the last built index and, after
-  /// 500ms of quiet, record the first visible ayah (offset estimate).
-  void _trackVisible(int builtIndex) {
-    _lastBuiltIndex = builtIndex;
-    _markReadDebounce?.cancel();
-    _markReadDebounce = Timer(const Duration(milliseconds: 500), _markRead);
+  /// Index of the built item covering the viewport's leading edge: the one
+  /// with the greatest reveal offset not past the current scroll offset.
+  int? _topVisibleIndex() {
+    if (!_controller.hasClients) {
+      return null;
+    }
+    final pixels = _controller.offset;
+    int? top;
+    double? topReveal;
+    int? first;
+    _itemContexts.removeWhere((_, context) => !context.mounted);
+    for (final MapEntry(key: index, value: context) in _itemContexts.entries) {
+      final box = context.findRenderObject();
+      if (box is! RenderBox || !box.attached) {
+        continue;
+      }
+      if (first == null || index < first) {
+        first = index;
+      }
+      final reveal =
+          RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+      if (reveal <= pixels + 0.5 && (topReveal == null || reveal > topReveal)) {
+        top = index;
+        topReveal = reveal;
+      }
+    }
+    return top ?? first;
   }
 
   void _markRead() {
     final ayahs = _ayahs.value;
-    if (ayahs.isEmpty) {
+    final index = _topVisibleIndex();
+    if (!mounted || ayahs.isEmpty || index == null || index >= ayahs.length) {
       return;
-    }
-    var index = _lastBuiltIndex;
-    if (_controller.hasClients) {
-      index = (_controller.offset / _estimatedCardExtent).floor();
-    }
-    if (index < 0) {
-      index = 0;
-    } else if (index >= ayahs.length) {
-      index = ayahs.length - 1;
     }
     unawaited(
       _store.markRead(QuranPosition(widget.surahId, ayahs[index].number)),
@@ -166,27 +193,38 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                 ],
               );
             }
-            return ListView.builder(
-              controller: _controller,
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                QSpace.s5,
-                QSpace.s3,
-                QSpace.s5,
-                QSpace.s5,
-              ),
-              itemCount: ayahs.length,
-              itemBuilder: (context, index) {
-                _trackVisible(index);
-                return Padding(
-                  padding:
-                      const EdgeInsetsDirectional.only(bottom: QSpace.s3),
-                  // Lazy items build outside the body SignalBuilder's
-                  // tracked scope, so each card subscribes on its own.
-                  child: SignalBuilder(
-                    builder: (context) => _ayahCard(context, ayahs[index]),
-                  ),
-                );
+            return NotificationListener<UserScrollNotification>(
+              onNotification: (_) {
+                _userScrolled = true;
+                return false;
               },
+              child: ListView.builder(
+                controller: _controller,
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  QSpace.s5,
+                  QSpace.s3,
+                  QSpace.s5,
+                  QSpace.s5,
+                ),
+                itemCount: ayahs.length,
+                // The builder context is the sliver's, so each item gets its
+                // own Builder context for the top-visible-ayah lookup.
+                itemBuilder: (_, index) => Builder(
+                  builder: (itemContext) {
+                    _itemContexts[index] = itemContext;
+                    return Padding(
+                      padding:
+                          const EdgeInsetsDirectional.only(bottom: QSpace.s3),
+                      // Lazy items build outside the body SignalBuilder's
+                      // tracked scope, so each card subscribes on its own.
+                      child: SignalBuilder(
+                        builder: (context) =>
+                            _ayahCard(context, ayahs[index]),
+                      ),
+                    );
+                  },
+                ),
+              ),
             );
           },
         ),

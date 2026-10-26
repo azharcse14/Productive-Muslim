@@ -53,6 +53,7 @@ GoRouter buildRouter() {
       if (path == Routes.splash.path) {
         return null; // splash decides where to go itself
       }
+      _splashDone = true;
       final setupComplete =
           locator<SettingsStore>().settings.value.setupComplete;
       if (!setupComplete) {
@@ -81,6 +82,13 @@ GoRouter buildRouter() {
       }
       if (path == Routes.onboarding.path) {
         return Routes.home.path; // gates passed — nothing to show here
+      }
+      if (path == Routes.home.path && _pendingDeepLink != null) {
+        // Cold-start notification tap: splash handed off to home, so take
+        // the user to the tapped destination instead (gates re-run on it).
+        final link = _pendingDeepLink;
+        _pendingDeepLink = null;
+        return link;
       }
       return null;
     },
@@ -298,6 +306,28 @@ GoRouter buildRouter() {
 
 /// Query parameter carrying the pre-lock location through the PIN gate.
 const _lockFromParam = 'from';
+
+/// The app's router (one per process; also the target for deep links from
+/// outside the widget tree, e.g. notification taps).
+final GoRouter appRouter = buildRouter();
+
+String? _pendingDeepLink;
+var _splashDone = false;
+
+/// Opens an in-app [location] from outside the widget tree (notification
+/// taps). While the splash still owns cold-start navigation the link is
+/// parked and applied when splash hands off to home.
+void openDeepLink(String location) {
+  // Only in-app paths; never an absolute URL.
+  if (!location.startsWith('/') || location.startsWith('//')) {
+    return;
+  }
+  if (_splashDone) {
+    appRouter.go(location);
+  } else {
+    _pendingDeepLink = location;
+  }
+}
 
 /// Re-runs the router redirect whenever a gate signal flips
 /// (lock/unlock, setup completion).

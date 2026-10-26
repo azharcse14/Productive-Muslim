@@ -59,7 +59,8 @@ final class ZakatResult {
 
   /// The lower of the gold-based and silver-based nisab values — the safer
   /// threshold (standard position: it benefits the poor since Zakat becomes
-  /// due sooner).
+  /// due sooner). A metal with no price (0) is ignored; 0 only when neither
+  /// price is provided.
   final double nisabThreshold;
 
   /// Whether Zakat is due: wealth meets nisab and the threshold is real
@@ -94,8 +95,9 @@ abstract final class ZakatCalculator {
   /// Computes the full Zakat result for [input].
   ///
   /// Every field is clamped to ≥ 0 first, so a negative entry can never
-  /// drag a total below zero. A nisab of 0 (both metal prices missing or
-  /// zero) makes the result non-payable rather than trivially payable.
+  /// drag a total below zero. A missing (0) metal price is ignored for
+  /// nisab; a nisab of 0 (both prices missing) makes the result non-payable
+  /// rather than trivially payable.
   static ZakatResult calculate(ZakatInput input) {
     final goldPrice = _clamp(input.goldPricePerGram);
     final silverPrice = _clamp(input.silverPricePerGram);
@@ -111,11 +113,14 @@ abstract final class ZakatCalculator {
     final zakatableWealth = math.max(0.0, totalWealth - _clamp(input.debts));
 
     // The lower (silver, usually) threshold is the standard safer choice:
-    // Zakat becomes due on less wealth, which benefits the poor.
-    final nisabThreshold = math.min(
-      nisabGoldGrams * goldPrice,
-      nisabSilverGrams * silverPrice,
-    );
+    // Zakat becomes due on less wealth, which benefits the poor. Only prices
+    // actually provided (> 0) count — a blank price is unknown, not free.
+    final candidates = [
+      if (goldPrice > 0) nisabGoldGrams * goldPrice,
+      if (silverPrice > 0) nisabSilverGrams * silverPrice,
+    ];
+    final nisabThreshold =
+        candidates.isEmpty ? 0.0 : candidates.reduce(math.min);
 
     final isPayable = nisabThreshold > 0 && zakatableWealth >= nisabThreshold;
 

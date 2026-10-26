@@ -14,7 +14,7 @@ void main() {
       while (date.isBefore(DateTime(2031))) {
         final hijri = HijriDate.fromGregorian(date);
         expect(hijri.toGregorian(), date, reason: 'failed for $date');
-        date = date.add(const Duration(days: 17));
+        date = DateTime(date.year, date.month, date.day + 17);
       }
     });
 
@@ -42,10 +42,16 @@ void main() {
       var prev = HijriDate.fromGregorian(DateTime(2026));
       for (var d = 2; d <= 365; d++) {
         final current =
-            HijriDate.fromGregorian(DateTime(2026).add(Duration(days: d - 1)));
+            HijriDate.fromGregorian(DateTime(2026, 1, d));
         final prevG = prev.toGregorian();
         final curG = current.toGregorian();
-        expect(curG.difference(prevG).inDays, 1);
+        // UTC dates: a local-midnight diff is 23h across DST.
+        expect(
+          DateTime.utc(curG.year, curG.month, curG.day)
+              .difference(DateTime.utc(prevG.year, prevG.month, prevG.day))
+              .inDays,
+          1,
+        );
         prev = current;
       }
     });

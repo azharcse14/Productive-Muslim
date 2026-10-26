@@ -116,6 +116,8 @@ abstract final class QazaCalculator {
     );
   }
 
-  /// Strips the time component, keeping only year/month/day.
-  static DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+  /// Strips the time component, keeping only year/month/day. UTC so the
+  /// day difference is not shortened by a DST hour.
+  static DateTime _dateOnly(DateTime d) =>
+      DateTime.utc(d.year, d.month, d.day);
 }

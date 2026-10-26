@@ -10,9 +10,8 @@ import '../../domain/usecases/ramadan_utils.dart';
 typedef RamadanRow = (DateTime day, DateTime sahri, DateTime iftar);
 
 /// Ramadan-screen state over the pure [RamadanUtils] date math. Everything
-/// date-derived is `computed` (guide §4: derive, don't duplicate); the
-/// month table is computed once via [load] because it spans ~30 prayer-day
-/// calculations.
+/// date-derived is `computed` (guide §4: derive, don't duplicate),
+/// including the ~30-day month table (memoised until its inputs change).
 final class RamadanStore {
   RamadanStore(
     GetPrayerDay getPrayerDay,
@@ -56,18 +55,14 @@ final class RamadanStore {
   late final ramadanLength =
       computed(() => RamadanUtils.ramadanLength(nextRamadan.value.$1));
 
-  /// The month table — empty until [load] runs, and empty when no location
-  /// is configured.
-  late final monthRows = signal(const <RamadanRow>[]);
-
-  /// Builds [monthRows] for the current-or-next Ramadan. Cheap enough to
-  /// run synchronously (~30 adhan computations), but done once here rather
-  /// than per build.
-  void load() {
+  /// The month table for the current-or-next Ramadan — empty when no
+  /// location is configured. A `computed`, so it rebuilds (once, memoised)
+  /// whenever location, prayer params / sahri margin or the hijri offset
+  /// change, e.g. after setting a location from this screen.
+  late final monthRows = computed<List<RamadanRow>>(() {
     final location = _settings.location.value;
     if (location == null) {
-      monthRows.value = const [];
-      return;
+      return const [];
     }
     final params = _settings.prayerParams.value;
     final rows = <RamadanRow>[];
@@ -85,6 +80,6 @@ final class RamadanStore {
         rows.add((day, prayerDay.sahriEnd, prayerDay.iftar));
       }
     }
-    monthRows.value = rows;
-  }
+    return rows;
+  });
 }

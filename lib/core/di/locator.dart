@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,6 +84,7 @@ import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
+import '../router/app_router.dart';
 import '../utils/locale_digits.dart';
 
 /// Global service locator. The ONLY place registrations happen
@@ -184,6 +186,7 @@ Future<void> setupLocator() async {
             code,
           );
         },
+        onTap: _onNotificationTap,
       ),
     )
     ..registerLazySingleton(
@@ -265,6 +268,7 @@ Future<void> setupLocator() async {
       muhasaba: locator(),
       tasbih: locator<TasbihStore>(),
       quran: locator<QuranStore>(),
+      fasting: locator<FastingStore>(),
       prefs: SharedPreferencesAsync(),
     ),
   );
@@ -311,9 +315,6 @@ Future<void> setupLocator() async {
   _startWidgetUpdates();
 }
 
-/// Keeps the home-screen widget in sync. Runs once now (app open) and again
-/// whenever the location, prayer parameters, or locale change. Best-effort:
-/// [PrayerWidgetService.update] swallows its own errors.
 /// Pending-notification cap per platform: iOS holds at most 64 per app;
 /// Android has no practical limit at a 7-day window (~100 items).
 int? notificationCapFor(TargetPlatform platform) => switch (platform) {
@@ -323,6 +324,10 @@ int? notificationCapFor(TargetPlatform platform) => switch (platform) {
       _ => null,
     };
 
+/// Keeps the home-screen widget in sync. Runs once now (app open), on every
+/// resume, at each next-prayer/midnight boundary, and whenever the location,
+/// prayer parameters, or locale change. Best-effort:
+/// [PrayerWidgetService.update] swallows its own errors.
 void _startWidgetUpdates() {
   final settings = locator<SettingsStore>();
   final widget = locator<PrayerWidgetService>();
@@ -333,6 +338,31 @@ void _startWidgetUpdates() {
     settings.settings.value.localeCode;
     unawaited(widget.update());
   });
+  // Times moved on while backgrounded (Dart timers don't fire then).
+  AppLifecycleListener(onResume: () => unawaited(widget.update()));
+}
+
+/// Notification tap: deep-links to the payload route; the azan "mark as
+/// prayed" action also records that salah as done today in muhasaba.
+void _onNotificationTap(String? payload, String? actionId) {
+  final uri = payload == null ? null : Uri.tryParse(payload);
+  if (uri == null) {
+    return;
+  }
+  final prayer = uri.queryParameters['prayer'];
+  if (actionId == LocalNotificationsScheduler.markPrayedActionId &&
+      Prayer.values.any((p) => p.name == prayer)) {
+    unawaited(_markPrayedToday('salah_$prayer'));
+  }
+  openDeepLink(uri.path);
+}
+
+Future<void> _markPrayedToday(String salahId) async {
+  final muhasaba = locator<MuhasabaStore>();
+  await muhasaba.selectDate(DateTime.now());
+  if (muhasaba.valueOf(salahId) == 0) {
+    await muhasaba.setValue(salahId, 1);
+  }
 }
 
 /// Salah ids whose waqt hasn't begun on [date] at the location's clock —

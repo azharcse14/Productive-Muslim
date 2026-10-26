@@ -1038,6 +1038,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'There is no specific sunnah fast today, but a voluntary fast is always rewarded.';
 
   @override
+  String get fastingTodayForbidden => 'Fasting is not permitted today';
+
+  @override
+  String get fastingTodayForbiddenNote =>
+      'Fasting is forbidden on the two Eids and the days of Tashreeq (11–13 Dhul-Hijjah).';
+
+  @override
+  String get fastingTodayRamadan => 'Ramadan — the obligatory fast';
+
+  @override
+  String get fastingTodayRamadanNote =>
+      'Today is a day of Ramadan, an obligatory fast. May Allah accept it.';
+
+  @override
   String get fastingLogToday => 'Log today';
 
   @override

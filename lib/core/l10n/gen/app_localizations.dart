@@ -1790,6 +1790,30 @@ abstract class AppLocalizations {
   /// **'There is no specific sunnah fast today, but a voluntary fast is always rewarded.'**
   String get fastingTodayNoneNote;
 
+  /// No description provided for @fastingTodayForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting is not permitted today'**
+  String get fastingTodayForbidden;
+
+  /// No description provided for @fastingTodayForbiddenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting is forbidden on the two Eids and the days of Tashreeq (11–13 Dhul-Hijjah).'**
+  String get fastingTodayForbiddenNote;
+
+  /// No description provided for @fastingTodayRamadan.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan — the obligatory fast'**
+  String get fastingTodayRamadan;
+
+  /// No description provided for @fastingTodayRamadanNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is a day of Ramadan, an obligatory fast. May Allah accept it.'**
+  String get fastingTodayRamadanNote;
+
   /// No description provided for @fastingLogToday.
   ///
   /// In en, this message translates to:

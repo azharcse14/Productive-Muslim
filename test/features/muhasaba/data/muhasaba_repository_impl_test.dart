@@ -294,6 +294,28 @@ void main() {
       expect(entries.map((e) => e.itemId), contains('c'));
     });
 
+    test('best streak is never below the current streak', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      // 10 consecutive done days ending Jun 12 — longer than a week range.
+      for (var d = 3; d <= 12; d++) {
+        await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, d), 1)));
+      }
+      final result = await stats();
+      expect(result.currentStreak, 10);
+      expect(result.bestStreak, 10);
+    });
+
+    test('doneDates: distinct days, archived items included', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
+      await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 4), 1)));
+      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 4), 1)));
+      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 2), 1)));
+      await unwrap(repo.setArchived('b', archived: true));
+      final days = await unwrap(repo.doneDates({'a', 'b'}));
+      expect(days, {DateTime(2026, 6, 4), DateTime(2026, 6, 2)});
+    });
+
     test('no items at all yields empty zeroed stats', () async {
       final result = await stats();
       expect(result.days, hasLength(7));

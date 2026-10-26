@@ -57,13 +57,32 @@ final class FastingStore {
   bool isLogged(DateTime date) =>
       logged.value.contains(_stamp(DateTime(date.year, date.month, date.day)));
 
+  /// Whether fasting is forbidden on [date] (the Eids and Tashreeq).
+  bool isForbidden(DateTime date) => RecommendedFasts.isForbidden(
+        HijriDate.fromGregorian(date, offsetDays: _hijriOffset()),
+      );
+
+  /// Whether [date] may be newly logged: not in the future, not forbidden.
+  /// Ramadan day — the fast is obligatory, never offered as voluntary.
+  bool isRamadan(DateTime date) =>
+      HijriDate.fromGregorian(date, offsetDays: _hijriOffset()).month ==
+      HijriDate.ramadanMonth;
+
+  bool canLog(DateTime date) =>
+      !DateTime(date.year, date.month, date.day).isAfter(today) &&
+      !isForbidden(date);
+
   /// Adds or removes [date] from the log, updating the signal immediately
-  /// then persisting.
+  /// then persisting. Adding is a no-op unless [canLog]; removing is always
+  /// allowed.
   Future<void> toggle(DateTime date) async {
     final stamp = _stamp(DateTime(date.year, date.month, date.day));
     final next = Set<int>.from(logged.value);
-    if (!next.add(stamp)) {
-      next.remove(stamp);
+    if (!next.remove(stamp)) {
+      if (!canLog(date)) {
+        return;
+      }
+      next.add(stamp);
     }
     logged.value = next;
     await _prefs.setStringList(_key, [for (final v in next) v.toString()]);

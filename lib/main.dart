@@ -31,13 +31,9 @@ final class ProductiveMuslimApp extends StatefulWidget {
 
 final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
   final SettingsStore _store = locator<SettingsStore>();
-  late final GoRouter _router = buildRouter();
 
-  @override
-  void dispose() {
-    _router.dispose();
-    super.dispose();
-  }
+  /// App-scoped (notification taps navigate it from outside the tree).
+  final GoRouter _router = appRouter;
 
   @override
   Widget build(BuildContext context) {

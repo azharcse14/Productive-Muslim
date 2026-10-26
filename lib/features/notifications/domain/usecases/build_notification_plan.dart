@@ -1,3 +1,4 @@
+import '../../../../core/utils/hijri_date.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
@@ -16,6 +17,10 @@ import '../entities/notification_item.dart';
 /// [NotificationKind.keepAlive] item fires a minute after the last planned
 /// item, asking the user to open the app so the schedule is refilled. It
 /// counts toward [maxItems].
+///
+/// Sahri/iftar alerts are Ramadan-only: a day qualifies when its Gregorian
+/// date maps to Ramadan with [hijriOffsetDays] applied (same rule as the
+/// home countdown's `ramadanMode`).
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
@@ -24,6 +29,7 @@ List<NotificationItem> buildNotificationPlan({
   Duration window = const Duration(hours: 48),
   int? maxItems,
   bool keepAlive = false,
+  int hijriOffsetDays = 0,
 }) {
   final until = from.add(window);
   final items = <NotificationItem>[];
@@ -66,7 +72,12 @@ List<NotificationItem> buildNotificationPlan({
       }
     }
 
-    if (matrix.sahriAlert) {
+    final date = DateTime(day.fajr.year, day.fajr.month, day.fajr.day);
+    final ramadan =
+        HijriDate.fromGregorian(date, offsetDays: hijriOffsetDays).month ==
+            HijriDate.ramadanMonth;
+
+    if (ramadan && matrix.sahriAlert) {
       final warnAt = day.sahriEnd.subtract(matrix.sahriLead);
       if (inWindow(warnAt)) {
         items.add(
@@ -75,7 +86,7 @@ List<NotificationItem> buildNotificationPlan({
       }
     }
 
-    if (matrix.iftarAlert && inWindow(day.iftar)) {
+    if (ramadan && matrix.iftarAlert && inWindow(day.iftar)) {
       items.add(NotificationItem(kind: NotificationKind.iftar, at: day.iftar));
     }
 
@@ -94,9 +105,11 @@ List<NotificationItem> buildNotificationPlan({
     // local time (minutes past midnight). Anchored to the day's fajr date so a
     // 3-day window yields at most one per calendar day.
     if (matrix.dailyReminder) {
-      final base = day.fajr;
-      final remindAt = DateTime(base.year, base.month, base.day)
-          .add(Duration(minutes: matrix.dailyReminderMinute));
+      // Field constructor, not midnight + Duration: stays on the wall-clock
+      // time across a DST shift.
+      final minute = matrix.dailyReminderMinute;
+      final remindAt =
+          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyReminder, at: remindAt),

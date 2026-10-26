@@ -34,11 +34,27 @@ final class AppLockStore {
     this._source,
     this._biometric, {
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+    Duration Function()? elapsed,
+  })  : _now = now ?? DateTime.now,
+        _elapsed = elapsed ?? (now == null ? _stopwatch() : _since(now));
 
   final AppLockDataSource _source;
   final BiometricAuth _biometric;
   final DateTime Function() _now;
+
+  /// Monotonic time since construction — immune to wall-clock changes.
+  /// Tests that inject only [now] get it derived from that clock.
+  final Duration Function() _elapsed;
+
+  static Duration Function() _stopwatch() {
+    final watch = Stopwatch()..start();
+    return () => watch.elapsed;
+  }
+
+  static Duration Function() _since(DateTime Function() now) {
+    final start = now();
+    return () => now().difference(start);
+  }
 
   /// Wrong attempts allowed before the first cooldown.
   static const freeAttempts = 5;
@@ -57,6 +73,12 @@ final class AppLockStore {
   late final lockedUntil = signal<DateTime?>(null);
 
   var _failedAttempts = 0;
+
+  /// [_elapsed] value at which the current cooldown ends. In-process the
+  /// cooldown runs on this monotonic clock, so moving the device clock
+  /// can neither skip nor extend it; [lockedUntil] (wall clock) is only
+  /// the persisted hand-off across restarts.
+  Duration? _cooldownEnd;
   DateTime? _backgroundedAt;
   AppLifecycleListener? _lifecycle;
 
@@ -77,12 +99,18 @@ final class AppLockStore {
 
   /// Time left on the PIN cooldown, or null when entry is allowed.
   Duration? cooldownRemaining() {
-    final until = lockedUntil.value;
-    if (until == null) {
+    final end = _cooldownEnd;
+    if (lockedUntil.value == null || end == null) {
       return null;
     }
-    final left = until.difference(_now());
+    final left = end - _elapsed();
     return left > Duration.zero ? left : null;
+  }
+
+  /// Starts (or clears) a cooldown of [span] on both clocks.
+  void _startCooldown(Duration? span) {
+    _cooldownEnd = span == null ? null : _elapsed() + span;
+    lockedUntil.value = span == null ? null : _now().add(span);
   }
 
   Future<void> load() async {
@@ -92,7 +120,18 @@ final class AppLockStore {
     locked.value = state.enabled;
     final throttle = await _source.readThrottle();
     _failedAttempts = throttle.failedAttempts;
-    lockedUntil.value = throttle.lockedUntil;
+    // Resume the persisted cooldown, clamped to the longest this attempt
+    // count can earn — a clock set backwards can't stretch it.
+    final until = throttle.lockedUntil;
+    final cap = cooldownFor(_failedAttempts);
+    if (until == null || cap == null) {
+      _startCooldown(null);
+    } else {
+      final left = until.difference(_now());
+      _startCooldown(
+        left <= Duration.zero ? null : (left > cap ? cap : left),
+      );
+    }
   }
 
   /// Starts watching app lifecycle for background re-locking. Call once.
@@ -150,8 +189,7 @@ final class AppLockStore {
       return true;
     }
     _failedAttempts++;
-    final cooldown = cooldownFor(_failedAttempts);
-    lockedUntil.value = cooldown == null ? null : _now().add(cooldown);
+    _startCooldown(cooldownFor(_failedAttempts));
     await _source.writeThrottle(
       failedAttempts: _failedAttempts,
       lockedUntil: lockedUntil.value,
@@ -207,7 +245,7 @@ final class AppLockStore {
       return;
     }
     _failedAttempts = 0;
-    lockedUntil.value = null;
+    _startCooldown(null);
     await _source.writeThrottle(failedAttempts: 0, lockedUntil: null);
   }
 

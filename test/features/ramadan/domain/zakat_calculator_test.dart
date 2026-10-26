@@ -117,7 +117,7 @@ void main() {
       expect(r.zakatDue, 0);
     });
 
-    test('one price zero → min threshold is 0 → not payable', () {
+    test('one price blank → nisab from the provided metal only', () {
       final r = ZakatCalculator.calculate(
         const ZakatInput(
           cashOnHand: 1000000,
@@ -125,8 +125,11 @@ void main() {
           silverPricePerGram: 0,
         ),
       );
-      expect(r.nisabThreshold, 0);
-      expect(r.isPayable, isFalse);
+      expect(
+        r.nisabThreshold,
+        closeTo(ZakatCalculator.nisabGoldGrams * goldPrice, 0.001),
+      );
+      expect(r.isPayable, isTrue);
     });
 
     test('breakdown fields sum to total wealth', () {

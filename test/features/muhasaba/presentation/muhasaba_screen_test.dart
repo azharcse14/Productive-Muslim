@@ -185,6 +185,15 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
       ),
     );
   }
+
+  @override
+  Future<Result<Set<DateTime>>> doneDates(Set<String> itemIds) async =>
+      Result.success({
+        for (final id in itemIds)
+          for (final MapEntry(key: day, value: v)
+              in (storedEntries[id] ?? const <DateTime, int>{}).entries)
+            if (storedItems[id]?.isDone(v) ?? false) day,
+      });
 }
 
 Widget _app() => MaterialApp(

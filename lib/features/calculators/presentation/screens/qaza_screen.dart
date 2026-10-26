@@ -68,7 +68,7 @@ final class _QazaScreenState extends State<QazaScreen> {
           endDate: end,
           includeWitr: _includeWitr,
           alreadyMadeUpPerPrayer:
-              int.tryParse(_madeUp.text.trim()) ?? 0,
+              int.tryParse(LocaleDigits.toAscii(_madeUp.text)) ?? 0,
         ),
       );
     });

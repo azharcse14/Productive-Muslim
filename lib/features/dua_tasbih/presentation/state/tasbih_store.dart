@@ -31,6 +31,9 @@ final class TasbihStore {
   /// Counts saved to history today (current round not included).
   late final totalToday = signal(0);
 
+  /// The day key [totalToday] belongs to; a different day means it is stale.
+  String? _totalDay;
+
   /// Lifetime dhikr saved across all rounds (drives achievement badges).
   late final lifetimeTotal = signal(0);
 
@@ -53,25 +56,41 @@ final class TasbihStore {
   }
 
   /// Restores today's saved total (a stored total from another day is stale
-  /// and resets to zero).
+  /// and resets to zero) and the lifetime stats.
   Future<void> load() async {
+    final today = _todayKey();
+    totalToday.value = await _readTotal(today);
+    _totalDay = today;
+    await _loadLifetime();
+  }
+
+  Future<int> _readTotal(String today) async {
     final raw = await _prefs.getString(_key);
     if (raw == null) {
-      return;
+      return 0;
     }
     try {
       final decoded = jsonDecode(raw);
-      if (decoded is! Map) {
-        return;
-      }
-      final map = decoded.cast<String, Object?>();
-      if (map['date'] == _todayKey() && map['total'] is int) {
-        totalToday.value = map['total']! as int;
+      if (decoded is Map) {
+        final map = decoded.cast<String, Object?>();
+        if (map['date'] == today && map['total'] is int) {
+          return map['total']! as int;
+        }
       }
     } on FormatException {
       // Corrupt payload — start fresh.
     }
-    await _loadLifetime();
+    return 0;
+  }
+
+  /// Zeroes [totalToday] once the day it was counted on has passed (the
+  /// store is app-scoped, so it can outlive midnight).
+  void _rollOverDay() {
+    final today = _todayKey();
+    if (_totalDay != today) {
+      _totalDay = today;
+      totalToday.value = 0;
+    }
   }
 
   Future<void> _loadLifetime() async {
@@ -96,6 +115,7 @@ final class TasbihStore {
   }
 
   void tap() {
+    _rollOverDay();
     _haptic();
     count.value = count.value + 1;
     if (count.value == target.value) {
@@ -118,6 +138,7 @@ final class TasbihStore {
   /// total and persisted; otherwise the count is simply discarded.
   Future<void> reset({required bool saveToHistory}) async {
     if (saveToHistory && count.value > 0) {
+      _rollOverDay();
       totalToday.value = totalToday.value + count.value;
       await _prefs.setString(
         _key,

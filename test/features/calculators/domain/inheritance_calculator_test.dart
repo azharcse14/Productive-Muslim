@@ -189,11 +189,31 @@ void main() {
       );
       // daughter 1/2; father 1/6 fard + residue 1/3 = 1/2 total.
       expect(_share(r, 'daughter').fraction, closeTo(1 / 2, 1e-9));
-      // father appears as 1/6 fard row + asaba residue row → combined 1/2.
-      final fatherSum = r.shares
-          .where((s) => s.heirKey == 'father')
-          .fold<double>(0, (a, s) => a + s.fraction);
-      expect(fatherSum, closeTo(1 / 2, 1e-9));
+      // father is ONE row: 1/6 fard + residue → 1/2.
+      final fatherRows =
+          r.shares.where((s) => s.heirKey == 'father').toList();
+      expect(fatherRows, hasLength(1));
+      expect(fatherRows.single.shareLabel, '1/6 + asaba');
+      expect(fatherRows.single.fraction, closeTo(1 / 2, 1e-9));
+      expect(fatherRows.single.amount, closeTo(120000, 0.001));
+      _expectConservation(r);
+    });
+
+    test('Father + 2 daughters + mother: no residue → single 1/6 row', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 60000,
+          hasFather: true,
+          hasMother: true,
+          daughters: 2,
+        ),
+      );
+      // 2/3 + 1/6 + 1/6 = 1 → nothing left for the father as asaba.
+      final fatherRows =
+          r.shares.where((s) => s.heirKey == 'father').toList();
+      expect(fatherRows, hasLength(1));
+      expect(fatherRows.single.shareLabel, '1/6');
+      expect(fatherRows.single.fraction, closeTo(1 / 6, 1e-9));
       _expectConservation(r);
     });
 

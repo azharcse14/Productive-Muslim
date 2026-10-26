@@ -11,7 +11,8 @@ import '../entities/recommended_fast.dart';
 /// FORBIDDEN DAYS — fasting is prohibited and is therefore NEVER recommended
 /// on the two Eids (1 Shawwal and 10 Dhul-Hijjah) and the three days of
 /// Tashreeq (11, 12, 13 Dhul-Hijjah). [on] returns an empty list for these
-/// dates even when a weekly Monday/Thursday would otherwise apply.
+/// dates even when a weekly Monday/Thursday would otherwise apply. Ramadan
+/// days are likewise never offered (the fast is fard, not voluntary).
 abstract final class RecommendedFasts {
   /// Hijri months, 1 = Muharram … 12 = Dhul-Hijjah.
   static const _muharram = 1;
@@ -40,7 +41,8 @@ abstract final class RecommendedFasts {
   static List<RecommendedFast> on(DateTime date, {int offsetDays = 0}) {
     final day = DateTime(date.year, date.month, date.day);
     final h = HijriDate.fromGregorian(day, offsetDays: offsetDays);
-    if (isForbidden(h)) {
+    // Ramadan is obligatory, not nafl — nothing to recommend.
+    if (isForbidden(h) || h.month == HijriDate.ramadanMonth) {
       return const [];
     }
 
@@ -94,7 +96,8 @@ abstract final class RecommendedFasts {
     final start = DateTime(from.year, from.month, from.day);
     final results = <UpcomingFast>[];
     for (var i = 0; i < maxScanDays && results.length < count; i++) {
-      final day = start.add(Duration(days: i));
+      // Calendar-day arithmetic, not Duration: DST days aren't 24h.
+      final day = DateTime(start.year, start.month, start.day + i);
       final fasts = on(day, offsetDays: offsetDays);
       if (fasts.isEmpty) {
         continue;

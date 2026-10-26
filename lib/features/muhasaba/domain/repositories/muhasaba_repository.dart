@@ -30,4 +30,8 @@ abstract interface class MuhasabaRepository {
     required DateTime end,
     required DateTime today,
   });
+
+  /// All-time distinct dates on which any of [itemIds] was completed,
+  /// archived items included (achievements count every logged day).
+  Future<Result<Set<DateTime>>> doneDates(Set<String> itemIds);
 }

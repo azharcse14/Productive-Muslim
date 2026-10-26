@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -8,16 +10,43 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../state/achievement_store.dart';
 
 /// Compact achievements teaser for the muhasaba dashboard. Tapping opens the
-/// full badge wall.
-final class AchievementsSummaryCard extends StatelessWidget {
+/// full badge wall. Re-evaluates whenever the muhasaba stats change, so a
+/// fresh check-in shows up without leaving the dashboard.
+final class AchievementsSummaryCard extends StatefulWidget {
   const AchievementsSummaryCard({super.key});
 
   @override
+  State<AchievementsSummaryCard> createState() =>
+      _AchievementsSummaryCardState();
+}
+
+final class _AchievementsSummaryCardState
+    extends State<AchievementsSummaryCard> {
+  final store = locator<AchievementStore>();
+  late final EffectCleanup _refreshOnLog;
+
+  @override
+  void initState() {
+    super.initState();
+    final muhasaba = locator<MuhasabaStore>();
+    _refreshOnLog = effect(() {
+      muhasaba.stats.value; // the only tracked dependency
+      untracked(() => unawaited(store.refresh()));
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshOnLog();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final store = locator<AchievementStore>();
     final q = context.q;
     final l10n = context.l10n;
     return SignalBuilder(

@@ -371,7 +371,17 @@ abstract final class InheritanceCalculator {
       finalAllocs.addAll(fard);
       final residue = one - sumFard;
 
-      if (asaba != null) {
+      final fardRow = asaba == null
+          ? null
+          : finalAllocs.where((a) => a.heirKey == asaba.heirKey).firstOrNull;
+      if (fardRow != null) {
+        // Father with daughters only: his 1/6 fard and the residue are one
+        // row, not two.
+        if (residue.num > 0) {
+          fardRow.fraction = fardRow.fraction + residue;
+          fardRow.label = asaba!.label;
+        }
+      } else if (asaba != null) {
         // Asaba takes the full residue (per its split rule).
         finalAllocs.addAll(asaba.distribute(residue));
       } else if (residue.num > 0) {

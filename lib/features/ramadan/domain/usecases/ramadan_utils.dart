@@ -47,9 +47,14 @@ abstract final class RamadanUtils {
     final year = hijri.month < HijriDate.ramadanMonth
         ? hijri.year
         : hijri.year + 1;
+    // Diff as UTC dates: local midnights straddling a DST change are
+    // 23h/25h apart, which makes inDays off by one.
+    final first = firstDayOf(year, offsetDays: offsetDays);
     return (
       year,
-      firstDayOf(year, offsetDays: offsetDays).difference(date).inDays,
+      DateTime.utc(first.year, first.month, first.day)
+          .difference(DateTime.utc(date.year, date.month, date.day))
+          .inDays,
     );
   }
 }

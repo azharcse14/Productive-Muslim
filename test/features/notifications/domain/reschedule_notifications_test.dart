@@ -103,6 +103,7 @@ const _dhaka = ManualCityLocation(
   ),
 );
 
+// Fixed clock dates sit in Ramadan 1447 (March 2026) so sahri/iftar plan.
 void main() {
   setUpAll(TimezoneClock.initialize);
 
@@ -112,7 +113,7 @@ void main() {
       final usecase = RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 6, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
       );
       final result = await usecase(
         settings: const AppSettings(),
@@ -128,7 +129,7 @@ void main() {
       final usecase = RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 6, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
       );
       final result = await usecase(
         settings: const AppSettings(location: _dhaka),
@@ -139,7 +140,7 @@ void main() {
       // Defaults: azan×5/day + sahri + iftar within window — at least a
       // dozen items, all in the future and inside 48h (keep-alive excepted).
       expect(plan.length, greaterThanOrEqualTo(12));
-      final from = DateTime(2026, 6, 12, 4);
+      final from = DateTime(2026, 3, 12, 4);
       expect(plan.every((i) => i.at.isAfter(from)), isTrue);
       final reminders =
           plan.where((i) => i.kind != NotificationKind.keepAlive);
@@ -157,7 +158,7 @@ void main() {
       await RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 6, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
         window: AppConfig.notificationSchedulingWindow,
         maxItems: notificationCapFor(platform),
       )(
@@ -176,7 +177,7 @@ void main() {
 
     test('Android fills the full 7-day window, uncapped', () async {
       final plan = await planFor(TargetPlatform.android);
-      final from = DateTime(2026, 6, 12, 4);
+      final from = DateTime(2026, 3, 12, 4);
       final azans = plan.where((i) => i.kind == NotificationKind.azan);
       // 5 prayers × 7 days (fajr on day one may already be past).
       expect(azans.length, greaterThanOrEqualTo(34));

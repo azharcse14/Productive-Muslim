@@ -20,6 +20,18 @@ void main() {
       expect(r.totalMissed, 5);
     });
 
+    test('range across DST change: 2020-01-01..2020-06-30 = 182 days '
+        '(fails under local-time diff in DST zones, e.g. '
+        'TZ=America/New_York)', () {
+      final r = QazaCalculator.calculate(
+        QazaInput(
+          startDate: DateTime(2020, 1, 1),
+          endDate: DateTime(2020, 6, 30),
+        ),
+      );
+      expect(r.days, 182);
+    });
+
     test('inclusive week range is 7 days', () {
       final r = QazaCalculator.calculate(
         QazaInput(
