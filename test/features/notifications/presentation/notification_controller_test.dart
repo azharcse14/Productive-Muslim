@@ -237,4 +237,20 @@ void main() {
     expect(scheduler.rescheduleCalls, 2);
     controller.dispose();
   });
+
+  test('a change during the first reschedule is not lost', () async {
+    final (controller, scheduler) = await _controller();
+    scheduler.gate = Completer<void>();
+    final started = controller.start(); // parks in the first reschedule
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    await _lastSettings!.setLocale('bn');
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    expect(scheduler.maxInFlight, 1, reason: 'queued behind the first run');
+    scheduler.gate!.complete();
+    await started;
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(scheduler.rescheduleCalls, 2);
+    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+    controller.dispose();
+  });
 }

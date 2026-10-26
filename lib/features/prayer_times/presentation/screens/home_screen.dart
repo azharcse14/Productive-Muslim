@@ -105,12 +105,13 @@ final class _HomeScreenState extends State<HomeScreen> {
         unawaited(_loadDailyAyah());
         unawaited(_loadHadith());
         unawaited(_loadDuaOfDay());
+        // Re-reads today's tasbih total (zero on a new day).
+        final tasbih = _tasbih;
+        if (tasbih != null) {
+          unawaited(tasbih.load());
+        }
       });
     });
-    final tasbih = _tasbih;
-    if (tasbih != null) {
-      unawaited(tasbih.load());
-    }
   }
 
   Future<void> _loadHadith() async {

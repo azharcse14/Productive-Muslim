@@ -51,4 +51,17 @@ void main() {
     expect(store.stats.value.fastingDaysDone, 2);
     expect(store.stats.value.quranBookmarks, 1);
   });
+
+  test('refresh is single-flight: a burst collapses into one trailing run',
+      () async {
+    final repo = InMemoryMuhasabaRepository();
+    await repo.seedDefaultsIfEmpty();
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      now: () => DateTime(2026, 6, 10),
+    );
+    await Future.wait([for (var i = 0; i < 10; i++) store.refresh()]);
+    expect(repo.periodStatsCalls, 2, reason: 'first run + one trailing run');
+  });
 }

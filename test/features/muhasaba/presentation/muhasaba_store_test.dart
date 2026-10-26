@@ -140,6 +140,19 @@ void main() {
       expect(repo.entries_[('salah_fajr', 20260613)], 1);
     });
 
+    test('markDoneOn files the given day, keeps the selection, never un-marks',
+        () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.selectDate(DateTime(2026, 6, 10)); // back-filling
+      // Late tap on yesterday's isha azan.
+      await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
+      expect(repo.entries_[('salah_isha', 20260611)], 1);
+      expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
+      expect(store.selectedDate.value, DateTime(2026, 6, 10));
+      await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
+      expect(repo.entries_[('salah_isha', 20260611)], 1);
+    });
+
     test('roll-over keeps a back-filled date', () async {
       var clock = DateTime(2026, 6, 12, 23, 50);
       final (store, _) = await makeMuhasabaStore(now: () => clock);

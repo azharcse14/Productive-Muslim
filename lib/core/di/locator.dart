@@ -343,7 +343,7 @@ void _startWidgetUpdates() {
 }
 
 /// Notification tap: deep-links to the payload route; the azan "mark as
-/// prayed" action also records that salah as done today in muhasaba.
+/// prayed" action also records that salah as done on the azan's date.
 void _onNotificationTap(String? payload, String? actionId) {
   final uri = payload == null ? null : Uri.tryParse(payload);
   if (uri == null) {
@@ -352,17 +352,13 @@ void _onNotificationTap(String? payload, String? actionId) {
   final prayer = uri.queryParameters['prayer'];
   if (actionId == LocalNotificationsScheduler.markPrayedActionId &&
       Prayer.values.any((p) => p.name == prayer)) {
-    unawaited(_markPrayedToday('salah_$prayer'));
+    final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
+    unawaited(
+      locator<MuhasabaStore>()
+          .markDoneOn('salah_$prayer', date ?? DateTime.now()),
+    );
   }
   openDeepLink(uri.path);
-}
-
-Future<void> _markPrayedToday(String salahId) async {
-  final muhasaba = locator<MuhasabaStore>();
-  await muhasaba.selectDate(DateTime.now());
-  if (muhasaba.valueOf(salahId) == 0) {
-    await muhasaba.setValue(salahId, 1);
-  }
 }
 
 /// Salah ids whose waqt hasn't begun on [date] at the location's clock —

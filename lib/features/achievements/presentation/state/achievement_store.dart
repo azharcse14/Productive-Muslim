@@ -89,7 +89,29 @@ final class AchievementStore {
 
   /// Re-reads every source and rebuilds [stats]. Call after returning to the
   /// achievements screen so totals reflect the latest activity.
-  Future<void> refresh() async {
+  Future<void>? _refreshing;
+  var _refreshAgain = false;
+
+  /// Re-evaluates badges. Single-flight: calls during a run collapse into
+  /// one trailing run, so rapid check-ins don't stack 10-year scans.
+  Future<void> refresh() {
+    if (_refreshing != null) {
+      _refreshAgain = true;
+      return _refreshing!;
+    }
+    return _refreshing = () async {
+      try {
+        do {
+          _refreshAgain = false;
+          await _evaluate();
+        } while (_refreshAgain);
+      } finally {
+        _refreshing = null;
+      }
+    }();
+  }
+
+  Future<void> _evaluate() async {
     // Bookmarks / last-read live in QuranStore, which is otherwise only
     // loaded by the Quran screen.
     final quran = _quran;
