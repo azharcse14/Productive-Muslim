@@ -11,6 +11,8 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_copy_button.dart';
+import '../../../quran/presentation/state/quran_store.dart';
 import '../../domain/entities/dua.dart';
 import '../state/dua_favorites_store.dart';
 
@@ -41,7 +43,7 @@ final class DuaCard extends StatelessWidget {
                   // A non-Arabic TTS garbles raw Arabic glyphs; speak the
                   // transliteration instead.
                   semanticsLabel: dua.transliteration,
-                  style: QType.quran(24).copyWith(color: q.ink),
+                  style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
                 ),
               ),
               SignalBuilder(
@@ -66,6 +68,10 @@ final class DuaCard extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+              QCopyButton(
+                text: '${dua.arabic}\n${dua.translationFor(languageCode)}'
+                    '${dua.reference.isEmpty ? '' : '\n— ${dua.reference}'}',
               ),
             ],
           ),

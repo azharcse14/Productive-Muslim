@@ -169,6 +169,9 @@ final class AppLockStore {
     }
   }
 
+  /// Whether biometric unlock is available to offer at PIN setup.
+  Future<bool> canUseBiometric() => _biometric.canAuthenticate();
+
   Future<void> enable(String pin, {required bool biometric}) async {
     await _source.enable(pin, biometric: biometric);
     await _resetThrottle();

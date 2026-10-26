@@ -518,6 +518,18 @@ abstract class AppLocalizations {
   /// **'Choose city manually'**
   String get locationChooseCity;
 
+  /// No description provided for @openSystemSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSystemSettings;
+
+  /// No description provided for @locationSearchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search cities. Please try again.'**
+  String get locationSearchError;
+
   /// No description provided for @locationSearchHint.
   ///
   /// In en, this message translates to:
@@ -1694,6 +1706,18 @@ abstract class AppLocalizations {
   /// **'Couldn\'t open the Quran text. Please try again.'**
   String get quranLoadError;
 
+  /// No description provided for @copyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copyLabel;
+
+  /// No description provided for @copiedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedLabel;
+
   /// No description provided for @ayahCopied.
   ///
   /// In en, this message translates to:
@@ -1963,6 +1987,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Every small step counts — keep going.'**
   String get achievementsSubtitle;
+
+  /// No description provided for @achievementHow.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, streak{Log at least one deed in Muhasaba {count} days in a row.} salah{Check off a salah on {count} different days.} dhikr{Count and save {count} dhikr with the tasbih.} quranStart{Open the Quran and start reading.} quran{Complete your Quran reading on {count} days.} bookmark{Bookmark {count} ayahs.} fast{Log {count} fasts.} other{Keep going.}}'**
+  String achievementHow(String kind, String count);
 
   /// No description provided for @achievementUnlocked.
   ///
@@ -2383,6 +2413,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PINs didn\'t match — try again'**
   String get appLockPinMismatch;
+
+  /// No description provided for @appLockBiometricOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint or face?'**
+  String get appLockBiometricOfferTitle;
+
+  /// No description provided for @appLockBiometricOfferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PIN always works as a backup.'**
+  String get appLockBiometricOfferBody;
+
+  /// No description provided for @appLockBiometricUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it'**
+  String get appLockBiometricUse;
+
+  /// No description provided for @appLockBiometricSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get appLockBiometricSkip;
 
   /// No description provided for @appLockWrongPin.
   ///

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
@@ -126,6 +127,28 @@ final class _LockScreenState extends State<LockScreen> {
     }
   }
 
+  Future<bool> _offerBiometric() async {
+    final l10n = context.l10n;
+    final use = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.appLockBiometricOfferTitle),
+        content: Text(l10n.appLockBiometricOfferBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.appLockBiometricSkip),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.appLockBiometricUse),
+          ),
+        ],
+      ),
+    );
+    return use ?? false;
+  }
+
   Future<void> _onDigit(String digit) async {
     if (_entered.length >= 4 || _cooldownLeft != null) {
       return;
@@ -142,6 +165,7 @@ final class _LockScreenState extends State<LockScreen> {
       case false:
         final ok = await _store.unlockWithPin(_entered);
         if (!ok && mounted) {
+          unawaited(HapticFeedback.heavyImpact());
           setState(() {
             _entered = '';
             _error = l10n.appLockWrongPin;
@@ -159,12 +183,17 @@ final class _LockScreenState extends State<LockScreen> {
             // Unlocking flips the router gate; no navigation needed.
             await _store.resetPin(_entered);
           } else {
-            await _store.enable(_entered, biometric: true);
+            // Biometrics are an explicit opt-in, never switched on silently.
+            final biometric = await _store.canUseBiometric() &&
+                mounted &&
+                await _offerBiometric();
+            await _store.enable(_entered, biometric: biometric);
             if (mounted) {
               Navigator.of(context).pop(true);
             }
           }
         } else {
+          unawaited(HapticFeedback.heavyImpact());
           setState(() {
             _firstPin = null;
             _entered = '';
@@ -194,6 +223,8 @@ final class _LockScreenState extends State<LockScreen> {
         ? l10n.appLockThrottled(_formatCooldown(context, cooldown))
         : _error;
     return Scaffold(
+      // Setup is pushed from Settings: give it a visible way back out.
+      appBar: widget.mode == LockScreenMode.setup ? AppBar() : null,
       body: SafeArea(
         // Spacers spread the gate on tall screens; short ones scroll.
         child: LayoutBuilder(

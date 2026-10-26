@@ -6,6 +6,8 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_copy_button.dart';
+import '../../../quran/presentation/state/quran_store.dart';
 import '../../domain/entities/ruqyah.dart';
 
 /// Full ruqyah card: title, Arabic, transliteration, translation, reference
@@ -25,17 +27,28 @@ final class RuqyahCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (title.isNotEmpty) ...[
-            Text(title, style: QType.titleSm.copyWith(color: q.primary)),
-            const SizedBox(height: QSpace.s3),
-          ],
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: QType.titleSm.copyWith(color: q.primary),
+                ),
+              ),
+              QCopyButton(
+                text: '${item.arabic}\n${item.translationFor(languageCode)}'
+                    '${item.reference.isEmpty ? '' : '\n— ${item.reference}'}',
+              ),
+            ],
+          ),
+          const SizedBox(height: QSpace.s2),
           Text(
             item.arabic,
             textDirection: TextDirection.rtl,
             // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
             // transliteration instead so screen-reader users hear the words.
             semanticsLabel: item.transliteration,
-            style: QType.quran(24).copyWith(color: q.ink),
+            style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
           ),
           const SizedBox(height: QSpace.s3),
           Text(

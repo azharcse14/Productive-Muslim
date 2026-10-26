@@ -234,6 +234,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationChooseCity => 'Choose city manually';
 
   @override
+  String get openSystemSettings => 'Open settings';
+
+  @override
+  String get locationSearchError =>
+      'Couldn\'t search cities. Please try again.';
+
+  @override
   String get locationSearchHint => 'Search city…';
 
   @override
@@ -1016,6 +1023,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t open the Quran text. Please try again.';
 
   @override
+  String get copyLabel => 'Copy';
+
+  @override
+  String get copiedLabel => 'Copied';
+
+  @override
   String get ayahCopied => 'Ayah copied';
 
   @override
@@ -1231,6 +1244,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achievementsSubtitle => 'Every small step counts — keep going.';
+
+  @override
+  String achievementHow(String kind, String count) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'streak': 'Log at least one deed in Muhasaba $count days in a row.',
+      'salah': 'Check off a salah on $count different days.',
+      'dhikr': 'Count and save $count dhikr with the tasbih.',
+      'quranStart': 'Open the Quran and start reading.',
+      'quran': 'Complete your Quran reading on $count days.',
+      'bookmark': 'Bookmark $count ayahs.',
+      'fast': 'Log $count fasts.',
+      'other': 'Keep going.',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get achievementUnlocked => 'Unlocked';
@@ -1599,6 +1627,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockPinMismatch => 'PINs didn\'t match — try again';
+
+  @override
+  String get appLockBiometricOfferTitle => 'Unlock with fingerprint or face?';
+
+  @override
+  String get appLockBiometricOfferBody => 'Your PIN always works as a backup.';
+
+  @override
+  String get appLockBiometricUse => 'Use it';
+
+  @override
+  String get appLockBiometricSkip => 'Not now';
 
   @override
   String get appLockWrongPin => 'Wrong PIN — try again';

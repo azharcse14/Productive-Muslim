@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -99,3 +100,10 @@ final class QuranStore {
       .clamp(AppConfig.quranFontSizeMin, AppConfig.quranFontSizeMax)
       .toDouble();
 }
+
+/// Arabic size for duas, hadith and ruqyah: follows the Quran reader's
+/// size setting, a step smaller (24 at the reader's default 28). Falls
+/// back to 24 where no Quran store is registered.
+double arabicBodySize() => GetIt.I.isRegistered<QuranStore>()
+    ? GetIt.I<QuranStore>().readerFontSize.value * 6 / 7
+    : 24;

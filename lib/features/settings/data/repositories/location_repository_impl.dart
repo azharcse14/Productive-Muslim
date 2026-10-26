@@ -11,6 +11,15 @@ final class LocationRepositoryImpl implements LocationRepository {
   final DeviceLocationSource _source;
 
   @override
+  Future<void> openSettings({required bool locationService}) async {
+    if (locationService) {
+      await Geolocator.openLocationSettings();
+    } else {
+      await Geolocator.openAppSettings();
+    }
+  }
+
+  @override
   Future<Result<GpsLocation>> getCurrentLocation() async {
     try {
       if (!await _source.isServiceEnabled()) {

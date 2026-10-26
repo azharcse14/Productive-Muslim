@@ -95,6 +95,8 @@
   "locationUseGps": "Use my location",
   "locationUseGpsSub": "GPS — works fully offline after the first fix",
   "locationChooseCity": "Choose city manually",
+  "openSystemSettings": "Open settings",
+  "locationSearchError": "Couldn't search cities. Please try again.",
   "locationSearchHint": "Search city…",
   "locationPrimingBody": "Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.",
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
@@ -468,6 +470,8 @@
   "previousDay": "Previous day",
   "nextDay": "Next day",
   "quranLoadError": "Couldn't open the Quran text. Please try again.",
+  "copyLabel": "Copy",
+  "copiedLabel": "Copied",
   "ayahCopied": "Ayah copied",
   "bookmarksTitle": "Bookmarks",
   "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
@@ -557,6 +561,13 @@
   },
   "achievementsTitle": "Achievements",
   "achievementsSubtitle": "Every small step counts — keep going.",
+  "achievementHow": "{kind, select, streak{Log at least one deed in Muhasaba {count} days in a row.} salah{Check off a salah on {count} different days.} dhikr{Count and save {count} dhikr with the tasbih.} quranStart{Open the Quran and start reading.} quran{Complete your Quran reading on {count} days.} bookmark{Bookmark {count} ayahs.} fast{Log {count} fasts.} other{Keep going.}}",
+  "@achievementHow": {
+    "placeholders": {
+      "kind": { "type": "String" },
+      "count": { "type": "String" }
+    }
+  },
   "achievementUnlocked": "Unlocked",
   "achievementsCount": "{unlocked} of {total} earned",
   "@achievementsCount": {
@@ -726,6 +737,10 @@
   "appLockSetPin": "Set a 4-digit PIN",
   "appLockConfirmPin": "Confirm your PIN",
   "appLockPinMismatch": "PINs didn't match — try again",
+  "appLockBiometricOfferTitle": "Unlock with fingerprint or face?",
+  "appLockBiometricOfferBody": "Your PIN always works as a backup.",
+  "appLockBiometricUse": "Use it",
+  "appLockBiometricSkip": "Not now",
   "appLockWrongPin": "Wrong PIN — try again",
   "appLockUseBiometric": "Use fingerprint / face",
   "appLockEnable": "App lock",

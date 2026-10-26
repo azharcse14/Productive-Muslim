@@ -42,6 +42,12 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   /// Localized failure text shown above the manual list (the fallback).
   final _gpsNotice = signal<String?>(null);
 
+  /// The GPS failure was location services being off (vs. permission).
+  bool _serviceOff = false;
+
+  /// The city search itself failed (vs. simply no match).
+  final _searchFailed = signal(false);
+
   Timer? _debounce;
 
   @override
@@ -67,6 +73,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   Future<void> _runSearch(String query) async {
     _searching.value = true;
     final result = await _searchCities(query);
+    _searchFailed.value = result.valueOrNull == null;
     _results.value = result.valueOrNull ?? const [];
     _searching.value = false;
   }
@@ -84,6 +91,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
           context.pop();
         }
       case FailureResult<GpsLocation>(:final failure):
+        _serviceOff = failure is LocationServiceDisabled;
         _gpsNotice.value = switch (failure) {
           LocationServiceDisabled() => l10n.locationServiceOff,
           _ => l10n.locationDeniedFallback,
@@ -153,9 +161,19 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   }
                   return Padding(
                     padding: const EdgeInsets.only(top: QSpace.s3),
-                    child: QBanner(
-                      text: notice,
-                      icon: Icons.explore_outlined,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        QBanner(text: notice, icon: Icons.explore_outlined),
+                        TextButton(
+                          onPressed: () => unawaited(
+                            _getLocation.openSettings(
+                              locationService: _serviceOff,
+                            ),
+                          ),
+                          child: Text(l10n.openSystemSettings),
+                        ),
+                      ],
                     ),
                   );
                 }),
@@ -202,7 +220,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
               if (cities.isEmpty) {
                 return Center(
                   child: Text(
-                    l10n.searchNoResults,
+                    _searchFailed.value
+                        ? l10n.locationSearchError
+                        : l10n.searchNoResults,
                     style: QType.body.copyWith(color: q.ink2),
                   ),
                 );
@@ -212,13 +232,10 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 itemCount: cities.length,
                 itemBuilder: (context, index) {
                   final city = cities[index];
+                  // Flag + country code reads better than a raw IANA zone.
                   return QListRow(
                     title: city.name,
-                    subtitle: city.countryCode,
-                    trailing: Text(
-                      city.timezone,
-                      style: QType.caption.copyWith(color: q.ink3),
-                    ),
+                    subtitle: '${_flag(city.countryCode)} ${city.countryCode}',
                     onTap: () => unawaited(_selectCity(city)),
                   );
                 },
@@ -229,4 +246,14 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
       ),
     );
   }
+}
+
+/// Regional-indicator flag emoji for an ISO 3166-1 alpha-2 code.
+String _flag(String countryCode) {
+  if (countryCode.length != 2) {
+    return '';
+  }
+  return String.fromCharCodes(
+    countryCode.toUpperCase().codeUnits.map((c) => 0x1F1E6 + c - 0x41),
+  );
 }

@@ -233,6 +233,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get locationChooseCity => 'শহর নিজে বেছে নিন';
 
   @override
+  String get openSystemSettings => 'সেটিংস খুলুন';
+
+  @override
+  String get locationSearchError => 'শহর খোঁজা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get locationSearchHint => 'শহর খুঁজুন…';
 
   @override
@@ -1011,6 +1017,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quranLoadError => 'কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get copyLabel => 'কপি করুন';
+
+  @override
+  String get copiedLabel => 'কপি হয়েছে';
+
+  @override
   String get ayahCopied => 'আয়াত কপি হয়েছে';
 
   @override
@@ -1227,6 +1239,21 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get achievementsSubtitle =>
       'প্রতিটি ছোট পদক্ষেপই মূল্যবান — চালিয়ে যান।';
+
+  @override
+  String achievementHow(String kind, String count) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'streak': 'মুহাসাবায় পরপর $count দিন অন্তত একটি আমল লিখুন।',
+      'salah': '$countটি ভিন্ন দিনে সালাত চিহ্নিত করুন।',
+      'dhikr': 'তাসবিহ দিয়ে $countটি যিকর গুনে সংরক্ষণ করুন।',
+      'quranStart': 'কুরআন খুলে পড়া শুরু করুন।',
+      'quran': '$count দিন কুরআন পড়া সম্পন্ন করুন।',
+      'bookmark': '$countটি আয়াত বুকমার্ক করুন।',
+      'fast': '$countটি রোজা লিখুন।',
+      'other': 'চালিয়ে যান।',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get achievementUnlocked => 'অর্জিত';
@@ -1594,6 +1621,18 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get appLockPinMismatch => 'পিন মেলেনি — আবার চেষ্টা করুন';
+
+  @override
+  String get appLockBiometricOfferTitle => 'আঙুলের ছাপ বা মুখ দিয়ে খুলবেন?';
+
+  @override
+  String get appLockBiometricOfferBody => 'পিন সবসময় বিকল্প হিসেবে কাজ করবে।';
+
+  @override
+  String get appLockBiometricUse => 'চালু করুন';
+
+  @override
+  String get appLockBiometricSkip => 'এখন না';
 
   @override
   String get appLockWrongPin => 'ভুল পিন — আবার চেষ্টা করুন';
