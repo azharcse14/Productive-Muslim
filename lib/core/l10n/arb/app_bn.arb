@@ -674,5 +674,11 @@
   "expenseBudgetLeft": "{budget} এর মধ্যে {left} বাকি",
   "expenseBudgetOver": "বাজেটের চেয়ে {amount} বেশি — শখের খরচ ভেবে দেখুন",
   "expenseCategoryBudgetHint": "বাজেট দিতে ক্যাটাগরিতে চাপুন (সাদাকাহ: লক্ষ্য)",
-  "expenseCategoryBudgetTitle": "{id, select, need{প্রয়োজনের বাজেট} family{পরিবারের বাজেট} sadaqah{মাসিক সাদাকাহর লক্ষ্য} want{শখের বাজেট} other{{id}}}"
+  "expenseCategoryBudgetTitle": "{id, select, need{প্রয়োজনের বাজেট} family{পরিবারের বাজেট} sadaqah{মাসিক সাদাকাহর লক্ষ্য} want{শখের বাজেট} other{{id}}}",
+  "expenseBackup": "ব্যাকআপ",
+  "expenseExportCsv": "CSV ব্যাকআপ কপি করুন",
+  "expenseImportCsv": "কপি করা CSV থেকে ফেরত আনুন",
+  "expenseExported": "কপি হয়েছে। নিরাপদে রাখতে নোট, ইমেইল বা স্প্রেডশিটে পেস্ট করুন।",
+  "expenseImportInvalid": "ক্লিপবোর্ডে খরচের ব্যাকআপ নেই।",
+  "expenseImported": "{count, plural, =0{ফেরত আনার মতো নতুন কিছু নেই} other{{count}টি খরচ ফেরত আনা হয়েছে}}"
 }
