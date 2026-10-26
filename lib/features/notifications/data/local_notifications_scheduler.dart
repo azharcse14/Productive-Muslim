@@ -169,8 +169,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           payload: switch (item.kind) {
             NotificationKind.muhasabaEvening => '/muhasaba',
             NotificationKind.dailyReminder => texts.dailyReminderRoute,
-            // The prayer rides along for the "mark as prayed" action.
-            NotificationKind.azan => '/home?prayer=${item.prayer?.name}',
+            // Prayer + its (location wall) date ride along for the
+            // "mark as prayed" action, so a late tap files the right day.
+            NotificationKind.azan => '/home?prayer=${item.prayer?.name}'
+                '&date=${_dateParam(item.at)}',
             _ => '/home',
           },
         );
@@ -259,3 +261,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     );
   }
 }
+
+/// yyyy-mm-dd of a wall-clock [at] (parsed back by `DateTime.parse`).
+String _dateParam(DateTime at) =>
+    '${at.year.toString().padLeft(4, '0')}-'
+    '${at.month.toString().padLeft(2, '0')}-'
+    '${at.day.toString().padLeft(2, '0')}';

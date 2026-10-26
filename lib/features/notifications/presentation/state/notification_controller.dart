@@ -56,8 +56,13 @@ final class NotificationController {
       return;
     }
     _started = true;
-    await _scheduler.initialize(_texts());
-    await _rescheduleNow();
+    // Init + first run count as in flight, so a change landing meanwhile
+    // (picked up by the effect below) queues behind them instead of being
+    // lost or racing the plugin init.
+    final boot = _inFlight = () async {
+      await _scheduler.initialize(_texts());
+      await _run();
+    }();
     var first = true;
     _stopEffect = effect(() {
       // Subscribe to everything the plan depends on.
@@ -67,7 +72,7 @@ final class NotificationController {
       _settings.settings.value.localeCode;
       _settings.settings.value.hijriOffsetDays;
       _mosque.state.value; // profiles, rules, mode, override
-      // The first run only subscribes — start() just scheduled.
+      // The first run only subscribes — boot schedules with these values.
       if (first) {
         first = false;
         return;
@@ -76,6 +81,13 @@ final class NotificationController {
     });
     // The OS holds a finite schedule; refill it whenever the user returns.
     _lifecycle = AppLifecycleListener(onResume: _scheduleDebounced);
+    try {
+      await boot;
+    } finally {
+      if (identical(_inFlight, boot)) {
+        _inFlight = null;
+      }
+    }
   }
 
   void _scheduleDebounced() {

@@ -357,5 +357,29 @@ void main() {
       expect(expected, greaterThan(1));
       expect(repo.storedLastRead?.ayah, expected);
     });
+
+    testWidgets('records as soon as the scroll settles (leaving right after)',
+        (tester) async {
+      repo.extraAyahs[1] = [
+        for (var i = 1; i <= 40; i++)
+          Ayah(
+            id: 1000 + i,
+            surah: 1,
+            number: i,
+            arabic: 'arabic $i',
+            translationEn: 'translation $i',
+            translationBn: 'অনুবাদ $i',
+          ),
+      ];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+      await tester.drag(find.byType(ListView), const Offset(0, -1500));
+      // Let the fling settle (well under the old 500ms debounce), then leave.
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pumpWidget(const SizedBox());
+      expect(repo.storedLastRead?.ayah, greaterThan(1));
+    });
   });
 }

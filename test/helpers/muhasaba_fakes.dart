@@ -77,12 +77,16 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     return const Result.success(null);
   }
 
+  /// periodStats() call count (single-flight tests).
+  int periodStatsCalls = 0;
+
   @override
   Future<Result<PeriodStats>> periodStats({
     required DateTime start,
     required DateTime end,
     required DateTime today,
   }) async {
+    periodStatsCalls++;
     final active = items_.values.where((i) => !i.archived).toList();
     final days = <DayCompletion>[];
     var day = DateTime(start.year, start.month, start.day);

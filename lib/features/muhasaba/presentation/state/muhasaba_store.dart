@@ -135,6 +135,25 @@ final class MuhasabaStore {
     await refreshStats();
   }
 
+  /// Marks [itemId] done on [date] (no un-mark) without moving the
+  /// selected date — e.g. a notification action for a prayer whose azan
+  /// already fired, so no waqt lock applies.
+  Future<void> markDoneOn(String itemId, DateTime date) async {
+    // No future guard: the azan date is the location's, which can run a
+    // day ahead of the device's for a manual city east of it.
+    final day = DateTime(date.year, date.month, date.day);
+    final existing = await _repository.entriesOn(day);
+    if ((existing.valueOrNull ?? const <DailyEntry>[])
+        .any((e) => e.itemId == itemId && e.value > 0)) {
+      return;
+    }
+    await _repository.setEntry(DailyEntry(itemId: itemId, date: day, value: 1));
+    if (selectedDate.value == day) {
+      entries.value = {...entries.value, itemId: 1};
+    }
+    await refreshStats();
+  }
+
   /// Convenience for Home's prayer check: toggles today's salah entry.
   Future<void> togglePrayerToday(String salahId) async {
     if (!selectedIsToday) {

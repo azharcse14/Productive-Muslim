@@ -74,11 +74,14 @@ final class AppLockStore {
 
   var _failedAttempts = 0;
 
-  /// [_elapsed] value at which the current cooldown ends. In-process the
-  /// cooldown runs on this monotonic clock, so moving the device clock
-  /// can neither skip nor extend it; [lockedUntil] (wall clock) is only
-  /// the persisted hand-off across restarts.
-  Duration? _cooldownEnd;
+  /// Current cooldown: its length and start on both clocks. Time served is
+  /// the larger of the two — the monotonic clock pauses while the device
+  /// sleeps, and a clock set backwards must not stretch the wait.
+  /// ponytail: a clock set forward skips the current wait (as killing the
+  /// app does); escalation still holds. Boot-time clock if that matters.
+  Duration? _cooldownSpan;
+  Duration _cooldownStartMono = Duration.zero;
+  DateTime? _cooldownStartWall;
   DateTime? _backgroundedAt;
   AppLifecycleListener? _lifecycle;
 
@@ -99,17 +102,22 @@ final class AppLockStore {
 
   /// Time left on the PIN cooldown, or null when entry is allowed.
   Duration? cooldownRemaining() {
-    final end = _cooldownEnd;
-    if (lockedUntil.value == null || end == null) {
+    final span = _cooldownSpan;
+    final startWall = _cooldownStartWall;
+    if (lockedUntil.value == null || span == null || startWall == null) {
       return null;
     }
-    final left = end - _elapsed();
+    final mono = _elapsed() - _cooldownStartMono;
+    final wall = _now().difference(startWall);
+    final left = span - (wall > mono ? wall : mono);
     return left > Duration.zero ? left : null;
   }
 
   /// Starts (or clears) a cooldown of [span] on both clocks.
   void _startCooldown(Duration? span) {
-    _cooldownEnd = span == null ? null : _elapsed() + span;
+    _cooldownSpan = span;
+    _cooldownStartMono = _elapsed();
+    _cooldownStartWall = _now();
     lockedUntil.value = span == null ? null : _now().add(span);
   }
 

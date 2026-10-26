@@ -49,8 +49,6 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   final _ayahs = signal(const <Ayah>[]);
   final _progress = signal(0.0);
 
-  Timer? _markReadDebounce;
-
   /// Contexts of the currently built ayah items, keyed by index — used to
   /// find the ayah actually at the top of the viewport.
   final Map<int, BuildContext> _itemContexts = {};
@@ -69,7 +67,6 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
 
   @override
   void dispose() {
-    _markReadDebounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -95,11 +92,6 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     _progress.value = position.maxScrollExtent <= 0
         ? 0
         : (position.pixels / position.maxScrollExtent).clamp(0.0, 1.0).toDouble();
-    if (_userScrolled) {
-      // After 500ms of quiet, record the ayah at the top of the viewport.
-      _markReadDebounce?.cancel();
-      _markReadDebounce = Timer(const Duration(milliseconds: 500), _markRead);
-    }
   }
 
   /// Index of the built item covering the viewport's leading edge: the one
@@ -193,9 +185,17 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                 ],
               );
             }
-            return NotificationListener<UserScrollNotification>(
-              onNotification: (_) {
-                _userScrolled = true;
+            return NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                if (n is UserScrollNotification) {
+                  _userScrolled = true;
+                } else if (n is ScrollEndNotification && _userScrolled) {
+                  // Once per settled scroll (not per frame): record the
+                  // ayah at the top of the viewport, after the frame that
+                  // lays the items out at the final offset.
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => _markRead());
+                }
                 return false;
               },
               child: ListView.builder(

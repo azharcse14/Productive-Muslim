@@ -259,7 +259,21 @@ void main() {
       );
     });
 
-    test('moving the device clock forward does not skip the cooldown',
+    test('cooldown keeps running while the device sleeps (monotonic paused)',
+        () async {
+      const mono = Duration.zero; // monotonic clock frozen during sleep
+      final store = _store(now: () => clock, elapsed: () => mono);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      expect(await store.unlockWithPin('1234'), isFalse);
+      clock = clock.add(const Duration(seconds: 30)); // wall time passes
+      expect(await store.unlockWithPin('1234'), isTrue);
+    });
+
+    test('a clock set backwards in-process cannot stretch the cooldown',
         () async {
       var mono = Duration.zero;
       final store = _store(now: () => clock, elapsed: () => mono);
@@ -268,8 +282,7 @@ void main() {
       for (var i = 0; i < 5; i++) {
         await store.unlockWithPin('0000');
       }
-      clock = clock.add(const Duration(days: 1)); // wall clock jump only
-      expect(await store.unlockWithPin('1234'), isFalse);
+      clock = clock.subtract(const Duration(days: 1));
       mono += const Duration(seconds: 30); // real time passes
       expect(await store.unlockWithPin('1234'), isTrue);
     });
