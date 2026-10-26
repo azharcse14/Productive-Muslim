@@ -136,7 +136,11 @@ Future<void> setupLocator() async {
       () => MuhasabaRepositoryImpl(locator()),
     )
     ..registerLazySingleton(
-      () => MuhasabaStore(locator(), lockedSalahOn: _lockedSalahOn),
+      () => MuhasabaStore(
+        locator(),
+        lockedSalahOn: _lockedSalahOn,
+        now: _wallNow,
+      ),
     );
 
   // ---- qibla ----
@@ -242,7 +246,9 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(
       () => DuaFavoritesStore(SharedPreferencesAsync()),
     )
-    ..registerLazySingleton(() => TasbihStore(SharedPreferencesAsync()))
+    ..registerLazySingleton(
+      () => TasbihStore(SharedPreferencesAsync(), now: _wallNow),
+    )
     ..registerFactory(() => AsmaQuizStore(SharedPreferencesAsync()))
     ..registerLazySingleton(() => DailyContentStore(locator()));
 
@@ -259,6 +265,7 @@ Future<void> setupLocator() async {
     () => FastingStore(
       SharedPreferencesAsync(),
       hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
+      now: _wallNow,
     ),
   );
 
@@ -269,6 +276,7 @@ Future<void> setupLocator() async {
       tasbih: locator<TasbihStore>(),
       quran: locator<QuranStore>(),
       fasting: locator<FastingStore>(),
+      now: _wallNow,
       prefs: SharedPreferencesAsync(),
     ),
   );
@@ -355,10 +363,19 @@ void _onNotificationTap(String? payload, String? actionId) {
     final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
     unawaited(
       locator<MuhasabaStore>()
-          .markDoneOn('salah_$prayer', date ?? DateTime.now()),
+          .markDoneOn('salah_$prayer', date ?? _wallNow()),
     );
   }
   openDeepLink(uri.path);
+}
+
+/// "Now" on the configured location's wall clock (device clock until one
+/// is set) — the app's single notion of "today", matching prayer times.
+DateTime _wallNow() {
+  final location = locator<SettingsStore>().location.value;
+  return location == null
+      ? DateTime.now()
+      : locator<ZonedClock>().nowAt(location);
 }
 
 /// Salah ids whose waqt hasn't begun on [date] at the location's clock —

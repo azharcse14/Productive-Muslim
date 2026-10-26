@@ -153,6 +153,23 @@ void main() {
       expect(repo.entries_[('salah_isha', 20260611)], 1);
     });
 
+    test('markDoneOn never lowers an existing value; updates the shown day',
+        () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setValue('quran', 15); // today is selected
+      await store.markDoneOn('quran', DateTime(2026, 6, 12));
+      expect(repo.entries_[('quran', 20260612)], 15);
+      expect(store.valueOf('quran'), 15);
+      await store.markDoneOn('salah_maghrib', DateTime(2026, 6, 12));
+      expect(store.valueOf('salah_maghrib'), 1, reason: 'cache follows');
+    });
+
+    test('markDoneOn ignores a date after today', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.markDoneOn('salah_fajr', DateTime(2026, 6, 13));
+      expect(repo.entries_.containsKey(('salah_fajr', 20260613)), isFalse);
+    });
+
     test('roll-over keeps a back-filled date', () async {
       var clock = DateTime(2026, 6, 12, 23, 50);
       final (store, _) = await makeMuhasabaStore(now: () => clock);

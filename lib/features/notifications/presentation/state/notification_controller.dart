@@ -100,7 +100,12 @@ final class NotificationController {
 
   Future<void> _rescheduleNow() async {
     for (var running = _inFlight; running != null; running = _inFlight) {
-      await running;
+      try {
+        await running;
+      } on Object catch (_) {
+        // A failed earlier run (or boot) is its caller's error; this run
+        // still goes ahead with the latest state.
+      }
     }
     final run = _inFlight = _run();
     try {

@@ -287,6 +287,34 @@ void main() {
       expect(await store.unlockWithPin('1234'), isTrue);
     });
 
+    test('accepted trade-off: a clock set forward ends the current wait, '
+        'but the next wrong PIN still escalates', () async {
+      const mono = Duration.zero;
+      final store = _store(now: () => clock, elapsed: () => mono);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      clock = clock.add(const Duration(days: 1));
+      expect(store.cooldownRemaining(), isNull);
+      await store.unlockWithPin('0000'); // 6th wrong → 60s
+      expect(store.cooldownRemaining(), const Duration(seconds: 60));
+    });
+
+    test('a restart resumes the persisted remainder', () async {
+      final store = _store(now: () => clock);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      clock = clock.add(const Duration(seconds: 10));
+      final restarted = _store(now: () => clock);
+      await restarted.load();
+      expect(restarted.cooldownRemaining(), const Duration(seconds: 20));
+    });
+
     test('a clock set backwards cannot stretch a persisted cooldown',
         () async {
       final store = _store(now: () => clock);

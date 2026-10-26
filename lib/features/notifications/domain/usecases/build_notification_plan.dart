@@ -46,6 +46,7 @@ List<NotificationItem> buildNotificationPlan({
           NotificationItem(
             kind: NotificationKind.azan,
             prayer: prayer,
+            prayerDay: DateTime(day.fajr.year, day.fajr.month, day.fajr.day),
             at: start,
             silent: mode == AzanMode.silent,
             beepOnly: mode == AzanMode.beep,

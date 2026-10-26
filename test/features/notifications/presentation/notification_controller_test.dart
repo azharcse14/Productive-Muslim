@@ -35,9 +35,18 @@ final class _CountingScheduler implements NotificationScheduler {
   int inFlight = 0;
   int maxInFlight = 0;
 
+  /// When set, initialize() throws it (plugin init failure), after
+  /// [initGate] completes if that is set too.
+  Object? initError;
+  Completer<void>? initGate;
+
   @override
   Future<void> initialize(NotificationTexts texts) async {
     initCalls++;
+    await initGate?.future;
+    if (initError != null) {
+      throw initError!;
+    }
   }
 
   @override
@@ -250,6 +259,23 @@ void main() {
     await started;
     await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(scheduler.rescheduleCalls, 2);
+    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+    controller.dispose();
+  });
+
+  test('a change queued behind a failed boot still reschedules', () async {
+    final (controller, scheduler) = await _controller();
+    scheduler
+      ..initError = StateError('plugin init failed')
+      ..initGate = Completer<void>();
+    final failed = expectLater(controller.start(), throwsStateError);
+    await _lastSettings!.setLocale('bn'); // lands while boot is in flight
+    // Debounce fires; the queued run waits on the still-pending boot.
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    scheduler.initGate!.complete(); // boot now fails
+    await failed;
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(scheduler.rescheduleCalls, 1, reason: 'the queued run went ahead');
     expect(scheduler.lastTexts!.channelAzanName, 'আজান');
     controller.dispose();
   });
