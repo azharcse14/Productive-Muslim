@@ -272,7 +272,7 @@ Future<void> setupLocator() async {
 
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
-    () => ExpenseStore(SharedPreferencesAsync()),
+    () => ExpenseStore(SharedPreferencesAsync(), now: _wallNow),
   );
 
   // ---- achievements ----

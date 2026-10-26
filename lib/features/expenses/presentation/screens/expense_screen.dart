@@ -24,7 +24,7 @@ const _icons = {
 };
 
 /// Islamic expense tracker: a monthly hisab by category, an israf reminder,
-/// and the month's entries (swipe to delete).
+/// and the month's entries (swipe or edit → Delete, with undo).
 final class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
 
@@ -204,7 +204,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                       color: q.urgentSoft,
                       child: Icon(Icons.delete_outline, color: q.urgent),
                     ),
-                    onDismissed: (_) => unawaited(_store.remove(e.id)),
+                    onDismissed: (_) => _removeWithUndo(context, _store, e),
                     child: ListTile(
                       onTap: () =>
                           _showExpenseSheet(context, _store, existing: e),
@@ -234,6 +234,24 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
       ),
     );
   }
+}
+
+/// Removes [e] and offers Undo (swipe and the editor's Delete both land
+/// here, so a stray swipe is recoverable).
+void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
+  final l10n = context.l10n;
+  unawaited(store.remove(e.id));
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(l10n.expenseDeleted),
+        action: SnackBarAction(
+          label: l10n.expenseUndo,
+          onPressed: () => unawaited(store.restore(e)),
+        ),
+      ),
+    );
 }
 
 /// One category line: spent, and either its share of the month or, with a
@@ -314,43 +332,81 @@ Future<void> _showBudgetDialog(
   required String title,
   required int? current,
   required Future<void> Function(int?) onSave,
-}) {
-  final controller = TextEditingController(text: current?.toString() ?? '');
-  final l10n = context.l10n;
-  return showDialog<void>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(title),
+}) => showDialog<void>(
+  context: context,
+  builder: (_) =>
+      _BudgetDialog(title: title, current: current, onSave: onSave),
+);
+
+/// Owns its controller so it lives until the route (and its exit
+/// animation) is gone — disposing on the dialog future's completion is
+/// too early.
+final class _BudgetDialog extends StatefulWidget {
+  const _BudgetDialog({
+    required this.title,
+    required this.current,
+    required this.onSave,
+  });
+
+  final String title;
+  final int? current;
+  final Future<void> Function(int?) onSave;
+
+  @override
+  State<_BudgetDialog> createState() => _BudgetDialogState();
+}
+
+final class _BudgetDialogState extends State<_BudgetDialog> {
+  late final _controller = TextEditingController(
+    text: widget.current?.toString() ?? '',
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final text = _controller.text.trim();
+    final invalid =
+        text.isNotEmpty && ExpenseStore.parseAmount(text) == null;
+    return AlertDialog(
+      title: Text(widget.title),
       content: TextField(
-        controller: controller,
+        controller: _controller,
         autofocus: true,
         keyboardType: TextInputType.number,
-        decoration: InputDecoration(hintText: l10n.expenseAmountHint),
+        decoration: InputDecoration(
+          hintText: l10n.expenseAmountHint,
+          errorText: invalid ? l10n.expenseAmountInvalid : null,
+        ),
+        onChanged: (_) => setState(() {}),
       ),
       actions: [
-        if (current != null)
+        if (widget.current != null)
           TextButton(
             onPressed: () {
-              unawaited(onSave(null));
-              Navigator.of(dialogContext).pop();
+              unawaited(widget.onSave(null));
+              Navigator.of(context).pop();
             },
             child: Text(l10n.expenseBudgetClear),
           ),
         TextButton(
           onPressed: () {
-            final v = int.tryParse(
-              LocaleDigits.toAscii(controller.text.trim()),
-            );
-            if (v != null && v > 0) {
-              unawaited(onSave(v));
-              Navigator.of(dialogContext).pop();
+            final v = ExpenseStore.parseAmount(_controller.text);
+            if (v != null) {
+              unawaited(widget.onSave(v));
+              Navigator.of(context).pop();
             }
           },
           child: Text(l10n.expenseSave),
         ),
       ],
-    ),
-  ).whenComplete(controller.dispose);
+    );
+  }
 }
 
 /// Add (no [existing]) or edit sheet: amount, note, category, date.
@@ -386,7 +442,11 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
   late final _note = TextEditingController(text: widget.existing?.note ?? '');
   late ExpenseCategory _category =
       widget.existing?.category ?? ExpenseCategory.need;
-  late DateTime _date = widget.existing?.date ?? DateTime.now();
+  late DateTime _date = widget.existing?.date ?? widget.store.now();
+
+  /// Set while a save is in flight — a second tap must neither add again
+  /// nor pop the screen under the closing sheet.
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -395,10 +455,10 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
     super.dispose();
   }
 
-  int? get _parsed => int.tryParse(LocaleDigits.toAscii(_amount.text.trim()));
+  int? get _parsed => ExpenseStore.parseAmount(_amount.text);
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
+    final now = widget.store.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: _date.isAfter(now) ? now : _date,
@@ -422,9 +482,10 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
 
   Future<void> _save() async {
     final amount = _parsed;
-    if (amount == null || amount <= 0) {
+    if (_saving || amount == null) {
       return;
     }
+    setState(() => _saving = true);
     unawaited(HapticFeedback.selectionClick());
     if (widget.existing case final existing?) {
       await widget.store.update(
@@ -468,7 +529,12 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
               controller: _amount,
               autofocus: widget.existing == null,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(hintText: l10n.expenseAmountHint),
+              decoration: InputDecoration(
+                hintText: l10n.expenseAmountHint,
+                errorText: _amount.text.trim().isNotEmpty && _parsed == null
+                    ? l10n.expenseAmountInvalid
+                    : null,
+              ),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: QSpace.s3),
@@ -505,8 +571,24 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
             QButton(
               label: l10n.expenseSave,
               expand: true,
-              onPressed: (_parsed ?? 0) > 0 ? _save : null,
+              onPressed: !_saving && _parsed != null ? _save : null,
             ),
+            if (widget.existing case final existing?) ...[
+              const SizedBox(height: QSpace.s2),
+              QButton(
+                label: l10n.delete,
+                icon: Icons.delete_outline,
+                kind: QButtonKind.outline,
+                expand: true,
+                onPressed: _saving
+                    ? null
+                    : () {
+                        // Undo SnackBar lives on the screen's messenger.
+                        _removeWithUndo(context, widget.store, existing);
+                        Navigator.of(context).pop();
+                      },
+              ),
+            ],
           ],
         ),
       ),

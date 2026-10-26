@@ -1950,7 +1950,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseNoteHint => 'Note (optional)';
 
   @override
-  String get expenseMonthTotal => 'Spent this month';
+  String get expenseMonthTotal => 'Spent';
 
   @override
   String get expensePrevMonth => 'Previous month';
@@ -1959,7 +1959,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseNextMonth => 'Next month';
 
   @override
-  String get expenseEmpty => 'No expenses logged this month.';
+  String get expenseEmpty => 'No expenses logged.';
 
   @override
   String get expenseIsrafReminder =>
@@ -1979,6 +1979,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseEdit => 'Edit expense';
+
+  @override
+  String get expenseDeleted => 'Expense deleted';
+
+  @override
+  String get expenseUndo => 'Undo';
+
+  @override
+  String get expenseAmountInvalid => 'Enter a whole amount';
 
   @override
   String get expenseBudget => 'Monthly budget';

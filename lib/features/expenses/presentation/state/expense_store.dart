@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/utils/locale_digits.dart';
+
 /// Spending buckets framed by Islamic priorities: needs first, then family,
 /// then sadaqah, with wants kept in check (no israf — Al-A'raf 7:31).
 enum ExpenseCategory { need, family, sadaqah, want }
@@ -48,6 +50,10 @@ final class ExpenseStore {
     : _now = now ?? DateTime.now;
 
   static const _key = 'expenses_v1';
+
+  /// Raw payload kept aside when some records couldn't be read, so the next
+  /// save (which drops them) never destroys the only copy.
+  static const _corruptKey = 'expenses_v1_unreadable';
   static const _budgetKey = 'expense_budget_v1';
   static const _categoryBudgetKey = 'expense_category_budgets_v1';
 
@@ -64,18 +70,45 @@ final class ExpenseStore {
   /// Per-category monthly limits (for sadaqah, a goal); absent = none.
   late final categoryBudgets = signal(const <ExpenseCategory, int>{});
 
-  Future<void> load() async {
+  /// Largest accepted amount — keeps int totals far from overflow.
+  static const maxAmount = 999999999999;
+
+  /// Whole-unit amount from user text (Bengali/Arabic digits and ','
+  /// grouping accepted); null unless 1..[maxAmount].
+  static int? parseAmount(String text) {
+    final v = int.tryParse(LocaleDigits.toAscii(text.trim()));
+    return v == null || v <= 0 || v > maxAmount ? null : v;
+  }
+
+  /// "Now" on the app's clock (the location's wall clock when injected).
+  DateTime now() => _now();
+
+  Future<void>? _loading;
+
+  /// Loads once per store; every mutation awaits it first, so a write can
+  /// never land before (and be clobbered by, or clobber) the stored list.
+  Future<void> load() => _loading ??= _load();
+
+  Future<void> _load() async {
     final stored = await _prefs.getString(_key);
     if (stored != null) {
+      final read = <Expense>[];
+      var skipped = false;
       try {
-        entries.value = [
-          for (final j in jsonDecode(stored) as List)
-            Expense.fromJson(j as Map<String, dynamic>),
-        ];
+        for (final j in jsonDecode(stored) as List) {
+          try {
+            read.add(Expense.fromJson(j as Map<String, dynamic>));
+          } on Object {
+            skipped = true; // one bad record (e.g. a future category)
+          }
+        }
       } on Object {
-        // Corrupt payload: start empty rather than crash, but keep the raw
-        // value untouched until the next successful save overwrites it.
+        skipped = true; // whole payload unreadable
       }
+      if (skipped && await _prefs.getString(_corruptKey) == null) {
+        await _prefs.setString(_corruptKey, stored);
+      }
+      entries.value = read;
     }
     budget.value = await _prefs.getInt(_budgetKey);
     final storedBudgets = await _prefs.getString(_categoryBudgetKey);
@@ -95,6 +128,7 @@ final class ExpenseStore {
 
   /// Sets the monthly budget; null or non-positive clears it.
   Future<void> setBudget(int? value) async {
+    await load();
     if (value == null || value <= 0) {
       budget.value = null;
       await _prefs.remove(_budgetKey);
@@ -112,7 +146,8 @@ final class ExpenseStore {
     String note = '',
     DateTime? date,
   }) async {
-    if (amount <= 0) {
+    await load();
+    if (amount <= 0 || amount > maxAmount) {
       return;
     }
     final e = Expense(
@@ -129,6 +164,7 @@ final class ExpenseStore {
 
   /// Sets [category]'s monthly budget; null or non-positive clears it.
   Future<void> setCategoryBudget(ExpenseCategory category, int? value) async {
+    await load();
     final next = Map.of(categoryBudgets.value)..remove(category);
     if (value != null && value > 0) {
       next[category] = value;
@@ -149,7 +185,8 @@ final class ExpenseStore {
     required DateTime date,
     String note = '',
   }) async {
-    if (amount <= 0) {
+    await load();
+    if (amount <= 0 || amount > maxAmount) {
       return;
     }
     final next = [
@@ -168,10 +205,24 @@ final class ExpenseStore {
     await _save(next);
   }
 
-  Future<void> remove(int id) => _save([
-    for (final e in entries.value)
-      if (e.id != id) e,
-  ]);
+  Future<void> remove(int id) async {
+    await load();
+    await _save([
+      for (final e in entries.value)
+        if (e.id != id) e,
+    ]);
+  }
+
+  /// Puts a removed [expense] back as it was (undo).
+  Future<void> restore(Expense expense) async {
+    await load();
+    if (entries.value.any((e) => e.id == expense.id)) {
+      return;
+    }
+    await _save(
+      [expense, ...entries.value]..sort((a, b) => b.date.compareTo(a.date)),
+    );
+  }
 
   Future<void> _save(List<Expense> next) async {
     entries.value = next;

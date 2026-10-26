@@ -916,10 +916,10 @@
   "expenseSave": "Save",
   "expenseAmountHint": "Amount",
   "expenseNoteHint": "Note (optional)",
-  "expenseMonthTotal": "Spent this month",
+  "expenseMonthTotal": "Spent",
   "expensePrevMonth": "Previous month",
   "expenseNextMonth": "Next month",
-  "expenseEmpty": "No expenses logged this month.",
+  "expenseEmpty": "No expenses logged.",
   "expenseIsrafReminder": "“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)",
   "expenseCategory": "{id, select, need{Needs} family{Family} sadaqah{Sadaqah} want{Wants} other{{id}}}",
   "@expenseCategory": {
@@ -928,6 +928,9 @@
     }
   },
   "expenseEdit": "Edit expense",
+  "expenseDeleted": "Expense deleted",
+  "expenseUndo": "Undo",
+  "expenseAmountInvalid": "Enter a whole amount",
   "expenseBudget": "Monthly budget",
   "expenseBudgetClear": "Remove budget",
   "expenseBudgetLeft": "{left} left of {budget}",

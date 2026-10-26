@@ -3125,7 +3125,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseMonthTotal.
   ///
   /// In en, this message translates to:
-  /// **'Spent this month'**
+  /// **'Spent'**
   String get expenseMonthTotal;
 
   /// No description provided for @expensePrevMonth.
@@ -3143,7 +3143,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No expenses logged this month.'**
+  /// **'No expenses logged.'**
   String get expenseEmpty;
 
   /// No description provided for @expenseIsrafReminder.
@@ -3163,6 +3163,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit expense'**
   String get expenseEdit;
+
+  /// No description provided for @expenseDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense deleted'**
+  String get expenseDeleted;
+
+  /// No description provided for @expenseUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get expenseUndo;
+
+  /// No description provided for @expenseAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole amount'**
+  String get expenseAmountInvalid;
 
   /// No description provided for @expenseBudget.
   ///

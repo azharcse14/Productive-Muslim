@@ -1948,7 +1948,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseNoteHint => 'নোট (ঐচ্ছিক)';
 
   @override
-  String get expenseMonthTotal => 'এ মাসের খরচ';
+  String get expenseMonthTotal => 'মোট খরচ';
 
   @override
   String get expensePrevMonth => 'আগের মাস';
@@ -1957,7 +1957,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseNextMonth => 'পরের মাস';
 
   @override
-  String get expenseEmpty => 'এ মাসে কোনো খরচ লেখা হয়নি।';
+  String get expenseEmpty => 'কোনো খরচ লেখা হয়নি।';
 
   @override
   String get expenseIsrafReminder =>
@@ -1977,6 +1977,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseEdit => 'খরচ সম্পাদনা';
+
+  @override
+  String get expenseDeleted => 'খরচ মুছে ফেলা হয়েছে';
+
+  @override
+  String get expenseUndo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get expenseAmountInvalid => 'পূর্ণ সংখ্যায় পরিমাণ লিখুন';
 
   @override
   String get expenseBudget => 'মাসিক বাজেট';
