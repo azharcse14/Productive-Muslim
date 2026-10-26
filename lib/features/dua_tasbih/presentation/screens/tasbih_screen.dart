@@ -45,29 +45,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
     }
   }
 
-  Future<void> _confirmReset() async {
-    final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.tasbihReset),
-        content: Text(l10n.tasbihResetConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-    if (confirmed ?? false) {
-      await _store.reset(saveToHistory: true);
-    }
-  }
+  Future<void> _confirmReset() => confirmTasbihReset(context, _store);
 
   @override
   Widget build(BuildContext context) {
@@ -257,5 +235,31 @@ final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
         FilledButton(onPressed: _submit, child: Text(l10n.save)),
       ],
     );
+  }
+}
+
+/// Save-and-reset confirmation shared by this screen and the Home quick
+/// card, so a stray tap never ends a round silently.
+Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
+  final l10n = context.l10n;
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.tasbihReset),
+      content: Text(l10n.tasbihResetConfirm),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(l10n.save),
+        ),
+      ],
+    ),
+  );
+  if (confirmed ?? false) {
+    await store.reset(saveToHistory: true);
   }
 }

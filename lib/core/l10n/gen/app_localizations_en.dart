@@ -955,6 +955,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ayahCopied => 'Ayah copied';
 
   @override
+  String get bookmarksTitle => 'Bookmarks';
+
+  @override
+  String get bookmarksEmpty =>
+      'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.';
+
+  @override
   String get bookmarkLabel => 'Bookmark';
 
   @override
@@ -1331,6 +1338,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get zakatSilverPrice => 'Silver price per gram';
+
+  @override
+  String get zakatNeedPrice =>
+      'Enter today\'s gold or silver price to work out the nisab.';
+
+  @override
+  String get zakatInvalidNumber => 'Enter a valid number';
 
   @override
   String get zakatCalculate => 'Calculate';

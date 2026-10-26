@@ -1646,6 +1646,18 @@ abstract class AppLocalizations {
   /// **'Ayah copied'**
   String get ayahCopied;
 
+  /// No description provided for @bookmarksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarksTitle;
+
+  /// No description provided for @bookmarksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.'**
+  String get bookmarksEmpty;
+
   /// No description provided for @bookmarkLabel.
   ///
   /// In en, this message translates to:
@@ -2113,6 +2125,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Silver price per gram'**
   String get zakatSilverPrice;
+
+  /// No description provided for @zakatNeedPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter today\'s gold or silver price to work out the nisab.'**
+  String get zakatNeedPrice;
+
+  /// No description provided for @zakatInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get zakatInvalidNumber;
 
   /// No description provided for @zakatCalculate.
   ///

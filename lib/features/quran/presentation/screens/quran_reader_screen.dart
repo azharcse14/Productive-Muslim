@@ -18,8 +18,8 @@ import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
 
-/// Estimated ayah-card extent for the initial index→offset jump (cards are
-/// not fixed-extent; an estimate is acceptable for a resume jump).
+/// Ayah-card extent guess for the first index→offset jump, before any card
+/// has been measured. The jump then refines itself (see `_jumpToIndex`).
 const _estimatedCardExtent = 180.0;
 
 /// Surah reader (design §4.5): ayah cards with the Uthmanic HAFS script at
@@ -75,16 +75,58 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     _ayahs.value = await _store.ayahsOf(widget.surahId);
     final initial = widget.initialAyah;
     if (initial != null && initial > 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_controller.hasClients) {
-          return;
-        }
-        _controller.jumpTo(
-          ((initial - 1) * _estimatedCardExtent)
-              .clamp(0.0, _controller.position.maxScrollExtent),
-        );
-      });
+      final index = _ayahs.value.indexWhere((a) => a.number == initial);
+      if (index > 0) {
+        _jumpToIndex(index);
+      }
     }
+  }
+
+  /// Cards vary in height (font size, translation, ayah length), so one
+  /// estimated jump drifts in long surahs. Jump from the measured built
+  /// cards until the target card itself is built, then reveal it exactly.
+  void _jumpToIndex(int target, [int attempt = 0]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_controller.hasClients) {
+        return;
+      }
+      final targetContext = _itemContexts[target];
+      if (targetContext != null && targetContext.mounted) {
+        unawaited(Scrollable.ensureVisible(targetContext));
+        return;
+      }
+      if (attempt >= 10) {
+        return;
+      }
+      // Anchor on the first built card; average the built cards' extents.
+      int? anchor;
+      var anchorOffset = 0.0;
+      var total = 0.0;
+      var count = 0;
+      for (final MapEntry(key: index, value: context)
+          in _itemContexts.entries) {
+        final box = context.mounted ? context.findRenderObject() : null;
+        if (box is! RenderBox || !box.attached || !box.hasSize) {
+          continue;
+        }
+        total += box.size.height;
+        count++;
+        if (anchor == null || index < anchor) {
+          anchor = index;
+          anchorOffset =
+              RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+        }
+      }
+      final extent = count == 0 ? _estimatedCardExtent : total / count;
+      final offset = anchor == null
+          ? target * extent
+          : anchorOffset + (target - anchor) * extent;
+      _controller.jumpTo(
+        offset.clamp(0.0, _controller.position.maxScrollExtent),
+      );
+      WidgetsBinding.instance.scheduleFrame();
+      _jumpToIndex(target, attempt + 1);
+    });
   }
 
   void _onScroll() {

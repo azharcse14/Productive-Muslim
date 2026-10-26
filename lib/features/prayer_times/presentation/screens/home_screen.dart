@@ -16,6 +16,7 @@ import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../daily_content/presentation/state/daily_content_store.dart';
 import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
 import '../../../dua_tasbih/domain/entities/dua.dart';
+import '../../../dua_tasbih/presentation/screens/tasbih_screen.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
@@ -573,7 +574,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           target: tasbih.target.value,
           onTap: tasbih.tap,
           onReset: tasbih.count.value > 0
-              ? () => unawaited(tasbih.reset(saveToHistory: true))
+              ? () => unawaited(confirmTasbihReset(context, tasbih))
               : null,
           onOpen: () => context.goNamed(Routes.dua.name),
         ),

@@ -65,6 +65,19 @@ final class QuranStore {
     await _repository.toggleBookmark(ayahId);
   }
 
+  /// Maps a global ayah id (1..6236) to surah/ayah via the index's ayah
+  /// counts; null before [load] or for an out-of-range id.
+  QuranPosition? positionOf(int ayahId) {
+    var remaining = ayahId;
+    for (final surah in surahs.value) {
+      if (remaining <= surah.ayahCount) {
+        return remaining < 1 ? null : QuranPosition(surah.id, remaining);
+      }
+      remaining -= surah.ayahCount;
+    }
+    return null;
+  }
+
   Future<void> setReaderFontSize(double size) async {
     final clamped = _clampFontSize(size);
     readerFontSize.value = clamped;

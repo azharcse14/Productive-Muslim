@@ -951,6 +951,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get ayahCopied => 'আয়াত কপি হয়েছে';
 
   @override
+  String get bookmarksTitle => 'বুকমার্ক';
+
+  @override
+  String get bookmarksEmpty =>
+      'এখনো কোনো বুকমার্ক নেই। যেকোনো আয়াতের বুকমার্ক আইকনে চাপ দিলে এখানে জমা হবে।';
+
+  @override
   String get bookmarkLabel => 'বুকমার্ক';
 
   @override
@@ -1328,6 +1335,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get zakatSilverPrice => 'প্রতি গ্রাম রুপার দাম';
+
+  @override
+  String get zakatNeedPrice =>
+      'নিসাব হিসাব করতে আজকের স্বর্ণ বা রুপার দাম লিখুন।';
+
+  @override
+  String get zakatInvalidNumber => 'সঠিক সংখ্যা লিখুন';
 
   @override
   String get zakatCalculate => 'হিসাব করুন';

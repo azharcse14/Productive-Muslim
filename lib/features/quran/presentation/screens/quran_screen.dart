@@ -74,12 +74,101 @@ final class _QuranScreenState extends State<QuranScreen> {
     );
   }
 
+  void _showBookmarks() {
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => SignalBuilder(builder: _bookmarksSheet),
+      ),
+    );
+  }
+
+  Widget _bookmarksSheet(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final positions = [
+      for (final id in _store.bookmarks.value.toList()..sort())
+        ?_store.positionOf(id),
+    ];
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(QSpace.s5),
+              child: Text(
+                l10n.bookmarksTitle,
+                style: QType.title.copyWith(color: q.ink),
+              ),
+            ),
+            if (positions.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  0,
+                  QSpace.s5,
+                  QSpace.s6,
+                ),
+                child: Text(
+                  l10n.bookmarksEmpty,
+                  style: QType.body.copyWith(color: q.ink2),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
+                  children: [
+                    for (final position in positions)
+                      QListRow(
+                        icon: Icons.bookmark_outline,
+                        title: _surahById(position.surah)?.transliteration ??
+                            '',
+                        subtitle: LocaleDigits.localize(
+                          '${position.surah}:${position.ayah}',
+                          languageCode,
+                        ),
+                        trailing: Icon(Icons.chevron_right, color: q.ink3),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _openReader(
+                            position.surah,
+                            initialAyah: position.ayah,
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.quranTitle)),
+      appBar: AppBar(
+        title: Text(l10n.quranTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.bookmarksTitle,
+            icon: const Icon(Icons.bookmarks_outlined),
+            onPressed: _showBookmarks,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) => Column(

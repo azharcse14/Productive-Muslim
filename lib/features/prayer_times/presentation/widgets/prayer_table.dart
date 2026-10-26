@@ -69,6 +69,14 @@ final class PrayerTable extends StatelessWidget {
   final void Function(Prayer)? onPrayerTap;
   final bool dense;
 
+  /// Each time stays whole (non-breaking spaces), so on a narrow phone, in
+  /// Bangla or at a large text scale the range wraps after the dash rather
+  /// than ellipsizing away the end time.
+  static String _range(String start, String end) {
+    String keep(String time) => time.replaceAll(' ', '\u00A0');
+    return '${keep(start)}\u00A0– ${keep(end)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final q = context.q;
@@ -99,8 +107,10 @@ final class PrayerTable extends StatelessWidget {
               _PrayerRow(
                   prayer: prayer,
                   name: context.l10n.prayerLabel(prayer),
-                  range:
-                      '${formatTime(day.startOf(prayer))} – ${formatTime(day.endOf(prayer))}',
+                  range: _range(
+                    formatTime(day.startOf(prayer)),
+                    formatTime(day.endOf(prayer)),
+                  ),
                   jamaatTime: switch (
                       jamaat.timeFor(prayer, day.startOf(prayer))) {
                     null => null,
@@ -247,20 +257,24 @@ final class _PrayerRow extends StatelessWidget {
                 fontSize: dense ? 11 : 12.5,
                 color: fg ?? q.ink2,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
           SizedBox(
             width: dense ? 40 : 52,
             // Jamaat time, or a quiet em-dash placeholder when unset — the
             // single "Set jamaat" CTA lives at the foot of the table.
-            child: Text(
-              jamaatTime ?? '—',
-              textAlign: TextAlign.center,
-              style: QType.num_(QType.caption).copyWith(
-                color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
-                fontVariations: const [FontVariation('wght', 600)],
+            // Scales down rather than wrapping "12:45 PM" in a narrow cell.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                jamaatTime ?? '—',
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: QType.num_(QType.caption).copyWith(
+                  color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
+                  fontVariations: const [FontVariation('wght', 600)],
+                ),
               ),
             ),
           ),

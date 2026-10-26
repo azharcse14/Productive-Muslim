@@ -46,16 +46,22 @@ final class TasbihQuickCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          InkWell(
-            onTap: onTap,
-            customBorder: const CircleBorder(),
-            child: QProgressRing(
-              progress: progress,
-              size: 56,
-              strokeWidth: 6,
-              child: Text(
-                LocaleDigits.localize('$count', lang),
-                style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+          Semantics(
+            button: true,
+            label: l10n.tasbihQuickHint,
+            value: LocaleDigits.localize('$count / $target', lang),
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: onTap,
+              customBorder: const CircleBorder(),
+              child: QProgressRing(
+                progress: progress,
+                size: 56,
+                strokeWidth: 6,
+                child: Text(
+                  LocaleDigits.localize('$count', lang),
+                  style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+                ),
               ),
             ),
           ),
@@ -82,14 +88,16 @@ final class TasbihQuickCard extends StatelessWidget {
             ),
           ),
           if (onReset != null)
-            InkWell(
-              onTap: onReset,
-              child: Icon(Icons.refresh, size: 20, color: q.ink3),
+            IconButton(
+              tooltip: l10n.tasbihReset,
+              onPressed: onReset,
+              icon: Icon(Icons.refresh, color: q.ink3),
             ),
           if (onOpen != null)
-            InkWell(
-              onTap: onOpen,
-              child: Icon(Icons.chevron_right, size: 20, color: q.ink3),
+            IconButton(
+              tooltip: l10n.tasbihTitle,
+              onPressed: onOpen,
+              icon: Icon(Icons.chevron_right, color: q.ink3),
             ),
         ],
       ),

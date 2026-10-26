@@ -452,6 +452,8 @@
   "readerFontSize": "Arabic text size",
   "showTranslation": "Show translation",
   "ayahCopied": "Ayah copied",
+  "bookmarksTitle": "Bookmarks",
+  "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
   "bookmarkLabel": "Bookmark",
   "quranFirstOpen": "Bismillah — start reading and Productive Muslim will remember where you left off.",
   "ayahShareSuffix": "— Quran {surah}:{ayah}",
@@ -643,6 +645,8 @@
   "zakatDebts": "Debts (deducted)",
   "zakatGoldPrice": "Gold price per gram",
   "zakatSilverPrice": "Silver price per gram",
+  "zakatNeedPrice": "Enter today's gold or silver price to work out the nisab.",
+  "zakatInvalidNumber": "Enter a valid number",
   "zakatCalculate": "Calculate",
   "zakatNisab": "Nisab threshold: {amount}",
   "@zakatNisab": {
