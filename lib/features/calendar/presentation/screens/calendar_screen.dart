@@ -243,7 +243,7 @@ final class _MonthGrid extends StatelessWidget {
       crossAxisCount: 7,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 0.82,
+      childAspectRatio: 0.82 / context.textGrowth,
       children: cells,
     );
   }

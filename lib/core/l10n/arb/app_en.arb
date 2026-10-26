@@ -34,6 +34,9 @@
   },
   "settingsTitle": "Settings",
   "groupCalculation": "Prayer calculation",
+  "moreGroupWorship": "Worship",
+  "moreGroupTools": "Tools",
+  "moreGroupYou": "You",
   "groupNotifications": "Notifications",
   "groupAppearance": "Appearance & language",
   "groupPrivacy": "Privacy",
@@ -49,7 +52,7 @@
   "settingHijriOffset": "Hijri date adjustment",
   "settingHijriOffsetSub": "Match your local moon-sighting",
   "hijriOffsetValue": "{count, plural, =1{{sign}1 day} other{{sign}{count} days}}",
-  "@hijriOffsetValue": { "placeholders": { "count": { "type": "int" }, "sign": { "type": "String" } } },
+  "@hijriOffsetValue": { "placeholders": { "count": { "type": "int", "format": "decimalPattern" }, "sign": { "type": "String" } } },
   "settingSahriSafety": "Sahri safety margin",
   "settingSahriSafetySub": "End sahri this many minutes before Fajr",
   "settingTheme": "Theme",
@@ -92,6 +95,8 @@
   "locationUseGps": "Use my location",
   "locationUseGpsSub": "GPS — works fully offline after the first fix",
   "locationChooseCity": "Choose city manually",
+  "openSystemSettings": "Open settings",
+  "locationSearchError": "Couldn't search cities. Please try again.",
   "locationSearchHint": "Search city…",
   "locationPrimingBody": "Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.",
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
@@ -102,7 +107,8 @@
   "@minutesShort": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -292,7 +298,8 @@
   "@offsetAfterStart": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -343,6 +350,7 @@
       }
     }
   },
+  "qiblaFinding": "Finding direction…",
   "qiblaNeedsLocation": "Set your location to find the qibla direction",
   "muhasabaTitle": "Muhasaba",
   "muhasabaFirstDayTitle": "Your daily muhasaba",
@@ -381,7 +389,8 @@
   "@currentStreakLabel": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -389,7 +398,8 @@
   "@bestStreakLabel": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -402,10 +412,12 @@
   "@muhasabaDoneCount": {
     "placeholders": {
       "done": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -422,7 +434,8 @@
   "@minutesValue": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -434,7 +447,8 @@
   "@surahMeta": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "place": {
         "type": "String"
@@ -451,17 +465,28 @@
   },
   "readerFontSize": "Arabic text size",
   "showTranslation": "Show translation",
+  "readerSettings": "Reading settings",
+  "copyAyah": "Copy ayah",
+  "previousDay": "Previous day",
+  "nextDay": "Next day",
+  "quranLoadError": "Couldn't open the Quran text. Please try again.",
+  "copyLabel": "Copy",
+  "copiedLabel": "Copied",
   "ayahCopied": "Ayah copied",
+  "bookmarksTitle": "Bookmarks",
+  "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
   "bookmarkLabel": "Bookmark",
   "quranFirstOpen": "Bismillah — start reading and Productive Muslim will remember where you left off.",
   "ayahShareSuffix": "— Quran {surah}:{ayah}",
   "@ayahShareSuffix": {
     "placeholders": {
       "surah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -476,8 +501,8 @@
   "asmaQuizProgress": "{current} of {total}",
   "@asmaQuizProgress": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizNext": "Next",
@@ -487,14 +512,14 @@
   "asmaQuizScore": "{score}/{total}",
   "@asmaQuizScore": {
     "placeholders": {
-      "score": { "type": "int" },
-      "total": { "type": "int" }
+      "score": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizBest": "Best score: {best}",
   "@asmaQuizBest": {
     "placeholders": {
-      "best": { "type": "int" }
+      "best": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizPlayAgain": "Try again",
@@ -518,7 +543,7 @@
   "fastingHeatmapLabel": "{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "fastingUpcomingTitle": "Upcoming recommended fasts",
@@ -536,12 +561,19 @@
   },
   "achievementsTitle": "Achievements",
   "achievementsSubtitle": "Every small step counts — keep going.",
+  "achievementHow": "{kind, select, streak{Log at least one deed in Muhasaba {count} days in a row.} salah{Check off a salah on {count} different days.} dhikr{Count and save {count} dhikr with the tasbih.} quranStart{Open the Quran and start reading.} quran{Complete your Quran reading on {count} days.} bookmark{Bookmark {count} ayahs.} fast{Log {count} fasts.} other{Keep going.}}",
+  "@achievementHow": {
+    "placeholders": {
+      "kind": { "type": "String" },
+      "count": { "type": "String" }
+    }
+  },
   "achievementUnlocked": "Unlocked",
   "achievementsCount": "{unlocked} of {total} earned",
   "@achievementsCount": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "achievementCategory": "{key, select, streaks{Streaks} salah{Salah} dhikr{Dhikr} quran{Quran} fasting{Fasting} other{Achievements}}",
@@ -564,7 +596,8 @@
   "@duaCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -572,7 +605,8 @@
   "@repeatTimes": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -593,19 +627,23 @@
   "@ruqyahCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
   "tasbihTarget": "Target",
   "tasbihCustom": "Custom",
   "tasbihReset": "Reset",
+  "tasbihDiscard": "Discard",
+  "tasbihUndo": "Undo last count",
   "tasbihResetConfirm": "Save this round to history and reset?",
   "tasbihSessionLine": "Today: {count} counted",
   "@tasbihSessionLine": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -615,10 +653,12 @@
   "@rozaDayOf": {
     "placeholders": {
       "day": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -626,7 +666,8 @@
   "@daysUntilRamadan": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -643,6 +684,8 @@
   "zakatDebts": "Debts (deducted)",
   "zakatGoldPrice": "Gold price per gram",
   "zakatSilverPrice": "Silver price per gram",
+  "zakatNeedPrice": "Enter today's gold or silver price to work out the nisab.",
+  "zakatInvalidNumber": "Enter a valid number",
   "zakatCalculate": "Calculate",
   "zakatNisab": "Nisab threshold: {amount}",
   "@zakatNisab": {
@@ -681,6 +724,7 @@
   "onboardingMethodNote": "Suggested for your region. You can change this later in Settings.",
   "onboardingNotifTitle": "Stay gently reminded",
   "onboardingNotifBody": "Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.",
+  "onboardingNotifDenied": "Notifications are off. You can turn them on any time from Settings → Notifications.",
   "onboardingNotifAllow": "Allow notifications",
   "onboardingNotifSkip": "Maybe later",
   "onboardingFinishTitle": "Bismillah",
@@ -693,6 +737,10 @@
   "appLockSetPin": "Set a 4-digit PIN",
   "appLockConfirmPin": "Confirm your PIN",
   "appLockPinMismatch": "PINs didn't match — try again",
+  "appLockBiometricOfferTitle": "Unlock with fingerprint or face?",
+  "appLockBiometricOfferBody": "Your PIN always works as a backup.",
+  "appLockBiometricUse": "Use it",
+  "appLockBiometricSkip": "Not now",
   "appLockWrongPin": "Wrong PIN — try again",
   "appLockUseBiometric": "Use fingerprint / face",
   "appLockEnable": "App lock",
@@ -709,7 +757,7 @@
   "appLockPinProgress": "{entered} of 4 digits entered",
   "@appLockPinProgress": {
     "placeholders": {
-      "entered": { "type": "int" }
+      "entered": { "type": "int", "format": "decimalPattern" }
     }
   },
   "a11yIncrease": "Increase {label}",
@@ -737,6 +785,7 @@
   "prayerFazilatAsr": "Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.",
   "prayerFazilatMaghrib": "Pray it early, as soon as the sun has set. Two light rakaat of sunnah follow the fard.",
   "prayerFazilatIsha": "Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.",
+  "dailyKindAyah": "Ayah",
   "dailyAyahTitle": "Ayah of the day",
   "duaOfDayTitle": "Dua of the day",
   "dailyAyahReference": "{surah}, ayah {ayah}",
@@ -754,7 +803,7 @@
   "streakMilestone": "{count}-day streak! 🎉",
   "@streakMilestone": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "calculatorsTitle": "Calculators",
@@ -789,6 +838,7 @@
   "qazaSelectDate": "Select date",
   "qazaIncludeWitr": "Include Witr (Hanafi)",
   "qazaAlreadyMadeUp": "Already made up (per prayer)",
+  "qazaEndBeforeStart": "The end date is before the start date.",
   "qazaCalculate": "Calculate",
   "qazaDays": "Period: {count} days",
   "@qazaDays": {
@@ -878,11 +928,11 @@
   },
   "hadithCount": "{count, plural, =1{1 hadith} other{{count} hadith}}",
   "@hadithCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
   "@hadithChapterCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithBooksCardTitle": "Full collections",
   "hadithBooksTitle": "Hadith collections",

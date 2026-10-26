@@ -90,7 +90,8 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                     child: Center(
                       child: SignalBuilder(
                         builder: (context) {
-                          final heading = _store.heading.value ?? 0;
+                          final reading = _store.heading.value;
+                          final heading = reading ?? 0;
                           final aligned = _store.aligned.value;
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -107,8 +108,10 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                 ),
                               ),
                               const SizedBox(height: QSpace.s6),
+                              // Live only once aligned: a live heading would
+                              // be re-announced on every sensor tick.
                               Semantics(
-                                liveRegion: true,
+                                liveRegion: aligned,
                                 child: AnimatedDefaultTextStyle(
                                   duration: QMotion.med,
                                   curve: QMotion.ease,
@@ -118,6 +121,10 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                   child: Text(
                                     aligned
                                         ? l10n.qiblaAligned
+                                        : reading == null
+                                        // No sensor event yet: don't pass
+                                        // a 0° placeholder off as real.
+                                        ? l10n.qiblaFinding
                                         : l10n.qiblaHeading(
                                             _digits(
                                               context,

@@ -305,6 +305,10 @@ void main() {
         -300,
         scrollable: find.byType(Scrollable).first,
       );
+      // Special times now sit under the table; bring the check fully on
+      // screen (pump, not settle: the active waqt icon pulses forever).
+      await tester.ensureVisible(checks.first);
+      await tester.pump();
       await tester.tap(checks.first);
       await tester.pump();
       expect(

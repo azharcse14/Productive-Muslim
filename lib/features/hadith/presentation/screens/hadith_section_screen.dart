@@ -9,6 +9,9 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_copy_button.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../quran/presentation/state/quran_store.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_section_store.dart';
 import '../widgets/hadith_list_card.dart';
@@ -68,7 +71,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (_store.failed.value) {
-              return _ErrorRetry(
+              return QErrorRetry(
                 message: l10n.hadithLoadError,
                 retryLabel: l10n.hadithRetry,
                 onRetry: () => unawaited(_load()),
@@ -141,7 +144,7 @@ final class _BookHadithCard extends StatelessWidget {
             Text(
               hadith.arabic,
               textDirection: TextDirection.rtl,
-              style: QType.quran(24).copyWith(color: q.ink),
+              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
             ),
             const SizedBox(height: QSpace.s3),
           ],
@@ -177,6 +180,13 @@ final class _BookHadithCard extends StatelessWidget {
                   textAlign: TextAlign.end,
                   style: QType.caption.copyWith(color: q.ink3),
                 ),
+              ),
+              QCopyButton(
+                text: [
+                  hadith.arabic,
+                  hadith.translation,
+                  if (hadith.reference.isNotEmpty) '— ${hadith.reference}',
+                ].where((s) => s.isNotEmpty).join('\n'),
               ),
             ],
           ),
@@ -217,38 +227,3 @@ final class _Banner extends StatelessWidget {
   }
 }
 
-final class _ErrorRetry extends StatelessWidget {
-  const _ErrorRetry({
-    required this.message,
-    required this.retryLabel,
-    required this.onRetry,
-  });
-
-  final String message;
-  final String retryLabel;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(QSpace.s6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_outlined, size: 40, color: q.ink3),
-            const SizedBox(height: QSpace.s3),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
-            const SizedBox(height: QSpace.s4),
-            FilledButton(onPressed: onRetry, child: Text(retryLabel)),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -249,8 +249,10 @@ final class _NowPill extends StatelessWidget {
       ),
       child: Text(
         label,
+        // onPrimary flips with the theme: light text on the deep light-mode
+        // accents, dark text on the pale dark-mode ones.
         style: QType.caption.copyWith(
-          color: Colors.white,
+          color: context.q.onPrimary,
           fontWeight: FontWeight.w700,
         ),
       ),

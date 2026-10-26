@@ -45,29 +45,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
     }
   }
 
-  Future<void> _confirmReset() async {
-    final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.tasbihReset),
-        content: Text(l10n.tasbihResetConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-    if (confirmed ?? false) {
-      await _store.reset(saveToHistory: true);
-    }
-  }
+  Future<void> _confirmReset() => confirmTasbihReset(context, _store);
 
   @override
   Widget build(BuildContext context) {
@@ -141,38 +119,49 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: _store.tap,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            QProgressRing(
-                              progress: target == 0 ? 0 : count / target,
-                              size: 240,
-                              strokeWidth: 12,
-                              color: reached ? q.accentStrong : q.primary,
-                              child: Text(
-                                LocaleDigits.localize('$count', languageCode),
-                                style: QType.num_(
-                                  QType.countdown,
-                                ).copyWith(color: q.ink),
-                              ),
-                            ),
-                            const SizedBox(height: QSpace.s5),
-                            AnimatedScale(
-                              scale: reached ? 1 : 0.85,
-                              duration: reduced ? Duration.zero : QMotion.slow,
-                              curve: QMotion.ease,
-                              child: Opacity(
-                                opacity: reached ? 1 : 0,
-                                child: Text(
-                                  l10n.tasbihTargetReached,
-                                  textAlign: TextAlign.center,
-                                  style: QType.label.copyWith(
-                                    color: q.accentStrong,
+                        // The 240dp ring shrinks to fit short screens.
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                QProgressRing(
+                                  progress: target == 0 ? 0 : count / target,
+                                  size: 240,
+                                  strokeWidth: 12,
+                                  color: reached ? q.accentStrong : q.primary,
+                                  child: Text(
+                                    LocaleDigits.localize(
+                                      '$count',
+                                      languageCode,
+                                    ),
+                                    style: QType.num_(
+                                      QType.countdown,
+                                    ).copyWith(color: q.ink),
                                   ),
                                 ),
-                              ),
+                                const SizedBox(height: QSpace.s5),
+                                AnimatedScale(
+                                  scale: reached ? 1 : 0.85,
+                                  duration: reduced
+                                      ? Duration.zero
+                                      : QMotion.slow,
+                                  curve: QMotion.ease,
+                                  child: Opacity(
+                                    opacity: reached ? 1 : 0,
+                                    child: Text(
+                                      l10n.tasbihTargetReached,
+                                      textAlign: TextAlign.center,
+                                      style: QType.label.copyWith(
+                                        color: q.accentStrong,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -187,13 +176,24 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                   ),
                   child: Column(
                     children: [
-                      QButton(
-                        label: l10n.tasbihReset,
-                        kind: QButtonKind.outline,
-                        small: true,
-                        onPressed: count > 0
-                            ? () => unawaited(_confirmReset())
-                            : null,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          QButton(
+                            label: l10n.tasbihReset,
+                            kind: QButtonKind.outline,
+                            small: true,
+                            onPressed: count > 0
+                                ? () => unawaited(_confirmReset())
+                                : null,
+                          ),
+                          const SizedBox(width: QSpace.s2),
+                          IconButton(
+                            tooltip: l10n.tasbihUndo,
+                            onPressed: count > 0 ? _store.undo : null,
+                            icon: const Icon(Icons.undo),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: QSpace.s3),
                       Text(
@@ -257,5 +257,36 @@ final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
         FilledButton(onPressed: _submit, child: Text(l10n.save)),
       ],
     );
+  }
+}
+
+/// Save-and-reset confirmation shared by this screen and the Home quick
+/// card, so a stray tap never ends a round silently.
+Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
+  final l10n = context.l10n;
+  // null = cancel, false = discard the round, true = save it.
+  final save = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.tasbihReset),
+      content: Text(l10n.tasbihResetConfirm),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.tasbihDiscard),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(l10n.save),
+        ),
+      ],
+    ),
+  );
+  if (save != null) {
+    await store.reset(saveToHistory: save);
   }
 }

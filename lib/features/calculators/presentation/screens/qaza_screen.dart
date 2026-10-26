@@ -52,8 +52,12 @@ final class _QazaScreenState extends State<QazaScreen> {
       } else {
         _endDate = picked;
       }
+      _result = null;
     });
   }
+
+  bool get _inverted =>
+      _startDate != null && _endDate != null && _endDate!.isBefore(_startDate!);
 
   void _calculate() {
     final start = _startDate;
@@ -100,10 +104,7 @@ final class _QazaScreenState extends State<QazaScreen> {
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
-            Text(
-              l10n.qazaSubtitle,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
+            Text(l10n.qazaSubtitle, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s4),
             _DateTile(
               label: l10n.qazaStartDate,
@@ -129,7 +130,12 @@ final class _QazaScreenState extends State<QazaScreen> {
                 type: MaterialType.transparency,
                 child: SwitchListTile.adaptive(
                   value: _includeWitr,
-                  onChanged: (v) => setState(() => _includeWitr = v),
+                  // Any input change clears the result, so it never shows
+                  // numbers from different inputs.
+                  onChanged: (v) => setState(() {
+                    _includeWitr = v;
+                    _result = null;
+                  }),
                   title: Text(
                     l10n.qazaIncludeWitr,
                     style: QType.body.copyWith(color: q.ink),
@@ -142,17 +148,27 @@ final class _QazaScreenState extends State<QazaScreen> {
             TextField(
               controller: _madeUp,
               keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() => _result = null),
               style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration:
-                  InputDecoration(labelText: l10n.qazaAlreadyMadeUp),
+              decoration: InputDecoration(labelText: l10n.qazaAlreadyMadeUp),
             ),
             const SizedBox(height: QSpace.s4),
             QButton(
               label: l10n.qazaCalculate,
               icon: Icons.calculate_outlined,
               expand: true,
-              onPressed: _calculate,
+              onPressed: _startDate == null || _endDate == null || _inverted
+                  ? null
+                  : _calculate,
             ),
+            if (_inverted) ...[
+              const SizedBox(height: QSpace.s3),
+              QBanner(
+                text: l10n.qazaEndBeforeStart,
+                tone: q.warnSoft,
+                foreground: q.ink,
+              ),
+            ],
             const SizedBox(height: QSpace.s4),
             QBanner(text: l10n.qazaNote),
             if (_result case final QazaResult result) ...[
@@ -172,7 +188,7 @@ final class _QazaScreenState extends State<QazaScreen> {
                       ),
                       style: QType.body.copyWith(color: q.ink2),
                     ),
-                    if (_includeWitr) ...[
+                    if (result.witr > 0) ...[
                       const SizedBox(height: QSpace.s2),
                       Text(
                         l10n.qazaWitr(_formatCount(context, result.witr)),
@@ -181,9 +197,7 @@ final class _QazaScreenState extends State<QazaScreen> {
                     ],
                     const SizedBox(height: QSpace.s4),
                     Text(
-                      l10n.qazaTotal(
-                        _formatCount(context, result.totalMissed),
-                      ),
+                      l10n.qazaTotal(_formatCount(context, result.totalMissed)),
                       style: QType.num_(QType.title).copyWith(color: q.ok),
                     ),
                   ],
@@ -228,9 +242,9 @@ final class _DateTile extends StatelessWidget {
           title: Text(label, style: QType.label.copyWith(color: q.ink2)),
           subtitle: Text(
             valueText,
-            style: QType.num_(QType.titleSm).copyWith(
-              color: hasValue ? q.ink : q.ink2,
-            ),
+            style: QType.num_(
+              QType.titleSm,
+            ).copyWith(color: hasValue ? q.ink : q.ink2),
           ),
           trailing: Icon(Icons.chevron_right, color: q.ink2),
           onTap: onTap,

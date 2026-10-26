@@ -33,6 +33,13 @@ final class _ZakatScreenState extends State<ZakatScreen> {
 
   ZakatResult? _result;
 
+  /// Fields whose non-empty text didn't parse; shown as field errors.
+  Set<TextEditingController> _invalid = {};
+
+  /// No metal price given, so the nisab is unknown — never a false
+  /// "not payable".
+  bool _missingPrice = false;
+
   @override
   void dispose() {
     for (final controller in [
@@ -55,8 +62,21 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   double _valueOf(TextEditingController controller) =>
       double.tryParse(LocaleDigits.toAscii(controller.text)) ?? 0;
 
-  void _calculate() {
+  bool _isInvalid(TextEditingController controller) {
+    final text = LocaleDigits.toAscii(controller.text);
+    return text.isNotEmpty && double.tryParse(text) == null;
+  }
+
+  void _calculate(List<TextEditingController> controllers) {
+    FocusScope.of(context).unfocus();
     setState(() {
+      _invalid = controllers.where(_isInvalid).toSet();
+      _missingPrice =
+          _valueOf(_goldPrice) <= 0 && _valueOf(_silverPrice) <= 0;
+      if (_invalid.isNotEmpty || _missingPrice) {
+        _result = null;
+        return;
+      }
       _result = ZakatCalculator.calculate(
         ZakatInput(
           cashOnHand: _valueOf(_cash),
@@ -86,7 +106,10 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
+    // Prices first: without one the nisab (and the answer) is unknown.
     final fields = <(String, TextEditingController)>[
+      (l10n.zakatGoldPrice, _goldPrice),
+      (l10n.zakatSilverPrice, _silverPrice),
       (l10n.zakatCash, _cash),
       (l10n.zakatBank, _bank),
       (l10n.zakatGold, _gold),
@@ -95,9 +118,8 @@ final class _ZakatScreenState extends State<ZakatScreen> {
       (l10n.zakatInvestments, _investments),
       (l10n.zakatOwed, _owed),
       (l10n.zakatDebts, _debts),
-      (l10n.zakatGoldPrice, _goldPrice),
-      (l10n.zakatSilverPrice, _silverPrice),
     ];
+    final isPrice = {_goldPrice, _silverPrice};
     return Scaffold(
       appBar: AppBar(title: Text(l10n.zakatTitle)),
       body: SafeArea(
@@ -109,17 +131,36 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                 padding: const EdgeInsets.only(bottom: QSpace.s3),
                 child: TextField(
                   controller: controller,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   style: QType.num_(QType.body).copyWith(color: q.ink),
-                  decoration: InputDecoration(labelText: label),
+                  decoration: InputDecoration(
+                    labelText: label,
+                    errorText: _invalid.contains(controller)
+                        ? l10n.zakatInvalidNumber
+                        : _missingPrice && isPrice.contains(controller)
+                            ? l10n.zakatNeedPrice
+                            : null,
+                    errorMaxLines: 2,
+                  ),
                 ),
               ),
             const SizedBox(height: QSpace.s2),
+            // The price fields sit at the top, likely scrolled away.
+            if (_missingPrice) ...[
+              QBanner(
+                text: l10n.zakatNeedPrice,
+                tone: q.primarySoft,
+                foreground: q.onPrimarySoft,
+              ),
+              const SizedBox(height: QSpace.s3),
+            ],
             QButton(
               label: l10n.zakatCalculate,
               icon: Icons.calculate_outlined,
               expand: true,
-              onPressed: _calculate,
+              onPressed: () => _calculate([for (final f in fields) f.$2]),
             ),
             if (_result case final ZakatResult result) ...[
               const SizedBox(height: QSpace.s4),

@@ -67,6 +67,11 @@ final class _FakeScheduler implements NotificationScheduler {
     exactAlarms = true;
   }
 
+  bool settingsOpened = false;
+
+  @override
+  Future<void> openSystemSettings() async => settingsOpened = true;
+
   @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,

@@ -50,44 +50,41 @@ final class HadithSectionsScreen extends StatelessWidget {
             final count = section.count;
             return Semantics(
               button: true,
-              child: GestureDetector(
+              child: QCard(
                 onTap: () => _open(context, section),
-                child: QCard(
-                  padding: const EdgeInsets.all(QSpace.s4),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 28,
-                        child: Text(
-                          LocaleDigits.localize('${index + 1}', languageCode),
-                          style: QType.titleSm.copyWith(color: q.ink3),
-                        ),
+                padding: const EdgeInsets.all(QSpace.s4),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 28,
+                      child: Text(
+                        LocaleDigits.localize('${index + 1}', languageCode),
+                        style: QType.titleSm.copyWith(color: q.ink3),
                       ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            section.name,
+                            style: QType.body.copyWith(color: q.ink),
+                          ),
+                          if (count != null) ...[
+                            const SizedBox(height: 2),
                             Text(
-                              section.name,
-                              style: QType.body.copyWith(color: q.ink),
-                            ),
-                            if (count != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                LocaleDigits.localize(
-                                  context.l10n.hadithCount(count),
-                                  languageCode,
-                                ),
-                                style:
-                                    QType.caption.copyWith(color: q.ink2),
+                              LocaleDigits.localize(
+                                context.l10n.hadithCount(count),
+                                languageCode,
                               ),
-                            ],
+                              style: QType.caption.copyWith(color: q.ink2),
+                            ),
                           ],
-                        ),
+                        ],
                       ),
-                      Icon(Icons.chevron_right, color: q.ink3),
-                    ],
-                  ),
+                    ),
+                    Icon(Icons.chevron_right, color: q.ink3),
+                  ],
                 ),
               ),
             );

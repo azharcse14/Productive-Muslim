@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -29,8 +30,13 @@ final class QuranStore {
   late final showTranslation = signal(true);
   late final loaded = signal(false);
 
+  /// The surah index failed to load; the Quran tab offers a retry.
+  late final failed = signal(false);
+
   Future<void> load() async {
-    surahs.value = (await _repository.surahs()).valueOrNull ?? const [];
+    final index = (await _repository.surahs()).valueOrNull;
+    failed.value = index == null;
+    surahs.value = index ?? const [];
     lastRead.value = (await _repository.lastRead()).valueOrNull;
     bookmarks.value =
         (await _repository.bookmarkedAyahIds()).valueOrNull ?? const {};
@@ -45,9 +51,10 @@ final class QuranStore {
   Future<List<Surah>> search(String query) async =>
       (await _repository.searchSurahs(query)).valueOrNull ?? const [];
 
-  /// Ayahs for the reader, ordered by number within the surah.
-  Future<List<Ayah>> ayahsOf(int surah) async =>
-      (await _repository.ayahsOf(surah)).valueOrNull ?? const [];
+  /// Ayahs for the reader, ordered by number within the surah; null when
+  /// the read failed (distinct from still loading).
+  Future<List<Ayah>?> ayahsOf(int surah) async =>
+      (await _repository.ayahsOf(surah)).valueOrNull;
 
   /// Records the reading position; the reader calls this as ayahs become
   /// visible, so the Quran tab can offer "continue reading".
@@ -65,6 +72,19 @@ final class QuranStore {
     await _repository.toggleBookmark(ayahId);
   }
 
+  /// Maps a global ayah id (1..6236) to surah/ayah via the index's ayah
+  /// counts; null before [load] or for an out-of-range id.
+  QuranPosition? positionOf(int ayahId) {
+    var remaining = ayahId;
+    for (final surah in surahs.value) {
+      if (remaining <= surah.ayahCount) {
+        return remaining < 1 ? null : QuranPosition(surah.id, remaining);
+      }
+      remaining -= surah.ayahCount;
+    }
+    return null;
+  }
+
   Future<void> setReaderFontSize(double size) async {
     final clamped = _clampFontSize(size);
     readerFontSize.value = clamped;
@@ -80,3 +100,10 @@ final class QuranStore {
       .clamp(AppConfig.quranFontSizeMin, AppConfig.quranFontSizeMax)
       .toDouble();
 }
+
+/// Arabic size for duas, hadith and ruqyah: follows the Quran reader's
+/// size setting, a step smaller (24 at the reader's default 28). Falls
+/// back to 24 where no Quran store is registered.
+double arabicBodySize() => GetIt.I.isRegistered<QuranStore>()
+    ? GetIt.I<QuranStore>().readerFontSize.value * 6 / 7
+    : 24;

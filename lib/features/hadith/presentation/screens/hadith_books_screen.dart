@@ -10,6 +10,8 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
@@ -55,6 +57,24 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
         child: SignalBuilder(
           builder: (context) {
             final books = _store.books.value;
+            if (!_store.loaded.value) {
+              return ListView(
+                padding: const EdgeInsets.all(QSpace.s5),
+                children: [
+                  for (var i = 0; i < 5; i++) ...[
+                    const QSkeleton(height: 76, radius: QRadius.lg),
+                    const SizedBox(height: QSpace.s3),
+                  ],
+                ],
+              );
+            }
+            if (_store.failed.value && books.isEmpty) {
+              return QErrorRetry(
+                message: l10n.hadithLoadError,
+                retryLabel: l10n.hadithRetry,
+                onRetry: () => unawaited(_store.load()),
+              );
+            }
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -116,60 +136,58 @@ final class _BookCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: book.titleFor(languageCode),
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf('book'),
-                  size: 22,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const SizedBox(width: QSpace.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: Icon(
+                TrackerVisuals.iconOf('book'),
+                size: 22,
+                color: q.onPrimarySoft,
+              ),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.titleFor(languageCode),
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  if (book.authorFor(languageCode).isNotEmpty)
                     Text(
-                      book.titleFor(languageCode),
-                      style: QType.titleSm.copyWith(color: q.ink),
+                      book.authorFor(languageCode),
+                      style: QType.caption.copyWith(color: q.ink3),
                     ),
-                    const SizedBox(height: 2),
-                    if (book.authorFor(languageCode).isNotEmpty)
-                      Text(
-                        book.authorFor(languageCode),
-                        style: QType.caption.copyWith(color: q.ink3),
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: QType.caption.copyWith(
+                      color: book.isSahih ? q.ok : q.ink2,
+                    ),
+                  ),
+                  if (englishOnly) ...[
                     const SizedBox(height: 2),
                     Text(
-                      subtitle,
-                      style: QType.caption.copyWith(
-                        color: book.isSahih ? q.ok : q.ink2,
-                      ),
+                      l10n.hadithEnglishOnly,
+                      style: QType.caption.copyWith(color: q.ink3),
                     ),
-                    if (englishOnly) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        l10n.hadithEnglishOnly,
-                        style: QType.caption.copyWith(color: q.ink3),
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
-              Icon(Icons.chevron_right, color: q.ink3),
-            ],
-          ),
+            ),
+            Icon(Icons.chevron_right, color: q.ink3),
+          ],
         ),
       ),
     );

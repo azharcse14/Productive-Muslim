@@ -45,18 +45,21 @@ final class QiblaMiniChip extends StatelessWidget {
 
     final children = <Widget>[];
     if (hasBearing) {
-      final angle = (bearing! - (heading ?? 0)) * math.pi / 180;
+      final heading = this.heading;
       children
         ..add(
-          // Rotating needle pointing to the qibla, over the kaaba/mecca glyph.
+          // Without a live heading a rotated needle would point relative to
+          // the screen, not north — show just the kaaba glyph then.
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Transform.rotate(
-                angle: angle,
-                child: Icon(Icons.navigation, size: 13, color: fg),
-              ),
-              const SizedBox(height: 1.5),
+              if (heading != null) ...[
+                Transform.rotate(
+                  angle: (bearing! - heading) * math.pi / 180,
+                  child: Icon(Icons.navigation, size: 13, color: fg),
+                ),
+                const SizedBox(height: 1.5),
+              ],
               KaabaMark(size: 11, color: fg.withValues(alpha: 0.9)),
             ],
           ),
@@ -84,16 +87,20 @@ final class QiblaMiniChip extends StatelessWidget {
         );
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: fg.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(QRadius.full),
+    return Semantics(
+      button: onTap != null,
+      label: context.l10n.qiblaTitle,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: fg.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(QRadius.full),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: children),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: children),
       ),
     );
   }

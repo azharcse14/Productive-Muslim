@@ -12,10 +12,12 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
+import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../daily_content/presentation/state/daily_content_store.dart';
 import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
 import '../../../dua_tasbih/domain/entities/dua.dart';
+import '../../../dua_tasbih/presentation/screens/tasbih_screen.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
@@ -91,6 +93,9 @@ final class _HomeScreenState extends State<HomeScreen> {
   Hadith? _hadithOfDay;
   Dua? _duaOfDay;
 
+  /// Which of ayah / hadith / dua the daily-reflection card shows.
+  int _reflection = 0;
+
   /// (Re)loads the "of the day" cards now and whenever the day flips.
   late final EffectCleanup _dayWatcher;
 
@@ -158,7 +163,7 @@ final class _HomeScreenState extends State<HomeScreen> {
     final (surah, number) = _dailyVerses[dayOfYear % _dailyVerses.length];
     final ayahs = await quran.ayahsOf(surah);
     Ayah? match;
-    for (final a in ayahs) {
+    for (final a in ayahs ?? const <Ayah>[]) {
       if (a.number == number) {
         match = a;
         break;
@@ -267,19 +272,17 @@ final class _HomeScreenState extends State<HomeScreen> {
               if (ramadan) sahriIftar,
               _section(_quickActions(context)),
               _section(_prayerTableSection(context, day, compact: compact)),
+              // Forbidden/makruh windows are a practical warning: keep them
+              // by the times they qualify, not below the fold.
+              _section(_specialTimesSection(context)),
               if (!ramadan) sahriIftar,
               _section(_muhasabaSection(context)),
               if (_quran case final quran?)
                 _section(_continueReadingSection(context, quran, locale)),
               if (_tasbih case final tasbih?)
                 _section(_tasbihSection(context, tasbih)),
-              _section(_specialTimesSection(context)),
-              if (_ayah case final ayah?)
-                _section(_dailyAyahCard(context, ayah, locale)),
-              if (_hadithOfDay case final hadith?)
-                _section(_hadithCard(context, hadith, locale)),
-              if (_duaOfDay case final dua?)
-                _section(_duaCard(context, dua, locale), last: true),
+              if (_reflectionSection(context, locale) case final reflection?)
+                _section(reflection, last: true),
             ];
             return RefreshIndicator(
               onRefresh: _refresh,
@@ -333,6 +336,38 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Smart countdown hero, tinted by the time of day.
+  /// Ayah, hadith and dua of the day share one card with a switcher,
+  /// instead of three stacked cards at the foot of Home.
+  Widget? _reflectionSection(BuildContext context, Locale locale) {
+    final l10n = context.l10n;
+    final options = <(String, Widget)>[
+      if (_ayah case final ayah?)
+        (l10n.dailyKindAyah, _dailyAyahCard(context, ayah, locale)),
+      if (_hadithOfDay case final hadith?)
+        (l10n.notifDailyKindHadith, _hadithCard(context, hadith, locale)),
+      if (_duaOfDay case final dua?)
+        (l10n.notifDailyKindDua, _duaCard(context, dua, locale)),
+    ];
+    if (options.isEmpty) {
+      return null;
+    }
+    final index = _reflection.clamp(0, options.length - 1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (options.length > 1) ...[
+          QSegControl(
+            options: [for (final o in options) o.$1],
+            activeIndex: index,
+            onChanged: (i) => setState(() => _reflection = i),
+          ),
+          const SizedBox(height: QSpace.s3),
+        ],
+        options[index].$2,
+      ],
+    );
+  }
+
   Widget _countdownSection(
     BuildContext context,
     PrayerDay day, {
@@ -573,7 +608,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           target: tasbih.target.value,
           onTap: tasbih.tap,
           onReset: tasbih.count.value > 0
-              ? () => unawaited(tasbih.reset(saveToHistory: true))
+              ? () => unawaited(confirmTasbihReset(context, tasbih))
               : null,
           onOpen: () => context.goNamed(Routes.dua.name),
         ),

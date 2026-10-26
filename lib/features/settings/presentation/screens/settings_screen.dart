@@ -11,7 +11,9 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
+import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
@@ -245,11 +247,14 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Setup stays complete while re-running, so the flow can be closed
+  /// part-way (each step saves as it goes).
   Future<void> _runSetupAgain() async {
-    await _store.setSetupComplete(complete: false);
-    if (mounted) {
-      context.goNamed(Routes.onboarding.name);
-    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const OnboardingScreen(rerun: true),
+      ),
+    );
   }
 
   Future<void> _pickMadhab(Madhab current) async {
@@ -410,7 +415,6 @@ final class _AdjustmentStepper extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     return Container(
-      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: q.surface2,
         borderRadius: BorderRadius.circular(QRadius.full),
@@ -418,7 +422,7 @@ final class _AdjustmentStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(
+          QStepButton(
             icon: Icons.remove,
             semanticLabel: l10n.a11yDecrease(label),
             onTap: () => onChanged(value - 1),
@@ -431,7 +435,7 @@ final class _AdjustmentStepper extends StatelessWidget {
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(
+          QStepButton(
             icon: Icons.add,
             semanticLabel: l10n.a11yIncrease(label),
             onTap: () => onChanged(value + 1),
@@ -442,34 +446,3 @@ final class _AdjustmentStepper extends StatelessWidget {
   }
 }
 
-final class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QRadius.full),
-        onTap: onTap,
-        child: Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(color: q.surface, shape: BoxShape.circle),
-          child: Icon(icon, size: 16, color: q.ink),
-        ),
-      ),
-    );
-  }
-}

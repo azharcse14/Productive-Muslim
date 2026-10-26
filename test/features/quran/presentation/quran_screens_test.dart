@@ -100,13 +100,17 @@ final class FakeQuranRepository implements QuranRepository {
   /// Per-test ayah overrides (e.g. a long surah for scroll tests).
   final extraAyahs = <int, List<Ayah>>{};
 
+  /// Makes `ayahsOf` fail (a broken bundled DB).
+  bool failAyahs = false;
+
   @override
   Future<Result<List<Surah>>> surahs() async =>
       const Result.success(surahsData);
 
   @override
-  Future<Result<List<Ayah>>> ayahsOf(int surah) async =>
-      Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
+  Future<Result<List<Ayah>>> ayahsOf(int surah) async => failAyahs
+      ? const Result.failure(UnexpectedFailure('broken'))
+      : Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
 
   @override
   Future<Result<List<Surah>>> searchSurahs(String query) async {
@@ -226,6 +230,31 @@ void main() {
         find.text('No matching city — try a different spelling'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('bookmarks sheet lists saved ayahs and opens the reader',
+        (tester) async {
+      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('No bookmarks yet'), findsOneWidget);
+      Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+      await tester.pumpAndSettle();
+
+      // Global id 4 = surah 2 (after Al-Faatiha's 2 ayahs), ayah 2.
+      await store.toggleBookmark(4);
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+      expect(find.text('2:2'), findsOneWidget);
+
+      await tester.tap(find.text('2:2'));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsOneWidget);
+      expect(find.text('This is the Book'), findsOneWidget);
+
+      await flushMarkRead(tester);
     });
 
     testWidgets('tapping a surah row opens the reader', (tester) async {
@@ -356,6 +385,50 @@ void main() {
       }
       expect(expected, greaterThan(1));
       expect(repo.storedLastRead?.ayah, expected);
+    });
+
+    testWidgets('resume jump lands on the ayah despite uneven card heights',
+        (tester) async {
+      repo.extraAyahs[1] = [
+        for (var i = 1; i <= 60; i++)
+          Ayah(
+            id: 1000 + i,
+            surah: 1,
+            number: i,
+            arabic: 'arabic $i',
+            // Every third card is much taller than the 180px guess.
+            translationEn: 'translation $i ' * (i % 3 == 0 ? 60 : 1),
+            translationBn: '',
+          ),
+      ];
+      await tester.pumpWidget(
+        _app(const QuranReaderScreen(surahId: 1, initialAyah: 45)),
+      );
+      await tester.pumpAndSettle();
+
+      final listTop = tester.getTopLeft(find.byType(ListView)).dy;
+      final card = find.ancestor(
+        of: find.text('arabic 45'),
+        matching: find.byType(QCard),
+      );
+      expect(card, findsOneWidget);
+      expect((tester.getTopLeft(card).dy - listTop).abs(), lessThan(40));
+      // The programmatic jump is not a read.
+      expect(repo.storedLastRead, isNull);
+    });
+
+    testWidgets('a failed load shows a retry instead of an endless skeleton',
+        (tester) async {
+      repo.failAyahs = true;
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+      expect(find.text('Try again'), findsOneWidget);
+
+      repo.failAyahs = false;
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      expect(find.text('In the name of Allah'), findsOneWidget);
+      await flushMarkRead(tester);
     });
 
     testWidgets('records as soon as the scroll settles (leaving right after)',

@@ -4,6 +4,8 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_copy_button.dart';
+import '../../../quran/presentation/state/quran_store.dart';
 import '../../domain/entities/hadith.dart';
 
 /// A card for one bundled [Hadith]: Arabic, translation, narrator, grade chip
@@ -26,7 +28,7 @@ final class HadithListCard extends StatelessWidget {
             Text(
               hadith.arabic,
               textDirection: TextDirection.rtl,
-              style: QType.quran(24).copyWith(color: q.ink),
+              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
             ),
             const SizedBox(height: QSpace.s3),
           ],
@@ -48,14 +50,20 @@ final class HadithListCard extends StatelessWidget {
                 GradeChip(grade: hadith.grade),
                 const SizedBox(width: QSpace.s2),
               ],
-              if (hadith.reference.isNotEmpty)
-                Expanded(
-                  child: Text(
-                    hadith.reference,
-                    textAlign: TextAlign.end,
-                    style: QType.caption.copyWith(color: q.ink3),
-                  ),
+              Expanded(
+                child: Text(
+                  hadith.reference,
+                  textAlign: TextAlign.end,
+                  style: QType.caption.copyWith(color: q.ink3),
                 ),
+              ),
+              QCopyButton(
+                text: [
+                  hadith.arabic,
+                  hadith.translationFor(languageCode),
+                  if (hadith.reference.isNotEmpty) '— ${hadith.reference}',
+                ].where((s) => s.isNotEmpty).join('\n'),
+              ),
             ],
           ),
         ],

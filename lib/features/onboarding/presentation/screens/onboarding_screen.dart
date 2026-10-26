@@ -24,7 +24,10 @@ import '../../../settings/presentation/widgets/setting_labels.dart';
 /// madhab → method → notifications → bismillah. Re-enterable from
 /// Settings ("Run setup again"). Every permission step has a skip path.
 final class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({this.rerun = false, super.key});
+
+  /// Opened from Settings over a finished setup: closable at any step.
+  final bool rerun;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -48,12 +51,21 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   void _go(int step) {
     setState(() => _step = step);
     unawaited(
-      _pages.animateToPage(
-        step,
-        duration: QMotion.med,
-        curve: QMotion.ease,
-      ),
+      _pages.animateToPage(step, duration: QMotion.med, curve: QMotion.ease),
     );
+  }
+
+  Future<void> _allowNotifications() async {
+    final status = await _scheduler.requestPermission();
+    if (!mounted) {
+      return;
+    }
+    if (status == NotificationPermission.denied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.onboardingNotifDenied)),
+      );
+    }
+    _go(_step + 1);
   }
 
   Future<void> _finish() async {
@@ -82,44 +94,73 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(QSpace.s4),
-              child: Row(
-                children: [
-                  for (var i = 0; i < _stepCount; i++)
-                    Expanded(
-                      child: Container(
-                        height: 4,
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          color: i <= _step ? q.primary : q.surface2,
-                          borderRadius: BorderRadius.circular(2),
+    final materialL10n = MaterialLocalizations.of(context);
+    // System back steps back through the flow instead of leaving it.
+    return PopScope(
+      canPop: _step == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _go(_step - 1);
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  QSpace.s1,
+                  QSpace.s2,
+                  QSpace.s4,
+                  QSpace.s2,
+                ),
+                child: Row(
+                  children: [
+                    if (_step > 0)
+                      IconButton(
+                        tooltip: materialL10n.backButtonTooltip,
+                        icon: const BackButtonIcon(),
+                        onPressed: () => _go(_step - 1),
+                      )
+                    else if (widget.rerun)
+                      IconButton(
+                        tooltip: materialL10n.closeButtonTooltip,
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    else
+                      const SizedBox(width: QSpace.s3),
+                    for (var i = 0; i < _stepCount; i++)
+                      Expanded(
+                        child: Container(
+                          height: 4,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: i <= _step ? q.primary : q.surface2,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: PageView(
-                controller: _pages,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _welcome(),
-                  _language(),
-                  _location(),
-                  _madhab(),
-                  _method(),
-                  _notifications(),
-                  _finishStep(),
-                ],
+              Expanded(
+                child: PageView(
+                  controller: _pages,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _welcome(),
+                    _language(),
+                    _location(),
+                    _madhab(),
+                    _method(),
+                    _notifications(),
+                    _finishStep(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -152,203 +193,206 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _nextButton({VoidCallback? onTap, String? label}) => QButton(
-        label: label ?? context.l10n.next,
-        expand: true,
-        onPressed: onTap ?? () => _go(_step + 1),
-      );
+    label: label ?? context.l10n.next,
+    expand: true,
+    onPressed: onTap ?? () => _go(_step + 1),
+  );
 
   Widget _welcome() => _frame(
-        title: context.l10n.onboardingWelcomeTitle,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              QalbMark(
-                size: 120,
-                color: context.q.primary,
-                accent: context.q.primary,
-              ),
-              const SizedBox(height: QSpace.s6),
-              Text(
-                context.l10n.onboardingWelcomeBody,
-                textAlign: TextAlign.center,
-                style: QType.body.copyWith(color: context.q.ink2),
-              ),
-            ],
+    title: context.l10n.onboardingWelcomeTitle,
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          QalbMark(
+            size: 120,
+            color: context.q.primary,
+            accent: context.q.primary,
           ),
-        ),
-        actions: _nextButton(),
-      );
+          const SizedBox(height: QSpace.s6),
+          Text(
+            context.l10n.onboardingWelcomeBody,
+            textAlign: TextAlign.center,
+            style: QType.body.copyWith(color: context.q.ink2),
+          ),
+        ],
+      ),
+    ),
+    actions: _nextButton(),
+  );
 
   Widget _language() => _frame(
-        title: context.l10n.onboardingLanguageTitle,
-        child: SignalBuilder(builder: (context) {
-          final current = _settings.settings.value.localeCode;
-          return Column(
-            children: [
-              for (final (code, label) in const [
-                ('en', 'English'),
-                ('bn', 'বাংলা'),
-              ])
-                QListRow(
-                  icon: Icons.translate,
-                  title: label,
-                  trailing: current == code
-                      ? Icon(Icons.check_circle, color: context.q.primary)
-                      : null,
-                  onTap: () => unawaited(_settings.setLocale(code)),
-                ),
-            ],
-          );
-        }),
-        actions: _nextButton(),
-      );
+    title: context.l10n.onboardingLanguageTitle,
+    child: SignalBuilder(
+      builder: (context) {
+        final current = _settings.settings.value.localeCode;
+        return Column(
+          children: [
+            for (final (code, label) in const [
+              ('en', 'English'),
+              ('bn', 'বাংলা'),
+            ])
+              QListRow(
+                icon: Icons.translate,
+                title: label,
+                trailing: current == code
+                    ? Icon(Icons.check_circle, color: context.q.primary)
+                    : null,
+                onTap: () => unawaited(_settings.setLocale(code)),
+              ),
+          ],
+        );
+      },
+    ),
+    actions: _nextButton(),
+  );
 
   Widget _location() => _frame(
-        title: context.l10n.onboardingLocationTitle,
-        child: SignalBuilder(builder: (context) {
-          final location = _settings.location.value;
-          return Column(
-            children: [
-              QCard(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: QSpace.s4,
-                  vertical: QSpace.s2,
-                ),
-                child: QListRow(
-                  icon: Icons.place_outlined,
-                  title: location?.displayName.isNotEmpty ?? false
-                      ? location!.displayName
-                      : context.l10n.settingLocationNotSet,
-                  subtitle: context.l10n.locationPrimingBody,
-                  trailing: Icon(Icons.chevron_right, color: context.q.ink3),
-                  onTap: () =>
-                      context.pushNamed(Routes.locationPicker.name),
-                ),
+    title: context.l10n.onboardingLocationTitle,
+    child: SignalBuilder(
+      builder: (context) {
+        final location = _settings.location.value;
+        return Column(
+          children: [
+            QCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: QSpace.s4,
+                vertical: QSpace.s2,
               ),
-            ],
-          );
-        }),
-        actions: SignalBuilder(
-          builder: (context) => _nextButton(
-            onTap: _settings.location.value == null
-                ? () => context.pushNamed(Routes.locationPicker.name)
-                : () {
-                    unawaited(_applyRegionalMadhab());
-                    _go(_step + 1);
-                  },
-          ),
-        ),
-      );
+              child: QListRow(
+                icon: Icons.place_outlined,
+                title: location?.displayName.isNotEmpty ?? false
+                    ? location!.displayName
+                    : context.l10n.settingLocationNotSet,
+                subtitle: context.l10n.locationPrimingBody,
+                trailing: Icon(Icons.chevron_right, color: context.q.ink3),
+                onTap: () => context.pushNamed(Routes.locationPicker.name),
+              ),
+            ),
+          ],
+        );
+      },
+    ),
+    actions: SignalBuilder(
+      builder: (context) => _nextButton(
+        onTap: _settings.location.value == null
+            ? () => context.pushNamed(Routes.locationPicker.name)
+            : () {
+                unawaited(_applyRegionalMadhab());
+                _go(_step + 1);
+              },
+      ),
+    ),
+  );
 
   Widget _madhab() => _frame(
-        title: context.l10n.onboardingMadhabTitle,
-        note: context.l10n.onboardingMadhabNote,
-        child: SignalBuilder(builder: (context) {
-          final current = _settings.prayerParams.value.madhab;
-          return Column(
-            children: [
-              for (final madhab in Madhab.values)
-                QListRow(
-                  icon: Icons.balance_outlined,
-                  title: context.l10n.madhabLabel(madhab),
-                  trailing: current == madhab
-                      ? Icon(Icons.check_circle, color: context.q.primary)
-                      : null,
-                  onTap: () {
-                    _madhabChosen = true;
-                    unawaited(_settings.setMadhab(madhab));
-                  },
-                ),
-            ],
-          );
-        }),
-        actions: _nextButton(),
-      );
+    title: context.l10n.onboardingMadhabTitle,
+    note: context.l10n.onboardingMadhabNote,
+    child: SignalBuilder(
+      builder: (context) {
+        final current = _settings.prayerParams.value.madhab;
+        return Column(
+          children: [
+            for (final madhab in Madhab.values)
+              QListRow(
+                icon: Icons.balance_outlined,
+                title: context.l10n.madhabLabel(madhab),
+                trailing: current == madhab
+                    ? Icon(Icons.check_circle, color: context.q.primary)
+                    : null,
+                onTap: () {
+                  _madhabChosen = true;
+                  unawaited(_settings.setMadhab(madhab));
+                },
+              ),
+          ],
+        );
+      },
+    ),
+    actions: _nextButton(),
+  );
 
   Widget _method() => _frame(
-        title: context.l10n.onboardingMethodTitle,
-        note: context.l10n.onboardingMethodNote,
-        child: SignalBuilder(builder: (context) {
-          final current = _settings.prayerParams.value.method;
-          final suggested = suggestedMethodFor(
-            countryCodeOf(_settings.location.value),
-          );
-          final ordered = [
-            suggested,
-            for (final m in CalculationMethodId.values)
-              if (m != suggested) m,
-          ];
-          return ListView(
-            children: [
-              for (final method in ordered)
-                QListRow(
-                  icon: Icons.functions_outlined,
-                  title: context.l10n.methodLabel(method),
-                  trailing: current == method
-                      ? Icon(Icons.check_circle, color: context.q.primary)
-                      : null,
-                  onTap: () => unawaited(_settings.setMethod(method)),
-                ),
-            ],
-          );
-        }),
-        actions: _nextButton(),
-      );
+    title: context.l10n.onboardingMethodTitle,
+    note: context.l10n.onboardingMethodNote,
+    child: SignalBuilder(
+      builder: (context) {
+        final current = _settings.prayerParams.value.method;
+        final suggested = suggestedMethodFor(
+          countryCodeOf(_settings.location.value),
+        );
+        final ordered = [
+          suggested,
+          for (final m in CalculationMethodId.values)
+            if (m != suggested) m,
+        ];
+        return ListView(
+          children: [
+            for (final method in ordered)
+              QListRow(
+                icon: Icons.functions_outlined,
+                title: context.l10n.methodLabel(method),
+                trailing: current == method
+                    ? Icon(Icons.check_circle, color: context.q.primary)
+                    : null,
+                onTap: () => unawaited(_settings.setMethod(method)),
+              ),
+          ],
+        );
+      },
+    ),
+    actions: _nextButton(),
+  );
 
   Widget _notifications() => _frame(
-        title: context.l10n.onboardingNotifTitle,
-        child: Column(
-          children: [
-            QBanner(
-              text: context.l10n.onboardingNotifBody,
-              icon: Icons.notifications_active_outlined,
-            ),
-          ],
+    title: context.l10n.onboardingNotifTitle,
+    child: Column(
+      children: [
+        QBanner(
+          text: context.l10n.onboardingNotifBody,
+          icon: Icons.notifications_active_outlined,
         ),
-        actions: Column(
-          children: [
-            _nextButton(
-              label: context.l10n.onboardingNotifAllow,
-              onTap: () => unawaited(
-                _scheduler
-                    .requestPermission()
-                    .then((_) => _go(_step + 1)),
-              ),
-            ),
-            const SizedBox(height: QSpace.s2),
-            QButton(
-              label: context.l10n.onboardingNotifSkip,
-              kind: QButtonKind.ghost,
-              expand: true,
-              onPressed: () => _go(_step + 1),
-            ),
-          ],
+      ],
+    ),
+    actions: Column(
+      children: [
+        _nextButton(
+          label: context.l10n.onboardingNotifAllow,
+          onTap: () => unawaited(_allowNotifications()),
         ),
-      );
+        const SizedBox(height: QSpace.s2),
+        QButton(
+          label: context.l10n.onboardingNotifSkip,
+          kind: QButtonKind.ghost,
+          expand: true,
+          onPressed: () => _go(_step + 1),
+        ),
+      ],
+    ),
+  );
 
   Widget _finishStep() => _frame(
-        title: context.l10n.onboardingFinishTitle,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              QalbMark(
-                color: context.q.accentStrong,
-                accent: context.q.accentStrong,
-              ),
-              const SizedBox(height: QSpace.s5),
-              Text(
-                context.l10n.onboardingFinishBody,
-                textAlign: TextAlign.center,
-                style: QType.body.copyWith(color: context.q.ink2),
-              ),
-            ],
+    title: context.l10n.onboardingFinishTitle,
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          QalbMark(
+            color: context.q.accentStrong,
+            accent: context.q.accentStrong,
           ),
-        ),
-        actions: _nextButton(
-          label: context.l10n.onboardingBegin,
-          onTap: () => unawaited(_finish()),
-        ),
-      );
+          const SizedBox(height: QSpace.s5),
+          Text(
+            context.l10n.onboardingFinishBody,
+            textAlign: TextAlign.center,
+            style: QType.body.copyWith(color: context.q.ink2),
+          ),
+        ],
+      ),
+    ),
+    actions: _nextButton(
+      label: context.l10n.onboardingBegin,
+      onTap: () => unawaited(_finish()),
+    ),
+  );
 }

@@ -8,4 +8,7 @@ final class GetCurrentLocation {
   final LocationRepository _repository;
 
   Future<Result<GpsLocation>> call() => _repository.getCurrentLocation();
+
+  Future<void> openSettings({required bool locationService}) =>
+      _repository.openSettings(locationService: locationService);
 }

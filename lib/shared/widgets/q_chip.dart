@@ -29,33 +29,43 @@ final class QChip extends StatelessWidget {
       label: label,
       onTap: onTap,
       child: ExcludeSemantics(
+        // The pill stays 36dp; the transparent band around it makes the
+        // tap target 48dp.
         child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: AnimatedContainer(
-            duration: QMotion.fast,
-            curve: QMotion.ease,
-            height: 36,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            decoration: BoxDecoration(
-              color: active ? q.primary : q.surface,
-              borderRadius: BorderRadius.circular(QRadius.full),
-              border: Border.all(
-                color: active ? q.primary : q.line,
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 15, color: fg),
-                  const SizedBox(width: 6),
-                ],
-                Text(
-                  label,
-                  style: QType.label.copyWith(fontSize: 13.5, color: fg),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: QTouch.minTarget),
+            child: Center(
+              widthFactor: 1,
+              child: AnimatedContainer(
+                duration: QMotion.fast,
+                curve: QMotion.ease,
+                constraints: const BoxConstraints(minHeight: 36),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: active ? q.primary : q.surface,
+                  borderRadius: BorderRadius.circular(QRadius.full),
+                  border: Border.all(
+                    color: active ? q.primary : q.line,
+                    width: 1.5,
+                  ),
                 ),
-              ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, size: 15, color: fg),
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      label,
+                      style: QType.label.copyWith(fontSize: 13.5, color: fg),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

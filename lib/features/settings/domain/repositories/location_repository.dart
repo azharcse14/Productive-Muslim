@@ -30,4 +30,8 @@ final class LocationUnavailable extends LocationFailure {
 abstract interface class LocationRepository {
   /// Requests permission if needed, then resolves the current position.
   Future<Result<GpsLocation>> getCurrentLocation();
+
+  /// Opens the system page that fixes a GPS failure: location services
+  /// when they're off, otherwise this app's permission page.
+  Future<void> openSettings({required bool locationService});
 }

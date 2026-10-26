@@ -12,14 +12,15 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
 
-/// Estimated ayah-card extent for the initial index→offset jump (cards are
-/// not fixed-extent; an estimate is acceptable for a resume jump).
+/// Ayah-card extent guess for the first index→offset jump, before any card
+/// has been measured. The jump then refines itself (see `_jumpToIndex`).
 const _estimatedCardExtent = 180.0;
 
 /// Surah reader (design §4.5): ayah cards with the Uthmanic HAFS script at
@@ -47,6 +48,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
 
   final ScrollController _controller = ScrollController();
   final _ayahs = signal(const <Ayah>[]);
+  final _failed = signal(false);
   final _progress = signal(0.0);
 
   /// Contexts of the currently built ayah items, keyed by index — used to
@@ -72,19 +74,64 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   }
 
   Future<void> _load() async {
-    _ayahs.value = await _store.ayahsOf(widget.surahId);
+    _failed.value = false;
+    final ayahs = await _store.ayahsOf(widget.surahId);
+    _failed.value = ayahs == null;
+    _ayahs.value = ayahs ?? const [];
     final initial = widget.initialAyah;
     if (initial != null && initial > 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_controller.hasClients) {
-          return;
-        }
-        _controller.jumpTo(
-          ((initial - 1) * _estimatedCardExtent)
-              .clamp(0.0, _controller.position.maxScrollExtent),
-        );
-      });
+      final index = _ayahs.value.indexWhere((a) => a.number == initial);
+      if (index > 0) {
+        _jumpToIndex(index);
+      }
     }
+  }
+
+  /// Cards vary in height (font size, translation, ayah length), so one
+  /// estimated jump drifts in long surahs. Jump from the measured built
+  /// cards until the target card itself is built, then reveal it exactly.
+  void _jumpToIndex(int target, [int attempt = 0]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_controller.hasClients) {
+        return;
+      }
+      final targetContext = _itemContexts[target];
+      if (targetContext != null && targetContext.mounted) {
+        unawaited(Scrollable.ensureVisible(targetContext));
+        return;
+      }
+      if (attempt >= 10) {
+        return;
+      }
+      // Anchor on the first built card; average the built cards' extents.
+      int? anchor;
+      var anchorOffset = 0.0;
+      var total = 0.0;
+      var count = 0;
+      for (final MapEntry(key: index, value: context)
+          in _itemContexts.entries) {
+        final box = context.mounted ? context.findRenderObject() : null;
+        if (box is! RenderBox || !box.attached || !box.hasSize) {
+          continue;
+        }
+        total += box.size.height;
+        count++;
+        if (anchor == null || index < anchor) {
+          anchor = index;
+          anchorOffset =
+              RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+        }
+      }
+      final extent = count == 0 ? _estimatedCardExtent : total / count;
+      final offset = anchor == null
+          ? target * extent
+          : anchorOffset + (target - anchor) * extent;
+      _controller.jumpTo(
+        offset.clamp(0.0, _controller.position.maxScrollExtent),
+      );
+      WidgetsBinding.instance.scheduleFrame();
+      _jumpToIndex(target, attempt + 1);
+    });
   }
 
   void _onScroll() {
@@ -155,6 +202,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: context.l10n.readerSettings,
             icon: const Icon(Icons.tune),
             onPressed: () => unawaited(_openReaderSettings(context)),
           ),
@@ -174,6 +222,13 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         child: SignalBuilder(
           builder: (context) {
             final ayahs = _ayahs.value;
+            if (_failed.value) {
+              return QErrorRetry(
+                message: context.l10n.quranLoadError,
+                retryLabel: context.l10n.hadithRetry,
+                onRetry: () => unawaited(_load()),
+              );
+            }
             if (ayahs.isEmpty) {
               return ListView(
                 padding: const EdgeInsets.all(QSpace.s5),
@@ -270,14 +325,12 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                 onPressed: () => unawaited(_store.toggleBookmark(ayah.id)),
               ),
               IconButton(
+                tooltip: l10n.copyAyah,
                 icon: Icon(Icons.copy_outlined, color: q.ink3),
                 onPressed: () => unawaited(_copyAyah(context, ayah)),
               ),
-              // Share lands with the share-sheet integration phase.
-              IconButton(
-                icon: Icon(Icons.share_outlined, color: q.ink3),
-                onPressed: null,
-              ),
+              // Share returns with the share-sheet integration phase; a
+              // permanently disabled button just looked broken.
             ],
           ),
         ],

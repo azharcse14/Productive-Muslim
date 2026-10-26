@@ -158,6 +158,24 @@ abstract class AppLocalizations {
   /// **'Prayer calculation'**
   String get groupCalculation;
 
+  /// No description provided for @moreGroupWorship.
+  ///
+  /// In en, this message translates to:
+  /// **'Worship'**
+  String get moreGroupWorship;
+
+  /// No description provided for @moreGroupTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get moreGroupTools;
+
+  /// No description provided for @moreGroupYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get moreGroupYou;
+
   /// No description provided for @groupNotifications.
   ///
   /// In en, this message translates to:
@@ -499,6 +517,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose city manually'**
   String get locationChooseCity;
+
+  /// No description provided for @openSystemSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSystemSettings;
+
+  /// No description provided for @locationSearchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search cities. Please try again.'**
+  String get locationSearchError;
 
   /// No description provided for @locationSearchHint.
   ///
@@ -1376,6 +1406,12 @@ abstract class AppLocalizations {
   /// **'Qibla is at {degrees}° {cardinal} from north'**
   String qiblaVerbalBearing(String degrees, String cardinal);
 
+  /// No description provided for @qiblaFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding direction…'**
+  String get qiblaFinding;
+
   /// No description provided for @qiblaNeedsLocation.
   ///
   /// In en, this message translates to:
@@ -1640,11 +1676,65 @@ abstract class AppLocalizations {
   /// **'Show translation'**
   String get showTranslation;
 
+  /// No description provided for @readerSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading settings'**
+  String get readerSettings;
+
+  /// No description provided for @copyAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ayah'**
+  String get copyAyah;
+
+  /// No description provided for @previousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get previousDay;
+
+  /// No description provided for @nextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get nextDay;
+
+  /// No description provided for @quranLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the Quran text. Please try again.'**
+  String get quranLoadError;
+
+  /// No description provided for @copyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copyLabel;
+
+  /// No description provided for @copiedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedLabel;
+
   /// No description provided for @ayahCopied.
   ///
   /// In en, this message translates to:
   /// **'Ayah copied'**
   String get ayahCopied;
+
+  /// No description provided for @bookmarksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarksTitle;
+
+  /// No description provided for @bookmarksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.'**
+  String get bookmarksEmpty;
 
   /// No description provided for @bookmarkLabel.
   ///
@@ -1898,6 +1988,12 @@ abstract class AppLocalizations {
   /// **'Every small step counts — keep going.'**
   String get achievementsSubtitle;
 
+  /// No description provided for @achievementHow.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, streak{Log at least one deed in Muhasaba {count} days in a row.} salah{Check off a salah on {count} different days.} dhikr{Count and save {count} dhikr with the tasbih.} quranStart{Open the Quran and start reading.} quran{Complete your Quran reading on {count} days.} bookmark{Bookmark {count} ayahs.} fast{Log {count} fasts.} other{Keep going.}}'**
+  String achievementHow(String kind, String count);
+
   /// No description provided for @achievementUnlocked.
   ///
   /// In en, this message translates to:
@@ -1999,6 +2095,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset'**
   String get tasbihReset;
+
+  /// No description provided for @tasbihDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get tasbihDiscard;
+
+  /// No description provided for @tasbihUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last count'**
+  String get tasbihUndo;
 
   /// No description provided for @tasbihResetConfirm.
   ///
@@ -2114,6 +2222,18 @@ abstract class AppLocalizations {
   /// **'Silver price per gram'**
   String get zakatSilverPrice;
 
+  /// No description provided for @zakatNeedPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter today\'s gold or silver price to work out the nisab.'**
+  String get zakatNeedPrice;
+
+  /// No description provided for @zakatInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get zakatInvalidNumber;
+
   /// No description provided for @zakatCalculate.
   ///
   /// In en, this message translates to:
@@ -2216,6 +2336,12 @@ abstract class AppLocalizations {
   /// **'Azan at each waqt, sahri & iftar alerts, and an evening muhasaba nudge — all computed on your device.'**
   String get onboardingNotifBody;
 
+  /// No description provided for @onboardingNotifDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off. You can turn them on any time from Settings → Notifications.'**
+  String get onboardingNotifDenied;
+
   /// No description provided for @onboardingNotifAllow.
   ///
   /// In en, this message translates to:
@@ -2287,6 +2413,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PINs didn\'t match — try again'**
   String get appLockPinMismatch;
+
+  /// No description provided for @appLockBiometricOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint or face?'**
+  String get appLockBiometricOfferTitle;
+
+  /// No description provided for @appLockBiometricOfferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your PIN always works as a backup.'**
+  String get appLockBiometricOfferBody;
+
+  /// No description provided for @appLockBiometricUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it'**
+  String get appLockBiometricUse;
+
+  /// No description provided for @appLockBiometricSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get appLockBiometricSkip;
 
   /// No description provided for @appLockWrongPin.
   ///
@@ -2443,6 +2593,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Praying Isha in congregation is like standing half the night; joined with Fajr, like the whole night.'**
   String get prayerFazilatIsha;
+
+  /// No description provided for @dailyKindAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah'**
+  String get dailyKindAyah;
 
   /// No description provided for @dailyAyahTitle.
   ///
@@ -2635,6 +2791,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already made up (per prayer)'**
   String get qazaAlreadyMadeUp;
+
+  /// No description provided for @qazaEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date.'**
+  String get qazaEndBeforeStart;
 
   /// No description provided for @qazaCalculate.
   ///

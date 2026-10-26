@@ -49,9 +49,9 @@ final class _DuaScreenState extends State<DuaScreen> {
   void _push(Widget screen) {
     unawaited(HapticFeedback.selectionClick());
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => screen),
-      ),
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
     );
   }
 
@@ -127,7 +127,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: QSpace.s3,
                   crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.2 / context.textGrowth,
                   children: [
                     for (final category in categories)
                       _CategoryCard(
@@ -199,32 +199,30 @@ final class _FeatureCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: title,
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Center(child: icon),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const SizedBox(width: QSpace.s3),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: QType.titleSm.copyWith(color: q.ink),
-                ),
+              child: Center(child: icon),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: QType.titleSm.copyWith(color: q.ink),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -244,43 +242,41 @@ final class _CategoryCard extends StatelessWidget {
     final languageCode = Localizations.localeOf(context).languageCode;
     return Semantics(
       button: true,
-      child: GestureDetector(
+      child: QCard(
         onTap: onTap,
-        child: QCard(
-          padding: const EdgeInsets.all(QSpace.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.sm),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf(category.icon),
-                  size: 19,
-                  color: q.onPrimarySoft,
-                ),
+        padding: const EdgeInsets.all(QSpace.s4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: q.primarySoft,
+                borderRadius: BorderRadius.circular(QRadius.sm),
               ),
-              const Spacer(),
-              Text(
-                l10n.duaCategoryName(category.id),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: QType.titleSm.copyWith(color: q.ink),
+              child: Icon(
+                TrackerVisuals.iconOf(category.icon),
+                size: 19,
+                color: q.onPrimarySoft,
               ),
-              const SizedBox(height: 2),
-              Text(
-                LocaleDigits.localize(
-                  l10n.duaCount(category.duas.length),
-                  languageCode,
-                ),
-                style: QType.caption.copyWith(color: q.ink2),
+            ),
+            const Spacer(),
+            Text(
+              l10n.duaCategoryName(category.id),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: QType.titleSm.copyWith(color: q.ink),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              LocaleDigits.localize(
+                l10n.duaCount(category.duas.length),
+                languageCode,
               ),
-            ],
-          ),
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
+          ],
         ),
       ),
     );

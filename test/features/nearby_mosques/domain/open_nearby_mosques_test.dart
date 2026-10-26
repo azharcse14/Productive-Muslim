@@ -26,6 +26,9 @@ final class _FakeLocationRepository implements LocationRepository {
   bool called = false;
 
   @override
+  Future<void> openSettings({required bool locationService}) async {}
+
+  @override
   Future<Result<GpsLocation>> getCurrentLocation() async {
     called = true;
     return _result;

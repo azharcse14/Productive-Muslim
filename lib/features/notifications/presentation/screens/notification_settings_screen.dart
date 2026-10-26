@@ -14,6 +14,7 @@ import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -43,10 +44,23 @@ final class _NotificationSettingsScreenState
   final _permission = signal(NotificationPermission.notRequested);
   final _exactAlarms = signal(true);
 
+  late final AppLifecycleListener _lifecycle;
+
   @override
   void initState() {
     super.initState();
+    // Re-check on return from system settings, where the user may have
+    // switched notifications on.
+    _lifecycle = AppLifecycleListener(
+      onResume: () => unawaited(_refreshStatus()),
+    );
     unawaited(_refreshStatus());
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
   }
 
   Future<void> _refreshStatus() async {
@@ -54,7 +68,13 @@ final class _NotificationSettingsScreenState
     _exactAlarms.value = await _scheduler.canScheduleExactAlarms();
   }
 
+  /// Once denied the OS won't show its prompt again, so send the user to
+  /// system settings instead of a button that silently does nothing.
   Future<void> _requestPermission() async {
+    if (_permission.value == NotificationPermission.denied) {
+      await _scheduler.openSystemSettings();
+      return;
+    }
     _permission.value = await _scheduler.requestPermission();
   }
 
@@ -364,7 +384,9 @@ final class _LeadRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.remove,
             semanticLabel: context.l10n.a11yDecrease(label),
             onTap: minutes > 5 ? () => onChanged(minutes - 5) : null,
@@ -377,7 +399,9 @@ final class _LeadRow extends StatelessWidget {
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.add,
             semanticLabel: context.l10n.a11yIncrease(label),
             onTap: minutes < 60 ? () => onChanged(minutes + 5) : null,
@@ -388,38 +412,6 @@ final class _LeadRow extends StatelessWidget {
   }
 }
 
-final class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Semantics(
-      button: true,
-      enabled: onTap != null,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QRadius.full),
-        onTap: onTap,
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(color: q.surface2, shape: BoxShape.circle),
-          child: Icon(icon, size: 16, color: onTap == null ? q.ink3 : q.ink),
-        ),
-      ),
-    );
-  }
-}
 
 /// A stepper row for a wall-clock time stored as minutes past midnight.
 /// Steps by 15 minutes, wrapping across midnight, mirroring [_LeadRow].
@@ -449,20 +441,43 @@ final class _TimeRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.remove,
             semanticLabel: context.l10n.a11yDecrease(label),
             onTap: () => onChanged(wrap(minuteOfDay - _step)),
           ),
-          SizedBox(
-            width: 84,
-            child: Text(
-              formatMinuteOfDay(minuteOfDay),
-              textAlign: TextAlign.center,
-              style: QType.num_(QType.label).copyWith(color: q.ink),
+          // ±15 nudges; tapping the time jumps anywhere via the picker.
+          InkWell(
+            borderRadius: BorderRadius.circular(QRadius.sm),
+            onTap: () async {
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay(
+                  hour: minuteOfDay ~/ 60,
+                  minute: minuteOfDay % 60,
+                ),
+              );
+              if (picked != null) {
+                onChanged(picked.hour * 60 + picked.minute);
+              }
+            },
+            child: SizedBox(
+              width: 84,
+              height: QTouch.minTarget,
+              child: Center(
+                child: Text(
+                  formatMinuteOfDay(minuteOfDay),
+                  textAlign: TextAlign.center,
+                  style: QType.num_(QType.label).copyWith(color: q.primary),
+                ),
+              ),
             ),
           ),
-          _StepButton(
+          QStepButton(
+            fill: context.q.surface2,
+            size: 32,
             icon: Icons.add,
             semanticLabel: context.l10n.a11yIncrease(label),
             onTap: () => onChanged(wrap(minuteOfDay + _step)),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -85,11 +87,11 @@ GoRouter buildRouter() {
         return Routes.home.path; // gates passed — nothing to show here
       }
       if (path == Routes.home.path && _pendingDeepLink != null) {
-        // Cold-start notification tap: splash handed off to home, so take
-        // the user to the tapped destination instead (gates re-run on it).
-        final link = _pendingDeepLink;
+        // Cold-start notification tap: splash handed off to home; open the
+        // tapped destination on top of it once home is up (gates re-run).
+        final link = _pendingDeepLink!;
         _pendingDeepLink = null;
-        return link;
+        WidgetsBinding.instance.addPostFrameCallback((_) => openDeepLink(link));
       }
       return null;
     },
@@ -318,6 +320,15 @@ const _lockFromParam = 'from';
 final GoRouter appRouter = buildRouter();
 
 String? _pendingDeepLink;
+
+/// Branch roots of the tab shell; deep links under these keep their tab.
+final _shellRoots = [
+  Routes.home.path,
+  Routes.quran.path,
+  Routes.muhasaba.path,
+  Routes.dua.path,
+  Routes.more.path,
+];
 var _splashDone = false;
 
 /// Opens an in-app [location] from outside the widget tree (notification
@@ -329,7 +340,20 @@ void openDeepLink(String location) {
     return;
   }
   if (_splashDone) {
-    appRouter.go(location);
+    final inShell = _shellRoots.any(
+      (root) => location == root || location.startsWith('$root/'),
+    );
+    if (inShell) {
+      appRouter.go(location);
+    } else {
+      // Top-level pages have no tab underneath: put home below them so the
+      // back arrow / system back returns into the app instead of exiting.
+      // Push after the go has been applied, or it stacks on the old page.
+      appRouter.go(Routes.home.path);
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => unawaited(appRouter.push<void>(location)),
+      );
+    }
   } else {
     _pendingDeepLink = location;
   }

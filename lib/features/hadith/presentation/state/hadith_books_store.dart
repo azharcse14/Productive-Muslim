@@ -12,11 +12,15 @@ final class HadithBooksStore {
   late final books = signal(const <HadithBook>[]);
   late final loaded = signal(false);
 
+  /// The last load failed; the screen offers a retry.
+  late final failed = signal(false);
+
   Future<void> load() async {
     final result = await _repository.books();
     if (result.valueOrNull case final value?) {
       books.value = value;
     }
+    failed.value = result.valueOrNull == null;
     loaded.value = true;
   }
 }

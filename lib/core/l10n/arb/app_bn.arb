@@ -10,6 +10,9 @@
   "galleryTitle": "উইজেট গ্যালারি",
   "settingsTitle": "সেটিংস",
   "groupCalculation": "নামাজের হিসাব",
+  "moreGroupWorship": "ইবাদত",
+  "moreGroupTools": "টুলস",
+  "moreGroupYou": "আপনি",
   "groupNotifications": "নোটিফিকেশন",
   "groupAppearance": "থিম ও ভাষা",
   "groupPrivacy": "প্রাইভেসি",
@@ -67,6 +70,8 @@
   "locationUseGps": "আমার অবস্থান ব্যবহার করুন",
   "locationUseGpsSub": "GPS — প্রথমবারের পর সম্পূর্ণ অফলাইনে কাজ করে",
   "locationChooseCity": "শহর নিজে বেছে নিন",
+  "openSystemSettings": "সেটিংস খুলুন",
+  "locationSearchError": "শহর খোঁজা যায়নি। আবার চেষ্টা করুন।",
   "locationSearchHint": "শহর খুঁজুন…",
   "locationPrimingBody": "কালবী আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।",
   "locationDeniedFallback": "সমস্যা নেই — নিচে আপনার শহর বেছে নিন, সবকিছু একইভাবে কাজ করবে।",
@@ -213,6 +218,7 @@
   "qiblaCalibrate": "কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান",
   "qiblaSensorUnavailable": "এই ডিভাইসে কম্পাস সেন্সর নেই",
   "qiblaVerbalBearing": "কিবলা উত্তর থেকে {degrees}° {cardinal} দিকে",
+  "qiblaFinding": "দিক খোঁজা হচ্ছে…",
   "qiblaNeedsLocation": "কিবলার দিক পেতে আগে অবস্থান সেট করুন",
   "muhasabaTitle": "মুহাসাবা",
   "muhasabaFirstDayTitle": "আপনার দৈনিক মুহাসাবা",
@@ -257,7 +263,16 @@
   "revelationName": "{place, select, meccan{মক্কী} medinan{মাদানী} other{—}}",
   "readerFontSize": "আরবি লেখার আকার",
   "showTranslation": "অনুবাদ দেখান",
+  "readerSettings": "পড়ার সেটিংস",
+  "copyAyah": "আয়াত কপি করুন",
+  "previousDay": "আগের দিন",
+  "nextDay": "পরের দিন",
+  "quranLoadError": "কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।",
+  "copyLabel": "কপি করুন",
+  "copiedLabel": "কপি হয়েছে",
   "ayahCopied": "আয়াত কপি হয়েছে",
+  "bookmarksTitle": "বুকমার্ক",
+  "bookmarksEmpty": "এখনো কোনো বুকমার্ক নেই। যেকোনো আয়াতের বুকমার্ক আইকনে চাপ দিলে এখানে জমা হবে।",
   "bookmarkLabel": "বুকমার্ক",
   "quranFirstOpen": "বিসমিল্লাহ — পড়া শুরু করুন, কোথায় থেমেছিলেন কালবী মনে রাখবে।",
   "ayahShareSuffix": "— কুরআন {surah}:{ayah}",
@@ -272,8 +287,8 @@
   "asmaQuizProgress": "{total} এর {current}",
   "@asmaQuizProgress": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizNext": "পরবর্তী",
@@ -283,14 +298,14 @@
   "asmaQuizScore": "{score}/{total}",
   "@asmaQuizScore": {
     "placeholders": {
-      "score": { "type": "int" },
-      "total": { "type": "int" }
+      "score": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizBest": "সেরা স্কোর: {best}",
   "@asmaQuizBest": {
     "placeholders": {
-      "best": { "type": "int" }
+      "best": { "type": "int", "format": "decimalPattern" }
     }
   },
   "asmaQuizPlayAgain": "আবার চেষ্টা করুন",
@@ -314,7 +329,7 @@
   "fastingHeatmapLabel": "{count, plural, =0{এই মাসে কোনো রোজা রেকর্ড হয়নি} =1{এই মাসে ১টি রোজা রেকর্ড হয়েছে} other{এই মাসে {count}টি রোজা রেকর্ড হয়েছে}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
@@ -332,12 +347,13 @@
   },
   "achievementsTitle": "অর্জন",
   "achievementsSubtitle": "প্রতিটি ছোট পদক্ষেপই মূল্যবান — চালিয়ে যান।",
+  "achievementHow": "{kind, select, streak{মুহাসাবায় পরপর {count} দিন অন্তত একটি আমল লিখুন।} salah{{count}টি ভিন্ন দিনে সালাত চিহ্নিত করুন।} dhikr{তাসবিহ দিয়ে {count}টি যিকর গুনে সংরক্ষণ করুন।} quranStart{কুরআন খুলে পড়া শুরু করুন।} quran{{count} দিন কুরআন পড়া সম্পন্ন করুন।} bookmark{{count}টি আয়াত বুকমার্ক করুন।} fast{{count}টি রোজা লিখুন।} other{চালিয়ে যান।}}",
   "achievementUnlocked": "অর্জিত",
   "achievementsCount": "{total}টির মধ্যে {unlocked}টি অর্জিত",
   "@achievementsCount": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
     }
   },
   "achievementCategory": "{key, select, streaks{ধারাবাহিকতা} salah{সালাত} dhikr{যিকর} quran{কুরআন} fasting{রোজা} other{অর্জন}}",
@@ -368,13 +384,16 @@
   "@ruqyahCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
   "tasbihTarget": "লক্ষ্য",
   "tasbihCustom": "কাস্টম",
   "tasbihReset": "রিসেট",
+  "tasbihDiscard": "বাদ দিন",
+  "tasbihUndo": "শেষ গণনা ফেরত নিন",
   "tasbihResetConfirm": "এই রাউন্ড ইতিহাসে রেখে রিসেট করবেন?",
   "tasbihSessionLine": "আজ: {count} গণনা",
   "tasbihTargetReached": "লক্ষ্য পূর্ণ — আল্লাহ কবুল করুন",
@@ -394,6 +413,8 @@
   "zakatDebts": "ঋণ (বাদ যাবে)",
   "zakatGoldPrice": "প্রতি গ্রাম স্বর্ণের দাম",
   "zakatSilverPrice": "প্রতি গ্রাম রুপার দাম",
+  "zakatNeedPrice": "নিসাব হিসাব করতে আজকের স্বর্ণ বা রুপার দাম লিখুন।",
+  "zakatInvalidNumber": "সঠিক সংখ্যা লিখুন",
   "zakatCalculate": "হিসাব করুন",
   "zakatNisab": "নিসাব সীমা: {amount}",
   "zakatDue": "প্রদেয় যাকাত: {amount}",
@@ -411,6 +432,7 @@
   "onboardingMethodNote": "আপনার অঞ্চলের জন্য প্রস্তাবিত। পরে সেটিংসে বদলানো যাবে।",
   "onboardingNotifTitle": "কোমল স্মরণে থাকুন",
   "onboardingNotifBody": "প্রতি ওয়াক্তে আজান, সাহরি-ইফতার অ্যালার্ট, আর সন্ধ্যার মুহাসাবা নাজ — সব আপনার ডিভাইসেই হিসাব হয়।",
+  "onboardingNotifDenied": "নোটিফিকেশন বন্ধ আছে। যেকোনো সময় সেটিংস → নোটিফিকেশন থেকে চালু করতে পারবেন।",
   "onboardingNotifAllow": "নোটিফিকেশন চালু করুন",
   "onboardingNotifSkip": "পরে দেখব",
   "onboardingFinishTitle": "বিসমিল্লাহ",
@@ -423,6 +445,10 @@
   "appLockSetPin": "৪ সংখ্যার পিন সেট করুন",
   "appLockConfirmPin": "পিনটি আবার দিন",
   "appLockPinMismatch": "পিন মেলেনি — আবার চেষ্টা করুন",
+  "appLockBiometricOfferTitle": "আঙুলের ছাপ বা মুখ দিয়ে খুলবেন?",
+  "appLockBiometricOfferBody": "পিন সবসময় বিকল্প হিসেবে কাজ করবে।",
+  "appLockBiometricUse": "চালু করুন",
+  "appLockBiometricSkip": "এখন না",
   "appLockWrongPin": "ভুল পিন — আবার চেষ্টা করুন",
   "appLockUseBiometric": "ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন",
   "appLockEnable": "অ্যাপ লক",
@@ -449,6 +475,7 @@
   "prayerFazilatAsr": "মধ্যবর্তী নামাজের হেফাজত করো। যে আসর পড়ে, সে সূর্যোদয় ও সূর্যাস্তের আগে জাহান্নামে প্রবেশ করবে না।",
   "prayerFazilatMaghrib": "সূর্য ডোবার সাথে সাথেই পড়ে নাও। ফরজের পর দুই রাকাত হালকা সুন্নত রয়েছে।",
   "prayerFazilatIsha": "জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।",
+  "dailyKindAyah": "আয়াত",
   "dailyAyahTitle": "আজকের আয়াত",
   "duaOfDayTitle": "আজকের দোয়া",
   "dailyAyahReference": "{surah}, আয়াত {ayah}",
@@ -466,7 +493,7 @@
   "streakMilestone": "{count} দিনের ধারা! 🎉",
   "@streakMilestone": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": { "type": "int", "format": "decimalPattern" }
     }
   },
   "calculatorsTitle": "ক্যালকুলেটর",
@@ -501,6 +528,7 @@
   "qazaSelectDate": "তারিখ নির্বাচন করুন",
   "qazaIncludeWitr": "বিতর অন্তর্ভুক্ত করুন (হানাফি)",
   "qazaAlreadyMadeUp": "ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)",
+  "qazaEndBeforeStart": "শেষের তারিখ শুরুর তারিখের আগে পড়েছে।",
   "qazaCalculate": "হিসাব করুন",
   "qazaDays": "সময়কাল: {count} দিন",
   "@qazaDays": {
@@ -590,11 +618,11 @@
   },
   "hadithCount": "{count, plural, =1{১টি হাদিস} other{{count}টি হাদিস}}",
   "@hadithCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithChapterCount": "{count, plural, =1{১টি অধ্যায়} other{{count}টি অধ্যায়}}",
   "@hadithChapterCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "hadithBooksCardTitle": "পূর্ণ সংকলন",
   "hadithBooksTitle": "হাদিস সংকলন",

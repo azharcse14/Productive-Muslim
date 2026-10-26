@@ -92,11 +92,11 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.zero,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           mainAxisSpacing: QSpace.s4,
           crossAxisSpacing: QSpace.s3,
-          childAspectRatio: 0.72,
+          childAspectRatio: 0.72 / context.textGrowth,
         ),
         itemCount: items.length,
         itemBuilder: (context, i) => AchievementCard(progress: items[i]),

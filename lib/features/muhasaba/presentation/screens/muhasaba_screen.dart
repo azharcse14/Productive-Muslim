@@ -69,6 +69,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         title: Text(l10n.muhasabaTitle),
         actions: [
           IconButton(
+            tooltip: l10n.addTracker,
             icon: const Icon(Icons.add),
             onPressed: () => unawaited(showItemEditor(context, _store)),
           ),
@@ -167,7 +168,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             value: _store.valueOf(item.id),
             displayName: _nameOf(l10n, item),
             onChanged: (v) => unawaited(_store.setValue(item.id, v)),
-            onLongPress: () =>
+            onEdit: () =>
                 unawaited(showItemEditor(context, _store, existing: item)),
           ),
           const SizedBox(height: QSpace.s3),
@@ -185,8 +186,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 item: item,
                 value: _store.valueOf(item.id),
                 displayName: _nameOf(l10n, item),
-                onChanged: (_) {},
-                onLongPress: () =>
+                onChanged: null,
+                onEdit: () =>
                     unawaited(showItemEditor(context, _store, existing: item)),
               ),
             ),
@@ -240,6 +241,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     return Row(
       children: [
         IconButton(
+          tooltip: context.l10n.previousDay,
           icon: const Icon(Icons.chevron_left),
           onPressed: () => unawaited(
             _store.selectDate(
@@ -255,6 +257,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           ),
         ),
         IconButton(
+          tooltip: context.l10n.nextDay,
           icon: const Icon(Icons.chevron_right),
           onPressed: _store.canGoForward
               ? () => unawaited(
