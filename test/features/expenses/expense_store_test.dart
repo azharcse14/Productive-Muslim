@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/expenses/presentation/state/expense_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,20 +93,90 @@ void main() {
     expect(fresh.categoryBudgets.value, {ExpenseCategory.sadaqah: 500});
   });
 
-  test('one unreadable record is skipped, the rest kept, raw backed up',
+  const good = '{"id":1,"amount":5,"category":"need",'
+      '"date":"2026-10-01T10:00:00.000","note":""}';
+  const zakat = '{"id":2,"amount":9,"category":"zakat",'
+      '"date":"2026-10-02T10:00:00.000","note":""}';
+  const sadaqahLater = '{"id":3,"amount":4,"category":"zakat2",'
+      '"date":"2026-10-03T10:00:00.000","note":""}';
+
+  test('an unreadable record is skipped, kept aside, and survives saves',
       () async {
     final prefs = SharedPreferencesAsync();
-    const raw = '[{"id":1,"amount":5,"category":"need",'
-        '"date":"2026-10-01T10:00:00.000","note":""},'
-        '{"id":2,"amount":9,"category":"zakat",'
-        '"date":"2026-10-02T10:00:00.000","note":""}]';
-    await prefs.setString('expenses_v1', raw);
+    await prefs.setString('expenses_v1', '[$good,$zakat]');
     final s = store();
     await s.load();
     expect(s.entries.value.map((e) => e.id), [1]);
     await s.add(amount: 7, category: ExpenseCategory.want);
     expect(s.entries.value, hasLength(2), reason: 'history not wiped');
-    expect(await prefs.getString('expenses_v1_unreadable'), raw);
+    final kept = await prefs.getString('expenses_v1_unreadable_records');
+    expect(kept, contains('zakat'));
+  });
+
+  test('a second incident is kept too (not just the first)', () async {
+    final prefs = SharedPreferencesAsync();
+    await prefs.setString('expenses_v1', '[$good,$zakat]');
+    await store().load();
+    await prefs.setString('expenses_v1', '[$good,$sadaqahLater]');
+    await store().load();
+    final kept = jsonDecode(
+      (await prefs.getString('expenses_v1_unreadable_records'))!,
+    ) as List<dynamic>;
+    final categories = [
+      for (final r in kept) (jsonDecode(r as String) as Map)['category'],
+    ];
+    expect(categories, ['zakat', 'zakat2']);
+  });
+
+  test('kept records rejoin once readable (re-ided on collision)', () async {
+    final prefs = SharedPreferencesAsync();
+    // Kept earlier with a category this build reads, e.g. after upgrading.
+    const later = '{"id":1,"amount":9,"category":"family",'
+        '"date":"2026-10-02T10:00:00.000","note":"back"}';
+    await prefs.setString('expenses_v1', '[$good]');
+    await prefs.setString(
+      'expenses_v1_unreadable_records',
+      '[${jsonEncode(later)}]',
+    );
+    final s = store();
+    await s.load();
+    expect(s.entries.value.map((e) => e.note), containsAll(['', 'back']));
+    expect(s.entries.value.map((e) => e.id).toSet(), hasLength(2));
+    expect(await prefs.getString('expenses_v1_unreadable_records'), '[]');
+    expect(await prefs.getString('expenses_v1'), contains('back'));
+  });
+
+  test('a failed load is retried instead of blocking every write', () async {
+    final prefs = _FlakyPrefs()..failReads = 1;
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    await expectLater(s.load(), throwsStateError);
+    await s.add(amount: 10, category: ExpenseCategory.need);
+    expect(s.entries.value, hasLength(1));
+  });
+
+  test('a failed write rolls back the list and rethrows', () async {
+    final prefs = _FlakyPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    await s.load();
+    prefs.failWrites = true;
+    await expectLater(
+      s.add(amount: 10, category: ExpenseCategory.need),
+      throwsStateError,
+    );
+    expect(s.entries.value, isEmpty, reason: 'never shows unsaved data');
+  });
+
+  test('undo after a later add reuses no id — both entries kept', () async {
+    final s = store();
+    await s.add(amount: 30, category: ExpenseCategory.family, note: 'A');
+    final a = s.entries.value.single;
+    await s.remove(a.id);
+    await s.add(amount: 40, category: ExpenseCategory.want, note: 'B');
+    await s.restore(a);
+    expect(s.entries.value.map((e) => e.note), containsAll(['A', 'B']));
+    expect(s.entries.value.map((e) => e.id).toSet(), hasLength(2));
   });
 
   test('a write before load finishes waits for it (no clobbering)',
@@ -122,6 +194,7 @@ void main() {
     expect(ExpenseStore.parseAmount('150.50'), isNull);
     expect(ExpenseStore.parseAmount('0'), isNull);
     expect(ExpenseStore.parseAmount('9999999999999'), isNull);
+    expect(ExpenseStore.parseAmount('0x10'), isNull, reason: 'no hex');
   });
 
   test('restore puts a removed entry back unchanged', () async {
@@ -133,4 +206,33 @@ void main() {
     expect(s.entries.value.single.id, e.id);
     expect(s.entries.value.single.note, 'x');
   });
+}
+
+/// In-memory prefs that can fail reads (a set number of times) or writes.
+base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
+  _FlakyPrefs() : super.empty();
+
+  int failReads = 0;
+  bool failWrites = false;
+
+  @override
+  Future<String?> getString(String key, SharedPreferencesOptions options) {
+    if (failReads > 0) {
+      failReads--;
+      throw StateError('prefs down');
+    }
+    return super.getString(key, options);
+  }
+
+  @override
+  Future<bool> setString(
+    String key,
+    String value,
+    SharedPreferencesOptions options,
+  ) {
+    if (failWrites) {
+      throw StateError('disk full');
+    }
+    return super.setString(key, value, options);
+  }
 }

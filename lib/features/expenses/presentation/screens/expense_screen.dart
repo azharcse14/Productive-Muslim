@@ -43,7 +43,8 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
-      unawaited(_store.load());
+      // A failure is retried by the next load or write; nothing to show yet.
+      unawaited(_store.load().catchError((Object _) {}));
     }
   }
 
@@ -240,19 +241,31 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
 /// here, so a stray swipe is recoverable).
 void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   final l10n = context.l10n;
-  unawaited(store.remove(e.id));
-  ScaffoldMessenger.of(context)
+  final messenger = ScaffoldMessenger.of(context);
+  void failed(Object _) => messenger.showSnackBar(
+    SnackBar(content: Text(l10n.expenseSaveFailed)),
+  );
+  unawaited(store.remove(e.id).catchError(failed));
+  messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
         content: Text(l10n.expenseDeleted),
+        // An action makes it persist by default; Undo is only offered
+        // briefly (it must not linger across screens).
+        persist: false,
         action: SnackBarAction(
           label: l10n.expenseUndo,
-          onPressed: () => unawaited(store.restore(e)),
+          onPressed: () => unawaited(store.restore(e).catchError(failed)),
         ),
       ),
     );
 }
+
+void _showSaveFailed(BuildContext context) =>
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.expenseSaveFailed)),
+    );
 
 /// One category line: spent, and either its share of the month or, with a
 /// budget, progress against it. Sadaqah's budget is a goal — exceeding it
@@ -487,21 +500,30 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
     }
     setState(() => _saving = true);
     unawaited(HapticFeedback.selectionClick());
-    if (widget.existing case final existing?) {
-      await widget.store.update(
-        existing.id,
-        amount: amount,
-        category: _category,
-        note: _note.text,
-        date: _date,
-      );
-    } else {
-      await widget.store.add(
-        amount: amount,
-        category: _category,
-        note: _note.text,
-        date: _date,
-      );
+    try {
+      if (widget.existing case final existing?) {
+        await widget.store.update(
+          existing.id,
+          amount: amount,
+          category: _category,
+          note: _note.text,
+          date: _date,
+        );
+      } else {
+        await widget.store.add(
+          amount: amount,
+          category: _category,
+          note: _note.text,
+          date: _date,
+        );
+      }
+    } on Object {
+      // Not saved (the store rolled back): keep the sheet so they can retry.
+      if (mounted) {
+        setState(() => _saving = false);
+        _showSaveFailed(context);
+      }
+      return;
     }
     if (mounted) {
       Navigator.of(context).pop();

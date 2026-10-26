@@ -2203,6 +2203,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseUndo => 'Undo';
 
   @override
+  String get expenseSaveFailed => 'Couldn\'t save. Please try again.';
+
+  @override
   String get expenseAmountInvalid => 'Enter a whole amount';
 
   @override

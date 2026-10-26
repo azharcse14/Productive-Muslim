@@ -980,6 +980,7 @@
   "expenseEdit": "Edit expense",
   "expenseDeleted": "Expense deleted",
   "expenseUndo": "Undo",
+  "expenseSaveFailed": "Couldn't save. Please try again.",
   "expenseAmountInvalid": "Enter a whole amount",
   "expenseBudget": "Monthly budget",
   "expenseBudgetClear": "Remove budget",

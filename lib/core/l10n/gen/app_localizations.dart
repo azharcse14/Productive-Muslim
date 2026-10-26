@@ -3338,6 +3338,12 @@ abstract class AppLocalizations {
   /// **'Undo'**
   String get expenseUndo;
 
+  /// No description provided for @expenseSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Please try again.'**
+  String get expenseSaveFailed;
+
   /// No description provided for @expenseAmountInvalid.
   ///
   /// In en, this message translates to:
