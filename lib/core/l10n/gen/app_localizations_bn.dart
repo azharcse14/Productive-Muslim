@@ -1928,4 +1928,85 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get nearbyMosquesLocationError =>
       'কাছের মসজিদ খুঁজতে আগে আপনার অবস্থান সেট করুন।';
+
+  @override
+  String get expenseTitle => 'খরচের হিসাব';
+
+  @override
+  String get expenseSubtitle => 'মাসিক হিসাব, অপচয় নয়';
+
+  @override
+  String get expenseAdd => 'খরচ যোগ করুন';
+
+  @override
+  String get expenseSave => 'সংরক্ষণ';
+
+  @override
+  String get expenseAmountHint => 'পরিমাণ';
+
+  @override
+  String get expenseNoteHint => 'নোট (ঐচ্ছিক)';
+
+  @override
+  String get expenseMonthTotal => 'এ মাসের খরচ';
+
+  @override
+  String get expensePrevMonth => 'আগের মাস';
+
+  @override
+  String get expenseNextMonth => 'পরের মাস';
+
+  @override
+  String get expenseEmpty => 'এ মাসে কোনো খরচ লেখা হয়নি।';
+
+  @override
+  String get expenseIsrafReminder =>
+      '“আর যারা ব্যয় করে, তারা অপচয় করে না, কৃপণতাও করে না; বরং তারা এর মাঝে মধ্যপন্থা অবলম্বন করে।” (আল-ফুরকান ২৫:৬৭)';
+
+  @override
+  String expenseCategory(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'need': 'প্রয়োজন',
+      'family': 'পরিবার',
+      'sadaqah': 'সাদাকাহ',
+      'want': 'শখ',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get expenseEdit => 'খরচ সম্পাদনা';
+
+  @override
+  String get expenseBudget => 'মাসিক বাজেট';
+
+  @override
+  String get expenseBudgetClear => 'বাজেট মুছুন';
+
+  @override
+  String expenseBudgetLeft(String left, String budget) {
+    return '$budget এর মধ্যে $left বাকি';
+  }
+
+  @override
+  String expenseBudgetOver(String amount) {
+    return 'বাজেটের চেয়ে $amount বেশি — শখের খরচ ভেবে দেখুন';
+  }
+
+  @override
+  String get expenseCategoryBudgetHint =>
+      'বাজেট দিতে ক্যাটাগরিতে চাপুন (সাদাকাহ: লক্ষ্য)';
+
+  @override
+  String expenseCategoryBudgetTitle(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'need': 'প্রয়োজনের বাজেট',
+      'family': 'পরিবারের বাজেট',
+      'sadaqah': 'মাসিক সাদাকাহর লক্ষ্য',
+      'want': 'শখের বাজেট',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
 }

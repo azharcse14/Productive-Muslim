@@ -18,6 +18,7 @@ import '../../features/dua_tasbih/presentation/state/asma_quiz_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_store.dart';
 import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../features/expenses/presentation/state/expense_store.dart';
 import '../../features/fasting/presentation/state/fasting_store.dart';
 import '../../features/hadith/data/hadith_asset_data_source.dart';
 import '../../features/hadith/data/hadith_book_bundled_data_source.dart';
@@ -267,6 +268,11 @@ Future<void> setupLocator() async {
       hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
       now: _wallNow,
     ),
+  );
+
+  // ---- expenses (hisab) ----
+  locator.registerLazySingleton(
+    () => ExpenseStore(SharedPreferencesAsync()),
   );
 
   // ---- achievements ----

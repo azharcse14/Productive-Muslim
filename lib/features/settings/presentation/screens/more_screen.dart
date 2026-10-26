@@ -79,6 +79,14 @@ final class MoreScreen extends StatelessWidget {
                   trailing: Icon(Icons.chevron_right, color: q.ink3),
                   onTap: () => context.pushNamed(Routes.fasting.name),
                 ),
+                const Divider(),
+                QListRow(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: context.l10n.expenseTitle,
+                  subtitle: context.l10n.expenseSubtitle,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.expenses.name),
+                ),
                 if (showAchievements) ...[
                   const Divider(),
                   QListRow(
