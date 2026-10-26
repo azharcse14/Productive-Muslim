@@ -90,4 +90,47 @@ void main() {
     await fresh.load();
     expect(fresh.categoryBudgets.value, {ExpenseCategory.sadaqah: 500});
   });
+
+  test('one unreadable record is skipped, the rest kept, raw backed up',
+      () async {
+    final prefs = SharedPreferencesAsync();
+    const raw = '[{"id":1,"amount":5,"category":"need",'
+        '"date":"2026-10-01T10:00:00.000","note":""},'
+        '{"id":2,"amount":9,"category":"zakat",'
+        '"date":"2026-10-02T10:00:00.000","note":""}]';
+    await prefs.setString('expenses_v1', raw);
+    final s = store();
+    await s.load();
+    expect(s.entries.value.map((e) => e.id), [1]);
+    await s.add(amount: 7, category: ExpenseCategory.want);
+    expect(s.entries.value, hasLength(2), reason: 'history not wiped');
+    expect(await prefs.getString('expenses_v1_unreadable'), raw);
+  });
+
+  test('a write before load finishes waits for it (no clobbering)',
+      () async {
+    final first = store();
+    await first.load();
+    await first.add(amount: 100, category: ExpenseCategory.need);
+    final s = store(); // fresh: nothing loaded yet
+    await s.add(amount: 50, category: ExpenseCategory.want);
+    expect(s.entries.value.map((e) => e.amount), containsAll([100, 50]));
+  });
+
+  test('parseAmount: localized digits and grouping; rejects bad input', () {
+    expect(ExpenseStore.parseAmount('১,২০০'), 1200);
+    expect(ExpenseStore.parseAmount('150.50'), isNull);
+    expect(ExpenseStore.parseAmount('0'), isNull);
+    expect(ExpenseStore.parseAmount('9999999999999'), isNull);
+  });
+
+  test('restore puts a removed entry back unchanged', () async {
+    final s = store();
+    await s.add(amount: 30, category: ExpenseCategory.family, note: 'x');
+    final e = s.entries.value.single;
+    await s.remove(e.id);
+    await s.restore(e);
+    expect(s.entries.value.single.id, e.id);
+    expect(s.entries.value.single.note, 'x');
+  });
 }
