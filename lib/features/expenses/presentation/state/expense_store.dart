@@ -211,9 +211,15 @@ final class ExpenseStore {
     await _markSadaqah(e);
   }
 
+  /// Best-effort: the expense is already saved, so a hook failure must not
+  /// surface as a failed save (a retry would add a duplicate).
   Future<void> _markSadaqah(Expense e) async {
     if (e.category == ExpenseCategory.sadaqah) {
-      await _onSadaqah?.call(e.date);
+      try {
+        await _onSadaqah?.call(e.date);
+      } on Object {
+        // Muhasaba tick missed; the user can still tick it by hand.
+      }
     }
   }
 
@@ -244,22 +250,24 @@ final class ExpenseStore {
     if (amount <= 0 || amount > maxAmount) {
       return;
     }
-    final next = [
-      for (final e in entries.value)
-        if (e.id == id)
-          Expense(
-            id: id,
-            amount: amount,
-            category: category,
-            date: date,
-            note: note.trim(),
-          )
-        else
-          e,
-    ]..sort((a, b) => b.date.compareTo(a.date));
+    final old = entries.value.where((e) => e.id == id).firstOrNull;
+    if (old == null) {
+      return; // removed elsewhere while being edited
+    }
+    final edited = Expense(
+      id: id,
+      amount: amount,
+      category: category,
+      date: date,
+      note: note.trim(),
+    );
+    final next = [for (final e in entries.value) e.id == id ? edited : e]
+      ..sort((a, b) => b.date.compareTo(a.date));
     await _save(next);
-    if (category == ExpenseCategory.sadaqah) {
-      await _onSadaqah?.call(date);
+    // Only when it newly became a sadaqah or its date changed — re-saving must not
+    // re-tick a day the user unticked by hand.
+    if (old.category != category || old.date != date) {
+      await _markSadaqah(edited);
     }
   }
 
@@ -344,7 +352,8 @@ final class ExpenseStore {
 
   /// All entries as CSV (oldest first) — opens in any spreadsheet and is
   /// the backup format [importCsv] reads back. Budgets are not included.
-  String toCsv() {
+  Future<String> toCsv() async {
+    await load();
     String quote(String v) => '"${v.replaceAll('"', '""')}"';
     return [
       _csvHeader,
@@ -359,6 +368,7 @@ final class ExpenseStore {
   /// how many were added, or null if [csv] isn't a valid backup (nothing
   /// is imported then).
   Future<int?> importCsv(String csv) async {
+    await load();
     final rows = _parseCsv(csv.trim());
     if (rows.isEmpty || rows.first.join(',') != _csvHeader) {
       return null;
@@ -371,7 +381,11 @@ final class ExpenseStore {
       final date = DateTime.tryParse(r[0]);
       final category = ExpenseCategory.values.asNameMap()[r[1]];
       final amount = int.tryParse(r[2]);
-      if (date == null || category == null || amount == null || amount <= 0) {
+      if (date == null ||
+          category == null ||
+          amount == null ||
+          amount <= 0 ||
+          amount > maxAmount) {
         return null;
       }
       parsed.add(

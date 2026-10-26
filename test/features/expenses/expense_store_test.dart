@@ -211,6 +211,76 @@ void main() {
     expect(s.entries.value.single.id, e.id);
     expect(s.entries.value.single.note, 'x');
   });
+
+  test('CSV round-trips; import before load merges, never clobbers', () async {
+    final first = store();
+    await first.add(
+      amount: 100,
+      category: ExpenseCategory.need,
+      note: 'a, "b"',
+    );
+    await first.add(
+      amount: 50,
+      category: ExpenseCategory.sadaqah,
+      date: now.subtract(const Duration(days: 1)),
+    );
+    final csv = await first.toCsv();
+
+    final s = store(); // fresh: nothing loaded yet
+    expect(await s.importCsv(csv), 0, reason: 'same entries already stored');
+    expect(s.entries.value, hasLength(2));
+    expect(s.entries.value.map((e) => e.note), contains('a, "b"'));
+
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final restored = store();
+    expect(await restored.importCsv(csv), 2);
+    expect(await restored.toCsv(), csv);
+  });
+
+  test('importCsv rejects amounts above maxAmount', () async {
+    final s = store();
+    const csv =
+        'date,category,amount,note\n2026-10-01T10:00:00.000,need,'
+        '${ExpenseStore.maxAmount + 1},""';
+    expect(await s.importCsv(csv), isNull);
+    expect(s.entries.value, isEmpty);
+  });
+
+  test(
+    'onSadaqah: failure keeps the save; fires only on real changes',
+    () async {
+      final marked = <DateTime>[];
+      var fail = true;
+      final s = ExpenseStore(
+        SharedPreferencesAsync(),
+        now: () => now,
+        onSadaqah: (d) async {
+          if (fail) throw StateError('muhasaba down');
+          marked.add(d);
+        },
+      );
+      await s.add(amount: 10, category: ExpenseCategory.sadaqah);
+      expect(s.entries.value, hasLength(1), reason: 'saved despite hook error');
+
+      fail = false;
+      final e = s.entries.value.single;
+      await s.update(e.id, amount: 20, category: e.category, date: e.date);
+      expect(marked, isEmpty, reason: 'same day and category: no re-tick');
+
+      await s.update(
+        99,
+        amount: 5,
+        category: ExpenseCategory.sadaqah,
+        date: now,
+      );
+      expect(marked, isEmpty, reason: 'unknown id: nothing to mark');
+
+      final later = now.add(const Duration(days: 1));
+      await s.update(e.id, amount: 20, category: e.category, date: later);
+      expect(marked, [later]);
+    },
+  );
 }
 
 /// In-memory prefs that can fail reads (a set number of times) or writes.
