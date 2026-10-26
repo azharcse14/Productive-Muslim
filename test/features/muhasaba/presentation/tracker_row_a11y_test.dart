@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
@@ -65,5 +66,40 @@ void main() {
       );
       handle.dispose();
     });
+  });
+
+  testWidgets('reaching the daily target adds a firmer buzz', (tester) async {
+    final buzzes = <Object?>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'HapticFeedback.vibrate') {
+          buzzes.add(call.arguments);
+        }
+        return null;
+      },
+    );
+    await tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: const TrackerItem(
+            id: 'custom_3',
+            name: 'Istighfar',
+            kind: TrackerKind.count,
+            icon: 'heart',
+            dailyTarget: 3,
+          ),
+          value: 2,
+          displayName: 'Istighfar',
+          onChanged: (_) {},
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.add));
+    expect(buzzes, [
+      'HapticFeedbackType.selectionClick',
+      'HapticFeedbackType.mediumImpact',
+    ]);
   });
 }

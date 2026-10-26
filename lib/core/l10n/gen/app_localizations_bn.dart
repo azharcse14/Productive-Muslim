@@ -138,6 +138,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'মুহাসাবায় ব্যাজ ও ধারাবাহিকতার মাইলফলক';
 
   @override
+  String get settingHaptics => 'হ্যাপটিক ফিডব্যাক';
+
+  @override
+  String get settingHapticsSub => 'ট্যাপ ও তাসবিহ গণনায় ভাইব্রেশন';
+
+  @override
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
 
   @override

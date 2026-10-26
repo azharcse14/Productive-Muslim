@@ -57,6 +57,7 @@ abstract final class AppSettingsModel {
         'localeCode': s.localeCode,
         'setupComplete': s.setupComplete,
         'showAchievements': s.showAchievements,
+        'hapticsEnabled': s.hapticsEnabled,
         'hijriOffsetDays': s.hijriOffsetDays,
       };
 
@@ -76,6 +77,8 @@ abstract final class AppSettingsModel {
           map['setupComplete'] as bool? ?? defaults.setupComplete,
       showAchievements:
           map['showAchievements'] as bool? ?? defaults.showAchievements,
+      hapticsEnabled:
+          map['hapticsEnabled'] as bool? ?? defaults.hapticsEnabled,
       hijriOffsetDays:
           (map['hijriOffsetDays'] as num?)?.toInt() ?? defaults.hijriOffsetDays,
     );

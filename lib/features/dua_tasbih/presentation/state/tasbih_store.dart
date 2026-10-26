@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+
+import '../../../../core/utils/haptics.dart';
 
 /// Tasbih counter state: current round, target preset, and today's running
 /// total (persisted as one JSON blob, reset on date rollover).
@@ -47,10 +48,10 @@ final class TasbihStore {
   /// Pulses true the moment [count] reaches [target] (screen scale pulse).
   late final milestone = signal(false);
 
-  static void _defaultTapHaptic() => unawaited(HapticFeedback.lightImpact());
+  static void _defaultTapHaptic() => Haptics.light();
 
   static void _defaultMilestoneHaptic() =>
-      unawaited(HapticFeedback.mediumImpact());
+      Haptics.medium();
 
   String _todayKey() {
     final n = _now();

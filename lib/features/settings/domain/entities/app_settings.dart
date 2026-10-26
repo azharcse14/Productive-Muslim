@@ -17,6 +17,7 @@ final class AppSettings {
     this.localeCode = 'en',
     this.setupComplete = false,
     this.showAchievements = false,
+    this.hapticsEnabled = true,
     int hijriOffsetDays = 0,
   }) : hijriOffsetDays = hijriOffsetDays < minHijriOffset
             ? minHijriOffset
@@ -44,6 +45,9 @@ final class AppSettings {
   /// not gamified-loud).
   final bool showAchievements;
 
+  /// Vibration on taps, counts and milestones.
+  final bool hapticsEnabled;
+
   /// Moon-sighting adjustment applied to every Hijri date (−2..+2 days,
   /// clamped): the tabular calendar can differ from local sighting.
   final int hijriOffsetDays;
@@ -56,6 +60,7 @@ final class AppSettings {
     String? localeCode,
     bool? setupComplete,
     bool? showAchievements,
+    bool? hapticsEnabled,
     int? hijriOffsetDays,
   }) {
     return AppSettings(
@@ -66,6 +71,7 @@ final class AppSettings {
       localeCode: localeCode ?? this.localeCode,
       setupComplete: setupComplete ?? this.setupComplete,
       showAchievements: showAchievements ?? this.showAchievements,
+      hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
       hijriOffsetDays: hijriOffsetDays ?? this.hijriOffsetDays,
     );
   }
@@ -80,6 +86,7 @@ final class AppSettings {
       other.localeCode == localeCode &&
       other.setupComplete == setupComplete &&
       other.showAchievements == showAchievements &&
+      other.hapticsEnabled == hapticsEnabled &&
       other.hijriOffsetDays == hijriOffsetDays;
 
   @override
@@ -91,6 +98,7 @@ final class AppSettings {
         localeCode,
         setupComplete,
         showAchievements,
+        hapticsEnabled,
         hijriOffsetDays,
       );
 }

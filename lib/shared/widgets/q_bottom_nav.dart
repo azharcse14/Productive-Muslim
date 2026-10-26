@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 /// One destination of the 5-tab bottom navigation.
@@ -90,7 +91,12 @@ final class QBottomNavScaffold extends StatelessWidget {
                     child: _NavDestination(
                       item: item,
                       active: i == currentIndex,
-                      onTap: () => onSelect(i),
+                      onTap: () {
+                        if (i != currentIndex) {
+                          Haptics.selection();
+                        }
+                        onSelect(i);
+                      },
                     ),
                   ),
               ],

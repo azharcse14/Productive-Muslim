@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 /// Standard list row: tonal icon tile, title + optional subtitle, trailing
@@ -74,7 +75,13 @@ final class QListRow extends StatelessWidget {
     return MergeSemantics(
       child: Semantics(
         button: true,
-        child: InkWell(onTap: onTap, child: row),
+        child: InkWell(
+          onTap: () {
+            Haptics.selection();
+            onTap!();
+          },
+          child: row,
+        ),
       ),
     );
   }

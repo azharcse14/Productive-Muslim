@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -495,7 +494,6 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       return;
     }
     setState(() => _saving = true);
-    unawaited(HapticFeedback.selectionClick());
     try {
       if (widget.existing case final existing?) {
         await widget.store.update(

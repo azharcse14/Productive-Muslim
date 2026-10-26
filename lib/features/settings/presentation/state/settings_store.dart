@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' show Locale, ThemeMode;
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/utils/haptics.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/location_config.dart';
 import '../../domain/entities/notification_matrix.dart';
@@ -37,7 +38,10 @@ final class SettingsStore {
   Future<void> load() async {
     final result = await _getSettings();
     result.fold(
-      (value) => settings.value = value,
+      (value) {
+        settings.value = value;
+        Haptics.enabled = value.hapticsEnabled;
+      },
       (_) {}, // keep defaults; storage failure must not block boot
     );
     loaded.value = true;
@@ -88,6 +92,11 @@ final class SettingsStore {
 
   Future<void> setShowAchievements({required bool show}) =>
       _update(settings.value.copyWith(showAchievements: show));
+
+  Future<void> setHapticsEnabled({required bool enabled}) {
+    Haptics.enabled = enabled;
+    return _update(settings.value.copyWith(hapticsEnabled: enabled));
+  }
 
   Future<void> setSetupComplete({required bool complete}) =>
       _update(settings.value.copyWith(setupComplete: complete));

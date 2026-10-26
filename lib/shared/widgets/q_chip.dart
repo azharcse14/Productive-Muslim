@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
 
 /// Selectable pill chip (filters, presets).
@@ -23,17 +24,23 @@ final class QChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final fg = active ? q.onPrimary : q.ink2;
+    final tap = onTap == null
+        ? null
+        : () {
+            Haptics.selection();
+            onTap!();
+          };
     return Semantics(
       button: onTap != null,
       selected: active,
       label: label,
-      onTap: onTap,
+      onTap: tap,
       child: ExcludeSemantics(
         // The pill stays 36dp; the transparent band around it makes the
         // tap target 48dp.
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: onTap,
+          onTap: tap,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: QTouch.minTarget),
             child: Center(

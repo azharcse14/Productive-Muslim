@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -39,10 +39,7 @@ final class _FastingScreenState extends State<FastingScreen> {
     }
   }
 
-  Future<void> _toggle(DateTime date) async {
-    unawaited(HapticFeedback.selectionClick());
-    await _store.toggle(date);
-  }
+  Future<void> _toggle(DateTime date) => _store.toggle(date);
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +78,12 @@ final class _FastingScreenState extends State<FastingScreen> {
                   upcoming: upcoming,
                   isLogged: _store.isLogged,
                   canLog: _store.canLog,
-                  onToggle: _toggle,
+                  // Rows are plain InkWells; the today card's QButton
+                  // already buzzes on its own.
+                  onToggle: (date) {
+                    Haptics.selection();
+                    unawaited(_toggle(date));
+                  },
                 ),
               ],
             );

@@ -139,6 +139,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Badges and streak milestones in Muhasaba';
 
   @override
+  String get settingHaptics => 'Haptic feedback';
+
+  @override
+  String get settingHapticsSub => 'Vibrate on taps and tasbih counts';
+
+  @override
   String get settingCredits => 'Credits & attributions';
 
   @override

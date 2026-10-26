@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
@@ -50,7 +49,6 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
     if (mode == _quiz.mode.value) {
       return;
     }
-    unawaited(HapticFeedback.selectionClick());
     unawaited(_quiz.start(_names.asma.value, mode: mode));
   }
 
@@ -58,10 +56,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
 
   void _onNext() => unawaited(_quiz.next());
 
-  void _onRestart() {
-    unawaited(HapticFeedback.selectionClick());
-    _quiz.restart(_names.asma.value);
-  }
+  void _onRestart() => _quiz.restart(_names.asma.value);
 
   @override
   Widget build(BuildContext context) {

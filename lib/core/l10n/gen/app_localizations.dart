@@ -332,6 +332,18 @@ abstract class AppLocalizations {
   /// **'Badges and streak milestones in Muhasaba'**
   String get settingShowAchievementsSub;
 
+  /// No description provided for @settingHaptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic feedback'**
+  String get settingHaptics;
+
+  /// No description provided for @settingHapticsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate on taps and tasbih counts'**
+  String get settingHapticsSub;
+
   /// No description provided for @settingCredits.
   ///
   /// In en, this message translates to:

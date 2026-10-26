@@ -98,6 +98,15 @@ void main() {
       expect(AppSettingsModel.fromMap(const {}).showAchievements, isFalse);
     });
 
+    test('hapticsEnabled defaults to on and round-trips off', () {
+      expect(AppSettingsModel.fromMap(const {}).hapticsEnabled, isTrue);
+      const off = AppSettings(hapticsEnabled: false);
+      expect(
+        AppSettingsModel.fromMap(AppSettingsModel.toMap(off)).hapticsEnabled,
+        isFalse,
+      );
+    });
+
     test('missing sahriSafety → 0; out-of-range values are clamped', () {
       int read(Object? v) => AppSettingsModel.fromMap({
             'prayerParams': {'sahriSafety': v},
