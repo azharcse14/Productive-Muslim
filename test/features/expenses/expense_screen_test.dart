@@ -131,6 +131,24 @@ void main() {
     expect(store.entries.value.single.note, 'tea');
   });
 
+  testWidgets('a failed swipe-delete puts the row back and drops Undo', (
+    tester,
+  ) async {
+    final prefs = _FailingWrites();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    prefs.fail = true;
+    await tester.drag(find.text('tea'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(store.entries.value, hasLength(1));
+    expect(find.text('tea'), findsOneWidget);
+    expect(find.text('Undo'), findsNothing);
+    expect(find.text("Couldn't save. Please try again."), findsOneWidget);
+  });
+
   testWidgets('a failed save keeps the sheet open with Save re-enabled', (
     tester,
   ) async {
