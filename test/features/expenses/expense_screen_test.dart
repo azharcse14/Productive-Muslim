@@ -131,6 +131,31 @@ void main() {
     expect(store.entries.value.single.note, 'tea');
   });
 
+  testWidgets('a second swipe while the first row shrinks still deletes', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    register();
+    await store.add(amount: 1, category: ExpenseCategory.want, note: 'upper');
+    await store.add(
+      amount: 2,
+      category: ExpenseCategory.want,
+      note: 'lower',
+      date: DateTime(2026, 10, 2),
+    );
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.drag(find.text('lower'), const Offset(-600, 0));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250)); // mid-resize
+    await tester.drag(find.text('upper'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(store.entries.value, isEmpty);
+  });
+
   testWidgets('a failed swipe-delete puts the row back and drops Undo', (
     tester,
   ) async {

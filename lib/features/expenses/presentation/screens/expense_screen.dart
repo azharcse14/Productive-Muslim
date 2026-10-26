@@ -39,8 +39,8 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// 0 = current month, -1 = previous, …
   int _offset = 0;
 
-  /// Bumped per swipe-delete; part of each row's key.
-  int _dismissals = 0;
+  /// Bumped per swipe-delete of that row; part of its key.
+  final _dismissals = <int, int>{};
 
   @override
   void initState() {
@@ -231,9 +231,10 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                   ),
                 for (final e in items)
                   Dismissible(
-                    // Fresh keys after each swipe: a row put back by a
+                    // A fresh key after its swipe: a row put back by a
                     // failed delete must not reuse the dismissed widget.
-                    key: ValueKey((e.id, _dismissals)),
+                    // Other rows keep theirs (a swipe may be mid-flight).
+                    key: ValueKey((e.id, _dismissals[e.id] ?? 0)),
                     direction: DismissDirection.endToStart,
                     background: Container(
                       alignment: AlignmentDirectional.centerEnd,
@@ -244,7 +245,13 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                       child: Icon(Icons.delete_outline, color: q.urgent),
                     ),
                     onDismissed: (_) {
-                      setState(() => _dismissals++);
+                      setState(
+                        () => _dismissals.update(
+                          e.id,
+                          (n) => n + 1,
+                          ifAbsent: () => 1,
+                        ),
+                      );
                       _removeWithUndo(context, _store, e);
                     },
                     child: ListTile(
@@ -283,25 +290,33 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
 void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.of(context);
-  // Replaces the Undo bar: the entry is back, so Undo would duplicate it.
-  void failed(Object _) => messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(l10n.expenseSaveFailed)));
+  late final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> undo;
+  var undoShowing = true;
+  // Closes this row's Undo bar (never another row's): the entry is back.
+  void failed(Object _) {
+    if (undoShowing) {
+      undo.close();
+    }
+    messenger.showSnackBar(SnackBar(content: Text(l10n.expenseSaveFailed)));
+  }
+
   unawaited(store.remove(e.id).catchError(failed));
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(l10n.expenseDeleted),
-        // An action makes it persist by default; Undo is only offered
-        // briefly (it must not linger across screens).
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.expenseUndo,
-          onPressed: () => unawaited(store.restore(e).catchError(failed)),
-        ),
+  // Removed, not hidden, so this bar is first in the queue at once —
+  // close() above requires that.
+  messenger.removeCurrentSnackBar();
+  undo = messenger.showSnackBar(
+    SnackBar(
+      content: Text(l10n.expenseDeleted),
+      // An action makes it persist by default; Undo is only offered
+      // briefly (it must not linger across screens).
+      persist: false,
+      action: SnackBarAction(
+        label: l10n.expenseUndo,
+        onPressed: () => unawaited(store.restore(e).catchError(failed)),
       ),
-    );
+    ),
+  );
+  unawaited(undo.closed.then((_) => undoShowing = false));
 }
 
 void _showSaveFailed(BuildContext context) => ScaffoldMessenger.of(

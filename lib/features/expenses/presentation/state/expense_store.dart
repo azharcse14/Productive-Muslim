@@ -150,7 +150,11 @@ final class ExpenseStore {
     if (recovered.isNotEmpty) {
       var list = read;
       for (final e in recovered) {
-        list = _withEntry(list, e);
+        // Already back under another id (a retried load whose earlier
+        // attempt saved it but failed to shorten the unreadable list).
+        if (!list.any((x) => _fields(x) == _fields(e))) {
+          list = _withEntry(list, e);
+        }
       }
       await _save(list);
     }
@@ -292,7 +296,7 @@ final class ExpenseStore {
   /// first; [list] itself when an identical entry is already there.
   static List<Expense> _withEntry(List<Expense> list, Expense e) {
     final holder = list.where((x) => x.id == e.id).firstOrNull;
-    if (holder != null && _same(holder, e)) {
+    if (holder != null && _fields(holder) == _fields(e)) {
       return list;
     }
     final taken = holder != null;
@@ -308,8 +312,8 @@ final class ExpenseStore {
     return [entry, ...list]..sort((a, b) => b.date.compareTo(a.date));
   }
 
-  static bool _same(Expense a, Expense b) =>
-      jsonEncode(a.toJson()) == jsonEncode(b.toJson());
+  /// Everything but the id.
+  static String _fields(Expense e) => jsonEncode(e.toJson()..remove('id'));
 
   static List<Object?> _decodeList(String? raw) {
     if (raw == null) {
@@ -328,8 +332,9 @@ final class ExpenseStore {
 
   /// Shows [next] at once (a swiped-away row must leave the tree now) and
   /// writes it after any earlier write. On failure, rolls back to what's
-  /// stored — unless a later change is already showing; its own write
-  /// (which includes this one) settles the list then.
+  /// stored and throws — unless a later change (built on this one) is
+  /// already showing: then this change is saved iff a later write is, so
+  /// it throws only if they all fail.
   Future<void> _save(List<Expense> next) async {
     entries.value = next;
     final write = _lastWrite
@@ -347,6 +352,17 @@ final class ExpenseStore {
     } on Object {
       if (identical(entries.value, next)) {
         entries.value = _persisted;
+        rethrow;
+      }
+      var settled = write;
+      while (!identical(_lastWrite, settled)) {
+        settled = _lastWrite;
+        try {
+          await settled;
+          return; // saved along with the later change
+        } on Object {
+          // That one failed too (and rolled back); a newer one may follow.
+        }
       }
       rethrow;
     }
@@ -394,9 +410,9 @@ final class ExpenseStore {
   Future<int?> importCsv(String csv) async {
     await load();
     final rows = [
-      // Spreadsheets often leave blank lines.
+      // Spreadsheets often leave blank lines or empty rows (",,,").
       for (final r in _parseCsv(csv.trim()))
-        if (r.length > 1 || r.single.trim().isNotEmpty) r,
+        if (r.any((f) => f.trim().isNotEmpty)) r,
     ];
     if (rows.isEmpty ||
         rows.first.map((f) => f.trim().toLowerCase()).join(',') != _csvHeader) {

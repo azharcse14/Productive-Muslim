@@ -324,18 +324,15 @@ void main() {
     },
   );
 
-  test('a failed write never hides a later one that succeeded', () async {
+  test('a failed write saved by a later one reports success', () async {
     final prefs = _FlakyPrefs();
     SharedPreferencesAsyncPlatform.instance = prefs;
     final s = store();
     await s.load();
     prefs.failWriteCount = 1;
-    final first = expectLater(
-      s.add(amount: 1, category: ExpenseCategory.need),
-      throwsStateError,
-    );
+    final first = s.add(amount: 1, category: ExpenseCategory.need);
     await s.add(amount: 2, category: ExpenseCategory.need);
-    await first;
+    await first; // no throw: the later write stored it too
     final stored =
         jsonDecode(
               (await prefs.getString(
@@ -347,6 +344,25 @@ void main() {
     expect(s.entries.value.map((e) => e.amount).toSet(), {
       for (final j in stored) (j as Map)['amount'],
     }, reason: 'UI shows what is stored');
+    expect(stored, hasLength(2));
+  });
+
+  test('when the later write fails too, both report failure', () async {
+    final prefs = _FlakyPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    await s.load();
+    prefs.failWriteCount = 2;
+    final first = expectLater(
+      s.add(amount: 1, category: ExpenseCategory.need),
+      throwsStateError,
+    );
+    await expectLater(
+      s.add(amount: 2, category: ExpenseCategory.need),
+      throwsStateError,
+    );
+    await first;
+    expect(s.entries.value, isEmpty);
   });
 
   test('import keeps identical rows; re-import adds nothing', () async {
@@ -382,11 +398,38 @@ void main() {
     expect(
       await s.importCsv(
         'Date, Category ,Amount,Note\r\n\r\n'
-        '2026-10-01T10:00:00.000,need,5,""\r\n\r\n',
+        '2026-10-01T10:00:00.000,need,5,""\r\n,,,\r\n\r\n',
       ),
       1,
     );
   });
+
+  test(
+    'a retried load does not re-add a record it already recovered',
+    () async {
+      final prefs = _FlakyPrefs();
+      SharedPreferencesAsyncPlatform.instance = prefs;
+      // The user's own id 7 makes the recovered rec7 move to a new id.
+      const mine =
+          '{"id":7,"amount":1,"category":"need",'
+          '"date":"2026-10-05T10:00:00.000","note":"mine"}';
+      await SharedPreferencesAsync().setString('expenses_v1', '[$mine]');
+      await SharedPreferencesAsync().setString(
+        'expenses_v1_unreadable_records',
+        '[${jsonEncode(rec7)}]',
+      );
+      prefs
+        ..failKey = 'expenses_v1_unreadable_records'
+        ..failWriteCount = 1;
+      final s = store();
+      await expectLater(s.load(), throwsStateError);
+      await s.load();
+      expect(
+        s.entries.value.map((e) => e.note),
+        unorderedEquals(['mine', 'kept']),
+      );
+    },
+  );
 }
 
 /// In-memory prefs that can fail reads (a set number of times) or writes.
@@ -396,9 +439,10 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
   int failReads = 0;
   bool failWrites = false;
 
-  /// Fails this many upcoming writes of the expense list, asynchronously
-  /// like a platform call.
+  /// Fails this many upcoming writes of [failKey], asynchronously like a
+  /// platform call.
   int failWriteCount = 0;
+  String failKey = 'expenses_v1';
 
   @override
   Future<String?> getString(String key, SharedPreferencesOptions options) {
@@ -418,7 +462,7 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
     if (failWrites) {
       throw StateError('disk full');
     }
-    if (failWriteCount > 0 && key == 'expenses_v1') {
+    if (failWriteCount > 0 && key == failKey) {
       failWriteCount--;
       return Future<void>.delayed(
         Duration.zero,
