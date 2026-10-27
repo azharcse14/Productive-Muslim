@@ -69,6 +69,11 @@ final class AppLockStore {
   /// True while the gate must show (enabled and not yet unlocked).
   late final locked = signal(false);
 
+  /// True between a verified "Forgot PIN?" device-lock check and
+  /// [resetPin]. Leaving the app revokes it, so whoever opens it next
+  /// can't pick up a half-finished reset.
+  late final pinResetAuthorized = signal(false);
+
   /// PIN entry is blocked until this instant (null = not throttled).
   late final lockedUntil = signal<DateTime?>(null);
 
@@ -83,6 +88,7 @@ final class AppLockStore {
   Duration _cooldownStartMono = Duration.zero;
   DateTime? _cooldownStartWall;
   DateTime? _backgroundedAt;
+  Duration _backgroundedAtMono = Duration.zero;
   AppLifecycleListener? _lifecycle;
 
   /// True while an OS auth prompt is up: biometric/device-credential UIs
@@ -153,15 +159,23 @@ final class AppLockStore {
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
         if (enabled.value && !_authInProgress) {
-          _backgroundedAt ??= _now();
+          pinResetAuthorized.value = false;
+          if (_backgroundedAt == null) {
+            _backgroundedAt = _now();
+            _backgroundedAtMono = _elapsed();
+          }
         }
       case AppLifecycleState.resumed:
         final since = _backgroundedAt;
         _backgroundedAt = null;
-        if (since != null &&
-            enabled.value &&
-            !_authInProgress &&
-            _now().difference(since) >= AppConfig.appLockGracePeriod) {
+        if (since == null || !enabled.value || _authInProgress) {
+          break;
+        }
+        // Larger of both clocks, as for the cooldown: setting the clock
+        // back must not skip the re-lock.
+        final wall = _now().difference(since);
+        final mono = _elapsed() - _backgroundedAtMono;
+        if ((wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod) {
           locked.value = true;
         }
       case AppLifecycleState.inactive || AppLifecycleState.detached:
@@ -231,13 +245,20 @@ final class AppLockStore {
     final ok = await _duringAuth(
       () => _biometric.authenticateWithDeviceLock(reason),
     );
+    pinResetAuthorized.value = ok;
     return ok ? PinResetAuth.verified : PinResetAuth.failed;
   }
 
-  /// Replaces the PIN after [authenticateForPinReset] and unlocks.
-  Future<void> resetPin(String pin) async {
+  /// Replaces the PIN after [authenticateForPinReset] and unlocks. False
+  /// (PIN unchanged) when the reset is no longer authorized.
+  Future<bool> resetPin(String pin) async {
+    if (!pinResetAuthorized.value) {
+      return false;
+    }
+    pinResetAuthorized.value = false;
     await enable(pin, biometric: biometricEnabled.value);
     locked.value = false;
+    return true;
   }
 
   Future<bool> _duringAuth(Future<bool> Function() prompt) async {

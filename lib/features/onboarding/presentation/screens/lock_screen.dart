@@ -33,8 +33,10 @@ final class _LockScreenState extends State<LockScreen> {
   String? _firstPin;
   String? _error;
 
-  /// "Forgot PIN?" verified via the device lock: collect a new PIN.
-  bool _resetting = false;
+  /// "Forgot PIN?" verified via the device lock: collect a new PIN. Lives
+  /// in the store so leaving the app ends it.
+  late bool _resetting = _store.pinResetAuthorized.value;
+  void Function()? _stopResetWatch;
 
   /// Repaints the cooldown countdown once a second while throttled.
   Timer? _cooldownTicker;
@@ -45,6 +47,18 @@ final class _LockScreenState extends State<LockScreen> {
   void initState() {
     super.initState();
     if (widget.mode == LockScreenMode.unlock) {
+      _stopResetWatch = effect(() {
+        final authorized = _store.pinResetAuthorized.value;
+        if (authorized == _resetting || !mounted) {
+          return;
+        }
+        setState(() {
+          _resetting = authorized;
+          _entered = '';
+          _firstPin = null;
+          _error = null;
+        });
+      });
       _syncCooldownTicker();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -57,6 +71,7 @@ final class _LockScreenState extends State<LockScreen> {
   @override
   void dispose() {
     _cooldownTicker?.cancel();
+    _stopResetWatch?.call();
     super.dispose();
   }
 
@@ -102,12 +117,7 @@ final class _LockScreenState extends State<LockScreen> {
     }
     switch (result) {
       case PinResetAuth.verified:
-        setState(() {
-          _resetting = true;
-          _entered = '';
-          _firstPin = null;
-          _error = null;
-        });
+        break; // _stopResetWatch switches to new-PIN entry.
       case PinResetAuth.noDeviceLock:
         await showDialog<void>(
           context: context,

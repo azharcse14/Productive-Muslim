@@ -90,6 +90,22 @@ void main() {
     expect(await tester.runAsync(() => store.unlockWithPin('9876')), isTrue);
   });
 
+  testWidgets('leaving the app mid-reset returns to PIN entry',
+      (tester) async {
+    final store = await _register(FakeBiometric());
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.tap(find.text('Forgot PIN?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Set a new 4-digit PIN'), findsOneWidget);
+    store
+      ..onLifecycleChanged(AppLifecycleState.hidden)
+      ..onLifecycleChanged(AppLifecycleState.paused);
+    await tester.pump();
+    expect(find.text('Set a new 4-digit PIN'), findsNothing);
+    expect(find.text('Forgot PIN?'), findsOneWidget);
+  });
+
   testWidgets('forgot PIN without a device screen lock explains why',
       (tester) async {
     final store = await _register(FakeBiometric()..deviceLock = false);

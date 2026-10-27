@@ -22,11 +22,26 @@ final class AppLockDataSource {
     if (raw == null) {
       return (enabled: false, biometric: false);
     }
-    final map = (jsonDecode(raw) as Map).cast<String, Object?>();
+    final map = _decode(raw);
+    if (map == null) {
+      // Unreadable: fail closed. No PIN verifies, so "Forgot PIN?" (device
+      // lock) is the way back in, never a silent unlock.
+      return (enabled: true, biometric: false);
+    }
     return (
       enabled: map['hash'] is String,
-      biometric: map['biometric'] as bool? ?? false,
+      biometric: map['biometric'] == true,
     );
+  }
+
+  /// The stored JSON object, or null when it is corrupt.
+  static Map<String, Object?>? _decode(String raw) {
+    try {
+      final value = jsonDecode(raw);
+      return value is Map ? value.cast<String, Object?>() : null;
+    } on FormatException {
+      return null;
+    }
   }
 
   /// 16 random bytes from the OS CSPRNG. Older installs used a timestamp
@@ -53,9 +68,11 @@ final class AppLockDataSource {
     if (raw == null) {
       return false;
     }
-    final map = (jsonDecode(raw) as Map).cast<String, Object?>();
-    final salt = map['salt'] as String? ?? '';
-    return map['hash'] == _hash(pin, salt);
+    final map = _decode(raw);
+    final salt = map?['salt'];
+    return map != null &&
+        salt is String? &&
+        map['hash'] == _hash(pin, salt ?? '');
   }
 
   Future<void> disable() => _prefs.remove(_key);
@@ -66,10 +83,12 @@ final class AppLockDataSource {
     if (raw == null) {
       return (failedAttempts: 0, lockedUntil: null);
     }
-    final map = (jsonDecode(raw) as Map).cast<String, Object?>();
-    final untilMs = (map['untilMs'] as num?)?.toInt();
+    final map = _decode(raw) ?? const {};
+    final until = map['untilMs'];
+    final failed = map['failed'];
+    final untilMs = until is num ? until.toInt() : null;
     return (
-      failedAttempts: (map['failed'] as num?)?.toInt() ?? 0,
+      failedAttempts: failed is num ? failed.toInt() : 0,
       lockedUntil: untilMs == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(untilMs),

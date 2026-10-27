@@ -193,6 +193,36 @@ void main() {
       expect(store.locked.value, isFalse);
     });
 
+    test('setting the clock back does not skip the re-lock', () async {
+      var mono = Duration.zero;
+      final store = _store(now: () => clock, elapsed: () => mono);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      await store.unlockWithPin('1234');
+      background(store);
+      mono += const Duration(minutes: 10);
+      clock = clock.subtract(const Duration(hours: 1));
+      foreground(store);
+      expect(store.locked.value, isTrue);
+    });
+
+    test('leaving the app revokes a verified PIN reset', () async {
+      final store = await unlocked();
+      store.locked.value = true;
+      expect(
+        await store.authenticateForPinReset('reason'),
+        PinResetAuth.verified,
+      );
+      expect(store.pinResetAuthorized.value, isTrue);
+      background(store);
+      clock = clock.add(const Duration(minutes: 5));
+      foreground(store);
+      expect(store.pinResetAuthorized.value, isFalse);
+      expect(await store.resetPin('0000'), isFalse);
+      expect(store.locked.value, isTrue);
+      expect(await store.unlockWithPin('1234'), isTrue);
+    });
+
     test('disabled lock never re-locks', () async {
       final store = _store(now: () => clock);
       await store.load();
@@ -381,12 +411,28 @@ void main() {
         await store.authenticateForPinReset('reason'),
         PinResetAuth.verified,
       );
-      await store.resetPin('9876');
+      expect(await store.resetPin('9876'), isTrue);
       expect(store.locked.value, isFalse);
       final fresh = _store(biometric: biometric);
       await fresh.load();
       expect(await fresh.unlockWithPin('1234'), isFalse);
       expect(await fresh.unlockWithPin('9876'), isTrue);
+    });
+
+    test('corrupt lock prefs fail closed instead of crashing', () async {
+      await SharedPreferencesAsync().setString('app_lock_v1', '{"hash":');
+      await SharedPreferencesAsync().setString('app_lock_throttle_v1', '[1');
+      final store = _store();
+      await store.load();
+      expect(store.enabled.value, isTrue);
+      expect(store.locked.value, isTrue);
+      expect(await store.unlockWithPin('1234'), isFalse);
+      expect(
+        await store.authenticateForPinReset('reason'),
+        PinResetAuth.verified,
+      );
+      expect(await store.resetPin('9876'), isTrue);
+      expect(store.locked.value, isFalse);
     });
 
     test('forgot PIN without a device screen lock is reported', () async {
