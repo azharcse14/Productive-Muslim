@@ -277,7 +277,18 @@ final class HomeStore {
     if (target == null) {
       return Duration.zero;
     }
-    final r = target.remainingAt(now.value);
+    // Through real instants: a manual city's wall times are plain local
+    // DateTimes, so subtracting them directly would pick up the device's
+    // DST shift instead of the city's.
+    // ponytail: a city wall time inside the device's spring-forward gap is
+    // still shifted an hour at construction; wall times would need their
+    // own zone-free type to fix that.
+    final loc = location.value;
+    final r = loc == null
+        ? target.remainingAt(now.value)
+        : _clock
+              .utcInstantOf(loc, target.at)
+              .difference(_clock.utcInstantOf(loc, now.value));
     return r.isNegative ? Duration.zero : r;
   });
 

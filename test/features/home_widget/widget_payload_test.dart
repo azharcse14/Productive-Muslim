@@ -53,6 +53,24 @@ void main() {
     }
   });
 
+  test("tomorrow's strip and its midnight instant are pushed", () {
+    final payload = buildWidgetPayload(
+      day: _day(DateTime(2026, 6, 14)),
+      tomorrow: _day(DateTime(2026, 6, 15)),
+      now: DateTime(2026, 6, 14, 13),
+      nextPrayerLabel: 'Next prayer',
+      prayerName: _name,
+      formatTime: _fmt,
+      locationLabel: 'Dhaka, BD',
+      instantOf: (wall) => wall.add(const Duration(hours: 1)),
+    );
+    expect(payload['widget_times_next'], contains('fajr'));
+    expect(
+      int.parse(payload['widget_day_flip']!),
+      DateTime(2026, 6, 15, 1).millisecondsSinceEpoch,
+    );
+  });
+
   test('schedule lists every prayer start as instants, in order', () {
     final day = _day(DateTime(2026, 6, 14));
     final tomorrow = _day(DateTime(2026, 6, 15));

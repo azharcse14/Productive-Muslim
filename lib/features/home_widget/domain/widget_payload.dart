@@ -15,9 +15,9 @@ typedef WidgetPayload = Map<String, String>;
 /// the app isn't running: one `epochMillis<TAB>name<TAB>time` line per
 /// prayer start for [day] and [tomorrow] (then tomorrow's next Fajr), in
 /// order. [instantOf] maps a location wall-clock time to its real instant.
-/// ponytail: `widget_times` (the five-time strip) stays as of the last app
-/// run, so after midnight it shows yesterday's times until the app runs;
-/// add a per-day strip to the schedule lines if that matters.
+/// `widget_times_next` is [tomorrow]'s five-time strip and `widget_day_flip`
+/// the instant (epoch millis) its date begins, so the native side swaps
+/// strips at midnight without the app.
 WidgetPayload buildWidgetPayload({
   required PrayerDay? day,
   required DateTime now,
@@ -37,6 +37,8 @@ WidgetPayload buildWidgetPayload({
       'widget_location': '',
       'widget_times': '',
       'widget_schedule': '',
+      'widget_times_next': '',
+      'widget_day_flip': '',
     };
   }
   final toInstant = instantOf ?? (DateTime wall) => wall;
@@ -51,9 +53,9 @@ WidgetPayload buildWidgetPayload({
     line(Prayer.fajr, (tomorrow ?? day).fajrTomorrow),
   ].join('\n');
   final next = resolveNextPrayer(day, now);
-  final strip = [
+  String strip(PrayerDay d) => [
     for (final prayer in Prayer.values)
-      '${prayerName(prayer)} ${formatTime(day.startOf(prayer))}',
+      '${prayerName(prayer)} ${formatTime(d.startOf(prayer))}',
   ].join('   ');
   return {
     'widget_configured': '1',
@@ -61,7 +63,11 @@ WidgetPayload buildWidgetPayload({
     'widget_prayer': prayerName(next.prayer),
     'widget_time': formatTime(next.at),
     'widget_location': locationLabel,
-    'widget_times': strip,
+    'widget_times': strip(day),
     'widget_schedule': schedule,
+    'widget_times_next': tomorrow == null ? '' : strip(tomorrow),
+    'widget_day_flip': tomorrow == null
+        ? ''
+        : '${toInstant(DateTime(tomorrow.fajr.year, tomorrow.fajr.month, tomorrow.fajr.day)).millisecondsSinceEpoch}',
   };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/utils/result.dart';
@@ -18,13 +19,31 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     required String Function(DateTime) formatTime,
     void Function(String? payload, String? actionId)? onTap,
     FlutterLocalNotificationsPlugin? plugin,
-  })  : _clock = clock,
+    SharedPreferencesAsync? prefs,
+  })  : _prefs = prefs,
+        _clock = clock,
         _currentLocation = currentLocation,
         _formatTime = formatTime,
         _onTap = onTap,
         _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _azanCategoryId = 'productive_muslim_azan';
+
+  /// Set once the OS prompt has been shown. Before that, iOS (sometimes)
+  /// and Android 13+ report "off", which is not the same as "denied".
+  static const _promptedKey = 'notif_permission_prompted';
+
+  final SharedPreferencesAsync? _prefs;
+  late final SharedPreferencesAsync _store =
+      _prefs ?? SharedPreferencesAsync();
+
+  Future<bool> _prompted() async {
+    try {
+      return await _store.getBool(_promptedKey) ?? false;
+    } on Exception {
+      return true; // unknown: keep the old "off = denied" reading
+    }
+  }
 
   /// Action id of the azan "mark as prayed" button.
   static const markPrayedActionId = 'mark_prayed';
@@ -97,15 +116,19 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     final android = _android;
     if (android != null) {
       final enabled = await android.areNotificationsEnabled() ?? false;
-      return enabled
-          ? NotificationPermission.granted
-          : NotificationPermission.denied;
+      if (enabled) {
+        return NotificationPermission.granted;
+      }
+      return await _prompted()
+          ? NotificationPermission.denied
+          : NotificationPermission.notRequested;
     }
     final ios = _ios;
     if (ios != null) {
       final settings = await ios.checkPermissions();
       return switch (settings?.isAlertEnabled) {
         true => NotificationPermission.granted,
+        false when !await _prompted() => NotificationPermission.notRequested,
         false => NotificationPermission.denied,
         null => NotificationPermission.notRequested,
       };
@@ -115,6 +138,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
 
   @override
   Future<NotificationPermission> requestPermission() async {
+    try {
+      await _store.setBool(_promptedKey, true);
+    } on Exception {
+      // Best-effort: worst case the next tap re-prompts instead of
+      // opening system settings.
+    }
     final android = _android;
     if (android != null) {
       final granted = await android.requestNotificationsPermission() ?? false;

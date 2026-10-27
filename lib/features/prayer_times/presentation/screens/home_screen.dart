@@ -110,6 +110,9 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// (Re)loads the "of the day" cards now and whenever the day flips.
   late final EffectCleanup _dayWatcher;
 
+  static const _gpsCheckInterval = Duration(minutes: 30);
+  DateTime? _lastGpsCheck;
+
   /// A GPS location is fixed once at setup; after travel, re-fix on resume
   /// (never prompting) so prayer times follow the device, not the old spot.
   Future<void> _refreshGps() async {
@@ -117,6 +120,13 @@ final class _HomeScreenState extends State<HomeScreen> {
     if (saved is! GpsLocation || !locator.isRegistered<GetCurrentLocation>()) {
       return;
     }
+    // A GPS fix costs battery; travel is not a minute-scale event.
+    final now = DateTime.now();
+    if (_lastGpsCheck case final last?
+        when now.difference(last) < _gpsCheckInterval) {
+      return;
+    }
+    _lastGpsCheck = now;
     final moved = await locator<GetCurrentLocation>().movedFrom(saved);
     // Skip if the user picked another location while the fix was pending.
     if (moved != null && _settings.location.value == saved) {

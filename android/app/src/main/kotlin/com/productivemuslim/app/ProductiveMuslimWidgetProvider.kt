@@ -55,6 +55,20 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
             }
         }
 
+        /** Epoch millis tomorrow's date begins (0 = unknown). */
+        private fun dayFlip(context: Context): Long =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString("widget_day_flip", "")?.toLongOrNull() ?: 0L
+
+        /** Today's five-time strip; tomorrow's once its date has begun. */
+        private fun times(context: Context): String {
+            val data = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val nextDay = data.getString("widget_times_next", "") ?: ""
+            val flip = dayFlip(context)
+            return if (flip in 1..System.currentTimeMillis() && nextDay.isNotEmpty()) nextDay
+            else data.getString("widget_times", "") ?: ""
+        }
+
         /** First scheduled prayer still ahead, or null past the schedule. */
         private fun upcoming(context: Context) =
             schedule(context).firstOrNull { it.first > System.currentTimeMillis() }
@@ -65,7 +79,12 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
          * updatePeriodMillis (30 min) is the backstop.
          */
         private fun scheduleNext(context: Context) {
-            val next = upcoming(context) ?: return
+            val now = System.currentTimeMillis()
+            // Next prayer start or midnight (strip swap), whichever is first.
+            val at = listOfNotNull(
+                upcoming(context)?.first,
+                dayFlip(context).takeIf { it > now },
+            ).minOrNull() ?: return
             val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(
                 ComponentName(context, ProductiveMuslimWidgetProvider::class.java)
             )
@@ -79,7 +98,7 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarms.set(AlarmManager.RTC, next.first + 1000, pending)
+            alarms.set(AlarmManager.RTC, at + 1000, pending)
         }
 
         private fun renderWidget(
@@ -98,7 +117,7 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
                     setTextViewText(R.id.widget_prayer, next?.second ?: data.getString("widget_prayer", "—") ?: "—")
                     setTextViewText(R.id.widget_time, next?.third ?: data.getString("widget_time", "") ?: "")
                     setTextViewText(R.id.widget_location, data.getString("widget_location", "") ?: "")
-                    setTextViewText(R.id.widget_times, data.getString("widget_times", "") ?: "")
+                    setTextViewText(R.id.widget_times, times(context))
                 } else {
                     setTextViewText(R.id.widget_label, "Productive Muslim")
                     setTextViewText(R.id.widget_prayer, "Set up")

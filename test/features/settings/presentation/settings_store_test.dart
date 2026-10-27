@@ -48,16 +48,16 @@ void main() {
       expect(store.settings.value.themeMode, AppThemeMode.dark);
       expect(repo.stored.localeCode, 'bn');
 
-      // Storage recovers: the next update re-reads instead of clobbering.
+      // Storage recovers: the next update re-reads, then applies the change
+      // on top of the stored settings instead of clobbering or dropping it.
       repo.failLoad = false;
       await store.setThemeMode(AppThemeMode.light);
-      expect(repo.saves, 0);
+      expect(repo.saves, 1);
       expect(store.settings.value.localeCode, 'bn');
       expect(store.settings.value.setupComplete, isTrue);
-
-      await store.setThemeMode(AppThemeMode.light);
-      expect(repo.saves, 1);
+      expect(store.settings.value.themeMode, AppThemeMode.light);
       expect(repo.stored.localeCode, 'bn');
+      expect(repo.stored.themeMode, AppThemeMode.light);
     });
 
     test('load pulls persisted settings into the signal', () async {

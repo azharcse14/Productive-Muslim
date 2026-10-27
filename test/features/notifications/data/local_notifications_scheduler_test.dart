@@ -4,10 +4,13 @@ import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/notifications/data/local_notifications_scheduler.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:timezone/timezone.dart';
 
 /// Records schedule calls; throws for the ids in [failIds].
@@ -41,6 +44,30 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   }
 
   // No platform implementation: exact alarms read as allowed.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// Android with notifications off and every prompt declined.
+final class _OffAndroid implements AndroidFlutterLocalNotificationsPlugin {
+  @override
+  Future<bool?> areNotificationsEnabled() async => false;
+
+  @override
+  Future<bool?> requestNotificationsPermission() async => false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+final class _AndroidPlugin implements FlutterLocalNotificationsPlugin {
+  final android = _OffAndroid();
+
+  @override
+  T? resolvePlatformSpecificImplementation<
+          T extends FlutterLocalNotificationsPlatform>() =>
+      android is T ? android as T : null;
+
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
 }
@@ -92,6 +119,24 @@ void main() {
       formatTime: (_) => '',
       plugin: plugin,
     );
+  });
+
+  test('off before the first prompt is notRequested, after it denied',
+      () async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final android = LocalNotificationsScheduler(
+      clock: TimezoneClock(),
+      currentLocation: () => _dhaka,
+      formatTime: (_) => '',
+      plugin: _AndroidPlugin(),
+    );
+    expect(
+      await android.permissionStatus(),
+      NotificationPermission.notRequested,
+    );
+    await android.requestPermission();
+    expect(await android.permissionStatus(), NotificationPermission.denied);
   });
 
   // Well in the future at any test run time.

@@ -34,11 +34,21 @@ struct Provider: TimelineProvider {
     // the prayer after it, so "next prayer" flips on time without the app.
     let now = Date()
     let starts = schedule().map { $0.at }.filter { $0 > now }
-    let entries = [read(at: now)] + starts.map { read(at: $0) }
+    // Plus midnight, when the five-time strip swaps to tomorrow's.
+    let flips = [dayFlip()].compactMap { $0 }.filter { $0 > now }
+    let entries = [read(at: now)]
+      + (starts + flips).sorted().map { read(at: $0) }
     // Past the pushed schedule: poll until the app pushes a fresh one.
     let policy: TimelineReloadPolicy = starts.isEmpty
       ? .after(now.addingTimeInterval(900)) : .atEnd
     completion(Timeline(entries: entries, policy: policy))
+  }
+
+  /// When tomorrow's date begins (`widget_day_flip`, epoch millis).
+  private func dayFlip() -> Date? {
+    let raw = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_day_flip") ?? ""
+    guard let millis = Double(raw), millis > 0 else { return nil }
+    return Date(timeIntervalSince1970: millis / 1000)
   }
 
   /// `widget_schedule` lines (`epochMillis<TAB>prayer<TAB>time`), in order.
@@ -57,6 +67,8 @@ struct Provider: TimelineProvider {
     // First prayer starting after `date`; past the schedule, the last
     // pushed snapshot.
     let next = schedule().first { $0.at > date }
+    let nextDay = d?.string(forKey: "widget_times_next") ?? ""
+    let flipped = (dayFlip().map { date >= $0 } ?? false) && !nextDay.isEmpty
     return ProductiveMuslimEntry(
       date: date,
       configured: configured,
@@ -64,7 +76,7 @@ struct Provider: TimelineProvider {
       prayer: next?.prayer ?? d?.string(forKey: "widget_prayer") ?? "—",
       time: next?.time ?? d?.string(forKey: "widget_time") ?? "",
       location: d?.string(forKey: "widget_location") ?? "",
-      times: d?.string(forKey: "widget_times") ?? ""
+      times: flipped ? nextDay : d?.string(forKey: "widget_times") ?? ""
     )
   }
 }

@@ -68,28 +68,20 @@ final class _NotificationSettingsScreenState
     _exactAlarms.value = await _scheduler.canScheduleExactAlarms();
   }
 
-  /// Always try the OS prompt first: "never asked" also reads as denied
-  /// (iOS, Android 13+), and on iOS the Settings row only exists once the
-  /// app has asked. Once truly denied the prompt returns at once, so fall
-  /// through to system settings — but only then: a user who just tapped
-  /// "Don't allow" on a real prompt stays here.
+  /// Always try the OS prompt first (on iOS the Settings row only exists
+  /// once the app has asked). Fall through to system settings only when
+  /// the user had already been prompted and is still denied — the OS won't
+  /// show the prompt again. A user who just tapped "Don't allow" on their
+  /// first prompt stays here ([permissionStatus] reports never-prompted as
+  /// [NotificationPermission.notRequested]).
   Future<void> _requestPermission() async {
     final wasDenied = _permission.value == NotificationPermission.denied;
-    final asked = Stopwatch()..start();
     final result = await _scheduler.requestPermission();
     _permission.value = result;
-    // ponytail: "never asked" and "denied" read the same before the tap, so
-    // an instant denial is taken to mean no prompt was shown. Persist a
-    // "prompted once" flag if this ever misfires.
-    if (wasDenied &&
-        result == NotificationPermission.denied &&
-        asked.elapsed < _promptShownThreshold) {
+    if (wasDenied && result == NotificationPermission.denied) {
       await _scheduler.openSystemSettings();
     }
   }
-
-  /// Faster than any human answers a prompt.
-  static const _promptShownThreshold = Duration(milliseconds: 500);
 
   NotificationMatrix get _matrix => _store.settings.value.notifications;
 

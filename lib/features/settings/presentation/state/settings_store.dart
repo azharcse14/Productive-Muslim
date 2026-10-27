@@ -53,91 +53,96 @@ final class SettingsStore {
   }
 
   Future<void> setThemeMode(AppThemeMode mode) =>
-      _update(settings.value.copyWith(themeMode: mode));
+      _update((s) => s.copyWith(themeMode: mode));
 
   Future<void> setLocale(String code) =>
-      _update(settings.value.copyWith(localeCode: code));
+      _update((s) => s.copyWith(localeCode: code));
 
   Future<void> setLocation(LocationConfig location) =>
-      _update(settings.value.copyWith(location: location));
+      _update((s) => s.copyWith(location: location));
 
   Future<void> setMadhab(Madhab madhab) => _update(
-    settings.value.copyWith(
-      prayerParams: settings.value.prayerParams.copyWith(madhab: madhab),
+    (s) => s.copyWith(
+      prayerParams: s.prayerParams.copyWith(madhab: madhab),
     ),
   );
 
   Future<void> setMethod(CalculationMethodId method) => _update(
-    settings.value.copyWith(
-      prayerParams: settings.value.prayerParams.copyWith(method: method),
+    (s) => s.copyWith(
+      prayerParams: s.prayerParams.copyWith(method: method),
     ),
   );
 
   Future<void> setHighLatitudeRule(HighLatitudeRule rule) => _update(
-    settings.value.copyWith(
-      prayerParams: settings.value.prayerParams.copyWith(
+    (s) => s.copyWith(
+      prayerParams: s.prayerParams.copyWith(
         highLatitudeRule: rule,
       ),
     ),
   );
 
   Future<void> setNotifications(NotificationMatrix matrix) =>
-      _update(settings.value.copyWith(notifications: matrix));
+      _update((s) => s.copyWith(notifications: matrix));
 
   /// Onboarding gate (router redirect reads this).
   /// Clamped to −2..+2 by [AppSettings].
   Future<void> setSahriSafety(int minutes) => _update(
-    settings.value.copyWith(
-      prayerParams: settings.value.prayerParams.copyWith(
+    (s) => s.copyWith(
+      prayerParams: s.prayerParams.copyWith(
         sahriSafetyMinutes: minutes,
       ),
     ),
   );
 
   Future<void> setHijriOffset(int days) =>
-      _update(settings.value.copyWith(hijriOffsetDays: days));
+      _update((s) => s.copyWith(hijriOffsetDays: days));
 
   Future<void> setShowAchievements({required bool show}) =>
-      _update(settings.value.copyWith(showAchievements: show));
+      _update((s) => s.copyWith(showAchievements: show));
 
   Future<void> setHapticsEnabled({required bool enabled}) {
     Haptics.enabled = enabled;
-    return _update(settings.value.copyWith(hapticsEnabled: enabled));
+    return _update((s) => s.copyWith(hapticsEnabled: enabled));
   }
 
   Future<void> setHomeCardVisible(HomeCard card, {required bool visible}) {
-    final hidden = {...settings.value.hiddenHomeCards};
-    visible ? hidden.remove(card) : hidden.add(card);
-    return _update(settings.value.copyWith(hiddenHomeCards: hidden));
+    return _update((s) {
+      final hidden = {...s.hiddenHomeCards};
+      visible ? hidden.remove(card) : hidden.add(card);
+      return s.copyWith(hiddenHomeCards: hidden);
+    });
   }
 
   Future<void> setSetupComplete({required bool complete}) =>
-      _update(settings.value.copyWith(setupComplete: complete));
+      _update((s) => s.copyWith(setupComplete: complete));
 
   Future<void> setAdjustment(Prayer prayer, int minutes) {
-    final params = settings.value.prayerParams;
     return _update(
-      settings.value.copyWith(
-        prayerParams: params.copyWith(
-          adjustments: {...params.adjustments, prayer: minutes},
+      (s) => s.copyWith(
+        prayerParams: s.prayerParams.copyWith(
+          adjustments: {...s.prayerParams.adjustments, prayer: minutes},
         ),
       ),
     );
   }
 
-  Future<void> _update(AppSettings next) async {
+  /// Applies [change] to the current settings and saves. [change] is a
+  /// function, not a value, so a change made while storage was unreadable
+  /// can be replayed onto the real settings once they load.
+  Future<void> _update(AppSettings Function(AppSettings) change) async {
     if (_readFailed) {
-      // Retry the read first; if storage is back, adopt what it holds and
-      // drop [next] — it was built on defaults, not the user's settings.
+      // Retry the read first so [change] lands on the user's settings,
+      // not on the defaults kept after the failed load.
       await load();
-      if (!_readFailed) {
+      if (_readFailed) {
+        // ponytail: still unreadable — saving would overwrite the stored
+        // settings with defaults, so the change lives in memory only and
+        // is lost on restart.
+        settings.value = change(settings.value);
         return;
       }
-      // ponytail: still unreadable — change lives in memory only; it is
-      // lost on restart, but the stored settings survive.
-      settings.value = next;
-      return;
     }
+    final next = change(settings.value);
     settings.value = next;
     await _saveSettings(next);
   }
