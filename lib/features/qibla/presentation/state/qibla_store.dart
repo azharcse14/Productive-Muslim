@@ -126,7 +126,18 @@ final class QiblaStore {
     );
   }
 
-  void dispose() {
+  /// Releases the sensors while the app is hidden (Android keeps them
+  /// streaming in the background otherwise).
+  void pause() {
     unawaited(_subscription?.cancel());
+    _subscription = null;
   }
+
+  void resume() {
+    if (_subscription == null) {
+      _subscribe();
+    }
+  }
+
+  void dispose() => pause();
 }

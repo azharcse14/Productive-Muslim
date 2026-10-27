@@ -105,6 +105,21 @@ void main() {
       store.dispose();
     });
 
+    test('pause releases the sensors; resume resubscribes', () async {
+      final (store, sensors, _) = await _make();
+      expect(sensors.controller.hasListener, isTrue);
+      store.pause();
+      expect(sensors.controller.hasListener, isFalse);
+      store
+        ..resume()
+        ..resume(); // idempotent: still one subscription
+      sensors.emitHeading(10);
+      await Future<void>.delayed(Duration.zero);
+      expect(store.heading.value, isNotNull);
+      store.dispose();
+      expect(sensors.controller.hasListener, isFalse);
+    });
+
     test('sensor stream drives a smoothed heading', () async {
       final (store, sensors, _) = await _make();
       sensors.emitHeading(10);

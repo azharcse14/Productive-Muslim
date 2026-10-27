@@ -27,9 +27,20 @@ final class QiblaScreen extends StatefulWidget {
 
 final class _QiblaScreenState extends State<QiblaScreen> {
   late final QiblaStore _store = locator<QiblaStore>();
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(
+      onHide: _store.pause,
+      onShow: _store.resume,
+    );
+  }
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _store.dispose();
     super.dispose();
   }
