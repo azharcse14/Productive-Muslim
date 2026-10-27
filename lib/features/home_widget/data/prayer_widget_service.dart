@@ -24,10 +24,10 @@ final class PrayerWidgetService {
     required ZonedClock clock,
     required SettingsStore settings,
     WidgetBridge bridge = const WidgetBridge(),
-  })  : _getPrayerDay = getPrayerDay,
-        _clock = clock,
-        _settings = settings,
-        _bridge = bridge;
+  }) : _getPrayerDay = getPrayerDay,
+       _clock = clock,
+       _settings = settings,
+       _bridge = bridge;
 
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
@@ -50,6 +50,7 @@ final class PrayerWidgetService {
       final location = _settings.location.value;
 
       PrayerDay? day;
+      PrayerDay? tomorrow;
       DateTime now;
       var locationLabel = '';
       if (location != null) {
@@ -60,15 +61,18 @@ final class PrayerWidgetService {
           params: appSettings.prayerParams,
           date: today,
         ).valueOrNull;
+        tomorrow = _getPrayerDay(
+          location: location,
+          params: appSettings.prayerParams,
+          date: today.add(const Duration(days: 1)),
+        ).valueOrNull;
         locationLabel = location.displayName;
       } else {
         now = DateTime.now();
       }
 
-      String formatTime(DateTime t) => LocaleDigits.localize(
-            DateFormat.jm(code).format(t),
-            code,
-          );
+      String formatTime(DateTime t) =>
+          LocaleDigits.localize(DateFormat.jm(code).format(t), code);
 
       final payload = buildWidgetPayload(
         day: day,
@@ -77,6 +81,10 @@ final class PrayerWidgetService {
         prayerName: l10n.prayerLabel,
         formatTime: formatTime,
         locationLabel: locationLabel,
+        tomorrow: tomorrow,
+        instantOf: location == null
+            ? null
+            : (wall) => _clock.utcInstantOf(location, wall),
       );
 
       if (day != null) {

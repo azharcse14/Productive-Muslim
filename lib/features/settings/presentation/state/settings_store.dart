@@ -21,6 +21,10 @@ final class SettingsStore {
   late final settings = signal(const AppSettings());
   late final loaded = signal(false);
 
+  /// Storage couldn't be read: [settings] holds defaults, not the user's
+  /// data, so saving them would clobber whatever is stored.
+  bool _readFailed = false;
+
   /// Flutter-facing derivations.
   late final themeMode = computed(
     () => switch (settings.value.themeMode) {
@@ -38,10 +42,12 @@ final class SettingsStore {
     final result = await _getSettings();
     result.fold(
       (value) {
+        _readFailed = false;
         settings.value = value;
         Haptics.enabled = value.hapticsEnabled;
       },
-      (_) {}, // keep defaults; storage failure must not block boot
+      // Keep defaults; storage failure must not block boot.
+      (_) => _readFailed = true,
     );
     loaded.value = true;
   }
@@ -120,6 +126,18 @@ final class SettingsStore {
   }
 
   Future<void> _update(AppSettings next) async {
+    if (_readFailed) {
+      // Retry the read first; if storage is back, adopt what it holds and
+      // drop [next] — it was built on defaults, not the user's settings.
+      await load();
+      if (!_readFailed) {
+        return;
+      }
+      // ponytail: still unreadable — change lives in memory only; it is
+      // lost on restart, but the stored settings survive.
+      settings.value = next;
+      return;
+    }
     settings.value = next;
     await _saveSettings(next);
   }

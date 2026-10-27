@@ -1519,6 +1519,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get zakatInvalidNumber => 'সঠিক সংখ্যা লিখুন';
 
   @override
+  String get zakatNeedMetalPrice => 'যে ধাতুর গ্রাম লিখেছেন, তার দামও লিখুন।';
+
+  @override
   String get zakatCalculate => 'হিসাব করুন';
 
   @override

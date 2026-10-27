@@ -2258,6 +2258,12 @@ abstract class AppLocalizations {
   /// **'Enter a valid number'**
   String get zakatInvalidNumber;
 
+  /// No description provided for @zakatNeedMetalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the price for each metal you entered grams of.'**
+  String get zakatNeedMetalPrice;
+
   /// No description provided for @zakatCalculate.
   ///
   /// In en, this message translates to:

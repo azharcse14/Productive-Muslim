@@ -419,6 +419,7 @@
   "zakatSilverPrice": "প্রতি গ্রাম রুপার দাম",
   "zakatNeedPrice": "নিসাব হিসাব করতে আজকের স্বর্ণ বা রুপার দাম লিখুন।",
   "zakatInvalidNumber": "সঠিক সংখ্যা লিখুন",
+  "zakatNeedMetalPrice": "যে ধাতুর গ্রাম লিখেছেন, তার দামও লিখুন।",
   "zakatCalculate": "হিসাব করুন",
   "zakatNisab": "নিসাব সীমা: {amount}",
   "zakatDue": "প্রদেয় যাকাত: {amount}",

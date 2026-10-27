@@ -690,6 +690,7 @@
   "zakatSilverPrice": "Silver price per gram",
   "zakatNeedPrice": "Enter today's gold or silver price to work out the nisab.",
   "zakatInvalidNumber": "Enter a valid number",
+  "zakatNeedMetalPrice": "Enter the price for each metal you entered grams of.",
   "zakatCalculate": "Calculate",
   "zakatNisab": "Nisab threshold: {amount}",
   "@zakatNisab": {

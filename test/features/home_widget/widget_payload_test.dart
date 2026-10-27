@@ -4,19 +4,18 @@ import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_d
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 PrayerDay _day(DateTime d) => PrayerDay(
-      fajr: DateTime(d.year, d.month, d.day, 4, 30),
-      sunrise: DateTime(d.year, d.month, d.day, 5, 50),
-      dhuhr: DateTime(d.year, d.month, d.day, 12, 10),
-      asr: DateTime(d.year, d.month, d.day, 15, 40),
-      maghrib: DateTime(d.year, d.month, d.day, 18, 25),
-      isha: DateTime(d.year, d.month, d.day, 19, 45),
-      fajrTomorrow: DateTime(d.year, d.month, d.day + 1, 4, 31),
-      ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
-    );
+  fajr: DateTime(d.year, d.month, d.day, 4, 30),
+  sunrise: DateTime(d.year, d.month, d.day, 5, 50),
+  dhuhr: DateTime(d.year, d.month, d.day, 12, 10),
+  asr: DateTime(d.year, d.month, d.day, 15, 40),
+  maghrib: DateTime(d.year, d.month, d.day, 18, 25),
+  isha: DateTime(d.year, d.month, d.day, 19, 45),
+  fajrTomorrow: DateTime(d.year, d.month, d.day + 1, 4, 31),
+  ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
+);
 
 String _name(Prayer p) => p.name;
-String _fmt(DateTime t) =>
-    '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
+String _fmt(DateTime t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
 
 void main() {
   test('no location → unconfigured payload, empty fields', () {
@@ -52,5 +51,32 @@ void main() {
     for (final p in Prayer.values) {
       expect(payload['widget_times'], contains(p.name));
     }
+  });
+
+  test('schedule lists every prayer start as instants, in order', () {
+    final day = _day(DateTime(2026, 6, 14));
+    final tomorrow = _day(DateTime(2026, 6, 15));
+    final payload = buildWidgetPayload(
+      day: day,
+      tomorrow: tomorrow,
+      now: DateTime(2026, 6, 14, 13),
+      nextPrayerLabel: 'Next prayer',
+      prayerName: _name,
+      formatTime: _fmt,
+      locationLabel: 'Dhaka, BD',
+      instantOf: (wall) => wall.add(const Duration(hours: 1)),
+    );
+    final lines = payload['widget_schedule']!.split('\n');
+    expect(lines, hasLength(11)); // 5 today + 5 tomorrow + next Fajr
+    final first = lines.first.split('\t');
+    expect(
+      int.parse(first[0]),
+      DateTime(2026, 6, 14, 5, 30).millisecondsSinceEpoch,
+    );
+    expect(first.sublist(1), ['fajr', '4:30']);
+    expect(lines[5].split('\t').sublist(1), ['fajr', '4:30']);
+    expect(lines.last.split('\t').sublist(1), ['fajr', '4:31']);
+    final millis = [for (final l in lines) int.parse(l.split('\t')[0])];
+    expect(millis, orderedEquals([...millis]..sort()));
   });
 }

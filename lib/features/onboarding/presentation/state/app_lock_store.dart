@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter/widgets.dart' show AppLifecycleListener, AppLifecycleState;
+import 'package:flutter/widgets.dart'
+    show AppLifecycleListener, AppLifecycleState;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../config/app_config.dart';
@@ -35,8 +36,8 @@ final class AppLockStore {
     this._biometric, {
     DateTime Function()? now,
     Duration Function()? elapsed,
-  })  : _now = now ?? DateTime.now,
-        _elapsed = elapsed ?? (now == null ? _stopwatch() : _since(now));
+  }) : _now = now ?? DateTime.now,
+       _elapsed = elapsed ?? (now == null ? _stopwatch() : _since(now));
 
   final AppLockDataSource _source;
   final BiometricAuth _biometric;
@@ -73,6 +74,11 @@ final class AppLockStore {
   /// [resetPin]. Leaving the app revokes it, so whoever opens it next
   /// can't pick up a half-finished reset.
   late final pinResetAuthorized = signal(false);
+
+  /// True while the app is not in the foreground with the lock enabled:
+  /// the root covers its UI so the OS app switcher snapshot (and the
+  /// first resumed frame, before the gate redirect) shows nothing.
+  late final obscured = signal(false);
 
   /// PIN entry is blocked until this instant (null = not throttled).
   late final lockedUntil = signal<DateTime?>(null);
@@ -142,9 +148,7 @@ final class AppLockStore {
       _startCooldown(null);
     } else {
       final left = until.difference(_now());
-      _startCooldown(
-        left <= Duration.zero ? null : (left > cap ? cap : left),
-      );
+      _startCooldown(left <= Duration.zero ? null : (left > cap ? cap : left));
     }
   }
 
@@ -164,8 +168,12 @@ final class AppLockStore {
             _backgroundedAt = _now();
             _backgroundedAtMono = _elapsed();
           }
+          obscured.value = true;
         }
       case AppLifecycleState.resumed:
+        // Before any early break: an inactive→resumed blip (shade, dialog)
+        // never backgrounded, but it did set the cover.
+        obscured.value = false;
         final since = _backgroundedAt;
         _backgroundedAt = null;
         if (since == null || !enabled.value || _authInProgress) {
@@ -178,7 +186,12 @@ final class AppLockStore {
         if ((wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod) {
           locked.value = true;
         }
-      case AppLifecycleState.inactive || AppLifecycleState.detached:
+      // iOS snapshots the app switcher right after inactive.
+      case AppLifecycleState.inactive:
+        if (enabled.value && !_authInProgress) {
+          obscured.value = true;
+        }
+      case AppLifecycleState.detached:
         break;
     }
   }

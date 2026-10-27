@@ -40,6 +40,10 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   /// "not payable".
   bool _missingPrice = false;
 
+  /// Price fields left blank although grams of that metal were entered —
+  /// those grams would otherwise silently count as zero wealth.
+  Set<TextEditingController> _unpriced = {};
+
   @override
   void dispose() {
     for (final controller in [
@@ -71,9 +75,12 @@ final class _ZakatScreenState extends State<ZakatScreen> {
     FocusScope.of(context).unfocus();
     setState(() {
       _invalid = controllers.where(_isInvalid).toSet();
-      _missingPrice =
-          _valueOf(_goldPrice) <= 0 && _valueOf(_silverPrice) <= 0;
-      if (_invalid.isNotEmpty || _missingPrice) {
+      _missingPrice = _valueOf(_goldPrice) <= 0 && _valueOf(_silverPrice) <= 0;
+      _unpriced = {
+        if (_valueOf(_gold) > 0 && _valueOf(_goldPrice) <= 0) _goldPrice,
+        if (_valueOf(_silver) > 0 && _valueOf(_silverPrice) <= 0) _silverPrice,
+      };
+      if (_invalid.isNotEmpty || _missingPrice || _unpriced.isNotEmpty) {
         _result = null;
         return;
       }
@@ -140,17 +147,21 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                     errorText: _invalid.contains(controller)
                         ? l10n.zakatInvalidNumber
                         : _missingPrice && isPrice.contains(controller)
-                            ? l10n.zakatNeedPrice
-                            : null,
+                        ? l10n.zakatNeedPrice
+                        : _unpriced.contains(controller)
+                        ? l10n.zakatNeedMetalPrice
+                        : null,
                     errorMaxLines: 2,
                   ),
                 ),
               ),
             const SizedBox(height: QSpace.s2),
             // The price fields sit at the top, likely scrolled away.
-            if (_missingPrice) ...[
+            if (_missingPrice || _unpriced.isNotEmpty) ...[
               QBanner(
-                text: l10n.zakatNeedPrice,
+                text: _missingPrice
+                    ? l10n.zakatNeedPrice
+                    : l10n.zakatNeedMetalPrice,
                 tone: q.primarySoft,
                 foreground: q.onPrimarySoft,
               ),
@@ -177,11 +188,8 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                     const SizedBox(height: QSpace.s3),
                     if (result.isPayable)
                       Text(
-                        l10n.zakatDue(
-                          _formatAmount(context, result.zakatDue),
-                        ),
-                        style:
-                            QType.num_(QType.title).copyWith(color: q.ok),
+                        l10n.zakatDue(_formatAmount(context, result.zakatDue)),
+                        style: QType.num_(QType.title).copyWith(color: q.ok),
                       )
                     else
                       // Neutral tone on purpose: being below nisab is not

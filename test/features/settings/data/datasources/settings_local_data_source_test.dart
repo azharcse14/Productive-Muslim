@@ -30,11 +30,27 @@ void main() {
       expect(await source.read(), settings);
     });
 
-    test('corrupt payload falls back to defaults', () async {
+    test('corrupt payload falls back to defaults and is quarantined', () async {
       final prefs = SharedPreferencesAsync();
       await prefs.setString('app_settings_v1', '{"weird": ');
       final source = SettingsLocalDataSource(prefs);
-      await expectLater(source.read(), throwsA(isA<FormatException>()));
+      expect(await source.read(), const AppSettings());
+      await source.write(const AppSettings(setupComplete: true));
+      expect(
+        await prefs.getString(SettingsLocalDataSource.unreadableKey),
+        '{"weird": ',
+      );
+    });
+
+    test('non-object payload is quarantined too', () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('app_settings_v1', '[1]');
+      final source = SettingsLocalDataSource(prefs);
+      expect(await source.read(), const AppSettings());
+      expect(
+        await prefs.getString(SettingsLocalDataSource.unreadableKey),
+        '[1]',
+      );
     });
   });
 }
