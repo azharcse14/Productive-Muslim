@@ -1,0 +1,138 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/notifications/data/local_notifications_scheduler.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
+import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
+import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:timezone/timezone.dart';
+
+/// Records schedule calls; throws for the ids in [failIds].
+final class _FakePlugin implements FlutterLocalNotificationsPlugin {
+  final scheduled = <int, NotificationDetails>{};
+  final failIds = <int>{};
+  int cancelAllCalls = 0;
+  int cancelPendingCalls = 0;
+
+  @override
+  Future<void> cancelAll() async => cancelAllCalls++;
+
+  @override
+  Future<void> cancelAllPendingNotifications() async => cancelPendingCalls++;
+
+  @override
+  Future<void> zonedSchedule({
+    required int id,
+    required TZDateTime scheduledDate,
+    required NotificationDetails notificationDetails,
+    required AndroidScheduleMode androidScheduleMode,
+    String? title,
+    String? body,
+    String? payload,
+    DateTimeComponents? matchDateTimeComponents,
+  }) async {
+    if (failIds.contains(id)) {
+      throw StateError('exact alarms revoked');
+    }
+    scheduled[id] = notificationDetails;
+  }
+
+  // No platform implementation: exact alarms read as allowed.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+const _texts = NotificationTexts(
+  azanTitle: '',
+  azanBody: '',
+  jamaatTitle: '',
+  jamaatBody: '',
+  sahriTitle: '',
+  sahriBody: '',
+  iftarTitle: '',
+  iftarBody: '',
+  muhasabaTitle: '',
+  muhasabaBody: '',
+  dailyReminderTitle: '',
+  dailyReminderBody: '',
+  dailyReminderRoute: '/hadith',
+  keepAliveTitle: '',
+  keepAliveBody: '',
+  markAsPrayedAction: '',
+  channelAzanName: '',
+  channelRemindersName: '',
+  channelSilentName: '',
+  channelBeepName: '',
+  prayerNames: {},
+);
+
+const _dhaka = ManualCityLocation(
+  City(
+    name: 'Dhaka',
+    countryCode: 'BD',
+    latitude: 23.7104,
+    longitude: 90.4074,
+    timezone: 'Asia/Dhaka',
+  ),
+);
+
+void main() {
+  setUpAll(TimezoneClock.initialize);
+
+  late _FakePlugin plugin;
+  late LocalNotificationsScheduler scheduler;
+  setUp(() {
+    plugin = _FakePlugin();
+    scheduler = LocalNotificationsScheduler(
+      clock: TimezoneClock(),
+      currentLocation: () => _dhaka,
+      formatTime: (_) => '',
+      plugin: plugin,
+    );
+  });
+
+  // Well in the future at any test run time.
+  final at = DateTime.now().add(const Duration(days: 1));
+  NotificationItem azan(Prayer prayer, {bool beep = false}) => NotificationItem(
+    kind: NotificationKind.azan,
+    prayer: prayer,
+    at: at.add(Duration(hours: prayer.index)),
+    beepOnly: beep,
+  );
+
+  test('reschedule keeps shown notifications (cancels pending only)', () async {
+    await scheduler.reschedule([azan(Prayer.fajr)], _texts);
+    expect(plugin.cancelPendingCalls, 1);
+    expect(plugin.cancelAllCalls, 0);
+  });
+
+  test(
+    'one failing item still schedules the rest and reports failure',
+    () async {
+      final items = [azan(Prayer.fajr), azan(Prayer.dhuhr), azan(Prayer.asr)];
+      plugin.failIds.add(items[1].id);
+      final result = await scheduler.reschedule(items, _texts);
+      expect(result, isA<FailureResult<void>>());
+      expect(plugin.scheduled.keys, {items[0].id, items[2].id});
+    },
+  );
+
+  test('beep and azan use different channels and urgency', () async {
+    final full = azan(Prayer.fajr);
+    final beep = azan(Prayer.dhuhr, beep: true);
+    await scheduler.reschedule([full, beep], _texts);
+    final fullAndroid = plugin.scheduled[full.id]!.android!;
+    final beepAndroid = plugin.scheduled[beep.id]!.android!;
+    expect(beepAndroid.channelId, isNot(fullAndroid.channelId));
+    expect(fullAndroid.importance, Importance.high);
+    expect(beepAndroid.importance, Importance.defaultImportance);
+    expect(beepAndroid.playSound, isTrue);
+    expect(
+      plugin.scheduled[beep.id]!.iOS!.interruptionLevel,
+      InterruptionLevel.active,
+    );
+  });
+}

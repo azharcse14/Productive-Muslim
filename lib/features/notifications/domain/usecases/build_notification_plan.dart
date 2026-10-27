@@ -21,11 +21,16 @@ import '../entities/notification_item.dart';
 /// Sahri/iftar alerts are Ramadan-only: a day qualifies when its Gregorian
 /// date maps to Ramadan with [hijriOffsetDays] applied (same rule as the
 /// home countdown's `ramadanMode`).
+///
+/// [jamaatAt], when given, resolves the jamaat config at each prayer's waqt
+/// start (so time-based mosque rules apply per prayer) and takes precedence
+/// over [jamaat].
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
   required NotificationMatrix matrix,
   required JamaatConfig jamaat,
+  JamaatConfig Function(DateTime at)? jamaatAt,
   Duration window = const Duration(hours: 48),
   int? maxItems,
   bool keepAlive = false,
@@ -57,9 +62,10 @@ List<NotificationItem> buildNotificationPlan({
       // Jamaat reminder: requires the global toggle AND a configured
       // entry for this prayer.
       if (matrix.jamaatReminder) {
-        final jamaatAt = jamaat.timeFor(prayer, start);
-        if (jamaatAt != null) {
-          final remindAt = jamaatAt.subtract(matrix.jamaatLead);
+        final jamaatTime =
+            (jamaatAt?.call(start) ?? jamaat).timeFor(prayer, start);
+        if (jamaatTime != null) {
+          final remindAt = jamaatTime.subtract(matrix.jamaatLead);
           if (inWindow(remindAt)) {
             items.add(
               NotificationItem(

@@ -36,6 +36,8 @@ final class NotificationController {
   final SettingsStore _settings;
   final MosqueStore _mosque;
 
+  late final _matrix = computed(() => _settings.settings.value.notifications);
+
   EffectCleanup? _stopEffect;
   AppLifecycleListener? _lifecycle;
   Timer? _debounce;
@@ -65,12 +67,13 @@ final class NotificationController {
     }();
     var first = true;
     _stopEffect = effect(() {
-      // Subscribe to everything the plan depends on.
+      // Subscribe to everything the plan depends on — narrow computeds,
+      // so unrelated settings (theme, haptics, ...) don't reschedule.
       _settings.location.value;
       _settings.prayerParams.value;
-      _settings.settings.value.notifications;
-      _settings.settings.value.localeCode;
-      _settings.settings.value.hijriOffsetDays;
+      _matrix.value;
+      _settings.locale.value;
+      _settings.hijriOffsetDays.value;
       _mosque.state.value; // profiles, rules, mode, override
       // The first run only subscribes — boot schedules with these values.
       if (first) {
@@ -118,14 +121,13 @@ final class NotificationController {
   }
 
   Future<void> _run() async {
-    // ponytail: jamaat resolves once for "now", so a schedule rule switching
-    // mosques mid-window applies on the next reschedule (resume/edit), not
-    // per prayer. Resolve per item in buildNotificationPlan if that matters.
+    // Resolved per prayer, so time-based mosque rules apply across the
+    // whole window.
     final result = await _reschedule(
       settings: _settings.settings.value,
       texts: _texts(),
-      jamaatAt: (now) =>
-          resolveActiveMosque(_mosque.state.value, now).profile?.config ??
+      jamaatAt: (at) =>
+          resolveActiveMosque(_mosque.state.value, at).profile?.config ??
           JamaatConfig.none,
     );
     final plan = result.valueOrNull;
@@ -169,6 +171,7 @@ final class NotificationController {
       channelAzanName: l10n.channelAzan,
       channelRemindersName: l10n.channelReminders,
       channelSilentName: l10n.channelSilent,
+      channelBeepName: l10n.channelBeep,
       prayerNames: {
         for (final prayer in Prayer.values) prayer.name: l10n.prayerLabel(prayer),
       },

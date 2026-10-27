@@ -239,6 +239,15 @@ void main() {
     controller.dispose();
   });
 
+  test('unrelated settings (theme) do not reschedule', () async {
+    final (controller, scheduler) = await _controller();
+    await controller.start();
+    await _lastSettings!.setThemeMode(AppThemeMode.dark);
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, 1);
+    controller.dispose();
+  });
+
   test('mosque state changes (not just the active profile) reschedule',
       () async {
     final (controller, scheduler) = await _controller();

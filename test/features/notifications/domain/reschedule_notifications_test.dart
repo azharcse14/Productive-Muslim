@@ -93,6 +93,7 @@ const _texts = NotificationTexts(
   channelAzanName: '',
   channelRemindersName: '',
   channelSilentName: '',
+  channelBeepName: '',
   prayerNames: {},
 );
 

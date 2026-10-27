@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -49,6 +51,9 @@ final class _FakeScheduler implements NotificationScheduler {
   final NotificationPermission promptResult;
   int prompts = 0;
 
+  /// When set, the prompt stays up until it completes (a user answering).
+  Completer<void>? promptGate;
+
   NotificationPermission permission;
   bool exactAlarms;
   bool exactRequested = false;
@@ -62,6 +67,7 @@ final class _FakeScheduler implements NotificationScheduler {
   @override
   Future<NotificationPermission> requestPermission() async {
     prompts++;
+    await promptGate?.future;
     return permission = promptResult;
   }
 
@@ -218,6 +224,27 @@ void main() {
       await tester.tap(find.text('Enable notifications'));
       await tester.pump();
       expect(scheduler.settingsOpened, isTrue);
+    });
+
+    testWidgets('declining a real first prompt stays on the screen',
+        (tester) async {
+      final scheduler = _FakeScheduler(
+        permission: NotificationPermission.denied, // never asked
+        promptResult: NotificationPermission.denied,
+      )..promptGate = Completer<void>();
+      await _register(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Enable notifications'));
+      await tester.pump();
+      // The user takes a moment, then taps "Don't allow".
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 600)),
+      );
+      scheduler.promptGate!.complete();
+      await tester.pump();
+      expect(scheduler.prompts, 1);
+      expect(scheduler.settingsOpened, isFalse);
     });
 
     testWidgets('missing exact-alarm permission shows guidance',

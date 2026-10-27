@@ -71,14 +71,25 @@ final class _NotificationSettingsScreenState
   /// Always try the OS prompt first: "never asked" also reads as denied
   /// (iOS, Android 13+), and on iOS the Settings row only exists once the
   /// app has asked. Once truly denied the prompt returns at once, so fall
-  /// through to system settings.
+  /// through to system settings — but only then: a user who just tapped
+  /// "Don't allow" on a real prompt stays here.
   Future<void> _requestPermission() async {
+    final wasDenied = _permission.value == NotificationPermission.denied;
+    final asked = Stopwatch()..start();
     final result = await _scheduler.requestPermission();
     _permission.value = result;
-    if (result == NotificationPermission.denied) {
+    // ponytail: "never asked" and "denied" read the same before the tap, so
+    // an instant denial is taken to mean no prompt was shown. Persist a
+    // "prompted once" flag if this ever misfires.
+    if (wasDenied &&
+        result == NotificationPermission.denied &&
+        asked.elapsed < _promptShownThreshold) {
       await _scheduler.openSystemSettings();
     }
   }
+
+  /// Faster than any human answers a prompt.
+  static const _promptShownThreshold = Duration(milliseconds: 500);
 
   NotificationMatrix get _matrix => _store.settings.value.notifications;
 

@@ -618,6 +618,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get channelSilent => 'নীরব নামাজ-সতর্কতা';
 
   @override
+  String get channelBeep => 'নামাজ-সতর্কতা (বিপ)';
+
+  @override
   String get notifSettingsTitle => 'নোটিফিকেশন';
 
   @override

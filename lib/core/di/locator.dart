@@ -358,7 +358,10 @@ void _onNotificationTap(String? payload, String? actionId) {
     return;
   }
   final prayer = uri.queryParameters['prayer'];
+  final lock = locator<AppLockStore>();
+  // Behind the app lock nothing is recorded; the app just opens to the gate.
   if (actionId == LocalNotificationsScheduler.markPrayedActionId &&
+      !(lock.enabled.value && lock.locked.value) &&
       Prayer.values.any((p) => p.name == prayer)) {
     final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
     unawaited(

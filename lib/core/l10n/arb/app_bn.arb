@@ -167,6 +167,7 @@
   "channelAzan": "আজান",
   "channelReminders": "রিমাইন্ডার",
   "channelSilent": "নীরব নামাজ-সতর্কতা",
+  "channelBeep": "নামাজ-সতর্কতা (বিপ)",
   "notifSettingsTitle": "নোটিফিকেশন",
   "notifPermissionDeniedBanner": "সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। প্রোডাক্টিভ মুসলিম পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।",
   "notifEnableCta": "নোটিফিকেশন চালু করুন",

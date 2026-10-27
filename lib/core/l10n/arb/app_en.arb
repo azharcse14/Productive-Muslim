@@ -250,6 +250,7 @@
   "channelAzan": "Azan",
   "channelReminders": "Reminders",
   "channelSilent": "Silent prayer alerts",
+  "channelBeep": "Prayer alerts (beep)",
   "notifSettingsTitle": "Notifications",
   "notifPermissionDeniedBanner": "Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.",
   "notifEnableCta": "Enable notifications",

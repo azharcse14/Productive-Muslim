@@ -22,6 +22,7 @@ final class NotificationTexts {
     required this.channelAzanName,
     required this.channelRemindersName,
     required this.channelSilentName,
+    required this.channelBeepName,
     required this.prayerNames,
   });
 
@@ -47,6 +48,7 @@ final class NotificationTexts {
   final String channelAzanName;
   final String channelRemindersName;
   final String channelSilentName;
+  final String channelBeepName;
 
   /// Localized prayer display names keyed by `Prayer.name`.
   final Map<String, String> prayerNames;

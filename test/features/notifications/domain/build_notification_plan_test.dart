@@ -215,6 +215,34 @@ void main() {
       // 18:45 + 5 − 10 = 18:40.
       expect(reminder.at, DateTime(2026, 3, 12, 18, 40));
     });
+
+    test('jamaatAt resolves the mosque per prayer, not once', () {
+      // A schedule rule switching mosques on the 13th.
+      final asked = <DateTime>[];
+      final plan = buildNotificationPlan(
+        from: _from,
+        days: _days,
+        matrix: const NotificationMatrix(jamaatReminder: true),
+        jamaat: JamaatConfig.none,
+        jamaatAt: (at) {
+          asked.add(at);
+          return JamaatConfig({
+            Prayer.dhuhr: FixedJamaat(
+              at.day == 12 ? const ClockTime(13, 15) : const ClockTime(13, 45),
+            ),
+          });
+        },
+      );
+      final reminders = plan
+          .where((i) => i.kind == NotificationKind.jamaat)
+          .map((i) => i.at)
+          .toList();
+      expect(reminders, [
+        DateTime(2026, 3, 12, 13), // 13:15 − 15
+        DateTime(2026, 3, 13, 13, 30), // 13:45 − 15
+      ]);
+      expect(asked, contains(DateTime(2026, 3, 13, 12))); // dhuhr waqt start
+    });
   });
 
   group('buildNotificationPlan — muhasaba nudge', () {

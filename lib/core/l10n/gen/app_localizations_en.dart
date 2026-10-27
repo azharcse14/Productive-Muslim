@@ -619,6 +619,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelSilent => 'Silent prayer alerts';
 
   @override
+  String get channelBeep => 'Prayer alerts (beep)';
+
+  @override
   String get notifSettingsTitle => 'Notifications';
 
   @override

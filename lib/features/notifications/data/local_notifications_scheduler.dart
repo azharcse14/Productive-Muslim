@@ -157,37 +157,50 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         await cancelAll();
         return const Result.success(null);
       }
-      await _plugin.cancelAll();
+      // Pending only: cancelAll() would also clear azans already in the
+      // tray, taking their "mark as prayed" action with them.
+      await _plugin.cancelAllPendingNotifications();
       final exact = await canScheduleExactAlarms();
       final mode = exact
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle;
+      // One bad item (e.g. exact-alarm permission revoked mid-loop) must not
+      // leave the rest unscheduled; the first error is still reported.
+      Object? firstError;
       for (final item in items) {
         final utc = _clock.utcInstantOf(location, item.at);
-        // zonedSchedule throws on a past instant, which would abort the
-        // whole loop (after cancelAll) and leave nothing scheduled. An
-        // item that came due while planning is simply skipped.
+        // zonedSchedule throws on a past instant; an item that came due
+        // while planning is simply skipped, not reported as a failure.
         if (!utc.isAfter(DateTime.now().add(const Duration(seconds: 5)))) {
           continue;
         }
         final (title, body) = _texts(item, texts);
-        await _plugin.zonedSchedule(
-          id: item.id,
-          title: title,
-          body: body,
-          scheduledDate: tz.TZDateTime.from(utc, tz.UTC),
-          notificationDetails: _details(item, texts),
-          androidScheduleMode: mode,
-          payload: switch (item.kind) {
-            NotificationKind.muhasabaEvening => '/muhasaba',
-            NotificationKind.dailyReminder => texts.dailyReminderRoute,
-            // Prayer + its prayer-day date ride along for the "mark as
-            // prayed" action, so a late (or after-midnight isha) tap
-            // files the right day.
-            NotificationKind.azan => '/home?prayer=${item.prayer?.name}'
-                '&date=${_dateParam(item.prayerDay ?? item.at)}',
-            _ => '/home',
-          },
+        try {
+          await _plugin.zonedSchedule(
+            id: item.id,
+            title: title,
+            body: body,
+            scheduledDate: tz.TZDateTime.from(utc, tz.UTC),
+            notificationDetails: _details(item, texts),
+            androidScheduleMode: mode,
+            payload: switch (item.kind) {
+              NotificationKind.muhasabaEvening => '/muhasaba',
+              NotificationKind.dailyReminder => texts.dailyReminderRoute,
+              // Prayer + its prayer-day date ride along for the "mark as
+              // prayed" action, so a late (or after-midnight isha) tap
+              // files the right day.
+              NotificationKind.azan => '/home?prayer=${item.prayer?.name}'
+                  '&date=${_dateParam(item.prayerDay ?? item.at)}',
+              _ => '/home',
+            },
+          );
+        } on Object catch (e) {
+          firstError ??= e;
+        }
+      }
+      if (firstError != null) {
+        return Result.failure(
+          UnexpectedFailure('Failed to schedule notifications', firstError),
         );
       }
       return const Result.success(null);
@@ -229,11 +242,23 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   NotificationDetails _details(NotificationItem item, NotificationTexts t) {
     // Quiet like a silent azan: no sound, low priority, passive on iOS.
     final quiet = item.silent || item.kind == NotificationKind.keepAlive;
+    // Beep: one short default tone on its own default-importance channel —
+    // no heads-up, vibration, or time-sensitive break-through. Azan keeps
+    // the high-importance channel.
+    // ponytail: azan plays the default sound too; real adhan audio needs a
+    // bundled file (android/app/src/main/res/raw + iOS bundle) wired via
+    // `sound:` on a NEW channel id (Android channels are immutable).
+    final beep = item.kind == NotificationKind.azan && item.beepOnly;
     final (channelId, channelName, sound) = switch (item.kind) {
       NotificationKind.azan when item.silent => (
           'productive_muslim_silent',
           t.channelSilentName,
           false,
+        ),
+      NotificationKind.azan when item.beepOnly => (
+          'productive_muslim_beep',
+          t.channelBeepName,
+          true,
         ),
       NotificationKind.azan => ('productive_muslim_azan', t.channelAzanName, true),
       // Own low-importance channel: Android 8+ takes importance from the
@@ -249,9 +274,14 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       android: AndroidNotificationDetails(
         channelId,
         channelName,
-        importance: quiet ? Importance.low : Importance.high,
-        priority: quiet ? Priority.low : Priority.high,
+        importance: quiet
+            ? Importance.low
+            : (beep ? Importance.defaultImportance : Importance.high),
+        priority: quiet
+            ? Priority.low
+            : (beep ? Priority.defaultPriority : Priority.high),
         playSound: sound,
+        enableVibration: !beep,
         category: AndroidNotificationCategory.reminder,
         actions: item.kind == NotificationKind.azan
             ? [
@@ -269,7 +299,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         presentSound: sound,
         interruptionLevel: quiet
             ? InterruptionLevel.passive
-            : InterruptionLevel.timeSensitive,
+            : beep
+                ? InterruptionLevel.active
+                : InterruptionLevel.timeSensitive,
       ),
     );
   }

@@ -1100,6 +1100,12 @@ abstract class AppLocalizations {
   /// **'Silent prayer alerts'**
   String get channelSilent;
 
+  /// No description provided for @channelBeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer alerts (beep)'**
+  String get channelBeep;
+
   /// No description provided for @notifSettingsTitle.
   ///
   /// In en, this message translates to:
