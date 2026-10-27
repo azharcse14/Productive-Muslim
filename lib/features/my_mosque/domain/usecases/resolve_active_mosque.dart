@@ -65,10 +65,12 @@ String? resolveAutoMosqueId(MosqueState state, DateTime now) {
 /// Resolves the mosque active on Home at [now]. In manual mode this is the
 /// user-selected profile; in auto mode it's the schedule result, unless a
 /// still-valid [MosqueOverride] is in effect (its baseline still matches the
-/// current auto target — i.e. no window boundary has been crossed since).
+/// current auto target — i.e. no window boundary has been crossed since —
+/// and it was set today).
 MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
   if (state.mode == ScheduleMode.manual) {
-    final profile = _byId(state, state.activeId) ??
+    final profile =
+        _byId(state, state.activeId) ??
         (state.profiles.isEmpty ? null : state.profiles.first);
     return MosqueResolution(mode: state.mode, profile: profile);
   }
@@ -76,6 +78,7 @@ MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
   final override = state.activeOverride;
   if (override != null &&
       override.baselineAutoId == autoId &&
+      override.liveAt(now) &&
       _byId(state, override.mosqueId) != null) {
     return MosqueResolution(
       mode: state.mode,

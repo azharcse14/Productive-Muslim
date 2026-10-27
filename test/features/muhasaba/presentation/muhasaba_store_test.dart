@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
@@ -47,14 +49,46 @@ void main() {
       expect(store.canGoForward, isFalse);
     });
 
-    test('togglePrayerToday flips today even while back-filling', () async {
+    test(
+      'togglePrayerOn flips today without moving a back-fill selection',
+      () async {
+        final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+        final today = DateTime(2026, 6, 12);
+        await store.togglePrayerOn('salah_fajr', today);
+        await store.selectDate(DateTime(2026, 6, 10));
+        // Home still sees today's real tick while the tab shows another day…
+        expect(store.entriesOn(today)['salah_fajr'], 1);
+        expect(store.valueOf('salah_fajr'), 0);
+        // …so a tap un-ticks it (what the user saw), not a blind flip.
+        await store.togglePrayerOn('salah_fajr', today);
+        expect(repo.entries_.containsKey(('salah_fajr', 20260612)), isFalse);
+        expect(store.selectedDate.value, DateTime(2026, 6, 10));
+      },
+    );
+
+    test('togglePrayerOn files overnight isha on yesterday', () async {
+      final (store, repo) = await makeMuhasabaStore(
+        now: () => DateTime(2026, 6, 12, 1, 30),
+        // Before Fajr every salah is locked for the new day.
+        lockedSalahOn: (date) =>
+            date == DateTime(2026, 6, 12) ? {'salah_fajr', 'salah_isha'} : {},
+      );
+      await store.togglePrayerOn('salah_isha', DateTime(2026, 6, 11));
+      expect(repo.entries_[('salah_isha', 20260611)], 1);
+      expect(store.entriesOn(DateTime(2026, 6, 11))['salah_isha'], 1);
+      expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
+    });
+
+    test('a failed save rolls back only its own key', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
-      await store.selectDate(DateTime(2026, 6, 10));
-      await store.togglePrayerToday('salah_fajr');
-      expect(repo.entries_[('salah_fajr', 20260612)], 1);
-      expect(store.selectedIsToday, isTrue);
-      await store.togglePrayerToday('salah_fajr');
-      expect(repo.entries_.containsKey(('salah_fajr', 20260612)), isFalse);
+      final gate = repo.gate = Completer<bool>();
+      final first = store.setValue('quran', 15); // held, then fails
+      await store.setValue('sadaqah', 1); // succeeds meanwhile
+      gate.complete(false);
+      await first;
+      expect(store.valueOf('quran'), 0);
+      expect(store.valueOf('sadaqah'), 1, reason: 'not reverted');
+      expect(repo.entries_[('sadaqah', 20260612)], 1);
     });
 
     test('locked salah cannot be checked ahead of its waqt', () async {
@@ -69,8 +103,8 @@ void main() {
       await store.setValue('salah_asr', 1);
       expect(store.valueOf('salah_asr'), 0);
       expect(repo.entries_.containsKey(('salah_asr', 20260612)), isFalse);
-      // togglePrayerToday respects the lock too.
-      await store.togglePrayerToday('salah_isha');
+      // togglePrayerOn respects the lock too.
+      await store.togglePrayerOn('salah_isha', DateTime(2026, 6, 12));
       expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
       // An unlocked salah works normally.
       await store.setValue('salah_fajr', 1);
@@ -116,15 +150,13 @@ void main() {
         icon: 'walk',
         colorIndex: 2,
       );
-      final custom =
-          store.items.value.firstWhere((i) => i.name == 'Morning walk');
+      final custom = store.items.value.firstWhere(
+        (i) => i.name == 'Morning walk',
+      );
       expect(custom.isDefault, isFalse);
       await store.setArchived(custom.id, archived: true);
       expect(store.items.value.any((i) => i.id == custom.id), isFalse);
-      expect(
-        store.archivedItems.value.any((i) => i.id == custom.id),
-        isTrue,
-      );
+      expect(store.archivedItems.value.any((i) => i.id == custom.id), isTrue);
     });
 
     test('rolls over to the new day when "today" was selected', () async {
@@ -136,33 +168,38 @@ void main() {
       expect(store.selectedDate.value, DateTime(2026, 6, 13));
       expect(store.stats.value!.days.last.date, DateTime(2026, 6, 13));
       // Check-ins now land on the new day, not yesterday.
-      await store.togglePrayerToday('salah_fajr');
+      await store.togglePrayerOn('salah_fajr', DateTime(2026, 6, 13));
       expect(repo.entries_[('salah_fajr', 20260613)], 1);
+      expect(store.valueOf('salah_fajr'), 1);
     });
 
-    test('markDoneOn files the given day, keeps the selection, never un-marks',
-        () async {
-      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
-      await store.selectDate(DateTime(2026, 6, 10)); // back-filling
-      // Late tap on yesterday's isha azan.
-      await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
-      expect(repo.entries_[('salah_isha', 20260611)], 1);
-      expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
-      expect(store.selectedDate.value, DateTime(2026, 6, 10));
-      await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
-      expect(repo.entries_[('salah_isha', 20260611)], 1);
-    });
+    test(
+      'markDoneOn files the given day, keeps the selection, never un-marks',
+      () async {
+        final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+        await store.selectDate(DateTime(2026, 6, 10)); // back-filling
+        // Late tap on yesterday's isha azan.
+        await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
+        expect(repo.entries_[('salah_isha', 20260611)], 1);
+        expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
+        expect(store.selectedDate.value, DateTime(2026, 6, 10));
+        await store.markDoneOn('salah_isha', DateTime(2026, 6, 11));
+        expect(repo.entries_[('salah_isha', 20260611)], 1);
+      },
+    );
 
-    test('markDoneOn never lowers an existing value; updates the shown day',
-        () async {
-      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
-      await store.setValue('quran', 15); // today is selected
-      await store.markDoneOn('quran', DateTime(2026, 6, 12));
-      expect(repo.entries_[('quran', 20260612)], 15);
-      expect(store.valueOf('quran'), 15);
-      await store.markDoneOn('salah_maghrib', DateTime(2026, 6, 12));
-      expect(store.valueOf('salah_maghrib'), 1, reason: 'cache follows');
-    });
+    test(
+      'markDoneOn never lowers an existing value; updates the shown day',
+      () async {
+        final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+        await store.setValue('quran', 15); // today is selected
+        await store.markDoneOn('quran', DateTime(2026, 6, 12));
+        expect(repo.entries_[('quran', 20260612)], 15);
+        expect(store.valueOf('quran'), 15);
+        await store.markDoneOn('salah_maghrib', DateTime(2026, 6, 12));
+        expect(store.valueOf('salah_maghrib'), 1, reason: 'cache follows');
+      },
+    );
 
     test('markDoneOn ignores a date after today', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
@@ -180,17 +217,19 @@ void main() {
       expect(store.stats.value!.days.last.date, DateTime(2026, 6, 13));
     });
 
-    test('updateItem refreshes stats (target change flips done-days)',
-        () async {
-      final (store, _) = await makeMuhasabaStore(now: _fixedNow);
-      await store.setValue('azkar', 50); // below the 100 target
-      int azkarDone() => store.stats.value!.items
-          .firstWhere((i) => i.itemId == 'azkar')
-          .daysDone;
-      expect(azkarDone(), 0);
-      final azkar = store.items.value.firstWhere((i) => i.id == 'azkar');
-      await store.updateItem(azkar.copyWith(dailyTarget: () => 33));
-      expect(azkarDone(), 1);
-    });
+    test(
+      'updateItem refreshes stats (target change flips done-days)',
+      () async {
+        final (store, _) = await makeMuhasabaStore(now: _fixedNow);
+        await store.setValue('azkar', 50); // below the 100 target
+        int azkarDone() => store.stats.value!.items
+            .firstWhere((i) => i.itemId == 'azkar')
+            .daysDone;
+        expect(azkarDone(), 0);
+        final azkar = store.items.value.firstWhere((i) => i.id == 'azkar');
+        await store.updateItem(azkar.copyWith(dailyTarget: () => 33));
+        expect(azkarDone(), 1);
+      },
+    );
   });
 }

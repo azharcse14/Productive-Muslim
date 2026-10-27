@@ -14,9 +14,9 @@ final class TasbihStore {
     void Function()? haptic,
     void Function()? milestoneHaptic,
     DateTime Function()? now,
-  })  : _haptic = haptic ?? _defaultTapHaptic,
-        _milestoneHaptic = milestoneHaptic ?? _defaultMilestoneHaptic,
-        _now = now ?? DateTime.now;
+  }) : _haptic = haptic ?? _defaultTapHaptic,
+       _milestoneHaptic = milestoneHaptic ?? _defaultMilestoneHaptic,
+       _now = now ?? DateTime.now;
 
   static const _key = 'tasbih_today';
 
@@ -50,8 +50,7 @@ final class TasbihStore {
 
   static void _defaultTapHaptic() => Haptics.light();
 
-  static void _defaultMilestoneHaptic() =>
-      Haptics.medium();
+  static void _defaultMilestoneHaptic() => Haptics.medium();
 
   String _todayKey() {
     final n = _now();
@@ -61,8 +60,14 @@ final class TasbihStore {
   }
 
   /// Restores today's saved total (a stored total from another day is stale
-  /// and resets to zero) and the lifetime stats.
+  /// and resets to zero) and the lifetime stats. Once loaded, later calls
+  /// (every screen open) only roll the day over — re-reading prefs would
+  /// clobber beads tapped while the read was in flight.
   Future<void> load() async {
+    if (_totalDay != null) {
+      rollOverDay();
+      return;
+    }
     final today = _todayKey();
     totalToday.value = await _readTotal(today);
     _totalDay = today;
@@ -93,11 +98,11 @@ final class TasbihStore {
 
   // ponytail: one prefs write per bead; debounce if taps ever get heavy.
   void _saveRound() => unawaited(
-        _prefs.setString(
-          _roundKey,
-          jsonEncode({'count': count.value, 'target': target.value}),
-        ),
-      );
+    _prefs.setString(
+      _roundKey,
+      jsonEncode({'count': count.value, 'target': target.value}),
+    ),
+  );
 
   Future<int> _readTotal(String today) async {
     final raw = await _prefs.getString(_key);
@@ -120,7 +125,7 @@ final class TasbihStore {
 
   /// Zeroes [totalToday] once the day it was counted on has passed (the
   /// store is app-scoped, so it can outlive midnight).
-  void _rollOverDay() {
+  void rollOverDay() {
     final today = _todayKey();
     if (_totalDay != today) {
       _totalDay = today;
@@ -150,7 +155,7 @@ final class TasbihStore {
   }
 
   void tap() {
-    _rollOverDay();
+    rollOverDay();
     _haptic();
     count.value = count.value + 1;
     if (count.value == target.value) {
@@ -187,7 +192,7 @@ final class TasbihStore {
   /// total and persisted; otherwise the count is simply discarded.
   Future<void> reset({required bool saveToHistory}) async {
     if (saveToHistory && count.value > 0) {
-      _rollOverDay();
+      rollOverDay();
       totalToday.value = totalToday.value + count.value;
       await _prefs.setString(
         _key,

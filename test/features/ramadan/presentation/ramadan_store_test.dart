@@ -98,6 +98,26 @@ void main() {
     });
   });
 
+  testWidgets('follows the day past midnight while open', (tester) async {
+    var clock = DateTime(2026, 3, 1, 23, 59, 30);
+    settings = SettingsStore(
+      GetSettings(_Repo(const AppSettings(location: _dhaka))),
+      SaveSettings(_Repo(const AppSettings())),
+    );
+    await settings.load();
+    final store = RamadanStore(
+      GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      settings,
+      now: () => clock,
+    );
+    expect(store.rozaDay.value, 12);
+    clock = DateTime(2026, 3, 2, 0, 0, 30);
+    await tester.pump(const Duration(minutes: 1));
+    expect(store.today.value, DateTime(2026, 3, 2));
+    expect(store.rozaDay.value, 13);
+    store.dispose();
+  });
+
   group('RamadanStore with a Hijri offset', () {
     test('offset shifts the roza day', () async {
       expect((await make(hijriOffset: -1)).rozaDay.value, 11);
@@ -106,8 +126,7 @@ void main() {
     });
 
     test('offset −1: tabular 1 Ramadan is still Sha\'ban', () async {
-      final store =
-          await make(hijriOffset: -1, now: DateTime(2026, 2, 18, 10));
+      final store = await make(hijriOffset: -1, now: DateTime(2026, 2, 18, 10));
       expect(store.isRamadan.value, isFalse);
       expect(store.rozaDay.value, isNull);
       expect(store.nextRamadan.value, (1447, 1));

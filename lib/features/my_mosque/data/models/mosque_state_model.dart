@@ -9,46 +9,47 @@ import '../../domain/entities/mosque_state.dart';
 /// bad shapes so old/new payloads survive app upgrades.
 abstract final class MosqueStateModel {
   static Map<String, Object?> toMap(MosqueState state) => {
-        'profiles': [
-          for (final profile in state.profiles)
-            {
-              'id': profile.id,
-              'name': profile.name,
-              'entries': {
-                for (final e in profile.entries.entries)
-                  e.key.name: switch (e.value) {
-                    FixedJamaat(:final time) => {
-                        'type': 'fixed',
-                        'hour': time.hour,
-                        'minute': time.minute,
-                      },
-                    OffsetJamaat(:final offset) => {
-                        'type': 'offset',
-                        'minutes': offset.inMinutes,
-                      },
-                    NoJamaat() => {'type': 'none'},
-                  },
+    'profiles': [
+      for (final profile in state.profiles)
+        {
+          'id': profile.id,
+          'name': profile.name,
+          'entries': {
+            for (final e in profile.entries.entries)
+              e.key.name: switch (e.value) {
+                FixedJamaat(:final time) => {
+                  'type': 'fixed',
+                  'hour': time.hour,
+                  'minute': time.minute,
+                },
+                OffsetJamaat(:final offset) => {
+                  'type': 'offset',
+                  'minutes': offset.inMinutes,
+                },
+                NoJamaat() => {'type': 'none'},
               },
-            },
-        ],
-        'activeId': state.activeId,
-        'mode': state.mode.name,
-        'rules': [
-          for (final rule in state.rules)
-            {
-              'mosqueId': rule.mosqueId,
-              'days': rule.days.toList(),
-              'start': {'hour': rule.start.hour, 'minute': rule.start.minute},
-              'end': {'hour': rule.end.hour, 'minute': rule.end.minute},
-            },
-        ],
-        'defaultId': state.defaultId,
-        if (state.activeOverride case final o?)
-          'override': {
-            'mosqueId': o.mosqueId,
-            'baselineAutoId': o.baselineAutoId,
           },
-      };
+        },
+    ],
+    'activeId': state.activeId,
+    'mode': state.mode.name,
+    'rules': [
+      for (final rule in state.rules)
+        {
+          'mosqueId': rule.mosqueId,
+          'days': rule.days.toList(),
+          'start': {'hour': rule.start.hour, 'minute': rule.start.minute},
+          'end': {'hour': rule.end.hour, 'minute': rule.end.minute},
+        },
+    ],
+    'defaultId': state.defaultId,
+    if (state.activeOverride case final o?)
+      'override': {
+        'mosqueId': o.mosqueId,
+        'baselineAutoId': o.baselineAutoId,
+        if (o.setOn case final d?) 'setOn': d.toIso8601String(),
+      },
+  };
 
   static MosqueState fromMap(Map<String, Object?> map) {
     final rawProfiles = map['profiles'];
@@ -125,6 +126,10 @@ abstract final class MosqueStateModel {
     return MosqueOverride(
       mosqueId: mosqueId,
       baselineAutoId: map['baselineAutoId'] as String?,
+      setOn: switch (map['setOn']) {
+        final String s => DateTime.tryParse(s),
+        _ => null,
+      },
     );
   }
 

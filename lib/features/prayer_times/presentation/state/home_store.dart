@@ -34,18 +34,21 @@ final class HomeStore {
     required ZonedClock clock,
     required SettingsStore settings,
     required MosqueStore mosque,
-  })  : _getPrayerDay = getPrayerDay,
-        _clock = clock,
-        _settings = settings,
-        _mosque = mosque {
+  }) : _getPrayerDay = getPrayerDay,
+       _clock = clock,
+       _settings = settings,
+       _mosque = mosque {
     now = signal(_wallNow());
     resume();
     // Expire a temporary mosque override once the schedule crosses into a
-    // different window (the auto target no longer matches its baseline).
+    // different window (the auto target no longer matches its baseline) or
+    // its day ends. Resolution ignores it either way; this just tidies up.
     _overrideWatcher = effect(() {
       final auto = _autoMosqueId.value; // memoized — fires only on a boundary
+      final day = dateKey.value;
       final override = _mosque.state.value.activeOverride;
-      if (override != null && override.baselineAutoId != auto) {
+      if (override != null &&
+          (override.baselineAutoId != auto || !override.liveAt(day))) {
         unawaited(_mosque.clearOverride());
       }
     });
@@ -127,47 +130,54 @@ final class HomeStore {
       offsetDays: _settings.settings.value.hijriOffsetDays,
     ),
   );
-  late final banglaDate =
-      computed(() => BanglaDate.fromGregorian(dateKey.value));
+  late final banglaDate = computed(
+    () => BanglaDate.fromGregorian(dateKey.value),
+  );
 
   /// Ramadan per the offset-adjusted [hijriDate] (drives the countdown's
   /// sahri/iftar overrides).
-  late final ramadanMode =
-      computed(() => hijriDate.value.month == HijriDate.ramadanMonth);
+  late final ramadanMode = computed(
+    () => hijriDate.value.month == HijriDate.ramadanMonth,
+  );
 
   /// The mosque active right now (manual selection, schedule, or override),
   /// memoized so the home subtree rebuilds only when it actually changes.
-  late final mosqueResolution =
-      computed(() => resolveActiveMosque(_mosque.state.value, now.value));
+  late final mosqueResolution = computed(
+    () => resolveActiveMosque(_mosque.state.value, now.value),
+  );
 
   /// The schedule's current target ignoring any override — drives override
   /// expiry. Memoized (String?), so it flips only at a window boundary.
-  late final _autoMosqueId =
-      computed(() => resolveAutoMosqueId(_mosque.state.value, now.value));
+  late final _autoMosqueId = computed(
+    () => resolveAutoMosqueId(_mosque.state.value, now.value),
+  );
 
   /// The active mosque profile's jamaat times (schedule-resolved).
-  late final jamaatConfig =
-      computed(() => mosqueResolution.value.profile?.config ?? JamaatConfig.none);
+  late final jamaatConfig = computed(
+    () => mosqueResolution.value.profile?.config ?? JamaatConfig.none,
+  );
 
   /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
   /// schedule's current target so it self-expires at the next window boundary.
   Future<void> overrideMosque(String mosqueId) => _mosque.setOverride(
-        mosqueId,
-        resolveAutoMosqueId(_mosque.state.value, now.value),
-      );
+    mosqueId,
+    resolveAutoMosqueId(_mosque.state.value, now.value),
+    now.value,
+  );
 
   Future<void> clearMosqueOverride() => _mosque.clearOverride();
 
   /// All saved mosque profiles (for the home switcher).
-  late final mosqueProfiles =
-      computed<List<MosqueProfile>>(() => _mosque.state.value.profiles);
+  late final mosqueProfiles = computed<List<MosqueProfile>>(
+    () => _mosque.state.value.profiles,
+  );
 
   /// Picks a mosque from the home switcher: a temporary override in auto mode,
   /// or a permanent active switch in manual mode.
   Future<void> selectMosque(String id) =>
       _mosque.state.value.mode == ScheduleMode.auto
-          ? overrideMosque(id)
-          : _mosque.setActive(id);
+      ? overrideMosque(id)
+      : _mosque.setActive(id);
 
   late final countdownTarget = computed<CountdownTarget?>(() {
     final day = prayerDay.value;
@@ -191,12 +201,29 @@ final class HomeStore {
   });
 
   /// Changes once per waqt — the table's highlight dependency.
-  late final activeWaqt =
-      computed(() => prayerDay.value?.activeWaqtAt(now.value));
+  late final activeWaqt = computed(
+    () => prayerDay.value?.activeWaqtAt(now.value),
+  );
 
-  /// Bitmask of prayers whose waqt has started today. Reads `now` every
-  /// second but its value only flips at a waqt boundary, so downstream
-  /// (the table) doesn't rebuild per second.
+  /// True after midnight but before Fajr: the active Isha is yesterday's.
+  late final overnightIsha = computed(() {
+    final day = prayerDay.value;
+    return day != null && now.value.isBefore(day.fajr);
+  });
+
+  /// The muhasaba day a prayer's check-in belongs to: today, except Isha
+  /// before Fajr, which is still yesterday's waqt (the same day the azan
+  /// notification's "mark as prayed" files it under).
+  DateTime salahDate(Prayer prayer) {
+    final d = dateKey.value;
+    return prayer == Prayer.isha && overnightIsha.value
+        ? DateTime(d.year, d.month, d.day - 1)
+        : d;
+  }
+
+  /// Bitmask of prayers whose waqt has started (overnight: yesterday's
+  /// Isha counts). Reads `now` every second but its value only flips at a
+  /// waqt boundary, so downstream (the table) doesn't rebuild per second.
   late final _startedMask = computed<int>(() {
     final day = prayerDay.value;
     if (day == null) {
@@ -205,7 +232,8 @@ final class HomeStore {
     final n = now.value;
     var mask = 0;
     for (final (i, prayer) in Prayer.values.indexed) {
-      if (!n.isBefore(day.startOf(prayer))) {
+      if (!n.isBefore(day.startOf(prayer)) ||
+          (prayer == Prayer.isha && overnightIsha.value)) {
         mask |= 1 << i;
       }
     }

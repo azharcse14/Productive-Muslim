@@ -16,13 +16,12 @@ void main() {
     void Function()? haptic,
     void Function()? milestoneHaptic,
     DateTime Function()? now,
-  }) =>
-      TasbihStore(
-        SharedPreferencesAsync(),
-        haptic: haptic ?? () {},
-        milestoneHaptic: milestoneHaptic ?? () {},
-        now: now ?? () => DateTime(2026, 6, 12, 9, 30),
-      );
+  }) => TasbihStore(
+    SharedPreferencesAsync(),
+    haptic: haptic ?? () {},
+    milestoneHaptic: milestoneHaptic ?? () {},
+    now: now ?? () => DateTime(2026, 6, 12, 9, 30),
+  );
 
   group('TasbihStore', () {
     test('tap increments the count and fires the injected haptic', () {
@@ -55,45 +54,49 @@ void main() {
       expect(milestones, 1);
     });
 
-    test('an in-progress round survives a restart; undo takes one back',
-        () async {
-      final store = makeStore()..setTarget(100);
-      store
-        ..tap()
-        ..tap()
-        ..tap()
-        ..undo();
-      await pumpEventQueue();
+    test(
+      'an in-progress round survives a restart; undo takes one back',
+      () async {
+        final store = makeStore()..setTarget(100);
+        store
+          ..tap()
+          ..tap()
+          ..tap()
+          ..undo();
+        await pumpEventQueue();
 
-      final restored = makeStore();
-      await restored.load();
-      expect(restored.count.value, 2);
-      expect(restored.target.value, 100);
+        final restored = makeStore();
+        await restored.load();
+        expect(restored.count.value, 2);
+        expect(restored.target.value, 100);
 
-      restored
-        ..undo()
-        ..undo()
-        ..undo();
-      expect(restored.count.value, 0);
-    });
+        restored
+          ..undo()
+          ..undo()
+          ..undo();
+        expect(restored.count.value, 0);
+      },
+    );
 
-    test('reset(saveToHistory: true) adds the round to today and persists',
-        () async {
-      final store = makeStore();
-      store.tap();
-      store.tap();
+    test(
+      'reset(saveToHistory: true) adds the round to today and persists',
+      () async {
+        final store = makeStore();
+        store.tap();
+        store.tap();
 
-      await store.reset(saveToHistory: true);
+        await store.reset(saveToHistory: true);
 
-      expect(store.count.value, 0);
-      expect(store.milestone.value, isFalse);
-      expect(store.totalToday.value, 2);
+        expect(store.count.value, 0);
+        expect(store.milestone.value, isFalse);
+        expect(store.totalToday.value, 2);
 
-      // A fresh store on the same day restores the total.
-      final restored = makeStore();
-      await restored.load();
-      expect(restored.totalToday.value, 2);
-    });
+        // A fresh store on the same day restores the total.
+        final restored = makeStore();
+        await restored.load();
+        expect(restored.totalToday.value, 2);
+      },
+    );
 
     test('reset(saveToHistory: false) discards the round', () async {
       final store = makeStore();
@@ -116,8 +119,7 @@ void main() {
       expect(tomorrow.totalToday.value, 0);
     });
 
-    test('same (app-scoped) store resets today total after midnight',
-        () async {
+    test('same (app-scoped) store resets today total after midnight', () async {
       var now = DateTime(2026, 6, 12, 23, 59);
       final store = makeStore(now: () => now);
       await store.load();
@@ -141,8 +143,21 @@ void main() {
       expect(store.totalToday.value, 1);
     });
 
-    test('lifetime stats load even with no / corrupt today payload',
-        () async {
+    test(
+      're-opening the screen (load again) keeps beads tapped meanwhile',
+      () async {
+        final store = makeStore();
+        await store.load();
+        store.tap();
+        final reopen = store.load(); // screen initState
+        store.tap(); // tapped before the reload would have finished
+        await reopen;
+        await Future<void>.delayed(Duration.zero);
+        expect(store.count.value, 2);
+      },
+    );
+
+    test('lifetime stats load even with no / corrupt today payload', () async {
       final prefs = SharedPreferencesAsync();
       await prefs.setString('tasbih_lifetime', '{"total": 99, "sessions": 3}');
 
@@ -157,8 +172,7 @@ void main() {
       expect(corrupt.lifetimeTotal.value, 99);
     });
 
-    test('custom target drives the milestone; invalid targets are ignored',
-        () {
+    test('custom target drives the milestone; invalid targets are ignored', () {
       var milestones = 0;
       final store = makeStore(milestoneHaptic: () => milestones++);
       expect(store.target.value, 33);

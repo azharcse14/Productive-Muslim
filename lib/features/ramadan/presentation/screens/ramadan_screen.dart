@@ -44,6 +44,12 @@ final class _RamadanScreenState extends State<RamadanScreen> {
     return location == null ? DateTime.now() : _clock.nowAt(location);
   }
 
+  @override
+  void dispose() {
+    _store.dispose();
+    super.dispose();
+  }
+
   String _formatTime(BuildContext context, DateTime time) {
     final locale = Localizations.localeOf(context);
     return LocaleDigits.localize(

@@ -104,7 +104,7 @@ void main() {
       final (store, _) = await makeMosqueStore();
       final a = await store.addProfile('A');
       await store.setMode(ScheduleMode.auto);
-      await store.setOverride(a.id, null);
+      await store.setOverride(a.id, null, DateTime(2026, 6, 15));
       expect(store.state.value.activeOverride, isNotNull);
       await store.setMode(ScheduleMode.manual);
       expect(store.state.value.mode, ScheduleMode.manual);
@@ -160,7 +160,7 @@ void main() {
           ),
         );
         await store.setDefaultMosque(b.id);
-        await store.setOverride(b.id, a.id);
+        await store.setOverride(b.id, a.id, DateTime(2026, 6, 15));
         await store.deleteProfile(b.id);
         expect(store.rules.value, isEmpty);
         expect(store.state.value.defaultId, isNull);

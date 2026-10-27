@@ -86,8 +86,16 @@ void main() {
         profiles: [_a, _b],
         mode: ScheduleMode.auto,
         rules: [
-          MosqueRule(mosqueId: 'a', start: ClockTime(10, 0), end: ClockTime(18, 0)),
-          MosqueRule(mosqueId: 'b', start: ClockTime(0, 0), end: ClockTime(0, 0)),
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
+          MosqueRule(
+            mosqueId: 'b',
+            start: ClockTime(0, 0),
+            end: ClockTime(0, 0),
+          ),
         ],
       );
       expect(resolveAutoMosqueId(state, now), 'a');
@@ -99,7 +107,11 @@ void main() {
         mode: ScheduleMode.auto,
         defaultId: 'b',
         rules: [
-          MosqueRule(mosqueId: 'a', start: ClockTime(10, 0), end: ClockTime(11, 0)),
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(11, 0),
+          ),
         ],
       );
       expect(resolveAutoMosqueId(state, now), 'b');
@@ -110,7 +122,11 @@ void main() {
         profiles: [_b],
         mode: ScheduleMode.auto,
         rules: [
-          MosqueRule(mosqueId: 'gone', start: ClockTime(0, 0), end: ClockTime(0, 0)),
+          MosqueRule(
+            mosqueId: 'gone',
+            start: ClockTime(0, 0),
+            end: ClockTime(0, 0),
+          ),
         ],
       );
       expect(resolveAutoMosqueId(state, now), 'b');
@@ -121,10 +137,7 @@ void main() {
     final now = DateTime(2026, 6, 15, 11);
 
     test('manual mode returns the active profile', () {
-      const state = MosqueState(
-        profiles: [_a, _b],
-        activeId: 'b',
-      );
+      const state = MosqueState(profiles: [_a, _b], activeId: 'b');
       final r = resolveActiveMosque(state, now);
       expect(r.profile, _b);
       expect(r.isAuto, isFalse);
@@ -137,7 +150,11 @@ void main() {
         mode: ScheduleMode.auto,
         defaultId: 'b',
         rules: [
-          MosqueRule(mosqueId: 'a', start: ClockTime(10, 0), end: ClockTime(18, 0)),
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
         ],
       );
       final r = resolveActiveMosque(state, now);
@@ -147,17 +164,65 @@ void main() {
     });
 
     test('a valid override (baseline matches auto) takes effect', () {
-      const state = MosqueState(
-        profiles: [_a, _b],
+      final state = MosqueState(
+        profiles: const [_a, _b],
         mode: ScheduleMode.auto,
-        rules: [
-          MosqueRule(mosqueId: 'a', start: ClockTime(10, 0), end: ClockTime(18, 0)),
+        rules: const [
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
         ],
-        activeOverride: MosqueOverride(mosqueId: 'b', baselineAutoId: 'a'),
+        activeOverride: MosqueOverride(
+          mosqueId: 'b',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 6, 15),
+        ),
       );
       final r = resolveActiveMosque(state, now);
       expect(r.profile, _b);
       expect(r.isOverride, isTrue);
+    });
+
+    test('an override lapses at the end of its day, same window or not', () {
+      // Every-day 10–18 rule: tomorrow at 11 resolves to 'a' again, so the
+      // baseline still matches — only the day bound expires it.
+      final state = MosqueState(
+        profiles: const [_a, _b],
+        mode: ScheduleMode.auto,
+        rules: const [
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
+        ],
+        activeOverride: MosqueOverride(
+          mosqueId: 'b',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 6, 15),
+        ),
+      );
+      final r = resolveActiveMosque(state, DateTime(2026, 6, 16, 11));
+      expect(r.profile, _a);
+      expect(r.isOverride, isFalse);
+    });
+
+    test('a legacy override without a set day is treated as expired', () {
+      const state = MosqueState(
+        profiles: [_a, _b],
+        mode: ScheduleMode.auto,
+        rules: [
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
+        ],
+        activeOverride: MosqueOverride(mosqueId: 'b', baselineAutoId: 'a'),
+      );
+      expect(resolveActiveMosque(state, now).isOverride, isFalse);
     });
 
     test('a stale override (boundary crossed) is ignored', () {
@@ -165,7 +230,11 @@ void main() {
         profiles: [_a, _b],
         mode: ScheduleMode.auto,
         rules: [
-          MosqueRule(mosqueId: 'a', start: ClockTime(10, 0), end: ClockTime(18, 0)),
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(10, 0),
+            end: ClockTime(18, 0),
+          ),
         ],
         // Auto now resolves to 'a', but the override was baselined to 'b'.
         activeOverride: MosqueOverride(mosqueId: 'b', baselineAutoId: 'b'),

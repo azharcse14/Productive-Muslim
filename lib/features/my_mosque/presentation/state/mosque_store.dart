@@ -104,10 +104,19 @@ final class MosqueStore {
       _update(state.value.withDefault(id));
 
   /// Sets a temporary override (auto mode). [baselineAutoId] is the schedule's
-  /// current target, so the override expires once a window boundary is crossed.
-  Future<void> setOverride(String mosqueId, String? baselineAutoId) => _update(
+  /// current target, so the override expires once a window boundary is crossed
+  /// or the wall-clock day of [now] ends.
+  Future<void> setOverride(
+    String mosqueId,
+    String? baselineAutoId,
+    DateTime now,
+  ) => _update(
     state.value.withOverride(
-      MosqueOverride(mosqueId: mosqueId, baselineAutoId: baselineAutoId),
+      MosqueOverride(
+        mosqueId: mosqueId,
+        baselineAutoId: baselineAutoId,
+        setOn: DateTime(now.year, now.month, now.day),
+      ),
     ),
   );
 

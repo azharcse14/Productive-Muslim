@@ -19,7 +19,7 @@ final class LocationPermissionDenied extends LocationFailure {
 /// to app settings or the manual picker.
 final class LocationPermissionDeniedForever extends LocationFailure {
   const LocationPermissionDeniedForever()
-      : super('Location permission permanently denied');
+    : super('Location permission permanently denied');
 }
 
 final class LocationUnavailable extends LocationFailure {
@@ -28,8 +28,12 @@ final class LocationUnavailable extends LocationFailure {
 
 /// Device GPS access.
 abstract interface class LocationRepository {
-  /// Requests permission if needed, then resolves the current position.
-  Future<Result<GpsLocation>> getCurrentLocation();
+  /// Requests permission if needed (unless [requestPermission] is false —
+  /// background refreshes must never prompt), then resolves the current
+  /// position.
+  Future<Result<GpsLocation>> getCurrentLocation({
+    bool requestPermission = true,
+  });
 
   /// Opens the system page that fixes a GPS failure: location services
   /// when they're off, otherwise this app's permission page.
