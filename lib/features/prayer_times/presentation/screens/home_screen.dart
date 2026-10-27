@@ -61,6 +61,7 @@ final class HomeScreen extends StatefulWidget {
 
 final class _HomeScreenState extends State<HomeScreen> {
   late final HomeStore _store = locator<HomeStore>();
+  late final AppLifecycleListener _lifecycle;
   late final MuhasabaStore _muhasaba = locator<MuhasabaStore>();
   late final SettingsStore _settings = locator<SettingsStore>();
   late final QuranStore? _quran = locator.isRegistered<QuranStore>()
@@ -110,6 +111,10 @@ final class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _lifecycle = AppLifecycleListener(
+      onHide: _store.pause,
+      onShow: _store.resume,
+    );
     _dayWatcher = effect(() {
       _store.dateKey.value;
       untracked(() {
@@ -215,6 +220,7 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _dayWatcher();
     _store.dispose();
     super.dispose();

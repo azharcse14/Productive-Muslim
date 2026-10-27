@@ -39,9 +39,7 @@ final class HomeStore {
         _settings = settings,
         _mosque = mosque {
     now = signal(_wallNow());
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      now.value = _wallNow();
-    });
+    resume();
     // Expire a temporary mosque override once the schedule crosses into a
     // different window (the auto target no longer matches its baseline).
     _overrideWatcher = effect(() {
@@ -62,7 +60,24 @@ final class HomeStore {
 
   /// Wall clock at the configured location, ticked every second.
   late final Signal<DateTime> now;
-  late Timer _ticker;
+  Timer? _ticker;
+
+  /// Stops the per-second tick while the app is hidden (saves battery).
+  void pause() {
+    _ticker?.cancel();
+    _ticker = null;
+  }
+
+  /// Re-syncs [now] immediately and restarts the tick.
+  void resume() {
+    if (_ticker != null) {
+      return;
+    }
+    now.value = _wallNow();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      now.value = _wallNow();
+    });
+  }
 
   DateTime _wallNow() {
     final location = _settings.location.value;
@@ -243,7 +258,7 @@ final class HomeStore {
   );
 
   void dispose() {
-    _ticker.cancel();
+    pause();
     _overrideWatcher();
   }
 }
