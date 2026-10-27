@@ -17,8 +17,8 @@ import '../../domain/entities/notification_texts.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../../domain/usecases/reschedule_notifications.dart';
 
-/// App-scoped: reschedules the plan on app open, on every resume from
-/// background, and whenever location / prayer params / matrix / locale
+/// App-scoped: reschedules the plan on app open, on resume once the plan
+/// is stale (or the exact-alarm grant changed), and whenever location / prayer params / matrix / locale
 /// change (guide §5).
 final class NotificationController {
   NotificationController({
@@ -26,15 +26,25 @@ final class NotificationController {
     required NotificationScheduler scheduler,
     required SettingsStore settings,
     required MosqueStore mosque,
+    DateTime Function() now = DateTime.now,
   })  : _reschedule = reschedule,
         _scheduler = scheduler,
         _settings = settings,
-        _mosque = mosque;
+        _mosque = mosque,
+        _now = now;
 
   final RescheduleNotifications _reschedule;
   final NotificationScheduler _scheduler;
   final SettingsStore _settings;
   final MosqueStore _mosque;
+  final DateTime Function() _now;
+
+  /// A resume within this long of the last successful run, with the same
+  /// exact-alarm grant, keeps that plan: it spans 7 days, and rebuilding it
+  /// is ~100 platform calls. Plan-input changes reschedule via the effect.
+  static const _freshFor = Duration(hours: 12);
+  DateTime? _lastRunAt;
+  bool? _lastExact;
 
   late final _matrix = computed(() => _settings.settings.value.notifications);
 
@@ -83,7 +93,9 @@ final class NotificationController {
       _scheduleDebounced();
     });
     // The OS holds a finite schedule; refill it whenever the user returns.
-    _lifecycle = AppLifecycleListener(onResume: _scheduleDebounced);
+    _lifecycle = AppLifecycleListener(
+      onResume: () => unawaited(_onResume()),
+    );
     try {
       await boot;
     } finally {
@@ -91,6 +103,20 @@ final class NotificationController {
         _inFlight = null;
       }
     }
+  }
+
+  Future<void> _onResume() async {
+    final last = _lastRunAt;
+    if (last != null) {
+      final age = _now().difference(last);
+      // Coming back from the exact-alarm settings page must reschedule.
+      if (!age.isNegative &&
+          age < _freshFor &&
+          await _scheduler.canScheduleExactAlarms() == _lastExact) {
+        return;
+      }
+    }
+    _scheduleDebounced();
   }
 
   void _scheduleDebounced() {
@@ -121,6 +147,7 @@ final class NotificationController {
   }
 
   Future<void> _run() async {
+    final exact = await _scheduler.canScheduleExactAlarms();
     // Resolved per prayer, so time-based mosque rules apply across the
     // whole window.
     final result = await _reschedule(
@@ -132,6 +159,8 @@ final class NotificationController {
     );
     final plan = result.valueOrNull;
     if (plan != null) {
+      _lastRunAt = _now();
+      _lastExact = exact;
       _scheduledUntil.value = plan
           .where((i) => i.kind != NotificationKind.keepAlive)
           .lastOrNull

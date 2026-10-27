@@ -57,8 +57,10 @@ final class _CountingScheduler implements NotificationScheduler {
   Future<NotificationPermission> requestPermission() async =>
       NotificationPermission.granted;
 
+  bool exact = true;
+
   @override
-  Future<bool> canScheduleExactAlarms() async => true;
+  Future<bool> canScheduleExactAlarms() async => exact;
 
   @override
   Future<void> requestExactAlarmPermission() async {}
@@ -114,7 +116,9 @@ const _dhaka = ManualCityLocation(
 SettingsStore? _lastSettings;
 MosqueStore? _lastMosque;
 
-Future<(NotificationController, _CountingScheduler)> _controller() async {
+Future<(NotificationController, _CountingScheduler)> _controller({
+  DateTime Function() now = DateTime.now,
+}) async {
   final scheduler = _CountingScheduler();
   final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
   final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
@@ -131,6 +135,7 @@ Future<(NotificationController, _CountingScheduler)> _controller() async {
     scheduler: scheduler,
     settings: settings,
     mosque: mosqueStore,
+    now: now,
   );
   return (controller, scheduler);
 }
@@ -139,8 +144,43 @@ void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(TimezoneClock.initialize);
 
-  test('resuming from background reschedules', () async {
-    final (controller, scheduler) = await _controller();
+  void resume() => binding
+    ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+    ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+    ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+
+  test('resume keeps a fresh plan; reschedules once stale or exact grant '
+      'changes', () async {
+    var now = DateTime(2026, 3, 1, 9);
+    final (controller, scheduler) = await _controller(now: () => now);
+    await controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    final before = scheduler.rescheduleCalls;
+
+    // Pause/resume keeps the plan alive in the OS; nothing rebuilt yet.
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before, reason: 'plan is fresh');
+
+    // Back from the exact-alarm settings page with the grant flipped.
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    scheduler.exact = false;
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before + 1, reason: 'grant changed');
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    now = now.add(const Duration(hours: 13));
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before + 2, reason: 'plan is stale');
+    controller.dispose();
+  });
+
+  test('resuming from background reschedules a stale plan', () async {
+    var now = DateTime(2026, 3, 1, 9);
+    final (controller, scheduler) = await _controller(now: () => now);
     await controller.start();
     expect(scheduler.rescheduleCalls, 1);
     // Let the initial effect's debounce settle.
@@ -154,6 +194,7 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 600));
     expect(scheduler.rescheduleCalls, before, reason: 'no reschedule on pause');
 
+    now = now.add(const Duration(hours: 13));
     binding
       ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
       ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
