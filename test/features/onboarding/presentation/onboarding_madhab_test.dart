@@ -62,26 +62,27 @@ Future<_Repo> _pumpToLocationStep(
       home: const OnboardingScreen(),
     ),
   );
-  for (var i = 0; i < 2; i++) {
-    await tester.tap(find.text('Next').hitTestable());
-    await tester.pumpAndSettle(); // welcome → language → location
-  }
+  // Welcome (with the language picker) → location.
+  await tester.tap(find.text('Next').hitTestable());
+  await tester.pumpAndSettle();
   return repo;
 }
 
 void main() {
   tearDown(GetIt.I.reset);
 
-  testWidgets('leaving the location step pre-selects the region madhab',
-      (tester) async {
+  testWidgets('leaving the location step pre-selects the region madhab', (
+    tester,
+  ) async {
     final repo = await _pumpToLocationStep(tester);
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.madhab, Madhab.shafi); // Egypt
   });
 
-  testWidgets('a madhab already changed from the default is kept',
-      (tester) async {
+  testWidgets('a madhab already changed from the default is kept', (
+    tester,
+  ) async {
     final repo = await _pumpToLocationStep(
       tester,
       params: const PrayerParams(madhab: Madhab.maliki),
@@ -89,5 +90,14 @@ void main() {
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.madhab, Madhab.maliki);
+  });
+
+  testWidgets('leaving the location step pre-selects the region method', (
+    tester,
+  ) async {
+    final repo = await _pumpToLocationStep(tester);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(repo.stored.prayerParams.method, CalculationMethodId.egyptian);
   });
 }

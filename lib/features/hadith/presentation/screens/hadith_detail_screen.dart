@@ -6,6 +6,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../state/hadith_store.dart';
 import '../widgets/hadith_list_card.dart';
 
@@ -35,8 +36,9 @@ final class _HadithDetailScreenState extends State<HadithDetailScreen> {
     final l10n = context.l10n;
     return SignalBuilder(
       builder: (context) {
-        final hadith =
-            _store.items.value.where((h) => h.id == widget.id).firstOrNull;
+        final hadith = _store.items.value
+            .where((h) => h.id == widget.id)
+            .firstOrNull;
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -51,9 +53,7 @@ final class _HadithDetailScreenState extends State<HadithDetailScreen> {
                 padding: const EdgeInsets.all(QSpace.s5),
                 children: [HadithListCard(hadith: h)],
               ),
-              (null, false) => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              (null, false) => const QSkeletonList(count: 1, height: 220),
               (null, true) => Center(child: Text(l10n.hadithNotFound)),
             },
           ),

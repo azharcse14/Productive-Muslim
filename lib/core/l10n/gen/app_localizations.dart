@@ -3433,6 +3433,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{Nothing new to restore} =1{1 expense restored} other{{count} expenses restored}}'**
   String expenseImported(int count);
+
+  /// No description provided for @hadithSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith'**
+  String get hadithSearchHint;
+
+  /// No description provided for @hadithNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith found'**
+  String get hadithNoResults;
+
+  /// No description provided for @ruqyahSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search ruqyah'**
+  String get ruqyahSearchHint;
+
+  /// No description provided for @ruqyahNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get ruqyahNoResults;
+
+  /// No description provided for @scheduleRuleRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule rule removed'**
+  String get scheduleRuleRemoved;
+
+  /// No description provided for @countdownSeeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Full day'**
+  String get countdownSeeDay;
+
+  /// No description provided for @settingHomeCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Home cards'**
+  String get settingHomeCards;
+
+  /// No description provided for @settingHomeCardsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which sections appear on Home'**
+  String get settingHomeCardsSub;
+
+  /// No description provided for @homeCardQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get homeCardQuickActions;
+
+  /// No description provided for @homeCardDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah, hadith & dua of the day'**
+  String get homeCardDaily;
 }
 
 class _AppLocalizationsDelegate

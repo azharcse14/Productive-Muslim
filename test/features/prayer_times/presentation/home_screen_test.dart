@@ -103,12 +103,15 @@ Future<void> _register({
   final settingsRepo = _InMemorySettingsRepo(
     AppSettings(location: withLocation ? _dhaka : null),
   );
-  final settingsStore =
-      SettingsStore(GetSettings(settingsRepo), SaveSettings(settingsRepo));
+  final settingsStore = SettingsStore(
+    GetSettings(settingsRepo),
+    SaveSettings(settingsRepo),
+  );
   await settingsStore.load();
   final (mosqueStore, _) = await makeMosqueStore();
-  final (muhasabaStore, muhasabaRepo) =
-      await makeMuhasabaStore(now: () => _clock.current);
+  final (muhasabaStore, muhasabaRepo) = await makeMuhasabaStore(
+    now: () => _clock.current,
+  );
   _muhasabaRepo = muhasabaRepo;
   final quranStore = await makeQuranStore();
   final duaStore = await makeDuaStore();
@@ -136,17 +139,17 @@ Future<void> _register({
 final class _OneHadithRepo implements HadithRepository {
   @override
   Future<Result<List<Hadith>>> all() async => const Result.success([
-        Hadith(
-          id: 'h42',
-          topic: 'intention',
-          grade: 'sahih',
-          arabic: '',
-          en: 'Actions are judged by intentions.',
-          bn: '',
-          narrator: 'Umar',
-          reference: 'Bukhari 1',
-        ),
-      ]);
+    Hadith(
+      id: 'h42',
+      topic: 'intention',
+      grade: 'sahih',
+      arabic: '',
+      en: 'Actions are judged by intentions.',
+      bn: '',
+      narrator: 'Umar',
+      reference: 'Bukhari 1',
+    ),
+  ]);
 }
 
 /// Tall viewport so the whole (lazy) home list is laid out at once.
@@ -157,18 +160,19 @@ void _tall(WidgetTester tester) {
 }
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const HomeScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const HomeScreen(),
+);
 
 void main() {
   tearDown(() => GetIt.I.reset());
 
   group('HomeScreen', () {
-    testWidgets('without a location shows the setup empty state',
-        (tester) async {
+    testWidgets('without a location shows the setup empty state', (
+      tester,
+    ) async {
       await _register(withLocation: false);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -176,8 +180,9 @@ void main() {
       expect(find.text('Set location'), findsOneWidget);
     });
 
-    testWidgets('with a location renders header, table and meal row',
-        (tester) async {
+    testWidgets('with a location renders header, table and meal row', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -237,6 +242,24 @@ void main() {
       expect(find.text('0/10 done'), findsOneWidget);
     });
 
+    testWidgets('hidden home cards are not built', (tester) async {
+      await _register(withLocation: true);
+      await GetIt.I<SettingsStore>().setHomeCardVisible(
+        HomeCard.specialTimes,
+        visible: false,
+      );
+      await GetIt.I<SettingsStore>().setHomeCardVisible(
+        HomeCard.muhasaba,
+        visible: false,
+      );
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text('Forbidden times', skipOffstage: false), findsNothing);
+      expect(find.text('0/10 done', skipOffstage: false), findsNothing);
+      // The core of Home stays.
+      expect(find.text('Sahri ends', skipOffstage: false), findsOneWidget);
+    });
+
     testWidgets('countdown numeral ticks with the clock', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
@@ -250,8 +273,9 @@ void main() {
       expect(after, isNot(before));
     });
 
-    testWidgets('countdown shows fajr ending at sunrise (calm waqt-end)',
-        (tester) async {
+    testWidgets('countdown shows fajr ending at sunrise (calm waqt-end)', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -266,8 +290,9 @@ void main() {
       expect(find.textContaining('Dhul-Hijjah'), findsOneWidget);
     });
 
-    testWidgets('prayer check writes a salah entry to muhasaba',
-        (tester) async {
+    testWidgets('prayer check writes a salah entry to muhasaba', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -286,8 +311,10 @@ void main() {
       // Tapping a locked prayer explains why with a toast.
       await tester.tap(find.byIcon(Icons.schedule).first);
       await tester.pump();
-      expect(find.text("This prayer's time hasn't started yet"),
-          findsOneWidget);
+      expect(
+        find.text("This prayer's time hasn't started yet"),
+        findsOneWidget,
+      );
       await tester.tap(checks.first);
       await tester.pump();
       expect(_muhasabaRepo.entries_[('salah_fajr', 20260612)], 1);
@@ -318,30 +345,32 @@ void main() {
     });
 
     testWidgets(
-        'configured jamaat shows in the table and drives a jamaat countdown',
-        (tester) async {
-      await _register(withLocation: true);
-      final mosque = GetIt.I<MosqueStore>();
-      final profile = await mosque.addProfile('Home');
-      // Fajr waqt at 04:00; jamaat at 04:30 → countdown targets jamaat.
-      await mosque.setEntry(
-        profile.id,
-        Prayer.fajr,
-        const FixedJamaat(ClockTime(4, 30)),
-      );
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      expect(find.text('JAMAAT IN'), findsOneWidget);
-      // Fajr + Maghrib have a jamaat time; the other 3 rows (dhuhr/asr/isha)
-      // show the em-dash placeholder. The "Set jamaat" CTA stays at the foot.
-      expect(find.text('—'), findsNWidgets(3));
-      expect(find.text('Set jamaat time'), findsOneWidget);
-      // Maghrib got the default +5 offset from addProfile.
-      expect(find.textContaining('4:30'), findsWidgets);
-    });
+      'configured jamaat shows in the table and drives a jamaat countdown',
+      (tester) async {
+        await _register(withLocation: true);
+        final mosque = GetIt.I<MosqueStore>();
+        final profile = await mosque.addProfile('Home');
+        // Fajr waqt at 04:00; jamaat at 04:30 → countdown targets jamaat.
+        await mosque.setEntry(
+          profile.id,
+          Prayer.fajr,
+          const FixedJamaat(ClockTime(4, 30)),
+        );
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        expect(find.text('JAMAAT IN'), findsOneWidget);
+        // Fajr + Maghrib have a jamaat time; the other 3 rows (dhuhr/asr/isha)
+        // show the em-dash placeholder. The "Set jamaat" CTA stays at the foot.
+        expect(find.text('—'), findsNWidgets(3));
+        expect(find.text('Set jamaat time'), findsOneWidget);
+        // Maghrib got the default +5 offset from addProfile.
+        expect(find.textContaining('4:30'), findsWidgets);
+      },
+    );
 
-    testWidgets('auto schedule shows the scheduled mosque with an Auto badge',
-        (tester) async {
+    testWidgets('auto schedule shows the scheduled mosque with an Auto badge', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       final mosque = GetIt.I<MosqueStore>();
       final office = await mosque.addProfile('Office');
@@ -363,8 +392,9 @@ void main() {
       expect(find.text('Auto'), findsOneWidget);
     });
 
-    testWidgets('qibla is not a quick action (header + countdown chip only)',
-        (tester) async {
+    testWidgets('qibla is not a quick action (header + countdown chip only)', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -373,8 +403,9 @@ void main() {
       expect(row.actions.map((a) => a.label), isNot(contains('Qibla')));
     });
 
-    testWidgets('outside Ramadan, sahri & iftar sits right under the table',
-        (tester) async {
+    testWidgets('outside Ramadan, sahri & iftar sits right under the table', (
+      tester,
+    ) async {
       _tall(tester);
       await _register(withLocation: true); // 12 Jun 2026: Dhul-Hijjah
       await tester.pumpWidget(_app());
@@ -386,8 +417,9 @@ void main() {
       expect(meal.bottom, lessThan(muhasaba.top));
     });
 
-    testWidgets('in Ramadan, sahri & iftar sits right under the countdown',
-        (tester) async {
+    testWidgets('in Ramadan, sahri & iftar sits right under the countdown', (
+      tester,
+    ) async {
       _tall(tester);
       // 20 Feb 2026, 10:00 = 3 Ramadan 1447 (tabular).
       await _register(withLocation: true, now: DateTime(2026, 2, 20, 10));
@@ -406,10 +438,7 @@ void main() {
       await _register(withLocation: true, hadith: hadith);
       final router = GoRouter(
         routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) => const HomeScreen(),
-          ),
+          GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
           GoRoute(
             name: Routes.hadith.name,
             path: Routes.hadith.path,

@@ -17,27 +17,31 @@ void main() {
       expect(store.activeProfile.value, profile);
     });
 
-    test('addProfile activates it and applies the Maghrib +5 default',
-        () async {
-      final (store, repo) = await makeMosqueStore();
-      final profile = await store.addProfile('Work');
-      expect(store.state.value.activeId, profile.id);
-      expect(
-        profile.entries[Prayer.maghrib],
-        const OffsetJamaat(Duration(minutes: 5)),
-      );
-      expect(repo.saves, 1);
-    });
+    test(
+      'addProfile activates it and applies the Maghrib +5 default',
+      () async {
+        final (store, repo) = await makeMosqueStore();
+        final profile = await store.addProfile('Work');
+        expect(store.state.value.activeId, profile.id);
+        expect(
+          profile.entries[Prayer.maghrib],
+          const OffsetJamaat(Duration(minutes: 5)),
+        );
+        expect(repo.saves, 1);
+      },
+    );
 
     test('setEntry updates only the targeted profile/prayer', () async {
       final (store, repo) = await makeMosqueStore();
       final a = await store.addProfile('A');
       final b = await store.addProfile('B');
-      await store.setEntry(a.id, Prayer.fajr, const FixedJamaat(ClockTime(5, 0)));
-      final updatedA =
-          repo.stored.profiles.firstWhere((p) => p.id == a.id);
-      final updatedB =
-          repo.stored.profiles.firstWhere((p) => p.id == b.id);
+      await store.setEntry(
+        a.id,
+        Prayer.fajr,
+        const FixedJamaat(ClockTime(5, 0)),
+      );
+      final updatedA = repo.stored.profiles.firstWhere((p) => p.id == a.id);
+      final updatedB = repo.stored.profiles.firstWhere((p) => p.id == b.id);
       expect(updatedA.entries[Prayer.fajr], const FixedJamaat(ClockTime(5, 0)));
       expect(updatedB.entries[Prayer.fajr], isNull);
     });
@@ -61,22 +65,31 @@ void main() {
       final (store, _) = await makeMosqueStore();
       final a = await store.addProfile('A');
       final b = await store.addProfile('B'); // b is now active
-      await store.setEntry(a.id, Prayer.isha, const FixedJamaat(ClockTime(21, 0)));
+      await store.setEntry(
+        a.id,
+        Prayer.isha,
+        const FixedJamaat(ClockTime(21, 0)),
+      );
       expect(
-        store.activeConfig.value.timeFor(Prayer.isha, DateTime(2026, 6, 12, 20)),
+        store.activeConfig.value.timeFor(
+          Prayer.isha,
+          DateTime(2026, 6, 12, 20),
+        ),
         isNull,
         reason: 'B has no isha entry',
       );
       await store.setActive(a.id);
       expect(
-        store.activeConfig.value.timeFor(Prayer.isha, DateTime(2026, 6, 12, 20)),
+        store.activeConfig.value.timeFor(
+          Prayer.isha,
+          DateTime(2026, 6, 12, 20),
+        ),
         DateTime(2026, 6, 12, 21),
       );
       expect(b.id, isNot(a.id));
     });
 
-    test('deleteProfile falls back to the first remaining profile',
-        () async {
+    test('deleteProfile falls back to the first remaining profile', () async {
       final (store, _) = await makeMosqueStore();
       final a = await store.addProfile('A');
       final b = await store.addProfile('B'); // active
@@ -109,35 +122,51 @@ void main() {
         ),
       );
       expect(store.rules.value.single.mosqueId, a.id);
-      await store.updateRule(
-        0,
-        store.rules.value.first.copyWith(days: {1, 2}),
-      );
+      await store.updateRule(0, store.rules.value.first.copyWith(days: {1, 2}));
       expect(store.rules.value.single.days, {1, 2});
       await store.removeRule(0);
       expect(store.rules.value, isEmpty);
     });
 
-    test('deleteProfile strips rules, default and override referencing it',
-        () async {
+    test('insertRule restores a removed rule at its old position', () async {
       final (store, _) = await makeMosqueStore();
       final a = await store.addProfile('A');
-      final b = await store.addProfile('B');
-      await store.setMode(ScheduleMode.auto);
-      await store.addRule(
-        MosqueRule(
-          mosqueId: b.id,
-          start: const ClockTime(0, 0),
-          end: const ClockTime(0, 0),
-        ),
+      MosqueRule rule(int h) => MosqueRule(
+        mosqueId: a.id,
+        start: ClockTime(h, 0),
+        end: ClockTime(h + 1, 0),
       );
-      await store.setDefaultMosque(b.id);
-      await store.setOverride(b.id, a.id);
-      await store.deleteProfile(b.id);
-      expect(store.rules.value, isEmpty);
-      expect(store.state.value.defaultId, isNull);
-      expect(store.state.value.activeOverride, isNull);
+      await store.addRule(rule(1));
+      await store.addRule(rule(2));
+      await store.addRule(rule(3));
+      final removed = store.rules.value[1];
+      await store.removeRule(1);
+      await store.insertRule(1, removed);
+      expect([for (final r in store.rules.value) r.start.hour], [1, 2, 3]);
     });
+
+    test(
+      'deleteProfile strips rules, default and override referencing it',
+      () async {
+        final (store, _) = await makeMosqueStore();
+        final a = await store.addProfile('A');
+        final b = await store.addProfile('B');
+        await store.setMode(ScheduleMode.auto);
+        await store.addRule(
+          MosqueRule(
+            mosqueId: b.id,
+            start: const ClockTime(0, 0),
+            end: const ClockTime(0, 0),
+          ),
+        );
+        await store.setDefaultMosque(b.id);
+        await store.setOverride(b.id, a.id);
+        await store.deleteProfile(b.id);
+        expect(store.rules.value, isEmpty);
+        expect(store.state.value.defaultId, isNull);
+        expect(store.state.value.activeOverride, isNull);
+      },
+    );
 
     test('renameProfile keeps entries', () async {
       final (store, repo) = await makeMosqueStore();

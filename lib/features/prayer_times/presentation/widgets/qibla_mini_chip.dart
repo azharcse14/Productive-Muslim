@@ -69,7 +69,6 @@ final class QiblaMiniChip extends StatelessWidget {
           Text(
             LocaleDigits.localize('${bearing!.round()}°', lang),
             style: QType.num_(QType.caption).copyWith(
-              fontSize: 11.5,
               color: fg,
               fontVariations: const [FontVariation('wght', 600)],
             ),
@@ -82,7 +81,7 @@ final class QiblaMiniChip extends StatelessWidget {
         ..add(
           Text(
             context.l10n.qiblaChipLabel,
-            style: QType.caption.copyWith(fontSize: 11.5, color: fg),
+            style: QType.caption.copyWith(color: fg),
           ),
         );
     }

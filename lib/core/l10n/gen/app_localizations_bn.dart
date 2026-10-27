@@ -2268,4 +2268,34 @@ class AppLocalizationsBn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get hadithSearchHint => 'হাদিস খুঁজুন';
+
+  @override
+  String get hadithNoResults => 'কোনো হাদিস পাওয়া যায়নি';
+
+  @override
+  String get ruqyahSearchHint => 'রুকইয়াহ খুঁজুন';
+
+  @override
+  String get ruqyahNoResults => 'কিছু পাওয়া যায়নি';
+
+  @override
+  String get scheduleRuleRemoved => 'সময়সূচির নিয়ম মুছে ফেলা হয়েছে';
+
+  @override
+  String get countdownSeeDay => 'পুরো দিন';
+
+  @override
+  String get settingHomeCards => 'হোম কার্ড';
+
+  @override
+  String get settingHomeCardsSub => 'হোমে কোন অংশগুলো দেখাবে বেছে নিন';
+
+  @override
+  String get homeCardQuickActions => 'দ্রুত শর্টকাট';
+
+  @override
+  String get homeCardDaily => 'আজকের আয়াত, হাদিস ও দোয়া';
 }

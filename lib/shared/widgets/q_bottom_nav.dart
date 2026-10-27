@@ -158,7 +158,6 @@ final class _NavDestination extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: QType.caption.copyWith(
-                  fontSize: 10.5,
                   color: active ? q.ink : q.ink3,
                   fontVariations: [FontVariation('wght', active ? 700 : 500)],
                 ),

@@ -41,8 +41,9 @@ void main() {
         showAchievements: true,
       );
 
-      final restored =
-          AppSettingsModel.fromMap(AppSettingsModel.toMap(settings));
+      final restored = AppSettingsModel.fromMap(
+        AppSettingsModel.toMap(settings),
+      );
       expect(restored, settings);
     });
 
@@ -54,8 +55,9 @@ void main() {
           resolvedName: 'Makkah',
         ),
       );
-      final restored =
-          AppSettingsModel.fromMap(AppSettingsModel.toMap(settings));
+      final restored = AppSettingsModel.fromMap(
+        AppSettingsModel.toMap(settings),
+      );
       expect(restored.location, settings.location);
     });
 
@@ -98,8 +100,7 @@ void main() {
         2,
       );
       expect(
-        AppSettingsModel.fromMap(const {'hijriOffsetDays': -9})
-            .hijriOffsetDays,
+        AppSettingsModel.fromMap(const {'hijriOffsetDays': -9}).hijriOffsetDays,
         -2,
       );
       expect(const AppSettings(hijriOffsetDays: 1).hijriOffsetDays, 1);
@@ -118,12 +119,30 @@ void main() {
       );
     });
 
+    test('hiddenHomeCards round-trips; unknown names are dropped', () {
+      expect(AppSettingsModel.fromMap(const {}).hiddenHomeCards, isEmpty);
+      const s = AppSettings(
+        hiddenHomeCards: {HomeCard.tasbih, HomeCard.reflection},
+      );
+      final back = AppSettingsModel.fromMap(AppSettingsModel.toMap(s));
+      expect(back.hiddenHomeCards, {HomeCard.tasbih, HomeCard.reflection});
+      expect(back, s);
+      expect(
+        AppSettingsModel.fromMap(const {
+          'hiddenHomeCards': ['tasbih', 'goneInV9'],
+        }).hiddenHomeCards,
+        {HomeCard.tasbih},
+      );
+    });
+
     test('missing sahriSafety → 0; out-of-range values are clamped', () {
       int read(Object? v) => AppSettingsModel.fromMap({
-            'prayerParams': {'sahriSafety': v},
-          }).prayerParams.sahriSafetyMinutes;
-      expect(AppSettingsModel.fromMap(const {}).prayerParams.sahriSafetyMinutes,
-          0);
+        'prayerParams': {'sahriSafety': v},
+      }).prayerParams.sahriSafetyMinutes;
+      expect(
+        AppSettingsModel.fromMap(const {}).prayerParams.sahriSafetyMinutes,
+        0,
+      );
       expect(read(null), 0);
       expect(read(7), 7);
       expect(read(25), 10);

@@ -54,6 +54,25 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     }
   }
 
+  /// One tap deletes a whole rule, so offer a brief undo.
+  void _removeRule(MosqueState state, int index) {
+    final rule = state.rules[index];
+    unawaited(_store.removeRule(index));
+    final l10n = context.l10n;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.scheduleRuleRemoved),
+          persist: false,
+          action: SnackBarAction(
+            label: l10n.expenseUndo,
+            onPressed: () => unawaited(_store.insertRule(index, rule)),
+          ),
+        ),
+      );
+  }
+
   Future<void> _deleteProfile(MosqueProfile profile) async {
     final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
@@ -176,7 +195,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                 formatTime: (t) => _formatTime(context, t),
                 onModeChanged: (m) => unawaited(_store.setMode(m)),
                 onAddRule: () => unawaited(_addRule(state)),
-                onRemoveRule: (i) => unawaited(_store.removeRule(i)),
+                onRemoveRule: (i) => _removeRule(state, i),
                 onRuleChanged: (i, r) => unawaited(_store.updateRule(i, r)),
                 onDefaultChanged: (id) =>
                     unawaited(_store.setDefaultMosque(id)),

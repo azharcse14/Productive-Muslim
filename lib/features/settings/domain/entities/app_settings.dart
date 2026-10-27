@@ -6,6 +6,17 @@ import 'prayer_params.dart';
 /// Flutter's ThemeMode).
 enum AppThemeMode { system, light, dark }
 
+/// Optional Home sections the user can hide. The countdown and prayer
+/// table are the point of Home, so they are not listed.
+enum HomeCard {
+  quickActions,
+  specialTimes,
+  muhasaba,
+  continueReading,
+  tasbih,
+  reflection,
+}
+
 /// The whole persisted app configuration. Immutable; every change creates
 /// a new instance via [copyWith].
 final class AppSettings {
@@ -18,12 +29,13 @@ final class AppSettings {
     this.setupComplete = false,
     this.showAchievements = false,
     this.hapticsEnabled = true,
+    this.hiddenHomeCards = const {},
     int hijriOffsetDays = 0,
   }) : hijriOffsetDays = hijriOffsetDays < minHijriOffset
-            ? minHijriOffset
-            : (hijriOffsetDays > maxHijriOffset
-                ? maxHijriOffset
-                : hijriOffsetDays);
+           ? minHijriOffset
+           : (hijriOffsetDays > maxHijriOffset
+                 ? maxHijriOffset
+                 : hijriOffsetDays);
 
   /// Bounds for [hijriOffsetDays].
   static const minHijriOffset = -2;
@@ -48,6 +60,9 @@ final class AppSettings {
   /// Vibration on taps, counts and milestones.
   final bool hapticsEnabled;
 
+  /// Home sections the user turned off (empty = show everything).
+  final Set<HomeCard> hiddenHomeCards;
+
   /// Moon-sighting adjustment applied to every Hijri date (−2..+2 days,
   /// clamped): the tabular calendar can differ from local sighting.
   final int hijriOffsetDays;
@@ -61,6 +76,7 @@ final class AppSettings {
     bool? setupComplete,
     bool? showAchievements,
     bool? hapticsEnabled,
+    Set<HomeCard>? hiddenHomeCards,
     int? hijriOffsetDays,
   }) {
     return AppSettings(
@@ -72,6 +88,7 @@ final class AppSettings {
       setupComplete: setupComplete ?? this.setupComplete,
       showAchievements: showAchievements ?? this.showAchievements,
       hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
+      hiddenHomeCards: hiddenHomeCards ?? this.hiddenHomeCards,
       hijriOffsetDays: hijriOffsetDays ?? this.hijriOffsetDays,
     );
   }
@@ -87,18 +104,21 @@ final class AppSettings {
       other.setupComplete == setupComplete &&
       other.showAchievements == showAchievements &&
       other.hapticsEnabled == hapticsEnabled &&
+      other.hiddenHomeCards.length == hiddenHomeCards.length &&
+      other.hiddenHomeCards.containsAll(hiddenHomeCards) &&
       other.hijriOffsetDays == hijriOffsetDays;
 
   @override
   int get hashCode => Object.hash(
-        location,
-        prayerParams,
-        notifications,
-        themeMode,
-        localeCode,
-        setupComplete,
-        showAchievements,
-        hapticsEnabled,
-        hijriOffsetDays,
-      );
+    location,
+    prayerParams,
+    notifications,
+    themeMode,
+    localeCode,
+    setupComplete,
+    showAchievements,
+    hapticsEnabled,
+    Object.hashAllUnordered(hiddenHomeCards),
+    hijriOffsetDays,
+  );
 }

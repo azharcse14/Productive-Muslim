@@ -53,13 +53,22 @@ final class MosqueStore {
   /// Switches between manual selection and the auto schedule. Leaving auto
   /// clears any temporary override.
   Future<void> setMode(ScheduleMode mode) => _update(
-        state.value
-            .copyWith(mode: mode)
-            .withOverride(mode == ScheduleMode.auto ? state.value.activeOverride : null),
-      );
+    state.value
+        .copyWith(mode: mode)
+        .withOverride(
+          mode == ScheduleMode.auto ? state.value.activeOverride : null,
+        ),
+  );
 
   Future<void> addRule(MosqueRule rule) =>
       _update(state.value.copyWith(rules: [...state.value.rules, rule]));
+
+  /// Puts [rule] back at [index] (undo of [removeRule]).
+  Future<void> insertRule(int index, MosqueRule rule) {
+    final rules = [...state.value.rules];
+    rules.insert(index.clamp(0, rules.length), rule);
+    return _update(state.value.copyWith(rules: rules));
+  }
 
   Future<void> updateRule(int index, MosqueRule rule) {
     final rules = state.value.rules;
@@ -69,7 +78,8 @@ final class MosqueStore {
     return _update(
       state.value.copyWith(
         rules: [
-          for (final (i, r) in rules.indexed) if (i == index) rule else r,
+          for (final (i, r) in rules.indexed)
+            if (i == index) rule else r,
         ],
       ),
     );
@@ -83,7 +93,8 @@ final class MosqueStore {
     return _update(
       state.value.copyWith(
         rules: [
-          for (final (i, r) in rules.indexed) if (i != index) r,
+          for (final (i, r) in rules.indexed)
+            if (i != index) r,
         ],
       ),
     );
@@ -95,17 +106,15 @@ final class MosqueStore {
   /// Sets a temporary override (auto mode). [baselineAutoId] is the schedule's
   /// current target, so the override expires once a window boundary is crossed.
   Future<void> setOverride(String mosqueId, String? baselineAutoId) => _update(
-        state.value.withOverride(
-          MosqueOverride(mosqueId: mosqueId, baselineAutoId: baselineAutoId),
-        ),
-      );
+    state.value.withOverride(
+      MosqueOverride(mosqueId: mosqueId, baselineAutoId: baselineAutoId),
+    ),
+  );
 
   Future<void> clearOverride() => _update(state.value.withOverride(null));
 
-  Future<void> renameProfile(String id, String name) => _mapProfile(
-        id,
-        (p) => p.copyWith(name: name),
-      );
+  Future<void> renameProfile(String id, String name) =>
+      _mapProfile(id, (p) => p.copyWith(name: name));
 
   Future<void> setEntry(String id, Prayer prayer, JamaatEntry entry) =>
       _mapProfile(
@@ -138,15 +147,14 @@ final class MosqueStore {
   Future<void> _mapProfile(
     String id,
     MosqueProfile Function(MosqueProfile) transform,
-  ) =>
-      _update(
-        state.value.copyWith(
-          profiles: [
-            for (final p in state.value.profiles)
-              if (p.id == id) transform(p) else p,
-          ],
-        ),
-      );
+  ) => _update(
+    state.value.copyWith(
+      profiles: [
+        for (final p in state.value.profiles)
+          if (p.id == id) transform(p) else p,
+      ],
+    ),
+  );
 
   Future<void> _update(MosqueState next) async {
     state.value = next;

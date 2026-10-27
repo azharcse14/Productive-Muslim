@@ -11,6 +11,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/dua.dart';
 import '../state/dua_favorites_store.dart';
@@ -18,7 +19,6 @@ import '../state/dua_store.dart';
 import '../widgets/dua_card.dart';
 import 'asmaul_husna_screen.dart';
 import 'dua_category_screen.dart';
-import 'dua_search_delegate.dart';
 import 'tasbih_screen.dart';
 
 /// Dua & Tasbih landing (design §4.8): tasbih + Asmaul Husna feature cards
@@ -69,8 +69,17 @@ final class _DuaScreenState extends State<DuaScreen> {
               unawaited(
                 showSearch<void>(
                   context: context,
-                  delegate: DuaSearchDelegate(
-                    _store.categories.value,
+                  delegate: QSearchDelegate<Dua>(
+                    items: [for (final c in _store.categories.value) ...c.duas],
+                    fields: (d) => [
+                      d.transliteration,
+                      d.transliterationBn,
+                      d.translationEn,
+                      d.translationBn,
+                      d.reference,
+                    ],
+                    itemBuilder: (_, d) => DuaCard(dua: d),
+                    emptyText: l10n.duaNoResults,
                     hint: l10n.duaSearchHint,
                   ),
                 ),

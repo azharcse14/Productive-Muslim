@@ -10,56 +10,55 @@ import '../../domain/entities/prayer_params.dart';
 /// app upgrades.
 abstract final class AppSettingsModel {
   static Map<String, Object?> toMap(AppSettings s) => {
-        'location': switch (s.location) {
-          null => null,
-          GpsLocation(:final latitude, :final longitude, :final resolvedName) =>
-            {
-              'type': 'gps',
-              'lat': latitude,
-              'lng': longitude,
-              'name': resolvedName,
-            },
-          ManualCityLocation(:final city) => {
-              'type': 'city',
-              'name': city.name,
-              'country': city.countryCode,
-              'lat': city.latitude,
-              'lng': city.longitude,
-              'tz': city.timezone,
-            },
-        },
-        'prayerParams': {
-          'method': s.prayerParams.method.name,
-          'madhab': s.prayerParams.madhab.name,
-          'highLat': s.prayerParams.highLatitudeRule.name,
-          'sahriSafety': s.prayerParams.sahriSafetyMinutes,
-          'adjustments': {
-            for (final e in s.prayerParams.adjustments.entries)
-              e.key.name: e.value,
-          },
-        },
-        'notifications': {
-          'modes': {
-            for (final e in s.notifications.prayerModes.entries)
-              e.key.name: e.value.name,
-          },
-          'sahriAlert': s.notifications.sahriAlert,
-          'sahriLeadMin': s.notifications.sahriLead.inMinutes,
-          'iftarAlert': s.notifications.iftarAlert,
-          'jamaatReminder': s.notifications.jamaatReminder,
-          'jamaatLeadMin': s.notifications.jamaatLead.inMinutes,
-          'muhasabaEvening': s.notifications.muhasabaEveningReminder,
-          'dailyReminder': s.notifications.dailyReminder,
-          'dailyReminderMinute': s.notifications.dailyReminderMinute,
-          'dailyReminderKind': s.notifications.dailyReminderKind.name,
-        },
-        'themeMode': s.themeMode.name,
-        'localeCode': s.localeCode,
-        'setupComplete': s.setupComplete,
-        'showAchievements': s.showAchievements,
-        'hapticsEnabled': s.hapticsEnabled,
-        'hijriOffsetDays': s.hijriOffsetDays,
-      };
+    'location': switch (s.location) {
+      null => null,
+      GpsLocation(:final latitude, :final longitude, :final resolvedName) => {
+        'type': 'gps',
+        'lat': latitude,
+        'lng': longitude,
+        'name': resolvedName,
+      },
+      ManualCityLocation(:final city) => {
+        'type': 'city',
+        'name': city.name,
+        'country': city.countryCode,
+        'lat': city.latitude,
+        'lng': city.longitude,
+        'tz': city.timezone,
+      },
+    },
+    'prayerParams': {
+      'method': s.prayerParams.method.name,
+      'madhab': s.prayerParams.madhab.name,
+      'highLat': s.prayerParams.highLatitudeRule.name,
+      'sahriSafety': s.prayerParams.sahriSafetyMinutes,
+      'adjustments': {
+        for (final e in s.prayerParams.adjustments.entries) e.key.name: e.value,
+      },
+    },
+    'notifications': {
+      'modes': {
+        for (final e in s.notifications.prayerModes.entries)
+          e.key.name: e.value.name,
+      },
+      'sahriAlert': s.notifications.sahriAlert,
+      'sahriLeadMin': s.notifications.sahriLead.inMinutes,
+      'iftarAlert': s.notifications.iftarAlert,
+      'jamaatReminder': s.notifications.jamaatReminder,
+      'jamaatLeadMin': s.notifications.jamaatLead.inMinutes,
+      'muhasabaEvening': s.notifications.muhasabaEveningReminder,
+      'dailyReminder': s.notifications.dailyReminder,
+      'dailyReminderMinute': s.notifications.dailyReminderMinute,
+      'dailyReminderKind': s.notifications.dailyReminderKind.name,
+    },
+    'themeMode': s.themeMode.name,
+    'localeCode': s.localeCode,
+    'setupComplete': s.setupComplete,
+    'showAchievements': s.showAchievements,
+    'hapticsEnabled': s.hapticsEnabled,
+    'hiddenHomeCards': [for (final c in s.hiddenHomeCards) c.name],
+    'hijriOffsetDays': s.hijriOffsetDays,
+  };
 
   /// [v] if it has type [T], else null — one wrong-typed field falls back
   /// to its default instead of failing the whole load (and the next save
@@ -78,12 +77,17 @@ abstract final class AppSettingsModel {
         defaults.themeMode,
       ),
       localeCode: _as<String>(map['localeCode']) ?? defaults.localeCode,
-      setupComplete:
-          _as<bool>(map['setupComplete']) ?? defaults.setupComplete,
+      setupComplete: _as<bool>(map['setupComplete']) ?? defaults.setupComplete,
       showAchievements:
           _as<bool>(map['showAchievements']) ?? defaults.showAchievements,
       hapticsEnabled:
           _as<bool>(map['hapticsEnabled']) ?? defaults.hapticsEnabled,
+      // Unknown names (a card removed in a later version) are dropped.
+      hiddenHomeCards: {
+        for (final name
+            in _as<List<Object?>>(map['hiddenHomeCards']) ?? const [])
+          ?HomeCard.values.asNameMap()[name],
+      },
       hijriOffsetDays:
           _as<num>(map['hijriOffsetDays'])?.toInt() ?? defaults.hijriOffsetDays,
     );
@@ -103,19 +107,19 @@ abstract final class AppSettingsModel {
     final lng = rawLng.toDouble();
     return switch (map['type']) {
       'gps' => GpsLocation(
+        latitude: lat,
+        longitude: lng,
+        resolvedName: _as<String>(map['name']) ?? '',
+      ),
+      'city' => ManualCityLocation(
+        City(
+          name: _as<String>(map['name']) ?? '',
+          countryCode: _as<String>(map['country']) ?? '',
           latitude: lat,
           longitude: lng,
-          resolvedName: _as<String>(map['name']) ?? '',
+          timezone: _as<String>(map['tz']) ?? 'UTC',
         ),
-      'city' => ManualCityLocation(
-          City(
-            name: _as<String>(map['name']) ?? '',
-            countryCode: _as<String>(map['country']) ?? '',
-            latitude: lat,
-            longitude: lng,
-            timezone: _as<String>(map['tz']) ?? 'UTC',
-          ),
-        ),
+      ),
       _ => null,
     };
   }
@@ -127,7 +131,10 @@ abstract final class AppSettingsModel {
     }
     final map = raw.cast<String, Object?>();
     final rawAdjustments =
-        _as<Map<Object?, Object?>>(map['adjustments'])?.cast<String, Object?>() ?? {};
+        _as<Map<Object?, Object?>>(
+          map['adjustments'],
+        )?.cast<String, Object?>() ??
+        {};
     return PrayerParams(
       method: _enumOrDefault(
         CalculationMethodId.values,
@@ -145,8 +152,8 @@ abstract final class AppSettingsModel {
           if (rawAdjustments[prayer.name] is int)
             prayer: rawAdjustments[prayer.name]! as int,
       },
-      sahriSafetyMinutes: _as<num>(map['sahriSafety'])?.toInt() ??
-          defaults.sahriSafetyMinutes,
+      sahriSafetyMinutes:
+          _as<num>(map['sahriSafety'])?.toInt() ?? defaults.sahriSafetyMinutes,
     );
   }
 
@@ -156,7 +163,8 @@ abstract final class AppSettingsModel {
       return defaults;
     }
     final map = raw.cast<String, Object?>();
-    final rawModes = _as<Map<Object?, Object?>>(map['modes'])?.cast<String, Object?>() ?? {};
+    final rawModes =
+        _as<Map<Object?, Object?>>(map['modes'])?.cast<String, Object?>() ?? {};
     return NotificationMatrix(
       prayerModes: {
         for (final prayer in Prayer.values)

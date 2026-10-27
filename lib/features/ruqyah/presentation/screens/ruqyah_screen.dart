@@ -10,9 +10,12 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_search_delegate.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/ruqyah.dart';
 import '../state/ruqyah_store.dart';
+import '../widgets/ruqyah_card.dart';
 import 'ruqyah_category_screen.dart';
 
 /// Ruqyah landing: a short "how to" guidance card, then the category grid
@@ -49,7 +52,34 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ruqyahTitle)),
+      appBar: AppBar(
+        title: Text(l10n.ruqyahTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: l10n.ruqyahSearchHint,
+            onPressed: () => unawaited(
+              showSearch<void>(
+                context: context,
+                delegate: QSearchDelegate<RuqyahItem>(
+                  items: [for (final c in _store.categories.value) ...c.items],
+                  fields: (r) => [
+                    r.titleEn,
+                    r.titleBn,
+                    r.transliteration,
+                    r.translationEn,
+                    r.translationBn,
+                    r.reference,
+                  ],
+                  itemBuilder: (_, r) => RuqyahCard(item: r),
+                  emptyText: l10n.ruqyahNoResults,
+                  hint: l10n.ruqyahSearchHint,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
@@ -72,6 +102,9 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                   crossAxisSpacing: QSpace.s3,
                   childAspectRatio: 1.2 / context.textGrowth,
                   children: [
+                    if (!_store.loaded.value)
+                      for (var i = 0; i < 6; i++)
+                        const QSkeleton(height: 120, radius: QRadius.lg),
                     for (final category in categories)
                       _CategoryCard(
                         category: category,

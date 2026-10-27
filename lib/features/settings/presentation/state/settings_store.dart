@@ -32,8 +32,7 @@ final class SettingsStore {
   late final locale = computed(() => Locale(settings.value.localeCode));
   late final location = computed(() => settings.value.location);
   late final prayerParams = computed(() => settings.value.prayerParams);
-  late final hijriOffsetDays =
-      computed(() => settings.value.hijriOffsetDays);
+  late final hijriOffsetDays = computed(() => settings.value.hijriOffsetDays);
 
   Future<void> load() async {
     final result = await _getSettings();
@@ -57,23 +56,24 @@ final class SettingsStore {
       _update(settings.value.copyWith(location: location));
 
   Future<void> setMadhab(Madhab madhab) => _update(
-        settings.value.copyWith(
-          prayerParams: settings.value.prayerParams.copyWith(madhab: madhab),
-        ),
-      );
+    settings.value.copyWith(
+      prayerParams: settings.value.prayerParams.copyWith(madhab: madhab),
+    ),
+  );
 
   Future<void> setMethod(CalculationMethodId method) => _update(
-        settings.value.copyWith(
-          prayerParams: settings.value.prayerParams.copyWith(method: method),
-        ),
-      );
+    settings.value.copyWith(
+      prayerParams: settings.value.prayerParams.copyWith(method: method),
+    ),
+  );
 
   Future<void> setHighLatitudeRule(HighLatitudeRule rule) => _update(
-        settings.value.copyWith(
-          prayerParams:
-              settings.value.prayerParams.copyWith(highLatitudeRule: rule),
-        ),
-      );
+    settings.value.copyWith(
+      prayerParams: settings.value.prayerParams.copyWith(
+        highLatitudeRule: rule,
+      ),
+    ),
+  );
 
   Future<void> setNotifications(NotificationMatrix matrix) =>
       _update(settings.value.copyWith(notifications: matrix));
@@ -81,11 +81,12 @@ final class SettingsStore {
   /// Onboarding gate (router redirect reads this).
   /// Clamped to −2..+2 by [AppSettings].
   Future<void> setSahriSafety(int minutes) => _update(
-        settings.value.copyWith(
-          prayerParams: settings.value.prayerParams
-              .copyWith(sahriSafetyMinutes: minutes),
-        ),
-      );
+    settings.value.copyWith(
+      prayerParams: settings.value.prayerParams.copyWith(
+        sahriSafetyMinutes: minutes,
+      ),
+    ),
+  );
 
   Future<void> setHijriOffset(int days) =>
       _update(settings.value.copyWith(hijriOffsetDays: days));
@@ -96,6 +97,12 @@ final class SettingsStore {
   Future<void> setHapticsEnabled({required bool enabled}) {
     Haptics.enabled = enabled;
     return _update(settings.value.copyWith(hapticsEnabled: enabled));
+  }
+
+  Future<void> setHomeCardVisible(HomeCard card, {required bool visible}) {
+    final hidden = {...settings.value.hiddenHomeCards};
+    visible ? hidden.remove(card) : hidden.add(card);
+    return _update(settings.value.copyWith(hiddenHomeCards: hidden));
   }
 
   Future<void> setSetupComplete({required bool complete}) =>

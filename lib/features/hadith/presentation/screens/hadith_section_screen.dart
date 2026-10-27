@@ -11,6 +11,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../quran/presentation/state/quran_store.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_section_store.dart';
@@ -48,10 +49,10 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
   }
 
   Future<void> _load() => _store.load(
-        widget.book,
-        widget.section,
-        Localizations.localeOf(context).languageCode,
-      );
+    widget.book,
+    widget.section,
+    Localizations.localeOf(context).languageCode,
+  );
 
   @override
   void dispose() {
@@ -68,7 +69,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
         child: SignalBuilder(
           builder: (context) {
             if (_store.loading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const QSkeletonList();
             }
             if (_store.failed.value) {
               return QErrorRetry(
@@ -103,7 +104,9 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(top: QSpace.s2),
                     child: Text(
-                      bnSource ? l10n.hadithSourceNoteBn : l10n.hadithSourceNote,
+                      bnSource
+                          ? l10n.hadithSourceNoteBn
+                          : l10n.hadithSourceNote,
                       textAlign: TextAlign.center,
                       style: QType.caption.copyWith(color: context.q.ink3),
                     ),
@@ -149,10 +152,7 @@ final class _BookHadithCard extends StatelessWidget {
             const SizedBox(height: QSpace.s3),
           ],
           if (hadith.translation.isNotEmpty)
-            Text(
-              hadith.translation,
-              style: QType.body.copyWith(color: q.ink),
-            ),
+            Text(hadith.translation, style: QType.body.copyWith(color: q.ink)),
           if (hadith.narrator.isNotEmpty) ...[
             const SizedBox(height: QSpace.s2),
             Text(
@@ -216,14 +216,10 @@ final class _Banner extends StatelessWidget {
           Icon(Icons.info_outline, size: 16, color: q.onPrimarySoft),
           const SizedBox(width: QSpace.s2),
           Expanded(
-            child: Text(
-              text,
-              style: QType.caption.copyWith(color: q.ink2),
-            ),
+            child: Text(text, style: QType.caption.copyWith(color: q.ink2)),
           ),
         ],
       ),
     );
   }
 }
-

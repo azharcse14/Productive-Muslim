@@ -13,6 +13,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../daily_content/presentation/state/daily_content_store.dart';
 import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
@@ -27,7 +28,9 @@ import '../../../nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
+import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/prayer_day.dart';
 import '../state/home_store.dart';
 import '../widgets/continue_reading_card.dart';
@@ -59,6 +62,7 @@ final class HomeScreen extends StatefulWidget {
 final class _HomeScreenState extends State<HomeScreen> {
   late final HomeStore _store = locator<HomeStore>();
   late final MuhasabaStore _muhasaba = locator<MuhasabaStore>();
+  late final SettingsStore _settings = locator<SettingsStore>();
   late final QuranStore? _quran = locator.isRegistered<QuranStore>()
       ? locator<QuranStore>()
       : null;
@@ -96,6 +100,10 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// Which of ayah / hadith / dua the daily-reflection card shows.
   int _reflection = 0;
 
+  /// True until the first ayah/hadith/dua load settles, so the card's
+  /// space is held by a skeleton instead of popping in late.
+  bool _dailyPending = true;
+
   /// (Re)loads the "of the day" cards now and whenever the day flips.
   late final EffectCleanup _dayWatcher;
 
@@ -107,9 +115,17 @@ final class _HomeScreenState extends State<HomeScreen> {
       untracked(() {
         // Roll muhasaba's "today" over if the app stayed open past midnight.
         unawaited(_muhasaba.rollOverIfNewDay());
-        unawaited(_loadDailyAyah());
-        unawaited(_loadHadith());
-        unawaited(_loadDuaOfDay());
+        unawaited(
+          Future.wait([
+            _loadDailyAyah(),
+            _loadHadith(),
+            _loadDuaOfDay(),
+          ]).whenComplete(() {
+            if (mounted && _dailyPending) {
+              setState(() => _dailyPending = false);
+            }
+          }),
+        );
         // Re-reads today's tasbih total (zero on a new day).
         final tasbih = _tasbih;
         if (tasbih != null) {
@@ -239,13 +255,8 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Standard horizontal inset + gap above each home section.
-  static Widget _section(Widget child, {bool last = false}) => Padding(
-    padding: EdgeInsets.fromLTRB(
-      QSpace.s5,
-      QSpace.s4,
-      QSpace.s5,
-      last ? QSpace.s5 : 0,
-    ),
+  static Widget _section(Widget child) => Padding(
+    padding: const EdgeInsets.fromLTRB(QSpace.s5, QSpace.s4, QSpace.s5, 0),
     child: child,
   );
 
@@ -267,22 +278,27 @@ final class _HomeScreenState extends State<HomeScreen> {
             // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
             // sits right under the countdown; otherwise under the table.
             final ramadan = _store.ramadanMode.value;
+            final hidden = _settings.settings.value.hiddenHomeCards;
+            bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
-              _section(_quickActions(context)),
+              if (shows(HomeCard.quickActions))
+                _section(_quickActions(context)),
               _section(_prayerTableSection(context, day, compact: compact)),
               // Forbidden/makruh windows are a practical warning: keep them
               // by the times they qualify, not below the fold.
-              _section(_specialTimesSection(context)),
+              if (shows(HomeCard.specialTimes))
+                _section(_specialTimesSection(context)),
               if (!ramadan) sahriIftar,
-              _section(_muhasabaSection(context)),
-              if (_quran case final quran?)
+              if (shows(HomeCard.muhasaba)) _section(_muhasabaSection(context)),
+              if (_quran case final quran? when shows(HomeCard.continueReading))
                 _section(_continueReadingSection(context, quran, locale)),
-              if (_tasbih case final tasbih?)
+              if (_tasbih case final tasbih? when shows(HomeCard.tasbih))
                 _section(_tasbihSection(context, tasbih)),
-              if (_reflectionSection(context, locale) case final reflection?)
-                _section(reflection, last: true),
+              if (shows(HomeCard.reflection))
+                if (_reflectionSection(context, locale) case final reflection?)
+                  _section(reflection),
             ];
             return RefreshIndicator(
               onRefresh: _refresh,
@@ -312,6 +328,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                       RepaintBoundary(
                         child: StaggeredEntrance(index: i, child: section),
                       ),
+                    const SizedBox(height: QSpace.s5),
                   ],
                 ),
               ),
@@ -357,7 +374,9 @@ final class _HomeScreenState extends State<HomeScreen> {
         (l10n.notifDailyKindDua, _duaCard(context, dua, locale)),
     ];
     if (options.isEmpty) {
-      return null;
+      return _dailyPending
+          ? const QSkeleton(height: 180, radius: QRadius.lg)
+          : null;
     }
     final index = _reflection.clamp(0, options.length - 1);
     return Column(
@@ -400,44 +419,54 @@ final class _HomeScreenState extends State<HomeScreen> {
             return const SizedBox.shrink();
           }
           final (eyebrow, sub) = countdownLabels(l10n, context, target);
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => unawaited(
-              showDayTimelineSheet(
-                context,
-                day: day,
-                now: _store.now.value,
-                formatTime: (t) => formatHomeTime(context, t),
-                activePrayer: _store.activeWaqt.value?.prayer,
-              ),
-            ),
-            child: CountdownCard(
-              state: countdownCardState(_store.urgency.value),
-              skyPhase: skyPhaseFor(_store.now.value, day),
-              eyebrow: eyebrow,
-              big: formatCountdown(context, _store.remaining.value),
-              sub: sub,
-              progress: _store.progress.value,
-              corner: (fg) => QiblaMiniChip(
-                bearing: qiblaBearing,
-                heading: null,
-                hasLocation: location != null,
-                foreground: fg,
-                onTap: () => context.pushNamed(Routes.qibla.name),
-              ),
-              footer: [
-                (
-                  icon: Icons.wb_sunny_outlined,
-                  text:
-                      '${l10n.sunriseLabel} ${formatHomeTime(context, day.sunrise)}',
+          // The timeline is otherwise invisible: a footer cue plus a
+          // screen-reader tap hint make the card read as tappable.
+          return Semantics(
+            button: true,
+            onTapHint: l10n.countdownSeeDay,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => unawaited(
+                showDayTimelineSheet(
+                  context,
+                  day: day,
+                  now: _store.now.value,
+                  formatTime: (t) => formatHomeTime(context, t),
+                  activePrayer: _store.activeWaqt.value?.prayer,
                 ),
-                (
-                  icon: Icons.wb_twilight_outlined,
-                  text:
-                      '${l10n.sunsetLabel} ${formatHomeTime(context, day.maghrib)}',
+              ),
+              child: CountdownCard(
+                state: countdownCardState(_store.urgency.value),
+                skyPhase: skyPhaseFor(_store.now.value, day),
+                eyebrow: eyebrow,
+                big: formatCountdown(context, _store.remaining.value),
+                sub: sub,
+                progress: _store.progress.value,
+                corner: (fg) => QiblaMiniChip(
+                  bearing: qiblaBearing,
+                  heading: null,
+                  hasLocation: location != null,
+                  foreground: fg,
+                  onTap: () => context.pushNamed(Routes.qibla.name),
                 ),
-              ],
-              compact: compact,
+                footer: [
+                  (
+                    icon: Icons.wb_sunny_outlined,
+                    text:
+                        '${l10n.sunriseLabel} ${formatHomeTime(context, day.sunrise)}',
+                  ),
+                  (
+                    icon: Icons.wb_twilight_outlined,
+                    text:
+                        '${l10n.sunsetLabel} ${formatHomeTime(context, day.maghrib)}',
+                  ),
+                  (
+                    icon: Icons.view_timeline_outlined,
+                    text: l10n.countdownSeeDay,
+                  ),
+                ],
+                compact: compact,
+              ),
             ),
           );
         },

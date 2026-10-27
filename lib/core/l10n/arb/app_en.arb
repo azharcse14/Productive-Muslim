@@ -1016,5 +1016,15 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "hadithSearchHint": "Search hadith",
+  "hadithNoResults": "No hadith found",
+  "ruqyahSearchHint": "Search ruqyah",
+  "ruqyahNoResults": "Nothing found",
+  "scheduleRuleRemoved": "Schedule rule removed",
+  "countdownSeeDay": "Full day",
+  "settingHomeCards": "Home cards",
+  "settingHomeCardsSub": "Choose which sections appear on Home",
+  "homeCardQuickActions": "Quick actions",
+  "homeCardDaily": "Ayah, hadith & dua of the day"
 }

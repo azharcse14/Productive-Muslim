@@ -40,7 +40,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pages = PageController();
   int _step = 0;
 
-  static const _stepCount = 7;
+  static const _stepCount = 5;
 
   @override
   void dispose() {
@@ -65,7 +65,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
         SnackBar(content: Text(context.l10n.onboardingNotifDenied)),
       );
     }
-    _go(_step + 1);
+    await _finish();
   }
 
   Future<void> _finish() async {
@@ -79,16 +79,23 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   /// overrides an explicit choice.
   var _madhabChosen = false;
 
-  /// Leaving the location step: pre-select the region's default madhab,
-  /// unless the user already chose one or changed it from the app default.
-  Future<void> _applyRegionalMadhab() async {
-    if (_madhabChosen ||
-        _settings.prayerParams.value.madhab != const PrayerParams().madhab) {
-      return;
+  /// Set once the user picks a method, mirroring [_madhabChosen].
+  var _methodChosen = false;
+
+  /// Leaving the location step: pre-select the region's default madhab and
+  /// suggested method, unless the user already chose or changed them, so
+  /// the next two steps are a confirm rather than a decision.
+  Future<void> _applyRegionalDefaults() async {
+    final country = countryCodeOf(_settings.location.value);
+    const defaults = PrayerParams();
+    if (!_madhabChosen &&
+        _settings.prayerParams.value.madhab == defaults.madhab) {
+      await _settings.setMadhab(defaultMadhabFor(country));
     }
-    await _settings.setMadhab(
-      defaultMadhabFor(countryCodeOf(_settings.location.value)),
-    );
+    if (!_methodChosen &&
+        _settings.prayerParams.value.method == defaults.method) {
+      await _settings.setMethod(suggestedMethodFor(country));
+    }
   }
 
   @override
@@ -150,12 +157,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     _welcome(),
-                    _language(),
                     _location(),
                     _madhab(),
                     _method(),
                     _notifications(),
-                    _finishStep(),
                   ],
                 ),
               ),
@@ -201,50 +206,51 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _welcome() => _frame(
     title: context.l10n.onboardingWelcomeTitle,
     child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          QalbMark(
-            size: 120,
-            color: context.q.primary,
-            accent: context.q.primary,
-          ),
-          const SizedBox(height: QSpace.s6),
-          Text(
-            context.l10n.onboardingWelcomeBody,
-            textAlign: TextAlign.center,
-            style: QType.body.copyWith(color: context.q.ink2),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QalbMark(
+              size: 120,
+              color: context.q.primary,
+              accent: context.q.primary,
+            ),
+            const SizedBox(height: QSpace.s6),
+            Text(
+              context.l10n.onboardingWelcomeBody,
+              textAlign: TextAlign.center,
+              style: QType.body.copyWith(color: context.q.ink2),
+            ),
+            const SizedBox(height: QSpace.s6),
+            _languagePicker(),
+          ],
+        ),
       ),
     ),
     actions: _nextButton(),
   );
 
-  Widget _language() => _frame(
-    title: context.l10n.onboardingLanguageTitle,
-    child: SignalBuilder(
-      builder: (context) {
-        final current = _settings.settings.value.localeCode;
-        return Column(
-          children: [
-            for (final (code, label) in const [
-              ('en', 'English'),
-              ('bn', 'বাংলা'),
-            ])
-              QListRow(
-                icon: Icons.translate,
-                title: label,
-                trailing: current == code
-                    ? Icon(Icons.check_circle, color: context.q.primary)
-                    : null,
-                onTap: () => unawaited(_settings.setLocale(code)),
-              ),
-          ],
-        );
-      },
-    ),
-    actions: _nextButton(),
+  /// Language sits on the welcome page: one tap, not a step of its own.
+  Widget _languagePicker() => SignalBuilder(
+    builder: (context) {
+      final current = _settings.settings.value.localeCode;
+      return Column(
+        children: [
+          for (final (code, label) in const [
+            ('en', 'English'),
+            ('bn', 'বাংলা'),
+          ])
+            QListRow(
+              icon: Icons.translate,
+              title: label,
+              trailing: current == code
+                  ? Icon(Icons.check_circle, color: context.q.primary)
+                  : null,
+              onTap: () => unawaited(_settings.setLocale(code)),
+            ),
+        ],
+      );
+    },
   );
 
   Widget _location() => _frame(
@@ -278,7 +284,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
         onTap: _settings.location.value == null
             ? () => context.pushNamed(Routes.locationPicker.name)
             : () {
-                unawaited(_applyRegionalMadhab());
+                unawaited(_applyRegionalDefaults());
                 _go(_step + 1);
               },
       ),
@@ -335,7 +341,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                 trailing: current == method
                     ? Icon(Icons.check_circle, color: context.q.primary)
                     : null,
-                onTap: () => unawaited(_settings.setMethod(method)),
+                onTap: () {
+                  _methodChosen = true;
+                  unawaited(_settings.setMethod(method));
+                },
               ),
           ],
         );
@@ -365,34 +374,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           label: context.l10n.onboardingNotifSkip,
           kind: QButtonKind.ghost,
           expand: true,
-          onPressed: () => _go(_step + 1),
+          onPressed: () => unawaited(_finish()),
         ),
       ],
-    ),
-  );
-
-  Widget _finishStep() => _frame(
-    title: context.l10n.onboardingFinishTitle,
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          QalbMark(
-            color: context.q.accentStrong,
-            accent: context.q.accentStrong,
-          ),
-          const SizedBox(height: QSpace.s5),
-          Text(
-            context.l10n.onboardingFinishBody,
-            textAlign: TextAlign.center,
-            style: QType.body.copyWith(color: context.q.ink2),
-          ),
-        ],
-      ),
-    ),
-    actions: _nextButton(
-      label: context.l10n.onboardingBegin,
-      onTap: () => unawaited(_finish()),
     ),
   );
 }

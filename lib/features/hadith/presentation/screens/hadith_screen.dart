@@ -10,10 +10,12 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith.dart';
 import '../state/hadith_store.dart';
+import '../widgets/hadith_list_card.dart';
 import 'hadith_books_screen.dart';
 import 'hadith_topic_screen.dart';
 
@@ -65,7 +67,27 @@ final class _HadithScreenState extends State<HadithScreen> {
     final l10n = context.l10n;
     final languageCode = Localizations.localeOf(context).languageCode;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.hadithTitle)),
+      appBar: AppBar(
+        title: Text(l10n.hadithTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: l10n.hadithSearchHint,
+            onPressed: () => unawaited(
+              showSearch<void>(
+                context: context,
+                delegate: QSearchDelegate<Hadith>(
+                  items: _store.items.value,
+                  fields: (h) => [h.en, h.bn, h.narrator, h.reference],
+                  itemBuilder: (_, h) => HadithListCard(hadith: h),
+                  emptyText: l10n.hadithNoResults,
+                  hint: l10n.hadithSearchHint,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {

@@ -63,9 +63,7 @@ final class HomeMuhasabaCard extends StatelessWidget {
                     '${(completion * 100).round()}%',
                     languageCode,
                   ),
-                  style: QType.num_(
-                    QType.caption,
-                  ).copyWith(fontSize: 11, color: q.ink),
+                  style: QType.num_(QType.caption).copyWith(color: q.ink),
                 ),
               ),
             ),

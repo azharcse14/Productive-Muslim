@@ -2274,4 +2274,34 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get hadithSearchHint => 'Search hadith';
+
+  @override
+  String get hadithNoResults => 'No hadith found';
+
+  @override
+  String get ruqyahSearchHint => 'Search ruqyah';
+
+  @override
+  String get ruqyahNoResults => 'Nothing found';
+
+  @override
+  String get scheduleRuleRemoved => 'Schedule rule removed';
+
+  @override
+  String get countdownSeeDay => 'Full day';
+
+  @override
+  String get settingHomeCards => 'Home cards';
+
+  @override
+  String get settingHomeCardsSub => 'Choose which sections appear on Home';
+
+  @override
+  String get homeCardQuickActions => 'Quick actions';
+
+  @override
+  String get homeCardDaily => 'Ayah, hadith & dua of the day';
 }

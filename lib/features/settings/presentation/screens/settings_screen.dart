@@ -168,6 +168,14 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: Icon(Icons.chevron_right, color: q.ink3),
                       onTap: () => _pickLocale(settings.localeCode),
                     ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.dashboard_customize_outlined,
+                      title: l10n.settingHomeCards,
+                      subtitle: l10n.settingHomeCardsSub,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => unawaited(_editHomeCards()),
+                    ),
                   ],
                 ),
               ),
@@ -338,6 +346,44 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _editHomeCards() async {
+    final l10n = context.l10n;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(QSpace.s5),
+          child: SignalBuilder(
+            builder: (context) {
+              final hidden = _store.settings.value.hiddenHomeCards;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.settingHomeCards,
+                    style: QType.title.copyWith(color: sheetContext.q.ink),
+                  ),
+                  const SizedBox(height: QSpace.s2),
+                  for (final card in HomeCard.values)
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.homeCardLabel(card)),
+                      value: !hidden.contains(card),
+                      onChanged: (v) => unawaited(
+                        _store.setHomeCardVisible(card, visible: v),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _editAdjustments() async {
     final l10n = context.l10n;
     await showModalBottomSheet<void>(
@@ -456,4 +502,3 @@ final class _AdjustmentStepper extends StatelessWidget {
     );
   }
 }
-

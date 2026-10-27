@@ -105,30 +105,32 @@ final class PrayerTable extends StatelessWidget {
               ),
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
-                  prayer: prayer,
-                  name: context.l10n.prayerLabel(prayer),
-                  range: _range(
-                    formatTime(day.startOf(prayer)),
-                    formatTime(day.endOf(prayer)),
-                  ),
-                  jamaatTime: switch (
-                      jamaat.timeFor(prayer, day.startOf(prayer))) {
-                    null => null,
-                    final t => formatTime(t),
-                  },
-                  active: prayer == activePrayer,
-                  first: i == 0 && mosqueName == null,
-                  dense: dense,
-                  done: prayed.contains(prayer),
-                  locked: locked.contains(prayer),
-                  onLockedTap: onLockedTap == null
-                      ? null
-                      : () => onLockedTap!(prayer),
-                  onToggleDone: onTogglePrayed == null || locked.contains(prayer)
-                      ? null
-                      : () => onTogglePrayed!(prayer),
-                  onTap: onPrayerTap == null ? null : () => onPrayerTap!(prayer),
+                prayer: prayer,
+                name: context.l10n.prayerLabel(prayer),
+                range: _range(
+                  formatTime(day.startOf(prayer)),
+                  formatTime(day.endOf(prayer)),
                 ),
+                jamaatTime: switch (jamaat.timeFor(
+                  prayer,
+                  day.startOf(prayer),
+                )) {
+                  null => null,
+                  final t => formatTime(t),
+                },
+                active: prayer == activePrayer,
+                first: i == 0 && mosqueName == null,
+                dense: dense,
+                done: prayed.contains(prayer),
+                locked: locked.contains(prayer),
+                onLockedTap: onLockedTap == null
+                    ? null
+                    : () => onLockedTap!(prayer),
+                onToggleDone: onTogglePrayed == null || locked.contains(prayer)
+                    ? null
+                    : () => onTogglePrayed!(prayer),
+                onTap: onPrayerTap == null ? null : () => onPrayerTap!(prayer),
+              ),
             ],
             if (onSetJamaat != null)
               _SetJamaatButton(dense: dense, onTap: onSetJamaat!),
@@ -201,12 +203,12 @@ final class _PrayerRow extends StatelessWidget {
 
   /// A waqt-specific glyph standing in for a generic bullet (design §4.3).
   static IconData _iconFor(Prayer prayer) => switch (prayer) {
-        Prayer.fajr => Icons.wb_twilight,
-        Prayer.dhuhr => Icons.wb_sunny_outlined,
-        Prayer.asr => Icons.brightness_6_outlined,
-        Prayer.maghrib => Icons.brightness_4_outlined,
-        Prayer.isha => Icons.nightlight_outlined,
-      };
+    Prayer.fajr => Icons.wb_twilight,
+    Prayer.dhuhr => Icons.wb_sunny_outlined,
+    Prayer.asr => Icons.brightness_6_outlined,
+    Prayer.maghrib => Icons.brightness_4_outlined,
+    Prayer.isha => Icons.nightlight_outlined,
+  };
   final bool active;
   final bool first;
   final bool dense;
@@ -225,115 +227,121 @@ final class _PrayerRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-      constraints: BoxConstraints(minHeight: dense ? 40 : 54),
-      // End inset is reduced by the check's 11dp hit-box overhang.
-      padding: EdgeInsetsDirectional.only(
-        start: dense ? 12 : 16,
-        end: (dense ? 12 : 16) - _HitBox.overhang,
-      ),
-      decoration: BoxDecoration(
-        color: active ? q.primarySoft : null,
-        border: first ? null : Border(top: BorderSide(color: q.line)),
-      ),
-      child: Row(
-        children: [
-          _WaqtIcon(icon: _iconFor(prayer), color: iconColor, pulsing: active),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: dense ? 64 : 84,
-            child: Text(
-              name,
-              style: QType.titleSm.copyWith(
-                fontSize: dense ? 13.5 : null,
-                color: fg ?? q.ink,
-                fontVariations: [FontVariation('wght', active ? 700 : 600)],
-              ),
+        constraints: BoxConstraints(minHeight: dense ? 40 : 54),
+        // End inset is reduced by the check's 11dp hit-box overhang.
+        padding: EdgeInsetsDirectional.only(
+          start: dense ? 12 : 16,
+          end: (dense ? 12 : 16) - _HitBox.overhang,
+        ),
+        decoration: BoxDecoration(
+          color: active ? q.primarySoft : null,
+          border: first ? null : Border(top: BorderSide(color: q.line)),
+        ),
+        child: Row(
+          children: [
+            _WaqtIcon(
+              icon: _iconFor(prayer),
+              color: iconColor,
+              pulsing: active,
             ),
-          ),
-          Expanded(
-            child: Text(
-              range,
-              style: QType.num_(QType.caption).copyWith(
-                fontSize: dense ? 11 : 12.5,
-                color: fg ?? q.ink2,
-              ),
-              maxLines: 2,
-            ),
-          ),
-          SizedBox(
-            width: dense ? 40 : 52,
-            // Jamaat time, or a quiet em-dash placeholder when unset — the
-            // single "Set jamaat" CTA lives at the foot of the table.
-            // Scales down rather than wrapping "12:45 PM" in a narrow cell.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
+            const SizedBox(width: 10),
+            SizedBox(
+              width: dense ? 64 : 84,
               child: Text(
-                jamaatTime ?? '—',
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                style: QType.num_(QType.caption).copyWith(
-                  color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
-                  fontVariations: const [FontVariation('wght', 600)],
+                name,
+                style: QType.titleSm.copyWith(
+                  fontSize: dense ? 13.5 : null,
+                  color: fg ?? q.ink,
+                  fontVariations: [FontVariation('wght', active ? 700 : 600)],
                 ),
               ),
             ),
-          ),
-          // The 48dp hit boxes below carry their own 11dp side inset, so
-          // the visual 26dp circle sits where it did with a 10dp gap.
-          if (locked)
-            // Waqt hasn't started — no check yet; a tap explains why.
-            // container: its own node, not merged into the row's tap node.
-            Semantics(
-              container: true,
-              button: onLockedTap != null,
-              label: context.l10n.a11yPrayerLocked(name),
-              excludeSemantics: true,
-              child: _HitBox(
-                onTap: onLockedTap,
-                child: Icon(Icons.schedule, size: 18, color: q.ink3),
+            Expanded(
+              child: Text(
+                range,
+                style: QType.num_(
+                  QType.caption,
+                ).copyWith(fontSize: dense ? 11.5 : 12.5, color: fg ?? q.ink2),
+                maxLines: 2,
               ),
-            )
-          else
-            Semantics(
-              container: true,
-              button: onToggleDone != null,
-              checked: done,
-              label: context.l10n.a11yMarkPrayed(name),
-              excludeSemantics: true,
-              child: _HitBox(
-                onTap: onToggleDone == null
-                    ? null
-                    : () {
-                        Haptics.selection();
-                        onToggleDone!();
-                      },
-                child: AnimatedContainer(
-                  duration: QMotion.fast,
-                  curve: QMotion.ease,
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: done ? q.ok : null,
-                    border:
-                        done ? null : Border.all(color: q.ink3, width: 1.8),
+            ),
+            SizedBox(
+              width: dense ? 40 : 52,
+              // Jamaat time, or a quiet em-dash placeholder when unset — the
+              // single "Set jamaat" CTA lives at the foot of the table.
+              // Scales down rather than wrapping "12:45 PM" in a narrow cell.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  jamaatTime ?? '—',
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: QType.num_(QType.caption).copyWith(
+                    color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
+                    fontVariations: const [FontVariation('wght', 600)],
                   ),
-                  child: AnimatedSwitcher(
+                ),
+              ),
+            ),
+            // The 48dp hit boxes below carry their own 11dp side inset, so
+            // the visual 26dp circle sits where it did with a 10dp gap.
+            if (locked)
+              // Waqt hasn't started — no check yet; a tap explains why.
+              // container: its own node, not merged into the row's tap node.
+              Semantics(
+                container: true,
+                button: onLockedTap != null,
+                label: context.l10n.a11yPrayerLocked(name),
+                excludeSemantics: true,
+                child: _HitBox(
+                  onTap: onLockedTap,
+                  child: Icon(Icons.schedule, size: 18, color: q.ink3),
+                ),
+              )
+            else
+              Semantics(
+                container: true,
+                button: onToggleDone != null,
+                checked: done,
+                label: context.l10n.a11yMarkPrayed(name),
+                excludeSemantics: true,
+                child: _HitBox(
+                  onTap: onToggleDone == null
+                      ? null
+                      : () {
+                          Haptics.selection();
+                          onToggleDone!();
+                        },
+                  child: AnimatedContainer(
                     duration: QMotion.fast,
-                    transitionBuilder: (child, anim) =>
-                        ScaleTransition(scale: anim, child: child),
-                    child: done
-                        ? Icon(Icons.check,
-                            key: const ValueKey(true),
-                            size: 15,
-                            color: q.okSoft)
-                        : const SizedBox.shrink(key: ValueKey(false)),
+                    curve: QMotion.ease,
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: done ? q.ok : null,
+                      border: done
+                          ? null
+                          : Border.all(color: q.ink3, width: 1.8),
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: QMotion.fast,
+                      transitionBuilder: (child, anim) =>
+                          ScaleTransition(scale: anim, child: child),
+                      child: done
+                          ? Icon(
+                              Icons.check,
+                              key: const ValueKey(true),
+                              size: 15,
+                              color: q.okSoft,
+                            )
+                          : const SizedBox.shrink(key: ValueKey(false)),
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -375,8 +383,7 @@ final class _MosqueStrip extends StatelessWidget {
             if (badge case final b?) ...[
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: q.primarySoft,
                   borderRadius: BorderRadius.circular(QRadius.full),
@@ -384,7 +391,6 @@ final class _MosqueStrip extends StatelessWidget {
                 child: Text(
                   b,
                   style: QType.caption.copyWith(
-                    fontSize: 10.5,
                     color: q.onPrimarySoft,
                     fontVariations: const [FontVariation('wght', 600)],
                   ),
@@ -434,9 +440,10 @@ class _WaqtIconState extends State<_WaqtIcon>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     );
-    _scale = Tween(begin: 1.0, end: 1.14).animate(
-      CurvedAnimation(parent: _c, curve: Curves.easeInOut),
-    );
+    _scale = Tween(
+      begin: 1.0,
+      end: 1.14,
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut));
     if (widget.pulsing) {
       unawaited(_c.repeat(reverse: true));
     }
@@ -485,11 +492,11 @@ final class _HitBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-        dimension: size,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Center(child: child),
-        ),
-      );
+    dimension: size,
+    child: InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: Center(child: child),
+    ),
+  );
 }
