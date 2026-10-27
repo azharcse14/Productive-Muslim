@@ -310,18 +310,26 @@ Future<void> setupLocator() async {
     ),
   );
 
+  // Everything below runs before the first frame. The stores only read
+  // settings, so settings go first and the rest load in parallel.
   await locator<SettingsStore>().load();
-  await locator<MosqueStore>().load();
-  await locator<MuhasabaStore>().load();
-  await locator<AppLockStore>().load();
-  locator<AppLockStore>().watchLifecycle();
-  await locator<DuaFavoritesStore>().load();
-  await locator<FastingStore>().load();
-  await locator<TasbihStore>().load();
   // QuranDatabase copies a 5 MB asset on first run; anything resolving
   // QuranStore (AchievementStore does) must wait for it or get_it throws.
+  // Started now so the copy overlaps the loads; ignore() only keeps a
+  // failure from surfacing as unhandled before it is awaited below.
+  final quranReady = locator.isReady<QuranDatabase>()..ignore();
+  await Future.wait([
+    locator<MosqueStore>().load(),
+    locator<MuhasabaStore>().load(),
+    locator<AppLockStore>().load(),
+    locator<DuaFavoritesStore>().load(),
+    locator<FastingStore>().load(),
+    locator<TasbihStore>().load(),
+  ]);
+  locator<AppLockStore>().watchLifecycle();
+  // AchievementStore reads muhasaba/fasting/tasbih, so it loads last.
   try {
-    await locator.isReady<QuranDatabase>();
+    await quranReady;
     await locator<AchievementStore>().load();
   } on Object catch (e) {
     // ponytail: a failed open (e.g. disk full) boots without Quran/

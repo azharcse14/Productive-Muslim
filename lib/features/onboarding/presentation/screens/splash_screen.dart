@@ -27,7 +27,8 @@ final class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 1200), _continue);
+    // The mark's entrance (QMotion.slow) plus a short hold.
+    _timer = Timer(const Duration(milliseconds: 700), _continue);
   }
 
   void _continue() {
