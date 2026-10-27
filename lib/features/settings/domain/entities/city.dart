@@ -6,6 +6,7 @@ final class City {
     required this.latitude,
     required this.longitude,
     required this.timezone,
+    this.nameBn,
   });
 
   final String name;
@@ -18,6 +19,10 @@ final class City {
   /// IANA id, e.g. "Asia/Dhaka" — REQUIRED for correct wall-clock times
   /// of manually selected cities (guide §5).
   final String timezone;
+
+  /// Bengali name for BD places, used for search and as a subtitle.
+  /// Not persisted and not part of equality, so saved cities still match.
+  final String? nameBn;
 
   @override
   bool operator ==(Object other) =>

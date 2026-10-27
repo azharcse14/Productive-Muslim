@@ -235,7 +235,10 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   // Flag + country code reads better than a raw IANA zone.
                   return QListRow(
                     title: city.name,
-                    subtitle: '${_flag(city.countryCode)} ${city.countryCode}',
+                    subtitle: [
+                      '${_flag(city.countryCode)} ${city.countryCode}',
+                      ?city.nameBn,
+                    ].join(' · '),
                     onTap: () => unawaited(_selectCity(city)),
                   );
                 },

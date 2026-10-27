@@ -18,7 +18,11 @@ final class CityRepositoryImpl implements CityRepository {
     try {
       final all = await _source.loadAll();
       if (!identical(all, _indexed)) {
-        _names = [for (final city in all) _normalize(city.name)];
+        _names = [
+          for (final city in all)
+            // Newline can't appear in a query, so it never matches across.
+            [city.name, ?city.nameBn].map(_normalize).join('\n'),
+        ];
         _indexed = all;
       }
       final q = _normalize(query);
@@ -31,7 +35,7 @@ final class CityRepositoryImpl implements CityRepository {
       for (var i = 0; i < all.length; i++) {
         final city = all[i];
         final name = _names[i];
-        if (name.startsWith(q)) {
+        if (name.startsWith(q) || name.contains('\n$q')) {
           prefix.add(city);
           if (prefix.length >= limit) {
             break;
@@ -49,10 +53,17 @@ final class CityRepositoryImpl implements CityRepository {
   }
 
   /// Lowercase + strip common Latin diacritics so "Sao" matches "São".
+  /// Bengali য়/ড়/ঢ় are typed either precomposed or as base + nukta
+  /// depending on keyboard; fold to precomposed and drop ZWJ/ZWNJ.
   static String _normalize(String input) {
     const from = 'àáâãäåāçèéêëēìíîïīñòóôõöōùúûüūýÿšžł’';
     const to = "aaaaaaaceeeeeiiiiinoooooouuuuuyyszl'";
-    final lower = input.toLowerCase();
+    final lower = input
+        .toLowerCase()
+        .replaceAll('\u09AF\u09BC', '\u09DF')
+        .replaceAll('\u09A1\u09BC', '\u09DC')
+        .replaceAll('\u09A2\u09BC', '\u09DD')
+        .replaceAll(RegExp('[\u200C\u200D]'), '');
     final buffer = StringBuffer();
     for (final ch in lower.runes) {
       final s = String.fromCharCode(ch);

@@ -25,6 +25,7 @@ const _sample = [
   ['Mecca', 'SA', 21.4267, 39.8261, 'Asia/Riyadh'],
   ['New London', 'US', 41.3556, -72.0995, 'America/New_York'],
   ['Bāndarban', 'BD', 22.1953, 92.2184, 'Asia/Dhaka'],
+  ['Bogra District', 'BD', 24.85, 89.37, 'Asia/Dhaka', 'বগুড়া জেলা'],
 ];
 
 CityRepositoryImpl _repo() => CityRepositoryImpl(
@@ -55,6 +56,17 @@ void main() {
     test('search folds macrons used in GeoNames BD names', () async {
       final result = await _repo().search('bandarban');
       expect(result.valueOrNull!.single.name, 'Bāndarban');
+    });
+
+    test('search matches the Bengali name by prefix', () async {
+      final result = await _repo().search('বগুড়া');
+      expect(result.valueOrNull!.single.name, 'Bogra District');
+    });
+
+    test('Bengali search folds base + nukta to precomposed', () async {
+      // ড় typed as ড + nukta (U+09A1 U+09BC) on some keyboards.
+      final result = await _repo().search('বগু\u09A1\u09BCা');
+      expect(result.valueOrNull!.single.name, 'Bogra District');
     });
 
     test('search is case-insensitive', () async {

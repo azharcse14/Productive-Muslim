@@ -43,6 +43,7 @@ final class CityAssetDataSource {
             latitude: (entry[2] as num).toDouble(),
             longitude: (entry[3] as num).toDouble(),
             timezone: entry[4] as String,
+            nameBn: entry.length > 5 ? entry[5] as String : null,
           ),
       ];
 }
