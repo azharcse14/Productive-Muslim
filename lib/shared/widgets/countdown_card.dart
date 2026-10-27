@@ -71,40 +71,40 @@ final class CountdownCard extends StatelessWidget {
     const none = Color(0x00000000);
     return switch (state) {
       CountdownState.calm => (
-          bg: q.surface,
-          fg: q.ink,
-          sub: q.ink2,
-          bar: q.primary,
-          ring: q.line,
-        ),
+        bg: q.surface,
+        fg: q.ink,
+        sub: q.ink2,
+        bar: q.primary,
+        ring: q.line,
+      ),
       CountdownState.amber => (
-          bg: q.warnSoft,
-          fg: q.warn,
-          sub: q.warn,
-          bar: q.warn,
-          ring: none,
-        ),
+        bg: q.warnSoft,
+        fg: q.warn,
+        sub: q.warn,
+        bar: q.warn,
+        ring: none,
+      ),
       CountdownState.urgent => (
-          bg: q.urgentSoft,
-          fg: q.urgent,
-          sub: q.urgent,
-          bar: q.urgent,
-          ring: none,
-        ),
+        bg: q.urgentSoft,
+        fg: q.urgent,
+        sub: q.urgent,
+        bar: q.urgent,
+        ring: none,
+      ),
       CountdownState.sahri => (
-          bg: q.primary,
-          fg: q.onPrimary,
-          sub: q.onPrimary,
-          bar: q.accent,
-          ring: none,
-        ),
+        bg: q.primary,
+        fg: q.onPrimary,
+        sub: q.onPrimary,
+        bar: q.accent,
+        ring: none,
+      ),
       CountdownState.iftar => (
-          bg: q.accentSoft,
-          fg: q.onAccentSoft,
-          sub: q.onAccentSoft,
-          bar: q.accent,
-          ring: none,
-        ),
+        bg: q.accentSoft,
+        fg: q.onAccentSoft,
+        sub: q.onAccentSoft,
+        bar: q.accent,
+        ring: none,
+      ),
     };
   }
 
@@ -157,101 +157,105 @@ final class CountdownCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(QRadius.xl),
-        child: Stack(
-          children: [
-            MotifBackground(color: c.fg, opacity: 0.055, cell: 120),
-            if (corner != null)
-              PositionedDirectional(
-                top: compact ? 12 : 16,
-                end: compact ? 12 : 16,
-                child: corner!(c.fg),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    eyebrow.toUpperCase(),
-                    style: QType.overline.copyWith(
-                      color: c.sub.withValues(alpha: 0.85),
+        // The numeral ticks every second; keep that repaint off the shadowed,
+        // gradient shell above.
+        child: RepaintBoundary(
+          child: Stack(
+            children: [
+              MotifBackground(color: c.fg, opacity: 0.055, cell: 120),
+              if (corner != null)
+                PositionedDirectional(
+                  top: compact ? 12 : 16,
+                  end: compact ? 12 : 16,
+                  child: corner!(c.fg),
+                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      eyebrow.toUpperCase(),
+                      style: QType.overline.copyWith(
+                        color: c.sub.withValues(alpha: 0.85),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: compact ? 5 : 8,
-                      bottom: compact ? 4 : 6,
-                    ),
-                    // Shrinks rather than wrapping mid-digits at large text
-                    // sizes on narrow phones.
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        big,
-                        maxLines: 1,
-                        style: QType.countdown.copyWith(
-                          fontSize: numeralSize,
-                          color: c.fg,
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: compact ? 5 : 8,
+                        bottom: compact ? 4 : 6,
+                      ),
+                      // Shrinks rather than wrapping mid-digits at large text
+                      // sizes on narrow phones.
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          big,
+                          maxLines: 1,
+                          style: QType.countdown.copyWith(
+                            fontSize: numeralSize,
+                            color: c.fg,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Text(
-                    sub,
-                    style: QType.caption.copyWith(
-                      fontSize: 12.5,
-                      color: c.sub.withValues(alpha: 0.85),
+                    Text(
+                      sub,
+                      style: QType.caption.copyWith(
+                        fontSize: 12.5,
+                        color: c.sub.withValues(alpha: 0.85),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: compact ? 10 : 16),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
-                    child: SizedBox(
-                      height: 5,
-                      width: double.infinity,
-                      child: ColoredBox(
-                        color: c.fg.withValues(alpha: 0.14),
-                        child: FractionallySizedBox(
-                          alignment: AlignmentDirectional.centerStart,
-                          widthFactor: progress.clamp(0, 1),
-                          child: ColoredBox(color: c.bar),
+                    SizedBox(height: compact ? 10 : 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: SizedBox(
+                        height: 5,
+                        width: double.infinity,
+                        child: ColoredBox(
+                          color: c.fg.withValues(alpha: 0.14),
+                          child: FractionallySizedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            widthFactor: progress.clamp(0, 1),
+                            child: ColoredBox(color: c.bar),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  if (footer.isNotEmpty) ...[
-                    SizedBox(height: compact ? 8 : 12),
-                    Wrap(
-                      spacing: QSpace.s4,
-                      runSpacing: QSpace.s1,
-                      children: [
-                        for (final item in footer)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                item.icon,
-                                size: 14,
-                                color: c.sub.withValues(alpha: 0.85),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                item.text,
-                                style: QType.num_(QType.caption).copyWith(
-                                  fontSize: 12,
+                    if (footer.isNotEmpty) ...[
+                      SizedBox(height: compact ? 8 : 12),
+                      Wrap(
+                        spacing: QSpace.s4,
+                        runSpacing: QSpace.s1,
+                        children: [
+                          for (final item in footer)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  item.icon,
+                                  size: 14,
                                   color: c.sub.withValues(alpha: 0.85),
                                 ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  item.text,
+                                  style: QType.num_(QType.caption).copyWith(
+                                    fontSize: 12,
+                                    color: c.sub.withValues(alpha: 0.85),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

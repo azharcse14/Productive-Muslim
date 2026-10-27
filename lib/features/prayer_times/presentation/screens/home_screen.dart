@@ -286,26 +286,34 @@ final class _HomeScreenState extends State<HomeScreen> {
             ];
             return RefreshIndicator(
               onRefresh: _refresh,
-              child: ListView(
-                padding: EdgeInsets.zero,
+              // A handful of cards: build them all up front. A lazy ListView
+              // built each card only on scroll-in, so its staggered entrance
+              // replayed mid-scroll and estimated heights jumped the offset.
+              child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  HomeHeader(
-                    greeting: greetingFor(l10n, _store.daypart.value),
-                    locationName: switch (location?.displayName) {
-                      null || '' => l10n.locationCurrent,
-                      final name => name,
-                    },
-                    dates: _headerDates(l10n, locale),
-                    onLocationTap: () =>
-                        context.pushNamed(Routes.locationPicker.name),
-                    onQiblaTap: () => context.pushNamed(Routes.qibla.name),
-                    onNotificationsTap: () =>
-                        context.pushNamed(Routes.notificationSettings.name),
-                  ),
-                  for (final (i, section) in sections.indexed)
-                    StaggeredEntrance(index: i, child: section),
-                ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    HomeHeader(
+                      greeting: greetingFor(l10n, _store.daypart.value),
+                      locationName: switch (location?.displayName) {
+                        null || '' => l10n.locationCurrent,
+                        final name => name,
+                      },
+                      dates: _headerDates(l10n, locale),
+                      onLocationTap: () =>
+                          context.pushNamed(Routes.locationPicker.name),
+                      onQiblaTap: () => context.pushNamed(Routes.qibla.name),
+                      onNotificationsTap: () =>
+                          context.pushNamed(Routes.notificationSettings.name),
+                    ),
+                    for (final (i, section) in sections.indexed)
+                      // Isolates per-second / pulsing repaints to one card.
+                      RepaintBoundary(
+                        child: StaggeredEntrance(index: i, child: section),
+                      ),
+                  ],
+                ),
               ),
             );
           },
