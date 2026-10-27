@@ -53,7 +53,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     }
     await _plugin.initialize(
       settings: InitializationSettings(
-        android: const AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: const AndroidInitializationSettings('@drawable/ic_stat_notify'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
