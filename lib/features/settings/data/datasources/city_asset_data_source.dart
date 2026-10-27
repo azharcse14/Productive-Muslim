@@ -13,17 +13,25 @@ final class CityAssetDataSource {
   static const assetPath = 'assets/data/cities.json';
 
   final AssetBundle _bundle;
-  List<City>? _cache;
+
+  /// Shared in-flight load, so searches during the first load don't each
+  /// decode the asset; cleared on failure so a later call can retry.
+  Future<List<City>>? _cache;
 
   Future<List<City>> loadAll() async {
-    if (_cache case final cached?) {
-      return cached;
+    try {
+      return await (_cache ??= _load());
+    } on Object {
+      _cache = null;
+      rethrow;
     }
+  }
+
+  Future<List<City>> _load() async {
     final raw = await _bundle.loadString(assetPath);
-    // ~1.7 MB of JSON: decode off the UI isolate so the first search
+    // ~1.8 MB of JSON: decode off the UI isolate so the first search
     // doesn't drop frames.
-    final cities = await Isolate.run(() => _parse(raw));
-    return _cache = cities;
+    return Isolate.run(() => _parse(raw));
   }
 
   static List<City> _parse(String raw) => [
