@@ -50,8 +50,8 @@ final class CityRepositoryImpl implements CityRepository {
 
   /// Lowercase + strip common Latin diacritics so "Sao" matches "São".
   static String _normalize(String input) {
-    const from = 'àáâãäåçèéêëìíîïñòóôõöùúûüýÿšžł';
-    const to = 'aaaaaaceeeeiiiinooooouuuuyyszl';
+    const from = 'àáâãäåāçèéêëēìíîïīñòóôõöōùúûüūýÿšžł’';
+    const to = "aaaaaaaceeeeeiiiiinoooooouuuuuyyszl'";
     final lower = input.toLowerCase();
     final buffer = StringBuffer();
     for (final ch in lower.runes) {

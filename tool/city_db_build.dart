@@ -14,6 +14,10 @@ import 'dart:io';
 
 const _dumpUrl = 'https://download.geonames.org/export/dump/cities15000.zip';
 
+// Full Bangladesh dump: cities15000 misses many district towns, and
+// upazilas (ADM3) are what BD users expect to pick.
+const _bdUrl = 'https://download.geonames.org/export/dump/BD.zip';
+
 Future<void> main() async {
   final tmp = Directory.systemTemp.createTempSync('productive_muslim_cities');
   try {
@@ -57,6 +61,8 @@ Future<void> main() async {
       for (final c in cities) [c[0], c[1], c[2], c[3], c[4]],
     ];
 
+    compact.addAll(_bangladeshAdmin(tmp));
+
     final out = File('assets/data/cities.json')
       ..parent.createSync(recursive: true);
     out.writeAsStringSync(jsonEncode(compact));
@@ -65,6 +71,41 @@ Future<void> main() async {
   } finally {
     tmp.deleteSync(recursive: true);
   }
+}
+
+/// BD districts as "X District" and upazilas as "X, District", appended
+/// after the population-ordered cities.
+List<List<Object>> _bangladeshAdmin(Directory tmp) {
+  final zipPath = '${tmp.path}/BD.zip';
+  stdout.writeln('Downloading $_bdUrl …');
+  _run('curl', ['-sfL', '-o', zipPath, _bdUrl]);
+  _run('unzip', ['-o', '-q', zipPath, '-d', tmp.path]);
+
+  // 7=feature code 10=admin1 11=admin2
+  final rows = [
+    for (final line in File('${tmp.path}/BD.txt').readAsLinesSync())
+      line.split('\t'),
+  ].where((f) => f.length >= 18 && f[17].isNotEmpty).toList();
+
+  String clean(String name) => name
+      .replaceAll(RegExp(r' (Zila|District|Upazila Parishad|Upazila)$'), '')
+      .replaceAll(RegExp(r' S\.$'), ' Sadar');
+
+  final districts = <String, String>{
+    for (final f in rows)
+      if (f[7] == 'ADM2') '${f[10]}.${f[11]}': clean(f[1]),
+  };
+  List<Object> entry(List<String> f, String name) =>
+      [name, 'BD', _round(double.parse(f[4])), _round(double.parse(f[5])), f[17]];
+
+  return [
+    for (final f in rows)
+      if (f[7] == 'ADM2') entry(f, '${clean(f[1])} District'),
+    for (final f in rows)
+      // Skip city-corporation zones like "DNCC (Dhaka)".
+      if (f[7] == 'ADM3' && !f[1].contains('('))
+        entry(f, [clean(f[1]), ?districts['${f[10]}.${f[11]}']].join(', ')),
+  ];
 }
 
 double _round(double v) => (v * 10000).roundToDouble() / 10000;

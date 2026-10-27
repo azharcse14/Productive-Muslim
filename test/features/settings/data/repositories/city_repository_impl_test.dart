@@ -24,6 +24,7 @@ const _sample = [
   ['London', 'GB', 51.5085, -0.1257, 'Europe/London'],
   ['Mecca', 'SA', 21.4267, 39.8261, 'Asia/Riyadh'],
   ['New London', 'US', 41.3556, -72.0995, 'America/New_York'],
+  ['Bāndarban', 'BD', 22.1953, 92.2184, 'Asia/Dhaka'],
 ];
 
 CityRepositoryImpl _repo() => CityRepositoryImpl(
@@ -49,6 +50,11 @@ void main() {
     test('search is diacritic-insensitive', () async {
       final result = await _repo().search('sao');
       expect(result.valueOrNull!.single.name, 'São Paulo');
+    });
+
+    test('search folds macrons used in GeoNames BD names', () async {
+      final result = await _repo().search('bandarban');
+      expect(result.valueOrNull!.single.name, 'Bāndarban');
     });
 
     test('search is case-insensitive', () async {
