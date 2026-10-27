@@ -50,7 +50,7 @@ final class HomeMuhasabaCard extends StatelessWidget {
           children: [
             TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0, end: completion),
-              duration: MediaQuery.of(context).disableAnimations
+              duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : QMotion.slow,
               curve: QMotion.ease,

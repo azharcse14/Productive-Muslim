@@ -49,7 +49,7 @@ final class _StaggeredEntranceState extends State<StaggeredEntrance>
       return;
     }
     _started = true;
-    if (MediaQuery.of(context).disableAnimations) {
+    if (MediaQuery.disableAnimationsOf(context)) {
       // Reduced motion: cut to the final state, animate nothing.
       _controller.value = 1;
       return;

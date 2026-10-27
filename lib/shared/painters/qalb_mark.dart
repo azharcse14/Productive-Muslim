@@ -161,11 +161,15 @@ final class MotifBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      child: IgnorePointer(
-        child: CustomPaint(
-          painter: _MotifBackgroundPainter(
-            color: color.withValues(alpha: opacity),
-            cell: cell,
+      // Own layer: the tile loop is static, so a host that repaints often
+      // (the per-second countdown) reuses it instead of redrawing.
+      child: RepaintBoundary(
+        child: IgnorePointer(
+          child: CustomPaint(
+            painter: _MotifBackgroundPainter(
+              color: color.withValues(alpha: opacity),
+              cell: cell,
+            ),
           ),
         ),
       ),
