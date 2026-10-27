@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/theme/productive_muslim_colors.dart';
@@ -39,6 +40,18 @@ final class CompassDial extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Tick ring + cardinals rotate opposite the device heading so that
+          // they stay world-fixed. Painted once and cached; each sensor
+          // event only re-composites the rotation.
+          Transform.rotate(
+            angle: _rad(-heading),
+            child: RepaintBoundary(
+              child: CustomPaint(
+                size: Size.square(size),
+                painter: _RingPainter(colors: q, cardinals: cardinals),
+              ),
+            ),
+          ),
           CustomPaint(
             size: Size.square(size),
             painter: _DialPainter(
@@ -46,7 +59,6 @@ final class CompassDial extends StatelessWidget {
               heading: heading,
               bearing: bearing,
               aligned: aligned,
-              cardinals: cardinals,
             ),
           ),
           QalbMark(
@@ -61,36 +73,19 @@ final class CompassDial extends StatelessWidget {
   }
 }
 
-final class _DialPainter extends CustomPainter {
-  const _DialPainter({
-    required this.colors,
-    required this.heading,
-    required this.bearing,
-    required this.aligned,
-    required this.cardinals,
-  });
+double _rad(double deg) => deg * math.pi / 180;
+
+/// The world-fixed tick ring and cardinal labels, unrotated (north up).
+final class _RingPainter extends CustomPainter {
+  const _RingPainter({required this.colors, required this.cardinals});
 
   final ProductiveMuslimColors colors;
-  final double heading;
-  final double bearing;
-  final bool aligned;
   final List<String> cardinals;
-
-  static double _rad(double deg) => deg * math.pi / 180;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = size.shortestSide / 300;
-    canvas.scale(scale);
+    canvas.scale(size.shortestSide / 300);
     const center = Offset(150, 150);
-
-    // Tick ring + cardinals rotate opposite the device heading so that
-    // they stay world-fixed.
-    canvas
-      ..save()
-      ..translate(center.dx, center.dy)
-      ..rotate(_rad(-heading))
-      ..translate(-center.dx, -center.dy);
     for (var a = 0; a < 360; a += 6) {
       final major = a % 90 == 0;
       final mid = a % 30 == 0;
@@ -131,7 +126,32 @@ final class _DialPainter extends CustomPainter {
       painter.paint(canvas, Offset(150 - painter.width / 2, 36));
       canvas.restore();
     }
-    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter oldDelegate) =>
+      colors != oldDelegate.colors ||
+      !listEquals(cardinals, oldDelegate.cardinals);
+}
+
+/// Alignment arc, needle and center medallion: cheap, repainted per event.
+final class _DialPainter extends CustomPainter {
+  const _DialPainter({
+    required this.colors,
+    required this.heading,
+    required this.bearing,
+    required this.aligned,
+  });
+
+  final ProductiveMuslimColors colors;
+  final double heading;
+  final double bearing;
+  final bool aligned;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.shortestSide / 300);
+    const center = Offset(150, 150);
 
     // Fixed alignment arc at 12 o'clock.
     final arcPaint = Paint()

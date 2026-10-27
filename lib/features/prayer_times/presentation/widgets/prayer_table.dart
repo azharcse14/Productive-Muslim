@@ -473,7 +473,10 @@ class _WaqtIconState extends State<_WaqtIcon>
     if (!widget.pulsing) {
       return icon;
     }
-    return ScaleTransition(scale: _scale, child: icon);
+    // Own layer: the endless pulse would otherwise repaint the whole card.
+    return RepaintBoundary(
+      child: ScaleTransition(scale: _scale, child: icon),
+    );
   }
 }
 
