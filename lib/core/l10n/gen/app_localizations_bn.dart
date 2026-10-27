@@ -9,7 +9,7 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get appTitle => 'কালবী';
+  String get appTitle => 'প্রোডাক্টিভ মুসলিম';
 
   @override
   String get tabHome => 'হোম';
@@ -249,7 +249,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get locationPrimingBody =>
-      'কালবী আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।';
+      'প্রোডাক্টিভ মুসলিম আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।';
 
   @override
   String get locationDeniedFallback =>
@@ -452,7 +452,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get scheduleModeAuto => 'অটো';
 
   @override
-  String get scheduleAutoHint => 'দিন ও সময় অনুযায়ী কালবী মসজিদ বেছে নেবে।';
+  String get scheduleAutoHint =>
+      'দিন ও সময় অনুযায়ী প্রোডাক্টিভ মুসলিম মসজিদ বেছে নেবে।';
 
   @override
   String get scheduleRulesTitle => 'নিয়ম';
@@ -502,7 +503,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get homeSetLocationBody =>
-      'একবার অবস্থান বেছে নিন — কালবী সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।';
+      'একবার অবস্থান বেছে নিন — প্রোডাক্টিভ মুসলিম সম্পূর্ণ অফলাইনে সঠিক নামাজের সময় হিসাব করবে।';
 
   @override
   String get homeSetLocationCta => 'অবস্থান সেট করুন';
@@ -621,21 +622,21 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifPermissionDeniedBanner =>
-      'সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। কালবী পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।';
+      'সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। প্রোডাক্টিভ মুসলিম পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
   @override
   String get notifEnableCta => 'নোটিফিকেশন চালু করুন';
 
   @override
   String get notifExactAlarmBanner =>
-      'ঠিক মিনিটে আজান পেতে সিস্টেম সেটিংসে কালবীর জন্য \"Alarms & reminders\" অনুমতি দিন।';
+      'ঠিক মিনিটে আজান পেতে সিস্টেম সেটিংসে প্রোডাক্টিভ মুসলিমের জন্য \"অ্যালার্ম ও রিমাইন্ডার\" অনুমতি দিন।';
 
   @override
   String get notifExactAlarmCta => 'এক্সাক্ট অ্যালার্ম অনুমতি দিন';
 
   @override
   String get notifBatteryHint =>
-      'রিমাইন্ডার দেরিতে এলে সিস্টেম সেটিংসে কালবীকে ব্যাটারি অপটিমাইজেশন থেকে বাদ দিন।';
+      'রিমাইন্ডার দেরিতে এলে সিস্টেম সেটিংসে প্রোডাক্টিভ মুসলিমকে ব্যাটারি অপটিমাইজেশন থেকে বাদ দিন।';
 
   @override
   String get notifPerPrayerHeader => 'নামাজের অ্যালার্ট';
@@ -1043,7 +1044,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get quranFirstOpen =>
-      'বিসমিল্লাহ — পড়া শুরু করুন, কোথায় থেমেছিলেন কালবী মনে রাখবে।';
+      'বিসমিল্লাহ — পড়া শুরু করুন, কোথায় থেমেছিলেন প্রোডাক্টিভ মুসলিম মনে রাখবে।';
 
   @override
   String ayahShareSuffix(int surah, int ayah) {
@@ -1069,6 +1070,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get asmaQuizTitle => 'নাম কুইজ';
+
+  @override
+  String get asmaLoadError => 'নামগুলো লোড করা যায়নি। পরে আবার চেষ্টা করুন।';
 
   @override
   String get asmaQuizModeNameToMeaning => 'নাম → অর্থ';
@@ -1650,7 +1654,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appLockEnable => 'অ্যাপ লক';
 
   @override
-  String get appLockEnableSub => 'কালবী খুলতে পিন (ও বায়োমেট্রিক) লাগবে';
+  String get appLockEnableSub =>
+      'প্রোডাক্টিভ মুসলিম খুলতে পিন (ও বায়োমেট্রিক) লাগবে';
 
   @override
   String get appLockDisable => 'অ্যাপ লক বন্ধ করুন';

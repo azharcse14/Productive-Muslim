@@ -1790,6 +1790,12 @@ abstract class AppLocalizations {
   /// **'Names quiz'**
   String get asmaQuizTitle;
 
+  /// No description provided for @asmaLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the names. Please try again later.'**
+  String get asmaLoadError;
+
   /// No description provided for @asmaQuizModeNameToMeaning.
   ///
   /// In en, this message translates to:

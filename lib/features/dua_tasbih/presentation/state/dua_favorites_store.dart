@@ -25,6 +25,10 @@ final class DuaFavoritesStore {
 
   /// Adds or removes [id], updating the signal immediately then persisting.
   Future<void> toggle(String id) async {
+    // Writing before the stored list is read would overwrite it.
+    if (!loaded.value) {
+      await load();
+    }
     final next = Set<String>.from(ids.value);
     if (!next.add(id)) {
       next.remove(id);

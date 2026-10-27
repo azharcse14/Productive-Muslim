@@ -70,9 +70,16 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _finish() async {
     await _settings.setSetupComplete(complete: true);
-    if (mounted) {
-      context.goNamed(Routes.home.name);
+    if (!mounted) {
+      return;
     }
+    final router = GoRouter.of(context);
+    if (widget.rerun) {
+      // Pushed on the More tab's navigator: pop it, or it stays stacked
+      // under More after going home.
+      Navigator.of(context).pop();
+    }
+    router.goNamed(Routes.home.name);
   }
 
   /// Set once the user picks a madhab, so the region default never

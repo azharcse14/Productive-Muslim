@@ -118,19 +118,17 @@ final class AchievementStore {
     if (quran != null && !quran.loaded.value) {
       await quran.load();
     }
-    final today = _today();
-    // Wide window so the best streak is effectively all-time.
-    final start = DateTime(today.year - 10, today.month, today.day);
-    final result = await _muhasaba.periodStats(
-      start: start,
-      end: today,
-      today: today,
-    );
-    final ps = result.valueOrNull;
-
     // Distinct done dates per badge family, archived items included.
     Future<Set<DateTime>> doneOn(Set<String> ids) async =>
         (await _muhasaba.doneDates(ids)).valueOrNull ?? const {};
+    // Streaks too: archiving a tracker must not re-lock streak badges.
+    final allItems = (await _muhasaba.items(includeArchived: true))
+            .valueOrNull ??
+        const [];
+    final streaks = streaksOf(
+      await doneOn({for (final i in allItems) i.id}),
+      _today(),
+    );
     final salahDays = await doneOn(DefaultTrackers.salahIds.toSet());
     final quranDays = await doneOn(const {'quran'});
     final fastingDays = {
@@ -142,8 +140,8 @@ final class AchievementStore {
     final sadaqahDays = await doneOn(const {'sadaqah'});
 
     stats.value = AchievementStats(
-      currentStreak: ps?.currentStreak ?? 0,
-      bestStreak: ps?.bestStreak ?? 0,
+      currentStreak: streaks.current,
+      bestStreak: streaks.best,
       salahDaysDone: salahDays.length,
       quranDaysDone: quranDays.length,
       fastingDaysDone: fastingDays.length,
@@ -156,9 +154,39 @@ final class AchievementStore {
     );
   }
 
+  /// Current and best run of consecutive [days]. The current run may end
+  /// yesterday: today still counts until it passes empty.
+  @visibleForTesting
+  static ({int current, int best}) streaksOf(Set<DateTime> days, DateTime today) {
+    final keys = {for (final d in days) DateTime(d.year, d.month, d.day)};
+    var cursor = DateTime(today.year, today.month, today.day);
+    if (!keys.contains(cursor)) {
+      cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
+    }
+    var current = 0;
+    while (keys.contains(cursor)) {
+      current++;
+      cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
+    }
+    var best = 0;
+    for (final d in keys) {
+      if (keys.contains(DateTime(d.year, d.month, d.day - 1))) {
+        continue; // not the start of a run
+      }
+      var run = 1;
+      while (keys.contains(DateTime(d.year, d.month, d.day + run))) {
+        run++;
+      }
+      if (run > best) best = run;
+    }
+    return (current: current, best: best);
+  }
+
   /// Marks every currently-unlocked badge as seen and persists the set.
+  /// Never forgets: a badge that re-locks and unlocks again isn't "new".
   Future<void> markAllSeen() async {
     final ids = {
+      ...seen.value,
       for (final p in progress.value)
         if (p.unlocked) p.achievement.id,
     };

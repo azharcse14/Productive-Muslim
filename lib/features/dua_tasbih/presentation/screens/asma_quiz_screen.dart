@@ -68,6 +68,10 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
           builder: (context) {
             final questions = _quiz.questions.value;
             if (questions.isEmpty) {
+              // Loaded but no names: the asset failed, don't spin forever.
+              if (_names.loaded.value && _names.asma.value.isEmpty) {
+                return Center(child: Text(l10n.asmaLoadError));
+              }
               return const Center(child: CircularProgressIndicator());
             }
             if (_quiz.finished.value) {

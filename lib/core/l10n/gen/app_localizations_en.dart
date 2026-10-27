@@ -1077,6 +1077,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get asmaQuizTitle => 'Names quiz';
 
   @override
+  String get asmaLoadError =>
+      'Couldn\'t load the names. Please try again later.';
+
+  @override
   String get asmaQuizModeNameToMeaning => 'Name → meaning';
 
   @override

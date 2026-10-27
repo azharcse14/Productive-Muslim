@@ -496,6 +496,7 @@
   "tasbihTitle": "Tasbih",
   "asmaulHusnaTitle": "Asmaul Husna",
   "asmaQuizTitle": "Names quiz",
+  "asmaLoadError": "Couldn't load the names. Please try again later.",
   "asmaQuizModeNameToMeaning": "Name → meaning",
   "asmaQuizModeMeaningToName": "Meaning → name",
   "asmaQuizPromptMeaning": "What is the meaning of this name?",

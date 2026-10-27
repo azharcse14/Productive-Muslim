@@ -31,6 +31,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   Future<Result<List<TrackerItem>>> items({
     bool includeArchived = false,
   }) async {
+    if (includeArchived) allItemsCalls++;
     final list = items_.values
         .where((i) => includeArchived || !i.archived)
         .toList()
@@ -79,6 +80,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
   /// periodStats() call count (single-flight tests).
   int periodStatsCalls = 0;
+  int allItemsCalls = 0;
 
   @override
   Future<Result<PeriodStats>> periodStats({

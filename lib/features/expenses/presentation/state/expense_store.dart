@@ -182,12 +182,16 @@ final class ExpenseStore {
   /// Sets the monthly budget; null or non-positive clears it.
   Future<void> setBudget(int? value) async {
     await load();
-    if (value == null || value <= 0) {
-      budget.value = null;
-      await _prefs.remove(_budgetKey);
-    } else {
-      budget.value = value;
-      await _prefs.setInt(_budgetKey, value);
+    final previous = budget.value;
+    final next = value == null || value <= 0 ? null : value;
+    budget.value = next;
+    try {
+      await (next == null
+          ? _prefs.remove(_budgetKey)
+          : _prefs.setInt(_budgetKey, next));
+    } on Object {
+      // The dialog fires this unawaited: revert, don't throw.
+      budget.value = previous; // not saved: don't show it as set
     }
   }
 
@@ -235,11 +239,16 @@ final class ExpenseStore {
     if (value != null && value > 0) {
       next[category] = value;
     }
+    final previous = categoryBudgets.value;
     categoryBudgets.value = next;
-    await _prefs.setString(
-      _categoryBudgetKey,
-      jsonEncode({for (final e in next.entries) e.key.name: e.value}),
-    );
+    try {
+      await _prefs.setString(
+        _categoryBudgetKey,
+        jsonEncode({for (final e in next.entries) e.key.name: e.value}),
+      );
+    } on Object {
+      categoryBudgets.value = previous; // not saved: don't show it as set
+    }
   }
 
   /// Replaces the entry with [id]'s fields (amount, category, note, date).

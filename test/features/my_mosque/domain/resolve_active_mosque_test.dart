@@ -44,6 +44,20 @@ void main() {
       expect(rule.matches(DateTime(2026, 6, 15, 12)), isFalse);
     });
 
+    test('overnight weekday rule keeps matching after midnight', () {
+      // 2026-06-19 is a Friday.
+      const friday = MosqueRule(
+        mosqueId: 'a',
+        days: {DateTime.friday},
+        start: ClockTime(20, 0),
+        end: ClockTime(2, 0),
+      );
+      expect(friday.matches(DateTime(2026, 6, 19, 21)), isTrue);
+      expect(friday.matches(DateTime(2026, 6, 20, 0, 30)), isTrue);
+      expect(friday.matches(DateTime(2026, 6, 20, 21)), isFalse);
+      expect(friday.matches(DateTime(2026, 6, 19, 0, 30)), isFalse);
+    });
+
     test('weekday filter restricts the matching days', () {
       final today = at1030.weekday;
       final otherDay = today % 7 + 1;

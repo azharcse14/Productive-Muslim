@@ -62,6 +62,17 @@ void main() {
       now: () => DateTime(2026, 6, 10),
     );
     await Future.wait([for (var i = 0; i < 10; i++) store.refresh()]);
-    expect(repo.periodStatsCalls, 2, reason: 'first run + one trailing run');
+    expect(repo.allItemsCalls, 2, reason: 'first run + one trailing run');
+  });
+
+  test('streaksOf: runs, gaps, and a current run ending yesterday', () {
+    DateTime d(int day) => DateTime(2026, 6, day);
+    final s = AchievementStore.streaksOf(
+      {d(1), d(2), d(3), d(4), d(7), d(8), d(9)},
+      d(10),
+    );
+    expect(s.best, 4);
+    expect(s.current, 3, reason: 'today (10th) empty: run ends on the 9th');
+    expect(AchievementStore.streaksOf({d(1)}, d(10)).current, 0);
   });
 }
