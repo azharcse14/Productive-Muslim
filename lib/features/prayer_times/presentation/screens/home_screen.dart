@@ -29,7 +29,9 @@ import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
 import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/domain/entities/location_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/domain/usecases/get_current_location.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/prayer_day.dart';
 import '../state/home_store.dart';
@@ -107,14 +109,33 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// (Re)loads the "of the day" cards now and whenever the day flips.
   late final EffectCleanup _dayWatcher;
 
+  late final AppLifecycleListener _lifecycle;
+
+  /// A GPS location is fixed once at setup; after travel, re-fix on resume
+  /// (never prompting) so prayer times follow the device, not the old spot.
+  Future<void> _refreshGps() async {
+    final saved = _settings.location.value;
+    if (saved is! GpsLocation || !locator.isRegistered<GetCurrentLocation>()) {
+      return;
+    }
+    final moved = await locator<GetCurrentLocation>().movedFrom(saved);
+    // Skip if the user picked another location while the fix was pending.
+    if (moved != null && _settings.location.value == saved) {
+      await _settings.setLocation(moved);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _lifecycle = AppLifecycleListener(onResume: () => unawaited(_refreshGps()));
     _dayWatcher = effect(() {
       _store.dateKey.value;
       untracked(() {
-        // Roll muhasaba's "today" over if the app stayed open past midnight.
+        // Roll muhasaba's/tasbih's "today" over if the app stayed open past
+        // midnight.
         unawaited(_muhasaba.rollOverIfNewDay());
+        _tasbih?.rollOverDay();
         unawaited(
           Future.wait([
             _loadDailyAyah(),
@@ -215,6 +236,7 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _dayWatcher();
     _store.dispose();
     super.dispose();
@@ -515,7 +537,6 @@ final class _HomeScreenState extends State<HomeScreen> {
     return SignalBuilder(
       builder: (context) {
         final muhasaba = _muhasaba;
-        final entries = muhasaba.entries.value;
         final resolution = _store.mosqueResolution.value;
         final profiles = _store.mosqueProfiles.value;
         return PrayerTable(
@@ -550,14 +571,22 @@ final class _HomeScreenState extends State<HomeScreen> {
                     onManage: () => context.pushNamed(Routes.myMosque.name),
                   ),
                 ),
+          // The real day's ticks, whatever date the Muhasaba tab is on.
           prayed: {
             for (final prayer in Prayer.values)
-              if (muhasaba.selectedIsToday &&
-                  (entries['salah_${prayer.name}'] ?? 0) > 0)
+              if ((muhasaba.entriesOn(
+                        _store.salahDate(prayer),
+                      )['salah_${prayer.name}'] ??
+                      0) >
+                  0)
                 prayer,
           },
-          onTogglePrayed: (prayer) =>
-              unawaited(muhasaba.togglePrayerToday('salah_${prayer.name}')),
+          onTogglePrayed: (prayer) => unawaited(
+            muhasaba.togglePrayerOn(
+              'salah_${prayer.name}',
+              _store.salahDate(prayer),
+            ),
+          ),
           onPrayerTap: (prayer) => unawaited(
             showPrayerDetailSheet(
               context,
@@ -595,10 +624,8 @@ final class _HomeScreenState extends State<HomeScreen> {
       // today's.
       final today = stats.days.isEmpty ? 0.0 : stats.days.last.completion;
       final items = _muhasaba.items.value;
-      final entries = _muhasaba.entries.value;
-      final doneToday = _muhasaba.selectedIsToday
-          ? items.where((i) => i.isDone(entries[i.id] ?? 0)).length
-          : (today * items.length).round();
+      final entries = _muhasaba.entriesOn(_store.dateKey.value);
+      final doneToday = items.where((i) => i.isDone(entries[i.id] ?? 0)).length;
       return HomeMuhasabaCard(
         completion: today,
         doneToday: doneToday,

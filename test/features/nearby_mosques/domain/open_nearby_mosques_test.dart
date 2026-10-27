@@ -29,7 +29,9 @@ final class _FakeLocationRepository implements LocationRepository {
   Future<void> openSettings({required bool locationService}) async {}
 
   @override
-  Future<Result<GpsLocation>> getCurrentLocation() async {
+  Future<Result<GpsLocation>> getCurrentLocation({
+    bool requestPermission = true,
+  }) async {
     called = true;
     return _result;
   }
@@ -100,18 +102,14 @@ void main() {
       );
       final launcher = _FakeLauncher(result: false);
       final usecase = OpenNearbyMosques(
-        currentLocation: () =>
-            const GpsLocation(latitude: 1, longitude: 2),
+        currentLocation: () => const GpsLocation(latitude: 1, longitude: 2),
         getCurrentLocation: GetCurrentLocation(repo),
         launcher: launcher,
       );
 
       final result = await usecase();
 
-      expect(
-        result.fold((_) => null, (f) => f),
-        isA<MapsLaunchFailed>(),
-      );
+      expect(result.fold((_) => null, (f) => f), isA<MapsLaunchFailed>());
     });
   });
 }

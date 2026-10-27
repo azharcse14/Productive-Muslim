@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
@@ -32,10 +34,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     bool includeArchived = false,
   }) async {
     if (includeArchived) allItemsCalls++;
-    final list = items_.values
-        .where((i) => includeArchived || !i.archived)
-        .toList()
-      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    final list =
+        items_.values.where((i) => includeArchived || !i.archived).toList()
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return Result.success(list);
   }
 
@@ -46,10 +47,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   }
 
   @override
-  Future<Result<void>> setArchived(
-    String id, {
-    required bool archived,
-  }) async {
+  Future<Result<void>> setArchived(String id, {required bool archived}) async {
     final item = items_[id];
     if (item != null) {
       items_[id] = item.copyWith(archived: archived);
@@ -67,8 +65,17 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     ]);
   }
 
+  /// When set, the next [setEntry] waits on it and fails if it yields false.
+  Completer<bool>? gate;
+
   @override
   Future<Result<void>> setEntry(DailyEntry entry) async {
+    if (gate case final g?) {
+      gate = null;
+      if (!await g.future) {
+        return const Result.failure(UnexpectedFailure('save failed'));
+      }
+    }
     final key = (entry.itemId, _key(entry.date));
     if (entry.value <= 0) {
       entries_.remove(key);
@@ -98,23 +105,18 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
         final value = entries_[(item.id, _key(day))] ?? 0;
         sum += item.fractionOf(value);
       }
-      days.add(
-        DayCompletion(day, active.isEmpty ? 0 : sum / active.length),
-      );
+      days.add(DayCompletion(day, active.isEmpty ? 0 : sum / active.length));
       day = day.add(const Duration(days: 1));
     }
     final completion = days.isEmpty
         ? 0.0
-        : days.map((d) => d.completion).reduce((a, b) => a + b) /
-            days.length;
+        : days.map((d) => d.completion).reduce((a, b) => a + b) / days.length;
     final itemStats = [
       for (final item in active)
         ItemPeriodStats(
           itemId: item.id,
           daysDone: days
-              .where(
-                (d) => item.isDone(entries_[(item.id, _key(d.date))] ?? 0),
-              )
+              .where((d) => item.isDone(entries_[(item.id, _key(d.date))] ?? 0))
               .length,
           periodDays: days.length,
           totalValue: days
@@ -122,9 +124,8 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
               .fold(0, (a, b) => a + b),
         ),
     ];
-    bool dayHasDone(DateTime d) => active.any(
-          (item) => item.isDone(entries_[(item.id, _key(d))] ?? 0),
-        );
+    bool dayHasDone(DateTime d) =>
+        active.any((item) => item.isDone(entries_[(item.id, _key(d))] ?? 0));
     var current = 0;
     var probe = today;
     if (!dayHasDone(probe)) {

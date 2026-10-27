@@ -344,6 +344,45 @@ void main() {
       );
     });
 
+    testWidgets('ticks show today even while muhasaba back-fills a past day', (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      final muhasaba = GetIt.I<MuhasabaStore>();
+      await muhasaba.togglePrayerOn('salah_fajr', DateTime(2026, 6, 12));
+      await muhasaba.selectDate(DateTime(2026, 6, 10)); // Muhasaba tab state
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      PrayerTable table() => tester.widget(find.byType(PrayerTable));
+      expect(table().prayed, {Prayer.fajr});
+      table().onTogglePrayed!(Prayer.fajr);
+      await tester.pump();
+      expect(
+        _muhasabaRepo.entries_.containsKey(('salah_fajr', 20260612)),
+        isFalse,
+      );
+      expect(table().prayed, isEmpty);
+      expect(muhasaba.selectedDate.value, DateTime(2026, 6, 10));
+    });
+
+    testWidgets('before fajr, isha is checkable and files yesterday', (
+      tester,
+    ) async {
+      await _register(withLocation: true, now: DateTime(2026, 6, 12, 1, 30));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      PrayerTable table() => tester.widget(find.byType(PrayerTable));
+      expect(table().locked, isNot(contains(Prayer.isha)));
+      table().onTogglePrayed!(Prayer.isha);
+      await tester.pump();
+      expect(_muhasabaRepo.entries_[('salah_isha', 20260611)], 1);
+      expect(
+        _muhasabaRepo.entries_.containsKey(('salah_isha', 20260612)),
+        isFalse,
+      );
+      expect(table().prayed, {Prayer.isha});
+    });
+
     testWidgets(
       'configured jamaat shows in the table and drives a jamaat countdown',
       (tester) async {

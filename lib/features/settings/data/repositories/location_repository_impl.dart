@@ -20,13 +20,15 @@ final class LocationRepositoryImpl implements LocationRepository {
   }
 
   @override
-  Future<Result<GpsLocation>> getCurrentLocation() async {
+  Future<Result<GpsLocation>> getCurrentLocation({
+    bool requestPermission = true,
+  }) async {
     try {
       if (!await _source.isServiceEnabled()) {
         return const Result.failure(LocationServiceDisabled());
       }
       var permission = await _source.checkPermission();
-      if (permission == LocationPermission.denied) {
+      if (permission == LocationPermission.denied && requestPermission) {
         permission = await _source.requestPermission();
       }
       switch (permission) {
@@ -41,10 +43,7 @@ final class LocationRepositoryImpl implements LocationRepository {
       }
       final position = await _source.currentPosition();
       return Result.success(
-        GpsLocation(
-          latitude: position.latitude,
-          longitude: position.longitude,
-        ),
+        GpsLocation(latitude: position.latitude, longitude: position.longitude),
       );
     } on Object {
       return const Result.failure(LocationUnavailable());

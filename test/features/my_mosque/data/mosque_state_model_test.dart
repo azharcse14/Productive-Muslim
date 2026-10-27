@@ -32,14 +32,14 @@ void main() {
     });
 
     test('round-trips the auto schedule (mode, rules, default, override)', () {
-      const state = MosqueState(
-        profiles: [
+      final state = MosqueState(
+        profiles: const [
           MosqueProfile(id: 'office', name: 'Office'),
           MosqueProfile(id: 'home', name: 'Home'),
         ],
         activeId: 'home',
         mode: ScheduleMode.auto,
-        rules: [
+        rules: const [
           MosqueRule(
             mosqueId: 'office',
             start: ClockTime(10, 0),
@@ -54,9 +54,24 @@ void main() {
           ),
         ],
         defaultId: 'home',
-        activeOverride: MosqueOverride(mosqueId: 'office', baselineAutoId: 'home'),
+        activeOverride: MosqueOverride(
+          mosqueId: 'office',
+          baselineAutoId: 'home',
+          setOn: DateTime(2026, 6, 15),
+        ),
       );
       expect(MosqueStateModel.fromMap(MosqueStateModel.toMap(state)), state);
+    });
+
+    test('a legacy override without setOn still loads', () {
+      final state = MosqueStateModel.fromMap(const {
+        'mode': 'auto',
+        'override': {'mosqueId': 'office', 'baselineAutoId': 'home'},
+      });
+      expect(
+        state.activeOverride,
+        const MosqueOverride(mosqueId: 'office', baselineAutoId: 'home'),
+      );
     });
 
     test('empty map yields defaults (manual, no rules)', () {

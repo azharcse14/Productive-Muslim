@@ -36,17 +36,17 @@ final class _FakeSource implements DeviceLocationSource {
 }
 
 Position _position(double lat, double lng) => Position(
-      latitude: lat,
-      longitude: lng,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-      accuracy: 10,
-      altitude: 0,
-      altitudeAccuracy: 0,
-      heading: 0,
-      headingAccuracy: 0,
-      speed: 0,
-      speedAccuracy: 0,
-    );
+  latitude: lat,
+  longitude: lng,
+  timestamp: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+  accuracy: 10,
+  altitude: 0,
+  altitudeAccuracy: 0,
+  heading: 0,
+  headingAccuracy: 0,
+  speed: 0,
+  speedAccuracy: 0,
+);
 
 void main() {
   group('LocationRepositoryImpl', () {
@@ -96,6 +96,22 @@ void main() {
       expect(result.valueOrNull?.latitude, 23.7);
     });
 
+    test('requestPermission: false never prompts', () async {
+      final source = _FakeSource(
+        permission: LocationPermission.denied,
+        permissionAfterRequest: LocationPermission.whileInUse,
+        position: _position(23.7, 90.4),
+      );
+      final result = await LocationRepositoryImpl(
+        source,
+      ).getCurrentLocation(requestPermission: false);
+      expect(source.requested, isFalse);
+      expect(
+        result.fold((_) => null, (f) => f),
+        isA<LocationPermissionDenied>(),
+      );
+    });
+
     test('granted → returns GpsLocation with coordinates', () async {
       final repo = LocationRepositoryImpl(
         _FakeSource(position: _position(21.4225, 39.8262)),
@@ -109,10 +125,7 @@ void main() {
     test('position lookup throwing → LocationUnavailable', () async {
       final repo = LocationRepositoryImpl(_FakeSource());
       final result = await repo.getCurrentLocation();
-      expect(
-        result.fold((_) => null, (f) => f),
-        isA<LocationUnavailable>(),
-      );
+      expect(result.fold((_) => null, (f) => f), isA<LocationUnavailable>());
     });
   });
 }

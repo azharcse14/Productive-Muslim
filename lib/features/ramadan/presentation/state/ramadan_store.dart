@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/hijri_date.dart';
@@ -17,19 +19,29 @@ final class RamadanStore {
     GetPrayerDay getPrayerDay,
     SettingsStore settings, {
     DateTime Function()? now,
-  })  : _getPrayerDay = getPrayerDay,
-        _settings = settings,
-        _now = now ?? DateTime.now;
+  }) : _getPrayerDay = getPrayerDay,
+       _settings = settings,
+       _now = now ?? DateTime.now {
+    // The screen can stay open past midnight: re-read the day each minute.
+    // A signal memoizes by ==, so dependants recompute only when it flips.
+    _ticker = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => today.value = _day(),
+    );
+  }
 
   final GetPrayerDay _getPrayerDay;
   final SettingsStore _settings;
   final DateTime Function() _now;
+  late final Timer _ticker;
 
-  /// Today's civil date (y/m/d only) at the caller-provided clock.
-  late final today = computed(() {
+  DateTime _day() {
     final n = _now();
     return DateTime(n.year, n.month, n.day);
-  });
+  }
+
+  /// Today's civil date (y/m/d only) at the caller-provided clock.
+  late final today = signal(_day());
 
   /// User's moon-sighting adjustment, applied to every Hijri conversion.
   late final _offset = computed(() => _settings.settings.value.hijriOffsetDays);
@@ -38,22 +50,23 @@ final class RamadanStore {
     () => HijriDate.fromGregorian(today.value, offsetDays: _offset.value),
   );
 
-  late final isRamadan =
-      computed(() => RamadanUtils.isRamadan(hijriToday.value));
+  late final isRamadan = computed(
+    () => RamadanUtils.isRamadan(hijriToday.value),
+  );
 
   /// Fasting-day number (1..29/30), or null outside Ramadan.
   late final rozaDay = computed(() => RamadanUtils.rozaDay(hijriToday.value));
 
   /// Hijri year of the current (or next) Ramadan, and days until its first
   /// day — 0 when today is already inside it.
-  late final nextRamadan =
-      computed(
+  late final nextRamadan = computed(
     () => RamadanUtils.nextRamadan(today.value, offsetDays: _offset.value),
   );
 
   /// Number of days in that Ramadan (29 or 30).
-  late final ramadanLength =
-      computed(() => RamadanUtils.ramadanLength(nextRamadan.value.$1));
+  late final ramadanLength = computed(
+    () => RamadanUtils.ramadanLength(nextRamadan.value.$1),
+  );
 
   /// The month table for the current-or-next Ramadan — empty when no
   /// location is configured. A `computed`, so it rebuilds (once, memoised)
@@ -82,4 +95,6 @@ final class RamadanStore {
     }
     return rows;
   });
+
+  void dispose() => _ticker.cancel();
 }

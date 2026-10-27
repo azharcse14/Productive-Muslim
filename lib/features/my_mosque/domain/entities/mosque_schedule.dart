@@ -49,13 +49,12 @@ final class MosqueRule {
     Set<int>? days,
     ClockTime? start,
     ClockTime? end,
-  }) =>
-      MosqueRule(
-        mosqueId: mosqueId ?? this.mosqueId,
-        days: days ?? this.days,
-        start: start ?? this.start,
-        end: end ?? this.end,
-      );
+  }) => MosqueRule(
+    mosqueId: mosqueId ?? this.mosqueId,
+    days: days ?? this.days,
+    start: start ?? this.start,
+    end: end ?? this.end,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -74,19 +73,37 @@ final class MosqueRule {
 /// A temporary manual override while in [ScheduleMode.auto]. [baselineAutoId]
 /// is the auto-resolved mosque at the moment the override was set; once the
 /// schedule would resolve to a different mosque (a window boundary is crossed)
-/// the override is treated as expired and auto resumes.
+/// the override is treated as expired and auto resumes. It also lapses at the
+/// end of [setOn] (the wall-clock day it was set), so a schedule that keeps
+/// resolving to the same mosque can't pin it for days.
 final class MosqueOverride {
-  const MosqueOverride({required this.mosqueId, this.baselineAutoId});
+  const MosqueOverride({
+    required this.mosqueId,
+    this.baselineAutoId,
+    this.setOn,
+  });
 
   final String mosqueId;
   final String? baselineAutoId;
+
+  /// y/m/d the override was set. Null for overrides persisted before this
+  /// field existed — of unknown age, so treated as expired.
+  final DateTime? setOn;
+
+  /// Whether the override is still within its day at [now].
+  bool liveAt(DateTime now) =>
+      setOn != null &&
+      setOn!.year == now.year &&
+      setOn!.month == now.month &&
+      setOn!.day == now.day;
 
   @override
   bool operator ==(Object other) =>
       other is MosqueOverride &&
       other.mosqueId == mosqueId &&
-      other.baselineAutoId == baselineAutoId;
+      other.baselineAutoId == baselineAutoId &&
+      other.setOn == setOn;
 
   @override
-  int get hashCode => Object.hash(mosqueId, baselineAutoId);
+  int get hashCode => Object.hash(mosqueId, baselineAutoId, setOn);
 }
