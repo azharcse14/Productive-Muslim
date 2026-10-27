@@ -68,14 +68,16 @@ final class _NotificationSettingsScreenState
     _exactAlarms.value = await _scheduler.canScheduleExactAlarms();
   }
 
-  /// Once denied the OS won't show its prompt again, so send the user to
-  /// system settings instead of a button that silently does nothing.
+  /// Always try the OS prompt first: "never asked" also reads as denied
+  /// (iOS, Android 13+), and on iOS the Settings row only exists once the
+  /// app has asked. Once truly denied the prompt returns at once, so fall
+  /// through to system settings.
   Future<void> _requestPermission() async {
-    if (_permission.value == NotificationPermission.denied) {
+    final result = await _scheduler.requestPermission();
+    _permission.value = result;
+    if (result == NotificationPermission.denied) {
       await _scheduler.openSystemSettings();
-      return;
     }
-    _permission.value = await _scheduler.requestPermission();
   }
 
   NotificationMatrix get _matrix => _store.settings.value.notifications;

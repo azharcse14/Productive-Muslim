@@ -164,6 +164,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           : AndroidScheduleMode.inexactAllowWhileIdle;
       for (final item in items) {
         final utc = _clock.utcInstantOf(location, item.at);
+        // zonedSchedule throws on a past instant, which would abort the
+        // whole loop (after cancelAll) and leave nothing scheduled. An
+        // item that came due while planning is simply skipped.
+        if (!utc.isAfter(DateTime.now().add(const Duration(seconds: 5)))) {
+          continue;
+        }
         final (title, body) = _texts(item, texts);
         await _plugin.zonedSchedule(
           id: item.id,

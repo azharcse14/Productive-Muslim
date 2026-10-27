@@ -42,7 +42,12 @@ final class _FakeScheduler implements NotificationScheduler {
   _FakeScheduler({
     this.permission = NotificationPermission.granted,
     this.exactAlarms = true,
+    this.promptResult = NotificationPermission.granted,
   });
+
+  /// What the OS prompt answers ([requestPermission]).
+  final NotificationPermission promptResult;
+  int prompts = 0;
 
   NotificationPermission permission;
   bool exactAlarms;
@@ -55,8 +60,10 @@ final class _FakeScheduler implements NotificationScheduler {
   Future<NotificationPermission> permissionStatus() async => permission;
 
   @override
-  Future<NotificationPermission> requestPermission() async =>
-      permission = NotificationPermission.granted;
+  Future<NotificationPermission> requestPermission() async {
+    prompts++;
+    return permission = promptResult;
+  }
 
   @override
   Future<bool> canScheduleExactAlarms() async => exactAlarms;
@@ -183,6 +190,34 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Enable notifications'), findsOneWidget);
+    });
+
+    testWidgets('never-asked (reads as denied) still gets the OS prompt',
+        (tester) async {
+      final scheduler =
+          _FakeScheduler(permission: NotificationPermission.denied);
+      await _register(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Enable notifications'));
+      await tester.pump();
+      expect(scheduler.prompts, 1);
+      expect(scheduler.settingsOpened, isFalse);
+      expect(find.text('Enable notifications'), findsNothing);
+    });
+
+    testWidgets('truly denied falls through to system settings',
+        (tester) async {
+      final scheduler = _FakeScheduler(
+        permission: NotificationPermission.denied,
+        promptResult: NotificationPermission.denied,
+      );
+      await _register(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Enable notifications'));
+      await tester.pump();
+      expect(scheduler.settingsOpened, isTrue);
     });
 
     testWidgets('missing exact-alarm permission shows guidance',
