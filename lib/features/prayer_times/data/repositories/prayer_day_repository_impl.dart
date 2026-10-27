@@ -25,12 +25,13 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       final coordinates =
           adhan.Coordinates(location.latitude, location.longitude);
       final calcParams = _calculationParameters(params);
-      final times = adhan.PrayerTimes(
-        date: DateTime.utc(date.year, date.month, date.day, 12),
-        coordinates: coordinates,
-        calculationParameters: calcParams,
-        precision: true,
-      );
+      adhan.PrayerTimes timesOn(int dayOffset) => adhan.PrayerTimes(
+            date: DateTime.utc(date.year, date.month, date.day + dayOffset, 12),
+            coordinates: coordinates,
+            calculationParameters: calcParams,
+            precision: true,
+          );
+      final times = timesOn(0);
 
       DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
 
@@ -42,8 +43,10 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           asr: wall(times.asr),
           maghrib: wall(times.maghrib),
           isha: wall(times.isha),
-          fajrTomorrow: wall(times.fajrAfter),
-          ishaYesterday: wall(times.ishaBefore),
+          // Not adhan's fajrAfter/ishaBefore: when twilight is never
+          // reached (high-latitude summer) those return *today's* times.
+          fajrTomorrow: wall(timesOn(1).fajr),
+          ishaYesterday: wall(timesOn(-1).isha),
           sahriSafety: Duration(minutes: params.sahriSafetyMinutes),
         ),
       );

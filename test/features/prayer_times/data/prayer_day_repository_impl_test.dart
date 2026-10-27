@@ -137,4 +137,29 @@ void main() {
       expect(result.isSuccess, isTrue);
     });
   });
+
+  test('London midsummer: adjacent-day Fajr/Isha stay on their own days', () {
+    const london = ManualCityLocation(
+      City(
+        name: 'London',
+        countryCode: 'GB',
+        latitude: 51.5072,
+        longitude: -0.1276,
+        timezone: 'Europe/London',
+      ),
+    );
+    for (final rule in HighLatitudeRule.values) {
+      final day = repo
+          .prayerDay(
+            location: london,
+            params: PrayerParams(highLatitudeRule: rule),
+            date: DateTime(2026, 6, 21),
+          )
+          .valueOrNull!;
+      // adhan's own fajrAfter/ishaBefore returned today's Fajr / tonight's
+      // Isha here. (middleOfTheNight puts Isha and Fajr seconds apart.)
+      expect(day.fajrTomorrow.isAfter(day.maghrib), isTrue, reason: '$rule');
+      expect(day.ishaYesterday.isBefore(day.sunrise), isTrue, reason: '$rule');
+    }
+  });
 }

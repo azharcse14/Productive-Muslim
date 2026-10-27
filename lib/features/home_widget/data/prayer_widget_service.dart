@@ -82,7 +82,10 @@ final class PrayerWidgetService {
       if (day != null) {
         final next = resolveNextPrayer(day, now).at;
         final midnight = DateTime(now.year, now.month, now.day + 1);
-        final at = next.isBefore(midnight) ? next : midnight;
+        // A past `next` would re-arm with zero delay in a tight loop.
+        final at = next.isAfter(now) && next.isBefore(midnight)
+            ? next
+            : midnight;
         _boundary = Timer(
           at.difference(now) + const Duration(seconds: 1),
           () => unawaited(update()),

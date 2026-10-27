@@ -8,7 +8,8 @@ plugins {
 
 // Release signing reads android/key.properties (gitignored; see README
 // "Android release signing"). Without it, release builds fall back to the
-// debug key so `flutter run --release` still works locally — never ship that.
+// debug key so `flutter run --release` still works locally; `flutter build
+// appbundle` fails instead, so a debug-signed bundle can't reach the store.
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("key.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -49,6 +50,10 @@ android {
         release {
             signingConfig = signingConfigs.findByName("release")
                 ?: signingConfigs.getByName("debug").also {
+                    // An app bundle is only for store upload: never debug-sign one.
+                    if (gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }) {
+                        throw GradleException("android/key.properties not found: refusing to build a debug-signed app bundle")
+                    }
                     logger.warn("android/key.properties not found: release build is debug-signed")
                 }
             isMinifyEnabled = true

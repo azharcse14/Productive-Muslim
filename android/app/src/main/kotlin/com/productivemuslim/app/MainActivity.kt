@@ -1,11 +1,12 @@
 package com.productivemuslim.app
 
 import android.content.Context
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity() {
+// FragmentActivity: local_auth's biometric prompt requires it.
+class MainActivity : FlutterFragmentActivity() {
 
     private val channelName = "com.productivemuslim.app/widget"
 
