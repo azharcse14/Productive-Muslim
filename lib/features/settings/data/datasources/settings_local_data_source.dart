@@ -12,6 +12,10 @@ final class SettingsLocalDataSource {
 
   static const _key = 'app_settings_v1';
 
+  /// Last blob that failed to parse, kept verbatim so the save that
+  /// follows re-onboarding (which overwrites [_key]) can't destroy it.
+  static const unreadableKey = 'app_settings_v1_unreadable';
+
   final SharedPreferencesAsync _prefs;
 
   Future<AppSettings> read() async {
@@ -19,11 +23,16 @@ final class SettingsLocalDataSource {
     if (raw == null) {
       return const AppSettings();
     }
-    final decoded = jsonDecode(raw);
-    if (decoded is! Map) {
-      return const AppSettings();
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return AppSettingsModel.fromMap(decoded.cast<String, Object?>());
+      }
+    } on FormatException {
+      // fall through to quarantine
     }
-    return AppSettingsModel.fromMap(decoded.cast<String, Object?>());
+    await _prefs.setString(unreadableKey, raw);
+    return const AppSettings();
   }
 
   Future<void> write(AppSettings settings) =>

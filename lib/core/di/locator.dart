@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
+    show TargetPlatform, debugPrint, defaultTargetPlatform;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:get_it/get_it.dart';
@@ -318,8 +318,17 @@ Future<void> setupLocator() async {
   await locator<DuaFavoritesStore>().load();
   await locator<FastingStore>().load();
   await locator<TasbihStore>().load();
-  await locator<AchievementStore>().load();
-  await locator.isReady<QuranDatabase>();
+  // QuranDatabase copies a 5 MB asset on first run; anything resolving
+  // QuranStore (AchievementStore does) must wait for it or get_it throws.
+  try {
+    await locator.isReady<QuranDatabase>();
+    await locator<AchievementStore>().load();
+  } on Object catch (e) {
+    // ponytail: a failed open (e.g. disk full) boots without Quran/
+    // achievements — those screens still throw on resolve; register a
+    // Quran-less AchievementStore fallback if this shows up in the wild.
+    debugPrint('Quran database unavailable: $e');
+  }
 
   _startWidgetUpdates();
 }

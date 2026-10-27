@@ -30,22 +30,39 @@ struct Provider: TimelineProvider {
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<ProductiveMuslimEntry>) -> Void) {
-    // The app pushes fresh data on open / settings change; between those we
-    // refresh roughly every 15 minutes so the "next prayer" stays current.
-    let next = Calendar.current.date(byAdding: .minute, value: 15, to: Date())
-      ?? Date().addingTimeInterval(900)
-    completion(Timeline(entries: [read()], policy: .after(next)))
+    // One entry now plus one at every upcoming prayer start, each showing
+    // the prayer after it, so "next prayer" flips on time without the app.
+    let now = Date()
+    let starts = schedule().map { $0.at }.filter { $0 > now }
+    let entries = [read(at: now)] + starts.map { read(at: $0) }
+    // Past the pushed schedule: poll until the app pushes a fresh one.
+    let policy: TimelineReloadPolicy = starts.isEmpty
+      ? .after(now.addingTimeInterval(900)) : .atEnd
+    completion(Timeline(entries: entries, policy: policy))
   }
 
-  private func read() -> ProductiveMuslimEntry {
+  /// `widget_schedule` lines (`epochMillis<TAB>prayer<TAB>time`), in order.
+  private func schedule() -> [(at: Date, prayer: String, time: String)] {
+    let raw = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_schedule") ?? ""
+    return raw.split(separator: "\n").compactMap { line in
+      let parts = line.split(separator: "\t", omittingEmptySubsequences: false)
+      guard parts.count >= 3, let millis = Double(parts[0]) else { return nil }
+      return (Date(timeIntervalSince1970: millis / 1000), String(parts[1]), String(parts[2]))
+    }
+  }
+
+  private func read(at date: Date = Date()) -> ProductiveMuslimEntry {
     let d = UserDefaults(suiteName: appGroup)
     let configured = (d?.string(forKey: "widget_configured") ?? "0") == "1"
+    // First prayer starting after `date`; past the schedule, the last
+    // pushed snapshot.
+    let next = schedule().first { $0.at > date }
     return ProductiveMuslimEntry(
-      date: Date(),
+      date: date,
       configured: configured,
       label: d?.string(forKey: "widget_label") ?? "",
-      prayer: d?.string(forKey: "widget_prayer") ?? "—",
-      time: d?.string(forKey: "widget_time") ?? "",
+      prayer: next?.prayer ?? d?.string(forKey: "widget_prayer") ?? "—",
+      time: next?.time ?? d?.string(forKey: "widget_time") ?? "",
       location: d?.string(forKey: "widget_location") ?? "",
       times: d?.string(forKey: "widget_times") ?? ""
     )

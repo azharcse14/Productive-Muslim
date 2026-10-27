@@ -1517,6 +1517,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get zakatInvalidNumber => 'Enter a valid number';
 
   @override
+  String get zakatNeedMetalPrice =>
+      'Enter the price for each metal you entered grams of.';
+
+  @override
   String get zakatCalculate => 'Calculate';
 
   @override

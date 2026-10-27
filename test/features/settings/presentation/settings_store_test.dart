@@ -13,9 +13,12 @@ import 'package:productive_muslim/features/settings/presentation/state/settings_
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
   int saves = 0;
+  bool failLoad = false;
 
   @override
-  Future<Result<AppSettings>> load() async => Result.success(stored);
+  Future<Result<AppSettings>> load() async => failLoad
+      ? const Result.failure(UnexpectedFailure('boom'))
+      : Result.success(stored);
 
   @override
   Future<Result<void>> save(AppSettings settings) async {
@@ -32,6 +35,31 @@ final class _InMemoryRepo implements SettingsRepository {
 
 void main() {
   group('SettingsStore', () {
+    test('a failed read blocks saves so stored data survives', () async {
+      final (store, repo) = _make();
+      repo
+        ..stored = const AppSettings(localeCode: 'bn', setupComplete: true)
+        ..failLoad = true;
+      await store.load();
+      expect(store.settings.value.setupComplete, isFalse);
+
+      await store.setThemeMode(AppThemeMode.dark);
+      expect(repo.saves, 0);
+      expect(store.settings.value.themeMode, AppThemeMode.dark);
+      expect(repo.stored.localeCode, 'bn');
+
+      // Storage recovers: the next update re-reads instead of clobbering.
+      repo.failLoad = false;
+      await store.setThemeMode(AppThemeMode.light);
+      expect(repo.saves, 0);
+      expect(store.settings.value.localeCode, 'bn');
+      expect(store.settings.value.setupComplete, isTrue);
+
+      await store.setThemeMode(AppThemeMode.light);
+      expect(repo.saves, 1);
+      expect(repo.stored.localeCode, 'bn');
+    });
+
     test('load pulls persisted settings into the signal', () async {
       final (store, repo) = _make();
       repo.stored = const AppSettings(localeCode: 'bn');

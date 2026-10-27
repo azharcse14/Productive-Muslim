@@ -39,13 +39,12 @@ AppLockStore _store({
   BiometricAuth? biometric,
   DateTime Function()? now,
   Duration Function()? elapsed,
-}) =>
-    AppLockStore(
-      AppLockDataSource(SharedPreferencesAsync()),
-      biometric ?? _FakeBiometric(),
-      now: now,
-      elapsed: elapsed,
-    );
+}) => AppLockStore(
+  AppLockDataSource(SharedPreferencesAsync()),
+  biometric ?? _FakeBiometric(),
+  now: now,
+  elapsed: elapsed,
+);
 
 /// Biometric fake whose prompt drives lifecycle events mid-auth, like the
 /// real OS sheet does on some platforms.
@@ -92,8 +91,7 @@ void main() {
     test('raw PIN is never stored', () async {
       final store = _store();
       await store.enable('1234', biometric: false);
-      final raw =
-          await SharedPreferencesAsync().getString('app_lock_v1') ?? '';
+      final raw = await SharedPreferencesAsync().getString('app_lock_v1') ?? '';
       expect(raw.contains('1234'), isFalse);
     });
 
@@ -156,6 +154,20 @@ void main() {
       expect(store.locked.value, isTrue);
     });
 
+    test('obscures the UI while not in the foreground', () async {
+      final store = await unlocked();
+      store.onLifecycleChanged(AppLifecycleState.inactive);
+      expect(store.obscured.value, isTrue);
+      background(store);
+      expect(store.obscured.value, isTrue);
+      foreground(store);
+      expect(store.obscured.value, isFalse);
+
+      await store.disable();
+      background(store);
+      expect(store.obscured.value, isFalse);
+    });
+
     test('stays unlocked when back within the grace period', () async {
       final store = await unlocked();
       background(store);
@@ -166,32 +178,36 @@ void main() {
       expect(store.locked.value, isFalse);
     });
 
-    test('inactive alone (app switcher, notification shade) never locks',
-        () async {
-      final store = await unlocked();
-      store.onLifecycleChanged(AppLifecycleState.inactive);
-      clock = clock.add(const Duration(minutes: 5));
-      store.onLifecycleChanged(AppLifecycleState.resumed);
-      expect(store.locked.value, isFalse);
-    });
+    test(
+      'inactive alone (app switcher, notification shade) never locks',
+      () async {
+        final store = await unlocked();
+        store.onLifecycleChanged(AppLifecycleState.inactive);
+        clock = clock.add(const Duration(minutes: 5));
+        store.onLifecycleChanged(AppLifecycleState.resumed);
+        expect(store.locked.value, isFalse);
+      },
+    );
 
-    test('an auth prompt that pauses the app does not cause a re-lock',
-        () async {
-      late AppLockStore store;
-      final biometric = _PromptingBiometric(() {
-        // The OS sheet backgrounds the app for longer than the grace.
-        background(store);
-        clock = clock.add(const Duration(minutes: 2));
+    test(
+      'an auth prompt that pauses the app does not cause a re-lock',
+      () async {
+        late AppLockStore store;
+        final biometric = _PromptingBiometric(() {
+          // The OS sheet backgrounds the app for longer than the grace.
+          background(store);
+          clock = clock.add(const Duration(minutes: 2));
+          foreground(store);
+        });
+        store = await unlocked(biometric: biometric);
+        store.locked.value = true; // e.g. cold start
+        expect(await store.unlockWithBiometric('reason'), isTrue);
+        expect(store.locked.value, isFalse);
+        // And the next real resume is unaffected by the prompt's pause.
         foreground(store);
-      });
-      store = await unlocked(biometric: biometric);
-      store.locked.value = true; // e.g. cold start
-      expect(await store.unlockWithBiometric('reason'), isTrue);
-      expect(store.locked.value, isFalse);
-      // And the next real resume is unaffected by the prompt's pause.
-      foreground(store);
-      expect(store.locked.value, isFalse);
-    });
+        expect(store.locked.value, isFalse);
+      },
+    );
 
     test('disabled lock never re-locks', () async {
       final store = _store(now: () => clock);
@@ -259,33 +275,37 @@ void main() {
       );
     });
 
-    test('cooldown keeps running while the device sleeps (monotonic paused)',
-        () async {
-      const mono = Duration.zero; // monotonic clock frozen during sleep
-      final store = _store(now: () => clock, elapsed: () => mono);
-      await store.enable('1234', biometric: false);
-      await store.load();
-      for (var i = 0; i < 5; i++) {
-        await store.unlockWithPin('0000');
-      }
-      expect(await store.unlockWithPin('1234'), isFalse);
-      clock = clock.add(const Duration(seconds: 30)); // wall time passes
-      expect(await store.unlockWithPin('1234'), isTrue);
-    });
+    test(
+      'cooldown keeps running while the device sleeps (monotonic paused)',
+      () async {
+        const mono = Duration.zero; // monotonic clock frozen during sleep
+        final store = _store(now: () => clock, elapsed: () => mono);
+        await store.enable('1234', biometric: false);
+        await store.load();
+        for (var i = 0; i < 5; i++) {
+          await store.unlockWithPin('0000');
+        }
+        expect(await store.unlockWithPin('1234'), isFalse);
+        clock = clock.add(const Duration(seconds: 30)); // wall time passes
+        expect(await store.unlockWithPin('1234'), isTrue);
+      },
+    );
 
-    test('a clock set backwards in-process cannot stretch the cooldown',
-        () async {
-      var mono = Duration.zero;
-      final store = _store(now: () => clock, elapsed: () => mono);
-      await store.enable('1234', biometric: false);
-      await store.load();
-      for (var i = 0; i < 5; i++) {
-        await store.unlockWithPin('0000');
-      }
-      clock = clock.subtract(const Duration(days: 1));
-      mono += const Duration(seconds: 30); // real time passes
-      expect(await store.unlockWithPin('1234'), isTrue);
-    });
+    test(
+      'a clock set backwards in-process cannot stretch the cooldown',
+      () async {
+        var mono = Duration.zero;
+        final store = _store(now: () => clock, elapsed: () => mono);
+        await store.enable('1234', biometric: false);
+        await store.load();
+        for (var i = 0; i < 5; i++) {
+          await store.unlockWithPin('0000');
+        }
+        clock = clock.subtract(const Duration(days: 1));
+        mono += const Duration(seconds: 30); // real time passes
+        expect(await store.unlockWithPin('1234'), isTrue);
+      },
+    );
 
     test('accepted trade-off: a clock set forward ends the current wait, '
         'but the next wrong PIN still escalates', () async {
@@ -315,8 +335,7 @@ void main() {
       expect(restarted.cooldownRemaining(), const Duration(seconds: 20));
     });
 
-    test('a clock set backwards cannot stretch a persisted cooldown',
-        () async {
+    test('a clock set backwards cannot stretch a persisted cooldown', () async {
       final store = _store(now: () => clock);
       await store.enable('1234', biometric: false);
       await store.load();
