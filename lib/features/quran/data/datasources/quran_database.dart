@@ -52,7 +52,7 @@ final class QuranDatabase extends GeneratedDatabase {
   static Future<QuranDatabase> open() async {
     final file = await bundledDbFile(_fileName);
     await ensureCopied(file, () => rootBundle.load(_assetPath));
-    return QuranDatabase(NativeDatabase(file));
+    return QuranDatabase(NativeDatabase.createInBackground(file));
   }
 
   /// Skips the copy when [file] already matches [bundledVersion]; otherwise

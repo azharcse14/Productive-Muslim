@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart' show AssetBundle;
 
@@ -19,16 +20,21 @@ final class CityAssetDataSource {
       return cached;
     }
     final raw = await _bundle.loadString(assetPath);
-    final decoded = jsonDecode(raw) as List<dynamic>;
-    return _cache = [
-      for (final entry in decoded.cast<List<dynamic>>())
-        City(
-          name: entry[0] as String,
-          countryCode: entry[1] as String,
-          latitude: (entry[2] as num).toDouble(),
-          longitude: (entry[3] as num).toDouble(),
-          timezone: entry[4] as String,
-        ),
-    ];
+    // ~1.7 MB of JSON: decode off the UI isolate so the first search
+    // doesn't drop frames.
+    final cities = await Isolate.run(() => _parse(raw));
+    return _cache = cities;
   }
+
+  static List<City> _parse(String raw) => [
+        for (final entry
+            in (jsonDecode(raw) as List<dynamic>).cast<List<dynamic>>())
+          City(
+            name: entry[0] as String,
+            countryCode: entry[1] as String,
+            latitude: (entry[2] as num).toDouble(),
+            longitude: (entry[3] as num).toDouble(),
+            timezone: entry[4] as String,
+          ),
+      ];
 }

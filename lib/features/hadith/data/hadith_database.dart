@@ -40,7 +40,7 @@ final class HadithDatabase extends GeneratedDatabase {
   static Future<HadithDatabase> open() async {
     final file = await bundledDbFile(_fileName, subdir: 'bundled');
     await ensureCopied(file, () => rootBundle.load(_assetPath));
-    return HadithDatabase(NativeDatabase(file));
+    return HadithDatabase(NativeDatabase.createInBackground(file));
   }
 
   /// Skips the copy when [file] already matches [bundledVersion]; otherwise
