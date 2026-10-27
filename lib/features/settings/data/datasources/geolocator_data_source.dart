@@ -25,8 +25,10 @@ final class GeolocatorDataSource implements DeviceLocationSource {
 
   @override
   Future<Position> currentPosition() => Geolocator.getCurrentPosition(
+        // Indoors with no fix the call otherwise never completes.
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 20),
         ),
       );
 }

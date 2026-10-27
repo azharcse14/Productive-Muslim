@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import '../domain/entities/hadith_book.dart';
 import 'hadith_blob_codec.dart';
 import 'hadith_database.dart';
@@ -40,11 +42,16 @@ final class HadithBookBundledDataSource {
 
   Future<List<RawHadith>> _edition(String edition, int section) async {
     final blob = await (await _open).editionBlob(edition, section);
-    return blob == null ? const [] : decodeEditionBlob(blob);
+    // Sections run to ~1.8 MB of JSON: decode off the UI thread.
+    return blob == null
+        ? const []
+        : await Isolate.run(() => decodeEditionBlob(blob));
   }
 
   Future<List<BnHadith>> _bangla(HadithBook book, int section) async {
     final blob = await (await _open).banglaBlob(book.id, section);
-    return blob == null ? const [] : decodeBanglaBlob(blob);
+    return blob == null
+        ? const []
+        : await Isolate.run(() => decodeBanglaBlob(blob));
   }
 }

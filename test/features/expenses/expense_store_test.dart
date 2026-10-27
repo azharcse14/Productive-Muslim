@@ -212,6 +212,24 @@ void main() {
     expect(s.entries.value.single.note, 'x');
   });
 
+  test('CSV neutralises formula notes and round-trips them', () async {
+    final first = store();
+    for (final note in ['=HYPERLINK("x")', '+1', "'=already"]) {
+      await first.add(amount: 1, category: ExpenseCategory.need, note: note);
+    }
+    final csv = await first.toCsv();
+    expect(csv, contains('"\'=HYPERLINK'));
+    expect(csv, contains('"\'+1"'));
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final restored = store();
+    expect(await restored.importCsv(csv), 3);
+    expect(
+      restored.entries.value.map((e) => e.note),
+      containsAll(['=HYPERLINK("x")', '+1', "'=already"]),
+    );
+  });
+
   test('CSV round-trips; import before load merges, never clobbers', () async {
     final first = store();
     await first.add(

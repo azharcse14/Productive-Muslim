@@ -68,8 +68,11 @@ final class QuranStore {
     if (!next.remove(ayahId)) {
       next.add(ayahId);
     }
+    final previous = bookmarks.value;
     bookmarks.value = next;
-    await _repository.toggleBookmark(ayahId);
+    if (!(await _repository.toggleBookmark(ayahId)).isSuccess) {
+      bookmarks.value = previous; // keep the screen honest about the DB
+    }
   }
 
   /// Maps a global ayah id (1..6236) to surah/ayah via the index's ayah

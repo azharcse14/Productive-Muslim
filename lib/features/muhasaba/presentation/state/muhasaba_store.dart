@@ -53,8 +53,11 @@ final class MuhasabaStore {
     if (!loaded.value || s == null) {
       return false;
     }
-    final nothingEver =
-        s.items.every((i) => i.totalValue == 0) && entries.value.isEmpty;
+    // items only cover the selected period; bestStreak scans ~400 days, so
+    // it is 0 only for a user who has (effectively) never logged anything.
+    final nothingEver = s.bestStreak == 0 &&
+        s.items.every((i) => i.totalValue == 0) &&
+        entries.value.isEmpty;
     return nothingEver;
   });
 
@@ -111,6 +114,9 @@ final class MuhasabaStore {
     }
     selectedDate.value = clamped;
     final result = await _repository.entriesOn(clamped);
+    if (selectedDate.value != clamped) {
+      return; // a newer selectDate won; don't overwrite with stale data
+    }
     entries.value = {
       for (final e in result.valueOrNull ?? const <DailyEntry>[])
         e.itemId: e.value,
@@ -125,13 +131,19 @@ final class MuhasabaStore {
       return;
     }
     final clamped = value < 0 ? 0 : value;
+    final previous = entries.value;
     entries.value = {
       ...entries.value,
       if (clamped > 0) itemId: clamped,
     }..removeWhere((k, v) => clamped == 0 && k == itemId);
-    await _repository.setEntry(
+    final saved = await _repository.setEntry(
       DailyEntry(itemId: itemId, date: selectedDate.value, value: clamped),
     );
+    if (!saved.isSuccess) {
+      // Don't show a tick the DB doesn't have.
+      entries.value = previous;
+      return;
+    }
     await refreshStats();
   }
 
@@ -148,7 +160,11 @@ final class MuhasabaStore {
         .any((e) => e.itemId == itemId && e.value > 0)) {
       return;
     }
-    await _repository.setEntry(DailyEntry(itemId: itemId, date: day, value: 1));
+    final saved = await _repository
+        .setEntry(DailyEntry(itemId: itemId, date: day, value: 1));
+    if (!saved.isSuccess) {
+      return;
+    }
     if (selectedDate.value == day) {
       entries.value = {...entries.value, itemId: 1};
     }

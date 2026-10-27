@@ -59,6 +59,17 @@ void main() {
       expect(restored.location, settings.location);
     });
 
+    test('one wrong-typed field keeps every other setting', () {
+      final restored = AppSettingsModel.fromMap(const {
+        'setupComplete': true,
+        'localeCode': 42,
+        'notifications': {'sahriLeadMin': 10.5, 'sahriAlert': true},
+      });
+      expect(restored.setupComplete, isTrue);
+      expect(restored.localeCode, const AppSettings().localeCode);
+      expect(restored.notifications.sahriAlert, isTrue);
+    });
+
     test('empty map yields pure defaults', () {
       expect(AppSettingsModel.fromMap(const {}), const AppSettings());
     });

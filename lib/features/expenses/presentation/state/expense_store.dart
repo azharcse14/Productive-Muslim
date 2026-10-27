@@ -389,12 +389,18 @@ final class ExpenseStore {
   }
 
   static const _csvHeader = 'date,category,amount,note';
+  // Leading quotes count too, so a note like '=x round-trips.
+  static final _formulaStart = RegExp(r"^'*[=+\-@]");
+  static final _escapedFormula = RegExp(r"^''*[=+\-@]");
 
   /// All entries as CSV (oldest first) — opens in any spreadsheet and is
   /// the backup format [importCsv] reads back. Budgets are not included.
   Future<String> toCsv() async {
     await load();
-    String quote(String v) => '"${v.replaceAll('"', '""')}"';
+    // A leading ' stops spreadsheets running =,+,-,@ notes as formulas;
+    // importCsv strips it again.
+    String quote(String v) =>
+        '"${_formulaStart.hasMatch(v) ? "'" : ''}${v.replaceAll('"', '""')}"';
     return [
       _csvHeader,
       for (final e in entries.value.reversed)
@@ -437,7 +443,7 @@ final class ExpenseStore {
           amount: amount,
           category: category,
           date: date,
-          note: r[3],
+          note: _escapedFormula.hasMatch(r[3]) ? r[3].substring(1) : r[3],
         ),
       );
     }

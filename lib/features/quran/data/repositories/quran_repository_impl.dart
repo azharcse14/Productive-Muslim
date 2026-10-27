@@ -119,17 +119,20 @@ final class QuranRepositoryImpl implements QuranRepository {
   @override
   Future<Result<void>> toggleBookmark(int ayahId) async {
     try {
-      final removed = await _db.customUpdate(
-        'DELETE FROM bookmarks WHERE ayah_id = ?',
-        variables: [Variable<int>(ayahId)],
-        updateKind: UpdateKind.delete,
-      );
-      if (removed == 0) {
-        await _db.customInsert(
-          'INSERT INTO bookmarks(ayah_id) VALUES (?)',
+      // One transaction: rapid double-taps can't interleave delete/insert.
+      await _db.transaction(() async {
+        final removed = await _db.customUpdate(
+          'DELETE FROM bookmarks WHERE ayah_id = ?',
           variables: [Variable<int>(ayahId)],
+          updateKind: UpdateKind.delete,
         );
-      }
+        if (removed == 0) {
+          await _db.customInsert(
+            'INSERT INTO bookmarks(ayah_id) VALUES (?)',
+            variables: [Variable<int>(ayahId)],
+          );
+        }
+      });
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to toggle bookmark', e));

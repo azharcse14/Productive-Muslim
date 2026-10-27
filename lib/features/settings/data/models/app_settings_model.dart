@@ -61,6 +61,11 @@ abstract final class AppSettingsModel {
         'hijriOffsetDays': s.hijriOffsetDays,
       };
 
+  /// [v] if it has type [T], else null — one wrong-typed field falls back
+  /// to its default instead of failing the whole load (and the next save
+  /// overwriting every setting with defaults).
+  static T? _as<T>(Object? v) => v is T ? v : null;
+
   static AppSettings fromMap(Map<String, Object?> map) {
     const defaults = AppSettings();
     return AppSettings(
@@ -72,15 +77,15 @@ abstract final class AppSettingsModel {
         map['themeMode'],
         defaults.themeMode,
       ),
-      localeCode: map['localeCode'] as String? ?? defaults.localeCode,
+      localeCode: _as<String>(map['localeCode']) ?? defaults.localeCode,
       setupComplete:
-          map['setupComplete'] as bool? ?? defaults.setupComplete,
+          _as<bool>(map['setupComplete']) ?? defaults.setupComplete,
       showAchievements:
-          map['showAchievements'] as bool? ?? defaults.showAchievements,
+          _as<bool>(map['showAchievements']) ?? defaults.showAchievements,
       hapticsEnabled:
-          map['hapticsEnabled'] as bool? ?? defaults.hapticsEnabled,
+          _as<bool>(map['hapticsEnabled']) ?? defaults.hapticsEnabled,
       hijriOffsetDays:
-          (map['hijriOffsetDays'] as num?)?.toInt() ?? defaults.hijriOffsetDays,
+          _as<num>(map['hijriOffsetDays'])?.toInt() ?? defaults.hijriOffsetDays,
     );
   }
 
@@ -100,15 +105,15 @@ abstract final class AppSettingsModel {
       'gps' => GpsLocation(
           latitude: lat,
           longitude: lng,
-          resolvedName: map['name'] as String? ?? '',
+          resolvedName: _as<String>(map['name']) ?? '',
         ),
       'city' => ManualCityLocation(
           City(
-            name: map['name'] as String? ?? '',
-            countryCode: map['country'] as String? ?? '',
+            name: _as<String>(map['name']) ?? '',
+            countryCode: _as<String>(map['country']) ?? '',
             latitude: lat,
             longitude: lng,
-            timezone: map['tz'] as String? ?? 'UTC',
+            timezone: _as<String>(map['tz']) ?? 'UTC',
           ),
         ),
       _ => null,
@@ -122,7 +127,7 @@ abstract final class AppSettingsModel {
     }
     final map = raw.cast<String, Object?>();
     final rawAdjustments =
-        (map['adjustments'] as Map?)?.cast<String, Object?>() ?? {};
+        _as<Map<Object?, Object?>>(map['adjustments'])?.cast<String, Object?>() ?? {};
     return PrayerParams(
       method: _enumOrDefault(
         CalculationMethodId.values,
@@ -140,7 +145,7 @@ abstract final class AppSettingsModel {
           if (rawAdjustments[prayer.name] is int)
             prayer: rawAdjustments[prayer.name]! as int,
       },
-      sahriSafetyMinutes: (map['sahriSafety'] as num?)?.toInt() ??
+      sahriSafetyMinutes: _as<num>(map['sahriSafety'])?.toInt() ??
           defaults.sahriSafetyMinutes,
     );
   }
@@ -151,7 +156,7 @@ abstract final class AppSettingsModel {
       return defaults;
     }
     final map = raw.cast<String, Object?>();
-    final rawModes = (map['modes'] as Map?)?.cast<String, Object?>() ?? {};
+    final rawModes = _as<Map<Object?, Object?>>(map['modes'])?.cast<String, Object?>() ?? {};
     return NotificationMatrix(
       prayerModes: {
         for (final prayer in Prayer.values)
@@ -162,22 +167,22 @@ abstract final class AppSettingsModel {
               AzanMode.azan,
             ),
       },
-      sahriAlert: map['sahriAlert'] as bool? ?? defaults.sahriAlert,
+      sahriAlert: _as<bool>(map['sahriAlert']) ?? defaults.sahriAlert,
       sahriLead: Duration(
-        minutes: map['sahriLeadMin'] as int? ?? defaults.sahriLead.inMinutes,
+        minutes: _as<int>(map['sahriLeadMin']) ?? defaults.sahriLead.inMinutes,
       ),
-      iftarAlert: map['iftarAlert'] as bool? ?? defaults.iftarAlert,
+      iftarAlert: _as<bool>(map['iftarAlert']) ?? defaults.iftarAlert,
       jamaatReminder:
-          map['jamaatReminder'] as bool? ?? defaults.jamaatReminder,
+          _as<bool>(map['jamaatReminder']) ?? defaults.jamaatReminder,
       jamaatLead: Duration(
         minutes:
-            map['jamaatLeadMin'] as int? ?? defaults.jamaatLead.inMinutes,
+            _as<int>(map['jamaatLeadMin']) ?? defaults.jamaatLead.inMinutes,
       ),
       muhasabaEveningReminder:
-          map['muhasabaEvening'] as bool? ?? defaults.muhasabaEveningReminder,
-      dailyReminder: map['dailyReminder'] as bool? ?? defaults.dailyReminder,
+          _as<bool>(map['muhasabaEvening']) ?? defaults.muhasabaEveningReminder,
+      dailyReminder: _as<bool>(map['dailyReminder']) ?? defaults.dailyReminder,
       dailyReminderMinute:
-          map['dailyReminderMinute'] as int? ?? defaults.dailyReminderMinute,
+          _as<int>(map['dailyReminderMinute']) ?? defaults.dailyReminderMinute,
       dailyReminderKind: _enumOrDefault(
         DailyContentKind.values,
         map['dailyReminderKind'],
