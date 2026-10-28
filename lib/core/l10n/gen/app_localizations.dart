@@ -3535,6 +3535,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ayah, hadith & dua of the day'**
   String get homeCardDaily;
+
+  /// No description provided for @prayerTimesComputeFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t calculate prayer times'**
+  String get prayerTimesComputeFailedTitle;
+
+  /// No description provided for @prayerTimesComputeFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times can\'t be worked out for this location with the current settings. Try another location or calculation method.'**
+  String get prayerTimesComputeFailedBody;
+
+  /// No description provided for @prayerTimesExactAlarmBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan may arrive late. Tap to allow exact alarms.'**
+  String get prayerTimesExactAlarmBanner;
+
+  /// No description provided for @qiblaCompassPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'{point, select, N{N} NNE{NNE} NE{NE} ENE{ENE} E{E} ESE{ESE} SE{SE} SSE{SSE} S{S} SSW{SSW} SW{SW} WSW{WSW} W{W} WNW{WNW} NW{NW} NNW{NNW} other{{point}}}'**
+  String qiblaCompassPoint(String point);
+
+  /// Reason shown in the OS biometric prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Productive Muslim'**
+  String get appLockBiometricReason;
+
+  /// Screen-reader label for the onboarding progress bar
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String onboardingStepProgress(int step, int total);
+
+  /// No description provided for @editorDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get editorDiscardTitle;
+
+  /// No description provided for @editorDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get editorDiscard;
+
+  /// No description provided for @muhasabaIconOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon {n}'**
+  String muhasabaIconOption(int n);
+
+  /// No description provided for @muhasabaColorOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Color {n}'**
+  String muhasabaColorOption(int n);
+
+  /// No description provided for @tasbihTargetInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 1 to 99999'**
+  String get tasbihTargetInvalid;
+
+  /// No description provided for @hadithTopicsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the hadith. Please try again.'**
+  String get hadithTopicsLoadError;
+
+  /// No description provided for @ruqyahLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load ruqyah. Please try again.'**
+  String get ruqyahLoadError;
+
+  /// No description provided for @duaLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the duas. Please try again.'**
+  String get duaLoadError;
+
+  /// No description provided for @hadithSectionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith in this chapter.'**
+  String get hadithSectionEmpty;
+
+  /// One word of an English-source hadith grade; other{—} means pass the word through unchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{word, select, sahih{Sahih} hasan{Hasan} daif{Da\'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} other{—}}'**
+  String hadithGradeWord(String word);
+
+  /// No description provided for @fastingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Please try again.'**
+  String get fastingSaveFailed;
+
+  /// No description provided for @faraidOtherRelatives.
+  ///
+  /// In en, this message translates to:
+  /// **'Any grandchild, grandparent, half-sibling, paternal uncle, nephew or cousin?'**
+  String get faraidOtherRelatives;
+
+  /// No description provided for @faraidOutOfScope.
+  ///
+  /// In en, this message translates to:
+  /// **'These relatives can change every share, and this calculator doesn\'t cover them. Please ask a qualified scholar for this distribution.'**
+  String get faraidOutOfScope;
+
+  /// No description provided for @faraidUmariyyataynNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Special case (\'Umariyyatayn): the mother takes one third of what remains after the spouse\'s share; the father takes the rest.'**
+  String get faraidUmariyyataynNote;
+
+  /// No description provided for @faraidUnallocatedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'None of the heirs entered takes the remainder. It may go to more distant relatives — ask a scholar how your school assigns it.'**
+  String get faraidUnallocatedNote;
+
+  /// No description provided for @faraidBasisTwoThirdsShared.
+  ///
+  /// In en, this message translates to:
+  /// **'2/3 (shared)'**
+  String get faraidBasisTwoThirdsShared;
+
+  /// No description provided for @faraidBasisThirdOfResidue.
+  ///
+  /// In en, this message translates to:
+  /// **'1/3 of the remainder'**
+  String get faraidBasisThirdOfResidue;
+
+  /// No description provided for @faraidBasisResiduary.
+  ///
+  /// In en, this message translates to:
+  /// **'residuary (\'asaba)'**
+  String get faraidBasisResiduary;
+
+  /// No description provided for @faraidBasisSixthPlusResiduary.
+  ///
+  /// In en, this message translates to:
+  /// **'1/6 + residuary'**
+  String get faraidBasisSixthPlusResiduary;
+
+  /// No description provided for @faraidBasisResiduaryTwoToOne.
+  ///
+  /// In en, this message translates to:
+  /// **'residuary (2:1)'**
+  String get faraidBasisResiduaryTwoToOne;
+
+  /// No description provided for @faraidInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get faraidInvalidNumber;
+
+  /// No description provided for @fitraInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get fitraInvalidNumber;
+
+  /// No description provided for @qazaInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number'**
+  String get qazaInvalidNumber;
+
+  /// No description provided for @mosqueRenameProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename mosque'**
+  String get mosqueRenameProfile;
+
+  /// No description provided for @locationDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location access is blocked for this app. Allow it in Settings, or pick your city below.'**
+  String get locationDeniedForever;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get your location. Try again, or pick your city below.'**
+  String get locationUnavailable;
+
+  /// No description provided for @locationRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get locationRetry;
 }
 
 class _AppLocalizationsDelegate

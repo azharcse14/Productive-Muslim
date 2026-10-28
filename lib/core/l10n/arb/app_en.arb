@@ -1033,7 +1033,7 @@
   "expenseImported": "{count, plural, =0{Nothing new to restore} =1{1 expense restored} other{{count} expenses restored}}",
   "@expenseImported": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {"type": "int", "format": "decimalPattern"}
     }
   },
   "hadithSearchHint": "Search hadith",
@@ -1045,5 +1045,69 @@
   "settingHomeCards": "Home cards",
   "settingHomeCardsSub": "Choose which sections appear on Home",
   "homeCardQuickActions": "Quick actions",
-  "homeCardDaily": "Ayah, hadith & dua of the day"
+  "homeCardDaily": "Ayah, hadith & dua of the day",
+  "prayerTimesComputeFailedTitle": "Couldn't calculate prayer times",
+  "prayerTimesComputeFailedBody": "Prayer times can't be worked out for this location with the current settings. Try another location or calculation method.",
+  "prayerTimesExactAlarmBanner": "Azan may arrive late. Tap to allow exact alarms.",
+  "qiblaCompassPoint": "{point, select, N{N} NNE{NNE} NE{NE} ENE{ENE} E{E} ESE{ESE} SE{SE} SSE{SSE} S{S} SSW{SSW} SW{SW} WSW{WSW} W{W} WNW{WNW} NW{NW} NNW{NNW} other{{point}}}",
+  "@qiblaCompassPoint": {
+    "placeholders": {
+      "point": {"type": "String"}
+    }
+  },
+  "appLockBiometricReason": "Unlock Productive Muslim",
+  "@appLockBiometricReason": {
+    "description": "Reason shown in the OS biometric prompt"
+  },
+  "onboardingStepProgress": "Step {step} of {total}",
+  "@onboardingStepProgress": {
+    "description": "Screen-reader label for the onboarding progress bar",
+    "placeholders": {
+      "step": { "type": "int", "format": "decimalPattern" },
+      "total": { "type": "int", "format": "decimalPattern" }
+    }
+  },
+  "editorDiscardTitle": "Discard your changes?",
+  "editorDiscard": "Discard",
+  "muhasabaIconOption": "Icon {n}",
+  "@muhasabaIconOption": {
+    "placeholders": {
+      "n": { "type": "int", "format": "decimalPattern" }
+    }
+  },
+  "muhasabaColorOption": "Color {n}",
+  "@muhasabaColorOption": {
+    "placeholders": {
+      "n": { "type": "int", "format": "decimalPattern" }
+    }
+  },
+  "tasbihTargetInvalid": "Enter a number from 1 to 99999",
+  "hadithTopicsLoadError": "Couldn't load the hadith. Please try again.",
+  "ruqyahLoadError": "Couldn't load ruqyah. Please try again.",
+  "duaLoadError": "Couldn't load the duas. Please try again.",
+  "hadithSectionEmpty": "No hadith in this chapter.",
+  "hadithGradeWord": "{word, select, sahih{Sahih} hasan{Hasan} daif{Da'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} other{—}}",
+  "@hadithGradeWord": {
+    "description": "One word of an English-source hadith grade; other{—} means pass the word through unchanged.",
+    "placeholders": {
+      "word": { "type": "String" }
+    }
+  },
+  "fastingSaveFailed": "Couldn't save. Please try again.",
+  "faraidOtherRelatives": "Any grandchild, grandparent, half-sibling, paternal uncle, nephew or cousin?",
+  "faraidOutOfScope": "These relatives can change every share, and this calculator doesn't cover them. Please ask a qualified scholar for this distribution.",
+  "faraidUmariyyataynNote": "Special case ('Umariyyatayn): the mother takes one third of what remains after the spouse's share; the father takes the rest.",
+  "faraidUnallocatedNote": "None of the heirs entered takes the remainder. It may go to more distant relatives — ask a scholar how your school assigns it.",
+  "faraidBasisTwoThirdsShared": "2/3 (shared)",
+  "faraidBasisThirdOfResidue": "1/3 of the remainder",
+  "faraidBasisResiduary": "residuary ('asaba)",
+  "faraidBasisSixthPlusResiduary": "1/6 + residuary",
+  "faraidBasisResiduaryTwoToOne": "residuary (2:1)",
+  "faraidInvalidNumber": "Enter a valid amount",
+  "fitraInvalidNumber": "Enter a valid number",
+  "qazaInvalidNumber": "Enter a whole number",
+  "mosqueRenameProfile": "Rename mosque",
+  "locationDeniedForever": "Location access is blocked for this app. Allow it in Settings, or pick your city below.",
+  "locationUnavailable": "Couldn't get your location. Try again, or pick your city below.",
+  "locationRetry": "Try again"
 }
