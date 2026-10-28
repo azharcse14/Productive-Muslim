@@ -104,7 +104,8 @@ final class RescheduleNotifications {
       maxItems: _maxItems,
       keepAlive: true,
       hijriOffsetDays: settings.hijriOffsetDays,
-      focusWindows: _focusAsNotifications ? focus : const [],
+      focusWindows: focus,
+      focusStartNudges: _focusAsNotifications,
     );
     await _focusSink?.call(focus, settings.notifications, texts);
     final scheduled = await _scheduler.reschedule(plan, texts);

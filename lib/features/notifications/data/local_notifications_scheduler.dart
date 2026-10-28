@@ -220,6 +220,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
               // files the right day.
               NotificationKind.azan => '/home?prayer=${item.prayer?.name}'
                   '&date=${_dateParam(item.prayerDay ?? item.at)}',
+              // Tap → after-salah duas; the action files the prayer.
+              NotificationKind.focusEnd =>
+                '/dua?category=salah&prayer=${item.prayer?.name}'
+                    '&date=${_dateParam(item.prayerDay ?? item.at)}',
               _ => '/home',
             },
           );
@@ -266,6 +270,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         ),
       NotificationKind.keepAlive => (t.keepAliveTitle, t.keepAliveBody),
       NotificationKind.jamaatFocus => (f(t.focusTitle), f(t.focusBody)),
+      NotificationKind.focusEnd => (f(t.focusEndTitle), f(t.focusEndBody)),
     };
   }
 
@@ -313,7 +318,8 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         playSound: sound,
         enableVibration: !beep,
         category: AndroidNotificationCategory.reminder,
-        actions: item.kind == NotificationKind.azan
+        actions: item.kind == NotificationKind.azan ||
+                item.kind == NotificationKind.focusEnd
             ? [
                 AndroidNotificationAction(
                   markPrayedActionId,
@@ -325,7 +331,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       ),
       iOS: DarwinNotificationDetails(
         categoryIdentifier:
-            item.kind == NotificationKind.azan ? _azanCategoryId : null,
+            item.kind == NotificationKind.azan ||
+                    item.kind == NotificationKind.focusEnd
+                ? _azanCategoryId
+                : null,
         presentSound: sound,
         interruptionLevel: quiet
             ? InterruptionLevel.passive

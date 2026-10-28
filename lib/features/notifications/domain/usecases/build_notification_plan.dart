@@ -27,8 +27,9 @@ import 'build_focus_windows.dart';
 /// start (so time-based mosque rules apply per prayer) and takes precedence
 /// over [jamaat].
 ///
-/// Each of [focusWindows] (iOS, where the app can't silence the phone)
-/// becomes a [NotificationKind.jamaatFocus] nudge at its start.
+/// Each of [focusWindows] with an end gets a [NotificationKind.focusEnd]
+/// item then; with [focusStartNudges] (iOS, where the app can't silence
+/// the phone) also a [NotificationKind.jamaatFocus] nudge at its start.
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
@@ -40,6 +41,7 @@ List<NotificationItem> buildNotificationPlan({
   bool keepAlive = false,
   int hijriOffsetDays = 0,
   List<FocusWindow> focusWindows = const [],
+  bool focusStartNudges = false,
 }) {
   final until = from.add(window);
   final items = <NotificationItem>[];
@@ -131,12 +133,23 @@ List<NotificationItem> buildNotificationPlan({
   }
 
   for (final focus in focusWindows) {
-    if (inWindow(focus.start)) {
+    if (focusStartNudges && inWindow(focus.start)) {
       items.add(
         NotificationItem(
           kind: NotificationKind.jamaatFocus,
           prayer: focus.prayer,
           at: focus.start,
+        ),
+      );
+    }
+    final end = focus.end;
+    if (end != null && inWindow(end)) {
+      items.add(
+        NotificationItem(
+          kind: NotificationKind.focusEnd,
+          prayer: focus.prayer,
+          prayerDay: focus.prayerDay,
+          at: end,
         ),
       );
     }

@@ -1108,5 +1108,14 @@
   "shortcutsTimeStep1": "Automation → + → Time of Day. Pick a few minutes before jamaat, Daily, Run Immediately.",
   "shortcutsTimeStep2": "Add the “Set Focus” action: Turn Do Not Disturb On until a time after jamaat.",
   "shortcutsTimeStep3": "Make one automation for each prayer.",
-  "shortcutsOpen": "Open Shortcuts"
+  "shortcutsOpen": "Open Shortcuts",
+  "notifFocusEndTitle": "{prayer} — prayed in jamaat?",
+  "@notifFocusEndTitle": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notifFocusEndBody": "Mark it in Muhasaba, then tap for the after-salah adhkar."
 }

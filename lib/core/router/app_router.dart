@@ -153,7 +153,16 @@ GoRouter buildRouter() {
               GoRoute(
                 name: Routes.dua.name,
                 path: Routes.dua.path,
-                builder: (context, state) => const DuaScreen(),
+                // ?category= opens that category (focus end notification);
+                // keyed so the same tab re-opens it on a new link.
+                builder: (context, state) => switch (
+                    state.uri.queryParameters['category']) {
+                  null => const DuaScreen(),
+                  final category => DuaScreen(
+                      key: ValueKey(state.uri.toString()),
+                      openCategory: category,
+                    ),
+                },
               ),
             ],
           ),
@@ -340,8 +349,9 @@ void openDeepLink(String location) {
     return;
   }
   if (_splashDone) {
+    final path = Uri.parse(location).path;
     final inShell = _shellRoots.any(
-      (root) => location == root || location.startsWith('$root/'),
+      (root) => path == root || path.startsWith('$root/'),
     );
     if (inShell) {
       appRouter.go(location);

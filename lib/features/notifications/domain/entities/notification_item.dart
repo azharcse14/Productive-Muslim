@@ -29,6 +29,10 @@ enum NotificationKind {
   /// iOS only: jamaat focus start — "put your phone on silent". The OS
   /// lets no app silence or lock the phone, so a nudge is all iOS gets.
   jamaatFocus,
+
+  /// Jamaat focus end: "prayed in jamaat?" with "mark as prayed", and a
+  /// tap opens the after-salah duas.
+  focusEnd,
 }
 
 /// One planned local notification, semantic only — text is resolved

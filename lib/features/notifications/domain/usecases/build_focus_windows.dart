@@ -6,9 +6,18 @@ import '../../../settings/domain/entities/prayer_params.dart';
 /// One jamaat focus session: phone silent (and on Android, locked) from
 /// [start] until [end], or until the user ends it when [end] is null.
 final class FocusWindow {
-  const FocusWindow({required this.prayer, required this.start, this.end});
+  const FocusWindow({
+    required this.prayer,
+    required this.start,
+    this.end,
+    this.prayerDay,
+  });
 
   final Prayer prayer;
+
+  /// Date of the prayer day's fajr — differs from [start]'s date when isha
+  /// runs past midnight (high latitudes). Files "mark as prayed".
+  final DateTime? prayerDay;
 
   /// Wall-clock moments at the configured location.
   final DateTime start;
@@ -62,7 +71,14 @@ List<FocusWindow> buildFocusWindows({
       if (start.isAfter(until) || !(end ?? start).isAfter(from)) {
         continue;
       }
-      windows.add(FocusWindow(prayer: prayer, start: start, end: end));
+      windows.add(
+        FocusWindow(
+          prayer: prayer,
+          start: start,
+          end: end,
+          prayerDay: DateTime(day.fajr.year, day.fajr.month, day.fajr.day),
+        ),
+      );
     }
   }
   windows.sort((a, b) => a.start.compareTo(b.start));

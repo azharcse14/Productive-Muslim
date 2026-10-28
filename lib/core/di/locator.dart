@@ -415,7 +415,13 @@ void _onNotificationTap(String? payload, String? actionId) {
       locator<MuhasabaStore>().markDoneOn('salah_$prayer', date ?? _wallNow()),
     );
   }
-  openDeepLink(uri.path);
+  // Only the dua category rides along (focus end → after-salah duas).
+  final category = uri.queryParameters['category'];
+  openDeepLink(
+    category == null
+        ? uri.path
+        : uri.replace(queryParameters: {'category': category}).toString(),
+  );
 }
 
 /// "Now" on the configured location's wall clock (device clock until one

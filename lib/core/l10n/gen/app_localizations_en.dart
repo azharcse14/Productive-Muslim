@@ -2488,4 +2488,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortcutsOpen => 'Open Shortcuts';
+
+  @override
+  String notifFocusEndTitle(String prayer) {
+    return '$prayer — prayed in jamaat?';
+  }
+
+  @override
+  String get notifFocusEndBody =>
+      'Mark it in Muhasaba, then tap for the after-salah adhkar.';
 }

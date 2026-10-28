@@ -2479,4 +2479,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get shortcutsOpen => 'Shortcuts খুলুন';
+
+  @override
+  String notifFocusEndTitle(String prayer) {
+    return '$prayer — জামাতে পড়েছেন?';
+  }
+
+  @override
+  String get notifFocusEndBody =>
+      'মুহাসাবায় চিহ্নিত করুন, তারপর ট্যাপ করে নামাজের পরের যিকির পড়ুন।';
 }

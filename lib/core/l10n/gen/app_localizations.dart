@@ -3787,6 +3787,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Shortcuts'**
   String get shortcutsOpen;
+
+  /// No description provided for @notifFocusEndTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} — prayed in jamaat?'**
+  String notifFocusEndTitle(String prayer);
+
+  /// No description provided for @notifFocusEndBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark it in Muhasaba, then tap for the after-salah adhkar.'**
+  String get notifFocusEndBody;
 }
 
 class _AppLocalizationsDelegate

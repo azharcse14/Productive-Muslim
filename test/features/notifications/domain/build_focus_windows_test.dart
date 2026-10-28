@@ -96,7 +96,39 @@ void main() {
       jamaat: _jamaat,
       window: const Duration(hours: 24),
       focusWindows: windows,
+      focusStartNudges: true,
     ).where((i) => i.kind == NotificationKind.jamaatFocus);
     expect(nudges.map((i) => i.at), windows.map((w) => w.start));
+  });
+
+  test('each timed session ends with a "prayed in jamaat?" item', () {
+    final windows = _windows(_on);
+    final plan = buildNotificationPlan(
+      from: DateTime(2026, 5, 12, 3),
+      days: [_day(12), _day(13)],
+      matrix: const NotificationMatrix(),
+      jamaat: _jamaat,
+      window: const Duration(hours: 24),
+      focusWindows: windows,
+    );
+    // Android: no start nudge (the phone really goes silent).
+    expect(plan.where((i) => i.kind == NotificationKind.jamaatFocus), isEmpty);
+    final ends = plan.where((i) => i.kind == NotificationKind.focusEnd);
+    expect(ends.map((i) => i.at), windows.map((w) => w.end));
+    expect(ends.first.prayer, Prayer.fajr);
+    expect(ends.first.prayerDay, DateTime(2026, 5, 12));
+  });
+
+  test('"until I end it" sessions get no end item', () {
+    final plan = buildNotificationPlan(
+      from: DateTime(2026, 5, 12, 3),
+      days: [_day(12), _day(13)],
+      matrix: const NotificationMatrix(),
+      jamaat: _jamaat,
+      window: const Duration(hours: 24),
+      focusWindows:
+          _windows(_on.copyWith(jamaatFocusDuration: Duration.zero)),
+    );
+    expect(plan.where((i) => i.kind == NotificationKind.focusEnd), isEmpty);
   });
 }

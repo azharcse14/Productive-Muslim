@@ -30,6 +30,8 @@ final class NotificationTexts {
     this.focusLockBodyUntil = '',
     this.focusEndAction = '',
     this.channelFocusName = '',
+    this.focusEndTitle = '',
+    this.focusEndBody = '',
   });
 
   final String azanTitle;
@@ -65,6 +67,10 @@ final class NotificationTexts {
   final String focusLockBodyUntil;
   final String focusEndAction;
   final String channelFocusName;
+
+  /// Session end: "prayed in jamaat?" (`{prayer}`) + after-salah adhkar.
+  final String focusEndTitle;
+  final String focusEndBody;
 
   /// Localized prayer display names keyed by `Prayer.name`.
   final Map<String, String> prayerNames;

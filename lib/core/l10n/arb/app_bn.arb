@@ -739,5 +739,7 @@
   "shortcutsTimeStep1": "Automation → + → Time of Day। জামাতের কয়েক মিনিট আগের সময়, Daily, Run Immediately দিন।",
   "shortcutsTimeStep2": "“Set Focus” অ্যাকশন দিন: Turn Do Not Disturb On until — জামাতের পরের একটি সময়।",
   "shortcutsTimeStep3": "প্রতি ওয়াক্তের জন্য আলাদা অটোমেশন বানান।",
-  "shortcutsOpen": "Shortcuts খুলুন"
+  "shortcutsOpen": "Shortcuts খুলুন",
+  "notifFocusEndTitle": "{prayer} — জামাতে পড়েছেন?",
+  "notifFocusEndBody": "মুহাসাবায় চিহ্নিত করুন, তারপর ট্যাপ করে নামাজের পরের যিকির পড়ুন।"
 }

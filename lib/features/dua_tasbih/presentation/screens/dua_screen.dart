@@ -25,7 +25,10 @@ import 'tasbih_screen.dart';
 /// Dua & Tasbih landing (design §4.8): tasbih + Asmaul Husna feature cards
 /// up top, then the dua category grid.
 final class DuaScreen extends StatefulWidget {
-  const DuaScreen({super.key});
+  const DuaScreen({super.key, this.openCategory});
+
+  /// Category id to open on arrival (deep link), e.g. 'salah'.
+  final String? openCategory;
 
   @override
   State<DuaScreen> createState() => _DuaScreenState();
@@ -39,11 +42,24 @@ final class _DuaScreenState extends State<DuaScreen> {
   @override
   void initState() {
     super.initState();
-    if (!_store.loaded.value) {
-      unawaited(_store.load());
+    final loading = _store.loaded.value ? null : _store.load();
+    if (loading != null) {
+      unawaited(loading);
+    }
+    if (widget.openCategory case final id?) {
+      unawaited(_openCategory(id, loading));
     }
     if (!_favorites.loaded.value) {
       unawaited(_favorites.load());
+    }
+  }
+
+  Future<void> _openCategory(String id, Future<void>? loading) async {
+    await loading;
+    final category =
+        _store.categories.value.where((c) => c.id == id).firstOrNull;
+    if (category != null && mounted) {
+      _push(DuaCategoryScreen(category: category));
     }
   }
 
