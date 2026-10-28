@@ -35,45 +35,57 @@ final class CompassDial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Tick ring + cardinals rotate opposite the device heading so that
-          // they stay world-fixed. Painted once and cached; each sensor
-          // event only re-composites the rotation.
-          Transform.rotate(
-            angle: _rad(-heading),
-            child: RepaintBoundary(
-              child: CustomPaint(
-                size: Size.square(size),
-                painter: _RingPainter(colors: q, cardinals: cardinals),
+    // Own layer so per-event repaints stay inside the dial, not the route.
+    return RepaintBoundary(
+      child: SizedBox.square(
+        dimension: size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Tick ring + cardinals rotate opposite the device heading so that
+            // they stay world-fixed. Painted once and cached; each sensor
+            // event only re-composites the rotation.
+            Transform.rotate(
+              angle: _rad(-heading),
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  size: Size.square(size),
+                  painter: _RingPainter(colors: q, cardinals: cardinals),
+                ),
               ),
             ),
-          ),
-          CustomPaint(
-            size: Size.square(size),
-            painter: _DialPainter(
-              colors: q,
-              heading: heading,
-              bearing: bearing,
-              aligned: aligned,
+            CustomPaint(
+              size: Size.square(size),
+              painter: _DialPainter(
+                colors: q,
+                heading: heading,
+                bearing: bearing,
+                aligned: aligned,
+              ),
             ),
-          ),
-          QalbMark(
-            size: size * 40 / 300,
-            color: aligned ? q.accent : q.primary,
-            accent: aligned ? q.accent : q.primary,
-            strokeWidth: 3,
-          ),
-        ],
+            QalbMark(
+              size: size * 40 / 300,
+              color: aligned ? q.accent : q.primary,
+              accent: aligned ? q.accent : q.primary,
+              strokeWidth: 3,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 double _rad(double deg) => deg * math.pi / 180;
+
+/// Maps the 300×300 design space onto [size], centered, so the painted
+/// center matches the Stack/Transform center even when the box isn't square.
+void _fitDesign(Canvas canvas, Size size) {
+  canvas
+    ..translate(size.width / 2, size.height / 2)
+    ..scale(size.shortestSide / 300)
+    ..translate(-150, -150);
+}
 
 /// The world-fixed tick ring and cardinal labels, unrotated (north up).
 final class _RingPainter extends CustomPainter {
@@ -84,7 +96,7 @@ final class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.scale(size.shortestSide / 300);
+    _fitDesign(canvas, size);
     const center = Offset(150, 150);
     for (var a = 0; a < 360; a += 6) {
       final major = a % 90 == 0;
@@ -123,7 +135,9 @@ final class _RingPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      painter.paint(canvas, Offset(150 - painter.width / 2, 36));
+      painter
+        ..paint(canvas, Offset(150 - painter.width / 2, 36))
+        ..dispose();
       canvas.restore();
     }
   }
@@ -150,7 +164,7 @@ final class _DialPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.scale(size.shortestSide / 300);
+    _fitDesign(canvas, size);
     const center = Offset(150, 150);
 
     // Fixed alignment arc at 12 o'clock.
@@ -195,11 +209,7 @@ final class _DialPainter extends CustomPainter {
       ..restore();
 
     // Center medallion (the qalb mark widget sits on top).
-    canvas.drawCircle(
-      center,
-      42,
-      Paint()..color = colors.surface,
-    );
+    canvas.drawCircle(center, 42, Paint()..color = colors.surface);
     canvas.drawCircle(
       center,
       42,
