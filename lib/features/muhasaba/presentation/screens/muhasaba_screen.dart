@@ -10,8 +10,10 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
@@ -132,6 +134,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       ),
       children: staggered([
         _dateSwitcher(context),
+        _dayComplete(context, items),
         const SizedBox(height: QSpace.s3),
         Wrap(
           spacing: QSpace.s2,
@@ -196,6 +199,57 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           ],
         ],
       ]),
+    );
+  }
+
+  /// Honey banner with the full qalb mark once every active deed of the
+  /// selected day is done. Always mounted (empty when not done) so the
+  /// pulse fires on the tap that completes the day; keyed by date so
+  /// paging to an already-complete day doesn't celebrate again.
+  Widget _dayComplete(BuildContext context, List<TrackerItem> items) {
+    final q = context.q;
+    final done =
+        items.isNotEmpty && items.every((i) => i.isDone(_store.valueOf(i.id)));
+    return QCelebrate(
+      key: ValueKey(_store.selectedDate.value),
+      active: done,
+      haptic: true,
+      child: AnimatedSize(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : QMotion.med,
+        curve: QMotion.ease,
+        child: !done
+            ? const SizedBox(width: double.infinity)
+            : Padding(
+                padding: const EdgeInsets.only(top: QSpace.s3),
+                child: QCard(
+                  tone: q.accentSoft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: QSpace.s4,
+                    vertical: QSpace.s3,
+                  ),
+                  child: Row(
+                    children: [
+                      ExcludeSemantics(
+                        child: QalbMark(
+                          size: 32,
+                          color: q.onAccentSoft,
+                          accent: q.accent,
+                        ),
+                      ),
+                      const SizedBox(width: QSpace.s3),
+                      Expanded(
+                        child: Text(
+                          context.l10n.muhasabaDayComplete,
+                          style: QType.titleSm.copyWith(color: q.onAccentSoft),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+      ),
     );
   }
 

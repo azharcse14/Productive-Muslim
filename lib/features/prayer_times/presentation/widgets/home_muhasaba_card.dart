@@ -5,6 +5,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 
 /// Minimal home summary of today's muhasaba track (design §4.3 hand-off
@@ -48,16 +49,21 @@ final class HomeMuhasabaCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            QProgressRing(
-              progress: completion,
-              size: 44,
-              strokeWidth: 5,
-              child: Text(
-                LocaleDigits.localize(
-                  '${(completion * 100).round()}%',
-                  languageCode,
+            QCelebrate(
+              active: completion >= 1,
+              haptic: true,
+              child: QProgressRing(
+                progress: completion,
+                size: 44,
+                strokeWidth: 5,
+                color: completion >= 1 ? q.accent : null,
+                child: Text(
+                  LocaleDigits.localize(
+                    '${(completion * 100).round()}%',
+                    languageCode,
+                  ),
+                  style: QType.num_(QType.caption).copyWith(color: q.ink),
                 ),
-                style: QType.num_(QType.caption).copyWith(color: q.ink),
               ),
             ),
             const SizedBox(width: QSpace.s4),
