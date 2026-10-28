@@ -6,24 +6,6 @@ import '../../domain/entities/surah.dart';
 import '../../domain/repositories/quran_repository.dart';
 import '../datasources/quran_database.dart';
 
-/// Diacritic-light fold: lowercases, strips everything but ASCII
-/// letters/digits and collapses doubled letters, so 'fatiha' matches
-/// 'Al-Faatiha'. Applied to both the query and the indexed text.
-String _normalize(String input) {
-  final buffer = StringBuffer();
-  int? previous;
-  for (final code in input.toLowerCase().codeUnits) {
-    final isAlnum =
-        (code >= 0x61 && code <= 0x7a) || (code >= 0x30 && code <= 0x39);
-    if (!isAlnum || code == previous) {
-      continue;
-    }
-    buffer.writeCharCode(code);
-    previous = code;
-  }
-  return buffer.toString();
-}
-
 /// [QuranRepository] over the bundled drift database (raw `customSelect`,
 /// no codegen — see [QuranDatabase]).
 final class QuranRepositoryImpl implements QuranRepository {
@@ -56,21 +38,8 @@ final class QuranRepositoryImpl implements QuranRepository {
   }
 
   @override
-  Future<Result<List<Surah>>> searchSurahs(String query) async {
-    final needle = _normalize(query);
-    final all = await surahs();
-    if (needle.isEmpty) {
-      return all;
-    }
-    return all.map(
-      (list) => [
-        for (final surah in list)
-          if (_normalize(surah.transliteration).contains(needle) ||
-              _normalize(surah.translationEn).contains(needle))
-            surah,
-      ],
-    );
-  }
+  Future<Result<List<Surah>>> searchSurahs(String query) async =>
+      (await surahs()).map((all) => filterSurahs(all, query));
 
   @override
   Future<Result<QuranPosition?>> lastRead() async {

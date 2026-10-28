@@ -16,7 +16,29 @@ final class HadithBookBundledDataSource {
 
   final Future<HadithDatabase> _open;
 
+  /// Recently assembled sections (insertion-ordered map as an LRU), so
+  /// flipping back and forth between chapters doesn't re-decode them.
+  static const _cacheSize = 4;
+  final Map<String, List<BookHadith>> _cache = {};
+
   Future<List<BookHadith>> fetchSection(
+    HadithBook book,
+    HadithSection section,
+    String languageCode,
+  ) async {
+    final key = '${book.id}/${section.number}/$languageCode';
+    if (_cache.remove(key) case final cached?) {
+      return _cache[key] = cached; // re-insert as most recent
+    }
+    final result = await _load(book, section, languageCode);
+    _cache[key] = result;
+    if (_cache.length > _cacheSize) {
+      _cache.remove(_cache.keys.first);
+    }
+    return result;
+  }
+
+  Future<List<BookHadith>> _load(
     HadithBook book,
     HadithSection section,
     String languageCode,
@@ -24,13 +46,16 @@ final class HadithBookBundledDataSource {
     if (book.usesBanglaSource(languageCode)) {
       return assembleBangla(book, await _bangla(book, section.number));
     }
-    final arabic = await _edition(book.editionAr, section.number);
     final translationEdition = book.translationEdition(languageCode);
     final translationIsEnglish = translationEdition == book.editionEn;
-    final translation = await _edition(translationEdition, section.number);
-    final englishFallback = translationIsEnglish
-        ? const <RawHadith>[]
-        : await _edition(book.editionEn, section.number);
+    // The three decodes are independent isolates: run them in parallel.
+    final (arabic, translation, englishFallback) = await (
+      _edition(book.editionAr, section.number),
+      _edition(translationEdition, section.number),
+      translationIsEnglish
+          ? Future.value(const <RawHadith>[])
+          : _edition(book.editionEn, section.number),
+    ).wait;
     return assembleSection(
       book: book,
       arabic: arabic,

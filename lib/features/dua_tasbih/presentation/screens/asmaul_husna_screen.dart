@@ -8,10 +8,12 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
-import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_pressable.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/dua.dart';
 import '../state/dua_store.dart';
 
@@ -36,8 +38,8 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
     }
   }
 
+  // QPressable already plays the selection haptic.
   Future<void> _showDetail(AsmaName name) async {
-    Haptics.selection();
     await showModalBottomSheet<void>(
       context: context,
       builder: (_) => _AsmaDetailSheet(name: name),
@@ -62,6 +64,24 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
         child: SignalBuilder(
           builder: (context) {
             final names = _store.asma.value;
+            if (!_store.loaded.value) {
+              return ListView(
+                padding: const EdgeInsets.all(QSpace.s5),
+                children: [
+                  for (var i = 0; i < 8; i++) ...[
+                    const QSkeleton(height: 48, radius: QRadius.sm),
+                    const SizedBox(height: QSpace.s3),
+                  ],
+                ],
+              );
+            }
+            if (_store.failed.value && names.isEmpty) {
+              return QErrorRetry(
+                message: l10n.asmaLoadError,
+                retryLabel: l10n.hadithRetry,
+                onRetry: () => unawaited(_store.load()),
+              );
+            }
             return ListView.builder(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -121,44 +141,41 @@ final class _AsmaRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
-    return InkWell(
+    // Same row anatomy as the surah index rows.
+    return QPressable(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(QRadius.sm),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: 2,
-            vertical: 10,
-          ),
-          child: Row(
-            children: [
-              _NumberMedallion(number: name.number),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name.transliteration,
-                      style: QType.titleSm.copyWith(color: q.ink),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      name.meaningFor(languageCode),
-                      style: QType.caption.copyWith(color: q.ink2),
-                    ),
-                  ],
-                ),
+      borderRadius: BorderRadius.circular(QRadius.md),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 2,
+          vertical: QSpace.s2,
+        ),
+        child: Row(
+          children: [
+            _NumberMedallion(number: name.number),
+            const SizedBox(width: QSpace.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.transliteration,
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                  Text(
+                    name.meaningFor(languageCode),
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                ],
               ),
-              const SizedBox(width: QSpace.s3),
-              Text(
-                name.arabic,
-                textDirection: TextDirection.rtl,
-                style: QType.quran(22).copyWith(color: q.ink),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: QSpace.s3),
+            Text(
+              name.arabic,
+              textDirection: TextDirection.rtl,
+              style: QType.quran(22).copyWith(color: q.ink),
+            ),
+          ],
         ),
       ),
     );

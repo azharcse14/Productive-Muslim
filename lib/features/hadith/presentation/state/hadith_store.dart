@@ -12,6 +12,9 @@ final class HadithStore {
   late final items = signal(const <Hadith>[]);
   late final loaded = signal(false);
 
+  /// The last load failed; the screen offers a retry.
+  late final failed = signal(false);
+
   /// Hadith grouped by [Hadith.topic], in first-seen order — drives the
   /// topic grid. Recomputes when [items] changes.
   late final topics = computed<List<HadithTopic>>(() {
@@ -30,6 +33,7 @@ final class HadithStore {
     if (result.valueOrNull case final value?) {
       items.value = value;
     }
+    failed.value = result.valueOrNull == null;
     loaded.value = true;
   }
 

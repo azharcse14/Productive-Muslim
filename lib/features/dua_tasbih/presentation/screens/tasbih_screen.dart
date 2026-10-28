@@ -229,6 +229,9 @@ final class _CustomTargetDialog extends StatefulWidget {
 final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
   final TextEditingController _controller = TextEditingController();
 
+  /// Shown instead of closing silently on an empty/zero entry.
+  bool _invalid = false;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -236,8 +239,13 @@ final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
   }
 
   void _submit() {
-    final value = int.tryParse(_controller.text.trim());
-    Navigator.of(context).pop(value != null && value > 0 ? value : null);
+    // Bengali/Arabic-Indic digits are typed on localized keyboards.
+    final value = int.tryParse(LocaleDigits.toAscii(_controller.text));
+    if (value == null || value < 1) {
+      setState(() => _invalid = true);
+      return;
+    }
+    Navigator.of(context).pop(value);
   }
 
   @override
@@ -249,8 +257,19 @@ final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
         controller: _controller,
         autofocus: true,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(hintText: l10n.tasbihCustom),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp('[0-9০-৯٠-٩۰-۹]')),
+          LengthLimitingTextInputFormatter(5),
+        ],
+        decoration: InputDecoration(
+          hintText: l10n.tasbihCustom,
+          errorText: _invalid ? l10n.tasbihTargetInvalid : null,
+        ),
+        onChanged: (_) {
+          if (_invalid) {
+            setState(() => _invalid = false);
+          }
+        },
         onSubmitted: (_) => _submit(),
       ),
       actions: [

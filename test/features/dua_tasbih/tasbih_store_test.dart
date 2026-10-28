@@ -70,5 +70,47 @@ void main() {
       await fresh.load();
       expect(fresh.totalToday.value, 0);
     });
+
+    test('a stale persisted round is credited to lifetime, not today',
+        () async {
+      final s = store();
+      await s.load();
+      s
+        ..setTarget(100)
+        ..tap()
+        ..tap();
+      now = DateTime(2026, 6, 14, 10);
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.count.value, 0);
+      expect(fresh.target.value, 100);
+      expect(fresh.totalToday.value, 0);
+      expect(fresh.lifetimeTotal.value, 2);
+      expect(fresh.lifetimeSessions.value, 1);
+    });
+
+    test('a round started before midnight is not saved into today',
+        () async {
+      final s = store();
+      await s.load();
+      s.tap();
+      now = DateTime(2026, 6, 14, 0, 1);
+      s.tap();
+      await s.reset(saveToHistory: true);
+      expect(s.totalToday.value, 0);
+      expect(s.lifetimeTotal.value, 2);
+      s.tap();
+      await s.reset(saveToHistory: true);
+      expect(s.totalToday.value, 1);
+    });
+
+    test('a same-day persisted round is restored', () async {
+      final s = store();
+      await s.load();
+      s.tap();
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.count.value, 1);
+    });
   });
 }

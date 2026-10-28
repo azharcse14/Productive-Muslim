@@ -12,11 +12,15 @@ final class RuqyahStore {
   late final categories = signal(const <RuqyahCategory>[]);
   late final loaded = signal(false);
 
+  /// The last load failed; the screen offers a retry.
+  late final failed = signal(false);
+
   Future<void> load() async {
     final cats = await _repository.categories();
     if (cats.valueOrNull case final value?) {
       categories.value = value;
     }
+    failed.value = cats.valueOrNull == null;
     loaded.value = true;
   }
 }

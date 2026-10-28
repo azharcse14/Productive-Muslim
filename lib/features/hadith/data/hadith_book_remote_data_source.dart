@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import '../domain/entities/hadith_book.dart';
 import 'hadith_section_assembler.dart';
@@ -53,8 +54,10 @@ final class HadithBookRemoteDataSource {
     // Preferred-language text. Some editions don't exist for every book (e.g.
     // no Bengali "40 Hadith Qudsi") — tolerate that and lean on the English
     // fallback rather than failing the whole section.
-    final translation =
-        await _fetchEditionOrEmpty(translationEdition, section.number);
+    final translation = await _fetchEditionOrEmpty(
+      translationEdition,
+      section.number,
+    );
     // English fallback for gaps (or wholly missing) non-English editions.
     // This one is NOT swallowed: if it also fails the section genuinely can't
     // load (offline), so the error/retry screen should show.
@@ -79,13 +82,10 @@ final class HadithBookRemoteDataSource {
       return cached;
     }
     final body = await _get(url);
-    final decoded = jsonDecode(body);
-    final entries = decoded is List ? decoded : const <Object?>[];
-    final parsed = [
-      for (final entry in entries)
-        if (BnHadith.parse(entry) case final h?) h,
-    ];
-    return _bnCache[url.toString()] = parsed;
+    // Chapters run to MBs of JSON: decode off the UI thread.
+    return _bnCache[url.toString()] = await Isolate.run(
+      () => _parseBangla(body),
+    );
   }
 
   /// Like [_fetchEdition] but returns an empty list instead of throwing —
@@ -107,16 +107,31 @@ final class HadithBookRemoteDataSource {
       return cached;
     }
     final body = await _get(url);
-    final decoded = jsonDecode(body);
-    final root = decoded is Map ? decoded.cast<String, Object?>() : null;
-    final entries = switch (root?['hadiths']) {
-      final List<Object?> list => list,
-      _ => const <Object?>[],
-    };
-    final parsed = [
-      for (final entry in entries)
-        if (RawHadith.parse(entry) case final h?) h,
-    ];
-    return _cache[url.toString()] = parsed;
+    return _cache[url.toString()] = await Isolate.run(
+      () => _parseEdition(body),
+    );
   }
+}
+
+// Top-level so the isolate closures capture only the body string.
+List<BnHadith> _parseBangla(String body) {
+  final decoded = jsonDecode(body);
+  final entries = decoded is List ? decoded : const <Object?>[];
+  return [
+    for (final entry in entries)
+      if (BnHadith.parse(entry) case final h?) h,
+  ];
+}
+
+List<RawHadith> _parseEdition(String body) {
+  final decoded = jsonDecode(body);
+  final root = decoded is Map ? decoded.cast<String, Object?>() : null;
+  final entries = switch (root?['hadiths']) {
+    final List<Object?> list => list,
+    _ => const <Object?>[],
+  };
+  return [
+    for (final entry in entries)
+      if (RawHadith.parse(entry) case final h?) h,
+  ];
 }

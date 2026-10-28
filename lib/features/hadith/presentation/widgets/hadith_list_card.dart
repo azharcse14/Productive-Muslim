@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
@@ -52,7 +53,7 @@ final class HadithListCard extends StatelessWidget {
               ],
               Expanded(
                 child: Text(
-                  hadith.reference,
+                  LocaleDigits.localize(hadith.reference, languageCode),
                   textAlign: TextAlign.end,
                   style: QType.caption.copyWith(color: q.ink3),
                 ),
@@ -82,6 +83,16 @@ final class GradeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final l10n = context.l10n;
+    // English-source grades ("Hasan Sahih", "Daif Isnaad") are translated
+    // word by word; unknown words (and Bengali-source grades) pass through.
+    final label = [
+      for (final word in grade.split(' '))
+        switch (l10n.hadithGradeWord(word.toLowerCase())) {
+          '—' => word,
+          final localized => localized,
+        },
+    ].join(' ');
     final isSahih = grade.toLowerCase().contains('sahih') ||
         grade.toLowerCase().contains('সহিহ');
     final color = isSahih ? q.ok : q.ink2;
@@ -95,7 +106,7 @@ final class GradeChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(QRadius.sm),
       ),
       child: Text(
-        grade,
+        label,
         style: QType.caption.copyWith(
           color: color,
           fontWeight: FontWeight.w600,

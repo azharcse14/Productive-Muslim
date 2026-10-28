@@ -431,6 +431,14 @@ void main() {
       await flushMarkRead(tester);
     });
 
+    testWidgets('an empty surah shows a retry, not an endless skeleton',
+        (tester) async {
+      repo.extraAyahs[1] = const [];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+      expect(find.text('Try again'), findsOneWidget);
+    });
+
     testWidgets('records as soon as the scroll settles (leaving right after)',
         (tester) async {
       repo.extraAyahs[1] = [

@@ -10,6 +10,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
@@ -104,25 +105,32 @@ final class _HadithScreenState extends State<HadithScreen> {
                   onTap: () => _push(const HadithBooksScreen()),
                 ),
                 const SizedBox(height: QSpace.s4),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: QSpace.s3,
-                  crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2 / context.textGrowth,
-                  children: [
-                    if (!_store.loaded.value)
-                      for (var i = 0; i < 6; i++)
-                        const QSkeleton(height: 120, radius: QRadius.lg),
-                    for (final topic in topics)
-                      _TopicCard(
-                        topic: topic,
-                        languageCode: languageCode,
-                        onTap: () => _push(HadithTopicScreen(topic: topic)),
-                      ),
-                  ],
-                ),
+                if (_store.failed.value && topics.isEmpty)
+                  QErrorRetry(
+                    message: l10n.hadithTopicsLoadError,
+                    retryLabel: l10n.hadithRetry,
+                    onRetry: () => unawaited(_store.load()),
+                  )
+                else
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: QSpace.s3,
+                    crossAxisSpacing: QSpace.s3,
+                    childAspectRatio: 1.2 / context.textGrowth,
+                    children: [
+                      if (!_store.loaded.value)
+                        for (var i = 0; i < 6; i++)
+                          const QSkeleton(height: 120, radius: QRadius.lg),
+                      for (final topic in topics)
+                        _TopicCard(
+                          topic: topic,
+                          languageCode: languageCode,
+                          onTap: () => _push(HadithTopicScreen(topic: topic)),
+                        ),
+                    ],
+                  ),
               ],
             );
           },
