@@ -230,6 +230,27 @@ void main() {
   }
 
   group('MuhasabaScreen', () {
+    testWidgets('horizontal fling pages the day; never past today', (
+      tester,
+    ) async {
+      await pumpAndDismissWelcome(tester);
+      final today = store.selectedDate.value;
+      final list = find.byType(ListView).first;
+
+      // Toward the next day from today: blocked.
+      await tester.fling(list, const Offset(-300, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(store.selectedDate.value, today);
+
+      // Back a day.
+      await tester.fling(list, const Offset(300, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(
+        store.selectedDate.value,
+        DateTime(today.year, today.month, today.day - 1),
+      );
+    });
+
     testWidgets('first-day welcome shows then dismisses via start button',
         (tester) async {
       await tester.pumpWidget(_app());

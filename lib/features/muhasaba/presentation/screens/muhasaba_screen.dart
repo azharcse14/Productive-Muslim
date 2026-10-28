@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
@@ -125,81 +126,103 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         if (!i.id.startsWith('salah_')) i,
     ];
     final archived = _store.archivedItems.value;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        QSpace.s5,
-        QSpace.s3,
-        QSpace.s5,
-        QSpace.s5,
-      ),
-      children: staggered([
-        _dateSwitcher(context),
-        _dayComplete(context, items),
-        const SizedBox(height: QSpace.s3),
-        Wrap(
-          spacing: QSpace.s2,
-          runSpacing: QSpace.s2,
-          children: [
-            for (final item in salah)
-              if (locked.contains(item.id))
-                // Waqt hasn't started yet — a tap explains why.
-                Opacity(
-                  opacity: 0.45,
-                  child: QChip(
+    // A horizontal fling pages the day, like the chevrons: toward the
+    // reading direction's end is the next day (flipped in RTL).
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        final v = details.primaryVelocity ?? 0;
+        if (v.abs() < 300) {
+          return;
+        }
+        final rtl = Directionality.of(context) == TextDirection.rtl;
+        final forward = (v < 0) != rtl;
+        if (!forward || _store.canGoForward) {
+          Haptics.selection();
+          _shiftDay(forward ? 1 : -1);
+        }
+      },
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          QSpace.s5,
+          QSpace.s3,
+          QSpace.s5,
+          QSpace.s5,
+        ),
+        children: staggered([
+          _dateSwitcher(context),
+          _dayComplete(context, items),
+          const SizedBox(height: QSpace.s3),
+          Wrap(
+            spacing: QSpace.s2,
+            runSpacing: QSpace.s2,
+            children: [
+              for (final item in salah)
+                if (locked.contains(item.id))
+                  // Waqt hasn't started yet — a tap explains why.
+                  Opacity(
+                    opacity: 0.45,
+                    child: QChip(
+                      label: _nameOf(l10n, item),
+                      icon: Icons.schedule,
+                      onTap: () => _showLockedToast(context),
+                    ),
+                  )
+                else
+                  QChip(
                     label: _nameOf(l10n, item),
-                    icon: Icons.schedule,
-                    onTap: () => _showLockedToast(context),
-                  ),
-                )
-              else
-                QChip(
-                  label: _nameOf(l10n, item),
-                  active: _store.valueOf(item.id) > 0,
-                  icon: Icons.mosque_outlined,
-                  onTap: () => unawaited(
-                    _store.setValue(
-                      item.id,
-                      _store.valueOf(item.id) > 0 ? 0 : 1,
+                    active: _store.valueOf(item.id) > 0,
+                    icon: Icons.mosque_outlined,
+                    onTap: () => unawaited(
+                      _store.setValue(
+                        item.id,
+                        _store.valueOf(item.id) > 0 ? 0 : 1,
+                      ),
                     ),
                   ),
-                ),
-          ],
-        ),
-        const SizedBox(height: QSpace.s3),
-        for (final item in others) ...[
-          TrackerRow(
-            item: item,
-            value: _store.valueOf(item.id),
-            displayName: _nameOf(l10n, item),
-            onChanged: (v) => unawaited(_store.setValue(item.id, v)),
-            onEdit: () =>
-                unawaited(showItemEditor(context, _store, existing: item)),
+            ],
           ),
           const SizedBox(height: QSpace.s3),
-        ],
-        if (archived.isNotEmpty) ...[
-          Text(
-            l10n.archivedSection.toUpperCase(),
-            style: context.text.labelSmall,
-          ),
-          const SizedBox(height: QSpace.s3),
-          for (final item in archived) ...[
-            Opacity(
-              opacity: 0.55,
-              child: TrackerRow(
-                item: item,
-                value: _store.valueOf(item.id),
-                displayName: _nameOf(l10n, item),
-                onChanged: null,
-                onEdit: () =>
-                    unawaited(showItemEditor(context, _store, existing: item)),
-              ),
+          for (final item in others) ...[
+            TrackerRow(
+              item: item,
+              value: _store.valueOf(item.id),
+              displayName: _nameOf(l10n, item),
+              onChanged: (v) => unawaited(_store.setValue(item.id, v)),
+              onEdit: () =>
+                  unawaited(showItemEditor(context, _store, existing: item)),
             ),
             const SizedBox(height: QSpace.s3),
           ],
-        ],
-      ]),
+          if (archived.isNotEmpty) ...[
+            Text(
+              l10n.archivedSection.toUpperCase(),
+              style: context.text.labelSmall,
+            ),
+            const SizedBox(height: QSpace.s3),
+            for (final item in archived) ...[
+              Opacity(
+                opacity: 0.55,
+                child: TrackerRow(
+                  item: item,
+                  value: _store.valueOf(item.id),
+                  displayName: _nameOf(l10n, item),
+                  onChanged: null,
+                  onEdit: () => unawaited(
+                    showItemEditor(context, _store, existing: item),
+                  ),
+                ),
+              ),
+              const SizedBox(height: QSpace.s3),
+            ],
+          ],
+        ]),
+      ),
     );
+  }
+
+  void _shiftDay(int days) {
+    final d = _store.selectedDate.value;
+    unawaited(_store.selectDate(DateTime(d.year, d.month, d.day + days)));
   }
 
   /// Honey banner with the full qalb mark once every active deed of the
@@ -298,11 +321,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         IconButton(
           tooltip: context.l10n.previousDay,
           icon: const Icon(Icons.chevron_left),
-          onPressed: () => unawaited(
-            _store.selectDate(
-              DateTime(selected.year, selected.month, selected.day - 1),
-            ),
-          ),
+          onPressed: () => _shiftDay(-1),
         ),
         Expanded(
           child: Text(
@@ -314,13 +333,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         IconButton(
           tooltip: context.l10n.nextDay,
           icon: const Icon(Icons.chevron_right),
-          onPressed: _store.canGoForward
-              ? () => unawaited(
-                  _store.selectDate(
-                    DateTime(selected.year, selected.month, selected.day + 1),
-                  ),
-                )
-              : null,
+          onPressed: _store.canGoForward ? () => _shiftDay(1) : null,
         ),
       ],
     );

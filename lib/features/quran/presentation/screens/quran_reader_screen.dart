@@ -9,6 +9,7 @@ import '../../../../config/app_config.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
@@ -318,11 +319,23 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             children: [
               IconButton(
                 tooltip: l10n.bookmarkLabel,
-                icon: Icon(
-                  bookmarked ? Icons.bookmark : Icons.bookmark_outline,
-                  color: bookmarked ? q.primary : q.ink3,
+                icon: AnimatedSwitcher(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : QMotion.med,
+                  switchInCurve: Curves.easeOutBack,
+                  transitionBuilder: (child, anim) =>
+                      ScaleTransition(scale: anim, child: child),
+                  child: Icon(
+                    bookmarked ? Icons.bookmark : Icons.bookmark_outline,
+                    key: ValueKey(bookmarked),
+                    color: bookmarked ? q.primary : q.ink3,
+                  ),
                 ),
-                onPressed: () => unawaited(_store.toggleBookmark(ayah.id)),
+                onPressed: () {
+                  bookmarked ? Haptics.selection() : Haptics.light();
+                  unawaited(_store.toggleBookmark(ayah.id));
+                },
               ),
               IconButton(
                 tooltip: l10n.copyAyah,
