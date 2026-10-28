@@ -24,11 +24,7 @@ void main() {
   group('PrayerDayRepositoryImpl (adhan_dart, Dhaka 2026-06-12)', () {
     test('times are strictly ordered through the day', () {
       final day = repo
-          .prayerDay(
-            location: _dhaka,
-            params: const PrayerParams(),
-            date: date,
-          )
+          .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)
           .valueOrNull!;
       final ordered = [
         day.fajr,
@@ -40,19 +36,18 @@ void main() {
         day.fajrTomorrow,
       ];
       for (var i = 1; i < ordered.length; i++) {
-        expect(ordered[i].isAfter(ordered[i - 1]), isTrue,
-            reason: '${ordered[i]} should follow ${ordered[i - 1]}');
+        expect(
+          ordered[i].isAfter(ordered[i - 1]),
+          isTrue,
+          reason: '${ordered[i]} should follow ${ordered[i - 1]}',
+        );
       }
       expect(day.ishaYesterday.isBefore(day.fajr), isTrue);
     });
 
     test('wall-clock times are plausible for Dhaka in June', () {
       final day = repo
-          .prayerDay(
-            location: _dhaka,
-            params: const PrayerParams(),
-            date: date,
-          )
+          .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)
           .valueOrNull!;
       expect(day.fajr.hour, inInclusiveRange(3, 4));
       expect(day.sunrise.hour, inInclusiveRange(5, 6));
@@ -64,7 +59,11 @@ void main() {
     test('hanafi asr is later than shafi asr', () {
       PrayerParams params(Madhab m) => PrayerParams(madhab: m);
       final hanafi = repo
-          .prayerDay(location: _dhaka, params: params(Madhab.hanafi), date: date)
+          .prayerDay(
+            location: _dhaka,
+            params: params(Madhab.hanafi),
+            date: date,
+          )
           .valueOrNull!;
       final shafi = repo
           .prayerDay(location: _dhaka, params: params(Madhab.shafi), date: date)
@@ -98,33 +97,26 @@ void main() {
           .valueOrNull!;
       final none = at(0);
       final ten = at(10);
-      expect(none.sahriEnd, none.fajr);
+      // Shown Fajr is rounded up, so sahri always ends a minute earlier.
+      expect(none.sahriEnd, none.fajr.subtract(const Duration(minutes: 1)));
       expect(ten.fajr, none.fajr);
-      expect(ten.sahriEnd, none.fajr.subtract(const Duration(minutes: 10)));
+      expect(ten.sahriEnd, none.fajr.subtract(const Duration(minutes: 11)));
     });
 
     test('calculation method changes fajr/isha', () {
       final karachi = repo
-          .prayerDay(
-            location: _dhaka,
-            params: const PrayerParams(),
-            date: date,
-          )
+          .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)
           .valueOrNull!;
       final uaq = repo
           .prayerDay(
             location: _dhaka,
-            params:
-                const PrayerParams(method: CalculationMethodId.ummAlQura),
+            params: const PrayerParams(method: CalculationMethodId.ummAlQura),
             date: date,
           )
           .valueOrNull!;
       expect(karachi.fajr, isNot(uaq.fajr));
       // Dhuhr is solar noon — method-independent (±rounding).
-      expect(
-        karachi.dhuhr.difference(uaq.dhuhr).inMinutes.abs() <= 1,
-        isTrue,
-      );
+      expect(karachi.dhuhr.difference(uaq.dhuhr).inMinutes.abs() <= 1, isTrue);
     });
 
     test('GPS location yields device-local wall clock without throwing', () {
@@ -161,5 +153,52 @@ void main() {
       expect(day.fajrTomorrow.isAfter(day.maghrib), isTrue, reason: '$rule');
       expect(day.ishaYesterday.isBefore(day.sunrise), isTrue, reason: '$rule');
     }
+  });
+
+  test('polar day still yields times (Tromsø, midsummer)', () {
+    const tromso = ManualCityLocation(
+      City(
+        name: 'Tromsø',
+        countryCode: 'NO',
+        latitude: 69.6492,
+        longitude: 18.9553,
+        timezone: 'Europe/Oslo',
+      ),
+    );
+    final result = repo.prayerDay(
+      location: tromso,
+      params: const PrayerParams(),
+      date: DateTime(2026, 6, 21),
+    );
+    // Unresolved, adhan returned NaN-derived dates weeks away.
+    final day = result.valueOrNull!;
+    final ordered = [day.sunrise, day.dhuhr, day.asr, day.maghrib];
+    for (var i = 1; i < ordered.length; i++) {
+      expect(ordered[i].isAfter(ordered[i - 1]), isTrue, reason: '$ordered');
+    }
+    expect(day.dhuhr.day, 21);
+  });
+
+  test('times are whole minutes', () {
+    final day = repo
+        .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)
+        .valueOrNull!;
+    for (final t in [day.fajr, day.maghrib, day.isha]) {
+      expect((t.second, t.millisecond), (0, 0));
+    }
+  });
+
+  test('Umm al-Qura: Isha is 30 min later in Ramadan', () {
+    const params = PrayerParams(method: CalculationMethodId.ummAlQura);
+    Duration gap(DateTime d) {
+      final day = repo
+          .prayerDay(location: _dhaka, params: params, date: d)
+          .valueOrNull!;
+      return day.isha.difference(day.maghrib);
+    }
+
+    // 2026-03-02 is in Ramadan 1447; 2026-04-02 is not.
+    expect(gap(DateTime(2026, 3, 2)), const Duration(minutes: 120));
+    expect(gap(DateTime(2026, 4, 2)), const Duration(minutes: 90));
   });
 }

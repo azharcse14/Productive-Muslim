@@ -21,13 +21,12 @@ CountdownTarget _resolve(
   DateTime now, {
   JamaatConfig jamaat = JamaatConfig.none,
   bool ramadan = false,
-}) =>
-    resolveCountdownTarget(
-      now: now,
-      day: _day,
-      jamaat: jamaat,
-      ramadanMode: ramadan,
-    );
+}) => resolveCountdownTarget(
+  now: now,
+  day: _day,
+  jamaat: jamaat,
+  ramadanMode: ramadan,
+);
 
 void main() {
   group('resolveCountdownTarget — normal days', () {
@@ -111,11 +110,11 @@ void main() {
       );
       expect(day.sahriEnd, DateTime(2026, 6, 12, 3, 35));
       CountdownTarget at(DateTime now) => resolveCountdownTarget(
-            now: now,
-            day: day,
-            jamaat: JamaatConfig.none,
-            ramadanMode: true,
-          );
+        now: now,
+        day: day,
+        jamaat: JamaatConfig.none,
+        ramadanMode: true,
+      );
       final before = at(DateTime(2026, 6, 12, 3, 30));
       expect(before.kind, CountdownKind.sahriEnd);
       expect(before.at, DateTime(2026, 6, 12, 3, 35));
@@ -132,8 +131,7 @@ void main() {
       expect(t.at, _day.sahriEnd);
     });
 
-    test('asr→maghrib window targets iftar even with jamaat configured',
-        () {
+    test('asr→maghrib window targets iftar even with jamaat configured', () {
       const jamaat = JamaatConfig({
         Prayer.asr: OffsetJamaat(Duration(minutes: 20)),
       });
@@ -236,37 +234,47 @@ void main() {
 
   group('PrayerDay.activeWaqtAt', () {
     test('maps every moment of the day to the right waqt', () {
-      expect(
-        _day.activeWaqtAt(DateTime(2026, 6, 12, 2))?.prayer,
-        Prayer.isha,
-      );
-      expect(
-        _day.activeWaqtAt(DateTime(2026, 6, 12, 4))?.prayer,
-        Prayer.fajr,
-      );
+      expect(_day.activeWaqtAt(DateTime(2026, 6, 12, 2))?.prayer, Prayer.isha);
+      expect(_day.activeWaqtAt(DateTime(2026, 6, 12, 4))?.prayer, Prayer.fajr);
       expect(_day.activeWaqtAt(DateTime(2026, 6, 12, 9)), isNull);
       expect(
         _day.activeWaqtAt(DateTime(2026, 6, 12, 13))?.prayer,
         Prayer.dhuhr,
       );
-      expect(
-        _day.activeWaqtAt(DateTime(2026, 6, 12, 17))?.prayer,
-        Prayer.asr,
-      );
+      expect(_day.activeWaqtAt(DateTime(2026, 6, 12, 17))?.prayer, Prayer.asr);
       expect(
         _day.activeWaqtAt(DateTime(2026, 6, 12, 19))?.prayer,
         Prayer.maghrib,
       );
-      expect(
-        _day.activeWaqtAt(DateTime(2026, 6, 12, 22))?.prayer,
-        Prayer.isha,
-      );
+      expect(_day.activeWaqtAt(DateTime(2026, 6, 12, 22))?.prayer, Prayer.isha);
     });
 
     test('boundaries: start is inclusive, end exclusive', () {
       expect(_day.activeWaqtAt(_day.fajr)?.prayer, Prayer.fajr);
       expect(_day.activeWaqtAt(_day.sunrise), isNull);
       expect(_day.activeWaqtAt(_day.dhuhr)?.prayer, Prayer.dhuhr);
+    });
+
+    test("isha past midnight: before it, yesterday's maghrib is active", () {
+      final day = PrayerDay(
+        maghribYesterday: DateTime(2026, 6, 11, 21, 20),
+        ishaYesterday: DateTime(2026, 6, 12, 0, 30),
+        fajr: DateTime(2026, 6, 12, 2, 50),
+        sunrise: _day.sunrise,
+        dhuhr: _day.dhuhr,
+        asr: _day.asr,
+        maghrib: _day.maghrib,
+        isha: _day.isha,
+        fajrTomorrow: _day.fajrTomorrow,
+      );
+      expect(
+        day.activeWaqtAt(DateTime(2026, 6, 12, 0, 10)),
+        ActiveWaqt(Prayer.maghrib, day.maghribYesterday!, day.ishaYesterday),
+      );
+      expect(
+        day.activeWaqtAt(day.ishaYesterday),
+        ActiveWaqt(Prayer.isha, day.ishaYesterday, day.fajr),
+      );
     });
   });
 }

@@ -58,11 +58,23 @@ final class NotificationItem {
   final bool beepOnly;
 
   /// Deterministic id so rescheduling replaces rather than duplicates:
-  /// derived from kind, prayer, and the minute it fires.
-  int get id =>
-      Object.hash(kind.index, prayer?.index ?? -1, at.year, at.month, at.day,
-          at.hour, at.minute) &
-      0x7FFFFFFF;
+  /// derived from kind, prayer, and the minute it fires. Plain arithmetic,
+  /// not Object.hash (seeded per run), and kept within 31 bits: the minute
+  /// wraps every ~85 years, far beyond any planned window.
+  int get id {
+    final minute =
+        DateTime.utc(
+          at.year,
+          at.month,
+          at.day,
+          at.hour,
+          at.minute,
+        ).millisecondsSinceEpoch ~/
+        Duration.millisecondsPerMinute;
+    // kind (< 8) × prayer slot (< 6) fits in 48 per minute.
+    final slot = kind.index * 6 + (prayer?.index ?? -1) + 1;
+    return (minute % (0x7FFFFFFF ~/ 48)) * 48 + slot;
+  }
 
   @override
   bool operator ==(Object other) =>

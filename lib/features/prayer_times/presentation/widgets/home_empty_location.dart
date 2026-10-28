@@ -9,11 +9,13 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_button.dart';
 
-/// Home before any location is set: a single call to pick one.
+/// Home before any location is set: a single call to pick one. [failed]:
+/// a location is set but its times couldn't be computed.
 final class HomeEmptyLocation extends StatelessWidget {
-  const HomeEmptyLocation({required this.l10n, super.key});
+  const HomeEmptyLocation({required this.l10n, this.failed = false, super.key});
 
   final AppLocalizations l10n;
+  final bool failed;
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +29,17 @@ final class HomeEmptyLocation extends StatelessWidget {
             QalbMark(size: 72, color: q.ink3, accent: q.primary),
             const SizedBox(height: QSpace.s5),
             Text(
-              l10n.homeSetLocationTitle,
+              failed
+                  ? l10n.prayerTimesComputeFailedTitle
+                  : l10n.homeSetLocationTitle,
+              textAlign: TextAlign.center,
               style: QType.title.copyWith(color: q.ink),
             ),
             const SizedBox(height: QSpace.s2),
             Text(
-              l10n.homeSetLocationBody,
+              failed
+                  ? l10n.prayerTimesComputeFailedBody
+                  : l10n.homeSetLocationBody,
               textAlign: TextAlign.center,
               style: QType.body.copyWith(color: q.ink2),
             ),

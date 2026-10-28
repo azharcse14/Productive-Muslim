@@ -223,125 +223,131 @@ final class _PrayerRow extends StatelessWidget {
     final q = context.q;
     final fg = active ? q.onPrimarySoft : null;
     final iconColor = active ? (fg ?? q.primary) : q.ink3;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        constraints: BoxConstraints(minHeight: dense ? 40 : 54),
-        // End inset is reduced by the check's 11dp hit-box overhang.
-        padding: EdgeInsetsDirectional.only(
-          start: dense ? 12 : 16,
-          end: (dense ? 12 : 16) - _HitBox.overhang,
-        ),
-        decoration: BoxDecoration(
-          color: active ? q.primarySoft : null,
-          border: first ? null : Border(top: BorderSide(color: q.line)),
-        ),
-        child: Row(
-          children: [
-            _WaqtIcon(
-              icon: _iconFor(prayer),
-              color: iconColor,
-              pulsing: active,
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: dense ? 64 : 84,
-              child: Text(
-                name,
-                style: QType.titleSm.copyWith(
-                  fontSize: dense ? 13.5 : null,
-                  color: fg ?? q.ink,
-                  fontVariations: [FontVariation('wght', active ? 700 : 600)],
-                ),
+    return Semantics(
+      button: onTap != null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          constraints: BoxConstraints(minHeight: dense ? 40 : 54),
+          // End inset is reduced by the check's 11dp hit-box overhang.
+          padding: EdgeInsetsDirectional.only(
+            start: dense ? 12 : 16,
+            end: (dense ? 12 : 16) - _HitBox.overhang,
+          ),
+          decoration: BoxDecoration(
+            color: active ? q.primarySoft : null,
+            border: first ? null : Border(top: BorderSide(color: q.line)),
+          ),
+          child: Row(
+            children: [
+              _WaqtIcon(
+                icon: _iconFor(prayer),
+                color: iconColor,
+                pulsing: active,
               ),
-            ),
-            Expanded(
-              child: Text(
-                range,
-                style: QType.num_(
-                  QType.caption,
-                ).copyWith(fontSize: dense ? 11.5 : 12.5, color: fg ?? q.ink2),
-                maxLines: 2,
-              ),
-            ),
-            SizedBox(
-              width: dense ? 40 : 52,
-              // Jamaat time, or a quiet em-dash placeholder when unset — the
-              // single "Set jamaat" CTA lives at the foot of the table.
-              // Scales down rather than wrapping "12:45 PM" in a narrow cell.
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
+              const SizedBox(width: 10),
+              SizedBox(
+                width: dense ? 64 : 84,
                 child: Text(
-                  jamaatTime ?? '—',
-                  maxLines: 1,
-                  textAlign: TextAlign.center,
+                  name,
+                  style: QType.titleSm.copyWith(
+                    fontSize: dense ? 13.5 : null,
+                    color: fg ?? q.ink,
+                    fontVariations: [FontVariation('wght', active ? 700 : 600)],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  range,
                   style: QType.num_(QType.caption).copyWith(
-                    color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
-                    fontVariations: const [FontVariation('wght', 600)],
+                    fontSize: dense ? 11.5 : 12.5,
+                    color: fg ?? q.ink2,
                   ),
+                  maxLines: 2,
                 ),
               ),
-            ),
-            // The 48dp hit boxes below carry their own 11dp side inset, so
-            // the visual 26dp circle sits where it did with a 10dp gap.
-            if (locked)
-              // Waqt hasn't started — no check yet; a tap explains why.
-              // container: its own node, not merged into the row's tap node.
-              Semantics(
-                container: true,
-                button: onLockedTap != null,
-                label: context.l10n.a11yPrayerLocked(name),
-                excludeSemantics: true,
-                child: _HitBox(
-                  onTap: onLockedTap,
-                  child: Icon(Icons.schedule, size: 18, color: q.ink3),
-                ),
-              )
-            else
-              Semantics(
-                container: true,
-                button: onToggleDone != null,
-                checked: done,
-                label: context.l10n.a11yMarkPrayed(name),
-                excludeSemantics: true,
-                child: _HitBox(
-                  onTap: onToggleDone == null
-                      ? null
-                      : () {
-                          done ? Haptics.selection() : Haptics.light();
-                          onToggleDone!();
-                        },
-                  child: AnimatedContainer(
-                    duration: QMotion.fast,
-                    curve: QMotion.ease,
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: done ? q.ok : null,
-                      border: done
-                          ? null
-                          : Border.all(color: q.ink3, width: 1.8),
-                    ),
-                    child: AnimatedSwitcher(
-                      duration: QMotion.med,
-                      switchInCurve: Curves.easeOutBack,
-                      transitionBuilder: (child, anim) =>
-                          ScaleTransition(scale: anim, child: child),
-                      child: done
-                          ? Icon(
-                              Icons.check,
-                              key: const ValueKey(true),
-                              size: 15,
-                              color: q.okSoft,
-                            )
-                          : const SizedBox.shrink(key: ValueKey(false)),
+              SizedBox(
+                width: dense ? 40 : 52,
+                // Jamaat time, or a quiet em-dash placeholder when unset — the
+                // single "Set jamaat" CTA lives at the foot of the table.
+                // Scales down rather than wrapping "12:45 PM" in a narrow cell.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    jamaatTime ?? '—',
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: QType.num_(QType.caption).copyWith(
+                      color: jamaatTime == null
+                          ? (fg ?? q.ink3)
+                          : (fg ?? q.ink2),
+                      fontVariations: const [FontVariation('wght', 600)],
                     ),
                   ),
                 ),
               ),
-          ],
+              // The 48dp hit boxes below carry their own 11dp side inset, so
+              // the visual 26dp circle sits where it did with a 10dp gap.
+              if (locked)
+                // Waqt hasn't started — no check yet; a tap explains why.
+                // container: its own node, not merged into the row's tap node.
+                Semantics(
+                  container: true,
+                  button: onLockedTap != null,
+                  label: context.l10n.a11yPrayerLocked(name),
+                  excludeSemantics: true,
+                  child: _HitBox(
+                    onTap: onLockedTap,
+                    child: Icon(Icons.schedule, size: 18, color: q.ink3),
+                  ),
+                )
+              else
+                Semantics(
+                  container: true,
+                  button: onToggleDone != null,
+                  checked: done,
+                  label: context.l10n.a11yMarkPrayed(name),
+                  excludeSemantics: true,
+                  child: _HitBox(
+                    onTap: onToggleDone == null
+                        ? null
+                        : () {
+                            done ? Haptics.selection() : Haptics.light();
+                            onToggleDone!();
+                          },
+                    child: AnimatedContainer(
+                      duration: QMotion.fast,
+                      curve: QMotion.ease,
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: done ? q.ok : null,
+                        border: done
+                            ? null
+                            : Border.all(color: q.ink3, width: 1.8),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: QMotion.med,
+                        switchInCurve: Curves.easeOutBack,
+                        transitionBuilder: (child, anim) =>
+                            ScaleTransition(scale: anim, child: child),
+                        child: done
+                            ? Icon(
+                                Icons.check,
+                                key: const ValueKey(true),
+                                size: 15,
+                                color: q.okSoft,
+                              )
+                            : const SizedBox.shrink(key: ValueKey(false)),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -445,21 +451,30 @@ class _WaqtIconState extends State<_WaqtIcon>
       begin: 1.0,
       end: 1.14,
     ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut));
-    if (widget.pulsing) {
+  }
+
+  /// Pulses only while active and motion is allowed (reduced-motion: none).
+  void _sync() {
+    final pulse = widget.pulsing && !MediaQuery.disableAnimationsOf(context);
+    if (pulse && !_c.isAnimating) {
       unawaited(_c.repeat(reverse: true));
+    } else if (!pulse && _c.isAnimating) {
+      _c
+        ..stop()
+        ..value = 0;
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
   }
 
   @override
   void didUpdateWidget(_WaqtIcon old) {
     super.didUpdateWidget(old);
-    if (widget.pulsing && !_c.isAnimating) {
-      unawaited(_c.repeat(reverse: true));
-    } else if (!widget.pulsing && _c.isAnimating) {
-      _c
-        ..stop()
-        ..value = 0;
-    }
+    _sync();
   }
 
   @override

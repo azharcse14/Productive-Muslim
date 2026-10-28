@@ -28,19 +28,16 @@ void main() {
     });
 
     test('forbidden group first (3), then nafl (5)', () {
-      expect(
-        windows.map((w) => w.kind).toList(),
-        [
-          SpecialKind.forbidden,
-          SpecialKind.forbidden,
-          SpecialKind.forbidden,
-          SpecialKind.nafl,
-          SpecialKind.nafl,
-          SpecialKind.nafl,
-          SpecialKind.nafl,
-          SpecialKind.nafl,
-        ],
-      );
+      expect(windows.map((w) => w.kind).toList(), [
+        SpecialKind.forbidden,
+        SpecialKind.forbidden,
+        SpecialKind.forbidden,
+        SpecialKind.nafl,
+        SpecialKind.nafl,
+        SpecialKind.nafl,
+        SpecialKind.nafl,
+        SpecialKind.nafl,
+      ]);
     });
 
     test('every window has start strictly before end', () {
@@ -108,14 +105,32 @@ void main() {
       final w = _window(SpecialTime.forbiddenZawal);
       expect(w.containsAt(w.start), isTrue);
       expect(w.containsAt(w.end), isFalse);
-      expect(
-        w.containsAt(w.start.add(const Duration(minutes: 1))),
-        isTrue,
-      );
+      expect(w.containsAt(w.start.add(const Duration(minutes: 1))), isTrue);
       expect(
         w.containsAt(w.start.subtract(const Duration(minutes: 1))),
         isFalse,
       );
     });
+  });
+
+  test("pre-fajr tahajjud is the last third of last night", () {
+    final day = PrayerDay(
+      maghribYesterday: DateTime(2026, 6, 11, 18, 45),
+      ishaYesterday: _day.ishaYesterday,
+      fajr: _day.fajr,
+      sunrise: _day.sunrise,
+      dhuhr: _day.dhuhr,
+      asr: _day.asr,
+      maghrib: _day.maghrib,
+      isha: _day.isha,
+      fajrTomorrow: _day.fajrTomorrow,
+    );
+    final w = resolveSpecialWindows(
+      day,
+      preFajr: true,
+    ).firstWhere((w) => w.time == SpecialTime.tahajjud);
+    // 18:45 → 03:45 is 9h; the last third starts at 00:45.
+    expect(w.start, DateTime(2026, 6, 12, 0, 45));
+    expect(w.end, day.fajr);
   });
 }

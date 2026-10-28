@@ -38,6 +38,9 @@ final class QuickActionsRow extends StatelessWidget {
             child: Semantics(
               button: true,
               label: action.label,
+              onTap: action.onTap,
+              // The caption below would otherwise be read a second time.
+              excludeSemantics: true,
               child: InkWell(
                 onTap: action.onTap,
                 borderRadius: BorderRadius.circular(QRadius.md),

@@ -21,10 +21,14 @@ bool isStreakMilestone(int streak) =>
     streak == 365 ||
     (streak > 0 && streak % 100 == 0);
 
+/// One `jm` formatter per locale: the countdown labels format every second.
+final _jmByLocale = <String, DateFormat>{};
+
 String formatHomeTime(BuildContext context, DateTime time) {
   final locale = Localizations.localeOf(context);
+  final tag = locale.toString();
   return LocaleDigits.localize(
-    DateFormat.jm(locale.toString()).format(time),
+    (_jmByLocale[tag] ??= DateFormat.jm(tag)).format(time),
     locale.languageCode,
   );
 }

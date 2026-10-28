@@ -27,20 +27,22 @@ final class _FakeSensors implements CompassSensorSource {
     // horizontal magnetometer components; emit a vector whose horizontal
     // projection points `deg` away from the device's top edge.
     final rad = deg * math.pi / 180;
-    controller.add(
-      (
-        ax: 0,
-        ay: 0,
-        az: 9.81,
-        mx: -30 * math.sin(rad),
-        my: 30 * math.cos(rad),
-        mz: -35,
-      ),
-    );
+    controller.add((
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      mx: -30 * math.sin(rad),
+      my: 30 * math.cos(rad),
+      mz: -35,
+    ));
   }
 
   void emitWeakField() =>
       controller.add((ax: 0, ay: 0, az: 9.81, mx: 1, my: 2, mz: 1));
+
+  /// Flat device, field of [microTesla] pointing north.
+  void emitField(double microTesla) =>
+      controller.add((ax: 0, ay: 0, az: 9.81, mx: 0, my: microTesla, mz: 0));
 
   void emitError() => controller.addError(StateError('no sensor'));
 }
@@ -72,6 +74,7 @@ const _dhaka = ManualCityLocation(
 
 Future<(QiblaStore, _FakeSensors, List<int>)> _make({
   bool withLocation = true,
+  Duration firstEventTimeout = const Duration(seconds: 3),
 }) async {
   final repo = _InMemoryRepo(
     AppSettings(location: withLocation ? _dhaka : null),
@@ -84,6 +87,7 @@ Future<(QiblaStore, _FakeSensors, List<int>)> _make({
     sensors: sensors,
     settings: settings,
     onAligned: () => haptics.add(1),
+    firstEventTimeout: firstEventTimeout,
     now: () => DateTime.utc(2026, 7, 2, 12),
   );
   return (store, sensors, haptics);
@@ -154,13 +158,70 @@ void main() {
       store.dispose();
     });
 
-    test('stream error flips to sensorUnavailable but keeps the bearing',
-        () async {
+    test(
+      'stream error flips to sensorUnavailable but keeps the bearing',
+      () async {
+        final (store, sensors, _) = await _make();
+        sensors.emitError();
+        await Future<void>.delayed(Duration.zero);
+        expect(store.status.value, QiblaStatus.sensorUnavailable);
+        expect(store.bearing.value, isNotNull); // verbal fallback possible
+        store.dispose();
+      },
+    );
+
+    test('calibration flag has hysteresis around the 20 µT limit', () async {
       final (store, sensors, _) = await _make();
-      sensors.emitError();
-      await Future<void>.delayed(Duration.zero);
+      Future<bool> at(double uT) async {
+        sensors.emitField(uT);
+        await Future<void>.delayed(Duration.zero);
+        return store.needsCalibration.value;
+      }
+
+      expect(await at(21), isFalse);
+      expect(await at(19), isTrue);
+      expect(await at(21), isTrue, reason: 'stays until back inside 25 µT');
+      expect(await at(26), isFalse);
+      store.dispose();
+    });
+
+    test('a silent sensor stream times out to sensorUnavailable', () async {
+      const timeout = Duration(milliseconds: 20);
+      final (store, sensors, _) = await _make(firstEventTimeout: timeout);
+      expect(store.sensorFailed.value, isFalse);
+      await Future<void>.delayed(timeout * 2);
       expect(store.status.value, QiblaStatus.sensorUnavailable);
-      expect(store.bearing.value, isNotNull); // verbal fallback possible
+      // Resubscribing resets the failure and restarts the timer.
+      store
+        ..pause()
+        ..resume();
+      expect(store.sensorFailed.value, isFalse);
+      sensors.emitHeading(10);
+      await Future<void>.delayed(timeout * 2);
+      expect(store.sensorFailed.value, isFalse);
+      store.dispose();
+    });
+
+    test('alignment holds within 5° once aligned (hysteresis)', () async {
+      final (store, sensors, haptics) = await _make();
+      final bearing = store.bearing.value! - store.declination.value;
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.aligned.value, isTrue);
+      // Drift to ~4° off: still aligned, no second haptic.
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing + 4);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.aligned.value, isTrue);
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing + 8);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.aligned.value, isFalse);
+      expect(haptics.length, 1);
       store.dispose();
     });
 

@@ -58,8 +58,10 @@ final class _MosqueSwitcherSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final l10n = context.l10n;
+    // Scrolls once there are more mosques than fit (the sheet is
+    // scroll-controlled, so it can grow to full height).
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(QSpace.s6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -200,10 +202,7 @@ final class _ActionRow extends StatelessWidget {
           children: [
             Icon(icon, size: 19, color: q.primary),
             const SizedBox(width: QSpace.s3),
-            Text(
-              label,
-              style: QType.titleSm.copyWith(color: q.primary),
-            ),
+            Text(label, style: QType.titleSm.copyWith(color: q.primary)),
           ],
         ),
       ),

@@ -92,13 +92,26 @@ final class QiblaMiniChip extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: fg.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(QRadius.full),
+        // A full-size touch target; the pill keeps its corner position and
+        // the extra hit area extends inward.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: QTouch.minTarget,
+            minHeight: QTouch.minTarget,
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: children),
+          child: Align(
+            alignment: AlignmentDirectional.topEnd,
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: fg.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(QRadius.full),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: children),
+            ),
+          ),
         ),
       ),
     );
