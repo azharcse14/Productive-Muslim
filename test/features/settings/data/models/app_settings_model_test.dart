@@ -106,6 +106,17 @@ void main() {
       expect(const AppSettings(hijriOffsetDays: 1).hijriOffsetDays, 1);
     });
 
+    test('stored per-prayer adjustments are clamped to ±30', () {
+      final params = AppSettingsModel.fromMap(const {
+        'prayerParams': {
+          'adjustments': {'fajr': 120, 'isha': -45, 'asr': 7},
+        },
+      }).prayerParams;
+      expect(params.adjustmentFor(Prayer.fajr), PrayerParams.maxAdjustment);
+      expect(params.adjustmentFor(Prayer.isha), -PrayerParams.maxAdjustment);
+      expect(params.adjustmentFor(Prayer.asr), 7);
+    });
+
     test('showAchievements defaults to off', () {
       expect(AppSettingsModel.fromMap(const {}).showAchievements, isFalse);
     });

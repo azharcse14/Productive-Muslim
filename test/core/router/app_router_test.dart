@@ -9,6 +9,7 @@ import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_sto
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -204,6 +205,91 @@ void main() {
       await tester.pumpAndSettle();
       // Unlocked → router refresh lands on the shell.
       expect(find.text('Muhasaba'), findsOneWidget);
+    });
+
+    testWidgets(
+        'background re-lock overlays the gate and keeps pushed pages',
+        (tester) async {
+      await GetIt.I.reset();
+      final repo = _InMemoryRepo();
+      final settingsStore =
+          SettingsStore(GetSettings(repo), SaveSettings(repo));
+      await settingsStore.load();
+      final lockStore = await makeAppLockStore(withPin: true);
+      final (mosqueStore, _) = await makeMosqueStore();
+      final (muhasabaStore, _) = await makeMuhasabaStore();
+      final clock = TimezoneClock();
+      GetIt.I
+        ..registerSingleton<SettingsStore>(settingsStore)
+        ..registerSingleton<AppLockStore>(lockStore)
+        ..registerSingleton<QuranStore>(await makeQuranStore())
+        ..registerSingleton<DuaStore>(await makeDuaStore())
+        ..registerSingleton<TasbihStore>(await makeTasbihStore())
+        ..registerSingleton<MosqueStore>(mosqueStore)
+        ..registerSingleton<MuhasabaStore>(muhasabaStore)
+        ..registerFactory<HomeStore>(
+          () => HomeStore(
+            getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
+            clock: clock,
+            settings: settingsStore,
+            mosque: mosqueStore,
+          ),
+        );
+      final router = buildRouter();
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+          builder: (context, child) =>
+              LockOverlay(router: router, child: child),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      Future<void> enterPin() async {
+        for (final digit in ['1', '2', '3', '4']) {
+          await tester.tap(
+            find.descendant(
+              of: find.byType(LockScreen),
+              matching: find.text(digit),
+            ),
+          );
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
+      }
+
+      // Cold start: the redirect gate.
+      expect(router.state.uri.path, '/lock');
+      await enterPin();
+      await tester.tap(find.text('More'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Calculators'), 200);
+      await tester.ensureVisible(find.text('Calculators'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Calculators'));
+      await tester.pumpAndSettle();
+      expect(find.text('Zakat calculator'), findsOneWidget);
+
+      // Re-lock (as after the grace period in the background).
+      lockStore.locked.value = true;
+      await tester.pumpAndSettle();
+      expect(find.byType(LockScreen), findsOneWidget);
+      expect(router.state.uri.path, isNot('/lock'));
+      // The page underneath is still mounted but unreachable.
+      await tester.tap(find.text('Zakat calculator'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(find.text('Cash on hand'), findsNothing);
+      // System back is held by the gate, not spent popping hidden pages.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(LockScreen), findsOneWidget);
+
+      await enterPin();
+      expect(find.byType(LockScreen), findsNothing);
+      expect(find.text('Zakat calculator'), findsOneWidget);
     });
 
     testWidgets('More opens the Calculators hub with every tool',

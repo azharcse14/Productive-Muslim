@@ -61,6 +61,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   /// it with ayah 1.
   bool _userScrolled = false;
 
+  /// Top visible ayah index captured when a font-size drag starts.
+  int? _fontAnchor;
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +80,8 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   Future<void> _load() async {
     _failed.value = false;
     final ayahs = await _store.ayahsOf(widget.surahId);
-    _failed.value = ayahs == null;
+    // An empty surah is a broken/missing DB row, not "still loading".
+    _failed.value = ayahs == null || ayahs.isEmpty;
     _ayahs.value = ayahs ?? const [];
     final initial = widget.initialAyah;
     if (initial != null && initial > 1) {
@@ -303,6 +307,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             textDirection: TextDirection.rtl,
             child: Text(
               ayah.arabic,
+              // The reader has its own size setting (design §4.5), so the
+              // system text scale must not multiply it again.
+              textScaler: TextScaler.noScaling,
               style: QType.quran(_store.readerFontSize.value)
                   .copyWith(color: q.ink),
             ),
@@ -402,7 +409,19 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                       '${size.round()}',
                       Localizations.localeOf(context).languageCode,
                     ),
-                    onChanged: (value) =>
+                    // Keep the ayah at the top in place while cards resize;
+                    // persist once on release, not on every tick.
+                    onChangeStart: (_) => _fontAnchor = _topVisibleIndex(),
+                    onChanged: (value) {
+                      unawaited(
+                        _store.setReaderFontSize(value, persist: false),
+                      );
+                      final anchor = _fontAnchor;
+                      if (anchor != null) {
+                        _jumpToIndex(anchor);
+                      }
+                    },
+                    onChangeEnd: (value) =>
                         unawaited(_store.setReaderFontSize(value)),
                   ),
                   SwitchListTile(

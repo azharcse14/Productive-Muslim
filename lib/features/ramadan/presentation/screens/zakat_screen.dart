@@ -63,13 +63,17 @@ final class _ZakatScreenState extends State<ZakatScreen> {
     super.dispose();
   }
 
-  double _valueOf(TextEditingController controller) =>
-      double.tryParse(LocaleDigits.toAscii(controller.text)) ?? 0;
-
-  bool _isInvalid(TextEditingController controller) {
-    final text = LocaleDigits.toAscii(controller.text);
-    return text.isNotEmpty && double.tryParse(text) == null;
+  /// Parsed field value; null when unparsable or non-finite ("NaN",
+  /// "Infinity" parse as doubles but are not amounts).
+  double? _parse(TextEditingController controller) {
+    final value = double.tryParse(LocaleDigits.toAscii(controller.text));
+    return value != null && value.isFinite ? value : null;
   }
+
+  double _valueOf(TextEditingController controller) => _parse(controller) ?? 0;
+
+  bool _isInvalid(TextEditingController controller) =>
+      controller.text.isNotEmpty && _parse(controller) == null;
 
   void _calculate(List<TextEditingController> controllers) {
     FocusScope.of(context).unfocus();

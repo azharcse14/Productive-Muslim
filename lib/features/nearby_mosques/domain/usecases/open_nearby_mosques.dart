@@ -20,7 +20,7 @@ final class MapsLaunchFailed extends Failure {
 /// fix — surfacing the same typed [LocationFailure]s as the rest of the app
 /// so the caller can route to the picker.
 final class OpenNearbyMosques {
-  const OpenNearbyMosques({
+  OpenNearbyMosques({
     required LocationConfig? Function() currentLocation,
     required GetCurrentLocation getCurrentLocation,
     required ExternalLauncher launcher,
@@ -32,7 +32,14 @@ final class OpenNearbyMosques {
   final GetCurrentLocation _getCurrentLocation;
   final ExternalLauncher _launcher;
 
-  Future<Result<void>> call() async {
+  /// The open in progress; repeat taps join it instead of stacking a second
+  /// GPS prompt / Maps launch.
+  Future<Result<void>>? _inFlight;
+
+  Future<Result<void>> call() =>
+      _inFlight ??= _open().whenComplete(() => _inFlight = null);
+
+  Future<Result<void>> _open() async {
     final saved = _currentLocation();
     final double latitude;
     final double longitude;

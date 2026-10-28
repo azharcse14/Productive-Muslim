@@ -76,8 +76,14 @@ void main() {
       expect(state.activeConfig.entries, work.config.entries);
     });
 
-    test('active is null when activeId is missing from profiles', () {
-      final state = MosqueState(profiles: [home], activeId: 'gone');
+    test('stale activeId falls back to the first profile', () {
+      final state = MosqueState(profiles: [home, work], activeId: 'gone');
+      expect(state.active, home);
+      expect(state.activeConfig.entries, home.config.entries);
+    });
+
+    test('stale activeId with no profiles → null', () {
+      const state = MosqueState(activeId: 'gone');
       expect(state.active, isNull);
       expect(state.activeConfig, JamaatConfig.none);
     });

@@ -32,15 +32,19 @@ final class MosqueState {
   /// Temporary manual override while in auto mode.
   final MosqueOverride? activeOverride;
 
-  /// The manually-selected profile, or null when [activeId] is null or stale
-  /// (e.g. the profile was deleted).
+  /// The manually-selected profile; null when [activeId] is null. A stale
+  /// [activeId] (profile gone) falls back to the first profile, so the
+  /// editor and reminders never go blank while mosques exist.
   MosqueProfile? get active {
+    if (activeId == null) {
+      return null;
+    }
     for (final profile in profiles) {
       if (profile.id == activeId) {
         return profile;
       }
     }
-    return null;
+    return profiles.firstOrNull;
   }
 
   /// Jamaat config of the manually-selected profile; [JamaatConfig.none] when
@@ -56,45 +60,44 @@ final class MosqueState {
     String? activeId,
     ScheduleMode? mode,
     List<MosqueRule>? rules,
-  }) =>
-      MosqueState(
-        profiles: profiles ?? this.profiles,
-        activeId: activeId ?? this.activeId,
-        mode: mode ?? this.mode,
-        rules: rules ?? this.rules,
-        defaultId: defaultId,
-        activeOverride: activeOverride,
-      );
+  }) => MosqueState(
+    profiles: profiles ?? this.profiles,
+    activeId: activeId ?? this.activeId,
+    mode: mode ?? this.mode,
+    rules: rules ?? this.rules,
+    defaultId: defaultId,
+    activeOverride: activeOverride,
+  );
 
   /// Returns a copy with [activeId] set to [id] (null deselects).
   MosqueState withActive(String? id) => MosqueState(
-        profiles: profiles,
-        activeId: id,
-        mode: mode,
-        rules: rules,
-        defaultId: defaultId,
-        activeOverride: activeOverride,
-      );
+    profiles: profiles,
+    activeId: id,
+    mode: mode,
+    rules: rules,
+    defaultId: defaultId,
+    activeOverride: activeOverride,
+  );
 
   /// Returns a copy with [defaultId] set to [id] (null clears).
   MosqueState withDefault(String? id) => MosqueState(
-        profiles: profiles,
-        activeId: activeId,
-        mode: mode,
-        rules: rules,
-        defaultId: id,
-        activeOverride: activeOverride,
-      );
+    profiles: profiles,
+    activeId: activeId,
+    mode: mode,
+    rules: rules,
+    defaultId: id,
+    activeOverride: activeOverride,
+  );
 
   /// Returns a copy with the [activeOverride] set (null clears it).
   MosqueState withOverride(MosqueOverride? value) => MosqueState(
-        profiles: profiles,
-        activeId: activeId,
-        mode: mode,
-        rules: rules,
-        defaultId: defaultId,
-        activeOverride: value,
-      );
+    profiles: profiles,
+    activeId: activeId,
+    mode: mode,
+    rules: rules,
+    defaultId: defaultId,
+    activeOverride: value,
+  );
 
   @override
   bool operator ==(Object other) {
@@ -122,11 +125,11 @@ final class MosqueState {
 
   @override
   int get hashCode => Object.hash(
-        activeId,
-        mode,
-        defaultId,
-        activeOverride,
-        Object.hashAll(profiles),
-        Object.hashAll(rules),
-      );
+    activeId,
+    mode,
+    defaultId,
+    activeOverride,
+    Object.hashAll(profiles),
+    Object.hashAll(rules),
+  );
 }

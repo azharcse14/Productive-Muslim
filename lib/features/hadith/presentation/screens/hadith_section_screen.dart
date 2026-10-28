@@ -81,6 +81,18 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
             final lang = Localizations.localeOf(context).languageCode;
             final bnSource = widget.book.usesBanglaSource(lang);
             final items = _store.items.value;
+            if (items.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(QSpace.s6),
+                  child: Text(
+                    l10n.hadithSectionEmpty,
+                    textAlign: TextAlign.center,
+                    style: QType.body.copyWith(color: context.q.ink2),
+                  ),
+                ),
+              );
+            }
             // Whole section came back English despite a bn request → one banner
             // instead of a note on every card.
             final allFallback =

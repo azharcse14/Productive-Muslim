@@ -11,7 +11,9 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/dua.dart';
@@ -147,22 +149,32 @@ final class _DuaScreenState extends State<DuaScreen> {
                   ],
                 ),
                 const SizedBox(height: QSpace.s4),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: QSpace.s3,
-                  crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2 / context.textGrowth,
-                  children: [
-                    for (final category in categories)
-                      _CategoryCard(
-                        category: category,
-                        onTap: () =>
-                            _push(DuaCategoryScreen(category: category)),
-                      ),
-                  ],
-                ),
+                if (_store.failed.value && categories.isEmpty)
+                  QErrorRetry(
+                    message: l10n.duaLoadError,
+                    retryLabel: l10n.hadithRetry,
+                    onRetry: () => unawaited(_store.load()),
+                  )
+                else
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: QSpace.s3,
+                    crossAxisSpacing: QSpace.s3,
+                    childAspectRatio: 1.2 / context.textGrowth,
+                    children: [
+                      if (!_store.loaded.value)
+                        for (var i = 0; i < 6; i++)
+                          const QSkeleton(height: 120, radius: QRadius.lg),
+                      for (final category in categories)
+                        _CategoryCard(
+                          category: category,
+                          onTap: () =>
+                              _push(DuaCategoryScreen(category: category)),
+                        ),
+                    ],
+                  ),
                 const SizedBox(height: QSpace.s4),
                 _FavoritesSection(duas: favoriteDuas),
               ]),

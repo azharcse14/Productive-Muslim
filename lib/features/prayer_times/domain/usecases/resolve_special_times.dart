@@ -17,16 +17,25 @@ const _salatZawalWindow = Duration(minutes: 15);
 /// The three forbidden (makruh taḥrīmī) windows and the nafl windows for
 /// [day], derived purely from its sun/prayer times. A pure function with
 /// exhaustive tests (guide §5). Ordered for top-to-bottom display:
-/// forbidden first, then nafl.
-List<SpecialWindow> resolveSpecialWindows(PrayerDay day) {
+/// forbidden first, then nafl. [preFajr]: the clock is before today's
+/// Fajr, so Tahajjud is the night still running (yesterday's Maghrib →
+/// Fajr), not tonight's.
+List<SpecialWindow> resolveSpecialWindows(
+  PrayerDay day, {
+  bool preFajr = false,
+}) {
   final sunriseEnd = day.sunrise.add(_horizonWindow);
   final ishraqEnd = sunriseEnd.add(_ishraqWindow);
   final zawalStart = day.dhuhr.subtract(_zawalWindow);
   final sunsetStart = day.maghrib.subtract(_horizonWindow);
 
   // Tahajjud: the last third of the night, sunset (Maghrib) → next Fajr.
-  final night = day.fajrTomorrow.difference(day.maghrib);
-  final tahajjudStart = day.maghrib.add(night * (2 / 3));
+  final (nightStart, nightEnd) = switch (day.maghribYesterday) {
+    final m? when preFajr => (m, day.fajr),
+    _ => (day.maghrib, day.fajrTomorrow),
+  };
+  final night = nightEnd.difference(nightStart);
+  final tahajjudStart = nightStart.add(night * (2 / 3));
 
   return [
     SpecialWindow(
@@ -75,7 +84,7 @@ List<SpecialWindow> resolveSpecialWindows(PrayerDay day) {
       time: SpecialTime.tahajjud,
       kind: SpecialKind.nafl,
       start: tahajjudStart,
-      end: day.fajrTomorrow,
+      end: nightEnd,
     ),
   ];
 }

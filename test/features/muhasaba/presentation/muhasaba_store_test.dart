@@ -134,6 +134,41 @@ void main() {
       expect(store.stats.value!.completion, greaterThan(0));
     });
 
+    test('setValue bursts recompute stats once, after the debounce', () async {
+      final (store, repo) = await makeMuhasabaStore(
+        now: _fixedNow,
+        statsDebounce: const Duration(milliseconds: 40),
+      );
+      final before = repo.periodStatsCalls;
+      for (var v = 1; v <= 3; v++) {
+        await store.setValue('azkar', v);
+      }
+      // The tapped value is instant; stats wait for the burst to end.
+      expect(store.valueOf('azkar'), 3);
+      expect(repo.periodStatsCalls, before);
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(repo.periodStatsCalls, before + 1);
+      expect(
+        store.stats.value!.items
+            .firstWhere((i) => i.itemId == 'azkar')
+            .totalValue,
+        3,
+      );
+      store.dispose();
+    });
+
+    test('addItem refreshes stats', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      final before = repo.periodStatsCalls;
+      await store.addItem(
+        name: 'Walk',
+        kind: TrackerKind.yesNo,
+        icon: 'walk',
+        colorIndex: 0,
+      );
+      expect(repo.periodStatsCalls, before + 1);
+    });
+
     test('firstDay until the very first entry', () async {
       final (store, _) = await makeMuhasabaStore(now: _fixedNow);
       expect(store.firstDay.value, isTrue);

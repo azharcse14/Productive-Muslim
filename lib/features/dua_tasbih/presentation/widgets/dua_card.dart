@@ -42,7 +42,7 @@ final class DuaCard extends StatelessWidget {
                   textDirection: TextDirection.rtl,
                   // A non-Arabic TTS garbles raw Arabic glyphs; speak the
                   // transliteration instead.
-                  semanticsLabel: dua.transliteration,
+                  semanticsLabel: dua.transliterationFor(languageCode),
                   style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
                 ),
               ),
@@ -52,20 +52,17 @@ final class DuaCard extends StatelessWidget {
                   final label = active
                       ? l10n.favoriteRemoveLabel
                       : l10n.favoriteAddLabel;
-                  return Semantics(
-                    button: true,
-                    label: label,
-                    child: IconButton(
-                      tooltip: label,
-                      icon: Icon(
-                        active ? Icons.favorite : Icons.favorite_border,
-                        color: active ? q.primary : q.ink3,
-                      ),
-                      onPressed: () {
-                        Haptics.selection();
-                        unawaited(favorites.toggle(dua.id));
-                      },
+                  // IconButton's tooltip already labels the button.
+                  return IconButton(
+                    tooltip: label,
+                    icon: Icon(
+                      active ? Icons.favorite : Icons.favorite_border,
+                      color: active ? q.primary : q.ink3,
                     ),
+                    onPressed: () {
+                      Haptics.selection();
+                      unawaited(favorites.toggle(dua.id));
+                    },
                   );
                 },
               ),

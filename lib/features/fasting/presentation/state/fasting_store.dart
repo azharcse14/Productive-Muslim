@@ -16,8 +16,8 @@ final class FastingStore {
     this._prefs, {
     DateTime Function()? now,
     int Function()? hijriOffset,
-  })  : _now = now ?? DateTime.now,
-        _hijriOffset = hijriOffset ?? _noOffset;
+  }) : _now = now ?? DateTime.now,
+       _hijriOffset = hijriOffset ?? _noOffset;
 
   static int _noOffset() => 0;
 
@@ -59,8 +59,8 @@ final class FastingStore {
 
   /// Whether fasting is forbidden on [date] (the Eids and Tashreeq).
   bool isForbidden(DateTime date) => RecommendedFasts.isForbidden(
-        HijriDate.fromGregorian(date, offsetDays: _hijriOffset()),
-      );
+    HijriDate.fromGregorian(date, offsetDays: _hijriOffset()),
+  );
 
   /// Whether [date] may be newly logged: not in the future, not forbidden.
   /// Ramadan day — the fast is obligatory, never offered as voluntary.
@@ -84,8 +84,18 @@ final class FastingStore {
       }
       next.add(stamp);
     }
+    final previous = logged.value;
     logged.value = next;
-    await _prefs.setStringList(_key, [for (final v in next) v.toString()]);
+    try {
+      await _prefs.setStringList(_key, [for (final v in next) v.toString()]);
+    } on Object {
+      // Not saved: don't show a tick the log doesn't have — unless another
+      // toggle has already moved the log on.
+      if (identical(logged.value, next)) {
+        logged.value = previous;
+      }
+      rethrow;
+    }
   }
 
   /// The recommended fasts (if any) for [date].
@@ -93,12 +103,11 @@ final class FastingStore {
       RecommendedFasts.on(date, offsetDays: _hijriOffset());
 
   /// The next [count] recommended fasting days from today onward.
-  List<UpcomingFast> upcoming({int count = 7}) =>
-      RecommendedFasts.upcoming(
-        today,
-        count: count,
-        offsetDays: _hijriOffset(),
-      );
+  List<UpcomingFast> upcoming({int count = 7}) => RecommendedFasts.upcoming(
+    today,
+    count: count,
+    offsetDays: _hijriOffset(),
+  );
 
   /// Simple, no-shame stats over the log.
   FastingStats stats() {

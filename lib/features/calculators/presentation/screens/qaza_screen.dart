@@ -28,6 +28,9 @@ final class _QazaScreenState extends State<QazaScreen> {
 
   QazaResult? _result;
 
+  /// "Already made up" text didn't parse as a whole number.
+  bool _madeUpInvalid = false;
+
   @override
   void dispose() {
     _madeUp.dispose();
@@ -41,7 +44,8 @@ final class _QazaScreenState extends State<QazaScreen> {
       context: context,
       initialDate: initial,
       firstDate: DateTime(1900),
-      lastDate: DateTime(now.year + 1, 12, 31),
+      // Missed prayers can't lie in the future.
+      lastDate: now,
     );
     if (picked == null) {
       return;
@@ -65,14 +69,20 @@ final class _QazaScreenState extends State<QazaScreen> {
     if (start == null || end == null) {
       return;
     }
+    final text = LocaleDigits.toAscii(_madeUp.text).trim();
+    final madeUp = int.tryParse(text);
     setState(() {
+      _madeUpInvalid = text.isNotEmpty && madeUp == null;
+      if (_madeUpInvalid) {
+        _result = null;
+        return;
+      }
       _result = QazaCalculator.calculate(
         QazaInput(
           startDate: start,
           endDate: end,
           includeWitr: _includeWitr,
-          alreadyMadeUpPerPrayer:
-              int.tryParse(LocaleDigits.toAscii(_madeUp.text)) ?? 0,
+          alreadyMadeUpPerPrayer: madeUp ?? 0,
         ),
       );
     });
@@ -148,9 +158,15 @@ final class _QazaScreenState extends State<QazaScreen> {
             TextField(
               controller: _madeUp,
               keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() => _result = null),
+              onChanged: (_) => setState(() {
+                _result = null;
+                _madeUpInvalid = false;
+              }),
               style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(labelText: l10n.qazaAlreadyMadeUp),
+              decoration: InputDecoration(
+                labelText: l10n.qazaAlreadyMadeUp,
+                errorText: _madeUpInvalid ? l10n.qazaInvalidNumber : null,
+              ),
             ),
             const SizedBox(height: QSpace.s4),
             QButton(

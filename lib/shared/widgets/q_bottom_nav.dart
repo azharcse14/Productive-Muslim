@@ -173,6 +173,9 @@ final class _NavDestination extends StatelessWidget {
       button: true,
       selected: active,
       label: item.label,
+      // The label Text would otherwise be read a second time.
+      excludeSemantics: true,
+      onTap: onTap,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(QRadius.md),

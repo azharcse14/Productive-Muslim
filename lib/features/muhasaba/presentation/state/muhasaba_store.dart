@@ -18,11 +18,19 @@ final class MuhasabaStore {
     this._repository, {
     DateTime Function()? now,
     Set<String> Function(DateTime date)? lockedSalahOn,
+    Duration statsDebounce = const Duration(milliseconds: 300),
   }) : _now = now ?? DateTime.now,
-       _lockedSalahOn = lockedSalahOn;
+       _lockedSalahOn = lockedSalahOn,
+       _statsDebounce = statsDebounce;
 
   final MuhasabaRepository _repository;
   final DateTime Function() _now;
+
+  /// Trailing delay before [setValue] recomputes the dashboard: a burst of
+  /// stepper taps costs one stats pass (and one achievements refresh), not
+  /// one per tap. The tapped value itself updates instantly.
+  final Duration _statsDebounce;
+  Timer? _statsTimer;
 
   /// Salah ids whose waqt has not begun yet on a given date (so they can't
   /// be checked off ahead of time). Past dates / no-location → empty.
@@ -171,9 +179,14 @@ final class MuhasabaStore {
   int valueOf(String itemId) => entries.value[itemId] ?? 0;
 
   Future<void> setValue(String itemId, int value) =>
-      _setOn(itemId, selectedDate.value, value);
+      _setOn(itemId, selectedDate.value, value, debounceStats: true);
 
-  Future<void> _setOn(String itemId, DateTime day, int value) async {
+  Future<void> _setOn(
+    String itemId,
+    DateTime day,
+    int value, {
+    bool debounceStats = false,
+  }) async {
     // Can't mark a salah whose waqt hasn't started yet (today only).
     if (value > 0 &&
         (_lockedSalahOn?.call(day) ?? const <String>{}).contains(itemId)) {
@@ -191,6 +204,11 @@ final class MuhasabaStore {
       if ((entriesOn(day)[itemId] ?? 0) == clamped) {
         _put(day, itemId, previous);
       }
+      return;
+    }
+    if (debounceStats && _statsDebounce > Duration.zero) {
+      _statsTimer?.cancel();
+      _statsTimer = Timer(_statsDebounce, () => unawaited(refreshStats()));
       return;
     }
     await refreshStats();
@@ -260,6 +278,8 @@ final class MuhasabaStore {
   }
 
   Future<void> refreshStats() async {
+    // Anything pending is covered by this pass.
+    _statsTimer?.cancel();
     final today = _today();
     _statsDay = today;
     final (start, end) = _range();
@@ -291,6 +311,8 @@ final class MuhasabaStore {
     );
     await _repository.upsertItem(item);
     await _reloadItems();
+    // A new active item changes the completion denominator.
+    await refreshStats();
   }
 
   Future<void> updateItem(TrackerItem item) async {
@@ -306,5 +328,8 @@ final class MuhasabaStore {
     await refreshStats();
   }
 
-  void dispose() => _lifecycle?.dispose();
+  void dispose() {
+    _statsTimer?.cancel();
+    _lifecycle?.dispose();
+  }
 }

@@ -28,48 +28,38 @@ final class HadithCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    final card = QCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.format_quote_outlined, size: 16, color: q.primary),
-              const SizedBox(width: QSpace.s2),
-              Expanded(
-                child: Text(
-                  l10n.hadithOfDayTitle,
-                  style: QType.label.copyWith(color: q.ink2),
+    return Semantics(
+      button: onTap != null,
+      child: QCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.format_quote_outlined, size: 16, color: q.primary),
+                const SizedBox(width: QSpace.s2),
+                Expanded(
+                  child: Text(
+                    l10n.hadithOfDayTitle,
+                    style: QType.label.copyWith(color: q.ink2),
+                  ),
                 ),
-              ),
-              if (onTap != null)
-                Icon(Icons.chevron_right, size: 20, color: q.ink3),
-            ],
-          ),
-          const SizedBox(height: QSpace.s3),
-          Text(
-            text,
-            style: QType.body.copyWith(color: q.ink),
-          ),
-          const SizedBox(height: QSpace.s2),
-          Text(
-            l10n.hadithNarratedBy(narrator),
-            style: QType.caption.copyWith(color: q.ink3),
-          ),
-          Text(
-            reference,
-            style: QType.caption.copyWith(color: q.ink3),
-          ),
-        ],
+                if (onTap != null)
+                  Icon(Icons.chevron_right, size: 20, color: q.ink3),
+              ],
+            ),
+            const SizedBox(height: QSpace.s3),
+            Text(text, style: QType.body.copyWith(color: q.ink)),
+            const SizedBox(height: QSpace.s2),
+            Text(
+              l10n.hadithNarratedBy(narrator),
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
+            Text(reference, style: QType.caption.copyWith(color: q.ink3)),
+          ],
+        ),
       ),
-    );
-    if (onTap == null) {
-      return card;
-    }
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: card,
     );
   }
 }

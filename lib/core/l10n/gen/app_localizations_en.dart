@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1239,12 +1238,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
-      'whiteDays': 'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
-      'ashura': 'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
-      'arafah': 'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
-      'dhulHijjah': 'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
-      'shawwal': 'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
+      'mondayThursday':
+          'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
+      'whiteDays':
+          'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
+      'ashura':
+          'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
+      'arafah':
+          'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
+      'dhulHijjah':
+          'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
+      'shawwal':
+          'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
     });
     return '$_temp0';
@@ -2297,10 +2302,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expenseImported(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count expenses restored',
+      other: '$countString expenses restored',
       one: '1 expense restored',
       zero: 'Nothing new to restore',
     );
@@ -2392,7 +2401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get focusDisclosureBody =>
-      'Productive Muslim uses the Accessibility service only for jamaat focus and nafs lock: during a session, to notice when another app opens and cover it with the lock screen; with nafs lock on, it also watches the motion sensor for 5 hard shakes. It does not read, collect or share anything you see or type.';
+      'Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.';
 
   @override
   String get focusContinue => 'Continue';
@@ -2411,36 +2420,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get focusEndNow => 'End now';
-
-  @override
-  String get nafsHeader => 'Nafs lock';
-
-  @override
-  String get nafsToggle => 'Shake to lock';
-
-  @override
-  String get nafsToggleSub =>
-      'When the nafs pulls you towards something wrong, shake the phone hard 5 times: it locks and won\'t open until the time runs out. Calls stay allowed';
-
-  @override
-  String get nafsDurationLabel => 'Locked for';
-
-  @override
-  String get nafsPermBlock =>
-      'Allow accessibility access for nafs lock to work';
-
-  @override
-  String nafsActiveUntil(String time) {
-    return 'Nafs lock is on until $time';
-  }
-
-  @override
-  String get nafsLockTitle => 'Nafs lock';
-
-  @override
-  String nafsLockBodyUntil(String time) {
-    return 'Hold on — remember Allah. Your phone opens at $time.';
-  }
 
   @override
   String notifFocusTitle(String prayer) {
@@ -2522,4 +2501,177 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notifFocusEndBody =>
       'Mark it in Muhasaba, then tap for the after-salah adhkar.';
+
+  @override
+  String get prayerTimesComputeFailedTitle =>
+      'Couldn\'t calculate prayer times';
+
+  @override
+  String get prayerTimesComputeFailedBody =>
+      'Prayer times can\'t be worked out for this location with the current settings. Try another location or calculation method.';
+
+  @override
+  String get prayerTimesExactAlarmBanner =>
+      'Azan may arrive late. Tap to allow exact alarms.';
+
+  @override
+  String qiblaCompassPoint(String point) {
+    String _temp0 = intl.Intl.selectLogic(point, {
+      'N': 'N',
+      'NNE': 'NNE',
+      'NE': 'NE',
+      'ENE': 'ENE',
+      'E': 'E',
+      'ESE': 'ESE',
+      'SE': 'SE',
+      'SSE': 'SSE',
+      'S': 'S',
+      'SSW': 'SSW',
+      'SW': 'SW',
+      'WSW': 'WSW',
+      'W': 'W',
+      'WNW': 'WNW',
+      'NW': 'NW',
+      'NNW': 'NNW',
+      'other': '$point',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get appLockBiometricReason => 'Unlock Productive Muslim';
+
+  @override
+  String onboardingStepProgress(int step, int total) {
+    final intl.NumberFormat stepNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String stepString = stepNumberFormat.format(step);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return 'Step $stepString of $totalString';
+  }
+
+  @override
+  String get editorDiscardTitle => 'Discard your changes?';
+
+  @override
+  String get editorDiscard => 'Discard';
+
+  @override
+  String muhasabaIconOption(int n) {
+    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String nString = nNumberFormat.format(n);
+
+    return 'Icon $nString';
+  }
+
+  @override
+  String muhasabaColorOption(int n) {
+    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String nString = nNumberFormat.format(n);
+
+    return 'Color $nString';
+  }
+
+  @override
+  String get tasbihTargetInvalid => 'Enter a number from 1 to 99999';
+
+  @override
+  String get hadithTopicsLoadError =>
+      'Couldn\'t load the hadith. Please try again.';
+
+  @override
+  String get ruqyahLoadError => 'Couldn\'t load ruqyah. Please try again.';
+
+  @override
+  String get duaLoadError => 'Couldn\'t load the duas. Please try again.';
+
+  @override
+  String get hadithSectionEmpty => 'No hadith in this chapter.';
+
+  @override
+  String hadithGradeWord(String word) {
+    String _temp0 = intl.Intl.selectLogic(word, {
+      'sahih': 'Sahih',
+      'hasan': 'Hasan',
+      'daif': 'Da\'if',
+      'very': 'Very',
+      'isnaad': 'Isnaad',
+      'mauquf': 'Mauquf',
+      'muquf': 'Mauquf',
+      'maqtu': 'Maqtu',
+      'lighairihi': 'li-Ghayrihi',
+      'hadith': 'Hadith',
+      'shadh': 'Shadh',
+      'munkar': 'Munkar',
+      'mawdu': 'Mawdu',
+      'mutawatir': 'Mutawatir',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get fastingSaveFailed => 'Couldn\'t save. Please try again.';
+
+  @override
+  String get faraidOtherRelatives =>
+      'Any grandchild, grandparent, half-sibling, paternal uncle, nephew or cousin?';
+
+  @override
+  String get faraidOutOfScope =>
+      'These relatives can change every share, and this calculator doesn\'t cover them. Please ask a qualified scholar for this distribution.';
+
+  @override
+  String get faraidUmariyyataynNote =>
+      'Special case (\'Umariyyatayn): the mother takes one third of what remains after the spouse\'s share; the father takes the rest.';
+
+  @override
+  String get faraidUnallocatedNote =>
+      'None of the heirs entered takes the remainder. It may go to more distant relatives — ask a scholar how your school assigns it.';
+
+  @override
+  String get faraidBasisTwoThirdsShared => '2/3 (shared)';
+
+  @override
+  String get faraidBasisThirdOfResidue => '1/3 of the remainder';
+
+  @override
+  String get faraidBasisResiduary => 'residuary (\'asaba)';
+
+  @override
+  String get faraidBasisSixthPlusResiduary => '1/6 + residuary';
+
+  @override
+  String get faraidBasisResiduaryTwoToOne => 'residuary (2:1)';
+
+  @override
+  String get faraidInvalidNumber => 'Enter a valid amount';
+
+  @override
+  String get fitraInvalidNumber => 'Enter a valid number';
+
+  @override
+  String get qazaInvalidNumber => 'Enter a whole number';
+
+  @override
+  String get mosqueRenameProfile => 'Rename mosque';
+
+  @override
+  String get locationDeniedForever =>
+      'Location access is blocked for this app. Allow it in Settings, or pick your city below.';
+
+  @override
+  String get locationUnavailable =>
+      'Couldn\'t get your location. Try again, or pick your city below.';
+
+  @override
+  String get locationRetry => 'Try again';
 }

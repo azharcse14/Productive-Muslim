@@ -44,6 +44,10 @@ final class PrayerParams {
   /// Upper bound for [sahriSafetyMinutes].
   static const maxSahriSafety = 10;
 
+  /// Bound for each per-prayer adjustment (±minutes). Enforced by the
+  /// settings loader and store (a const map can't be clamped here).
+  static const maxAdjustment = 30;
+
   final CalculationMethodId method;
   final Madhab madhab;
   final HighLatitudeRule highLatitudeRule;

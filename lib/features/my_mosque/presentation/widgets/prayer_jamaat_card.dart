@@ -25,6 +25,9 @@ final class PrayerJamaatCard extends StatelessWidget {
   final JamaatEntry entry;
   final String Function(ClockTime) formatTime;
   final ValueChanged<JamaatEntry> onChanged;
+
+  /// Opens the time picker; also used when switching to Fixed, so a fixed
+  /// time is only ever saved once the user actually picks one.
   final VoidCallback onPickTime;
 
   int get _modeIndex => switch (entry) {
@@ -37,36 +40,39 @@ final class PrayerJamaatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
+    final stepperLabel = '${l10n.prayerLabel(prayer)} ${l10n.jamaatLabel}';
     return QCard(
       padding: const EdgeInsets.all(QSpace.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.prayerLabel(prayer),
-                  style: QType.titleSm.copyWith(color: q.ink),
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: QSegControl(
-                  options: [
-                    l10n.jamaatModeNone,
-                    l10n.jamaatModeOffset,
-                    l10n.jamaatModeFixed,
-                  ],
-                  activeIndex: _modeIndex,
-                  onChanged: (i) => onChanged(switch (i) {
-                    1 => const OffsetJamaat(Duration(minutes: 15)),
-                    2 => const FixedJamaat(ClockTime(13, 15)),
-                    _ => const NoJamaat(),
-                  }),
-                ),
-              ),
+          Text(
+            l10n.prayerLabel(prayer),
+            style: QType.titleSm.copyWith(color: q.ink),
+          ),
+          // Own row: a fixed-width control beside the title clipped at
+          // large text scales.
+          const SizedBox(height: QSpace.s2),
+          QSegControl(
+            options: [
+              l10n.jamaatModeNone,
+              l10n.jamaatModeOffset,
+              l10n.jamaatModeFixed,
             ],
+            activeIndex: _modeIndex,
+            onChanged: (i) {
+              if (i == _modeIndex) {
+                return;
+              }
+              switch (i) {
+                case 1:
+                  onChanged(const OffsetJamaat(Duration(minutes: 15)));
+                case 2:
+                  onPickTime();
+                default:
+                  onChanged(const NoJamaat());
+              }
+            },
           ),
           switch (entry) {
             NoJamaat() => const SizedBox.shrink(),
@@ -84,7 +90,7 @@ final class PrayerJamaatCard extends StatelessWidget {
                     fill: context.q.surface2,
                     size: 32,
                     icon: Icons.remove,
-                    semanticLabel: l10n.a11yDecrease(l10n.jamaatLabel),
+                    semanticLabel: l10n.a11yDecrease(stepperLabel),
                     onTap: offset.inMinutes > 5
                         ? () => onChanged(
                             OffsetJamaat(offset - const Duration(minutes: 5)),
@@ -103,7 +109,7 @@ final class PrayerJamaatCard extends StatelessWidget {
                     fill: context.q.surface2,
                     size: 32,
                     icon: Icons.add,
-                    semanticLabel: l10n.a11yIncrease(l10n.jamaatLabel),
+                    semanticLabel: l10n.a11yIncrease(stepperLabel),
                     onTap: offset.inMinutes < 60
                         ? () => onChanged(
                             OffsetJamaat(offset + const Duration(minutes: 5)),
@@ -139,4 +145,3 @@ final class PrayerJamaatCard extends StatelessWidget {
     );
   }
 }
-

@@ -230,25 +230,29 @@ final class _MonthTableCard extends StatelessWidget {
                 style: QType.titleSm.copyWith(color: q.ink),
               ),
               const SizedBox(height: QSpace.s2),
-              Row(
-                children: [
-                  const SizedBox(width: 32),
-                  const Expanded(child: SizedBox.shrink()),
-                  Expanded(
-                    child: Text(
-                      l10n.sahriEndsLabel,
-                      textAlign: TextAlign.end,
-                      style: QType.caption.copyWith(color: q.ink2),
+              // Same inset as the data rows, so the headers sit over them.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: QSpace.s2),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 32),
+                    const Expanded(child: SizedBox.shrink()),
+                    Expanded(
+                      child: Text(
+                        l10n.sahriEndsLabel,
+                        textAlign: TextAlign.end,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      l10n.iftarLabel,
-                      textAlign: TextAlign.end,
-                      style: QType.caption.copyWith(color: q.ink2),
+                    Expanded(
+                      child: Text(
+                        l10n.iftarLabel,
+                        textAlign: TextAlign.end,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: QSpace.s2),
               // Inline rows (no nested scroller), so today's highlighted row

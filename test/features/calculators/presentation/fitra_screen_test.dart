@@ -44,6 +44,25 @@ void main() {
       expect(find.textContaining('Per person:'), findsOneWidget);
       expect(find.textContaining('Total fitra:'), findsOneWidget);
       expect(find.textContaining('per person'), findsWidgets);
+
+      // Editing an input clears the stale result.
+      await tester.enterText(people, '3');
+      await tester.pump();
+      expect(find.textContaining('Total fitra:'), findsNothing);
+    });
+
+    testWidgets('invalid price shows a field error, no result',
+        (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Price per kg'),
+        'Infinity',
+      );
+      await tester.tap(find.text('Calculate'));
+      await tester.pump();
+      expect(find.text('Enter a valid number'), findsOneWidget);
+      expect(find.textContaining('Total fitra:'), findsNothing);
     });
   });
 }

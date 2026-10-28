@@ -210,6 +210,23 @@ void main() {
       expect(r.zakatDue, 0);
     });
 
+    test('non-finite input (NaN/Infinity) counts as zero', () {
+      final r = ZakatCalculator.calculate(
+        const ZakatInput(
+          cashOnHand: double.nan,
+          bankBalance: double.infinity,
+          debts: double.nan,
+          goldPricePerGram: double.infinity,
+          silverPricePerGram: silverPrice,
+        ),
+      );
+      expect(r.totalWealth, 0);
+      expect(r.zakatableWealth, 0);
+      expect(r.nisabThreshold, ZakatCalculator.nisabSilverGrams * silverPrice);
+      expect(r.isPayable, isFalse);
+      expect(r.zakatDue, 0);
+    });
+
     test('classical constants', () {
       expect(ZakatCalculator.nisabGoldGrams, 87.48);
       expect(ZakatCalculator.nisabSilverGrams, 612.36);

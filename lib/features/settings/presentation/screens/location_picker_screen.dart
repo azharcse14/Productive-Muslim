@@ -39,27 +39,47 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final _searching = signal(false);
   final _gpsBusy = signal(false);
 
-  /// Localized failure text shown above the manual list (the fallback).
-  final _gpsNotice = signal<String?>(null);
-
-  /// The GPS failure was location services being off (vs. permission).
-  bool _serviceOff = false;
+  /// Last GPS failure, shown above the manual list (the fallback).
+  final _gpsFailure = signal<Failure?>(null);
 
   /// The city search itself failed (vs. simply no match).
   final _searchFailed = signal(false);
 
   Timer? _debounce;
 
+  /// Bumped per search; a response from an older query is dropped.
+  var _searchGen = 0;
+
+  late final AppLifecycleListener _lifecycle;
+
   @override
   void initState() {
     super.initState();
+    _lifecycle = AppLifecycleListener(onResume: _onResume);
     unawaited(_runSearch(''));
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _lifecycle.dispose();
+    _results.dispose();
+    _searching.dispose();
+    _gpsBusy.dispose();
+    _gpsFailure.dispose();
+    _searchFailed.dispose();
     super.dispose();
+  }
+
+  /// Re-checks GPS on return from system settings, so fixing the problem
+  /// there takes effect without another tap.
+  void _onResume() {
+    final failure = _gpsFailure.value;
+    if (!_gpsBusy.value &&
+        (failure is LocationServiceDisabled ||
+            failure is LocationPermissionDeniedForever)) {
+      unawaited(_useGps());
+    }
   }
 
   void _onQueryChanged(String query) {
@@ -71,18 +91,24 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   }
 
   Future<void> _runSearch(String query) async {
+    final gen = ++_searchGen;
     _searching.value = true;
     final result = await _searchCities(query);
+    if (gen != _searchGen || !mounted) {
+      return;
+    }
     _searchFailed.value = result.valueOrNull == null;
     _results.value = result.valueOrNull ?? const [];
     _searching.value = false;
   }
 
   Future<void> _useGps() async {
-    final l10n = context.l10n;
     _gpsBusy.value = true;
-    _gpsNotice.value = null;
+    _gpsFailure.value = null;
     final result = await _getLocation();
+    if (!mounted) {
+      return;
+    }
     _gpsBusy.value = false;
     switch (result) {
       case Success<GpsLocation>(:final value):
@@ -91,11 +117,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
           context.pop();
         }
       case FailureResult<GpsLocation>(:final failure):
-        _serviceOff = failure is LocationServiceDisabled;
-        _gpsNotice.value = switch (failure) {
-          LocationServiceDisabled() => l10n.locationServiceOff,
-          _ => l10n.locationDeniedFallback,
-        };
+        _gpsFailure.value = failure;
     }
   }
 
@@ -155,23 +177,45 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   style: QType.caption.copyWith(color: q.ink2),
                 ),
                 SignalBuilder(builder: (context) {
-                  final notice = _gpsNotice.value;
-                  if (notice == null) {
+                  final failure = _gpsFailure.value;
+                  if (failure == null) {
                     return const SizedBox.shrink();
                   }
+                  // Settings fixes services-off and "don't ask again";
+                  // a plain denial or a missed fix just needs another try.
+                  final needsSettings =
+                      failure is LocationServiceDisabled ||
+                      failure is LocationPermissionDeniedForever;
                   return Padding(
                     padding: const EdgeInsets.only(top: QSpace.s3),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        QBanner(text: notice, icon: Icons.explore_outlined),
+                        QBanner(
+                          text: switch (failure) {
+                            LocationServiceDisabled() => l10n.locationServiceOff,
+                            LocationPermissionDeniedForever() =>
+                              l10n.locationDeniedForever,
+                            LocationPermissionDenied() =>
+                              l10n.locationDeniedFallback,
+                            _ => l10n.locationUnavailable,
+                          },
+                          icon: Icons.explore_outlined,
+                        ),
                         TextButton(
-                          onPressed: () => unawaited(
-                            _getLocation.openSettings(
-                              locationService: _serviceOff,
-                            ),
+                          onPressed: needsSettings
+                              ? () => unawaited(
+                                  _getLocation.openSettings(
+                                    locationService:
+                                        failure is LocationServiceDisabled,
+                                  ),
+                                )
+                              : () => unawaited(_useGps()),
+                          child: Text(
+                            needsSettings
+                                ? l10n.openSystemSettings
+                                : l10n.locationRetry,
                           ),
-                          child: Text(l10n.openSystemSettings),
                         ),
                       ],
                     ),
@@ -183,20 +227,6 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   decoration: InputDecoration(
                     hintText: l10n.locationSearchHint,
                     prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: q.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(QRadius.md),
-                      borderSide: BorderSide(color: q.line, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(QRadius.md),
-                      borderSide: BorderSide(color: q.line, width: 1.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(QRadius.md),
-                      borderSide: BorderSide(color: q.primary, width: 2),
-                    ),
                   ),
                 ),
               ],

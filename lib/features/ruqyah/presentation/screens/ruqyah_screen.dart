@@ -10,6 +10,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
@@ -94,25 +95,32 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
               children: [
                 const _GuidanceCard(),
                 const SizedBox(height: QSpace.s4),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: QSpace.s3,
-                  crossAxisSpacing: QSpace.s3,
-                  childAspectRatio: 1.2 / context.textGrowth,
-                  children: [
-                    if (!_store.loaded.value)
-                      for (var i = 0; i < 6; i++)
-                        const QSkeleton(height: 120, radius: QRadius.lg),
-                    for (final category in categories)
-                      _CategoryCard(
-                        category: category,
-                        onTap: () =>
-                            _open(RuqyahCategoryScreen(category: category)),
-                      ),
-                  ],
-                ),
+                if (_store.failed.value && categories.isEmpty)
+                  QErrorRetry(
+                    message: l10n.ruqyahLoadError,
+                    retryLabel: l10n.hadithRetry,
+                    onRetry: () => unawaited(_store.load()),
+                  )
+                else
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: QSpace.s3,
+                    crossAxisSpacing: QSpace.s3,
+                    childAspectRatio: 1.2 / context.textGrowth,
+                    children: [
+                      if (!_store.loaded.value)
+                        for (var i = 0; i < 6; i++)
+                          const QSkeleton(height: 120, radius: QRadius.lg),
+                      for (final category in categories)
+                        _CategoryCard(
+                          category: category,
+                          onTap: () =>
+                              _open(RuqyahCategoryScreen(category: category)),
+                        ),
+                    ],
+                  ),
               ],
             );
           },

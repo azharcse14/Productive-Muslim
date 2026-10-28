@@ -10,9 +10,12 @@ final class InMemoryMosqueRepository implements MosqueRepository {
 
   MosqueState stored;
   int saves = 0;
+  bool failLoad = false;
 
   @override
-  Future<Result<MosqueState>> load() async => Result.success(stored);
+  Future<Result<MosqueState>> load() async => failLoad
+      ? const Result.failure(UnexpectedFailure('boom'))
+      : Result.success(stored);
 
   @override
   Future<Result<void>> save(MosqueState state) async {

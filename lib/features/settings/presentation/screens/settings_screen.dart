@@ -106,6 +106,8 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: _AdjustmentStepper(
                         key: const ValueKey('sahri-safety-stepper'),
                         value: params.sahriSafetyMinutes,
+                        min: 0,
+                        max: PrayerParams.maxSahriSafety,
                         label: l10n.settingSahriSafety,
                         onChanged: _store.setSahriSafety,
                       ),
@@ -118,6 +120,8 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: _AdjustmentStepper(
                         key: const ValueKey('hijri-offset-stepper'),
                         value: settings.hijriOffsetDays,
+                        min: AppSettings.minHijriOffset,
+                        max: AppSettings.maxHijriOffset,
                         label: l10n.settingHijriOffset,
                         format: (v) => l10n.hijriOffsetValue(
                           v.abs(),
@@ -256,7 +260,15 @@ final class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleAppLock(bool enable) async {
     final lock = locator<AppLockStore>();
     if (!enable) {
-      await lock.disable();
+      // Turning the lock off needs the PIN (or biometric) first.
+      final verified = await Navigator.of(context).push(
+        MaterialPageRoute<bool>(
+          builder: (_) => const LockScreen(mode: LockScreenMode.verify),
+        ),
+      );
+      if (verified ?? false) {
+        await lock.disable();
+      }
       return;
     }
     await Navigator.of(context).push(
@@ -417,6 +429,8 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           _AdjustmentStepper(
                             value: params.adjustmentFor(prayer),
+                            min: -PrayerParams.maxAdjustment,
+                            max: PrayerParams.maxAdjustment,
                             label: l10n.prayerLabel(prayer),
                             onChanged: (v) => _store.setAdjustment(prayer, v),
                           ),
@@ -452,6 +466,8 @@ final class _GroupHeader extends StatelessWidget {
 final class _AdjustmentStepper extends StatelessWidget {
   const _AdjustmentStepper({
     required this.value,
+    required this.min,
+    required this.max,
     required this.label,
     required this.onChanged,
     this.format,
@@ -459,6 +475,10 @@ final class _AdjustmentStepper extends StatelessWidget {
   });
 
   final int value;
+
+  /// Inclusive bounds; the button at a bound is disabled.
+  final int min;
+  final int max;
 
   /// Setting name, woven into the +/- buttons' screen-reader labels.
   final String label;
@@ -482,7 +502,7 @@ final class _AdjustmentStepper extends StatelessWidget {
           QStepButton(
             icon: Icons.remove,
             semanticLabel: l10n.a11yDecrease(label),
-            onTap: () => onChanged(value - 1),
+            onTap: value > min ? () => onChanged(value - 1) : null,
           ),
           SizedBox(
             width: format == null ? 56 : 72,
@@ -495,7 +515,7 @@ final class _AdjustmentStepper extends StatelessWidget {
           QStepButton(
             icon: Icons.add,
             semanticLabel: l10n.a11yIncrease(label),
-            onTap: () => onChanged(value + 1),
+            onTap: value < max ? () => onChanged(value + 1) : null,
           ),
         ],
       ),

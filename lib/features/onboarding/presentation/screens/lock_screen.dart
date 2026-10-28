@@ -14,8 +14,12 @@ import '../../../../shared/widgets/q_button.dart';
 import '../state/app_lock_store.dart';
 
 /// PIN (+ optional biometric) gate. Also reused as the PIN setup screen
-/// via [LockScreenMode].
-enum LockScreenMode { unlock, setup }
+/// and, via [LockScreenMode.verify], as the re-auth step before turning the
+/// lock off (pops `true` once the PIN or biometric checks out).
+enum LockScreenMode { unlock, setup, verify }
+
+/// Keypad sentinel for the delete key (drawn as an icon).
+const _backspace = 'del';
 
 final class LockScreen extends StatefulWidget {
   const LockScreen({this.mode = LockScreenMode.unlock, super.key});
@@ -35,7 +39,8 @@ final class _LockScreenState extends State<LockScreen> {
 
   /// "Forgot PIN?" verified via the device lock: collect a new PIN. Lives
   /// in the store so leaving the app ends it.
-  late bool _resetting = _store.pinResetAuthorized.value;
+  late bool _resetting =
+      widget.mode == LockScreenMode.unlock && _store.pinResetAuthorized.value;
   void Function()? _stopResetWatch;
 
   /// Repaints the cooldown countdown once a second while throttled.
@@ -59,12 +64,30 @@ final class _LockScreenState extends State<LockScreen> {
           _error = null;
         });
       });
+    }
+    if (widget.mode != LockScreenMode.setup) {
       _syncCooldownTicker();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          unawaited(_store.unlockWithBiometric(context.l10n.appLockEnterPin));
+          unawaited(_biometric());
         }
       });
+    }
+  }
+
+  bool get _verifying => widget.mode == LockScreenMode.verify;
+
+  /// Unlock: the store flips the gate. Verify: report success to the
+  /// caller.
+  void _verified() {
+    if (_verifying && mounted) {
+      Navigator.of(context).pop(true);
+    }
+  }
+
+  Future<void> _biometric() async {
+    if (await _store.unlockWithBiometric(context.l10n.appLockBiometricReason)) {
+      _verified();
     }
   }
 
@@ -174,7 +197,9 @@ final class _LockScreenState extends State<LockScreen> {
     switch (_settingPin) {
       case false:
         final ok = await _store.unlockWithPin(_entered);
-        if (!ok && mounted) {
+        if (ok) {
+          _verified();
+        } else if (mounted) {
           Haptics.heavy();
           setState(() {
             _entered = '';
@@ -194,7 +219,8 @@ final class _LockScreenState extends State<LockScreen> {
             await _store.resetPin(_entered);
           } else {
             // Biometrics are an explicit opt-in, never switched on silently.
-            final biometric = await _store.canUseBiometric() &&
+            final biometric =
+                await _store.canUseBiometric() &&
                 mounted &&
                 await _offerBiometric();
             await _store.enable(_entered, biometric: biometric);
@@ -234,7 +260,7 @@ final class _LockScreenState extends State<LockScreen> {
         : _error;
     return Scaffold(
       // Setup is pushed from Settings: give it a visible way back out.
-      appBar: widget.mode == LockScreenMode.setup ? AppBar() : null,
+      appBar: widget.mode == LockScreenMode.unlock ? null : AppBar(),
       body: SafeArea(
         // Spacers spread the gate on tall screens; short ones scroll.
         child: LayoutBuilder(
@@ -280,7 +306,12 @@ final class _LockScreenState extends State<LockScreen> {
                       child: message == null
                           ? null
                           : Padding(
-                              padding: const EdgeInsets.fromLTRB(QSpace.s5, QSpace.s2, QSpace.s5, 0),
+                              padding: const EdgeInsets.fromLTRB(
+                                QSpace.s5,
+                                QSpace.s2,
+                                QSpace.s5,
+                                0,
+                              ),
                               child: Semantics(
                                 liveRegion: true,
                                 child: Text(
@@ -299,7 +330,7 @@ final class _LockScreenState extends State<LockScreen> {
                       ['1', '2', '3'],
                       ['4', '5', '6'],
                       ['7', '8', '9'],
-                      ['', '0', '⌫'],
+                      ['', '0', _backspace],
                     ])
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -312,7 +343,7 @@ final class _LockScreenState extends State<LockScreen> {
                                   : Semantics(
                                       button: true,
                                       enabled: cooldown == null,
-                                      label: key == '⌫'
+                                      label: key == _backspace
                                           ? l10n.appLockDelete
                                           : context.digits(key),
                                       excludeSemantics: true,
@@ -322,7 +353,7 @@ final class _LockScreenState extends State<LockScreen> {
                                         ),
                                         onTap: cooldown != null
                                             ? null
-                                            : () => key == '⌫'
+                                            : () => key == _backspace
                                                   ? _onBackspace()
                                                   : unawaited(_onDigit(key)),
                                         child: Container(
@@ -334,12 +365,17 @@ final class _LockScreenState extends State<LockScreen> {
                                             border: Border.all(color: q.line),
                                           ),
                                           child: Center(
-                                            child: Text(
-                                              context.digits(key),
-                                              style: QType.num_(
-                                                QType.title,
-                                              ).copyWith(color: q.ink),
-                                            ),
+                                            child: key == _backspace
+                                                ? Icon(
+                                                    Icons.backspace_outlined,
+                                                    color: q.ink,
+                                                  )
+                                                : Text(
+                                                    context.digits(key),
+                                                    style: QType.num_(
+                                                      QType.title,
+                                                    ).copyWith(color: q.ink),
+                                                  ),
                                           ),
                                         ),
                                       ),
@@ -361,20 +397,19 @@ final class _LockScreenState extends State<LockScreen> {
                                     kind: QButtonKind.ghost,
                                     small: true,
                                     icon: Icons.fingerprint,
-                                    onPressed: () => unawaited(
-                                      _store.unlockWithBiometric(
-                                        l10n.appLockEnterPin,
-                                      ),
-                                    ),
+                                    onPressed: () => unawaited(_biometric()),
                                   )
                                 : const SizedBox.shrink(),
                           ),
-                          QButton(
-                            label: l10n.appLockForgotPin,
-                            kind: QButtonKind.ghost,
-                            small: true,
-                            onPressed: () => unawaited(_forgotPin()),
-                          ),
+                          // Re-auth must prove the PIN (or biometric); a reset
+                          // here would bypass that.
+                          if (!_verifying)
+                            QButton(
+                              label: l10n.appLockForgotPin,
+                              kind: QButtonKind.ghost,
+                              small: true,
+                              onPressed: () => unawaited(_forgotPin()),
+                            ),
                         ],
                       ),
                     const SizedBox(height: QSpace.s6),

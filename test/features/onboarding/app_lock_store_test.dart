@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/config/app_config.dart';
@@ -156,8 +157,16 @@ void main() {
 
     test('obscures the UI while not in the foreground', () async {
       final store = await unlocked();
+      // Android: inactive (shade, permission dialog) leaves the UI alone.
+      store.onLifecycleChanged(AppLifecycleState.inactive);
+      expect(store.obscured.value, isFalse);
+      store.onLifecycleChanged(AppLifecycleState.resumed);
+      // iOS snapshots the app switcher on inactive: cover right away.
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
       store.onLifecycleChanged(AppLifecycleState.inactive);
       expect(store.obscured.value, isTrue);
+      debugDefaultTargetPlatformOverride = null;
       background(store);
       expect(store.obscured.value, isTrue);
       foreground(store);

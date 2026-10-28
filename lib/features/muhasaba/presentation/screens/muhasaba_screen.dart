@@ -21,6 +21,7 @@ import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
+import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
@@ -45,6 +46,9 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
 
   int _tab = 0;
   bool _welcomeDismissed = false;
+
+  /// The Today list cascades in once per screen, not on every tab switch.
+  bool _cascadePlayed = false;
 
   String _nameOf(AppLocalizations l10n, TrackerItem item) =>
       item.isDefault ? l10n.trackerName(item.name) : item.name;
@@ -92,7 +96,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
               child: QSegControl(
                 options: [l10n.todayTab, l10n.dashboardTab],
                 activeIndex: _tab,
-                onChanged: (i) => setState(() => _tab = i),
+                onChanged: (i) => setState(() {
+                  _tab = i;
+                  _cascadePlayed = true;
+                }),
               ),
             ),
             Expanded(
@@ -119,7 +126,11 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       for (final i in items)
         if (i.id.startsWith('salah_')) i,
     ];
-    // Salah whose waqt hasn't begun yet on the selected date.
+    // Salah whose waqt hasn't begun yet on the selected date. Home's
+    // lockedPrayers flips at each waqt boundary, so the chips unlock live.
+    if (locator.isRegistered<HomeStore>()) {
+      locator<HomeStore>().lockedPrayers.value;
+    }
     final locked = _store.lockedSalah;
     final others = [
       for (final i in items)
@@ -148,7 +159,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           QSpace.s5,
           QSpace.s5,
         ),
-        children: staggered([
+        children: staggered(limit: _cascadePlayed ? 0 : 10, [
           _dateSwitcher(context),
           _dayComplete(context, items),
           const SizedBox(height: QSpace.s3),
@@ -164,7 +175,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                     child: QChip(
                       label: _nameOf(l10n, item),
                       icon: Icons.schedule,
-                      onTap: () => _showLockedToast(context),
+                      // Re-check: the waqt may have begun since this build.
+                      onTap: () => _store.lockedSalah.contains(item.id)
+                          ? _showLockedToast(context)
+                          : unawaited(_store.setValue(item.id, 1)),
                     ),
                   )
                 else
@@ -528,7 +542,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       child: Column(
         children: [
           for (final (i, (item, it)) in rows.indexed) ...[
-            if (i > 0) const SizedBox(height: 10),
+            if (i > 0) const SizedBox(height: QSpace.s3),
             Row(
               children: [
                 Expanded(
@@ -536,14 +550,14 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                     _nameOf(l10n, item),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: QType.caption.copyWith(fontSize: 12.5, color: q.ink),
+                    style: QType.label.copyWith(color: q.ink),
                   ),
                 ),
                 const SizedBox(width: QSpace.s3),
                 Expanded(
                   flex: 2,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(QRadius.full),
                     child: Container(
                       height: 6,
                       color: q.surface2,

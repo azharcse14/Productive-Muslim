@@ -159,8 +159,11 @@ abstract final class AppSettingsModel {
       ),
       adjustments: {
         for (final prayer in Prayer.values)
-          if (rawAdjustments[prayer.name] is int)
-            prayer: rawAdjustments[prayer.name]! as int,
+          if (rawAdjustments[prayer.name] case final int minutes)
+            prayer: minutes.clamp(
+              -PrayerParams.maxAdjustment,
+              PrayerParams.maxAdjustment,
+            ),
       },
       sahriSafetyMinutes:
           _as<num>(map['sahriSafety'])?.toInt() ?? defaults.sahriSafetyMinutes,

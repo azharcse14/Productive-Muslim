@@ -41,6 +41,11 @@ void main() {
 
     testWidgets('add-profile dialog creates and activates a profile',
         (tester) async {
+      // Tall surface so the Maghrib card is laid out.
+      tester.view.physicalSize = const Size(1200, 2600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       await register();
       await tester.pumpWidget(_app());
       await tester.tap(find.text('Add profile'));
@@ -111,6 +116,43 @@ void main() {
       await tester.tap(find.text('WorkM'));
       await tester.pump();
       expect(repo.stored.activeId, 'b');
+    });
+
+    testWidgets('choosing Fixed opens the picker; cancel saves nothing',
+        (tester) async {
+      await register(
+        const MosqueState(
+          profiles: [MosqueProfile(id: 'a', name: 'Home')],
+          activeId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Fixed').first); // fajr row
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsOneWidget);
+      expect(repo.saves, 0);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(repo.saves, 0);
+      expect(repo.stored.profiles.single.entries[Prayer.fajr], isNull);
+    });
+
+    testWidgets('long-pressing a profile chip renames it', (tester) async {
+      await register(
+        const MosqueState(
+          profiles: [MosqueProfile(id: 'a', name: 'HomeM')],
+          activeId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      await tester.longPress(find.text('HomeM'));
+      await tester.pumpAndSettle();
+      expect(find.text('Rename mosque'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'Masjid');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(repo.stored.profiles.single.name, 'Masjid');
     });
   });
 }

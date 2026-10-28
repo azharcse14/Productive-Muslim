@@ -12,6 +12,7 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
+import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
@@ -25,6 +26,7 @@ import '../../../hadith/presentation/state/hadith_store.dart';
 import '../../../hadith/presentation/widgets/hadith_card.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../../../nearby_mosques/domain/usecases/open_nearby_mosques.dart';
+import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
@@ -79,6 +81,28 @@ final class _HomeScreenState extends State<HomeScreen> {
       locator.isRegistered<DailyContentStore>()
       ? locator<DailyContentStore>()
       : null;
+  late final NotificationScheduler? _scheduler =
+      locator.isRegistered<NotificationScheduler>()
+      ? locator<NotificationScheduler>()
+      : null;
+
+  /// Android 12+: false while exact alarms are denied (azan may run late).
+  bool _exactAlarms = true;
+
+  /// The 1s tick runs only while the app is shown AND Home is on screen
+  /// (not under another shell tab or a pushed route).
+  bool _appShown = true;
+  bool _onScreen = true;
+
+  void _syncTicker() =>
+      _appShown && _onScreen ? _store.resume() : _store.pause();
+
+  Future<void> _checkExactAlarms() async {
+    final ok = await _scheduler?.canScheduleExactAlarms() ?? true;
+    if (mounted && ok != _exactAlarms) {
+      setState(() => _exactAlarms = ok);
+    }
+  }
 
   /// A small rotation of short, well-known verses; the day picks one so the
   /// "Ayah of the day" is stable for the whole day but varies day to day.
@@ -138,10 +162,21 @@ final class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _lifecycle = AppLifecycleListener(
-      onHide: _store.pause,
-      onShow: _store.resume,
-      onResume: () => unawaited(_refreshGps()),
+      onHide: () {
+        _appShown = false;
+        _syncTicker();
+      },
+      onShow: () {
+        _appShown = true;
+        _syncTicker();
+      },
+      onResume: () {
+        unawaited(_refreshGps());
+        // Back from the exact-alarm settings page.
+        unawaited(_checkExactAlarms());
+      },
     );
+    unawaited(_checkExactAlarms());
     _dayWatcher = effect(() {
       _store.dateKey.value;
       untracked(() {
@@ -248,6 +283,16 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final onScreen = TickerMode.valuesOf(context).enabled;
+    if (onScreen != _onScreen) {
+      _onScreen = onScreen;
+      _syncTicker();
+    }
+  }
+
+  @override
   void dispose() {
     _lifecycle.dispose();
     _dayWatcher();
@@ -304,7 +349,10 @@ final class _HomeScreenState extends State<HomeScreen> {
           builder: (context) {
             final day = _store.prayerDay.value;
             if (day == null) {
-              return HomeEmptyLocation(l10n: l10n);
+              return HomeEmptyLocation(
+                l10n: l10n,
+                failed: _store.location.value != null,
+              );
             }
             final compact = MediaQuery.sizeOf(context).height < 700;
             final locale = Localizations.localeOf(context);
@@ -316,6 +364,7 @@ final class _HomeScreenState extends State<HomeScreen> {
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
+              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -508,6 +557,25 @@ final class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  /// Shown while Android denies exact alarms; tapping opens the OS consent.
+  Widget _exactAlarmBanner(BuildContext context) => Semantics(
+    button: true,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => unawaited(
+        _scheduler?.requestExactAlarmPermission().then(
+          (_) => _checkExactAlarms(),
+        ),
+      ),
+      child: QBanner(
+        text: context.l10n.prayerTimesExactAlarmBanner,
+        icon: Icons.alarm_outlined,
+        tone: context.q.warnSoft,
+        foreground: context.q.warn,
+      ),
+    ),
+  );
 
   /// Tools hub: shortcuts to features that aren't a bottom-nav tab and
   /// don't already have their own home affordance (qibla lives in the

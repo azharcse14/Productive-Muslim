@@ -47,9 +47,11 @@ final class QuranStore {
     loaded.value = true;
   }
 
-  /// Index search — debounced by the caller.
-  Future<List<Surah>> search(String query) async =>
-      (await _repository.searchSurahs(query)).valueOrNull ?? const [];
+  /// Index search — debounced by the caller. Filters the already-loaded
+  /// index in memory; only hits the DB before [load] has succeeded.
+  Future<List<Surah>> search(String query) async => surahs.value.isNotEmpty
+      ? filterSurahs(surahs.value, query)
+      : (await _repository.searchSurahs(query)).valueOrNull ?? const [];
 
   /// Ayahs for the reader, ordered by number within the surah; null when
   /// the read failed (distinct from still loading).
@@ -88,10 +90,13 @@ final class QuranStore {
     return null;
   }
 
-  Future<void> setReaderFontSize(double size) async {
+  /// [persist] false previews the size (slider drag) without a prefs write.
+  Future<void> setReaderFontSize(double size, {bool persist = true}) async {
     final clamped = _clampFontSize(size);
     readerFontSize.value = clamped;
-    await _prefs.setDouble(_fontSizeKey, clamped);
+    if (persist) {
+      await _prefs.setDouble(_fontSizeKey, clamped);
+    }
   }
 
   Future<void> setShowTranslation({required bool value}) async {

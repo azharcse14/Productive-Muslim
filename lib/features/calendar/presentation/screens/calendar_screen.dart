@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
@@ -50,10 +51,8 @@ final class _CalendarScreenState extends State<CalendarScreen> {
     });
   }
 
-  String _digits(BuildContext context, String text) => LocaleDigits.localize(
-        text,
-        Localizations.localeOf(context).languageCode,
-      );
+  String _digits(BuildContext context, String text) =>
+      LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
 
   /// Hijri month-year span of the displayed Gregorian month, e.g.
   /// "Dhul-Qadah – Dhul-Hijjah 1447".
@@ -69,8 +68,8 @@ final class _CalendarScreenState extends State<CalendarScreen> {
     final label = first.month == last.month && first.year == last.year
         ? '$from ${first.year}'
         : first.year == last.year
-            ? '$from – $to ${first.year}'
-            : '$from ${first.year} – $to ${last.year}';
+        ? '$from – $to ${first.year}'
+        : '$from ${first.year} – $to ${last.year}';
     return _digits(context, label);
   }
 
@@ -87,17 +86,17 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
-        builder: (sheetContext) => _DaySheet(
-          day: day,
-          prayerDay: prayerDay,
-          offsetDays: _offset,
-        ),
+        builder: (sheetContext) =>
+            _DaySheet(day: day, prayerDay: prayerDay, offsetDays: _offset),
       ),
     );
   }
 
+  // Hijri offset and location (today) are signals: rebuild when they change.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => SignalBuilder(builder: _build);
+
+  Widget _build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
     final locale = Localizations.localeOf(context);
@@ -121,8 +120,9 @@ final class _CalendarScreenState extends State<CalendarScreen> {
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
                   color: q.ink2,
-                  tooltip: MaterialLocalizations.of(context)
-                      .previousPageTooltip,
+                  tooltip: MaterialLocalizations.of(
+                    context,
+                  ).previousPageTooltip,
                   onPressed: () => _shiftMonth(-1),
                 ),
                 Expanded(
@@ -144,8 +144,7 @@ final class _CalendarScreenState extends State<CalendarScreen> {
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
                   color: q.ink2,
-                  tooltip:
-                      MaterialLocalizations.of(context).nextPageTooltip,
+                  tooltip: MaterialLocalizations.of(context).nextPageTooltip,
                   onPressed: () => _shiftMonth(1),
                 ),
               ],
@@ -214,18 +213,17 @@ final class _MonthGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    final locale = Localizations.localeOf(context);
+    final material = MaterialLocalizations.of(context);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    // Monday-first grid; 2024-01-01 is a Monday (weekday-label anchor).
-    final leading = DateTime(month.year, month.month).weekday - 1;
+    // Locale's first weekday (0 = Sunday, as narrowWeekdays is indexed).
+    final firstDay = material.firstDayOfWeekIndex;
+    final leading =
+        (DateTime(month.year, month.month).weekday % 7 - firstDay + 7) % 7;
     final cells = <Widget>[
       for (var i = 0; i < 7; i++)
         Center(
           child: Text(
-            DateFormat.E(locale.toString())
-                .format(DateTime(2024, 1, 1 + i))
-                .characters
-                .first,
+            material.narrowWeekdays[(firstDay + i) % 7],
             style: QType.caption.copyWith(color: q.ink3),
           ),
         ),
@@ -266,39 +264,57 @@ final class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    final language = Localizations.localeOf(context).languageCode;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context);
+    final language = locale.languageCode;
     final hijri = HijriDate.fromGregorian(date, offsetDays: offsetDays);
-    final hasEvent = IslamicDates.of(hijri) != null;
-    return InkWell(
-      borderRadius: BorderRadius.circular(QRadius.sm),
+    final event = IslamicDates.of(hijri);
+    final hasEvent = event != null;
+    final label = LocaleDigits.localize(
+      [
+        DateFormat.yMMMMEEEEd(locale.toString()).format(date),
+        '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}',
+        if (event != null) l10n.islamicDayName(event.name),
+      ].join(', '),
+      language,
+    );
+    return Semantics(
+      button: true,
+      selected: isToday,
+      label: label,
+      excludeSemantics: true,
       onTap: () => onTap(date),
-      child: Container(
-        margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(QRadius.sm),
-          border: isToday ? Border.all(color: q.primary, width: 1.5) : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              LocaleDigits.localize('${date.day}', language),
-              style: QType.num_(QType.label).copyWith(color: q.ink),
-            ),
-            Text(
-              LocaleDigits.localize('${hijri.day}', language),
-              style: QType.caption.copyWith(color: q.ink3),
-            ),
-            Container(
-              width: 5,
-              height: 5,
-              margin: const EdgeInsets.only(top: 2),
-              decoration: BoxDecoration(
-                color: hasEvent ? q.accent : Colors.transparent,
-                shape: BoxShape.circle,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(QRadius.sm),
+        onTap: () => onTap(date),
+        child: Container(
+          margin: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(QRadius.sm),
+            border: isToday ? Border.all(color: q.primary, width: 1.5) : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                LocaleDigits.localize('${date.day}', language),
+                style: QType.num_(QType.label).copyWith(color: q.ink),
               ),
-            ),
-          ],
+              Text(
+                LocaleDigits.localize('${hijri.day}', language),
+                style: QType.caption.copyWith(color: q.ink3),
+              ),
+              Container(
+                width: 5,
+                height: 5,
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(
+                  color: hasEvent ? q.accent : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -316,10 +332,8 @@ final class _DaySheet extends StatelessWidget {
   final int offsetDays;
   final PrayerDay? prayerDay;
 
-  String _digits(BuildContext context, String text) => LocaleDigits.localize(
-        text,
-        Localizations.localeOf(context).languageCode,
-      );
+  String _digits(BuildContext context, String text) =>
+      LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
 
   String _formatTime(BuildContext context, DateTime time) {
     final locale = Localizations.localeOf(context);

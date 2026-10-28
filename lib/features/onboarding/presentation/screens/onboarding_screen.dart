@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -50,6 +51,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _go(int step) {
     setState(() => _step = step);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _pages.jumpToPage(step);
+      return;
+    }
     unawaited(
       _pages.animateToPage(step, duration: QMotion.med, curve: QMotion.ease),
     );
@@ -57,6 +62,13 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _allowNotifications() async {
     final status = await _scheduler.requestPermission();
+    // Azan on time needs exact alarms (Android 12+); ask right after the
+    // notification grant, while the user is already saying yes.
+    if (status == NotificationPermission.granted &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        !await _scheduler.canScheduleExactAlarms()) {
+      await _scheduler.requestExactAlarmPermission();
+    }
     if (!mounted) {
       return;
     }
@@ -144,17 +156,31 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                       )
                     else
                       const SizedBox(width: QSpace.s3),
-                    for (var i = 0; i < _stepCount; i++)
-                      Expanded(
-                        child: Container(
-                          height: 4,
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            color: i <= _step ? q.primary : q.surface2,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
+                    Expanded(
+                      child: Semantics(
+                        label: context.l10n.onboardingStepProgress(
+                          _step + 1,
+                          _stepCount,
+                        ),
+                        child: Row(
+                          children: [
+                            for (var i = 0; i < _stepCount; i++)
+                              Expanded(
+                                child: Container(
+                                  height: 4,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: i <= _step ? q.primary : q.surface2,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -185,18 +211,37 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     required Widget actions,
   }) {
     final q = context.q;
+    // Title, note and content scroll together so large text never
+    // overflows; the actions stay pinned below.
     return Padding(
       padding: const EdgeInsets.all(QSpace.s5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: QType.headline.copyWith(color: q.ink)),
-          if (note != null) ...[
-            const SizedBox(height: QSpace.s2),
-            Text(note, style: QType.body.copyWith(color: q.ink2)),
-          ],
-          const SizedBox(height: QSpace.s5),
-          Expanded(child: child),
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Text(
+                    title,
+                    style: QType.headline.copyWith(color: q.ink),
+                  ),
+                ),
+                if (note != null)
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: QSpace.s2),
+                    sliver: SliverToBoxAdapter(
+                      child: Text(
+                        note,
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                    ),
+                  ),
+                const SliverToBoxAdapter(child: SizedBox(height: QSpace.s5)),
+                SliverFillRemaining(hasScrollBody: false, child: child),
+              ],
+            ),
+          ),
           const SizedBox(height: QSpace.s4),
           actions,
         ],
@@ -213,25 +258,23 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _welcome() => _frame(
     title: context.l10n.onboardingWelcomeTitle,
     child: Center(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            QalbMark(
-              size: 120,
-              color: context.q.primary,
-              accent: context.q.primary,
-            ),
-            const SizedBox(height: QSpace.s6),
-            Text(
-              context.l10n.onboardingWelcomeBody,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: context.q.ink2),
-            ),
-            const SizedBox(height: QSpace.s6),
-            _languagePicker(),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          QalbMark(
+            size: 120,
+            color: context.q.primary,
+            accent: context.q.primary,
+          ),
+          const SizedBox(height: QSpace.s6),
+          Text(
+            context.l10n.onboardingWelcomeBody,
+            textAlign: TextAlign.center,
+            style: QType.body.copyWith(color: context.q.ink2),
+          ),
+          const SizedBox(height: QSpace.s6),
+          _languagePicker(),
+        ],
       ),
     ),
     actions: _nextButton(),
@@ -339,7 +382,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           for (final m in CalculationMethodId.values)
             if (m != suggested) m,
         ];
-        return ListView(
+        return Column(
           children: [
             for (final method in ordered)
               QListRow(

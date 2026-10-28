@@ -26,6 +26,9 @@ final class _FitraScreenState extends State<FitraScreen> {
   FitraStaple _staple = FitraStaple.wheat;
   FitraResult? _result;
 
+  /// Fields whose non-empty text didn't parse; shown as field errors.
+  Set<TextEditingController> _invalid = {};
+
   @override
   void dispose() {
     _price.dispose();
@@ -33,13 +36,33 @@ final class _FitraScreenState extends State<FitraScreen> {
     super.dispose();
   }
 
+  /// Drops the result on any input change, so it never shows numbers for
+  /// different inputs.
+  void _edit(VoidCallback change) => setState(() {
+    change();
+    _result = null;
+    _invalid = {};
+  });
+
   void _calculate() {
+    final priceText = LocaleDigits.toAscii(_price.text).trim();
+    final peopleText = LocaleDigits.toAscii(_people.text).trim();
+    final price = double.tryParse(priceText);
+    final people = int.tryParse(peopleText);
     setState(() {
+      _invalid = {
+        if (priceText.isNotEmpty && (price == null || !price.isFinite)) _price,
+        if (peopleText.isNotEmpty && people == null) _people,
+      };
+      if (_invalid.isNotEmpty) {
+        _result = null;
+        return;
+      }
       _result = FitraCalculator.calculate(
         FitraInput(
           staple: _staple,
-          pricePerKg: double.tryParse(LocaleDigits.toAscii(_price.text)) ?? 0,
-          numberOfPeople: int.tryParse(LocaleDigits.toAscii(_people.text)) ?? 0,
+          pricePerKg: price ?? 0,
+          numberOfPeople: people ?? 0,
         ),
       );
     });
@@ -99,22 +122,36 @@ final class _FitraScreenState extends State<FitraScreen> {
                   ),
               ],
               onChanged: (value) {
-                if (value != null) setState(() => _staple = value);
+                if (value != null) _edit(() => _staple = value);
               },
             ),
             const SizedBox(height: QSpace.s3),
             TextField(
               controller: _price,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              onChanged: (_) => _edit(() {}),
               style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(labelText: l10n.fitraPricePerKg),
+              decoration: InputDecoration(
+                labelText: l10n.fitraPricePerKg,
+                errorText: _invalid.contains(_price)
+                    ? l10n.fitraInvalidNumber
+                    : null,
+              ),
             ),
             const SizedBox(height: QSpace.s3),
             TextField(
               controller: _people,
               keyboardType: TextInputType.number,
+              onChanged: (_) => _edit(() {}),
               style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(labelText: l10n.fitraPeople),
+              decoration: InputDecoration(
+                labelText: l10n.fitraPeople,
+                errorText: _invalid.contains(_people)
+                    ? l10n.fitraInvalidNumber
+                    : null,
+              ),
             ),
             const SizedBox(height: QSpace.s4),
             QButton(

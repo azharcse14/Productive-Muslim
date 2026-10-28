@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1233,12 +1232,16 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday':
+          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays':
+          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura':
+          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah': 'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'dhulHijjah':
+          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',
@@ -2294,10 +2297,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String expenseImported(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countটি খরচ ফেরত আনা হয়েছে',
+      other: '$countStringটি খরচ ফেরত আনা হয়েছে',
       zero: 'ফেরত আনার মতো নতুন কিছু নেই',
     );
     return '$_temp0';
@@ -2387,7 +2394,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get focusDisclosureBody =>
-      'Productive Muslim অ্যাক্সেসিবিলিটি সার্ভিস শুধু জামাত ফোকাস আর নফস লকের জন্য ব্যবহার করে: সেশন চলাকালে অন্য অ্যাপ খুললে তা লক স্ক্রিন দিয়ে ঢেকে দিতে; নফস লক চালু থাকলে ৫ বার জোরে ঝাঁকানো ধরতে মোশন সেন্সরও দেখে। আপনি যা দেখেন বা লেখেন তা পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
+      'Productive Muslim অ্যাক্সেসিবিলিটি সার্ভিস শুধু জামাত ফোকাস সেশনের সময় ব্যবহার করে: অন্য অ্যাপ খুললে তা জামাতের স্ক্রিন দিয়ে ঢেকে দিতে। আপনি যা দেখেন বা লেখেন তা পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
 
   @override
   String get focusContinue => 'চালিয়ে যান';
@@ -2405,35 +2412,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get focusEndNow => 'এখনই বন্ধ করুন';
-
-  @override
-  String get nafsHeader => 'নফস লক';
-
-  @override
-  String get nafsToggle => 'ঝাঁকালে লক';
-
-  @override
-  String get nafsToggleSub =>
-      'নফস খারাপ কিছুর দিকে টানলে ফোন জোরে ৫ বার ঝাঁকান: ফোন লক হয়ে যাবে, সময় শেষ না হওয়া পর্যন্ত খুলবে না। কল করা যাবে';
-
-  @override
-  String get nafsDurationLabel => 'লক থাকবে';
-
-  @override
-  String get nafsPermBlock => 'নফস লক কাজ করতে অ্যাক্সেসিবিলিটি অনুমতি দিন';
-
-  @override
-  String nafsActiveUntil(String time) {
-    return '$time পর্যন্ত নফস লক চালু';
-  }
-
-  @override
-  String get nafsLockTitle => 'নফস লক';
-
-  @override
-  String nafsLockBodyUntil(String time) {
-    return 'একটু থামুন — আল্লাহকে স্মরণ করুন। ফোন খুলবে $time-এ।';
-  }
 
   @override
   String notifFocusTitle(String prayer) {
@@ -2514,4 +2492,175 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get notifFocusEndBody =>
       'মুহাসাবায় চিহ্নিত করুন, তারপর ট্যাপ করে নামাজের পরের যিকির পড়ুন।';
+
+  @override
+  String get prayerTimesComputeFailedTitle => 'নামাজের সময় হিসাব করা যায়নি';
+
+  @override
+  String get prayerTimesComputeFailedBody =>
+      'বর্তমান সেটিংসে এই অবস্থানের নামাজের সময় বের করা যাচ্ছে না। অন্য অবস্থান বা হিসাব পদ্ধতি বেছে দেখুন।';
+
+  @override
+  String get prayerTimesExactAlarmBanner =>
+      'আজান দেরিতে আসতে পারে। সঠিক সময়ের অ্যালার্ম চালু করতে ট্যাপ করুন।';
+
+  @override
+  String qiblaCompassPoint(String point) {
+    String _temp0 = intl.Intl.selectLogic(point, {
+      'N': 'উ',
+      'NNE': 'উউপূ',
+      'NE': 'উপূ',
+      'ENE': 'পূউপূ',
+      'E': 'পূ',
+      'ESE': 'পূদপূ',
+      'SE': 'দপূ',
+      'SSE': 'দদপূ',
+      'S': 'দ',
+      'SSW': 'দদপ',
+      'SW': 'দপ',
+      'WSW': 'পদপ',
+      'W': 'প',
+      'WNW': 'পউপ',
+      'NW': 'উপ',
+      'NNW': 'উউপ',
+      'other': '$point',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get appLockBiometricReason => 'প্রোডাক্টিভ মুসলিম আনলক করুন';
+
+  @override
+  String onboardingStepProgress(int step, int total) {
+    final intl.NumberFormat stepNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String stepString = stepNumberFormat.format(step);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalStringটির মধ্যে $stepString নম্বর ধাপ';
+  }
+
+  @override
+  String get editorDiscardTitle => 'পরিবর্তনগুলো বাদ দেবেন?';
+
+  @override
+  String get editorDiscard => 'বাদ দিন';
+
+  @override
+  String muhasabaIconOption(int n) {
+    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String nString = nNumberFormat.format(n);
+
+    return 'আইকন $nString';
+  }
+
+  @override
+  String muhasabaColorOption(int n) {
+    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String nString = nNumberFormat.format(n);
+
+    return 'রং $nString';
+  }
+
+  @override
+  String get tasbihTargetInvalid => '১ থেকে ৯৯৯৯৯ এর মধ্যে একটি সংখ্যা লিখুন';
+
+  @override
+  String get hadithTopicsLoadError => 'হাদিস লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get ruqyahLoadError => 'রুকইয়াহ লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get duaLoadError => 'দোয়া লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get hadithSectionEmpty => 'এই অধ্যায়ে কোনো হাদিস নেই।';
+
+  @override
+  String hadithGradeWord(String word) {
+    String _temp0 = intl.Intl.selectLogic(word, {
+      'sahih': 'সহিহ',
+      'hasan': 'হাসান',
+      'daif': 'যঈফ',
+      'very': 'অত্যন্ত',
+      'isnaad': 'সনদ',
+      'mauquf': 'মাওকুফ',
+      'muquf': 'মাওকুফ',
+      'maqtu': 'মাকতু',
+      'lighairihi': 'লি-গাইরিহি',
+      'hadith': 'হাদিস',
+      'shadh': 'শায',
+      'munkar': 'মুনকার',
+      'mawdu': 'জাল',
+      'mutawatir': 'মুতাওয়াতির',
+      'other': '—',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get fastingSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get faraidOtherRelatives =>
+      'কোনো নাতি-নাতনি, দাদা-দাদি/নানা-নানি, সৎ ভাই-বোন, চাচা, ভাতিজা বা চাচাতো ভাই আছেন?';
+
+  @override
+  String get faraidOutOfScope =>
+      'এই আত্মীয়রা প্রত্যেকের অংশ বদলে দিতে পারেন, আর এই ক্যালকুলেটর তাঁদের হিসাব করে না। এই বণ্টনের জন্য একজন যোগ্য আলেমের পরামর্শ নিন।';
+
+  @override
+  String get faraidUmariyyataynNote =>
+      'বিশেষ ক্ষেত্র (\'উমারিয়্যাতাইন): স্বামী/স্ত্রীর অংশের পর যা থাকে, মা তার এক-তৃতীয়াংশ পান; বাকিটা বাবা পান।';
+
+  @override
+  String get faraidUnallocatedNote =>
+      'দেওয়া ওয়ারিসদের কেউ অবশিষ্টাংশ পান না। এটি দূরের আত্মীয়দের প্রাপ্য হতে পারে — আপনার মাযহাবে কীভাবে বণ্টন হয়, একজন আলেমকে জিজ্ঞেস করুন।';
+
+  @override
+  String get faraidBasisTwoThirdsShared => '২/৩ (যৌথ)';
+
+  @override
+  String get faraidBasisThirdOfResidue => 'অবশিষ্টাংশের ১/৩';
+
+  @override
+  String get faraidBasisResiduary => 'আসাবা (অবশিষ্টাংশভোগী)';
+
+  @override
+  String get faraidBasisSixthPlusResiduary => '১/৬ + আসাবা';
+
+  @override
+  String get faraidBasisResiduaryTwoToOne => 'আসাবা (২:১)';
+
+  @override
+  String get faraidInvalidNumber => 'সঠিক পরিমাণ লিখুন';
+
+  @override
+  String get fitraInvalidNumber => 'সঠিক সংখ্যা লিখুন';
+
+  @override
+  String get qazaInvalidNumber => 'একটি পূর্ণসংখ্যা লিখুন';
+
+  @override
+  String get mosqueRenameProfile => 'মসজিদের নাম বদলান';
+
+  @override
+  String get locationDeniedForever =>
+      'এই অ্যাপের জন্য লোকেশন অনুমতি বন্ধ। সেটিংসে অনুমতি দিন, অথবা নিচে আপনার শহর বেছে নিন।';
+
+  @override
+  String get locationUnavailable =>
+      'আপনার লোকেশন পাওয়া যায়নি। আবার চেষ্টা করুন, অথবা নিচে আপনার শহর বেছে নিন।';
+
+  @override
+  String get locationRetry => 'আবার চেষ্টা করুন';
 }

@@ -133,14 +133,17 @@ void main() {
       expect(store.totalToday.value, 0);
 
       // ... and so does adding without a reload: a round started on the
-      // 13th but saved on the 14th starts the 14th's total afresh.
+      // 13th but saved on the 14th belongs to the 13th, so the 14th's total
+      // starts at zero (the beads still count towards lifetime).
       store.tap();
       await store.reset(saveToHistory: true);
       expect(store.totalToday.value, 1);
       store.tap();
       now = DateTime(2026, 6, 14, 8);
+      final lifetimeBefore = store.lifetimeTotal.value;
       await store.reset(saveToHistory: true);
-      expect(store.totalToday.value, 1);
+      expect(store.totalToday.value, 0);
+      expect(store.lifetimeTotal.value, lifetimeBefore + 1);
     });
 
     test(

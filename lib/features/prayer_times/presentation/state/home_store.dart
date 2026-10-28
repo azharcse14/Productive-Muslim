@@ -205,24 +205,30 @@ final class HomeStore {
     () => prayerDay.value?.activeWaqtAt(now.value),
   );
 
-  /// True after midnight but before Fajr: the active Isha is yesterday's.
-  late final overnightIsha = computed(() {
+  /// True after midnight but before Fajr: the active waqt is yesterday's.
+  late final _preFajr = computed(() {
     final day = prayerDay.value;
     return day != null && now.value.isBefore(day.fajr);
   });
 
-  /// The muhasaba day a prayer's check-in belongs to: today, except Isha
-  /// before Fajr, which is still yesterday's waqt (the same day the azan
-  /// notification's "mark as prayed" files it under).
+  /// Yesterday's waqt still running after midnight (Isha, or Maghrib when
+  /// that Isha starts past midnight), or null once Fajr begins.
+  late final overnightWaqt = computed<Prayer?>(
+    () => _preFajr.value ? activeWaqt.value?.prayer : null,
+  );
+
+  /// The muhasaba day a prayer's check-in belongs to: today, except the
+  /// overnight waqt before Fajr, which is still yesterday's (the same day
+  /// the azan notification's "mark as prayed" files it under).
   DateTime salahDate(Prayer prayer) {
     final d = dateKey.value;
-    return prayer == Prayer.isha && overnightIsha.value
+    return prayer == overnightWaqt.value
         ? DateTime(d.year, d.month, d.day - 1)
         : d;
   }
 
   /// Bitmask of prayers whose waqt has started (overnight: yesterday's
-  /// Isha counts). Reads `now` every second but its value only flips at a
+  /// waqt counts). Reads `now` every second but its value only flips at a
   /// waqt boundary, so downstream (the table) doesn't rebuild per second.
   late final _startedMask = computed<int>(() {
     final day = prayerDay.value;
@@ -232,8 +238,7 @@ final class HomeStore {
     final n = now.value;
     var mask = 0;
     for (final (i, prayer) in Prayer.values.indexed) {
-      if (!n.isBefore(day.startOf(prayer)) ||
-          (prayer == Prayer.isha && overnightIsha.value)) {
+      if (!n.isBefore(day.startOf(prayer)) || prayer == overnightWaqt.value) {
         mask |= 1 << i;
       }
     }
@@ -250,13 +255,13 @@ final class HomeStore {
   });
 
   /// Today's forbidden (makruh) and nafl windows — flips only when the
-  /// day changes, so the special-times card doesn't rebuild per second.
+  /// day changes or Fajr begins, so the special-times card doesn't rebuild per second.
   late final specialWindows = computed<List<SpecialWindow>>(() {
     final day = prayerDay.value;
     if (day == null) {
       return const [];
     }
-    return resolveSpecialWindows(day);
+    return resolveSpecialWindows(day, preFajr: _preFajr.value);
   });
 
   /// The special window the clock is currently inside, or null. A value

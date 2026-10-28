@@ -9,7 +9,8 @@ enum QButtonKind { primary, tonal, outline, ghost, accent }
 
 /// Pill button per the component library (design §02): five kinds, with
 /// pressed (scale .985 + dim), disabled (38% opacity), and focused
-/// (double ring) states. Minimum height 52 (40 for [small]).
+/// (double ring) states. Minimum height 52 (40 for [small], drawn inside a
+/// 48dp touch target).
 final class QButton extends StatefulWidget {
   const QButton({
     required this.label,
@@ -40,6 +41,11 @@ final class _QButtonState extends State<QButton> {
 
   bool get _enabled => widget.onPressed != null;
 
+  void _activate() {
+    Haptics.selection();
+    widget.onPressed!();
+  }
+
   @override
   Widget build(BuildContext context) {
     final q = context.q;
@@ -48,7 +54,7 @@ final class _QButtonState extends State<QButton> {
       QButtonKind.tonal => (q.primarySoft, q.onPrimarySoft, Colors.transparent),
       QButtonKind.outline => (Colors.transparent, q.primary, q.primary),
       QButtonKind.ghost => (Colors.transparent, q.primary, Colors.transparent),
-      QButtonKind.accent => (q.accent, const Color(0xFF231603), Colors.transparent),
+      QButtonKind.accent => (q.accent, q.onAccent, Colors.transparent),
     };
 
     final height = widget.small ? 40.0 : 52.0;
@@ -98,23 +104,36 @@ final class _QButtonState extends State<QButton> {
       button: true,
       enabled: _enabled,
       label: widget.label,
+      // The label Text would otherwise be read a second time.
+      excludeSemantics: true,
+      onTap: _enabled ? _activate : null,
       child: Opacity(
         opacity: _enabled ? 1 : 0.38,
         child: FocusableActionDetector(
           enabled: _enabled,
           onShowFocusHighlight: (v) => setState(() => _focused = v),
+          // Enter/Space on a focused button (WidgetsApp's default shortcuts).
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (_) {
+                _activate();
+                return null;
+              },
+            ),
+          },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
             onTapCancel: () => setState(() => _pressed = false),
             onTapUp: (_) => setState(() => _pressed = false),
-            onTap: _enabled
-                ? () {
-                    Haptics.selection();
-                    widget.onPressed!();
-                  }
-                : null,
-            child: child,
+            onTap: _enabled ? _activate : null,
+            // Small keeps its 40dp pill but a 48dp touch target.
+            child: widget.small
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: child,
+                  )
+                : child,
           ),
         ),
       ),

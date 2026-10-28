@@ -11,9 +11,11 @@ final class _FakeLauncher implements ExternalLauncher {
 
   final bool result;
   Uri? launched;
+  int launches = 0;
 
   @override
   Future<bool> launch(Uri uri) async {
+    launches++;
     launched = uri;
     return result;
   }
@@ -110,6 +112,23 @@ void main() {
       final result = await usecase();
 
       expect(result.fold((_) => null, (f) => f), isA<MapsLaunchFailed>());
+    });
+
+    test('a repeat call while one is in flight joins it', () async {
+      final launcher = _FakeLauncher();
+      final usecase = OpenNearbyMosques(
+        currentLocation: () => const GpsLocation(latitude: 1, longitude: 2),
+        getCurrentLocation: GetCurrentLocation(
+          _FakeLocationRepository(const Result.failure(LocationUnavailable())),
+        ),
+        launcher: launcher,
+      );
+
+      await Future.wait([usecase(), usecase()]);
+      expect(launcher.launches, 1);
+
+      await usecase();
+      expect(launcher.launches, 2);
     });
   });
 }

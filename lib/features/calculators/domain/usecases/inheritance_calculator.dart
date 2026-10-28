@@ -10,8 +10,11 @@
 ///   husband, wife (0..4, share split equally), father, mother,
 ///   sons, daughters, full brothers, full sisters.
 /// OUT OF SCOPE (v1), documented deliberately: grandparents, grandchildren
-/// (son's children), uterine/consanguine siblings, uncles, nephews, and the
-/// many `hajb` (blocking) interactions they introduce. The UI must show a
+/// (son's children), uterine/consanguine siblings, uncles, nephews, cousins
+/// and the many `hajb` (blocking) interactions they introduce. When the
+/// caller reports any of them ([InheritanceInput.hasOtherRelatives]) no
+/// distribution is computed ([InheritanceResult.outOfScope]) — a radd or
+/// "unallocated" answer would be wrong for them. The UI must show a
 /// disclaimer to consult a qualified scholar.
 library;
 
@@ -66,6 +69,34 @@ class _Fraction {
   double get toDouble => num / den;
 }
 
+/// Classical basis of a heir group's share. The UI maps it to a localized
+/// label; the domain never produces display text.
+enum ShareBasis {
+  half,
+  quarter,
+  eighth,
+  sixth,
+  third,
+
+  /// 2/3 shared equally by a group (daughters or sisters).
+  twoThirdsShared,
+
+  /// Mother's 1/3 of the residue after the spouse ('Umariyyatayn).
+  thirdOfResidue,
+
+  /// Residuary ('asaba): takes what is left.
+  residuary,
+
+  /// Father's 1/6 plus the residue (daughters but no son).
+  sixthPlusResiduary,
+
+  /// Residuary split 2:1 male:female.
+  residuaryTwoToOne,
+
+  /// Residue no in-scope heir can take.
+  unallocated,
+}
+
 /// Inputs for an inheritance calculation. Every count is clamped to a sane
 /// range in [InheritanceCalculator.calculate]; callers may pass raw values.
 final class InheritanceInput {
@@ -79,6 +110,7 @@ final class InheritanceInput {
     this.daughters = 0,
     this.fullBrothers = 0,
     this.fullSisters = 0,
+    this.hasOtherRelatives = false,
   });
 
   /// Net distributable estate (after debts/bequests) in the user's currency.
@@ -95,6 +127,11 @@ final class InheritanceInput {
   final int daughters;
   final int fullBrothers;
   final int fullSisters;
+
+  /// Whether any out-of-scope relative survives (grandchild, grandparent,
+  /// half-sibling, paternal uncle, nephew or cousin). If so the calculator
+  /// declines rather than guess — see [InheritanceResult.outOfScope].
+  final bool hasOtherRelatives;
 }
 
 /// One heir group's resolved share.
@@ -102,7 +139,7 @@ final class HeirShare {
   const HeirShare({
     required this.heirKey,
     required this.count,
-    required this.shareLabel,
+    required this.basis,
     required this.fraction,
     required this.amount,
   });
@@ -114,8 +151,8 @@ final class HeirShare {
   /// Number of individuals in this group (e.g. 3 sons). 1 for single heirs.
   final int count;
 
-  /// Human-facing classical label, e.g. "1/6", "2/3 (shared)", "asaba".
-  final String shareLabel;
+  /// Classical basis of the share; the UI localizes it.
+  final ShareBasis basis;
 
   /// Decimal of this group's TOTAL share of the estate (group, not per head).
   final double fraction;
@@ -133,6 +170,7 @@ final class InheritanceResult {
     required this.isRadd,
     required this.unallocated,
     required this.note,
+    this.outOfScope = false,
   });
 
   final double estate;
@@ -148,8 +186,12 @@ final class InheritanceResult {
   final double unallocated;
 
   /// Short machine note key describing any special outcome (may be empty):
-  /// 'awl', 'radd', 'unallocated', 'umariyyatayn', or ''.
+  /// 'awl', 'radd', 'unallocated', 'umariyyatayn', 'outOfScope', or ''.
   final String note;
+
+  /// True when out-of-scope relatives may inherit; [shares] is empty and no
+  /// distribution should be shown.
+  final bool outOfScope;
 }
 
 /// Internal working record for a heir group before money is computed.
@@ -160,7 +202,7 @@ class _Allocation {
   _Allocation(this.heirKey, this.count, this.label, this.fraction);
   final String heirKey;
   final int count;
-  String label;
+  ShareBasis label;
   _Fraction fraction;
 
   /// Returns the heir rows produced when this group absorbs [residue] as a
@@ -168,7 +210,7 @@ class _Allocation {
   /// ignored (his amount is already fixed in [fraction]).
   List<_Allocation> distribute(_Fraction residue) {
     // Lone residuary: takes the whole residue on top of any fixed amount.
-    final f = (label == 'asaba' && fraction.isZero)
+    final f = (label == ShareBasis.residuary && fraction.isZero)
         ? residue
         : fraction + residue;
     return [_Allocation(heirKey, count, label, f)];
@@ -181,7 +223,20 @@ abstract final class InheritanceCalculator {
 
   /// Computes the inheritance distribution for [input].
   static InheritanceResult calculate(InheritanceInput input) {
-    final estate = input.estate < 0 ? 0.0 : input.estate;
+    final estate = input.estate.isFinite && input.estate > 0
+        ? input.estate
+        : 0.0;
+    if (input.hasOtherRelatives) {
+      return InheritanceResult(
+        estate: estate,
+        shares: const [],
+        isAwl: false,
+        isRadd: false,
+        unallocated: 0,
+        note: 'outOfScope',
+        outOfScope: true,
+      );
+    }
 
     final wives = _c(input.wives).clamp(0, 4);
     final hasWife = wives > 0;
@@ -197,7 +252,8 @@ abstract final class InheritanceCalculator {
     final siblingCount = brothers + sisters;
 
     // Father blocks ALL full siblings; siblings also act only when no son.
-    final siblingsActive = !hasFather && sons == 0 && (brothers > 0 || sisters > 0);
+    final siblingsActive =
+        !hasFather && sons == 0 && (brothers > 0 || sisters > 0);
 
     // --- Fixed (fard) shares -------------------------------------------
     final fard = <_Allocation>[];
@@ -207,11 +263,25 @@ abstract final class InheritanceCalculator {
     // 1. Spouse fard.
     if (hasHusband) {
       final f = descendant ? _Fraction(1, 4) : _Fraction(1, 2);
-      fard.add(_Allocation('husband', 1, descendant ? '1/4' : '1/2', f));
+      fard.add(
+        _Allocation(
+          'husband',
+          1,
+          descendant ? ShareBasis.quarter : ShareBasis.half,
+          f,
+        ),
+      );
     }
     if (hasWife) {
       final f = descendant ? _Fraction(1, 8) : _Fraction(1, 4);
-      fard.add(_Allocation('wife', wives, descendant ? '1/8' : '1/4', f));
+      fard.add(
+        _Allocation(
+          'wife',
+          wives,
+          descendant ? ShareBasis.eighth : ShareBasis.quarter,
+          f,
+        ),
+      );
     }
 
     // 2. 'Umariyyatayn detection: spouse + father + mother, no descendant,
@@ -220,7 +290,8 @@ abstract final class InheritanceCalculator {
     //    2+ siblings reduce the mother to 1/6 (normal path). Mother takes
     //    1/3 of the residue after the spouse; father takes the rest.
     final spousePresent = hasHusband || hasWife;
-    final isUmariyyatayn = spousePresent &&
+    final isUmariyyatayn =
+        spousePresent &&
         hasFather &&
         hasMother &&
         !descendant &&
@@ -234,11 +305,13 @@ abstract final class InheritanceCalculator {
       final residue = _Fraction(1, 1) - spouseFraction;
       final motherShare = residue * _Fraction(1, 3);
       final fatherShare = residue - motherShare; // = 2/3 of residue
-      fard.add(_Allocation('mother', 1, '1/3 (of residue)', motherShare));
+      fard.add(
+        _Allocation('mother', 1, ShareBasis.thirdOfResidue, motherShare),
+      );
       // Father is residuary here, but in this special case his amount equals
       // the leftover exactly; treat it as a fixed row so sumFard hits 1 and
       // no further residue/asaba/radd logic fires.
-      fard.add(_Allocation('father', 1, 'asaba', fatherShare));
+      fard.add(_Allocation('father', 1, ShareBasis.residuary, fatherShare));
       note = 'umariyyatayn';
       return _finalize(
         estate: estate,
@@ -255,7 +328,14 @@ abstract final class InheritanceCalculator {
     if (hasMother) {
       final oneSixth = descendant || siblingCount >= 2;
       final f = oneSixth ? _Fraction(1, 6) : _Fraction(1, 3);
-      fard.add(_Allocation('mother', 1, oneSixth ? '1/6' : '1/3', f));
+      fard.add(
+        _Allocation(
+          'mother',
+          1,
+          oneSixth ? ShareBasis.sixth : ShareBasis.third,
+          f,
+        ),
+      );
     }
 
     // 3. Father.
@@ -263,13 +343,18 @@ abstract final class InheritanceCalculator {
       if (descendant) {
         // Always 1/6 fard. Additionally residuary when no SON (daughters
         // only) — he absorbs whatever residue remains.
-        fard.add(_Allocation('father', 1, '1/6', _Fraction(1, 6)));
+        fard.add(_Allocation('father', 1, ShareBasis.sixth, _Fraction(1, 6)));
         if (sons == 0) {
-          asaba = _Allocation('father', 1, '1/6 + asaba', _Fraction.zero);
+          asaba = _Allocation(
+            'father',
+            1,
+            ShareBasis.sixthPlusResiduary,
+            _Fraction.zero,
+          );
         }
       } else {
         // No descendant: father is pure residuary.
-        asaba = _Allocation('father', 1, 'asaba', _Fraction.zero);
+        asaba = _Allocation('father', 1, ShareBasis.residuary, _Fraction.zero);
       }
     }
 
@@ -283,7 +368,7 @@ abstract final class InheritanceCalculator {
         _Allocation(
           'daughter',
           daughters,
-          daughters == 1 ? '1/2' : '2/3 (shared)',
+          daughters == 1 ? ShareBasis.half : ShareBasis.twoThirdsShared,
           f,
         ),
       );
@@ -307,7 +392,7 @@ abstract final class InheritanceCalculator {
             _Allocation(
               'sister',
               sisters,
-              sisters == 1 ? '1/2' : '2/3 (shared)',
+              sisters == 1 ? ShareBasis.half : ShareBasis.twoThirdsShared,
               f,
             ),
           );
@@ -360,7 +445,12 @@ abstract final class InheritanceCalculator {
       for (final a in fard) {
         final numerator = a.fraction.num * (lcm ~/ a.fraction.den);
         finalAllocs.add(
-          _Allocation(a.heirKey, a.count, a.label, _Fraction(numerator, sumNum)),
+          _Allocation(
+            a.heirKey,
+            a.count,
+            a.label,
+            _Fraction(numerator, sumNum),
+          ),
         );
       }
       isAwl = true;
@@ -418,7 +508,7 @@ abstract final class InheritanceCalculator {
         HeirShare(
           heirKey: a.heirKey,
           count: a.count,
-          shareLabel: a.label,
+          basis: a.label,
           fraction: a.fraction.toDouble,
           amount: a.fraction.toDouble * estate,
         ),
@@ -429,7 +519,7 @@ abstract final class InheritanceCalculator {
         HeirShare(
           heirKey: 'unallocated',
           count: 0,
-          shareLabel: 'unallocated',
+          basis: ShareBasis.unallocated,
           fraction: unallocatedFraction.toDouble,
           amount: unallocatedFraction.toDouble * estate,
         ),
@@ -453,7 +543,7 @@ abstract final class InheritanceCalculator {
 /// Children residuary: sons + daughters split residue 2:1.
 class _ChildrenAsaba extends _Allocation {
   _ChildrenAsaba(this.sons, this.daughters, this.units)
-      : super('son', sons, 'asaba (2:1)', _Fraction.zero);
+    : super('son', sons, ShareBasis.residuaryTwoToOne, _Fraction.zero);
 
   final int sons;
   final int daughters;
@@ -464,11 +554,13 @@ class _ChildrenAsaba extends _Allocation {
     final out = <_Allocation>[];
     if (sons > 0) {
       final f = residue * _Fraction(sons * 2, units);
-      out.add(_Allocation('son', sons, 'asaba (2:1)', f));
+      out.add(_Allocation('son', sons, ShareBasis.residuaryTwoToOne, f));
     }
     if (daughters > 0) {
       final f = residue * _Fraction(daughters, units);
-      out.add(_Allocation('daughter', daughters, 'asaba (2:1)', f));
+      out.add(
+        _Allocation('daughter', daughters, ShareBasis.residuaryTwoToOne, f),
+      );
     }
     return out;
   }
@@ -478,8 +570,8 @@ class _ChildrenAsaba extends _Allocation {
 /// alone split equally). Used for 'asaba and 'asaba ma'a al-ghair.
 class _SiblingsAsaba extends _Allocation {
   _SiblingsAsaba(this.brothers, this.sisters)
-      : units = brothers * 2 + sisters,
-        super('brother', brothers, 'asaba (2:1)', _Fraction.zero);
+    : units = brothers * 2 + sisters,
+      super('brother', brothers, ShareBasis.residuaryTwoToOne, _Fraction.zero);
 
   final int brothers;
   final int sisters;
@@ -490,10 +582,14 @@ class _SiblingsAsaba extends _Allocation {
     final out = <_Allocation>[];
     if (brothers > 0) {
       final f = residue * _Fraction(brothers * 2, units);
-      out.add(_Allocation('brother', brothers, 'asaba (2:1)', f));
+      out.add(
+        _Allocation('brother', brothers, ShareBasis.residuaryTwoToOne, f),
+      );
     }
     if (sisters > 0) {
-      final label = brothers > 0 ? 'asaba (2:1)' : 'asaba';
+      final label = brothers > 0
+          ? ShareBasis.residuaryTwoToOne
+          : ShareBasis.residuary;
       final f = residue * _Fraction(sisters, units);
       out.add(_Allocation('sister', sisters, label, f));
     }

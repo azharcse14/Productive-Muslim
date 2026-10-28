@@ -10,26 +10,26 @@ import '../../domain/entities/special_time.dart';
 /// Localized labels for [SpecialTime] (no hardcoded strings — guide §6).
 extension SpecialTimeLabels on AppLocalizations {
   String specialTimeLabel(SpecialTime t) => switch (t) {
-        SpecialTime.forbiddenSunrise => specialTimeForbiddenSunrise,
-        SpecialTime.forbiddenZawal => specialTimeForbiddenZawal,
-        SpecialTime.forbiddenSunset => specialTimeForbiddenSunset,
-        SpecialTime.ishraq => specialTimeIshraq,
-        SpecialTime.duha => specialTimeDuha,
-        SpecialTime.salatZawal => specialTimeSalatZawal,
-        SpecialTime.awwabin => specialTimeAwwabin,
-        SpecialTime.tahajjud => specialTimeTahajjud,
-      };
+    SpecialTime.forbiddenSunrise => specialTimeForbiddenSunrise,
+    SpecialTime.forbiddenZawal => specialTimeForbiddenZawal,
+    SpecialTime.forbiddenSunset => specialTimeForbiddenSunset,
+    SpecialTime.ishraq => specialTimeIshraq,
+    SpecialTime.duha => specialTimeDuha,
+    SpecialTime.salatZawal => specialTimeSalatZawal,
+    SpecialTime.awwabin => specialTimeAwwabin,
+    SpecialTime.tahajjud => specialTimeTahajjud,
+  };
 
   String specialTimeDetail(SpecialTime t) => switch (t) {
-        SpecialTime.forbiddenSunrise => specialDetailForbiddenSunrise,
-        SpecialTime.forbiddenZawal => specialDetailForbiddenZawal,
-        SpecialTime.forbiddenSunset => specialDetailForbiddenSunset,
-        SpecialTime.ishraq => specialDetailIshraq,
-        SpecialTime.duha => specialDetailDuha,
-        SpecialTime.salatZawal => specialDetailSalatZawal,
-        SpecialTime.awwabin => specialDetailAwwabin,
-        SpecialTime.tahajjud => specialDetailTahajjud,
-      };
+    SpecialTime.forbiddenSunrise => specialDetailForbiddenSunrise,
+    SpecialTime.forbiddenZawal => specialDetailForbiddenZawal,
+    SpecialTime.forbiddenSunset => specialDetailForbiddenSunset,
+    SpecialTime.ishraq => specialDetailIshraq,
+    SpecialTime.duha => specialDetailDuha,
+    SpecialTime.salatZawal => specialDetailSalatZawal,
+    SpecialTime.awwabin => specialDetailAwwabin,
+    SpecialTime.tahajjud => specialDetailTahajjud,
+  };
 }
 
 /// Home card (design §4.3): the day's forbidden (makruh) windows and the
@@ -60,8 +60,9 @@ final class SpecialTimesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    final forbidden =
-        windows.where((w) => w.kind == SpecialKind.forbidden).toList();
+    final forbidden = windows
+        .where((w) => w.kind == SpecialKind.forbidden)
+        .toList();
     final nafl = windows.where((w) => w.kind == SpecialKind.nafl).toList();
 
     return Column(
@@ -130,20 +131,14 @@ final class _GroupCard extends StatelessWidget {
               Icon(icon, size: 16, color: accent),
               const SizedBox(width: QSpace.s2),
               Expanded(
-                child: Text(
-                  title,
-                  style: QType.label.copyWith(color: q.ink2),
-                ),
+                child: Text(title, style: QType.label.copyWith(color: q.ink2)),
               ),
               if (onTap != null)
                 Icon(Icons.chevron_right, size: 20, color: q.ink3),
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: QType.caption.copyWith(color: q.ink3),
-          ),
+          Text(subtitle, style: QType.caption.copyWith(color: q.ink3)),
           const SizedBox(height: QSpace.s3),
           for (final w in windows)
             _Row(
@@ -158,10 +153,13 @@ final class _GroupCard extends StatelessWidget {
     if (onTap == null) {
       return card;
     }
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: card,
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: card,
+      ),
     );
   }
 }
@@ -181,15 +179,15 @@ final class _Row extends StatelessWidget {
 
   /// A window-specific glyph standing in for a generic bullet (design §4.3).
   static IconData _iconFor(SpecialTime t) => switch (t) {
-        SpecialTime.forbiddenSunrise => Icons.wb_sunny_outlined,
-        SpecialTime.forbiddenZawal => Icons.brightness_7_outlined,
-        SpecialTime.forbiddenSunset => Icons.wb_twilight_outlined,
-        SpecialTime.ishraq => Icons.brightness_low,
-        SpecialTime.duha => Icons.brightness_5_outlined,
-        SpecialTime.salatZawal => Icons.brightness_6_outlined,
-        SpecialTime.awwabin => Icons.brightness_4_outlined,
-        SpecialTime.tahajjud => Icons.nightlight_outlined,
-      };
+    SpecialTime.forbiddenSunrise => Icons.wb_sunny_outlined,
+    SpecialTime.forbiddenZawal => Icons.brightness_7_outlined,
+    SpecialTime.forbiddenSunset => Icons.wb_twilight_outlined,
+    SpecialTime.ishraq => Icons.brightness_low,
+    SpecialTime.duha => Icons.brightness_5_outlined,
+    SpecialTime.salatZawal => Icons.brightness_6_outlined,
+    SpecialTime.awwabin => Icons.brightness_4_outlined,
+    SpecialTime.tahajjud => Icons.nightlight_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -223,10 +221,7 @@ final class _Row extends StatelessWidget {
             _NowPill(accent: accent, label: l10n.specialNow),
             const SizedBox(width: QSpace.s2),
           ],
-          Text(
-            range,
-            style: QType.num_(QType.caption).copyWith(color: q.ink2),
-          ),
+          Text(range, style: QType.num_(QType.caption).copyWith(color: q.ink2)),
         ],
       ),
     );

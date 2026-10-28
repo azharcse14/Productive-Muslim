@@ -25,10 +25,10 @@ abstract final class QType {
       fontWeight: weight >= 700
           ? FontWeight.w700
           : weight >= 600
-              ? FontWeight.w600
-              : weight >= 500
-                  ? FontWeight.w500
-                  : FontWeight.w400,
+          ? FontWeight.w600
+          : weight >= 500
+          ? FontWeight.w500
+          : FontWeight.w400,
       fontVariations: _wght(weight),
       letterSpacing: spacing,
     );
@@ -44,9 +44,12 @@ abstract final class QType {
   static final overline = _base(11, 1.2, 700, spacing: 1.4);
 
   /// Countdown hero numeral: 56px·700, −1.5 tracking, tabular numerals.
-  static final countdown = _base(56, 1.05, 700, spacing: -1.5).copyWith(
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
+  static final countdown = _base(
+    56,
+    1.05,
+    700,
+    spacing: -1.5,
+  ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
 
   /// Tabular-numeral variant of any style (times, counters).
   static TextStyle num_(TextStyle style) =>
@@ -54,21 +57,26 @@ abstract final class QType {
 
   /// Quran Arabic — KFGQPC Uthmanic HAFS only, independent user scale
   /// (22–44 in steps of 2, persisted separately from system font scale).
-  static TextStyle quran(double size) => TextStyle(
-        fontFamily: AppFonts.quran,
-        fontSize: size,
-        height: 1.9,
-      );
+  static TextStyle quran(double size) =>
+      TextStyle(fontFamily: AppFonts.quran, fontSize: size, height: 1.9);
 
   /// Material [TextTheme] wiring so framework widgets pick up the scale.
+  /// Roles without a design size map to the nearest step of the scale.
   static TextTheme textTheme(Color ink, Color ink2) => TextTheme(
-        displaySmall: display.copyWith(color: ink),
-        headlineMedium: headline.copyWith(color: ink),
-        titleLarge: title.copyWith(color: ink),
-        titleMedium: titleSm.copyWith(color: ink),
-        bodyMedium: body.copyWith(color: ink),
-        bodySmall: caption.copyWith(color: ink2),
-        labelLarge: label.copyWith(color: ink),
-        labelSmall: overline.copyWith(color: ink2),
-      );
+    displayLarge: display.copyWith(color: ink),
+    displayMedium: display.copyWith(color: ink),
+    displaySmall: display.copyWith(color: ink),
+    headlineLarge: headline.copyWith(color: ink),
+    headlineMedium: headline.copyWith(color: ink),
+    headlineSmall: headline.copyWith(color: ink),
+    titleLarge: title.copyWith(color: ink),
+    titleMedium: titleSm.copyWith(color: ink),
+    titleSmall: label.copyWith(color: ink),
+    bodyLarge: body.copyWith(color: ink),
+    bodyMedium: body.copyWith(color: ink),
+    bodySmall: caption.copyWith(color: ink2),
+    labelLarge: label.copyWith(color: ink),
+    labelMedium: label.copyWith(color: ink),
+    labelSmall: overline.copyWith(color: ink2),
+  );
 }

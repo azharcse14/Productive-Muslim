@@ -80,6 +80,38 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Unallocated'), findsOneWidget);
+      expect(find.textContaining('None of the heirs entered'), findsOneWidget);
+
+      // Any input change clears the stale distribution.
+      await tester.tap(find.text('Wife'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Unallocated'), findsNothing);
+    });
+
+    testWidgets('out-of-scope relatives show a banner, no distribution',
+        (tester) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '100000');
+      await tester.tap(find.text('Husband'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('paternal uncle'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Calculate'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining("doesn't cover them"), findsOneWidget);
+      expect(find.textContaining('Unallocated'), findsNothing);
+    });
+
+    testWidgets('non-numeric estate shows a field error', (tester) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, 'NaN');
+      await tester.tap(find.text('Calculate'));
+      await tester.pumpAndSettle();
+      expect(find.text('Enter a valid amount'), findsOneWidget);
     });
   });
 }

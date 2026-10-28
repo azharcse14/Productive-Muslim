@@ -19,10 +19,11 @@ final class QiblaStore {
     required CompassSensorSource sensors,
     required SettingsStore settings,
     this.onAligned,
+    this.firstEventTimeout = const Duration(seconds: 3),
     DateTime Function()? now,
-  })  : _sensors = sensors,
-        _settings = settings,
-        _now = now ?? DateTime.now {
+  }) : _sensors = sensors,
+       _settings = settings,
+       _now = now ?? DateTime.now {
     _subscribe();
   }
 
@@ -37,10 +38,16 @@ final class QiblaStore {
   late final sensorFailed = signal(false);
 
   /// Earth's magnetic field is ~25–65 µT; far outside ⇒ needs calibration.
+  /// Hysteresis: flagged outside 20–80 µT, cleared only back inside
+  /// 25–75 µT, so a reading hovering at a limit doesn't flicker the banner.
   late final needsCalibration = signal(false);
 
+  /// Fires [sensorFailed] if the stream never emits (some devices just
+  /// stay silent instead of erroring).
+  final Duration firstEventTimeout;
+
   StreamSubscription<SensorVectors>? _subscription;
-  var _wasAligned = false;
+  Timer? _firstEvent;
 
   late final bearing = computed<double?>(() {
     final location = _settings.location.value;
@@ -69,10 +76,7 @@ final class QiblaStore {
     if (location == null) {
       return null;
     }
-    return CompassMath.distanceToKaabaKm(
-      location.latitude,
-      location.longitude,
-    );
+    return CompassMath.distanceToKaabaKm(location.latitude, location.longitude);
   });
 
   late final status = computed<QiblaStatus>(() {
@@ -88,20 +92,31 @@ final class QiblaStore {
     return QiblaStatus.ready;
   });
 
-  late final aligned = computed(() {
+  /// Aligned within ±3°, and stays so until beyond ±5° (hysteresis), so
+  /// sensor jitter at the edge doesn't re-fire the haptic / live region.
+  late final aligned = signal(false);
+
+  void _updateAligned() {
     final h = heading.value;
     final b = bearing.value;
-    if (h == null || b == null) {
-      return false;
-    }
-    return CompassMath.isAligned(h, b);
-  });
+    aligned.value =
+        h != null &&
+        b != null &&
+        CompassMath.isAligned(h, b, toleranceDeg: aligned.value ? 5 : 3);
+  }
 
   void _subscribe() {
+    sensorFailed.value = false;
+    _firstEvent?.cancel();
+    _firstEvent = Timer(firstEventTimeout, () => sensorFailed.value = true);
     _subscription = _sensors.vectors().listen(
       (v) {
+        _firstEvent?.cancel();
+        sensorFailed.value = false;
         final magnitude = math.sqrt(v.mx * v.mx + v.my * v.my + v.mz * v.mz);
-        needsCalibration.value = magnitude < 20 || magnitude > 80;
+        needsCalibration.value = needsCalibration.value
+            ? magnitude < 25 || magnitude > 75
+            : magnitude < 20 || magnitude > 80;
         final magnetic = CompassMath.tiltCompensatedHeading(
           ax: v.ax,
           ay: v.ay,
@@ -116,19 +131,23 @@ final class QiblaStore {
         heading.value = previous == null
             ? raw
             : CompassMath.smoothHeading(previous, raw);
-        final isAligned = aligned.value;
-        if (isAligned && !_wasAligned) {
+        final wasAligned = aligned.value;
+        _updateAligned();
+        if (aligned.value && !wasAligned) {
           onAligned?.call();
         }
-        _wasAligned = isAligned;
       },
-      onError: (Object _) => sensorFailed.value = true,
+      onError: (Object _) {
+        _firstEvent?.cancel();
+        sensorFailed.value = true;
+      },
     );
   }
 
   /// Releases the sensors while the app is hidden (Android keeps them
   /// streaming in the background otherwise).
   void pause() {
+    _firstEvent?.cancel();
     unawaited(_subscription?.cancel());
     _subscription = null;
   }

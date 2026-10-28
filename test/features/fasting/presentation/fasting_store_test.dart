@@ -20,21 +20,32 @@ void main() {
   });
 
   group('FastingStore — log toggle & persistence', () {
-    test('toggle adds then removes a date, and persists across loads',
-        () async {
+    test(
+      'toggle adds then removes a date, and persists across loads',
+      () async {
+        final s = store();
+        await s.load();
+        final day = DateTime(2026, 6, 15);
+        expect(s.isLogged(day), isFalse);
+
+        await s.toggle(day);
+        expect(s.isLogged(day), isTrue);
+
+        final fresh = store();
+        await fresh.load();
+        expect(fresh.isLogged(day), isTrue);
+
+        await s.toggle(day);
+        expect(s.isLogged(day), isFalse);
+      },
+    );
+
+    test('a failed write puts the log back and rethrows', () async {
+      SharedPreferencesAsyncPlatform.instance = _FailingPrefs();
       final s = store();
       await s.load();
       final day = DateTime(2026, 6, 15);
-      expect(s.isLogged(day), isFalse);
-
-      await s.toggle(day);
-      expect(s.isLogged(day), isTrue);
-
-      final fresh = store();
-      await fresh.load();
-      expect(fresh.isLogged(day), isTrue);
-
-      await s.toggle(day);
+      await expectLater(s.toggle(day), throwsStateError);
       expect(s.isLogged(day), isFalse);
     });
 
@@ -97,4 +108,15 @@ void main() {
       expect(weeks.expand((w) => w), contains(4));
     });
   });
+}
+
+base class _FailingPrefs extends InMemorySharedPreferencesAsync {
+  _FailingPrefs() : super.empty();
+
+  @override
+  Future<bool> setStringList(
+    String key,
+    List<String> value,
+    SharedPreferencesOptions options,
+  ) async => throw StateError('disk full');
 }
