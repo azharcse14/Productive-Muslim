@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
@@ -69,7 +71,7 @@ final class QBottomNavScaffold extends StatelessWidget {
     final q = context.q;
     final items = itemsOf(context);
     return Scaffold(
-      body: body,
+      body: _TabFade(index: currentIndex, child: body),
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           color: q.surface,
@@ -106,6 +108,51 @@ final class QBottomNavScaffold extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Fades the tab body in on each tab switch. The shell keeps one child (an
+/// indexed stack), so this replays a fade rather than cross-fading two
+/// trees. Cut under reduced-motion.
+final class _TabFade extends StatefulWidget {
+  const _TabFade({required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_TabFade> createState() => _TabFadeState();
+}
+
+final class _TabFadeState extends State<_TabFade>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: QMotion.med,
+    value: 1,
+  );
+  late final Animation<double> _opacity = CurvedAnimation(
+    parent: _controller,
+    curve: QMotion.ease,
+  ).drive(Tween(begin: 0.4, end: 1));
+
+  @override
+  void didUpdateWidget(_TabFade oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index &&
+        !MediaQuery.disableAnimationsOf(context)) {
+      unawaited(_controller.forward(from: 0));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _opacity, child: widget.child);
 }
 
 final class _NavDestination extends StatelessWidget {
@@ -146,10 +193,22 @@ final class _NavDestination extends StatelessWidget {
                   color: active ? q.primarySoft : const Color(0x00000000),
                   borderRadius: BorderRadius.circular(QRadius.full),
                 ),
-                child: Icon(
-                  active ? item.activeIcon : item.icon,
-                  size: 20,
-                  color: active ? q.onPrimarySoft : q.ink3,
+                // Pops in (overshoot) when the tab becomes active; the key
+                // restarts the tween on each activation.
+                child: TweenAnimationBuilder<double>(
+                  key: ValueKey(active),
+                  tween: Tween(begin: active ? 0.75 : 1, end: 1),
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : QMotion.med,
+                  curve: Curves.easeOutBack,
+                  builder: (context, scale, child) =>
+                      Transform.scale(scale: scale, child: child),
+                  child: Icon(
+                    active ? item.activeIcon : item.icon,
+                    size: 20,
+                    color: active ? q.onPrimarySoft : q.ink3,
+                  ),
                 ),
               ),
               const SizedBox(height: 3),

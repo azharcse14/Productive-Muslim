@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
-import '../../core/utils/haptics.dart';
 import '../extensions/context_ext.dart';
+import 'q_pressable.dart';
 
 /// Standard list row: tonal icon tile, title + optional subtitle, trailing
 /// widget. Minimum height 56 (touch-target safe).
@@ -75,11 +76,9 @@ final class QListRow extends StatelessWidget {
     return MergeSemantics(
       child: Semantics(
         button: true,
-        child: InkWell(
-          onTap: () {
-            Haptics.selection();
-            onTap!();
-          },
+        child: QPressable(
+          onTap: onTap!,
+          borderRadius: BorderRadius.circular(QRadius.md),
           child: row,
         ),
       ),
