@@ -1094,5 +1094,19 @@
     }
   },
   "focusEndAction": "End",
-  "channelFocus": "Jamaat focus"
+  "channelFocus": "Jamaat focus",
+  "shortcutsGuideRow": "Auto-silent with Shortcuts",
+  "shortcutsGuideRowSub": "Set up your iPhone to silence itself at the mosque",
+  "shortcutsGuideTitle": "Auto-silent on iPhone",
+  "shortcutsGuideIntro": "The Shortcuts app can turn on Do Not Disturb for you. Set it up once:",
+  "shortcutsMosqueHeader": "When you reach the mosque (recommended)",
+  "shortcutsMosqueStep1": "Open Shortcuts → Automation → + (New Automation).",
+  "shortcutsMosqueStep2": "Choose Arrive, pick your mosque's location, select Run Immediately, then tap Next.",
+  "shortcutsMosqueStep3": "Tap New Blank Automation → Add Action, and search for “Set Focus”.",
+  "shortcutsMosqueStep4": "Set it to: Turn Do Not Disturb On until I Leave. Tap Done.",
+  "shortcutsTimeHeader": "At a fixed jamaat time",
+  "shortcutsTimeStep1": "Automation → + → Time of Day. Pick a few minutes before jamaat, Daily, Run Immediately.",
+  "shortcutsTimeStep2": "Add the “Set Focus” action: Turn Do Not Disturb On until a time after jamaat.",
+  "shortcutsTimeStep3": "Make one automation for each prayer.",
+  "shortcutsOpen": "Open Shortcuts"
 }

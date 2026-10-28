@@ -2438,4 +2438,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channelFocus => 'Jamaat focus';
+
+  @override
+  String get shortcutsGuideRow => 'Auto-silent with Shortcuts';
+
+  @override
+  String get shortcutsGuideRowSub =>
+      'Set up your iPhone to silence itself at the mosque';
+
+  @override
+  String get shortcutsGuideTitle => 'Auto-silent on iPhone';
+
+  @override
+  String get shortcutsGuideIntro =>
+      'The Shortcuts app can turn on Do Not Disturb for you. Set it up once:';
+
+  @override
+  String get shortcutsMosqueHeader => 'When you reach the mosque (recommended)';
+
+  @override
+  String get shortcutsMosqueStep1 =>
+      'Open Shortcuts → Automation → + (New Automation).';
+
+  @override
+  String get shortcutsMosqueStep2 =>
+      'Choose Arrive, pick your mosque\'s location, select Run Immediately, then tap Next.';
+
+  @override
+  String get shortcutsMosqueStep3 =>
+      'Tap New Blank Automation → Add Action, and search for “Set Focus”.';
+
+  @override
+  String get shortcutsMosqueStep4 =>
+      'Set it to: Turn Do Not Disturb On until I Leave. Tap Done.';
+
+  @override
+  String get shortcutsTimeHeader => 'At a fixed jamaat time';
+
+  @override
+  String get shortcutsTimeStep1 =>
+      'Automation → + → Time of Day. Pick a few minutes before jamaat, Daily, Run Immediately.';
+
+  @override
+  String get shortcutsTimeStep2 =>
+      'Add the “Set Focus” action: Turn Do Not Disturb On until a time after jamaat.';
+
+  @override
+  String get shortcutsTimeStep3 => 'Make one automation for each prayer.';
+
+  @override
+  String get shortcutsOpen => 'Open Shortcuts';
 }

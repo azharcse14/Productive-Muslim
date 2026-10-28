@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
@@ -89,6 +90,16 @@ final class _FakeScheduler implements NotificationScheduler {
 
   @override
   Future<void> cancelAll() async {}
+}
+
+final class _FakeLauncher implements ExternalLauncher {
+  final launched = <Uri>[];
+
+  @override
+  Future<bool> launch(Uri uri) async {
+    launched.add(uri);
+    return true;
+  }
 }
 
 late _InMemoryRepo _repo;
@@ -178,6 +189,29 @@ void main() {
       expect(_repo.stored.notifications.jamaatReminder, isTrue);
       expect(find.text('Lead time'), findsNWidgets(2)); // sahri + jamaat
     });
+
+    testWidgets('iOS: Shortcuts guide opens and launches Shortcuts',
+        (tester) async {
+      final launcher = _FakeLauncher();
+      await _register(_FakeScheduler());
+      GetIt.I.registerSingleton<ExternalLauncher>(launcher);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      // No lock/strict on iOS — the OS doesn't allow them.
+      expect(find.text('Strict mode'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Auto-silent with Shortcuts'),
+        200,
+      );
+      await tester.ensureVisible(find.text('Auto-silent with Shortcuts'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Auto-silent with Shortcuts'));
+      await tester.pumpAndSettle();
+      expect(find.text('Auto-silent on iPhone'), findsOneWidget);
+      await tester.tap(find.text('Open Shortcuts'));
+      await tester.pump();
+      expect(launcher.launched, [Uri.parse('shortcuts://')]);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
     testWidgets('denied permission shows education banner and CTA',
         (tester) async {

@@ -17,6 +17,7 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
+import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -688,6 +689,15 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                             },
                     ),
                   ),
+                  if (!_android) ...[
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.auto_awesome_outlined,
+                      title: l10n.shortcutsGuideRow,
+                      subtitle: l10n.shortcutsGuideRowSub,
+                      onTap: () => unawaited(_showShortcutsGuide(context)),
+                    ),
+                  ],
                   if (m.jamaatFocus) ...[
                     if (_android && !_canSilence.value)
                       permission(
@@ -783,4 +793,102 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       },
     );
   }
+}
+
+/// iOS can't be silenced by an app, but the user's own Shortcuts
+/// automation can: a step-by-step guide plus a jump into Shortcuts.
+Future<void> _showShortcutsGuide(BuildContext context) {
+  final l10n = context.l10n;
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (sheetContext) {
+      final q = sheetContext.q;
+      Widget header(String text) => Padding(
+            padding: const EdgeInsets.only(top: QSpace.s4, bottom: QSpace.s2),
+            child: Text(text, style: QType.titleSm.copyWith(color: q.ink)),
+          );
+      List<Widget> steps(List<String> texts) => [
+            for (final (i, text) in texts.indexed)
+              Padding(
+                padding: const EdgeInsets.only(bottom: QSpace.s2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      child: Text(
+                        LocaleDigits.localize(
+                          '${i + 1}.',
+                          Localizations.localeOf(sheetContext).languageCode,
+                        ),
+                        style: QType.caption.copyWith(color: q.primary),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ];
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            QSpace.s5,
+            QSpace.s5,
+            QSpace.s5,
+            QSpace.s4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.shortcutsGuideTitle,
+                style: QType.title.copyWith(color: q.ink),
+              ),
+              const SizedBox(height: QSpace.s2),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Text(
+                      l10n.shortcutsGuideIntro,
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                    header(l10n.shortcutsMosqueHeader),
+                    ...steps([
+                      l10n.shortcutsMosqueStep1,
+                      l10n.shortcutsMosqueStep2,
+                      l10n.shortcutsMosqueStep3,
+                      l10n.shortcutsMosqueStep4,
+                    ]),
+                    header(l10n.shortcutsTimeHeader),
+                    ...steps([
+                      l10n.shortcutsTimeStep1,
+                      l10n.shortcutsTimeStep2,
+                      l10n.shortcutsTimeStep3,
+                    ]),
+                  ],
+                ),
+              ),
+              const SizedBox(height: QSpace.s4),
+              QButton(
+                label: l10n.shortcutsOpen,
+                icon: Icons.open_in_new,
+                expand: true,
+                onPressed: () => unawaited(
+                  locator<ExternalLauncher>().launch(Uri.parse('shortcuts://')),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

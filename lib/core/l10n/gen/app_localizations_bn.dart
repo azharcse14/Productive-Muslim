@@ -2430,4 +2430,53 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get channelFocus => 'জামাত ফোকাস';
+
+  @override
+  String get shortcutsGuideRow => 'Shortcuts দিয়ে অটো সাইলেন্ট';
+
+  @override
+  String get shortcutsGuideRowSub => 'মসজিদে গেলে আইফোন যেন নিজেই সাইলেন্ট হয়';
+
+  @override
+  String get shortcutsGuideTitle => 'আইফোনে অটো সাইলেন্ট';
+
+  @override
+  String get shortcutsGuideIntro =>
+      'Shortcuts অ্যাপ আপনার হয়ে ডু নট ডিস্টার্ব চালু করতে পারে। একবার সেট করে নিন:';
+
+  @override
+  String get shortcutsMosqueHeader => 'মসজিদে পৌঁছালে (প্রস্তাবিত)';
+
+  @override
+  String get shortcutsMosqueStep1 =>
+      'Shortcuts খুলুন → Automation → + (New Automation)।';
+
+  @override
+  String get shortcutsMosqueStep2 =>
+      'Arrive বেছে নিন, আপনার মসজিদের লোকেশন দিন, Run Immediately সিলেক্ট করে Next চাপুন।';
+
+  @override
+  String get shortcutsMosqueStep3 =>
+      'New Blank Automation → Add Action চাপুন, তারপর “Set Focus” খুঁজুন।';
+
+  @override
+  String get shortcutsMosqueStep4 =>
+      'সেট করুন: Turn Do Not Disturb On until I Leave। তারপর Done চাপুন।';
+
+  @override
+  String get shortcutsTimeHeader => 'নির্দিষ্ট জামাতের সময়ে';
+
+  @override
+  String get shortcutsTimeStep1 =>
+      'Automation → + → Time of Day। জামাতের কয়েক মিনিট আগের সময়, Daily, Run Immediately দিন।';
+
+  @override
+  String get shortcutsTimeStep2 =>
+      '“Set Focus” অ্যাকশন দিন: Turn Do Not Disturb On until — জামাতের পরের একটি সময়।';
+
+  @override
+  String get shortcutsTimeStep3 => 'প্রতি ওয়াক্তের জন্য আলাদা অটোমেশন বানান।';
+
+  @override
+  String get shortcutsOpen => 'Shortcuts খুলুন';
 }

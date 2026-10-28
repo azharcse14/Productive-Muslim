@@ -3703,6 +3703,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Jamaat focus'**
   String get channelFocus;
+
+  /// No description provided for @shortcutsGuideRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-silent with Shortcuts'**
+  String get shortcutsGuideRow;
+
+  /// No description provided for @shortcutsGuideRowSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your iPhone to silence itself at the mosque'**
+  String get shortcutsGuideRowSub;
+
+  /// No description provided for @shortcutsGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-silent on iPhone'**
+  String get shortcutsGuideTitle;
+
+  /// No description provided for @shortcutsGuideIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The Shortcuts app can turn on Do Not Disturb for you. Set it up once:'**
+  String get shortcutsGuideIntro;
+
+  /// No description provided for @shortcutsMosqueHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'When you reach the mosque (recommended)'**
+  String get shortcutsMosqueHeader;
+
+  /// No description provided for @shortcutsMosqueStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Shortcuts → Automation → + (New Automation).'**
+  String get shortcutsMosqueStep1;
+
+  /// No description provided for @shortcutsMosqueStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Arrive, pick your mosque\'s location, select Run Immediately, then tap Next.'**
+  String get shortcutsMosqueStep2;
+
+  /// No description provided for @shortcutsMosqueStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap New Blank Automation → Add Action, and search for “Set Focus”.'**
+  String get shortcutsMosqueStep3;
+
+  /// No description provided for @shortcutsMosqueStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Set it to: Turn Do Not Disturb On until I Leave. Tap Done.'**
+  String get shortcutsMosqueStep4;
+
+  /// No description provided for @shortcutsTimeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'At a fixed jamaat time'**
+  String get shortcutsTimeHeader;
+
+  /// No description provided for @shortcutsTimeStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Automation → + → Time of Day. Pick a few minutes before jamaat, Daily, Run Immediately.'**
+  String get shortcutsTimeStep1;
+
+  /// No description provided for @shortcutsTimeStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the “Set Focus” action: Turn Do Not Disturb On until a time after jamaat.'**
+  String get shortcutsTimeStep2;
+
+  /// No description provided for @shortcutsTimeStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Make one automation for each prayer.'**
+  String get shortcutsTimeStep3;
+
+  /// No description provided for @shortcutsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Shortcuts'**
+  String get shortcutsOpen;
 }
 
 class _AppLocalizationsDelegate
