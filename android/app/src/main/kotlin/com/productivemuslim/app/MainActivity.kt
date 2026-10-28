@@ -1,5 +1,6 @@
 package com.productivemuslim.app
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -56,11 +57,11 @@ class MainActivity : FlutterFragmentActivity() {
                 "hasDndAccess" -> result.success(JamaatFocus.hasDndAccess(this))
                 "hasBlockAccess" -> result.success(JamaatFocus.hasBlockAccess(this))
                 "requestDndAccess" -> {
-                    startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                    openSettings(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                     result.success(null)
                 }
                 "requestBlockAccess" -> {
-                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    openSettings(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -81,6 +82,15 @@ class MainActivity : FlutterFragmentActivity() {
             } else {
                 result.notImplemented()
             }
+        }
+    }
+
+    /** Some settings pages are missing on low-RAM / Go devices: fall back to Settings. */
+    private fun openSettings(action: String) {
+        try {
+            startActivity(Intent(action))
+        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }
 }

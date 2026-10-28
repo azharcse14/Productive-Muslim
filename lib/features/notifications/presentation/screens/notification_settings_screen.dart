@@ -536,6 +536,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
   final _canSilence = signal(true);
   final _canBlock = signal(true);
   late final AppLifecycleListener _lifecycle;
+  Timer? _poll;
 
   @override
   void initState() {
@@ -543,10 +544,18 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
     // Back from the DND / accessibility settings pages.
     _lifecycle = AppLifecycleListener(onResume: () => unawaited(_refresh()));
     unawaited(_refresh());
+    // A session can start or end (alarm, shake) while this screen is open.
+    if (_android) {
+      _poll = Timer.periodic(
+        const Duration(seconds: 15),
+        (_) => unawaited(_refresh()),
+      );
+    }
   }
 
   @override
   void dispose() {
+    _poll?.cancel();
     _lifecycle.dispose();
     super.dispose();
   }

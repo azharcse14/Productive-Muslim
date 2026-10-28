@@ -76,7 +76,15 @@ object JamaatFocus {
     private fun nm(c: Context) =
         c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    fun isActive(c: Context) = prefs(c).getLong(ACTIVE_UNTIL, 0L) != 0L
+    fun isActive(c: Context): Boolean {
+        val until = prefs(c).getLong(ACTIVE_UNTIL, 0L)
+        if (until > 0 && System.currentTimeMillis() >= until) {
+            // Past its end but the (inexact) end alarm hasn't run yet: end it now.
+            tick(c)
+            return prefs(c).getLong(ACTIVE_UNTIL, 0L) != 0L
+        }
+        return until != 0L
+    }
 
     private fun isStrict(c: Context) = prefs(c).getBoolean("sessionStrict", false)
 
@@ -154,7 +162,10 @@ object JamaatFocus {
 
     private fun start(c: Context, start: Long, end: Long) {
         val nm = nm(c)
-        val silence = nm.isNotificationPolicyAccessGranted
+        // DND already on (Bedtime, the user's own) is left alone: we neither
+        // loosen it nor take it over, so stop() never restores the wrong state.
+        val silence = nm.isNotificationPolicyAccessGranted &&
+            nm.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
         prefs(c).edit()
             .putLong(ACTIVE_UNTIL, if (end > 0) end else -1L)
             .putLong("lastStart", start)
@@ -324,11 +335,17 @@ object JamaatFocus {
         }
     }
 
-    /** Never covered: this app, the shade, keyboard, and calls. */
+    /**
+     * Never covered: this app, the shade, keyboard, calls — and Settings, the
+     * package installer and Play, so the user can always turn the service off
+     * or uninstall (Play accessibility policy).
+     */
     fun allowed(c: Context, pkg: String): Boolean {
         if (pkg == c.packageName || pkg == "android" || pkg == "com.android.systemui" ||
             pkg == "com.android.server.telecom" || pkg == "com.android.phone" ||
-            pkg == "com.android.emergency"
+            pkg == "com.android.emergency" || pkg == "com.android.settings" ||
+            pkg == "com.android.packageinstaller" ||
+            pkg == "com.google.android.packageinstaller" || pkg == "com.android.vending"
         ) return true
         val tm = c.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
         if (pkg == tm?.defaultDialerPackage) return true
