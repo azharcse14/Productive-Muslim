@@ -2401,7 +2401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get focusDisclosureBody =>
-      'Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.';
+      'Productive Muslim uses the Accessibility service only for jamaat focus and nafs lock: during a session, to notice when another app opens and cover it with the lock screen; with nafs lock on, it also watches the motion sensor for 5 hard shakes. It does not read, collect or share anything you see or type.';
 
   @override
   String get focusContinue => 'Continue';
@@ -2674,4 +2674,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationRetry => 'Try again';
+
+  @override
+  String get nafsHeader => 'Nafs lock';
+
+  @override
+  String get nafsToggle => 'Shake to lock';
+
+  @override
+  String get nafsToggleSub =>
+      'When the nafs pulls you towards something wrong, shake the phone hard 5 times: it locks and won\'t open until the time runs out. Calls stay allowed';
+
+  @override
+  String get nafsDurationLabel => 'Locked for';
+
+  @override
+  String get nafsPermBlock =>
+      'Allow accessibility access for nafs lock to work';
+
+  @override
+  String nafsActiveUntil(String time) {
+    return 'Nafs lock is on until $time';
+  }
+
+  @override
+  String get nafsLockTitle => 'Nafs lock';
+
+  @override
+  String nafsLockBodyUntil(String time) {
+    return 'Hold on — remember Allah. Your phone opens at $time.';
+  }
 }

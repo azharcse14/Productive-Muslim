@@ -2394,7 +2394,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get focusDisclosureBody =>
-      'Productive Muslim অ্যাক্সেসিবিলিটি সার্ভিস শুধু জামাত ফোকাস সেশনের সময় ব্যবহার করে: অন্য অ্যাপ খুললে তা জামাতের স্ক্রিন দিয়ে ঢেকে দিতে। আপনি যা দেখেন বা লেখেন তা পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
+      'Productive Muslim অ্যাক্সেসিবিলিটি সার্ভিস শুধু জামাত ফোকাস আর নফস লকের জন্য ব্যবহার করে: সেশন চলাকালে অন্য অ্যাপ খুললে তা লক স্ক্রিন দিয়ে ঢেকে দিতে; নফস লক চালু থাকলে ৫ বার জোরে ঝাঁকানো ধরতে মোশন সেন্সরও দেখে। আপনি যা দেখেন বা লেখেন তা পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
 
   @override
   String get focusContinue => 'চালিয়ে যান';
@@ -2663,4 +2663,33 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get locationRetry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get nafsHeader => 'নফস লক';
+
+  @override
+  String get nafsToggle => 'ঝাঁকালে লক';
+
+  @override
+  String get nafsToggleSub =>
+      'নফস খারাপ কিছুর দিকে টানলে ফোন জোরে ৫ বার ঝাঁকান: ফোন লক হয়ে যাবে, সময় শেষ না হওয়া পর্যন্ত খুলবে না। কল করা যাবে';
+
+  @override
+  String get nafsDurationLabel => 'লক থাকবে';
+
+  @override
+  String get nafsPermBlock => 'নফস লক কাজ করতে অ্যাক্সেসিবিলিটি অনুমতি দিন';
+
+  @override
+  String nafsActiveUntil(String time) {
+    return '$time পর্যন্ত নফস লক চালু';
+  }
+
+  @override
+  String get nafsLockTitle => 'নফস লক';
+
+  @override
+  String nafsLockBodyUntil(String time) {
+    return 'একটু থামুন — আল্লাহকে স্মরণ করুন। ফোন খুলবে $time-এ।';
+  }
 }
