@@ -1448,6 +1448,12 @@ abstract class AppLocalizations {
   /// **'Your daily muhasaba'**
   String get muhasabaFirstDayTitle;
 
+  /// No description provided for @muhasabaDayComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Every deed done today — alhamdulillah'**
+  String get muhasabaDayComplete;
+
   /// No description provided for @muhasabaFirstDayBody.
   ///
   /// In en, this message translates to:

@@ -817,6 +817,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muhasabaFirstDayTitle => 'Your daily muhasaba';
 
   @override
+  String get muhasabaDayComplete => 'Every deed done today — alhamdulillah';
+
+  @override
   String get muhasabaFirstDayBody =>
       'Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.';
 

@@ -813,6 +813,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get muhasabaFirstDayTitle => 'আপনার দৈনিক মুহাসাবা';
 
   @override
+  String get muhasabaDayComplete => 'আজকের সব আমল পূর্ণ — আলহামদুলিল্লাহ';
+
+  @override
   String get muhasabaFirstDayBody =>
       'মুহাসাবা মানে কোমল আত্মজিজ্ঞাসা: ছোট ছোট দৈনিক আমল, সদয়ভাবে হিসাব রাখা। যা করেছেন টিক দিন — প্রতিটুকুই মূল্যবান।';
 

@@ -225,6 +225,7 @@
   "qiblaNeedsLocation": "কিবলার দিক পেতে আগে অবস্থান সেট করুন",
   "muhasabaTitle": "মুহাসাবা",
   "muhasabaFirstDayTitle": "আপনার দৈনিক মুহাসাবা",
+  "muhasabaDayComplete": "আজকের সব আমল পূর্ণ — আলহামদুলিল্লাহ",
   "muhasabaFirstDayBody": "মুহাসাবা মানে কোমল আত্মজিজ্ঞাসা: ছোট ছোট দৈনিক আমল, সদয়ভাবে হিসাব রাখা। যা করেছেন টিক দিন — প্রতিটুকুই মূল্যবান।",
   "muhasabaStart": "বিসমিল্লাহ, শুরু করি",
   "trackerName": "{key, select, salah_fajr{ফজরের নামাজ} salah_dhuhr{যোহরের নামাজ} salah_asr{আসরের নামাজ} salah_maghrib{মাগরিবের নামাজ} salah_isha{এশার নামাজ} quran{কুরআন তিলাওয়াত} azkar{আজকার} sadaqah{সদকা} tahajjud{তাহাজ্জুদ} roza{রোজা} other{{key}}}",
