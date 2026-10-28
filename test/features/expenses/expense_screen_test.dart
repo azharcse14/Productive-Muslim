@@ -92,6 +92,8 @@ void main() {
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('tea'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('tea'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
@@ -100,6 +102,31 @@ void main() {
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
     expect(store.entries.value.single.note, 'tea');
+  });
+
+  testWidgets('compares with the same span of last month; groups by day', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    register();
+    Future<void> add(int amount, DateTime date) => store.add(
+      amount: amount,
+      category: ExpenseCategory.want,
+      note: 'n$amount',
+      date: date,
+    );
+    await add(100, DateTime(2026, 9, 10));
+    await add(500, DateTime(2026, 9, 28)); // after "now"'s day: not counted
+    await add(80, DateTime(2026, 10, 26, 9));
+    await add(50, DateTime(2026, 10, 25));
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    expect(find.text('30 more than this time last month'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
+    expect(find.text('Yesterday'), findsOneWidget);
   });
 
   testWidgets('a decimal amount shows an error instead of silently failing', (
@@ -121,6 +148,7 @@ void main() {
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
+    await tester.ensureVisible(find.text('tea'));
     await tester.pumpAndSettle();
     await tester.drag(find.text('tea'), const Offset(-600, 0));
     await tester.pumpAndSettle();
@@ -164,6 +192,8 @@ void main() {
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('tea'));
     await tester.pumpAndSettle();
     prefs.fail = true;
     await tester.drag(find.text('tea'), const Offset(-600, 0));

@@ -2238,6 +2238,29 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String expenseVsLastMonth(String dir, String amount) {
+    String _temp0 = intl.Intl.selectLogic(dir, {
+      'more': 'গত মাসের চেয়ে $amount বেশি',
+      'less': 'গত মাসের চেয়ে $amount কম',
+      'other': 'গত মাসের সমান',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String expenseVsLastMonthSoFar(String dir, String amount) {
+    String _temp0 = intl.Intl.selectLogic(dir, {
+      'more': 'গত মাসের এই সময়ের চেয়ে $amount বেশি',
+      'less': 'গত মাসের এই সময়ের চেয়ে $amount কম',
+      'other': 'গত মাসের এই সময়ের সমান',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get expenseYesterday => 'গতকাল';
+
+  @override
   String get expenseCategoryBudgetHint =>
       'বাজেট দিতে ক্যাটাগরিতে চাপুন (সাদাকাহ: লক্ষ্য)';
 

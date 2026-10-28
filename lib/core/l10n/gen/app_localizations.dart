@@ -3404,6 +3404,24 @@ abstract class AppLocalizations {
   /// **'{amount} over budget — rethink the wants'**
   String expenseBudgetOver(String amount);
 
+  /// No description provided for @expenseVsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{dir, select, more{{amount} more than last month} less{{amount} less than last month} other{Same as last month}}'**
+  String expenseVsLastMonth(String dir, String amount);
+
+  /// No description provided for @expenseVsLastMonthSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'{dir, select, more{{amount} more than this time last month} less{{amount} less than this time last month} other{Same as this time last month}}'**
+  String expenseVsLastMonthSoFar(String dir, String amount);
+
+  /// No description provided for @expenseYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get expenseYesterday;
+
   /// No description provided for @expenseCategoryBudgetHint.
   ///
   /// In en, this message translates to:

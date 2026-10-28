@@ -1002,6 +1002,21 @@
       "amount": {"type": "String"}
     }
   },
+  "expenseVsLastMonth": "{dir, select, more{{amount} more than last month} less{{amount} less than last month} other{Same as last month}}",
+  "expenseVsLastMonthSoFar": "{dir, select, more{{amount} more than this time last month} less{{amount} less than this time last month} other{Same as this time last month}}",
+  "@expenseVsLastMonth": {
+    "placeholders": {
+      "dir": {"type": "String"},
+      "amount": {"type": "String"}
+    }
+  },
+  "@expenseVsLastMonthSoFar": {
+    "placeholders": {
+      "dir": {"type": "String"},
+      "amount": {"type": "String"}
+    }
+  },
+  "expenseYesterday": "Yesterday",
   "expenseCategoryBudgetHint": "Tap a category to set its budget (sadaqah: a goal)",
   "expenseCategoryBudgetTitle": "{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}",
   "@expenseCategoryBudgetTitle": {

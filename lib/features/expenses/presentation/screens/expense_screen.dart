@@ -124,6 +124,24 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
             final totals = _store.totalsFor(month);
             final total = totals.values.fold(0, (a, b) => a + b);
             final items = _store.inMonth(month);
+            // The current month is partial: compare against the same span of
+            // last month, not all of it.
+            final now = _store.now();
+            final soFar = _offset == 0;
+            final prev = _store
+                .inMonth(_store.month(_offset - 1))
+                .where((e) => !soFar || e.date.day <= now.day)
+                .fold(0, (a, e) => a + e.amount);
+            final diff = total - prev;
+            final today = DateUtils.dateOnly(now);
+            String dayLabel(DateTime d) => switch (today.difference(d).inDays) {
+              0 => l10n.periodToday,
+              1 => l10n.expenseYesterday,
+              _ => LocaleDigits.localize(
+                DateFormat.MMMEd(code).format(d),
+                code,
+              ),
+            };
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -171,6 +189,24 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                         l10n.expenseMonthTotal,
                         style: QType.caption.copyWith(color: q.ink2),
                       ),
+                      if (prev > 0) ...[
+                        const SizedBox(height: QSpace.s1),
+                        Text(
+                          (soFar
+                              ? l10n.expenseVsLastMonthSoFar
+                              : l10n.expenseVsLastMonth)(
+                            diff > 0
+                                ? 'more'
+                                : diff < 0
+                                ? 'less'
+                                : 'same',
+                            n(diff.abs()),
+                          ),
+                          style: QType.caption.copyWith(
+                            color: diff > 0 ? q.urgent : q.ink2,
+                          ),
+                        ),
+                      ],
                       if (budget != null) ...[
                         const SizedBox(height: QSpace.s3),
                         LinearProgressIndicator(
@@ -229,7 +265,35 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                       style: QType.body.copyWith(color: q.ink2),
                     ),
                   ),
-                for (final e in items)
+                for (final (i, e) in items.indexed) ...[
+                  // Entries are newest first: a header opens each new day.
+                  if (i == 0 || !DateUtils.isSameDay(items[i - 1].date, e.date))
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: QSpace.s3,
+                        bottom: QSpace.s1,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              dayLabel(DateUtils.dateOnly(e.date)),
+                              style: QType.label.copyWith(color: q.ink2),
+                            ),
+                          ),
+                          Text(
+                            n(
+                              items
+                                  .where(
+                                    (x) => DateUtils.isSameDay(x.date, e.date),
+                                  )
+                                  .fold(0, (a, x) => a + x.amount),
+                            ),
+                            style: QType.caption.copyWith(color: q.ink2),
+                          ),
+                        ],
+                      ),
+                    ),
                   Dismissible(
                     // A fresh key after its swipe: a row put back by a
                     // failed delete must not reuse the dismissed widget.
@@ -276,6 +340,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                       ),
                     ),
                   ),
+                ],
               ],
             );
           },
