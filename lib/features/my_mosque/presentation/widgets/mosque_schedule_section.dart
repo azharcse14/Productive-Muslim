@@ -56,17 +56,15 @@ final class MosqueScheduleSection extends StatelessWidget {
                   style: QType.titleSm.copyWith(color: q.ink),
                 ),
               ),
-              SizedBox(
-                width: 180,
-                child: QSegControl(
-                  options: [l10n.scheduleModeManual, l10n.scheduleModeAuto],
-                  activeIndex: auto ? 1 : 0,
-                  onChanged: (i) => onModeChanged(
-                    i == 1 ? ScheduleMode.auto : ScheduleMode.manual,
-                  ),
-                ),
-              ),
             ],
+          ),
+          // Own row so large text scales don't clip it.
+          const SizedBox(height: QSpace.s3),
+          QSegControl(
+            options: [l10n.scheduleModeManual, l10n.scheduleModeAuto],
+            activeIndex: auto ? 1 : 0,
+            onChanged: (i) =>
+                onModeChanged(i == 1 ? ScheduleMode.auto : ScheduleMode.manual),
           ),
           if (auto) ...[
             const SizedBox(height: QSpace.s3),
@@ -255,16 +253,28 @@ final class _TimeChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(QRadius.full),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: q.surface,
-          borderRadius: BorderRadius.circular(QRadius.full),
-          border: Border.all(color: q.line),
-        ),
-        child: Text(
-          label,
-          style: QType.num_(QType.caption).copyWith(color: q.ink),
+      // The pill stays compact; the transparent band makes the tap target
+      // 48dp tall.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: QTouch.minTarget),
+        child: Center(
+          widthFactor: 1,
+          heightFactor: 1,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: QSpace.s3,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              color: q.surface,
+              borderRadius: BorderRadius.circular(QRadius.full),
+              border: Border.all(color: q.line),
+            ),
+            child: Text(
+              label,
+              style: QType.num_(QType.caption).copyWith(color: q.ink),
+            ),
+          ),
         ),
       ),
     );

@@ -34,8 +34,12 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   int _daughters = 0;
   int _brothers = 0;
   int _sisters = 0;
+  bool _otherRelatives = false;
 
   InheritanceResult? _result;
+
+  /// The estate text didn't parse as a finite number.
+  bool _estateInvalid = false;
 
   @override
   void dispose() {
@@ -43,11 +47,25 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     super.dispose();
   }
 
+  /// Applies an input change and drops the result, so it never shows a
+  /// distribution for different inputs.
+  void _edit(VoidCallback change) => setState(() {
+    change();
+    _result = null;
+  });
+
   void _calculate() {
+    final text = LocaleDigits.toAscii(_estate.text).trim();
+    final estate = double.tryParse(text);
     setState(() {
+      _estateInvalid = text.isNotEmpty && (estate == null || !estate.isFinite);
+      if (_estateInvalid) {
+        _result = null;
+        return;
+      }
       _result = InheritanceCalculator.calculate(
         InheritanceInput(
-          estate: double.tryParse(LocaleDigits.toAscii(_estate.text)) ?? 0,
+          estate: estate ?? 0,
           hasHusband: _spouse == _Spouse.husband,
           wives: _spouse == _Spouse.wife ? _wives : 0,
           hasFather: _father,
@@ -56,9 +74,27 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
           daughters: _daughters,
           fullBrothers: _brothers,
           fullSisters: _sisters,
+          hasOtherRelatives: _otherRelatives,
         ),
       );
     });
+  }
+
+  String _basisLabel(BuildContext context, ShareBasis basis) {
+    final l10n = context.l10n;
+    return switch (basis) {
+      ShareBasis.half => '1/2',
+      ShareBasis.quarter => '1/4',
+      ShareBasis.eighth => '1/8',
+      ShareBasis.sixth => '1/6',
+      ShareBasis.third => '1/3',
+      ShareBasis.twoThirdsShared => l10n.faraidBasisTwoThirdsShared,
+      ShareBasis.thirdOfResidue => l10n.faraidBasisThirdOfResidue,
+      ShareBasis.residuary => l10n.faraidBasisResiduary,
+      ShareBasis.sixthPlusResiduary => l10n.faraidBasisSixthPlusResiduary,
+      ShareBasis.residuaryTwoToOne => l10n.faraidBasisResiduaryTwoToOne,
+      ShareBasis.unallocated => '',
+    };
   }
 
   String _money(BuildContext context, double amount) {
@@ -104,9 +140,15 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             // Estate value.
             TextField(
               controller: _estate,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              onChanged: (_) => _edit(() => _estateInvalid = false),
               style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(labelText: l10n.faraidEstate),
+              decoration: InputDecoration(
+                labelText: l10n.faraidEstate,
+                errorText: _estateInvalid ? l10n.faraidInvalidNumber : null,
+              ),
             ),
             const SizedBox(height: QSpace.s4),
 
@@ -129,7 +171,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                 ),
               ],
               selected: {_spouse},
-              onSelectionChanged: (s) => setState(() => _spouse = s.first),
+              onSelectionChanged: (s) => _edit(() => _spouse = s.first),
             ),
             if (_spouse == _Spouse.wife) ...[
               const SizedBox(height: QSpace.s3),
@@ -138,7 +180,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                 value: _wives,
                 min: 1,
                 max: 4,
-                onChanged: (v) => setState(() => _wives = v),
+                onChanged: (v) => _edit(() => _wives = v),
               ),
             ],
             const SizedBox(height: QSpace.s4),
@@ -148,13 +190,13 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.faraidFather, style: QType.body),
               value: _father,
-              onChanged: (v) => setState(() => _father = v),
+              onChanged: (v) => _edit(() => _father = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.faraidMother, style: QType.body),
               value: _mother,
-              onChanged: (v) => setState(() => _mother = v),
+              onChanged: (v) => _edit(() => _mother = v),
             ),
             const SizedBox(height: QSpace.s2),
 
@@ -162,25 +204,34 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             _Stepper(
               label: l10n.faraidSons,
               value: _sons,
-              onChanged: (v) => setState(() => _sons = v),
+              onChanged: (v) => _edit(() => _sons = v),
             ),
             const SizedBox(height: QSpace.s2),
             _Stepper(
               label: l10n.faraidDaughters,
               value: _daughters,
-              onChanged: (v) => setState(() => _daughters = v),
+              onChanged: (v) => _edit(() => _daughters = v),
             ),
             const SizedBox(height: QSpace.s2),
             _Stepper(
               label: l10n.faraidBrothers,
               value: _brothers,
-              onChanged: (v) => setState(() => _brothers = v),
+              onChanged: (v) => _edit(() => _brothers = v),
             ),
             const SizedBox(height: QSpace.s2),
             _Stepper(
               label: l10n.faraidSisters,
               value: _sisters,
-              onChanged: (v) => setState(() => _sisters = v),
+              onChanged: (v) => _edit(() => _sisters = v),
+            ),
+            const SizedBox(height: QSpace.s2),
+            // Out-of-scope heirs: answering yes skips the distribution
+            // rather than give a wrong radd / "unallocated" answer.
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.faraidOtherRelatives, style: QType.body),
+              value: _otherRelatives,
+              onChanged: (v) => _edit(() => _otherRelatives = v),
             ),
             const SizedBox(height: QSpace.s4),
 
@@ -191,7 +242,15 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
               onPressed: _calculate,
             ),
 
-            if (_result case final InheritanceResult result) ...[
+            if (_result case final InheritanceResult result
+                when result.outOfScope) ...[
+              const SizedBox(height: QSpace.s4),
+              QBanner(
+                text: l10n.faraidOutOfScope,
+                tone: q.warnSoft,
+                foreground: q.ink,
+              ),
+            ] else if (_result case final InheritanceResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
                 child: Column(
@@ -213,7 +272,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                                     : context.digits(
                                         '${_heirName(context, s.heirKey)}'
                                         '${s.count > 1 ? ' ×${s.count}' : ''}'
-                                        ' · ${s.shareLabel}',
+                                        ' · ${_basisLabel(context, s.basis)}',
                                       ),
                                 style: QType.body.copyWith(color: q.ink),
                               ),
@@ -241,6 +300,18 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                         text: l10n.faraidRaddNote,
                         tone: q.primarySoft,
                         foreground: q.onPrimarySoft,
+                      ),
+                    if (result.note == 'umariyyatayn')
+                      QBanner(
+                        text: l10n.faraidUmariyyataynNote,
+                        tone: q.primarySoft,
+                        foreground: q.onPrimarySoft,
+                      ),
+                    if (result.note == 'unallocated')
+                      QBanner(
+                        text: l10n.faraidUnallocatedNote,
+                        tone: q.warnSoft,
+                        foreground: q.ink,
                       ),
                   ],
                 ),

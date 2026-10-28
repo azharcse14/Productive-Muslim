@@ -26,9 +26,16 @@ final class MosqueStore {
 
   var _idCounter = 0;
 
+  /// Storage couldn't be read: [state] holds defaults, not the user's data,
+  /// so saving it would clobber whatever is stored (mirrors SettingsStore).
+  bool _readFailed = false;
+
   Future<void> load() async {
     final result = await _get();
-    result.fold((value) => state.value = value, (_) {});
+    result.fold((value) {
+      _readFailed = false;
+      state.value = value;
+    }, (_) => _readFailed = true);
     _idCounter = state.value.profiles.length;
   }
 
@@ -39,46 +46,40 @@ final class MosqueStore {
       name: name,
     );
     await _update(
-      state.value.copyWith(
-        profiles: [...state.value.profiles, profile],
-        activeId: profile.id,
-      ),
+      (s) =>
+          s.copyWith(profiles: [...s.profiles, profile], activeId: profile.id),
     );
     return profile;
   }
 
-  Future<void> setActive(String id) =>
-      _update(state.value.copyWith(activeId: id));
+  Future<void> setActive(String id) => _update((s) => s.copyWith(activeId: id));
 
   /// Switches between manual selection and the auto schedule. Leaving auto
   /// clears any temporary override.
   Future<void> setMode(ScheduleMode mode) => _update(
-    state.value
+    (s) => s
         .copyWith(mode: mode)
-        .withOverride(
-          mode == ScheduleMode.auto ? state.value.activeOverride : null,
-        ),
+        .withOverride(mode == ScheduleMode.auto ? s.activeOverride : null),
   );
 
   Future<void> addRule(MosqueRule rule) =>
-      _update(state.value.copyWith(rules: [...state.value.rules, rule]));
+      _update((s) => s.copyWith(rules: [...s.rules, rule]));
 
   /// Puts [rule] back at [index] (undo of [removeRule]).
-  Future<void> insertRule(int index, MosqueRule rule) {
-    final rules = [...state.value.rules];
+  Future<void> insertRule(int index, MosqueRule rule) => _update((s) {
+    final rules = [...s.rules];
     rules.insert(index.clamp(0, rules.length), rule);
-    return _update(state.value.copyWith(rules: rules));
-  }
+    return s.copyWith(rules: rules);
+  });
 
   Future<void> updateRule(int index, MosqueRule rule) {
-    final rules = state.value.rules;
-    if (index < 0 || index >= rules.length) {
+    if (index < 0 || index >= state.value.rules.length) {
       return Future.value();
     }
     return _update(
-      state.value.copyWith(
+      (s) => s.copyWith(
         rules: [
-          for (final (i, r) in rules.indexed)
+          for (final (i, r) in s.rules.indexed)
             if (i == index) rule else r,
         ],
       ),
@@ -86,14 +87,13 @@ final class MosqueStore {
   }
 
   Future<void> removeRule(int index) {
-    final rules = state.value.rules;
-    if (index < 0 || index >= rules.length) {
+    if (index < 0 || index >= state.value.rules.length) {
       return Future.value();
     }
     return _update(
-      state.value.copyWith(
+      (s) => s.copyWith(
         rules: [
-          for (final (i, r) in rules.indexed)
+          for (final (i, r) in s.rules.indexed)
             if (i != index) r,
         ],
       ),
@@ -101,7 +101,7 @@ final class MosqueStore {
   }
 
   Future<void> setDefaultMosque(String? id) =>
-      _update(state.value.withDefault(id));
+      _update((s) => s.withDefault(id));
 
   /// Sets a temporary override (auto mode). [baselineAutoId] is the schedule's
   /// current target, so the override expires once a window boundary is crossed
@@ -111,7 +111,7 @@ final class MosqueStore {
     String? baselineAutoId,
     DateTime now,
   ) => _update(
-    state.value.withOverride(
+    (s) => s.withOverride(
       MosqueOverride(
         mosqueId: mosqueId,
         baselineAutoId: baselineAutoId,
@@ -120,7 +120,7 @@ final class MosqueStore {
     ),
   );
 
-  Future<void> clearOverride() => _update(state.value.withOverride(null));
+  Future<void> clearOverride() => _update((s) => s.withOverride(null));
 
   Future<void> renameProfile(String id, String name) =>
       _mapProfile(id, (p) => p.copyWith(name: name));
@@ -131,41 +131,50 @@ final class MosqueStore {
         (p) => p.copyWith(entries: {...p.entries, prayer: entry}),
       );
 
-  Future<void> deleteProfile(String id) async {
-    final current = state.value;
+  Future<void> deleteProfile(String id) => _update((current) {
     final remaining = current.profiles.where((p) => p.id != id).toList();
     final override = current.activeOverride;
-    await _update(
-      MosqueState(
-        profiles: remaining,
-        activeId: current.activeId == id
-            ? (remaining.isEmpty ? null : remaining.first.id)
-            : current.activeId,
-        mode: current.mode,
-        // Drop any rules pointing at the removed profile.
-        rules: [
-          for (final r in current.rules)
-            if (r.mosqueId != id) r,
-        ],
-        defaultId: current.defaultId == id ? null : current.defaultId,
-        activeOverride: override?.mosqueId == id ? null : override,
-      ),
+    return MosqueState(
+      profiles: remaining,
+      activeId: current.activeId == id
+          ? (remaining.isEmpty ? null : remaining.first.id)
+          : current.activeId,
+      mode: current.mode,
+      // Drop any rules pointing at the removed profile.
+      rules: [
+        for (final r in current.rules)
+          if (r.mosqueId != id) r,
+      ],
+      defaultId: current.defaultId == id ? null : current.defaultId,
+      activeOverride: override?.mosqueId == id ? null : override,
     );
-  }
+  });
 
   Future<void> _mapProfile(
     String id,
     MosqueProfile Function(MosqueProfile) transform,
   ) => _update(
-    state.value.copyWith(
+    (s) => s.copyWith(
       profiles: [
-        for (final p in state.value.profiles)
+        for (final p in s.profiles)
           if (p.id == id) transform(p) else p,
       ],
     ),
   );
 
-  Future<void> _update(MosqueState next) async {
+  /// Applies [change] and saves. A function, not a value, so a change made
+  /// while storage was unreadable replays onto the real state once it loads.
+  Future<void> _update(MosqueState Function(MosqueState) change) async {
+    if (_readFailed) {
+      await load();
+      if (_readFailed) {
+        // ponytail: still unreadable — saving would overwrite the stored
+        // mosques with defaults, so the change is in memory only.
+        state.value = change(state.value);
+        return;
+      }
+    }
+    final next = change(state.value);
     state.value = next;
     await _save(next);
   }

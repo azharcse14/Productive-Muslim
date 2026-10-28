@@ -94,7 +94,7 @@ abstract final class ZakatCalculator {
 
   /// Computes the full Zakat result for [input].
   ///
-  /// Every field is clamped to ≥ 0 first, so a negative entry can never
+  /// Every field is clamped to ≥ 0 (non-finite → 0) first, so a negative entry can never
   /// drag a total below zero. A missing (0) metal price is ignored for
   /// nisab; a nisab of 0 (both prices missing) makes the result non-payable
   /// rather than trivially payable.
@@ -136,5 +136,6 @@ abstract final class ZakatCalculator {
     );
   }
 
-  static double _clamp(double value) => value < 0 ? 0 : value;
+  /// Negative and non-finite (NaN/Infinity) values count as 0.
+  static double _clamp(double value) => value.isFinite && value > 0 ? value : 0;
 }

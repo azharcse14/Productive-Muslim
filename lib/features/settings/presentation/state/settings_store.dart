@@ -116,11 +116,16 @@ final class SettingsStore {
   Future<void> setSetupComplete({required bool complete}) =>
       _update((s) => s.copyWith(setupComplete: complete));
 
+  /// Clamped to ±[PrayerParams.maxAdjustment].
   Future<void> setAdjustment(Prayer prayer, int minutes) {
+    final clamped = minutes.clamp(
+      -PrayerParams.maxAdjustment,
+      PrayerParams.maxAdjustment,
+    );
     return _update(
       (s) => s.copyWith(
         prayerParams: s.prayerParams.copyWith(
-          adjustments: {...s.prayerParams.adjustments, prayer: minutes},
+          adjustments: {...s.prayerParams.adjustments, prayer: clamped},
         ),
       ),
     );

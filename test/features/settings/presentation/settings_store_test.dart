@@ -96,6 +96,20 @@ void main() {
       expect(repo.stored.prayerParams.adjustmentFor(Prayer.asr), 0);
     });
 
+    test('setAdjustment clamps to ±maxAdjustment', () async {
+      final (store, repo) = _make();
+      await store.setAdjustment(Prayer.fajr, 99);
+      await store.setAdjustment(Prayer.isha, -99);
+      expect(
+        repo.stored.prayerParams.adjustmentFor(Prayer.fajr),
+        PrayerParams.maxAdjustment,
+      );
+      expect(
+        repo.stored.prayerParams.adjustmentFor(Prayer.isha),
+        -PrayerParams.maxAdjustment,
+      );
+    });
+
     test('setLocation updates the derived location', () async {
       final (store, _) = _make();
       const city = City(

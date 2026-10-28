@@ -36,7 +36,7 @@ void main() {
       expect(_share(r, 'mother').fraction, closeTo(2 / 15, 1e-9));
       expect(_share(r, 'father').fraction, closeTo(2 / 15, 1e-9));
       // father takes only his 1/6 (now scaled), no extra residue.
-      expect(_share(r, 'father').shareLabel, '1/6');
+      expect(_share(r, 'father').basis, ShareBasis.sixth);
       _expectConservation(r);
     });
 
@@ -51,7 +51,7 @@ void main() {
       );
       // wife 1/8 = 30000; residue 210000 split son:daughter 2:1.
       expect(_share(r, 'wife').amount, closeTo(30000, 0.001));
-      expect(_share(r, 'wife').shareLabel, '1/8');
+      expect(_share(r, 'wife').basis, ShareBasis.eighth);
       expect(_share(r, 'son').amount, closeTo(140000, 0.001));
       expect(_share(r, 'daughter').amount, closeTo(70000, 0.001));
       expect(r.isAwl, isFalse);
@@ -103,8 +103,8 @@ void main() {
       expect(_share(r, 'daughter').fraction, closeTo(3 / 4, 1e-9));
       expect(_share(r, 'mother').fraction, closeTo(1 / 4, 1e-9));
       // base labels preserved (set before radd).
-      expect(_share(r, 'daughter').shareLabel, '1/2');
-      expect(_share(r, 'mother').shareLabel, '1/6');
+      expect(_share(r, 'daughter').basis, ShareBasis.half);
+      expect(_share(r, 'mother').basis, ShareBasis.sixth);
       _expectConservation(r);
     });
 
@@ -193,7 +193,7 @@ void main() {
       final fatherRows =
           r.shares.where((s) => s.heirKey == 'father').toList();
       expect(fatherRows, hasLength(1));
-      expect(fatherRows.single.shareLabel, '1/6 + asaba');
+      expect(fatherRows.single.basis, ShareBasis.sixthPlusResiduary);
       expect(fatherRows.single.fraction, closeTo(1 / 2, 1e-9));
       expect(fatherRows.single.amount, closeTo(120000, 0.001));
       _expectConservation(r);
@@ -212,7 +212,7 @@ void main() {
       final fatherRows =
           r.shares.where((s) => s.heirKey == 'father').toList();
       expect(fatherRows, hasLength(1));
-      expect(fatherRows.single.shareLabel, '1/6');
+      expect(fatherRows.single.basis, ShareBasis.sixth);
       expect(fatherRows.single.fraction, closeTo(1 / 6, 1e-9));
       _expectConservation(r);
     });
@@ -362,6 +362,110 @@ void main() {
         expect(_has(r, 'brother') || _has(r, 'sister'), isFalse);
         _expectConservation(r);
       }
+    });
+  });
+  group('InheritanceCalculator — review vectors', () {
+    test("husband + 2 full sisters → 'awl 7/6", () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 70000,
+          hasHusband: true,
+          fullSisters: 2,
+        ),
+      );
+      // husband 1/2 = 3/6, sisters 2/3 = 4/6 → raised to /7.
+      expect(r.isAwl, isTrue);
+      expect(_share(r, 'husband').fraction, closeTo(3 / 7, 1e-9));
+      expect(_share(r, 'sister').fraction, closeTo(4 / 7, 1e-9));
+      expect(_share(r, 'sister').basis, ShareBasis.twoThirdsShared);
+      _expectConservation(r);
+    });
+
+    test("husband + mother + 2 full sisters → 'awl 8/6", () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 80000,
+          hasHusband: true,
+          hasMother: true,
+          fullSisters: 2,
+        ),
+      );
+      // husband 3/6, mother 1/6 (2 siblings), sisters 4/6 → raised to /8.
+      expect(r.isAwl, isTrue);
+      expect(_share(r, 'husband').fraction, closeTo(3 / 8, 1e-9));
+      expect(_share(r, 'mother').fraction, closeTo(1 / 8, 1e-9));
+      expect(_share(r, 'sister').fraction, closeTo(4 / 8, 1e-9));
+      _expectConservation(r);
+    });
+
+    test('2 daughters + full brother + full sister: siblings residue 2:1', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 90000,
+          daughters: 2,
+          fullBrothers: 1,
+          fullSisters: 1,
+        ),
+      );
+      // daughters 2/3; residue 1/3 split brother:sister 2:1.
+      expect(_share(r, 'daughter').fraction, closeTo(2 / 3, 1e-9));
+      expect(_share(r, 'brother').fraction, closeTo(2 / 9, 1e-9));
+      expect(_share(r, 'sister').fraction, closeTo(1 / 9, 1e-9));
+      expect(_share(r, 'sister').basis, ShareBasis.residuaryTwoToOne);
+      expect(r.isRadd, isFalse);
+      _expectConservation(r);
+    });
+
+    test('son blocks full siblings', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 100000,
+          sons: 1,
+          fullBrothers: 2,
+          fullSisters: 2,
+        ),
+      );
+      expect(_share(r, 'son').fraction, closeTo(1.0, 1e-9));
+      expect(_has(r, 'brother') || _has(r, 'sister'), isFalse);
+      _expectConservation(r);
+    });
+
+    test('mother + exactly 1 sibling, no father → mother 1/3', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 90000,
+          hasMother: true,
+          fullBrothers: 1,
+        ),
+      );
+      expect(_share(r, 'mother').fraction, closeTo(1 / 3, 1e-9));
+      expect(_share(r, 'mother').basis, ShareBasis.third);
+      expect(_share(r, 'brother').fraction, closeTo(2 / 3, 1e-9));
+      expect(r.isRadd, isFalse);
+      _expectConservation(r);
+    });
+
+    test('out-of-scope relatives → no distribution', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(
+          estate: 100000,
+          hasHusband: true,
+          hasOtherRelatives: true,
+        ),
+      );
+      expect(r.outOfScope, isTrue);
+      expect(r.note, 'outOfScope');
+      expect(r.shares, isEmpty);
+      expect(r.isRadd, isFalse);
+      expect(r.unallocated, 0);
+    });
+
+    test('non-finite estate counts as 0', () {
+      final r = InheritanceCalculator.calculate(
+        const InheritanceInput(estate: double.nan, sons: 1),
+      );
+      expect(r.estate, 0);
+      expect(_share(r, 'son').amount, 0);
     });
   });
 }

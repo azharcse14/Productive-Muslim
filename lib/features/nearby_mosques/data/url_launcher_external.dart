@@ -8,7 +8,14 @@ import '../domain/external_launcher.dart';
 final class UrlLauncherExternal implements ExternalLauncher {
   const UrlLauncherExternal();
 
+  /// False instead of throwing when the platform rejects the launch
+  /// (url_launcher throws a PlatformException for some failures).
   @override
-  Future<bool> launch(Uri uri) =>
-      launchUrl(uri, mode: LaunchMode.externalApplication);
+  Future<bool> launch(Uri uri) async {
+    try {
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Exception {
+      return false;
+    }
+  }
 }

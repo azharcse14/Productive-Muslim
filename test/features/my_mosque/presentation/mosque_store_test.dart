@@ -3,12 +3,35 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_conf
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/get_mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/save_mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 import '../../../helpers/mosque_fakes.dart';
 
 void main() {
   group('MosqueStore', () {
+    test('a failed load blocks writes so stored data survives', () async {
+      const profile = MosqueProfile(id: 'a', name: 'Home');
+      final repo = InMemoryMosqueRepository(
+        const MosqueState(profiles: [profile], activeId: 'a'),
+      )..failLoad = true;
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      await store.load();
+      expect(store.state.value.profiles, isEmpty);
+
+      await store.addProfile('Work');
+      expect(repo.saves, 0);
+      expect(repo.stored.profiles, [profile]);
+
+      // Once storage reads again, the next change lands on the real data.
+      repo.failLoad = false;
+      await store.addProfile('Office');
+      expect(repo.saves, 1);
+      expect(repo.stored.profiles.map((p) => p.name), ['Home', 'Office']);
+    });
+
     test('load pulls persisted state', () async {
       const profile = MosqueProfile(id: 'a', name: 'Home');
       final (store, _) = await makeMosqueStore(

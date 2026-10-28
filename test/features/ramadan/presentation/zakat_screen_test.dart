@@ -52,4 +52,18 @@ void main() {
     expect(find.text(l10n.zakatNeedMetalPrice), findsNothing);
     expect(find.textContaining('Zakat due'), findsOneWidget);
   });
+
+  testWidgets('non-finite text (Infinity/NaN) is a field error', (
+    tester,
+  ) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatSilverPrice), '1');
+    await tester.enterText(field(l10n.zakatCash), 'Infinity');
+    await tester.enterText(field(l10n.zakatBank), 'NaN');
+    await calculate(tester);
+
+    expect(find.text(l10n.zakatInvalidNumber), findsNWidgets(2));
+    expect(find.textContaining('Zakat due'), findsNothing);
+  });
 }

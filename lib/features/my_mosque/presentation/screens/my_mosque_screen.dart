@@ -12,6 +12,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../domain/entities/jamaat_config.dart';
 import '../../domain/entities/mosque_profile.dart';
@@ -47,10 +48,23 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     final l10n = context.l10n;
     final name = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => const _NameDialog(),
+      builder: (dialogContext) => _NameDialog(title: l10n.addProfile),
     );
     if (name != null) {
       await _store.addProfile(name.isEmpty ? l10n.defaultProfileName : name);
+    }
+  }
+
+  Future<void> _renameProfile(MosqueProfile profile) async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => _NameDialog(
+        title: context.l10n.mosqueRenameProfile,
+        initial: profile.name,
+      ),
+    );
+    if (name != null && name.isNotEmpty && name != profile.name) {
+      await _store.renameProfile(profile.id, name);
     }
   }
 
@@ -97,18 +111,27 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     }
   }
 
+  /// Today's start of [prayer]'s waqt, when a location is set.
+  DateTime? _waqtStart(Prayer prayer) => locator.isRegistered<HomeStore>()
+      ? locator<HomeStore>().prayerDay.value?.startOf(prayer)
+      : null;
+
   Future<void> _pickFixedTime(MosqueProfile profile, Prayer prayer) async {
-    final existing = switch (profile.entries[prayer]) {
+    // Start from the current jamaat (or waqt) time so the picker opens
+    // near a sensible value for this prayer.
+    final start = _waqtStart(prayer);
+    final computed = start == null
+        ? null
+        : profile.config.timeFor(prayer, start) ?? start;
+    final current = switch (profile.entries[prayer]) {
       FixedJamaat(:final time) => TimeOfDay(
         hour: time.hour,
         minute: time.minute,
       ),
+      _ when computed != null => TimeOfDay.fromDateTime(computed),
       _ => const TimeOfDay(hour: 13, minute: 15),
     };
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: existing,
-    );
+    final picked = await showTimePicker(context: context, initialTime: current);
     if (picked != null) {
       await _store.setEntry(
         profile.id,
@@ -173,11 +196,14 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                 child: Row(
                   children: [
                     for (final profile in state.profiles) ...[
-                      QChip(
-                        label: profile.name,
-                        icon: Icons.mosque_outlined,
-                        active: profile.id == state.activeId,
-                        onTap: () => unawaited(_store.setActive(profile.id)),
+                      GestureDetector(
+                        onLongPress: () => unawaited(_renameProfile(profile)),
+                        child: QChip(
+                          label: profile.name,
+                          icon: Icons.mosque_outlined,
+                          active: profile.id == active?.id,
+                          onTap: () => unawaited(_store.setActive(profile.id)),
+                        ),
                       ),
                       const SizedBox(width: QSpace.s2),
                     ],
@@ -245,14 +271,17 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
 /// Owns its text controller so the dialog's exit animation never touches
 /// a disposed controller.
 final class _NameDialog extends StatefulWidget {
-  const _NameDialog();
+  const _NameDialog({required this.title, this.initial = ''});
+
+  final String title;
+  final String initial;
 
   @override
   State<_NameDialog> createState() => _NameDialogState();
 }
 
 final class _NameDialogState extends State<_NameDialog> {
-  final _controller = TextEditingController();
+  late final _controller = TextEditingController(text: widget.initial);
 
   @override
   void dispose() {
@@ -264,7 +293,7 @@ final class _NameDialogState extends State<_NameDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return AlertDialog(
-      title: Text(l10n.addProfile),
+      title: Text(widget.title),
       content: TextField(
         controller: _controller,
         autofocus: true,
