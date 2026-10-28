@@ -15,6 +15,7 @@ import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_
 import 'package:productive_muslim/features/muhasaba/presentation/widgets/tracker_row.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/shared/widgets/q_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -62,10 +63,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   }
 
   @override
-  Future<Result<void>> setArchived(
-    String id, {
-    required bool archived,
-  }) async {
+  Future<Result<void>> setArchived(String id, {required bool archived}) async {
     final existing = storedItems[id];
     if (existing != null) {
       storedItems[id] = existing.copyWith(archived: archived);
@@ -121,9 +119,11 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
         active.any((item) => valueOn(item.id, day) > 0);
 
     final days = <DayCompletion>[];
-    for (var d = _d(start);
-        !d.isAfter(_d(end));
-        d = DateTime(d.year, d.month, d.day + 1)) {
+    for (
+      var d = _d(start);
+      !d.isAfter(_d(end));
+      d = DateTime(d.year, d.month, d.day + 1)
+    ) {
       days.add(DayCompletion(d, completionOn(d)));
     }
     final completion = days.isEmpty
@@ -138,8 +138,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
               .where((d) => item.isDone(valueOn(item.id, d.date)))
               .length,
           periodDays: days.length,
-          totalValue:
-              days.fold(0, (sum, d) => sum + valueOn(item.id, d.date)),
+          totalValue: days.fold(0, (sum, d) => sum + valueOn(item.id, d.date)),
         ),
     ];
 
@@ -197,11 +196,11 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 }
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const MuhasabaScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const MuhasabaScreen(),
+);
 
 void main() {
   late InMemoryMuhasabaRepository repo;
@@ -209,7 +208,7 @@ void main() {
 
   setUp(() async {
     repo = InMemoryMuhasabaRepository();
-    store = MuhasabaStore(repo);
+    store = MuhasabaStore(repo, statsDebounce: Duration.zero);
     await store.load();
     GetIt.I.registerSingleton<MuhasabaStore>(store);
     // The dashboard embeds the achievements summary card.
@@ -251,8 +250,9 @@ void main() {
       );
     });
 
-    testWidgets('first-day welcome shows then dismisses via start button',
-        (tester) async {
+    testWidgets('first-day welcome shows then dismisses via start button', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       expect(find.text('Your daily muhasaba'), findsOneWidget);
       expect(find.text("Bismillah, let's begin"), findsOneWidget);
@@ -264,8 +264,9 @@ void main() {
       expect(find.text('Fajr prayer'), findsOneWidget);
     });
 
-    testWidgets('checklist renders salah chips and tracker rows',
-        (tester) async {
+    testWidgets('checklist renders salah chips and tracker rows', (
+      tester,
+    ) async {
       await pumpAndDismissWelcome(tester);
       for (final name in [
         'Fajr prayer',
@@ -287,13 +288,15 @@ void main() {
       expect(repo.valueOn('salah_fajr', DateTime.now()), 1);
     });
 
-    testWidgets('locked salah chip is disabled and ignores taps',
-        (tester) async {
+    testWidgets('locked salah chip is disabled and ignores taps', (
+      tester,
+    ) async {
       await GetIt.I.reset();
       final lockedRepo = InMemoryMuhasabaRepository();
       final lockedStore = MuhasabaStore(
         lockedRepo,
         lockedSalahOn: (_) => {'salah_asr'},
+        statsDebounce: Duration.zero,
       );
       await lockedStore.load();
       GetIt.I.registerSingleton<MuhasabaStore>(lockedStore);
@@ -305,12 +308,15 @@ void main() {
       await tester.pump();
       // Value stays unset, and a toast explains why.
       expect(lockedRepo.valueOn('salah_asr', DateTime.now()), 0);
-      expect(find.text("This prayer's time hasn't started yet"),
-          findsOneWidget);
+      expect(
+        find.text("This prayer's time hasn't started yet"),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('count stepper + persists the incremented value',
-        (tester) async {
+    testWidgets('count stepper + persists the incremented value', (
+      tester,
+    ) async {
       await pumpAndDismissWelcome(tester);
       final azkarRow = find.ancestor(
         of: find.text('Azkar'),
@@ -323,8 +329,9 @@ void main() {
       expect(repo.valueOn('azkar', DateTime.now()), 1);
     });
 
-    testWidgets('dashboard shows period segments and completion card',
-        (tester) async {
+    testWidgets('dashboard shows period segments and completion card', (
+      tester,
+    ) async {
       await store.setValue('salah_fajr', 1);
       await tester.pumpWidget(_app());
       await tester.tap(find.text('Dashboard'));
@@ -337,8 +344,9 @@ void main() {
       expect(find.text('1 day streak'), findsOneWidget);
     });
 
-    testWidgets('achievements card is hidden by default, shown when enabled',
-        (tester) async {
+    testWidgets('achievements card is hidden by default, shown when enabled', (
+      tester,
+    ) async {
       await store.setValue('salah_fajr', 1);
       await tester.pumpWidget(_app());
       await tester.tap(find.text('Dashboard'));
@@ -361,8 +369,43 @@ void main() {
       expect(find.byType(AchievementsSummaryCard), findsOneWidget);
     });
 
-    testWidgets('app bar add button opens the item editor sheet',
-        (tester) async {
+    testWidgets('item editor: Save needs a name; closing asks before discard', (
+      tester,
+    ) async {
+      await pumpAndDismissWelcome(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byIcon(Icons.add),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final save = find.widgetWithText(QButton, 'Save');
+      expect(tester.widget<QButton>(save).onPressed, isNull);
+
+      await tester.enterText(find.byType(TextField), 'Walk');
+      await tester.pump();
+      expect(tester.widget<QButton>(save).onPressed, isNotNull);
+
+      // Back with a typed name: confirm first; Cancel keeps the sheet.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Discard your changes?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Add item'), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Discard'));
+      await tester.pumpAndSettle();
+      expect(find.text('Add item'), findsNothing);
+      expect(store.items.value.any((i) => i.name == 'Walk'), isFalse);
+    });
+
+    testWidgets('app bar add button opens the item editor sheet', (
+      tester,
+    ) async {
       await pumpAndDismissWelcome(tester);
       await tester.tap(
         find.descendant(

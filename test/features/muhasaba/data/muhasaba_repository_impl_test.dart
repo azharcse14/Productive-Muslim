@@ -165,9 +165,7 @@ void main() {
     ///   Jun 11: b=150 (done, clamped)          -> 1/3
     ///   Jun 12: a=1 (done)                     -> 1/3
     Future<void> seedScenario() async {
-      await unwrap(
-        repo.upsertItem(_item('a', sortOrder: 0)),
-      );
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       await unwrap(
         repo.upsertItem(
           _item('b', sortOrder: 1, kind: TrackerKind.count, dailyTarget: 100),
@@ -189,11 +187,10 @@ void main() {
     }
 
     Future<PeriodStats> stats({DateTime? anchor}) => unwrap(
-          repo.periodStats(start: start, end: end, today: anchor ?? today),
-        );
+      repo.periodStats(start: start, end: end, today: anchor ?? today),
+    );
 
-    test('days: exactly 7 chronological entries including zero days',
-        () async {
+    test('days: exactly 7 chronological entries including zero days', () async {
       await seedScenario();
       final result = await stats();
       expect(result.days, hasLength(7));
@@ -245,25 +242,28 @@ void main() {
       expect(result.bestStreak, 3);
     });
 
-    test('current streak survives an empty today (anchors at yesterday)',
-        () async {
-      await seedScenario();
-      final result = await stats(anchor: DateTime(2026, 6, 13));
-      // Jun 13 has nothing yet -> streak still counts Jun 10-12.
-      expect(result.currentStreak, 3);
-    });
+    test(
+      'current streak survives an empty today (anchors at yesterday)',
+      () async {
+        await seedScenario();
+        final result = await stats(anchor: DateTime(2026, 6, 13));
+        // Jun 13 has nothing yet -> streak still counts Jun 10-12.
+        expect(result.currentStreak, 3);
+      },
+    );
 
-    test('current streak is 0 when today and yesterday have no done items',
-        () async {
-      await seedScenario();
-      final result = await stats(anchor: DateTime(2026, 6, 14));
-      expect(result.currentStreak, 0);
-      // Best streak within the range is unaffected.
-      expect(result.bestStreak, 3);
-    });
+    test(
+      'current streak is 0 when today and yesterday have no done items',
+      () async {
+        await seedScenario();
+        final result = await stats(anchor: DateTime(2026, 6, 14));
+        expect(result.currentStreak, 0);
+        // Best streak within the range is unaffected.
+        expect(result.bestStreak, 3);
+      },
+    );
 
-    test('previousCompletion: null without prior data, then correct',
-        () async {
+    test('previousCompletion: null without prior data, then correct', () async {
       await seedScenario();
       var result = await stats();
       expect(result.previousCompletion, isNull);
@@ -305,6 +305,19 @@ void main() {
       expect(result.bestStreak, 10);
     });
 
+    test(
+      'streaks still count an archived tracker (matches achievements)',
+      () async {
+        await seedScenario();
+        // Jun 10 is done only via a and c; archive both — the streak holds.
+        await unwrap(repo.setArchived('a', archived: true));
+        await unwrap(repo.setArchived('c', archived: true));
+        final result = await stats();
+        expect(result.currentStreak, 3);
+        expect(result.bestStreak, 3);
+      },
+    );
+
     test('doneDates: distinct days, archived items included', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
@@ -334,14 +347,13 @@ TrackerItem _item(
   required int sortOrder,
   TrackerKind kind = TrackerKind.yesNo,
   int? dailyTarget,
-}) =>
-    TrackerItem(
-      id: id,
-      name: id,
-      kind: kind,
-      dailyTarget: dailyTarget,
-      sortOrder: sortOrder,
-    );
+}) => TrackerItem(
+  id: id,
+  name: id,
+  kind: kind,
+  dailyTarget: dailyTarget,
+  sortOrder: sortOrder,
+);
 
 DailyEntry _entry(String itemId, DateTime date, int value) =>
     DailyEntry(itemId: itemId, date: date, value: value);

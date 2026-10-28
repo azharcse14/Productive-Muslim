@@ -13,6 +13,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
+import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../domain/entities/fasting_stats.dart';
 import '../../domain/entities/recommended_fast.dart';
 import '../state/fasting_store.dart';
@@ -39,7 +40,18 @@ final class _FastingScreenState extends State<FastingScreen> {
     }
   }
 
-  Future<void> _toggle(DateTime date) => _store.toggle(date);
+  Future<void> _toggle(DateTime date) async {
+    try {
+      await _store.toggle(date);
+    } on Object {
+      // The store already put the log back; say why the tick vanished.
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.fastingSaveFailed)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +63,10 @@ final class _FastingScreenState extends State<FastingScreen> {
           builder: (context) {
             // Touch the signals so the builder re-runs on change.
             _store.logged.value;
+            // Home's day signal flips at midnight, so "today" follows it.
+            if (locator.isRegistered<HomeStore>()) {
+              locator<HomeStore>().dateKey.value;
+            }
             final today = _store.today;
             final todays = _store.recommendedOn(today);
             final upcoming = _store.upcoming();
@@ -141,10 +157,10 @@ final class _TodayCard extends StatelessWidget {
                   recommended
                       ? l10n.fastingTodayRecommended
                       : forbidden
-                          ? l10n.fastingTodayForbidden
-                          : ramadan
-                              ? l10n.fastingTodayRamadan
-                              : l10n.fastingTodayNone,
+                      ? l10n.fastingTodayForbidden
+                      : ramadan
+                      ? l10n.fastingTodayRamadan
+                      : l10n.fastingTodayNone,
                   style: QType.titleSm.copyWith(
                     color: recommended ? q.onPrimarySoft : q.ink,
                   ),
@@ -182,7 +198,9 @@ final class _TodayCard extends StatelessWidget {
           ] else ...[
             const SizedBox(height: QSpace.s2),
             Text(
-              ramadan ? l10n.fastingTodayRamadanNote : l10n.fastingTodayNoneNote,
+              ramadan
+                  ? l10n.fastingTodayRamadanNote
+                  : l10n.fastingTodayNoneNote,
               style: QType.body.copyWith(color: q.ink2),
             ),
             const SizedBox(height: QSpace.s4),
@@ -190,8 +208,8 @@ final class _TodayCard extends StatelessWidget {
               label: logged
                   ? l10n.fastingLoggedToday
                   : ramadan
-                      ? l10n.fastingLogToday
-                      : l10n.fastingLogVoluntary,
+                  ? l10n.fastingLogToday
+                  : l10n.fastingLogVoluntary,
               icon: logged ? Icons.check_circle_outline : Icons.add,
               kind: logged ? QButtonKind.tonal : QButtonKind.outline,
               expand: true,
@@ -286,10 +304,7 @@ final class _Stat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          value,
-          style: QType.num_(QType.title).copyWith(color: q.primary),
-        ),
+        Text(value, style: QType.num_(QType.title).copyWith(color: q.primary)),
         const SizedBox(height: 2),
         Text(label, style: QType.caption.copyWith(color: q.ink2)),
       ],
@@ -368,6 +383,7 @@ final class _UpcomingRow extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: onToggle != null,
+      checked: logged,
       child: InkWell(
         onTap: onToggle,
         child: Padding(
@@ -394,8 +410,8 @@ final class _UpcomingRow extends StatelessWidget {
                 logged
                     ? Icons.check_circle
                     : onToggle == null
-                        ? Icons.schedule
-                        : Icons.radio_button_unchecked,
+                    ? Icons.schedule
+                    : Icons.radio_button_unchecked,
                 size: 22,
                 color: logged ? q.primary : q.ink3,
               ),

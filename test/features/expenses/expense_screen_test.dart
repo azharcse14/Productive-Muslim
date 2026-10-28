@@ -130,6 +130,28 @@ void main() {
     expect(find.text('Yesterday'), findsOneWidget);
   });
 
+  testWidgets('day headers count calendar days, not 24h spans (DST)', (
+    tester,
+  ) async {
+    // US clocks spring forward on Mar 8 2026: midnight-to-midnight is 23h,
+    // so a duration diff called yesterday "Today" (run with
+    // TZ=America/New_York to exercise it).
+    store = ExpenseStore(
+      SharedPreferencesAsync(),
+      now: () => DateTime(2026, 3, 9, 10),
+    );
+    GetIt.I.registerSingleton<ExpenseStore>(store);
+    await store.add(
+      amount: 50,
+      category: ExpenseCategory.want,
+      date: DateTime(2026, 3, 8, 12),
+    );
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    expect(find.text('Yesterday'), findsOneWidget);
+    expect(find.text('Today'), findsNothing);
+  });
+
   testWidgets('tapping a category filters the list; tapping again clears', (
     tester,
   ) async {
@@ -142,11 +164,12 @@ void main() {
     await store.add(amount: 90, category: ExpenseCategory.need, note: 'rice');
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Wants'));
+    // The category row (first); entry rows below also name their category.
+    await tester.tap(find.text('Wants').first);
     await tester.pumpAndSettle();
     expect(find.text('tea'), findsOneWidget);
     expect(find.text('rice'), findsNothing);
-    await tester.tap(find.text('Wants'));
+    await tester.tap(find.text('Wants').first);
     await tester.pumpAndSettle();
     expect(find.text('rice'), findsOneWidget);
   });

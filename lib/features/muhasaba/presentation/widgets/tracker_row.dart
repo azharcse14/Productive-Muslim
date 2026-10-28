@@ -84,7 +84,7 @@ final class TrackerRow extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(13),
+                  borderRadius: BorderRadius.circular(QRadius.md),
                 ),
                 child: Icon(
                   TrackerVisuals.iconOf(item.icon),
@@ -92,17 +92,14 @@ final class TrackerRow extends StatelessWidget {
                   color: tone,
                 ),
               ),
-              const SizedBox(width: 13),
+              const SizedBox(width: QSpace.s3),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       displayName,
-                      style: QType.titleSm.copyWith(
-                        fontSize: 15.5,
-                        color: q.ink,
-                      ),
+                      style: QType.titleSm.copyWith(color: q.ink),
                     ),
                     if (sub != null)
                       Text(

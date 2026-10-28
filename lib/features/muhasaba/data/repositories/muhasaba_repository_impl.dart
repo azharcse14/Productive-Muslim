@@ -17,14 +17,17 @@ DateTime _decodeDate(int code) =>
 
 /// Inclusive day count between two date-only values (DST-safe via UTC).
 int _dayCount(DateTime start, DateTime end) =>
-    DateTime.utc(end.year, end.month, end.day)
-        .difference(DateTime.utc(start.year, start.month, start.day))
-        .inDays +
+    DateTime.utc(
+      end.year,
+      end.month,
+      end.day,
+    ).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
     1;
 
 /// SQL fragment: whether an entry value completes its item for a day
 /// (mirrors `TrackerItem.isDone`).
-const _doneCase = 'CASE WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
+const _doneCase =
+    'CASE WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
     'THEN e.value > 0 ELSE e.value >= i.daily_target END';
 
 /// Drift-backed [MuhasabaRepository]. Aggregations run as SQL queries
@@ -83,8 +86,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     try {
       // Flag update only — entries are never deleted (hard product rule).
-      await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id)))
-          .write(TrackerItemsCompanion(archived: Value(archived)));
+      await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id))).write(
+        TrackerItemsCompanion(archived: Value(archived)),
+      );
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to set archived', e));
@@ -95,9 +99,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   Future<Result<List<DailyEntry>>> entriesOn(DateTime date) async {
     try {
       final code = _encodeDate(date);
-      final rows = await (_db.select(_db.dailyEntries)
-            ..where((t) => t.date.equals(code)))
-          .get();
+      final rows = await (_db.select(
+        _db.dailyEntries,
+      )..where((t) => t.date.equals(code))).get();
       return Result.success(
         rows
             .map(
@@ -160,8 +164,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       for (var i = 0; i < periodDays; i++) {
         final day = DateTime(start.year, start.month, start.day + i);
         final sum = fractionSums[_encodeDate(day)] ?? 0;
-        final completion =
-            activeCount == 0 ? 0.0 : (sum / activeCount).clamp(0, 1).toDouble();
+        final completion = activeCount == 0
+            ? 0.0
+            : (sum / activeCount).clamp(0, 1).toDouble();
         completionTotal += completion;
         days.add(DayCompletion(day, completion));
       }
@@ -174,12 +179,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // One scan covers both the current-streak lookback and the range,
       // so the best streak always includes (so is >=) the current one.
       final today0 = DateTime(today.year, today.month, today.day);
-      final streakFrom =
-          DateTime(today0.year, today0.month, today0.day - 399);
+      final streakFrom = DateTime(today0.year, today0.month, today0.day - 399);
       final scanFrom = start.isBefore(streakFrom) ? start : streakFrom;
       final scanTo = end.isAfter(today0) ? end : today0;
-      final recentDone =
-          await _doneDates(_encodeDate(scanFrom), _encodeDate(scanTo));
+      final recentDone = await _doneDates(
+        _encodeDate(scanFrom),
+        _encodeDate(scanTo),
+      );
       var anchor = today0;
       if (!recentDone.contains(_encodeDate(anchor))) {
         // Today has nothing done yet — the streak survives until the day
@@ -198,7 +204,8 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       DateTime? prev;
       for (final code in recentDone.toList()..sort()) {
         final day = _decodeDate(code);
-        final follows = prev != null &&
+        final follows =
+            prev != null &&
             DateTime(prev.year, prev.month, prev.day + 1) == day;
         run = follows ? run + 1 : 1;
         if (run > bestStreak) bestStreak = run;
@@ -206,11 +213,16 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       }
 
       // d) Equal-length window immediately before [start].
-      final prevStart =
-          DateTime(start.year, start.month, start.day - periodDays);
+      final prevStart = DateTime(
+        start.year,
+        start.month,
+        start.day - periodDays,
+      );
       final prevEnd = DateTime(start.year, start.month, start.day - 1);
-      final prevSums =
-          await _dayFractionSums(_encodeDate(prevStart), _encodeDate(prevEnd));
+      final prevSums = await _dayFractionSums(
+        _encodeDate(prevStart),
+        _encodeDate(prevEnd),
+      );
       double? previousCompletion;
       if (prevSums.isNotEmpty && activeCount > 0 && periodDays > 0) {
         var total = 0.0;
@@ -244,15 +256,17 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     }
     try {
       // Archived items included on purpose: history is never lost.
-      final rows = await _db.customSelect(
-        'SELECT DISTINCT e.date AS day '
-        'FROM daily_entries e '
-        'INNER JOIN tracker_items i ON i.id = e.item_id '
-        'WHERE e.item_id IN (${List.filled(itemIds.length, '?').join(', ')}) '
-        'AND ($_doneCase)',
-        variables: [for (final id in itemIds) Variable<String>(id)],
-        readsFrom: {_db.dailyEntries, _db.trackerItems},
-      ).get();
+      final rows = await _db
+          .customSelect(
+            'SELECT DISTINCT e.date AS day '
+            'FROM daily_entries e '
+            'INNER JOIN tracker_items i ON i.id = e.item_id '
+            'WHERE e.item_id IN (${List.filled(itemIds.length, '?').join(', ')}) '
+            'AND ($_doneCase)',
+            variables: [for (final id in itemIds) Variable<String>(id)],
+            readsFrom: {_db.dailyEntries, _db.trackerItems},
+          )
+          .get();
       return Result.success({
         for (final row in rows) _decodeDate(row.read<int>('day')),
       });
@@ -264,20 +278,22 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   /// Per-day sum of per-item completion fractions over non-archived
   /// items, keyed by yyyymmdd. Days without entries are absent.
   Future<Map<int, double>> _dayFractionSums(int from, int to) async {
-    final rows = await _db.customSelect(
-      'SELECT e.date AS day, '
-      'CAST(SUM(CASE '
-      'WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
-      'THEN (CASE WHEN e.value > 0 THEN 1.0 ELSE 0.0 END) '
-      'ELSE MIN(CAST(e.value AS REAL) / i.daily_target, 1.0) '
-      'END) AS REAL) AS fraction_sum '
-      'FROM daily_entries e '
-      'INNER JOIN tracker_items i ON i.id = e.item_id '
-      'WHERE i.archived = 0 AND e.date BETWEEN ? AND ? '
-      'GROUP BY e.date',
-      variables: [Variable<int>(from), Variable<int>(to)],
-      readsFrom: {_db.dailyEntries, _db.trackerItems},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT e.date AS day, '
+          'CAST(SUM(CASE '
+          'WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
+          'THEN (CASE WHEN e.value > 0 THEN 1.0 ELSE 0.0 END) '
+          'ELSE MIN(CAST(e.value AS REAL) / i.daily_target, 1.0) '
+          'END) AS REAL) AS fraction_sum '
+          'FROM daily_entries e '
+          'INNER JOIN tracker_items i ON i.id = e.item_id '
+          'WHERE i.archived = 0 AND e.date BETWEEN ? AND ? '
+          'GROUP BY e.date',
+          variables: [Variable<int>(from), Variable<int>(to)],
+          readsFrom: {_db.dailyEntries, _db.trackerItems},
+        )
+        .get();
     return {
       for (final row in rows)
         row.read<int>('day'): row.read<double>('fraction_sum'),
@@ -285,16 +301,19 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   }
 
   /// yyyymmdd codes of days in [from]..[to] with at least one completed
-  /// non-archived item.
+  /// item. Archived items count (history is never lost), matching the
+  /// achievements' streaks.
   Future<Set<int>> _doneDates(int from, int to) async {
-    final rows = await _db.customSelect(
-      'SELECT DISTINCT e.date AS day '
-      'FROM daily_entries e '
-      'INNER JOIN tracker_items i ON i.id = e.item_id '
-      'WHERE i.archived = 0 AND e.date BETWEEN ? AND ? AND ($_doneCase)',
-      variables: [Variable<int>(from), Variable<int>(to)],
-      readsFrom: {_db.dailyEntries, _db.trackerItems},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT DISTINCT e.date AS day '
+          'FROM daily_entries e '
+          'INNER JOIN tracker_items i ON i.id = e.item_id '
+          'WHERE e.date BETWEEN ? AND ? AND ($_doneCase)',
+          variables: [Variable<int>(from), Variable<int>(to)],
+          readsFrom: {_db.dailyEntries, _db.trackerItems},
+        )
+        .get();
     return {for (final row in rows) row.read<int>('day')};
   }
 
@@ -304,19 +323,21 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     int to,
     int periodDays,
   ) async {
-    final rows = await _db.customSelect(
-      'SELECT i.id AS item_id, i.kind AS kind, '
-      'COALESCE(SUM(CASE WHEN e.value IS NULL THEN 0 '
-      'WHEN ($_doneCase) THEN 1 ELSE 0 END), 0) AS days_done, '
-      'COALESCE(SUM(e.value), 0) AS total_value '
-      'FROM tracker_items i '
-      'LEFT JOIN daily_entries e '
-      'ON e.item_id = i.id AND e.date BETWEEN ? AND ? '
-      'WHERE i.archived = 0 '
-      'GROUP BY i.id ORDER BY i.sort_order',
-      variables: [Variable<int>(from), Variable<int>(to)],
-      readsFrom: {_db.dailyEntries, _db.trackerItems},
-    ).get();
+    final rows = await _db
+        .customSelect(
+          'SELECT i.id AS item_id, i.kind AS kind, '
+          'COALESCE(SUM(CASE WHEN e.value IS NULL THEN 0 '
+          'WHEN ($_doneCase) THEN 1 ELSE 0 END), 0) AS days_done, '
+          'COALESCE(SUM(e.value), 0) AS total_value '
+          'FROM tracker_items i '
+          'LEFT JOIN daily_entries e '
+          'ON e.item_id = i.id AND e.date BETWEEN ? AND ? '
+          'WHERE i.archived = 0 '
+          'GROUP BY i.id ORDER BY i.sort_order',
+          variables: [Variable<int>(from), Variable<int>(to)],
+          readsFrom: {_db.dailyEntries, _db.trackerItems},
+        )
+        .get();
     final stats = <ItemPeriodStats>[];
     for (final row in rows) {
       final daysDone = row.read<int>('days_done');
@@ -335,16 +356,16 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   }
 
   TrackerItem _toDomain(TrackerItemRow row) => TrackerItem(
-        id: row.id,
-        name: row.name,
-        kind: TrackerKind.values[row.kind],
-        dailyTarget: row.dailyTarget,
-        icon: row.icon,
-        colorIndex: row.colorIndex,
-        isDefault: row.isDefault,
-        archived: row.archived,
-        sortOrder: row.sortOrder,
-      );
+    id: row.id,
+    name: row.name,
+    kind: TrackerKind.values[row.kind],
+    dailyTarget: row.dailyTarget,
+    icon: row.icon,
+    colorIndex: row.colorIndex,
+    isDefault: row.isDefault,
+    archived: row.archived,
+    sortOrder: row.sortOrder,
+  );
 
   TrackerItemsCompanion _toCompanion(TrackerItem item) =>
       TrackerItemsCompanion.insert(

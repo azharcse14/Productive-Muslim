@@ -190,8 +190,8 @@ final class ExpenseStore {
           ? _prefs.remove(_budgetKey)
           : _prefs.setInt(_budgetKey, next));
     } on Object {
-      // The dialog fires this unawaited: revert, don't throw.
       budget.value = previous; // not saved: don't show it as set
+      rethrow; // the dialog tells the user
     }
   }
 
@@ -248,6 +248,7 @@ final class ExpenseStore {
       );
     } on Object {
       categoryBudgets.value = previous; // not saved: don't show it as set
+      rethrow; // the dialog tells the user
     }
   }
 

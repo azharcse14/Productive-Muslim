@@ -166,9 +166,16 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 Future<(MuhasabaStore, InMemoryMuhasabaRepository)> makeMuhasabaStore({
   DateTime Function()? now,
   Set<String> Function(DateTime date)? lockedSalahOn,
+  // Stats follow each setValue immediately unless a test opts in.
+  Duration statsDebounce = Duration.zero,
 }) async {
   final repo = InMemoryMuhasabaRepository();
-  final store = MuhasabaStore(repo, now: now, lockedSalahOn: lockedSalahOn);
+  final store = MuhasabaStore(
+    repo,
+    now: now,
+    lockedSalahOn: lockedSalahOn,
+    statsDebounce: statsDebounce,
+  );
   await store.load();
   return (store, repo);
 }

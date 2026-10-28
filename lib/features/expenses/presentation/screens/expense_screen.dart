@@ -124,12 +124,19 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
             final budget = _store.budget.value;
             final categoryBudgets = _store.categoryBudgets.value;
             final month = _store.month(_offset);
-            final totals = _store.totalsFor(month);
+            // One pass: category totals, the shown entries, per-day sums.
+            final totals = {for (final c in ExpenseCategory.values) c: 0};
+            final items = <Expense>[];
+            final dayTotals = <DateTime, int>{};
+            for (final e in _store.inMonth(month)) {
+              totals[e.category] = totals[e.category]! + e.amount;
+              if (_filter == null || e.category == _filter) {
+                items.add(e);
+                final day = DateUtils.dateOnly(e.date);
+                dayTotals[day] = (dayTotals[day] ?? 0) + e.amount;
+              }
+            }
             final total = totals.values.fold(0, (a, b) => a + b);
-            final items = [
-              for (final e in _store.inMonth(month))
-                if (_filter == null || e.category == _filter) e,
-            ];
             // The current month is partial: compare against the same span of
             // last month, not all of it.
             final now = _store.now();
@@ -139,15 +146,13 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                 .where((e) => !soFar || e.date.day <= now.day)
                 .fold(0, (a, e) => a + e.amount);
             final diff = total - prev;
-            final today = DateUtils.dateOnly(now);
-            String dayLabel(DateTime d) => switch (today.difference(d).inDays) {
-              0 => l10n.periodToday,
-              1 => l10n.expenseYesterday,
-              _ => LocaleDigits.localize(
-                DateFormat.MMMEd(code).format(d),
-                code,
-              ),
-            };
+            // Calendar days, not 24h spans: a DST shift can't mislabel.
+            final yesterday = DateTime(now.year, now.month, now.day - 1);
+            String dayLabel(DateTime d) => DateUtils.isSameDay(d, now)
+                ? l10n.periodToday
+                : DateUtils.isSameDay(d, yesterday)
+                ? l10n.expenseYesterday
+                : LocaleDigits.localize(DateFormat.MMMEd(code).format(d), code);
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -291,13 +296,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                             ),
                           ),
                           Text(
-                            n(
-                              items
-                                  .where(
-                                    (x) => DateUtils.isSameDay(x.date, e.date),
-                                  )
-                                  .fold(0, (a, x) => a + x.amount),
-                            ),
+                            n(dayTotals[DateUtils.dateOnly(e.date)]!),
                             style: QType.caption.copyWith(color: q.ink2),
                           ),
                         ],
@@ -337,12 +336,11 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                             ? l10n.expenseCategory(e.category.name)
                             : e.note,
                       ),
-                      subtitle: Text(
-                        LocaleDigits.localize(
-                          DateFormat.MMMd(code).format(e.date),
-                          code,
-                        ),
-                      ),
+                      // The day header has the date; a noted row names its
+                      // category (an un-noted one already shows it).
+                      subtitle: e.note.isEmpty
+                          ? null
+                          : Text(l10n.expenseCategory(e.category.name)),
                       trailing: Text(
                         n(e.amount),
                         style: QType.label.copyWith(color: q.ink),
@@ -391,6 +389,28 @@ void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
     ),
   );
   unawaited(undo.closed.then((_) => undoShowing = false));
+}
+
+/// Asks before an edited sheet is closed without saving.
+Future<bool> _confirmDiscard(BuildContext context) async {
+  final l10n = context.l10n;
+  final discard = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.editorDiscardTitle),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(l10n.editorDiscard),
+        ),
+      ],
+    ),
+  );
+  return discard ?? false;
 }
 
 void _showSaveFailed(BuildContext context) => ScaffoldMessenger.of(
@@ -518,8 +538,29 @@ final class _BudgetDialog extends StatefulWidget {
 
 final class _BudgetDialogState extends State<_BudgetDialog> {
   late final _controller = TextEditingController(
-    text: widget.current?.toString() ?? '',
+    text: widget.current == null
+        ? ''
+        : LocaleDigits.localize(
+            '${widget.current}',
+            Localizations.localeOf(context).languageCode,
+          ),
   );
+
+  /// Pops at once (optimistic); a failed write reverts in the store and is
+  /// reported on the screen's messenger.
+  void _save(int? value) {
+    final messenger = ScaffoldMessenger.of(context);
+    final failed = context.l10n.expenseSaveFailed;
+    unawaited(
+      widget
+          .onSave(value)
+          .catchError(
+            (Object _) =>
+                messenger.showSnackBar(SnackBar(content: Text(failed))),
+          ),
+    );
+    Navigator.of(context).pop();
+  }
 
   @override
   void dispose() {
@@ -547,18 +588,14 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
       actions: [
         if (widget.current != null)
           TextButton(
-            onPressed: () {
-              unawaited(widget.onSave(null));
-              Navigator.of(context).pop();
-            },
+            onPressed: () => _save(null),
             child: Text(l10n.expenseBudgetClear),
           ),
         TextButton(
           onPressed: () {
             final v = ExpenseStore.parseAmount(_controller.text);
             if (v != null) {
-              unawaited(widget.onSave(v));
-              Navigator.of(context).pop();
+              _save(v);
             }
           },
           child: Text(l10n.expenseSave),
@@ -576,6 +613,8 @@ Future<void> _showExpenseSheet(
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
+  // A drag can't be vetoed; back / outside taps confirm via PopScope.
+  enableDrag: false,
   builder: (sheetContext) => Padding(
     padding: EdgeInsets.only(
       bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
@@ -596,7 +635,12 @@ final class _ExpenseEditor extends StatefulWidget {
 
 final class _ExpenseEditorState extends State<_ExpenseEditor> {
   late final _amount = TextEditingController(
-    text: widget.existing?.amount.toString() ?? '',
+    text: widget.existing == null
+        ? ''
+        : LocaleDigits.localize(
+            '${widget.existing!.amount}',
+            Localizations.localeOf(context).languageCode,
+          ),
   );
   late final _note = TextEditingController(text: widget.existing?.note ?? '');
   late ExpenseCategory _category =
@@ -615,6 +659,18 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
   }
 
   int? get _parsed => ExpenseStore.parseAmount(_amount.text);
+
+  /// Anything to lose if the sheet closes now.
+  bool get _dirty {
+    final e = widget.existing;
+    if (e == null) {
+      return _amount.text.trim().isNotEmpty || _note.text.trim().isNotEmpty;
+    }
+    return _parsed != e.amount ||
+        _note.text != e.note ||
+        _category != e.category ||
+        _date != e.date;
+  }
 
   /// Up to five past notes containing what's typed, most recent first; a
   /// pick also brings back that note's category.
@@ -695,102 +751,111 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
     final l10n = context.l10n;
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(QSpace.s5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.existing == null ? l10n.expenseAdd : l10n.expenseEdit,
-              style: QType.title.copyWith(color: q.ink),
-            ),
-            const SizedBox(height: QSpace.s4),
-            TextField(
-              controller: _amount,
-              autofocus: widget.existing == null,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: l10n.expenseAmountHint,
-                errorText: _amount.text.trim().isNotEmpty && _parsed == null
-                    ? l10n.expenseAmountInvalid
-                    : null,
+    return PopScope(
+      canPop: !_dirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        final navigator = Navigator.of(context);
+        if (!didPop && await _confirmDiscard(context)) {
+          navigator.pop();
+        }
+      },
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(QSpace.s5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.existing == null ? l10n.expenseAdd : l10n.expenseEdit,
+                style: QType.title.copyWith(color: q.ink),
               ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: QSpace.s3),
-            TextField(
-              controller: _note,
-              decoration: InputDecoration(hintText: l10n.expenseNoteHint),
-              onChanged: (_) => setState(() {}),
-            ),
-            if (_suggestions case final picks when picks.isNotEmpty) ...[
-              const SizedBox(height: QSpace.s2),
+              const SizedBox(height: QSpace.s4),
+              TextField(
+                controller: _amount,
+                autofocus: widget.existing == null,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: l10n.expenseAmountHint,
+                  errorText: _amount.text.trim().isNotEmpty && _parsed == null
+                      ? l10n.expenseAmountInvalid
+                      : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: QSpace.s3),
+              TextField(
+                controller: _note,
+                decoration: InputDecoration(hintText: l10n.expenseNoteHint),
+                onChanged: (_) => setState(() {}),
+              ),
+              if (_suggestions case final picks when picks.isNotEmpty) ...[
+                const SizedBox(height: QSpace.s2),
+                Wrap(
+                  spacing: QSpace.s2,
+                  runSpacing: QSpace.s2,
+                  children: [
+                    for (final e in picks)
+                      QChip(
+                        label: e.note,
+                        icon: Icons.history,
+                        onTap: () => setState(() {
+                          _note.text = e.note;
+                          _category = e.category;
+                        }),
+                      ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: QSpace.s4),
               Wrap(
                 spacing: QSpace.s2,
                 runSpacing: QSpace.s2,
                 children: [
-                  for (final e in picks)
+                  for (final c in ExpenseCategory.values)
                     QChip(
-                      label: e.note,
-                      icon: Icons.history,
-                      onTap: () => setState(() {
-                        _note.text = e.note;
-                        _category = e.category;
-                      }),
+                      label: l10n.expenseCategory(c.name),
+                      icon: _icons[c],
+                      active: _category == c,
+                      onTap: () => setState(() => _category = c),
                     ),
                 ],
               ),
-            ],
-            const SizedBox(height: QSpace.s4),
-            Wrap(
-              spacing: QSpace.s2,
-              runSpacing: QSpace.s2,
-              children: [
-                for (final c in ExpenseCategory.values)
-                  QChip(
-                    label: l10n.expenseCategory(c.name),
-                    icon: _icons[c],
-                    active: _category == c,
-                    onTap: () => setState(() => _category = c),
-                  ),
-              ],
-            ),
-            const SizedBox(height: QSpace.s4),
-            QButton(
-              label: LocaleDigits.localize(
-                DateFormat.yMMMd(code).format(_date),
-                code,
-              ),
-              icon: Icons.calendar_today_outlined,
-              kind: QButtonKind.outline,
-              small: true,
-              onPressed: _pickDate,
-            ),
-            const SizedBox(height: QSpace.s5),
-            QButton(
-              label: l10n.expenseSave,
-              expand: true,
-              onPressed: !_saving && _parsed != null ? _save : null,
-            ),
-            if (widget.existing case final existing?) ...[
-              const SizedBox(height: QSpace.s2),
+              const SizedBox(height: QSpace.s4),
               QButton(
-                label: l10n.delete,
-                icon: Icons.delete_outline,
+                label: LocaleDigits.localize(
+                  DateFormat.yMMMd(code).format(_date),
+                  code,
+                ),
+                icon: Icons.calendar_today_outlined,
                 kind: QButtonKind.outline,
-                expand: true,
-                onPressed: _saving
-                    ? null
-                    : () {
-                        // Undo SnackBar lives on the screen's messenger.
-                        _removeWithUndo(context, widget.store, existing);
-                        Navigator.of(context).pop();
-                      },
+                small: true,
+                onPressed: _pickDate,
               ),
+              const SizedBox(height: QSpace.s5),
+              QButton(
+                label: l10n.expenseSave,
+                expand: true,
+                onPressed: !_saving && _parsed != null ? _save : null,
+              ),
+              if (widget.existing case final existing?) ...[
+                const SizedBox(height: QSpace.s2),
+                QButton(
+                  label: l10n.delete,
+                  icon: Icons.delete_outline,
+                  kind: QButtonKind.outline,
+                  expand: true,
+                  onPressed: _saving
+                      ? null
+                      : () {
+                          // Undo SnackBar lives on the screen's messenger.
+                          _removeWithUndo(context, widget.store, existing);
+                          Navigator.of(context).pop();
+                        },
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

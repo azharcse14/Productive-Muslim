@@ -365,6 +365,19 @@ void main() {
     expect(stored, hasLength(2));
   });
 
+  test('a failed category-budget write reverts and rethrows', () async {
+    final prefs = _FlakyPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    await s.load();
+    prefs.failWrites = true;
+    await expectLater(
+      s.setCategoryBudget(ExpenseCategory.want, 2000),
+      throwsStateError,
+    );
+    expect(s.categoryBudgets.value, isEmpty);
+  });
+
   test('when the later write fails too, both report failure', () async {
     final prefs = _FlakyPrefs();
     SharedPreferencesAsyncPlatform.instance = prefs;
