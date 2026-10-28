@@ -264,12 +264,18 @@ void main() {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
-      final numeral = find.textContaining(RegExp(r'^\d{2}:\d{2}:\d{2}$'));
+      // The numeral rolls per character; read it as its one spoken label.
+      final numeral = find.byWidgetPredicate(
+        (w) =>
+            w is Semantics &&
+            RegExp(r'^\d{2}:\d{2}:\d{2}$').hasMatch(w.properties.label ?? ''),
+      );
       expect(numeral, findsOneWidget);
-      final before = tester.widget<Text>(numeral).data;
+      String? label() => tester.widget<Semantics>(numeral).properties.label;
+      final before = label();
       _clock.current = _clock.current.add(const Duration(seconds: 1));
       await tester.pump(const Duration(seconds: 1));
-      final after = tester.widget<Text>(numeral).data;
+      final after = label();
       expect(after, isNot(before));
     });
 

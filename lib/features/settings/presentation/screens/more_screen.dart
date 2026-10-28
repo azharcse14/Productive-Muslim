@@ -10,6 +10,7 @@ import '../../../../core/utils/hijri_date.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../ramadan/domain/usecases/ramadan_utils.dart';
 import '../../domain/repositories/zoned_clock.dart';
 import '../state/settings_store.dart';
@@ -48,7 +49,7 @@ final class MoreScreen extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.tabMore)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(QSpace.s5, 0, QSpace.s5, QSpace.s5),
-        children: [
+        children: staggered([
           if (inRamadan) ...[
             const SizedBox(height: QSpace.s5),
             _Group([ramadan]),
@@ -131,7 +132,7 @@ final class MoreScreen extends StatelessWidget {
                 () => context.pushNamed(Routes.gallery.name),
               ),
           ]),
-        ],
+        ]),
       ),
     );
   }

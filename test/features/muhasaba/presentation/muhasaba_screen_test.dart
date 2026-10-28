@@ -226,7 +226,7 @@ void main() {
   Future<void> pumpAndDismissWelcome(WidgetTester tester) async {
     await tester.pumpWidget(_app());
     await tester.tap(find.text("Bismillah, let's begin"));
-    await tester.pump();
+    await tester.pumpAndSettle(); // let the list cascade land
   }
 
   group('MuhasabaScreen', () {

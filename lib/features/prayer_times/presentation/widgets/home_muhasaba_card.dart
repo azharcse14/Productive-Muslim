@@ -48,23 +48,16 @@ final class HomeMuhasabaCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: completion),
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : QMotion.slow,
-              curve: QMotion.ease,
-              builder: (context, value, _) => QProgressRing(
-                progress: value,
-                size: 44,
-                strokeWidth: 5,
-                child: Text(
-                  LocaleDigits.localize(
-                    '${(completion * 100).round()}%',
-                    languageCode,
-                  ),
-                  style: QType.num_(QType.caption).copyWith(color: q.ink),
+            QProgressRing(
+              progress: completion,
+              size: 44,
+              strokeWidth: 5,
+              child: Text(
+                LocaleDigits.localize(
+                  '${(completion * 100).round()}%',
+                  languageCode,
                 ),
+                style: QType.num_(QType.caption).copyWith(color: q.ink),
               ),
             ),
             const SizedBox(width: QSpace.s4),

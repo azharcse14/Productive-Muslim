@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
+import '../../core/theme/productive_muslim_tokens.dart';
 import '../extensions/context_ext.dart';
 
 /// Circular progress ring (dashboard completion, tasbih target, dua repeat).
-/// Starts at 12 o'clock, rounded cap, surface-2 track.
+/// Starts at 12 o'clock, rounded cap, surface-2 track. Fills from empty on
+/// first build and eases between values after; cut under reduced-motion.
 final class QProgressRing extends StatelessWidget {
   const QProgressRing({
     required this.progress,
@@ -30,12 +32,20 @@ final class QProgressRing extends StatelessWidget {
     final q = context.q;
     return SizedBox.square(
       dimension: size,
-      child: CustomPaint(
-        painter: _RingPainter(
-          progress: progress.clamp(0, 1),
-          strokeWidth: strokeWidth,
-          color: color ?? q.primary,
-          track: track ?? q.surface2,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: progress.clamp(0, 1)),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : QMotion.med,
+        curve: QMotion.ease,
+        builder: (context, value, child) => CustomPaint(
+          painter: _RingPainter(
+            progress: value,
+            strokeWidth: strokeWidth,
+            color: color ?? q.primary,
+            track: track ?? q.surface2,
+          ),
+          child: child,
         ),
         child: Center(child: child),
       ),

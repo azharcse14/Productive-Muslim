@@ -12,7 +12,9 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
+import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
@@ -66,10 +68,8 @@ final class _QuranScreenState extends State<QuranScreen> {
     unawaited(
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => QuranReaderScreen(
-            surahId: surahId,
-            initialAyah: initialAyah,
-          ),
+          builder: (_) =>
+              QuranReaderScreen(surahId: surahId, initialAyah: initialAyah),
         ),
       ),
     );
@@ -131,8 +131,8 @@ final class _QuranScreenState extends State<QuranScreen> {
                     for (final position in positions)
                       QListRow(
                         icon: Icons.bookmark_outline,
-                        title: _surahById(position.surah)?.transliteration ??
-                            '',
+                        title:
+                            _surahById(position.surah)?.transliteration ?? '',
                         subtitle: LocaleDigits.localize(
                           '${position.surah}:${position.ayah}',
                           languageCode,
@@ -248,8 +248,9 @@ final class _QuranScreenState extends State<QuranScreen> {
       child: QListRow(
         icon: Icons.menu_book_outlined,
         title: l10n.continueReading,
-        subtitle:
-            surah == null ? null : '${surah.transliteration} · $ayahLabel',
+        subtitle: surah == null
+            ? null
+            : '${surah.transliteration} · $ayahLabel',
         trailing: Icon(Icons.chevron_right, color: q.ink3),
         onTap: () => _openReader(position.surah, initialAyah: position.ayah),
       ),
@@ -298,15 +299,21 @@ final class _QuranScreenState extends State<QuranScreen> {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
       itemCount: surahs.length,
-      itemBuilder: (context, index) => _surahRow(context, surahs[index]),
+      itemBuilder: (context, index) => index < 10
+          ? StaggeredEntrance(
+              index: index,
+              child: _surahRow(context, surahs[index]),
+            )
+          : _surahRow(context, surahs[index]),
     );
   }
 
   Widget _surahRow(BuildContext context, Surah surah) {
     final l10n = context.l10n;
     final q = context.q;
-    return InkWell(
+    return QPressable(
       onTap: () => _openReader(surah.id),
+      borderRadius: BorderRadius.circular(QRadius.md),
       child: Padding(
         padding: const EdgeInsetsDirectional.symmetric(
           horizontal: 2,

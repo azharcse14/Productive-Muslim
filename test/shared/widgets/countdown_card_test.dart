@@ -40,7 +40,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
       expect(find.text('ASR ENDS IN'), findsOneWidget);
-      expect(find.text('01:24:36'), findsOneWidget);
+      expect(find.bySemanticsLabel('01:24:36'), findsOneWidget);
       expect(find.text('Jamaat at 5:15 pm'), findsOneWidget);
     });
 

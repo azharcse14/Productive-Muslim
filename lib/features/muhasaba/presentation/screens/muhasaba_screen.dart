@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/period_stats.dart';
@@ -129,7 +130,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         QSpace.s5,
         QSpace.s5,
       ),
-      children: [
+      children: staggered([
         _dateSwitcher(context),
         const SizedBox(height: QSpace.s3),
         Wrap(
@@ -194,7 +195,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             const SizedBox(height: QSpace.s3),
           ],
         ],
-      ],
+      ]),
     );
   }
 

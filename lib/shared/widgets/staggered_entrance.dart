@@ -85,3 +85,11 @@ final class _StaggeredEntranceState extends State<StaggeredEntrance>
     );
   }
 }
+
+/// Cascades a screen's top-level list: wraps the first [limit] of [children]
+/// in [StaggeredEntrance] by position. Later items are already off-screen on
+/// first build, so they're passed through rather than delayed.
+List<Widget> staggered(List<Widget> children, {int limit = 10}) => [
+  for (final (i, child) in children.indexed)
+    i < limit ? StaggeredEntrance(index: i, child: child) : child,
+];

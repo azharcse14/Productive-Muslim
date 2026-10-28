@@ -12,6 +12,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
+import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/dua.dart';
 import '../state/dua_favorites_store.dart';
@@ -105,7 +106,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                 QSpace.s5,
                 QSpace.s5,
               ),
-              children: [
+              children: staggered([
                 Row(
                   children: [
                     Expanded(
@@ -148,7 +149,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                 ),
                 const SizedBox(height: QSpace.s4),
                 _FavoritesSection(duas: favoriteDuas),
-              ],
+              ]),
             );
           },
         ),

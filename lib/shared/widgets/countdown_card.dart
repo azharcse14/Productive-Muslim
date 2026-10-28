@@ -190,9 +190,8 @@ final class CountdownCard extends StatelessWidget {
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: AlignmentDirectional.centerStart,
-                        child: Text(
+                        child: _RollingText(
                           big,
-                          maxLines: 1,
                           style: QType.countdown.copyWith(
                             fontSize: numeralSize,
                             color: c.fg,
@@ -256,6 +255,55 @@ final class CountdownCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Odometer numeral: each character that changes rolls up into place while
+/// unchanged characters stay still. Read as one label by screen readers.
+/// Cut under reduced-motion.
+final class _RollingText extends StatelessWidget {
+  const _RollingText(this.text, {required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : QMotion.med;
+    return Semantics(
+      label: text,
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final ch in text.characters)
+              AnimatedSwitcher(
+                duration: duration,
+                switchInCurve: QMotion.ease,
+                switchOutCurve: QMotion.ease,
+                transitionBuilder: (child, animation) {
+                  // Incoming rises from below; outgoing (animation running
+                  // 1→0) leaves upward.
+                  final incoming = child.key == ValueKey(ch);
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween(
+                        begin: Offset(0, incoming ? 0.5 : -0.5),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: Text(ch, key: ValueKey(ch), maxLines: 1, style: style),
+              ),
+          ],
         ),
       ),
     );
