@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -38,10 +40,16 @@ final class _QiblaScreenState extends State<QiblaScreen> {
       onHide: _store.pause,
       onShow: _store.resume,
     );
+    // The heading is the device's top edge; in landscape the dial would be
+    // 90° off. Held upright while the compass is open.
+    unawaited(
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+    );
   }
 
   @override
   void dispose() {
+    unawaited(SystemChrome.setPreferredOrientations(const []));
     _lifecycle.dispose();
     _store.dispose();
     super.dispose();

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 /// One raw sensor sample pair, in the device coordinate system.
@@ -50,9 +52,26 @@ final class SensorsPlusSource implements CompassSensorSource {
     // Interleave both streams; magnetometer drives emission cadence.
     yield* StreamGroupLite.merge([
       accelerometerEventStream(samplingPeriod: _interval),
-      magnetometerEventStream(samplingPeriod: _interval),
+      _magnetometer(),
     ]);
   }
+
+  /// iOS: the bias-corrected field from Core Motion (AppDelegate), not the
+  /// raw magnetometer sensors_plus reads there.
+  Stream<MagnetometerEvent> _magnetometer() =>
+      defaultTargetPlatform == TargetPlatform.iOS
+      ? const EventChannel(
+          'com.productivemuslim.app/magnetic',
+        ).receiveBroadcastStream().map((event) {
+          final v = (event as List).cast<num>();
+          return MagnetometerEvent(
+            v[0].toDouble(),
+            v[1].toDouble(),
+            v[2].toDouble(),
+            DateTime.now(),
+          );
+        })
+      : magnetometerEventStream(samplingPeriod: _interval);
 }
 
 /// Minimal stream merge (avoids an `async` package dependency for one

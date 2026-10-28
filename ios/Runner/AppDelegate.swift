@@ -1,3 +1,4 @@
+import CoreMotion
 import Flutter
 import UIKit
 import UserNotifications
@@ -40,6 +41,10 @@ import WidgetKit
     // Registered here, not in didFinishLaunching: under the scene lifecycle
     // `window` is nil there, so the channel never existed.
     guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ProductiveMuslimWidget") else { return }
+    FlutterEventChannel(
+      name: "com.productivemuslim.app/magnetic",
+      binaryMessenger: registrar.messenger()
+    ).setStreamHandler(CalibratedMagnetometer())
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()
@@ -63,5 +68,30 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+}
+
+/// Qibla: the magnetic field with the iPhone's own hardware bias removed
+/// (CMDeviceMotion.magneticField). sensors_plus only offers the raw
+/// magnetometer, which on iOS includes that bias and skews the heading.
+/// Same device frame and units (µT) as the raw stream.
+final class CalibratedMagnetometer: NSObject, FlutterStreamHandler {
+  private let manager = CMMotionManager()
+
+  func onListen(withArguments arguments: Any?, eventSink sink: @escaping FlutterEventSink) -> FlutterError? {
+    guard manager.isDeviceMotionAvailable else {
+      return FlutterError(code: "UNAVAILABLE", message: "No device motion", details: nil)
+    }
+    manager.deviceMotionUpdateInterval = 1.0 / 60
+    manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: .main) { motion, _ in
+      guard let field = motion?.magneticField.field else { return }
+      sink([field.x, field.y, field.z])
+    }
+    return nil
+  }
+
+  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    manager.stopDeviceMotionUpdates()
+    return nil
   }
 }
