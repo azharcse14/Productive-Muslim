@@ -10,6 +10,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
+import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../state/tasbih_store.dart';
@@ -126,19 +127,22 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                QProgressRing(
-                                  progress: target == 0 ? 0 : count / target,
-                                  size: 240,
-                                  strokeWidth: 12,
-                                  color: reached ? q.accentStrong : q.primary,
-                                  child: Text(
-                                    LocaleDigits.localize(
-                                      '$count',
-                                      languageCode,
+                                QCelebrate(
+                                  active: reached,
+                                  child: QProgressRing(
+                                    progress: target == 0 ? 0 : count / target,
+                                    size: 240,
+                                    strokeWidth: 12,
+                                    color: reached ? q.accentStrong : q.primary,
+                                    child: Text(
+                                      LocaleDigits.localize(
+                                        '$count',
+                                        languageCode,
+                                      ),
+                                      style: QType.num_(
+                                        QType.countdown,
+                                      ).copyWith(color: q.ink),
                                     ),
-                                    style: QType.num_(
-                                      QType.countdown,
-                                    ).copyWith(color: q.ink),
                                   ),
                                 ),
                                 const SizedBox(height: QSpace.s5),

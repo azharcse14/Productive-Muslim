@@ -309,7 +309,7 @@ final class _PrayerRow extends StatelessWidget {
                   onTap: onToggleDone == null
                       ? null
                       : () {
-                          Haptics.selection();
+                          done ? Haptics.selection() : Haptics.light();
                           onToggleDone!();
                         },
                   child: AnimatedContainer(
@@ -325,7 +325,8 @@ final class _PrayerRow extends StatelessWidget {
                           : Border.all(color: q.ink3, width: 1.8),
                     ),
                     child: AnimatedSwitcher(
-                      duration: QMotion.fast,
+                      duration: QMotion.med,
+                      switchInCurve: Curves.easeOutBack,
                       transitionBuilder: (child, anim) =>
                           ScaleTransition(scale: anim, child: child),
                       child: done
