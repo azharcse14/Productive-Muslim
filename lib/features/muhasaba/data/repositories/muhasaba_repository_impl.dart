@@ -175,17 +175,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // b) Per-item aggregates over the range.
       final itemStats = await _itemStats(startCode, endCode, periodDays);
 
-      // c) Streaks: SQL day-has-done-item flags, bounded walks in Dart.
-      // One scan covers both the current-streak lookback and the range,
-      // so the best streak always includes (so is >=) the current one.
+      // c) Streaks: SQL day-has-done-item flags, walked in Dart. The scan
+      // covers the whole history (one row per active day), so the best
+      // streak matches the all-time streak badges and always includes
+      // (so is >=) the current one.
       final today0 = DateTime(today.year, today.month, today.day);
-      final streakFrom = DateTime(today0.year, today0.month, today0.day - 399);
-      final scanFrom = start.isBefore(streakFrom) ? start : streakFrom;
       final scanTo = end.isAfter(today0) ? end : today0;
-      final recentDone = await _doneDates(
-        _encodeDate(scanFrom),
-        _encodeDate(scanTo),
-      );
+      final recentDone = await _doneDates(0, _encodeDate(scanTo));
       var anchor = today0;
       if (!recentDone.contains(_encodeDate(anchor))) {
         // Today has nothing done yet — the streak survives until the day
