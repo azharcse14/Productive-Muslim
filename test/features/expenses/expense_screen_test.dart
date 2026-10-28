@@ -5,6 +5,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/expenses/presentation/screens/expense_screen.dart';
 import 'package:productive_muslim/features/expenses/presentation/state/expense_store.dart';
+import 'package:productive_muslim/shared/widgets/q_chip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -127,6 +128,47 @@ void main() {
     expect(find.text('30 more than this time last month'), findsOneWidget);
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Yesterday'), findsOneWidget);
+  });
+
+  testWidgets('tapping a category filters the list; tapping again clears', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+    await store.add(amount: 90, category: ExpenseCategory.need, note: 'rice');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Wants'));
+    await tester.pumpAndSettle();
+    expect(find.text('tea'), findsOneWidget);
+    expect(find.text('rice'), findsNothing);
+    await tester.tap(find.text('Wants'));
+    await tester.pumpAndSettle();
+    expect(find.text('rice'), findsOneWidget);
+  });
+
+  testWidgets('a past note is suggested and brings its category back', (
+    tester,
+  ) async {
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.family, note: 'Gift');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).at(1), 'gi');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(QChip, 'Gift'));
+    await tester.enterText(find.byType(TextField).first, '50');
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    final added = store.entries.value.firstWhere((e) => e.amount == 50);
+    expect((added.note, added.category), ('Gift', ExpenseCategory.family));
   });
 
   testWidgets('a decimal amount shows an error instead of silently failing', (

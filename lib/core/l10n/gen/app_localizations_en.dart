@@ -817,6 +817,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muhasabaFirstDayTitle => 'Your daily muhasaba';
 
   @override
+  String get muhasabaDayComplete => 'Every deed done today — alhamdulillah';
+
+  @override
   String get muhasabaFirstDayBody =>
       'Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.';
 
@@ -2266,7 +2269,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'Tap a category to set its budget (sadaqah: a goal)';
+      'Tap a category to filter; hold to set its budget (sadaqah: a goal)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {

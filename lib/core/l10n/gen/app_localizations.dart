@@ -1448,6 +1448,12 @@ abstract class AppLocalizations {
   /// **'Your daily muhasaba'**
   String get muhasabaFirstDayTitle;
 
+  /// No description provided for @muhasabaDayComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Every deed done today — alhamdulillah'**
+  String get muhasabaDayComplete;
+
   /// No description provided for @muhasabaFirstDayBody.
   ///
   /// In en, this message translates to:
@@ -3425,7 +3431,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseCategoryBudgetHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap a category to set its budget (sadaqah: a goal)'**
+  /// **'Tap a category to filter; hold to set its budget (sadaqah: a goal)'**
   String get expenseCategoryBudgetHint;
 
   /// No description provided for @expenseCategoryBudgetTitle.

@@ -357,6 +357,7 @@
   "qiblaNeedsLocation": "Set your location to find the qibla direction",
   "muhasabaTitle": "Muhasaba",
   "muhasabaFirstDayTitle": "Your daily muhasaba",
+  "muhasabaDayComplete": "Every deed done today — alhamdulillah",
   "muhasabaFirstDayBody": "Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.",
   "muhasabaStart": "Bismillah, let's begin",
   "trackerName": "{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}",
@@ -1017,7 +1018,7 @@
     }
   },
   "expenseYesterday": "Yesterday",
-  "expenseCategoryBudgetHint": "Tap a category to set its budget (sadaqah: a goal)",
+  "expenseCategoryBudgetHint": "Tap a category to filter; hold to set its budget (sadaqah: a goal)",
   "expenseCategoryBudgetTitle": "{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}",
   "@expenseCategoryBudgetTitle": {
     "placeholders": {

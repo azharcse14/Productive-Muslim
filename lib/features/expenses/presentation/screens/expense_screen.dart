@@ -39,6 +39,9 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// 0 = current month, -1 = previous, …
   int _offset = 0;
 
+  /// Category the entry list is narrowed to; null shows all.
+  ExpenseCategory? _filter;
+
   /// Bumped per swipe-delete of that row; part of its key.
   final _dismissals = <int, int>{};
 
@@ -123,7 +126,10 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
             final month = _store.month(_offset);
             final totals = _store.totalsFor(month);
             final total = totals.values.fold(0, (a, b) => a + b);
-            final items = _store.inMonth(month);
+            final items = [
+              for (final e in _store.inMonth(month))
+                if (_filter == null || e.category == _filter) e,
+            ];
             // The current month is partial: compare against the same span of
             // last month, not all of it.
             final now = _store.now();
@@ -240,7 +246,10 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                           monthTotal: total,
                           budget: categoryBudgets[c],
                           format: n,
-                          onTap: () => _showBudgetDialog(
+                          selected: _filter == c,
+                          onTap: () =>
+                              setState(() => _filter = _filter == c ? null : c),
+                          onLongPress: () => _showBudgetDialog(
                             context,
                             title: l10n.expenseCategoryBudgetTitle(c.name),
                             current: categoryBudgets[c],
@@ -398,7 +407,9 @@ final class _CategoryRow extends StatelessWidget {
     required this.monthTotal,
     required this.budget,
     required this.format,
+    required this.selected,
     required this.onTap,
+    required this.onLongPress,
   });
 
   final ExpenseCategory category;
@@ -406,7 +417,9 @@ final class _CategoryRow extends StatelessWidget {
   final int monthTotal;
   final int? budget;
   final String Function(int) format;
+  final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -415,44 +428,58 @@ final class _CategoryRow extends StatelessWidget {
     final b = budget;
     final isGoal = category == ExpenseCategory.sadaqah;
     final over = b != null && !isGoal && spent > b;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: QSpace.s2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(_icons[category], size: 18, color: q.ink2),
-                const SizedBox(width: QSpace.s2),
-                Expanded(
-                  child: Text(
-                    l10n.expenseCategory(category.name),
-                    style: QType.body.copyWith(color: q.ink),
+    return Semantics(
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(QRadius.sm),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: selected ? q.primarySoft : null,
+            borderRadius: BorderRadius.circular(QRadius.sm),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpace.s2,
+            vertical: QSpace.s2,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(_icons[category], size: 18, color: q.ink2),
+                  const SizedBox(width: QSpace.s2),
+                  Expanded(
+                    child: Text(
+                      l10n.expenseCategory(category.name),
+                      style: QType.body.copyWith(color: q.ink),
+                    ),
                   ),
-                ),
-                Text(
-                  b == null ? format(spent) : '${format(spent)} / ${format(b)}',
-                  style: QType.label.copyWith(color: over ? q.urgent : q.ink),
-                ),
-              ],
-            ),
-            const SizedBox(height: QSpace.s1),
-            LinearProgressIndicator(
-              value: b != null
-                  ? (spent / b).clamp(0, 1).toDouble()
-                  : monthTotal == 0
-                  ? 0
-                  : spent / monthTotal,
-              color: over
-                  ? q.urgent
-                  : isGoal
-                  ? q.accent
-                  : q.primary,
-              backgroundColor: q.line,
-            ),
-          ],
+                  Text(
+                    b == null
+                        ? format(spent)
+                        : '${format(spent)} / ${format(b)}',
+                    style: QType.label.copyWith(color: over ? q.urgent : q.ink),
+                  ),
+                ],
+              ),
+              const SizedBox(height: QSpace.s1),
+              LinearProgressIndicator(
+                value: b != null
+                    ? (spent / b).clamp(0, 1).toDouble()
+                    : monthTotal == 0
+                    ? 0
+                    : spent / monthTotal,
+                color: over
+                    ? q.urgent
+                    : isGoal
+                    ? q.accent
+                    : q.primary,
+                backgroundColor: q.line,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -589,6 +616,21 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
 
   int? get _parsed => ExpenseStore.parseAmount(_amount.text);
 
+  /// Up to five past notes containing what's typed, most recent first; a
+  /// pick also brings back that note's category.
+  List<Expense> get _suggestions {
+    final typed = _note.text.trim().toLowerCase();
+    final seen = <String>{};
+    return [
+      for (final e in widget.store.entries.value)
+        if (e.note.isNotEmpty &&
+            e.note.toLowerCase() != typed &&
+            e.note.toLowerCase().contains(typed) &&
+            seen.add(e.note.toLowerCase()))
+          e,
+    ].take(5).toList();
+  }
+
   Future<void> _pickDate() async {
     final now = widget.store.now();
     final picked = await showDatePicker(
@@ -681,7 +723,26 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
             TextField(
               controller: _note,
               decoration: InputDecoration(hintText: l10n.expenseNoteHint),
+              onChanged: (_) => setState(() {}),
             ),
+            if (_suggestions case final picks when picks.isNotEmpty) ...[
+              const SizedBox(height: QSpace.s2),
+              Wrap(
+                spacing: QSpace.s2,
+                runSpacing: QSpace.s2,
+                children: [
+                  for (final e in picks)
+                    QChip(
+                      label: e.note,
+                      icon: Icons.history,
+                      onTap: () => setState(() {
+                        _note.text = e.note;
+                        _category = e.category;
+                      }),
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: QSpace.s4),
             Wrap(
               spacing: QSpace.s2,

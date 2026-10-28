@@ -813,6 +813,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get muhasabaFirstDayTitle => 'আপনার দৈনিক মুহাসাবা';
 
   @override
+  String get muhasabaDayComplete => 'আজকের সব আমল পূর্ণ — আলহামদুলিল্লাহ';
+
+  @override
   String get muhasabaFirstDayBody =>
       'মুহাসাবা মানে কোমল আত্মজিজ্ঞাসা: ছোট ছোট দৈনিক আমল, সদয়ভাবে হিসাব রাখা। যা করেছেন টিক দিন — প্রতিটুকুই মূল্যবান।';
 
@@ -2262,7 +2265,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'বাজেট দিতে ক্যাটাগরিতে চাপুন (সাদাকাহ: লক্ষ্য)';
+      'ক্যাটাগরিতে চাপলে শুধু সেই খরচ দেখাবে; বাজেট দিতে চেপে ধরুন (সাদাকাহ: লক্ষ্য)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {
