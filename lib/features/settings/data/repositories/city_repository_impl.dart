@@ -1,4 +1,5 @@
 import '../../../../core/utils/result.dart';
+import '../../../../core/utils/search_fold.dart';
 import '../../domain/entities/city.dart';
 import '../../domain/repositories/city_repository.dart';
 import '../datasources/city_asset_data_source.dart';
@@ -52,18 +53,11 @@ final class CityRepositoryImpl implements CityRepository {
     }
   }
 
-  /// Lowercase + strip common Latin diacritics so "Sao" matches "São".
-  /// Bengali য়/ড়/ঢ় are typed either precomposed or as base + nukta
-  /// depending on keyboard; fold to precomposed and drop ZWJ/ZWNJ.
+  /// [foldForSearch] + strip common Latin diacritics so "Sao" matches "São".
   static String _normalize(String input) {
     const from = 'àáâãäåāçèéêëēìíîïīñòóôõöōùúûüūýÿšžł’';
     const to = "aaaaaaaceeeeeiiiiinoooooouuuuuyyszl'";
-    final lower = input
-        .toLowerCase()
-        .replaceAll('\u09AF\u09BC', '\u09DF')
-        .replaceAll('\u09A1\u09BC', '\u09DC')
-        .replaceAll('\u09A2\u09BC', '\u09DD')
-        .replaceAll(RegExp('[\u200C\u200D]'), '');
+    final lower = foldForSearch(input);
     final buffer = StringBuffer();
     for (final ch in lower.runes) {
       final s = String.fromCharCode(ch);

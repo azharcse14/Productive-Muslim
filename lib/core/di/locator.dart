@@ -320,7 +320,7 @@ Future<void> setupLocator() async {
     // Full-book browsing — bundled snapshot first, network only as fallback.
     ..registerLazySingleton(() => HadithBookCatalogDataSource(rootBundle))
     ..registerLazySingleton(
-      () => HadithBookBundledDataSource(HadithDatabase.open()),
+      () => HadithBookBundledDataSource(HadithDatabase.open),
     )
     ..registerLazySingleton(() => HadithBookRemoteDataSource(httpGetString))
     ..registerLazySingleton<HadithBookRepository>(
@@ -364,9 +364,12 @@ Future<void> setupLocator() async {
     await quranReady;
   } on Object catch (e) {
     quranOpened = false;
-    // ponytail: a failed open (e.g. disk full) boots without Quran/
-    // achievements — those screens still throw on resolve; register a
-    // Quran-less AchievementStore fallback if this shows up in the wild.
+    // Unregistered so every isRegistered<QuranStore>() caller (Home's
+    // continue-reading card, arabicBodySize() in each dua/hadith/ruqyah
+    // card) takes its fallback instead of throwing on resolve.
+    // ponytail: the Quran and achievements screens still throw on resolve;
+    // give them an "unavailable" state if this shows up in the wild.
+    await locator.unregister<QuranStore>();
     debugPrint('Quran database unavailable: $e');
   }
 

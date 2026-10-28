@@ -40,7 +40,7 @@ void main() {
 
   setUp(() async {
     db = await openTestHadithDb();
-    source = HadithBookBundledDataSource(Future.value(db));
+    source = HadithBookBundledDataSource(() => Future.value(db));
   });
 
   tearDown(() async => db.close());

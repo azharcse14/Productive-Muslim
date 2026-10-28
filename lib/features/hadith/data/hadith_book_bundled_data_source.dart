@@ -10,11 +10,22 @@ import 'hadith_section_assembler.dart';
 /// [HadithBookRemoteDataSource] exactly: only the row loading differs (DB vs
 /// network); the shaping is the shared [assembleSection] / [assembleBangla].
 final class HadithBookBundledDataSource {
-  /// Takes a [Future] so the bundled asset is copied lazily on the first read
-  /// rather than blocking app startup (the future resolves once and is reused).
-  HadithBookBundledDataSource(this._open);
+  /// Takes an opener so the bundled asset is copied lazily on the first read
+  /// rather than blocking app startup. A successful open is reused; a failed
+  /// one (e.g. disk full mid-copy) is retried on the next read instead of
+  /// sending every section to the network for the rest of the session.
+  HadithBookBundledDataSource(this._openDb);
 
-  final Future<HadithDatabase> _open;
+  final Future<HadithDatabase> Function() _openDb;
+  Future<HadithDatabase>? _db;
+
+  Future<HadithDatabase> get _open => _db ??= _openDb().then(
+    (db) => db,
+    onError: (Object e, StackTrace s) {
+      _db = null;
+      Error.throwWithStackTrace(e, s);
+    },
+  );
 
   /// Recently assembled sections (insertion-ordered map as an LRU), so
   /// flipping back and forth between chapters doesn't re-decode them.

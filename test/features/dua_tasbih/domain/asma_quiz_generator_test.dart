@@ -15,6 +15,33 @@ List<AsmaName> _names(int count) => [
 
 void main() {
   group('AsmaQuizGenerator', () {
+    test('never shows two options with the same text', () {
+      // Two "Al-Majid"s (#48 and #65 in the bundled list).
+      final names = [
+        for (final n in _names(4))
+          n.number == 2
+              ? AsmaName(
+                  number: 2,
+                  arabic: n.arabic,
+                  transliteration: 'Name 1',
+                  meaningEn: n.meaningEn,
+                  meaningBn: '',
+                )
+              : n,
+        ..._names(6).skip(4),
+      ];
+      for (var seed = 0; seed < 50; seed++) {
+        for (final q in AsmaQuizGenerator.generate(
+          names,
+          seed: seed,
+          mode: AsmaQuizMode.meaningToName,
+        )) {
+          final labels = q.options.map((o) => o.transliteration).toList();
+          expect(labels.toSet().length, labels.length);
+        }
+      }
+    });
+
     test('is deterministic for the same seed', () {
       final names = _names(99);
       final a = AsmaQuizGenerator.generate(names, seed: 42);

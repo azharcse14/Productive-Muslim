@@ -91,6 +91,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                   delegate: QSearchDelegate<Dua>(
                     items: [for (final c in _store.categories.value) ...c.duas],
                     fields: (d) => [
+                      d.arabic,
                       d.transliteration,
                       d.transliterationBn,
                       d.translationEn,

@@ -65,6 +65,7 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                 delegate: QSearchDelegate<RuqyahItem>(
                   items: [for (final c in _store.categories.value) ...c.items],
                   fields: (r) => [
+                    r.arabic,
                     r.titleEn,
                     r.titleBn,
                     r.transliteration,

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
+import '../../core/utils/search_fold.dart';
 import '../extensions/context_ext.dart';
 
 /// In-memory search over a bundled list (duas, hadith, ruqyah). [fields]
-/// gives the texts an item matches on (case-insensitive substring).
+/// gives the texts an item matches on (substring, after [foldForSearch]).
 final class QSearchDelegate<T> extends SearchDelegate<void> {
   QSearchDelegate({
     required this.items,
@@ -21,13 +22,13 @@ final class QSearchDelegate<T> extends SearchDelegate<void> {
   final String emptyText;
 
   List<T> _matches() {
-    final q = query.trim().toLowerCase();
+    final q = foldForSearch(query.trim());
     if (q.isEmpty) {
       return const [];
     }
     return [
       for (final item in items)
-        if (fields(item).any((f) => f.toLowerCase().contains(q))) item,
+        if (fields(item).any((f) => foldForSearch(f).contains(q))) item,
     ];
   }
 

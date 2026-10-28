@@ -108,7 +108,7 @@ void main() {
 
   setUpAll(() async {
     emptyDb = await openTestHadithDb();
-    emptyBundled = HadithBookBundledDataSource(Future.value(emptyDb));
+    emptyBundled = HadithBookBundledDataSource(() => Future.value(emptyDb));
   });
 
   tearDownAll(() async => emptyDb.close());

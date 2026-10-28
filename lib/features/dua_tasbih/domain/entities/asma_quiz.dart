@@ -59,12 +59,7 @@ abstract final class AsmaQuizGenerator {
 
     return [
       for (var i = 0; i < questionCount; i++)
-        _buildQuestion(
-          prompt: prompts[i],
-          pool: names,
-          mode: mode,
-          rng: rng,
-        ),
+        _buildQuestion(prompt: prompts[i], pool: names, mode: mode, rng: rng),
     ];
   }
 
@@ -74,11 +69,30 @@ abstract final class AsmaQuizGenerator {
     required AsmaQuizMode mode,
     required _Lcg rng,
   }) {
-    // Draw distractors from every other name (by number), deterministically.
-    final distractors = _shuffled(
-      [for (final n in pool) if (n.number != prompt.number) n],
-      rng,
-    ).take(optionCount - 1).toList();
+    // Draw distractors from every other name, deterministically. Skip any
+    // whose shown text repeats one already on screen (#48 al-Majid and #65
+    // al-Majid share a transliteration): two identical tiles, one "wrong".
+    List<String> shown(AsmaName n) => [
+      ...mode == AsmaQuizMode.meaningToName
+          ? [n.transliteration.toLowerCase()]
+          : [n.meaningEn.toLowerCase(), n.meaningBn],
+    ].where((label) => label.isNotEmpty).toList();
+    final seen = {...shown(prompt)};
+    final distractors = <AsmaName>[];
+    for (final n in _shuffled([
+      for (final n in pool)
+        if (n.number != prompt.number) n,
+    ], rng)) {
+      if (distractors.length == optionCount - 1) {
+        break;
+      }
+      final labels = shown(n);
+      if (labels.any(seen.contains)) {
+        continue;
+      }
+      seen.addAll(labels);
+      distractors.add(n);
+    }
 
     final options = [prompt, ...distractors];
     _shuffleInPlace(options, rng);

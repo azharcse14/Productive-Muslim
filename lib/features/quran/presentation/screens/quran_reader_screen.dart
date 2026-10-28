@@ -326,6 +326,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             children: [
               IconButton(
                 tooltip: l10n.bookmarkLabel,
+                // Announced as selected, so a screen-reader user knows a
+                // tap would remove the bookmark.
+                isSelected: bookmarked,
                 icon: AnimatedSwitcher(
                   duration: MediaQuery.disableAnimationsOf(context)
                       ? Duration.zero

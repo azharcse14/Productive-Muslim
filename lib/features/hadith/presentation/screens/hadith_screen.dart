@@ -79,7 +79,7 @@ final class _HadithScreenState extends State<HadithScreen> {
                 context: context,
                 delegate: QSearchDelegate<Hadith>(
                   items: _store.items.value,
-                  fields: (h) => [h.en, h.bn, h.narrator, h.reference],
+                  fields: (h) => [h.arabic, h.en, h.bn, h.narrator, h.reference],
                   itemBuilder: (_, h) => HadithListCard(hadith: h),
                   emptyText: l10n.hadithNoResults,
                   hint: l10n.hadithSearchHint,
