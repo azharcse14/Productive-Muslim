@@ -75,12 +75,18 @@ final class QSegControl extends StatelessWidget {
                               ]
                             : null,
                       ),
-                      child: Text(
-                        option,
-                        textAlign: TextAlign.center,
-                        style: QType.label.copyWith(
-                          fontSize: 13.5,
-                          color: i == activeIndex ? q.ink : q.ink2,
+                      // Shrink rather than break a word mid-glyph at
+                      // large text scales.
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          option,
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          style: QType.label.copyWith(
+                            fontSize: 13.5,
+                            color: i == activeIndex ? q.ink : q.ink2,
+                          ),
                         ),
                       ),
                     ),

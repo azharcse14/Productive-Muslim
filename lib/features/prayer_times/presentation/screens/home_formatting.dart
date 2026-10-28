@@ -61,7 +61,7 @@ String formatCountdown(BuildContext context, Duration d) {
     ),
     CountdownKind.waqtEnd => (
       l10n.countdownEndsIn(prayerName),
-      l10n.subAt(prayerName, timeText),
+      l10n.subEndsAt(timeText),
     ),
     CountdownKind.sahriEnd => (
       l10n.countdownSahriEnds,

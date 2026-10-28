@@ -165,7 +165,7 @@ final class _Stepper extends StatelessWidget {
   /// Typing beats 12 taps of +5 for an hour of tahajjud.
   Future<void> _typeValue(BuildContext context) async {
     final l10n = context.l10n;
-    final controller = TextEditingController(text: '$value');
+    final controller = TextEditingController(text: context.digits('$value'));
     final typed = await showDialog<int>(
       context: context,
       builder: (dialogContext) {

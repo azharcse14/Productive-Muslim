@@ -21,7 +21,7 @@ final class FitraScreen extends StatefulWidget {
 
 final class _FitraScreenState extends State<FitraScreen> {
   final _price = TextEditingController();
-  final _people = TextEditingController(text: '1');
+  late final _people = TextEditingController(text: context.digits('1'));
 
   FitraStaple _staple = FitraStaple.wheat;
   FitraResult? _result;
