@@ -6,18 +6,47 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// App-lock persistence: a salted PIN hash + biometric preference.
 /// The raw PIN never touches disk.
+///
+/// On Android [_prefs] is its own file (app_lock.xml), the one store kept
+/// out of cloud backup / device transfer; [legacy] is the shared store older
+/// installs kept the lock in, moved over on first use.
 final class AppLockDataSource {
-  const AppLockDataSource(this._prefs);
+  AppLockDataSource(this._prefs, {SharedPreferencesAsync? legacy})
+    : _legacy = legacy;
 
   static const _key = 'app_lock_v1';
   static const _throttleKey = 'app_lock_throttle_v1';
 
   final SharedPreferencesAsync _prefs;
+  final SharedPreferencesAsync? _legacy;
+  Future<void>? _moved;
+
+  /// Nothing cached without a legacy store: a future kept across calls
+  /// can belong to another zone (tests' runAsync vs fake async) and hang.
+  Future<void> _ready() async {
+    if (_legacy case final legacy?) {
+      await (_moved ??= _moveFromLegacy(legacy));
+    }
+  }
+
+  Future<void> _moveFromLegacy(SharedPreferencesAsync legacy) async {
+    for (final key in [_key, _throttleKey]) {
+      final value = await legacy.getString(key);
+      if (value == null) {
+        continue;
+      }
+      if (await _prefs.getString(key) == null) {
+        await _prefs.setString(key, value);
+      }
+      await legacy.remove(key);
+    }
+  }
 
   static String _hash(String pin, String salt) =>
       sha256.convert(utf8.encode('$salt:$pin')).toString();
 
   Future<({bool enabled, bool biometric})> read() async {
+    await _ready();
     final raw = await _prefs.getString(_key);
     if (raw == null) {
       return (enabled: false, biometric: false);
@@ -52,6 +81,7 @@ final class AppLockDataSource {
   }
 
   Future<void> enable(String pin, {required bool biometric}) async {
+    await _ready();
     final salt = _newSalt();
     await _prefs.setString(
       _key,
@@ -64,6 +94,7 @@ final class AppLockDataSource {
   }
 
   Future<bool> verify(String pin) async {
+    await _ready();
     final raw = await _prefs.getString(_key);
     if (raw == null) {
       return false;
@@ -75,10 +106,14 @@ final class AppLockDataSource {
         map['hash'] == _hash(pin, salt ?? '');
   }
 
-  Future<void> disable() => _prefs.remove(_key);
+  Future<void> disable() async {
+    await _ready();
+    await _prefs.remove(_key);
+  }
 
   /// Wrong-PIN throttle state, persisted so an app restart can't reset it.
   Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() async {
+    await _ready();
     final raw = await _prefs.getString(_throttleKey);
     if (raw == null) {
       return (failedAttempts: 0, lockedUntil: null);
@@ -99,6 +134,7 @@ final class AppLockDataSource {
     required int failedAttempts,
     required DateTime? lockedUntil,
   }) async {
+    await _ready();
     if (failedAttempts == 0 && lockedUntil == null) {
       await _prefs.remove(_throttleKey);
       return;

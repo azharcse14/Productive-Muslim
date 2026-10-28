@@ -2,11 +2,10 @@
 <!-- Auto Backup (Android ≤11). Re-creatable bundled databases (hadith.db,
      filesDir/bundled — Dart `bundledDbFile`) are excluded: at 25 MB they alone
      would hit the 25 MB backup quota and stop the whole app being backed up.
-     Preferences are excluded too: they hold the app-lock PIN hash, which must
-     never leave the device. SharedPreferencesAsync stores them in DataStore
-     (filesDir/datastore); legacy shared_prefs are covered as well. -->
+     app_lock.xml (AppLockDataSource) holds the app-lock PIN hash, which must
+     never leave the device. Every other preference — expenses, fasting,
+     tasbih, settings — lives in DataStore and is backed up. -->
 <full-backup-content>
     <exclude domain="file" path="bundled/" />
-    <exclude domain="file" path="datastore/" />
-    <exclude domain="sharedpref" path="." />
+    <exclude domain="sharedpref" path="app_lock.xml" />
 </full-backup-content>

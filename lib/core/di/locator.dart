@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart' show AppLifecycleListener, WidgetsBinding;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:signals/signals.dart';
 
 import '../../config/app_config.dart';
@@ -128,7 +129,22 @@ Future<void> setupLocator() async {
 
   // ---- onboarding / app lock ----
   locator
-    ..registerLazySingleton(() => AppLockDataSource(SharedPreferencesAsync()))
+    ..registerLazySingleton(
+      () => defaultTargetPlatform == TargetPlatform.android
+          // Its own file, excluded in backup_rules / data_extraction_rules:
+          // the PIN hash never leaves the device, everything else backs up.
+          ? AppLockDataSource(
+              SharedPreferencesAsync(
+                options: const SharedPreferencesAsyncAndroidOptions(
+                  backend: SharedPreferencesAndroidBackendLibrary.SharedPreferences,
+                  originalSharedPreferencesOptions:
+                      AndroidSharedPreferencesStoreOptions(fileName: 'app_lock'),
+                ),
+              ),
+              legacy: SharedPreferencesAsync(),
+            )
+          : AppLockDataSource(SharedPreferencesAsync()),
+    )
     ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
     ..registerLazySingleton(() => AppLockStore(locator(), locator()));
 

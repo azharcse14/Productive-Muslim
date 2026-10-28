@@ -27,6 +27,7 @@ dependencies:
   path_provider: ^2.1.5
   sensors_plus: ^7.0.0
   shared_preferences: ^2.5.5
+  shared_preferences_android: ^2.4.26
   signals: ^7.1.0
   signals_flutter: ^7.1.0
   sqlite3: ^3.3.3
