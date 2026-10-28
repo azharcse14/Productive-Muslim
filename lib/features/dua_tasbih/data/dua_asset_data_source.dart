@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart' show AssetBundle;
 
@@ -21,13 +22,20 @@ final class DuaAssetDataSource {
       return cached;
     }
     final raw = await _bundle.loadString(duasAssetPath);
+    // ~200 KB of JSON: decode off the UI isolate so opening Duas doesn't
+    // drop frames.
+    final categories = await Isolate.run(() => _parseCategories(raw));
+    return _categoriesCache = categories;
+  }
+
+  static List<DuaCategory> _parseCategories(String raw) {
     final decoded = jsonDecode(raw);
     final root = decoded is Map ? decoded.cast<String, Object?>() : null;
     final entries = switch (root?['categories']) {
       final List<Object?> list => list,
       _ => const <Object?>[],
     };
-    return _categoriesCache = [
+    return [
       for (final entry in entries)
         if (_category(entry) case final category?) category,
     ];
