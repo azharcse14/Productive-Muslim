@@ -91,7 +91,7 @@ final class HomeHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               IconButton(
                 tooltip: context.l10n.qiblaTitle,
                 onPressed: onQiblaTap,

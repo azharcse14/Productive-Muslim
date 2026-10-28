@@ -693,6 +693,26 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার বেছে নেওয়া সময়ে আজকের হাদিস বা দোয়া';
 
   @override
+  String get notifDailyAyahToggle => 'সকালের কুরআন আয়াত';
+
+  @override
+  String get notifDailyAyahToggleSub =>
+      'প্রতিদিন সকালে একটি আয়াতের রিমাইন্ডার (সকাল ৮:০০)';
+
+  @override
+  String get notifDailyAyahTitle => 'আজকের আয়াত';
+
+  @override
+  String get notifDailyAyahBody => 'আজকের কুরআন আয়াতটি পড়ুন ও চিন্তা করুন।';
+
+  @override
+  String get notifDailyHadithToggle => 'সন্ধ্যার হাদিস';
+
+  @override
+  String get notifDailyHadithToggleSub =>
+      'প্রতিদিন সন্ধ্যায় একটি হাদিসের রিমাইন্ডার (সন্ধ্যা ৬:০০)';
+
+  @override
   String get notifDailyKindHadith => 'হাদিস';
 
   @override
@@ -712,6 +732,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyDuaBody => 'আজকের দোয়া প্রস্তুত — পড়তে ট্যাপ করুন।';
+
+  @override
+  String get notificationsTitle => 'নোটিফিকেশন';
+
+  @override
+  String get notificationsEmptyTitle => 'কোনো নোটিফিকেশন নেই';
+
+  @override
+  String get notificationsEmptySub =>
+      'আজকের সকল নোটিফিকেশন ও রিমাইন্ডার এখানে দেখতে পাবেন।';
+
+  @override
+  String get headerDailyAyahHadith => 'আজকের আয়াত ও হাদিস';
 
   @override
   String get leadTimeLabel => 'কত আগে';

@@ -386,26 +386,20 @@ final class _HomeScreenState extends State<HomeScreen> {
             ];
             return RefreshIndicator(
               onRefresh: _refresh,
-              // A handful of cards: build them all up front. A lazy ListView
-              // built each card only on scroll-in, so its staggered entrance
-              // replayed mid-scroll and estimated heights jumped the offset.
               child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     HomeHeader(
                       greeting: greetingFor(l10n, _store.daypart.value),
-                      locationName: switch (location?.displayName) {
-                        null || '' => l10n.locationCurrent,
-                        final name => name,
-                      },
+                      locationName: formatLocationName(location, locale, l10n),
                       dates: _headerDates(l10n, locale),
                       onLocationTap: () =>
                           context.pushNamed(Routes.locationPicker.name),
                       onQiblaTap: () => context.pushNamed(Routes.qibla.name),
                       onNotificationsTap: () =>
-                          context.pushNamed(Routes.notificationSettings.name),
+                          context.pushNamed(Routes.notifications.name),
                     ),
                     for (final (i, section) in sections.indexed)
                       // Isolates per-second / pulsing repaints to one card.
@@ -462,21 +456,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           ? const QSkeleton(height: 180, radius: QRadius.lg)
           : null;
     }
-    final index = _reflection.clamp(0, options.length - 1);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (options.length > 1) ...[
-          QSegControl(
-            options: [for (final o in options) o.$1],
-            activeIndex: index,
-            onChanged: (i) => setState(() => _reflection = i),
-          ),
-          const SizedBox(height: QSpace.s3),
-        ],
-        options[index].$2,
-      ],
-    );
+    return DailyReflectionSection(options: options);
   }
 
   Widget _countdownSection(
@@ -814,4 +794,62 @@ final class _HomeScreenState extends State<HomeScreen> {
     reference: dua.reference,
     onTap: () => context.goNamed(Routes.dua.name),
   );
+}
+
+final class DailyReflectionSection extends StatefulWidget {
+  const DailyReflectionSection({
+    required this.options,
+    super.key,
+  });
+
+  final List<(String, Widget)> options;
+
+  @override
+  State<DailyReflectionSection> createState() =>
+      _DailyReflectionSectionState();
+}
+
+final class _DailyReflectionSectionState
+    extends State<DailyReflectionSection> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.options.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final index = _selectedIndex.clamp(0, widget.options.length - 1);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.options.length > 1) ...[
+          QSegControl(
+            options: [for (final o in widget.options) o.$1],
+            activeIndex: index,
+            onChanged: (i) => setState(() => _selectedIndex = i),
+          ),
+          const SizedBox(height: QSpace.s3),
+        ],
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SizeTransition(
+                sizeFactor: animation,
+                child: child,
+              ),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey(index),
+            child: widget.options[index].$2,
+          ),
+        ),
+      ],
+    );
+  }
 }

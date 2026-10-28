@@ -34,6 +34,10 @@ final class NotificationTexts {
     this.focusEndBody = '',
     this.nafsLockTitle = '',
     this.nafsLockBodyUntil = '',
+    this.dailyAyahTitle = '',
+    this.dailyAyahBody = '',
+    this.dailyHadithTitle = '',
+    this.dailyHadithBody = '',
   });
 
   final String azanTitle;
@@ -77,6 +81,11 @@ final class NotificationTexts {
   /// Nafs lock screen + ongoing notification; body takes `{time}`.
   final String nafsLockTitle;
   final String nafsLockBodyUntil;
+
+  final String dailyAyahTitle;
+  final String dailyAyahBody;
+  final String dailyHadithTitle;
+  final String dailyHadithBody;
 
   /// Localized prayer display names keyed by `Prayer.name`.
   final Map<String, String> prayerNames;

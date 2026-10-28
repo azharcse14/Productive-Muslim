@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/widgets/countdown_card.dart';
+import '../../../settings/domain/entities/city.dart';
+import '../../../settings/domain/entities/location_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/countdown_target.dart';
@@ -109,3 +111,66 @@ CountdownState countdownCardState(CountdownUrgency urgency) =>
       CountdownUrgency.sahri => CountdownState.sahri,
       CountdownUrgency.iftar => CountdownState.iftar,
     };
+
+String formatLocationName(
+  LocationConfig? location,
+  Locale locale,
+  AppLocalizations l10n,
+) {
+  if (location == null) {
+    return l10n.locationCurrent;
+  }
+
+  if (location is ManualCityLocation) {
+    final city = location.city;
+    if (locale.languageCode == 'bn' &&
+        city.nameBn != null &&
+        city.nameBn!.isNotEmpty) {
+      return city.nameBn!;
+    }
+  }
+
+  final rawName = location.displayName;
+  if (rawName.isEmpty) {
+    return l10n.locationCurrent;
+  }
+
+  if (locale.languageCode != 'bn') {
+    return rawName;
+  }
+
+  const cityMap = <String, String>{
+    'Dhaka': 'ঢাকা',
+    'Chittagong': 'চট্টগ্রাম',
+    'Chattogram': 'চট্টগ্রাম',
+    'Sylhet': 'সিলেট',
+    'Rajshahi': 'রাজশাহী',
+    'Khulna': 'খুলনা',
+    'Barisal': 'বরিশাল',
+    'Barishal': 'বরিশাল',
+    'Rangpur': 'রংপুর',
+    'Mymensingh': 'ময়মনসিংহ',
+    'Comilla': 'কুমিল্লা',
+    'Cumilla': 'কুমিল্লা',
+    'Gazipur': 'গাজীপুর',
+    'Narayanganj': 'নারায়ণগঞ্জ',
+    'Bogra': 'বগুড়া',
+    'Bogura': 'বগুড়া',
+    'Pabna': 'পাবনা',
+    'Jessore': 'যশোর',
+    'Jashore': 'যশোর',
+    'Cox\'s Bazar': 'কক্সবাজার',
+    'Coxs Bazar': 'কক্সবাজার',
+    'Makkah': 'মক্কা',
+    'Madinah': 'মদিনা',
+    'BD': 'বাংলাদেশ',
+    'Bangladesh': 'বাংলাদেশ',
+    'SA': 'সৌদি আরব',
+  };
+
+  var translated = rawName;
+  for (final entry in cityMap.entries) {
+    translated = translated.replaceAll(entry.key, entry.value);
+  }
+  return translated;
+}

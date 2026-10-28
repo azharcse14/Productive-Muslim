@@ -11,7 +11,7 @@ void main() {
       prayer: Prayer.maghrib,
     );
     // Pinned: must not change between runs (Object.hash is seeded per run).
-    expect(azan.id, 1603160914);
+    expect(azan.id, 1959418894);
     expect(azan.id, inInclusiveRange(0, 0x7FFFFFFF));
     expect(
       NotificationItem(

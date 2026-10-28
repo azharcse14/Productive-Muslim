@@ -215,6 +215,8 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             payload: switch (item.kind) {
               NotificationKind.muhasabaEvening => '/muhasaba',
               NotificationKind.dailyReminder => texts.dailyReminderRoute,
+              NotificationKind.dailyAyah => '/home',
+              NotificationKind.dailyHadith => '/hadith',
               // Prayer + its prayer-day date ride along for the "mark as
               // prayed" action, so a late (or after-midnight isha) tap
               // files the right day.
@@ -267,6 +269,14 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       NotificationKind.dailyReminder => (
           f(t.dailyReminderTitle),
           f(t.dailyReminderBody),
+        ),
+      NotificationKind.dailyAyah => (
+          t.dailyAyahTitle.isEmpty ? f(t.dailyReminderTitle) : f(t.dailyAyahTitle),
+          t.dailyAyahBody.isEmpty ? f(t.dailyReminderBody) : f(t.dailyAyahBody),
+        ),
+      NotificationKind.dailyHadith => (
+          t.dailyHadithTitle.isEmpty ? f(t.dailyReminderTitle) : f(t.dailyHadithTitle),
+          t.dailyHadithBody.isEmpty ? f(t.dailyReminderBody) : f(t.dailyHadithBody),
         ),
       NotificationKind.keepAlive => (t.keepAliveTitle, t.keepAliveBody),
       NotificationKind.jamaatFocus => (f(t.focusTitle), f(t.focusBody)),

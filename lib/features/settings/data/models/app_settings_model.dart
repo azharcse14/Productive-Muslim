@@ -50,6 +50,10 @@ abstract final class AppSettingsModel {
       'dailyReminder': s.notifications.dailyReminder,
       'dailyReminderMinute': s.notifications.dailyReminderMinute,
       'dailyReminderKind': s.notifications.dailyReminderKind.name,
+      'dailyAyahReminder': s.notifications.dailyAyahReminder,
+      'dailyAyahMinute': s.notifications.dailyAyahMinute,
+      'dailyHadithReminder': s.notifications.dailyHadithReminder,
+      'dailyHadithMinute': s.notifications.dailyHadithMinute,
       'jamaatFocus': s.notifications.jamaatFocus,
       'jamaatFocusLeadMin': s.notifications.jamaatFocusLead.inMinutes,
       'jamaatFocusDurationMin': s.notifications.jamaatFocusDuration.inMinutes,
@@ -209,6 +213,14 @@ abstract final class AppSettingsModel {
         map['dailyReminderKind'],
         defaults.dailyReminderKind,
       ),
+      dailyAyahReminder:
+          _as<bool>(map['dailyAyahReminder']) ?? defaults.dailyAyahReminder,
+      dailyAyahMinute:
+          _as<int>(map['dailyAyahMinute']) ?? defaults.dailyAyahMinute,
+      dailyHadithReminder:
+          _as<bool>(map['dailyHadithReminder']) ?? defaults.dailyHadithReminder,
+      dailyHadithMinute:
+          _as<int>(map['dailyHadithMinute']) ?? defaults.dailyHadithMinute,
       jamaatFocus: _as<bool>(map['jamaatFocus']) ?? defaults.jamaatFocus,
       jamaatFocusLead: Duration(
         minutes:

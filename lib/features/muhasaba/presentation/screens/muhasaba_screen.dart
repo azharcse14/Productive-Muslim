@@ -163,38 +163,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           _dateSwitcher(context),
           _dayComplete(context, items),
           const SizedBox(height: QSpace.s3),
-          Wrap(
-            spacing: QSpace.s2,
-            runSpacing: QSpace.s2,
-            children: [
-              for (final item in salah)
-                if (locked.contains(item.id))
-                  // Waqt hasn't started yet — a tap explains why.
-                  Opacity(
-                    opacity: 0.45,
-                    child: QChip(
-                      label: _nameOf(l10n, item),
-                      icon: Icons.schedule,
-                      // Re-check: the waqt may have begun since this build.
-                      onTap: () => _store.lockedSalah.contains(item.id)
-                          ? _showLockedToast(context)
-                          : unawaited(_store.setValue(item.id, 1)),
-                    ),
-                  )
-                else
-                  QChip(
-                    label: _nameOf(l10n, item),
-                    active: _store.valueOf(item.id) > 0,
-                    icon: Icons.mosque_outlined,
-                    onTap: () => unawaited(
-                      _store.setValue(
-                        item.id,
-                        _store.valueOf(item.id) > 0 ? 0 : 1,
-                      ),
-                    ),
-                  ),
-            ],
-          ),
+          _salahCards(context, salah, locked),
           const SizedBox(height: QSpace.s3),
           for (final item in others) ...[
             TrackerRow(
@@ -237,6 +206,125 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   void _shiftDay(int days) {
     final d = _store.selectedDate.value;
     unawaited(_store.selectDate(DateTime(d.year, d.month, d.day + days)));
+  }
+
+  Widget _salahCards(
+    BuildContext context,
+    List<TrackerItem> salah,
+    Set<String> locked,
+  ) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final cardWidth = ((availableWidth - 24) / 5).clamp(58.0, 80.0);
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              for (final (index, item) in salah.indexed) ...[
+                if (index > 0) const SizedBox(width: 6),
+                Builder(
+                  builder: (context) {
+                    final isLocked = locked.contains(item.id);
+                    final completed = _store.valueOf(item.id) > 0;
+                    final name = _nameOf(l10n, item);
+
+                    final cardColor = isLocked
+                        ? q.surface
+                        : (completed ? q.primarySoft : q.surface);
+                    final borderColor = completed ? q.primary : q.line;
+                    final textColor = isLocked
+                        ? q.ink3
+                        : (completed ? q.primary : q.ink);
+
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          if (isLocked) {
+                            if (_store.lockedSalah.contains(item.id)) {
+                              _showLockedToast(context);
+                            } else {
+                              unawaited(_store.setValue(item.id, 1));
+                            }
+                          } else {
+                            unawaited(
+                              _store.setValue(item.id, completed ? 0 : 1),
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(QRadius.md),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: cardWidth,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(QRadius.md),
+                            border: Border.all(color: borderColor, width: 1.2),
+                            boxShadow: [
+                              if (completed)
+                                BoxShadow(
+                                  color: q.primary.withValues(alpha: 0.12),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isLocked
+                                    ? Icons.schedule
+                                    : (completed
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_unchecked),
+                                size: 20,
+                                color: isLocked
+                                    ? q.ink3
+                                    : (completed ? q.primary : q.ink3),
+                              ),
+                              const SizedBox(height: 6),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  name,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  style: QType.caption.copyWith(
+                                    fontSize: 12,
+                                    color: textColor,
+                                    fontVariations: [
+                                      FontVariation(
+                                        'wght',
+                                        completed ? 700 : 500,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   /// Honey banner with the full qalb mark once every active deed of the

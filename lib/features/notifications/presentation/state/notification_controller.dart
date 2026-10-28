@@ -207,6 +207,10 @@ final class NotificationController {
       channelFocusName: l10n.channelFocus,
       focusEndTitle: l10n.notifFocusEndTitle('{prayer}'),
       focusEndBody: l10n.notifFocusEndBody,
+      dailyAyahTitle: l10n.notifDailyAyahTitle,
+      dailyAyahBody: l10n.notifDailyAyahBody,
+      dailyHadithTitle: l10n.notifDailyHadithTitle,
+      dailyHadithBody: l10n.notifDailyHadithBody,
       nafsLockTitle: l10n.nafsLockTitle,
       nafsLockBodyUntil: l10n.nafsLockBodyUntil('{time}'),
       prayerNames: {

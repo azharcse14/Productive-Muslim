@@ -21,6 +21,7 @@ import '../../features/hadith/presentation/screens/hadith_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/onboarding/presentation/screens/lock_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/splash_screen.dart';
@@ -197,14 +198,6 @@ GoRouter buildRouter() {
                     name: Routes.settings.name,
                     path: Routes.settings.path,
                     builder: (context, state) => const SettingsScreen(),
-                    routes: [
-                      GoRoute(
-                        name: Routes.notificationSettings.name,
-                        path: Routes.notificationSettings.path,
-                        builder: (context, state) =>
-                            const NotificationSettingsScreen(),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -226,6 +219,18 @@ GoRouter buildRouter() {
         name: Routes.lock.name,
         path: Routes.lock.path,
         builder: (context, state) => const LockScreen(),
+      ),
+      GoRoute(
+        name: Routes.notifications.name,
+        path: Routes.notifications.path,
+        builder: (context, state) => const NotificationsScreen(),
+        routes: [
+          GoRoute(
+            name: Routes.notificationSettings.name,
+            path: Routes.notificationSettings.path,
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         name: Routes.locationPicker.name,

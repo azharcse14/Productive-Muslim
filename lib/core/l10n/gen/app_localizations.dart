@@ -1238,6 +1238,42 @@ abstract class AppLocalizations {
   /// **'A hadith or dua of the day, at your time'**
   String get notifDailyToggleSub;
 
+  /// No description provided for @notifDailyAyahToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Quran Ayah'**
+  String get notifDailyAyahToggle;
+
+  /// No description provided for @notifDailyAyahToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily morning Quran verse reminder (8:00 AM)'**
+  String get notifDailyAyahToggleSub;
+
+  /// No description provided for @notifDailyAyahTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah of the Day'**
+  String get notifDailyAyahTitle;
+
+  /// No description provided for @notifDailyAyahBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Read and reflect on today\'s Quran verse.'**
+  String get notifDailyAyahBody;
+
+  /// No description provided for @notifDailyHadithToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening Hadith'**
+  String get notifDailyHadithToggle;
+
+  /// No description provided for @notifDailyHadithToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily evening Hadith reminder (6:00 PM)'**
+  String get notifDailyHadithToggleSub;
+
   /// No description provided for @notifDailyKindHadith.
   ///
   /// In en, this message translates to:
@@ -1279,6 +1315,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s dua is ready — tap to read it.'**
   String get notifDailyDuaBody;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptySub.
+  ///
+  /// In en, this message translates to:
+  /// **'All scheduled notifications and reminders will appear here.'**
+  String get notificationsEmptySub;
+
+  /// No description provided for @headerDailyAyahHadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Ayah & Hadith'**
+  String get headerDailyAyahHadith;
 
   /// No description provided for @leadTimeLabel.
   ///

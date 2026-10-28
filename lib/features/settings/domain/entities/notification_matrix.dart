@@ -18,6 +18,10 @@ final class NotificationMatrix {
     this.dailyReminder = false,
     this.dailyReminderMinute = 9 * 60,
     this.dailyReminderKind = DailyContentKind.hadith,
+    this.dailyAyahReminder = false,
+    this.dailyAyahMinute = 8 * 60,
+    this.dailyHadithReminder = false,
+    this.dailyHadithMinute = 18 * 60,
     this.jamaatFocus = false,
     this.jamaatFocusLead = const Duration(minutes: 5),
     this.jamaatFocusDuration = const Duration(minutes: 20),
@@ -45,6 +49,14 @@ final class NotificationMatrix {
 
   /// Which content the daily reminder surfaces (drives copy + deep link).
   final DailyContentKind dailyReminderKind;
+
+  /// Daily morning Quran Ayah reminder toggle (default 08:00 AM).
+  final bool dailyAyahReminder;
+  final int dailyAyahMinute;
+
+  /// Daily evening Hadith reminder toggle (default 06:00 PM / 18:00).
+  final bool dailyHadithReminder;
+  final int dailyHadithMinute;
 
   /// Jamaat focus: silence (and on Android, lock) the phone around jamaat.
   final bool jamaatFocus;
@@ -84,6 +96,10 @@ final class NotificationMatrix {
     bool? dailyReminder,
     int? dailyReminderMinute,
     DailyContentKind? dailyReminderKind,
+    bool? dailyAyahReminder,
+    int? dailyAyahMinute,
+    bool? dailyHadithReminder,
+    int? dailyHadithMinute,
     bool? jamaatFocus,
     Duration? jamaatFocusLead,
     Duration? jamaatFocusDuration,
@@ -107,6 +123,10 @@ final class NotificationMatrix {
       dailyReminder: dailyReminder ?? this.dailyReminder,
       dailyReminderMinute: dailyReminderMinute ?? this.dailyReminderMinute,
       dailyReminderKind: dailyReminderKind ?? this.dailyReminderKind,
+      dailyAyahReminder: dailyAyahReminder ?? this.dailyAyahReminder,
+      dailyAyahMinute: dailyAyahMinute ?? this.dailyAyahMinute,
+      dailyHadithReminder: dailyHadithReminder ?? this.dailyHadithReminder,
+      dailyHadithMinute: dailyHadithMinute ?? this.dailyHadithMinute,
       jamaatFocus: jamaatFocus ?? this.jamaatFocus,
       jamaatFocusLead: jamaatFocusLead ?? this.jamaatFocusLead,
       // Strict + "until I end it" would never end: fall back to 20 min.
@@ -133,6 +153,10 @@ final class NotificationMatrix {
         other.dailyReminder != dailyReminder ||
         other.dailyReminderMinute != dailyReminderMinute ||
         other.dailyReminderKind != dailyReminderKind ||
+        other.dailyAyahReminder != dailyAyahReminder ||
+        other.dailyAyahMinute != dailyAyahMinute ||
+        other.dailyHadithReminder != dailyHadithReminder ||
+        other.dailyHadithMinute != dailyHadithMinute ||
         other.jamaatFocus != jamaatFocus ||
         other.jamaatFocusLead != jamaatFocusLead ||
         other.jamaatFocusDuration != jamaatFocusDuration ||
@@ -164,6 +188,10 @@ final class NotificationMatrix {
     dailyReminder,
     dailyReminderMinute,
     dailyReminderKind,
+    dailyAyahReminder,
+    dailyAyahMinute,
+    dailyHadithReminder,
+    dailyHadithMinute,
     Object.hash(
       jamaatFocus,
       jamaatFocusLead,

@@ -130,6 +130,28 @@ List<NotificationItem> buildNotificationPlan({
         );
       }
     }
+
+    if (matrix.dailyAyahReminder) {
+      final minute = matrix.dailyAyahMinute;
+      final remindAt =
+          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
+      if (inWindow(remindAt)) {
+        items.add(
+          NotificationItem(kind: NotificationKind.dailyAyah, at: remindAt),
+        );
+      }
+    }
+
+    if (matrix.dailyHadithReminder) {
+      final minute = matrix.dailyHadithMinute;
+      final remindAt =
+          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
+      if (inWindow(remindAt)) {
+        items.add(
+          NotificationItem(kind: NotificationKind.dailyHadith, at: remindAt),
+        );
+      }
+    }
   }
 
   for (final focus in focusWindows) {

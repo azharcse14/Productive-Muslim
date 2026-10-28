@@ -693,6 +693,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifDailyToggleSub => 'A hadith or dua of the day, at your time';
 
   @override
+  String get notifDailyAyahToggle => 'Morning Quran Ayah';
+
+  @override
+  String get notifDailyAyahToggleSub =>
+      'Daily morning Quran verse reminder (8:00 AM)';
+
+  @override
+  String get notifDailyAyahTitle => 'Ayah of the Day';
+
+  @override
+  String get notifDailyAyahBody => 'Read and reflect on today\'s Quran verse.';
+
+  @override
+  String get notifDailyHadithToggle => 'Evening Hadith';
+
+  @override
+  String get notifDailyHadithToggleSub =>
+      'Daily evening Hadith reminder (6:00 PM)';
+
+  @override
   String get notifDailyKindHadith => 'Hadith';
 
   @override
@@ -713,6 +733,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyDuaBody => 'Today\'s dua is ready — tap to read it.';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmptyTitle => 'No notifications';
+
+  @override
+  String get notificationsEmptySub =>
+      'All scheduled notifications and reminders will appear here.';
+
+  @override
+  String get headerDailyAyahHadith => 'Today\'s Ayah & Hadith';
 
   @override
   String get leadTimeLabel => 'Lead time';

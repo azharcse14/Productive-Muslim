@@ -33,6 +33,12 @@ enum NotificationKind {
   /// Jamaat focus end: "prayed in jamaat?" with "mark as prayed", and a
   /// tap opens the after-salah duas.
   focusEnd,
+
+  /// Daily morning Quran Ayah reminder.
+  dailyAyah,
+
+  /// Daily evening Hadith reminder.
+  dailyHadith,
 }
 
 /// One planned local notification, semantic only — text is resolved

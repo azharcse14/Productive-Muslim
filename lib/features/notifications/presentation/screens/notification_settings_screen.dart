@@ -295,14 +295,28 @@ final class _NotificationSettingsScreenState
                     ),
                     const Divider(),
                     QListRow(
-                      icon: Icons.auto_stories_outlined,
-                      title: l10n.notifDailyToggle,
-                      subtitle: l10n.notifDailyToggleSub,
+                      icon: Icons.menu_book_outlined,
+                      title: l10n.notifDailyAyahToggle,
+                      subtitle: l10n.notifDailyAyahToggleSub,
                       trailing: Switch(
-                        value: matrix.dailyReminder,
+                        value: matrix.dailyAyahReminder,
                         onChanged: (v) => unawaited(
                           _store.setNotifications(
-                            matrix.copyWith(dailyReminder: v),
+                            matrix.copyWith(dailyAyahReminder: v),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.auto_stories_outlined,
+                      title: l10n.notifDailyHadithToggle,
+                      subtitle: l10n.notifDailyHadithToggleSub,
+                      trailing: Switch(
+                        value: matrix.dailyHadithReminder,
+                        onChanged: (v) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyHadithReminder: v),
                           ),
                         ),
                       ),
