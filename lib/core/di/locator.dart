@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, debugPrint, defaultTargetPlatform;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter/widgets.dart' show AppLifecycleListener;
+import 'package:flutter/widgets.dart' show AppLifecycleListener, WidgetsBinding;
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -210,7 +210,10 @@ Future<void> setupLocator() async {
   // ---- prayer times / home ----
   locator
     ..registerLazySingleton<PrayerDayRepository>(
-      () => PrayerDayRepositoryImpl(locator()),
+      () => PrayerDayRepositoryImpl(
+        locator(),
+        hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
+      ),
     )
     ..registerLazySingleton(() => GetPrayerDay(locator()))
     ..registerFactory(
@@ -310,8 +313,11 @@ Future<void> setupLocator() async {
     ),
   );
 
-  // Everything below runs before the first frame. The stores only read
-  // settings, so settings go first and the rest load in parallel.
+  // Everything awaited below runs before the first frame. The stores only
+  // read settings, so settings go first and the rest load in parallel.
+  // They stay here (not deferred): the parallel wait is bounded by the
+  // muhasaba DB open anyway, and loading late would let early writes
+  // (notification "mark as prayed", taps) be overwritten by the load.
   await locator<SettingsStore>().load();
   // QuranDatabase copies a 5 MB asset on first run; anything resolving
   // QuranStore (AchievementStore does) must wait for it or get_it throws.
@@ -327,18 +333,31 @@ Future<void> setupLocator() async {
     locator<TasbihStore>().load(),
   ]);
   locator<AppLockStore>().watchLifecycle();
-  // AchievementStore reads muhasaba/fasting/tasbih, so it loads last.
+  // Home resolves QuranStore on its first build, so the DB must be ready.
+  var quranOpened = true;
   try {
     await quranReady;
-    await locator<AchievementStore>().load();
   } on Object catch (e) {
+    quranOpened = false;
     // ponytail: a failed open (e.g. disk full) boots without Quran/
     // achievements — those screens still throw on resolve; register a
     // Quran-less AchievementStore fallback if this shows up in the wild.
     debugPrint('Quran database unavailable: $e');
   }
 
-  _startWidgetUpdates();
+  // Not needed for the first frame: the badge scan (years of muhasaba
+  // history) and the home-screen widget sync start once it is drawn. Badge
+  // consumers react to the store's signals as it lands.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (quranOpened) {
+      unawaited(
+        locator<AchievementStore>().load().catchError((Object e) {
+          debugPrint('Achievements unavailable: $e');
+        }),
+      );
+    }
+    _startWidgetUpdates();
+  });
 }
 
 /// Pending-notification cap per platform: iOS holds at most 64 per app;
@@ -357,11 +376,12 @@ void _startWidgetUpdates() {
   final settings = locator<SettingsStore>();
   final widget = locator<PrayerWidgetService>();
   effect(() {
-    // Touch the signals the snapshot depends on so the effect re-runs.
+    // Touch the signals the snapshot depends on so the effect re-runs —
+    // and only those: update() reads the whole settings signal itself.
     settings.location.value;
     settings.prayerParams.value;
-    settings.settings.value.localeCode;
-    unawaited(widget.update());
+    settings.locale.value;
+    untracked(() => unawaited(widget.update()));
   });
   // Times moved on while backgrounded (Dart timers don't fire then).
   AppLifecycleListener(onResume: () => unawaited(widget.update()));

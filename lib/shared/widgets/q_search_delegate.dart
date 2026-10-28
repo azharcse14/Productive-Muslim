@@ -61,6 +61,18 @@ final class QSearchDelegate<T> extends SearchDelegate<void> {
     );
   }
 
+  /// The app's own app bar (Material's default here is a grey/white bar).
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: QType.title.copyWith(color: context.q.ink3),
+        border: InputBorder.none,
+      ),
+    );
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) => [
     if (query.isNotEmpty)

@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart' show SynchronousFuture, kDebugMode;
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -46,8 +47,14 @@ import 'routes.dart';
 /// [StatefulShellRoute.indexedStack] so tab state persists.
 ///
 /// Gates: splash is the cold-start entry; incomplete setup redirects to
-/// onboarding; an enabled-and-locked app lock redirects to the PIN gate.
+/// onboarding; an enabled-and-locked app lock redirects to the PIN gate on
+/// cold start only. Later (background) re-locks are covered by the root
+/// [LockOverlay] instead, so the navigation stack, tab
+/// state and pushed pages survive the lock.
 GoRouter buildRouter() {
+  // Set once the lock gate has been passed; from then on the router never
+  // redirects to /lock again.
+  var lockGatePassed = false;
   return GoRouter(
     initialLocation: Routes.splash.path,
     refreshListenable: _RouterRefresh(),
@@ -66,15 +73,17 @@ GoRouter buildRouter() {
             : Routes.onboarding.path;
       }
       final locked = locator<AppLockStore>().locked.value;
-      if (locked) {
-        // Remember where the user was so a background re-lock returns
-        // them there after unlocking.
+      if (locked && !lockGatePassed) {
+        // Remember where the user was headed so unlocking lands there.
         return path == Routes.lock.path
             ? null
             : Uri(
                 path: Routes.lock.path,
                 queryParameters: {_lockFromParam: state.uri.toString()},
               ).toString();
+      }
+      if (!locked) {
+        lockGatePassed = true;
       }
       if (path == Routes.lock.path) {
         final from = state.uri.queryParameters[_lockFromParam];
@@ -118,21 +127,32 @@ GoRouter buildRouter() {
                   GoRoute(
                     name: Routes.quranAyah.name,
                     path: Routes.quranAyah.path,
+                    // Out-of-range / non-numeric surah → back to the index.
+                    redirect: (context, state) => switch (int.tryParse(
+                      state.pathParameters['surah'] ?? '',
+                    )) {
+                      final id? when id >= 1 && id <= 114 => null,
+                      _ => Routes.quran.path,
+                    },
                     builder: (context, state) => QuranReaderScreen(
-                      surahId:
-                          int.tryParse(state.pathParameters['surah'] ?? '') ??
-                              1,
-                      initialAyah:
-                          int.tryParse(state.pathParameters['ayah'] ?? ''),
+                      surahId: int.parse(state.pathParameters['surah']!),
+                      initialAyah: int.tryParse(
+                        state.pathParameters['ayah'] ?? '',
+                      ),
                     ),
                   ),
                   GoRoute(
                     name: Routes.quranReader.name,
                     path: Routes.quranReader.path,
+                    // Out-of-range / non-numeric surah → back to the index.
+                    redirect: (context, state) => switch (int.tryParse(
+                      state.pathParameters['surah'] ?? '',
+                    )) {
+                      final id? when id >= 1 && id <= 114 => null,
+                      _ => Routes.quran.path,
+                    },
                     builder: (context, state) => QuranReaderScreen(
-                      surahId:
-                          int.tryParse(state.pathParameters['surah'] ?? '') ??
-                              1,
+                      surahId: int.parse(state.pathParameters['surah']!),
                     ),
                   ),
                 ],
@@ -217,8 +237,7 @@ GoRouter buildRouter() {
         name: Routes.specialTimes.name,
         path: Routes.specialTimes.path,
         builder: (context, state) {
-          final extra =
-              state.extra as (SpecialKind, List<SpecialWindow>)?;
+          final extra = state.extra as (SpecialKind, List<SpecialWindow>)?;
           return SpecialTimesScreen(
             kind: extra?.$1 ?? SpecialKind.forbidden,
             windows: extra?.$2 ?? const [],
@@ -303,11 +322,12 @@ GoRouter buildRouter() {
         path: Routes.age.path,
         builder: (context, state) => const AgeScreen(),
       ),
-      GoRoute(
-        name: Routes.gallery.name,
-        path: Routes.gallery.path,
-        builder: (context, state) => const WidgetGalleryScreen(),
-      ),
+      if (kDebugMode)
+        GoRoute(
+          name: Routes.gallery.name,
+          path: Routes.gallery.path,
+          builder: (context, state) => const WidgetGalleryScreen(),
+        ),
     ],
   );
 }
@@ -389,11 +409,111 @@ final class QShellScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return QBottomNavScaffold(
       currentIndex: shell.currentIndex,
-      onSelect: (index) => shell.goBranch(
-        index,
-        initialLocation: index == shell.currentIndex,
-      ),
+      onSelect: (index) =>
+          shell.goBranch(index, initialLocation: index == shell.currentIndex),
       body: shell,
     );
   }
+}
+
+/// Root-builder layer for background re-locks: covers the app with the PIN
+/// gate while [AppLockStore.locked], leaving [child] (the router and its
+/// whole navigation state) mounted underneath but unreachable — no
+/// pointer, focus or semantics. Cold start is gated by the redirect
+/// instead, so the overlay stays off on the splash and /lock routes.
+final class LockOverlay extends StatelessWidget {
+  const LockOverlay({required this.router, required this.child, super.key});
+
+  final GoRouter router;
+  final Widget? child;
+
+  bool _covers(bool locked) {
+    if (!locked) {
+      return false;
+    }
+    final config = router.routerDelegate.currentConfiguration;
+    final path = config.uri.path;
+    return config.isNotEmpty &&
+        path != Routes.lock.path &&
+        path != Routes.splash.path;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lock = locator<AppLockStore>();
+    // Rebuilds on lock flips only. The route is read, not listened to (its
+    // delegate notifies mid-build): while locked it can only be the cold-
+    // start gate, which the redirect keeps until the first unlock.
+    return SignalBuilder(
+      builder: (context) {
+        final covered = _covers(lock.locked.value);
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Same wrappers either way, so locking never remounts the app.
+            ExcludeFocus(
+              excluding: covered,
+              child: ExcludeSemantics(
+                excluding: covered,
+                child: IgnorePointer(
+                  ignoring: covered,
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            if (covered) _LockLayer(back: router.backButtonDispatcher),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// The overlaid [LockScreen], in its own navigator (its dialogs) and
+/// holding the back button so it can't pop the hidden pages underneath.
+final class _LockLayer extends StatefulWidget {
+  const _LockLayer({required this.back});
+
+  final BackButtonDispatcher? back;
+
+  @override
+  State<_LockLayer> createState() => _LockLayerState();
+}
+
+final class _LockLayerState extends State<_LockLayer> {
+  final _navigator = GlobalKey<NavigatorState>();
+  ChildBackButtonDispatcher? _dispatcher;
+
+  Future<bool> _onBack() {
+    // Closes a lock-screen dialog; never reaches the app's pages.
+    unawaited(_navigator.currentState?.maybePop());
+    return SynchronousFuture(true);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dispatcher = widget.back?.createChildBackButtonDispatcher()
+      ?..addCallback(_onBack)
+      ..takePriority();
+  }
+
+  @override
+  void dispose() {
+    final dispatcher = _dispatcher;
+    if (dispatcher != null) {
+      dispatcher.removeCallback(_onBack);
+      widget.back?.forget(dispatcher);
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => HeroControllerScope.none(
+    child: Navigator(
+      key: _navigator,
+      onGenerateRoute: (_) =>
+          PageRouteBuilder<void>(pageBuilder: (_, _, _) => const LockScreen()),
+    ),
+  );
 }

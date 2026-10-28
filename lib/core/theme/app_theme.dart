@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../config/assets.dart';
+
 import 'productive_muslim_colors.dart';
 import 'productive_muslim_tokens.dart';
 import 'productive_muslim_typography.dart';
@@ -8,12 +10,14 @@ import 'productive_muslim_typography.dart';
 /// (comfortable at Fajr/Tahajjud) — never an inversion of light.
 ///
 /// Material 3 is mandatory (guide §2): `useMaterial3` is Flutter's default
-/// and must never be disabled; only M3 APIs (ColorScheme, WidgetState,
-/// NavigationBar theming) are used here.
+/// and must never be disabled; only M3 APIs (ColorScheme, WidgetState)
+/// are used here.
 abstract final class AppTheme {
-  static ThemeData light() => _build(ProductiveMuslimColors.light, Brightness.light);
+  static ThemeData light() =>
+      _build(ProductiveMuslimColors.light, Brightness.light);
 
-  static ThemeData dark() => _build(ProductiveMuslimColors.dark, Brightness.dark);
+  static ThemeData dark() =>
+      _build(ProductiveMuslimColors.dark, Brightness.dark);
 
   static ThemeData _build(ProductiveMuslimColors q, Brightness brightness) {
     final scheme = ColorScheme(
@@ -23,9 +27,7 @@ abstract final class AppTheme {
       primaryContainer: q.primarySoft,
       onPrimaryContainer: q.onPrimarySoft,
       secondary: q.accent,
-      onSecondary: brightness == Brightness.light
-          ? const Color(0xFF231603)
-          : const Color(0xFF231603),
+      onSecondary: q.onAccent,
       secondaryContainer: q.accentSoft,
       onSecondaryContainer: q.onAccentSoft,
       error: q.urgent,
@@ -50,6 +52,9 @@ abstract final class AppTheme {
       brightness: brightness,
       scaffoldBackgroundColor: q.bg,
       textTheme: textTheme,
+      // Dialogs, fields and other framework text outside [textTheme].
+      fontFamily: AppFonts.ui,
+      fontFamilyFallback: AppFonts.uiFallback,
       splashFactory: InkSparkle.splashFactory,
       visualDensity: VisualDensity.standard,
       extensions: [q],
@@ -88,44 +93,16 @@ abstract final class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? q.onPrimary
-              : q.ink3,
+          (states) =>
+              states.contains(WidgetState.selected) ? q.onPrimary : q.ink3,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? q.primary
-              : q.surface2,
+          (states) =>
+              states.contains(WidgetState.selected) ? q.primary : q.surface2,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? q.primary
-              : q.line,
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: q.surface,
-        indicatorColor: q.primarySoft,
-        height: 64,
-        labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => QType.caption.copyWith(
-            fontSize: 10.5,
-            color: states.contains(WidgetState.selected) ? q.ink : q.ink3,
-            fontVariations: [
-              FontVariation(
-                'wght',
-                states.contains(WidgetState.selected) ? 700 : 500,
-              ),
-            ],
-          ),
-        ),
-        iconTheme: WidgetStateProperty.resolveWith(
-          (states) => IconThemeData(
-            size: 20,
-            color: states.contains(WidgetState.selected)
-                ? q.onPrimarySoft
-                : q.ink3,
-          ),
+          (states) =>
+              states.contains(WidgetState.selected) ? q.primary : q.line,
         ),
       ),
     );

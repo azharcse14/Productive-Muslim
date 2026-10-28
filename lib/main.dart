@@ -66,13 +66,14 @@ final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: _router,
-        // App lock: an opaque cover while backgrounded hides the UI from
-        // the app switcher and from the first frame back before the gate.
+        // App lock: re-locks overlay the PIN gate (navigation state kept);
+        // an opaque cover while backgrounded hides the UI from the app
+        // switcher and from the first frame back before the gate.
         builder: (context, child) => SignalBuilder(
           builder: (context) => Stack(
             fit: StackFit.expand,
             children: [
-              ?child,
+              LockOverlay(router: _router, child: child),
               if (_lock.obscured.value)
                 ColoredBox(color: Theme.of(context).colorScheme.surface),
             ],

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 /// `docs/design_handoff_productive_muslim/productive_muslim/tokens.css`. Feature widgets read these
 /// via `Theme.of(context).extension<ProductiveMuslimColors>()` — never inline colors.
 @immutable
-final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors> {
+final class ProductiveMuslimColors
+    extends ThemeExtension<ProductiveMuslimColors> {
   const ProductiveMuslimColors({
     required this.bg,
     required this.surface,
@@ -18,6 +19,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
     required this.primarySoft,
     required this.onPrimarySoft,
     required this.accent,
+    required this.onAccent,
     required this.accentStrong,
     required this.accentSoft,
     required this.onAccentSoft,
@@ -62,6 +64,9 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
   /// Warm honey — celebrations ONLY (streaks, iftar, qibla lock).
   final Color accent;
 
+  /// Text/icons on a solid [accent] fill.
+  final Color onAccent;
+
   /// AA-safe accent text on light backgrounds.
   final Color accentStrong;
   final Color accentSoft;
@@ -95,6 +100,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
     primarySoft: Color(0xFFDCE9E4),
     onPrimarySoft: Color(0xFF123F39),
     accent: Color(0xFFC08A2E),
+    onAccent: Color(0xFF231603),
     accentStrong: Color(0xFF8E5E12),
     accentSoft: Color(0xFFF4E6C8),
     onAccentSoft: Color(0xFF6E4A0E),
@@ -120,6 +126,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
     primarySoft: Color(0xFF1C332D),
     onPrimarySoft: Color(0xFFA7DACD),
     accent: Color(0xFFE2B264),
+    onAccent: Color(0xFF231603),
     accentStrong: Color(0xFFE2B264),
     accentSoft: Color(0xFF322817),
     onAccentSoft: Color(0xFFEAC182),
@@ -146,6 +153,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
     Color? primarySoft,
     Color? onPrimarySoft,
     Color? accent,
+    Color? onAccent,
     Color? accentStrong,
     Color? accentSoft,
     Color? onAccentSoft,
@@ -170,6 +178,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
       primarySoft: primarySoft ?? this.primarySoft,
       onPrimarySoft: onPrimarySoft ?? this.onPrimarySoft,
       accent: accent ?? this.accent,
+      onAccent: onAccent ?? this.onAccent,
       accentStrong: accentStrong ?? this.accentStrong,
       accentSoft: accentSoft ?? this.accentSoft,
       onAccentSoft: onAccentSoft ?? this.onAccentSoft,
@@ -201,6 +210,7 @@ final class ProductiveMuslimColors extends ThemeExtension<ProductiveMuslimColors
       primarySoft: Color.lerp(primarySoft, other.primarySoft, t)!,
       onPrimarySoft: Color.lerp(onPrimarySoft, other.onPrimarySoft, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       accentStrong: Color.lerp(accentStrong, other.accentStrong, t)!,
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
       onAccentSoft: Color.lerp(onAccentSoft, other.onAccentSoft, t)!,

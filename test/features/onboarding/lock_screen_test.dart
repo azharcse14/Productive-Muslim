@@ -119,4 +119,49 @@ void main() {
     expect(find.text('Enter your PIN'), findsOneWidget);
     expect(store.locked.value, isTrue);
   });
+
+  testWidgets('verify mode (turning the lock off) pops true only on the PIN',
+      (tester) async {
+    final store = await _register(FakeBiometric());
+    await store.unlockWithPin('1234'); // in the app, unlocked
+    bool? result;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () async {
+              result = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const LockScreen(mode: LockScreenMode.verify),
+                ),
+              );
+            },
+            child: const Text('off'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('off'));
+    await tester.pumpAndSettle();
+    // No reset path here: it would skip proving the PIN.
+    expect(find.text('Forgot PIN?'), findsNothing);
+    await tester.runAsync(() => _enter(tester, '0000'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LockScreen), findsOneWidget);
+    expect(result, isNull);
+    await tester.runAsync(() => _enter(tester, '1234'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LockScreen), findsNothing);
+    expect(result, isTrue);
+    // Backing out instead reports no verification.
+    await tester.tap(find.text('off'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(result, isNull);
+  });
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../../core/theme/productive_muslim_typography.dart';
 import '../extensions/context_ext.dart';
+import 'q_button.dart';
 
 /// Centered failure note with a retry button (load errors).
 final class QErrorRetry extends StatelessWidget {
@@ -26,7 +27,7 @@ final class QErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_outlined, size: 40, color: q.ink3),
+            Icon(Icons.error_outline, size: 40, color: q.ink3),
             const SizedBox(height: QSpace.s3),
             Text(
               message,
@@ -34,7 +35,11 @@ final class QErrorRetry extends StatelessWidget {
               style: QType.body.copyWith(color: q.ink2),
             ),
             const SizedBox(height: QSpace.s4),
-            FilledButton(onPressed: onRetry, child: Text(retryLabel)),
+            QButton(
+              label: retryLabel,
+              kind: QButtonKind.tonal,
+              onPressed: onRetry,
+            ),
           ],
         ),
       ),

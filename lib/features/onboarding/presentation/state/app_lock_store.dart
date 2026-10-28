@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/widgets.dart'
     show AppLifecycleListener, AppLifecycleState;
 import 'package:signals_flutter/signals_flutter.dart';
@@ -186,9 +188,13 @@ final class AppLockStore {
         if ((wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod) {
           locked.value = true;
         }
-      // iOS snapshots the app switcher right after inactive.
+      // iOS snapshots the app switcher right after inactive. Android's
+      // FLAG_SECURE already blanks it, and inactive fires there for
+      // permission dialogs and the notification shade — no cover.
       case AppLifecycleState.inactive:
-        if (enabled.value && !_authInProgress) {
+        if (enabled.value &&
+            !_authInProgress &&
+            defaultTargetPlatform == TargetPlatform.iOS) {
           obscured.value = true;
         }
       case AppLifecycleState.detached:
