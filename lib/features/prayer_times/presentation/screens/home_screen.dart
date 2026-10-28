@@ -296,7 +296,7 @@ final class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _lifecycle.dispose();
     _dayWatcher();
-    _store.dispose();
+    _store.stop(); // app-wide singleton: not disposed, Home may remount
     super.dispose();
   }
 
@@ -690,7 +690,10 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   Widget _sahriIftarSection(BuildContext context, PrayerDay day) =>
       SahriIftarCard(
-        sahriEnd: formatHomeTime(context, day.sahriEnd),
+        sahriEnd: formatHomeTime(
+          context,
+          _store.nextSahriEnd.value ?? day.sahriEnd,
+        ),
         iftar: formatHomeTime(context, day.iftar),
       );
 

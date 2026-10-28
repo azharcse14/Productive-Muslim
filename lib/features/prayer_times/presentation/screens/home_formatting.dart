@@ -65,7 +65,8 @@ String formatCountdown(BuildContext context, Duration d) {
     ),
     CountdownKind.sahriEnd => (
       l10n.countdownSahriEnds,
-      l10n.subAt(l10n.prayerLabel(target.prayer), timeText),
+      // The sahri-end time sits before Fajr by the safety margin.
+      l10n.subAt(l10n.sahriEndsLabel, timeText),
     ),
     CountdownKind.iftar => (
       l10n.countdownIftarIn,

@@ -240,7 +240,8 @@ Future<void> setupLocator() async {
       ),
     )
     ..registerLazySingleton(() => GetPrayerDay(locator()))
-    ..registerFactory(
+    // App-wide: Fasting, My Mosque and Muhasaba read its day too.
+    ..registerLazySingleton(
       () => HomeStore(
         getPrayerDay: locator(),
         clock: locator(),

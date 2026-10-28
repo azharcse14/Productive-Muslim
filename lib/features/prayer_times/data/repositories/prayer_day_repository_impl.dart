@@ -61,7 +61,9 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       return Result.success(
         PrayerDay(
           fajr: wall(times.fajr),
-          sunrise: wall(times.sunrise),
+          // Rounded *up* like the rest, but sunrise ends Fajr: take a
+          // minute off so Fajr never shows as running past true sunrise.
+          sunrise: wall(times.sunrise).subtract(const Duration(minutes: 1)),
           dhuhr: wall(times.dhuhr),
           asr: wall(times.asr),
           maghrib: wall(times.maghrib),

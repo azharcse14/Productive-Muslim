@@ -65,19 +65,24 @@ final class HomeStore {
   late final Signal<DateTime> now;
   Timer? _ticker;
 
-  /// Stops the per-second tick while the app is hidden (saves battery).
-  void pause() {
-    _ticker?.cancel();
-    _ticker = null;
-  }
+  Duration? _period;
 
-  /// Re-syncs [now] immediately and restarts the tick.
-  void resume() {
-    if (_ticker != null) {
+  /// Slows the tick to once a minute while Home is hidden (saves battery).
+  /// Not stopped: the store is app-wide, and Fasting / My Mosque / Muhasaba
+  /// read [dateKey] and [prayerDay], which must still flip at midnight.
+  void pause() => _tick(const Duration(minutes: 1));
+
+  /// Re-syncs [now] immediately and restarts the per-second tick.
+  void resume() => _tick(const Duration(seconds: 1));
+
+  void _tick(Duration period) {
+    if (_period == period) {
       return;
     }
+    _ticker?.cancel();
+    _period = period;
     now.value = _wallNow();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+    _ticker = Timer.periodic(period, (_) {
       now.value = _wallNow();
     });
   }
@@ -205,6 +210,17 @@ final class HomeStore {
     () => prayerDay.value?.activeWaqtAt(now.value),
   );
 
+  /// Today's sahri end until iftar, then tonight's (before tomorrow's Fajr).
+  late final nextSahriEnd = computed<DateTime?>(() {
+    final day = prayerDay.value;
+    if (day == null) {
+      return null;
+    }
+    return now.value.isBefore(day.iftar)
+        ? day.sahriEnd
+        : day.fajrTomorrow.subtract(day.sahriSafety);
+  });
+
   /// True after midnight but before Fajr: the active waqt is yesterday's.
   late final _preFajr = computed(() {
     final day = prayerDay.value;
@@ -301,8 +317,15 @@ final class HomeStore {
     () => countdownTarget.value?.progressAt(now.value) ?? 0.0,
   );
 
+  /// Stops the tick outright (Home itself gone); [resume] restarts it.
+  void stop() {
+    _ticker?.cancel();
+    _ticker = null;
+    _period = null;
+  }
+
   void dispose() {
-    pause();
+    stop();
     _overrideWatcher();
   }
 }
