@@ -50,6 +50,14 @@ abstract final class AppSettingsModel {
       'dailyReminder': s.notifications.dailyReminder,
       'dailyReminderMinute': s.notifications.dailyReminderMinute,
       'dailyReminderKind': s.notifications.dailyReminderKind.name,
+      'jamaatFocus': s.notifications.jamaatFocus,
+      'jamaatFocusLeadMin': s.notifications.jamaatFocusLead.inMinutes,
+      'jamaatFocusDurationMin': s.notifications.jamaatFocusDuration.inMinutes,
+      'jamaatFocusPrayers': [
+        for (final p in s.notifications.jamaatFocusPrayers) p.name,
+      ],
+      'jamaatFocusBlock': s.notifications.jamaatFocusBlock,
+      'jamaatFocusStrict': s.notifications.jamaatFocusStrict,
     },
     'themeMode': s.themeMode.name,
     'localeCode': s.localeCode,
@@ -196,6 +204,30 @@ abstract final class AppSettingsModel {
         map['dailyReminderKind'],
         defaults.dailyReminderKind,
       ),
+      jamaatFocus: _as<bool>(map['jamaatFocus']) ?? defaults.jamaatFocus,
+      jamaatFocusLead: Duration(
+        minutes:
+            _as<int>(map['jamaatFocusLeadMin']) ??
+            defaults.jamaatFocusLead.inMinutes,
+      ),
+      jamaatFocusDuration: Duration(
+        minutes:
+            _as<int>(map['jamaatFocusDurationMin']) ??
+            defaults.jamaatFocusDuration.inMinutes,
+      ),
+      jamaatFocusPrayers: switch (_as<List<Object?>>(
+        map['jamaatFocusPrayers'],
+      )) {
+        null => defaults.jamaatFocusPrayers,
+        final names => {
+          for (final p in Prayer.values)
+            if (names.contains(p.name)) p,
+        },
+      },
+      jamaatFocusBlock:
+          _as<bool>(map['jamaatFocusBlock']) ?? defaults.jamaatFocusBlock,
+      jamaatFocusStrict:
+          _as<bool>(map['jamaatFocusStrict']) ?? defaults.jamaatFocusStrict,
     );
   }
 

@@ -1,6 +1,8 @@
 package com.productivemuslim.app
 
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -31,6 +33,34 @@ class MainActivity : FlutterFragmentActivity() {
                         apply()
                     }
                     ProductiveMuslimWidgetProvider.updateAll(this)
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+        // Jamaat focus: plan in, status/permissions out (JamaatFocus.kt).
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.productivemuslim.app/focus"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "schedule" -> {
+                    JamaatFocus.schedule(this, call.arguments as? Map<*, *> ?: emptyMap<String, Any>())
+                    result.success(null)
+                }
+                "status" -> result.success(JamaatFocus.status(this))
+                "end" -> {
+                    JamaatFocus.end(this)
+                    result.success(null)
+                }
+                "hasDndAccess" -> result.success(JamaatFocus.hasDndAccess(this))
+                "hasBlockAccess" -> result.success(JamaatFocus.hasBlockAccess(this))
+                "requestDndAccess" -> {
+                    startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                    result.success(null)
+                }
+                "requestBlockAccess" -> {
+                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                     result.success(null)
                 }
                 else -> result.notImplemented()

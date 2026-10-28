@@ -48,8 +48,11 @@ import '../../features/my_mosque/presentation/state/mosque_store.dart';
 import '../../features/nearby_mosques/data/url_launcher_external.dart';
 import '../../features/nearby_mosques/domain/external_launcher.dart';
 import '../../features/nearby_mosques/domain/usecases/open_nearby_mosques.dart';
+import '../../features/notifications/data/jamaat_focus_bridge.dart';
 import '../../features/notifications/data/local_notifications_scheduler.dart';
+import '../../features/notifications/domain/entities/notification_texts.dart';
 import '../../features/notifications/domain/repositories/notification_scheduler.dart';
+import '../../features/notifications/domain/usecases/build_focus_windows.dart';
 import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
 import '../../features/notifications/presentation/state/notification_controller.dart';
 import '../../features/onboarding/data/app_lock_data_source.dart';
@@ -76,6 +79,7 @@ import '../../features/settings/data/datasources/timezone_clock.dart';
 import '../../features/settings/data/repositories/city_repository_impl.dart';
 import '../../features/settings/data/repositories/location_repository_impl.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/entities/notification_matrix.dart';
 import '../../features/settings/domain/entities/prayer_params.dart';
 import '../../features/settings/domain/repositories/city_repository.dart';
 import '../../features/settings/domain/repositories/location_repository.dart';
@@ -196,6 +200,10 @@ Future<void> setupLocator() async {
         clock: locator(),
         window: AppConfig.notificationSchedulingWindow,
         maxItems: notificationCapFor(defaultTargetPlatform),
+        focusSink: defaultTargetPlatform == TargetPlatform.android
+            ? _sendFocusWindows
+            : null,
+        focusAsNotifications: defaultTargetPlatform == TargetPlatform.iOS,
       ),
     )
     ..registerLazySingleton(
@@ -343,6 +351,28 @@ Future<void> setupLocator() async {
 
 /// Pending-notification cap per platform: iOS holds at most 64 per app;
 /// Android has no practical limit at a 7-day window (~100 items).
+/// Android jamaat focus: hand the sessions to the native engine. A failed
+/// call must not abort the notification reschedule.
+Future<void> _sendFocusWindows(
+  List<FocusWindow> windows,
+  NotificationMatrix matrix,
+  NotificationTexts texts,
+) async {
+  final location = locator<SettingsStore>().location.value;
+  try {
+    await const JamaatFocusBridge().schedule(
+      windows: location == null ? const [] : windows,
+      enabled: matrix.jamaatFocus,
+      block: matrix.jamaatFocusBlock,
+      strict: matrix.jamaatFocusStrict,
+      texts: texts,
+      toUtc: (wall) => locator<ZonedClock>().utcInstantOf(location!, wall),
+    );
+  } on Object catch (e) {
+    debugPrint('Jamaat focus schedule failed: $e');
+  }
+}
+
 int? notificationCapFor(TargetPlatform platform) => switch (platform) {
   TargetPlatform.iOS ||
   TargetPlatform.macOS => AppConfig.iosMaxPendingNotifications,

@@ -2335,4 +2335,99 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get homeCardDaily => 'আজকের আয়াত, হাদিস ও দোয়া';
+
+  @override
+  String get focusHeader => 'জামাত ফোকাস';
+
+  @override
+  String get focusToggle => 'জামাতের সময় সাইলেন্ট ও লক';
+
+  @override
+  String get focusToggleSub =>
+      'জামাতের সময় ফোন সাইলেন্ট হবে ও অন্য অ্যাপ বন্ধ থাকবে। আমার মসজিদে জামাতের সময় লাগবে';
+
+  @override
+  String get focusToggleSubIos =>
+      'আইফোনে কোনো অ্যাপ ফোন সাইলেন্ট বা লক করতে পারে না, তাই সাইলেন্ট করার রিমাইন্ডার পাবেন। আমার মসজিদে জামাতের সময় লাগবে';
+
+  @override
+  String get focusLeadLabel => 'জামাতের কত আগে শুরু';
+
+  @override
+  String get focusDurationLabel => 'কতক্ষণ পর খুলবে';
+
+  @override
+  String get focusDurationManual => 'আমি বন্ধ করলে';
+
+  @override
+  String get focusPrayersLabel => 'নামাজ';
+
+  @override
+  String get focusBlockToggle => 'ফোন লক করুন';
+
+  @override
+  String get focusBlockToggleSub => 'অন্য অ্যাপ বন্ধ থাকবে; ফোন কল চালু থাকবে';
+
+  @override
+  String get focusStrictToggle => 'স্ট্রিক্ট মোড';
+
+  @override
+  String get focusStrictToggleSub =>
+      'আগে খোলা যাবে না, আর সেশন চলার সময় এই সেটিংস বদলানো যাবে না';
+
+  @override
+  String get focusPermSilence =>
+      'ফোন সাইলেন্ট করতে ডু নট ডিস্টার্ব অ্যাক্সেস দিন';
+
+  @override
+  String get focusPermBlock => 'ফোন লক করতে অ্যাক্সেসিবিলিটি অ্যাক্সেস দিন';
+
+  @override
+  String get focusAllow => 'অনুমতি দিন';
+
+  @override
+  String get focusDisclosureTitle => 'অ্যাক্সেসিবিলিটি অ্যাক্সেস';
+
+  @override
+  String get focusDisclosureBody =>
+      'Productive Muslim অ্যাক্সেসিবিলিটি সার্ভিস শুধু জামাত ফোকাস সেশনের সময় ব্যবহার করে: অন্য অ্যাপ খুললে তা জামাতের স্ক্রিন দিয়ে ঢেকে দিতে। আপনি যা দেখেন বা লেখেন তা পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
+
+  @override
+  String get focusContinue => 'চালিয়ে যান';
+
+  @override
+  String focusActiveUntil(String time) {
+    return 'জামাত ফোকাস $time পর্যন্ত চালু';
+  }
+
+  @override
+  String get focusActive => 'জামাত ফোকাস চালু';
+
+  @override
+  String get focusStrictLocked => 'স্ট্রিক্ট মোড — সেশন শেষ হলে সেটিংস খুলবে।';
+
+  @override
+  String get focusEndNow => 'এখনই বন্ধ করুন';
+
+  @override
+  String notifFocusTitle(String prayer) {
+    return '$prayer জামাত — মনোযোগের সময়';
+  }
+
+  @override
+  String get notifFocusBody => 'ফোন সাইলেন্ট করে নামাজে যান।';
+
+  @override
+  String get focusLockBody => 'জামাতের জন্য ফোন সাইলেন্ট।';
+
+  @override
+  String focusLockBodyUntil(String time) {
+    return '$time পর্যন্ত জামাতের জন্য সাইলেন্ট';
+  }
+
+  @override
+  String get focusEndAction => 'বন্ধ';
+
+  @override
+  String get channelFocus => 'জামাত ফোকাস';
 }

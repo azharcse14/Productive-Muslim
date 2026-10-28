@@ -265,6 +265,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           f(t.dailyReminderBody),
         ),
       NotificationKind.keepAlive => (t.keepAliveTitle, t.keepAliveBody),
+      NotificationKind.jamaatFocus => (f(t.focusTitle), f(t.focusBody)),
     };
   }
 

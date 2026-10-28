@@ -9,6 +9,8 @@
     <!-- Browsing full hadith books streams sections from the open dataset CDN. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Jamaat focus: switch Do Not Disturb on/off around jamaat. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <application
         android:label="Productive Muslim"
         android:name="${applicationName}"
@@ -58,6 +60,37 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
+        <!-- Jamaat focus (JamaatFocus.kt): alarms start/end sessions and
+             re-arm after reboot; the accessibility service covers other
+             apps with the jamaat screen while a session runs. -->
+        <receiver
+            android:name=".JamaatFocusReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <activity
+            android:name=".JamaatFocusActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.productivemuslim.app.focus"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+        <service
+            android:name=".JamaatFocusService"
+            android:exported="false"
+            android:label="@string/jamaat_focus_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/jamaat_focus_accessibility" />
+        </service>
 
         <!-- Home-screen widget: next prayer at a glance. Updated from Dart
              through the com.productivemuslim.app/widget MethodChannel

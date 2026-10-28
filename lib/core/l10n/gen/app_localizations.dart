@@ -3535,6 +3535,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ayah, hadith & dua of the day'**
   String get homeCardDaily;
+
+  /// No description provided for @focusHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat focus'**
+  String get focusHeader;
+
+  /// No description provided for @focusToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent & lock at jamaat'**
+  String get focusToggle;
+
+  /// No description provided for @focusToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque'**
+  String get focusToggleSub;
+
+  /// No description provided for @focusToggleSubIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone doesn\'t let apps silence or lock the phone, so you\'ll get a reminder to switch to silent. Needs jamaat times in My Mosque'**
+  String get focusToggleSubIos;
+
+  /// No description provided for @focusLeadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts before jamaat'**
+  String get focusLeadLabel;
+
+  /// No description provided for @focusDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks after'**
+  String get focusDurationLabel;
+
+  /// No description provided for @focusDurationManual.
+  ///
+  /// In en, this message translates to:
+  /// **'When I end it'**
+  String get focusDurationManual;
+
+  /// No description provided for @focusPrayersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayers'**
+  String get focusPrayersLabel;
+
+  /// No description provided for @focusBlockToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock the phone'**
+  String get focusBlockToggle;
+
+  /// No description provided for @focusBlockToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Other apps are blocked; phone calls stay allowed'**
+  String get focusBlockToggleSub;
+
+  /// No description provided for @focusStrictToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict mode'**
+  String get focusStrictToggle;
+
+  /// No description provided for @focusStrictToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'No early unlock, and these settings stay locked while a session runs'**
+  String get focusStrictToggleSub;
+
+  /// No description provided for @focusPermSilence.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Do Not Disturb access to silence the phone'**
+  String get focusPermSilence;
+
+  /// No description provided for @focusPermBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow accessibility access to lock the phone'**
+  String get focusPermBlock;
+
+  /// No description provided for @focusAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get focusAllow;
+
+  /// No description provided for @focusDisclosureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility access'**
+  String get focusDisclosureTitle;
+
+  /// No description provided for @focusDisclosureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.'**
+  String get focusDisclosureBody;
+
+  /// No description provided for @focusContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get focusContinue;
+
+  /// No description provided for @focusActiveUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat focus is on until {time}'**
+  String focusActiveUntil(String time);
+
+  /// No description provided for @focusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat focus is on'**
+  String get focusActive;
+
+  /// No description provided for @focusStrictLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict mode — settings unlock when the session ends.'**
+  String get focusStrictLocked;
+
+  /// No description provided for @focusEndNow.
+  ///
+  /// In en, this message translates to:
+  /// **'End now'**
+  String get focusEndNow;
+
+  /// No description provided for @notifFocusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} jamaat — time to focus'**
+  String notifFocusTitle(String prayer);
+
+  /// No description provided for @notifFocusBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your phone on silent and head to salah.'**
+  String get notifFocusBody;
+
+  /// No description provided for @focusLockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is silenced for jamaat.'**
+  String get focusLockBody;
+
+  /// No description provided for @focusLockBodyUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Silenced for jamaat until {time}'**
+  String focusLockBodyUntil(String time);
+
+  /// No description provided for @focusEndAction.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get focusEndAction;
+
+  /// No description provided for @channelFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat focus'**
+  String get channelFocus;
 }
 
 class _AppLocalizationsDelegate

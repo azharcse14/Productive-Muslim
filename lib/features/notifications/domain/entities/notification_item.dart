@@ -25,6 +25,10 @@ enum NotificationKind {
   /// Low-priority nudge at the end of the planned window: the OS only
   /// holds a finite schedule, so opening the app refills it.
   keepAlive,
+
+  /// iOS only: jamaat focus start — "put your phone on silent". The OS
+  /// lets no app silence or lock the phone, so a nudge is all iOS gets.
+  jamaatFocus,
 }
 
 /// One planned local notification, semantic only — text is resolved

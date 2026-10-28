@@ -1045,5 +1045,54 @@
   "settingHomeCards": "Home cards",
   "settingHomeCardsSub": "Choose which sections appear on Home",
   "homeCardQuickActions": "Quick actions",
-  "homeCardDaily": "Ayah, hadith & dua of the day"
+  "homeCardDaily": "Ayah, hadith & dua of the day",
+  "focusHeader": "Jamaat focus",
+  "focusToggle": "Silent & lock at jamaat",
+  "focusToggleSub": "Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque",
+  "focusToggleSubIos": "iPhone doesn't let apps silence or lock the phone, so you'll get a reminder to switch to silent. Needs jamaat times in My Mosque",
+  "focusLeadLabel": "Starts before jamaat",
+  "focusDurationLabel": "Unlocks after",
+  "focusDurationManual": "When I end it",
+  "focusPrayersLabel": "Prayers",
+  "focusBlockToggle": "Lock the phone",
+  "focusBlockToggleSub": "Other apps are blocked; phone calls stay allowed",
+  "focusStrictToggle": "Strict mode",
+  "focusStrictToggleSub": "No early unlock, and these settings stay locked while a session runs",
+  "focusPermSilence": "Allow Do Not Disturb access to silence the phone",
+  "focusPermBlock": "Allow accessibility access to lock the phone",
+  "focusAllow": "Allow",
+  "focusDisclosureTitle": "Accessibility access",
+  "focusDisclosureBody": "Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.",
+  "focusContinue": "Continue",
+  "focusActiveUntil": "Jamaat focus is on until {time}",
+  "@focusActiveUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "focusActive": "Jamaat focus is on",
+  "focusStrictLocked": "Strict mode — settings unlock when the session ends.",
+  "focusEndNow": "End now",
+  "notifFocusTitle": "{prayer} jamaat — time to focus",
+  "@notifFocusTitle": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notifFocusBody": "Put your phone on silent and head to salah.",
+  "focusLockBody": "Your phone is silenced for jamaat.",
+  "focusLockBodyUntil": "Silenced for jamaat until {time}",
+  "@focusLockBodyUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "focusEndAction": "End",
+  "channelFocus": "Jamaat focus"
 }

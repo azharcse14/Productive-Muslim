@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -20,6 +21,7 @@ import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
+import '../../data/jamaat_focus_bridge.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../state/notification_controller.dart';
 
@@ -317,8 +319,8 @@ final class _NotificationSettingsScreenState
                           ],
                           activeIndex:
                               matrix.dailyReminderKind == DailyContentKind.dua
-                                  ? 1
-                                  : 0,
+                              ? 1
+                              : 0,
                           onChanged: (i) => unawaited(
                             _store.setNotifications(
                               matrix.copyWith(
@@ -345,6 +347,8 @@ final class _NotificationSettingsScreenState
                   ],
                 ),
               ),
+              const SizedBox(height: QSpace.s5),
+              _JamaatFocusCard(store: _store),
               const SizedBox(height: QSpace.s4),
               QBanner(
                 text: _scheduledUntilText(context),
@@ -373,11 +377,19 @@ final class _LeadRow extends StatelessWidget {
     required this.label,
     required this.minutes,
     required this.onChanged,
+    this.min = 5,
+    this.max = 60,
+    this.zeroLabel,
   });
 
   final String label;
   final int minutes;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int>? onChanged;
+  final int min;
+  final int max;
+
+  /// Shown instead of "0 min" (e.g. "When I end it").
+  final String? zeroLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -394,12 +406,16 @@ final class _LeadRow extends StatelessWidget {
             size: 32,
             icon: Icons.remove,
             semanticLabel: context.l10n.a11yDecrease(label),
-            onTap: minutes > 5 ? () => onChanged(minutes - 5) : null,
+            onTap: onChanged != null && minutes > min
+                ? () => onChanged!(minutes - 5)
+                : null,
           ),
           SizedBox(
-            width: 64,
+            width: zeroLabel == null ? 64 : 96,
             child: Text(
-              context.l10n.minutesShort(minutes),
+              minutes == 0 && zeroLabel != null
+                  ? zeroLabel!
+                  : context.l10n.minutesShort(minutes),
               textAlign: TextAlign.center,
               style: QType.num_(QType.label).copyWith(color: q.ink),
             ),
@@ -409,14 +425,15 @@ final class _LeadRow extends StatelessWidget {
             size: 32,
             icon: Icons.add,
             semanticLabel: context.l10n.a11yIncrease(label),
-            onTap: minutes < 60 ? () => onChanged(minutes + 5) : null,
+            onTap: onChanged != null && minutes < max
+                ? () => onChanged!(minutes + 5)
+                : null,
           ),
         ],
       ),
     );
   }
 }
-
 
 /// A stepper row for a wall-clock time stored as minutes past midnight.
 /// Steps by 15 minutes, wrapping across midnight, mirroring [_LeadRow].
@@ -489,6 +506,281 @@ final class _TimeRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Jamaat focus: silence (+ lock) the phone around jamaat. Android does it
+/// natively (DND + accessibility app block); iOS only gets a nudge, since
+/// no iOS app may silence or lock the phone.
+final class _JamaatFocusCard extends StatefulWidget {
+  const _JamaatFocusCard({required this.store});
+
+  final SettingsStore store;
+
+  @override
+  State<_JamaatFocusCard> createState() => _JamaatFocusCardState();
+}
+
+final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
+  static const _bridge = JamaatFocusBridge();
+  final _android = defaultTargetPlatform == TargetPlatform.android;
+
+  final _status = signal<FocusStatus>((
+    active: false,
+    strict: false,
+    until: null,
+  ));
+  final _canSilence = signal(true);
+  final _canBlock = signal(true);
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Back from the DND / accessibility settings pages.
+    _lifecycle = AppLifecycleListener(onResume: () => unawaited(_refresh()));
+    unawaited(_refresh());
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    if (!_android) {
+      return;
+    }
+    try {
+      _status.value = await _bridge.status();
+      _canSilence.value = await _bridge.hasSilencePermission();
+      _canBlock.value = await _bridge.hasBlockPermission();
+    } on Object catch (_) {
+      // No native side (tests, other platforms): stay on the defaults.
+    }
+  }
+
+  NotificationMatrix get _matrix => widget.store.settings.value.notifications;
+
+  void _set(NotificationMatrix m) =>
+      unawaited(widget.store.setNotifications(m));
+
+  Future<void> _requestBlock() async {
+    final l10n = context.l10n;
+    // Play policy: prominent disclosure before the accessibility settings.
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.focusDisclosureTitle),
+        content: Text(l10n.focusDisclosureBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.focusContinue),
+          ),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      await _bridge.requestBlockPermission();
+    }
+  }
+
+  String _time(BuildContext context, DateTime at) {
+    final locale = Localizations.localeOf(context);
+    return LocaleDigits.localize(
+      DateFormat.jm(locale.toString()).format(at),
+      locale.languageCode,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return SignalBuilder(
+      builder: (context) {
+        final m = _matrix;
+        final status = _status.value;
+        // Strict session running: everything frozen until it ends.
+        final locked = status.active && status.strict;
+        final void Function(NotificationMatrix)? set = locked ? null : _set;
+        Widget permission(String text, Future<void> Function() request) =>
+            Padding(
+              padding: const EdgeInsetsDirectional.only(
+                start: 52,
+                bottom: QSpace.s2,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: QType.caption.copyWith(color: q.warn),
+                    ),
+                  ),
+                  QButton(
+                    label: l10n.focusAllow,
+                    kind: QButtonKind.ghost,
+                    small: true,
+                    onPressed: () => unawaited(request()),
+                  ),
+                ],
+              ),
+            );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.focusHeader.toUpperCase(),
+              style: context.text.labelSmall,
+            ),
+            const SizedBox(height: QSpace.s3),
+            if (status.active) ...[
+              QBanner(
+                text: [
+                  if (status.until case final until?)
+                    l10n.focusActiveUntil(_time(context, until))
+                  else
+                    l10n.focusActive,
+                  if (locked) l10n.focusStrictLocked,
+                ].join('\n'),
+                icon: locked ? Icons.lock_outline : Icons.do_not_disturb_on,
+              ),
+              if (!locked)
+                QButton(
+                  label: l10n.focusEndNow,
+                  kind: QButtonKind.ghost,
+                  small: true,
+                  onPressed: () =>
+                      unawaited(_bridge.end().then((_) => _refresh())),
+                ),
+              const SizedBox(height: QSpace.s3),
+            ],
+            QCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: QSpace.s4,
+                vertical: QSpace.s1,
+              ),
+              child: Column(
+                children: [
+                  QListRow(
+                    icon: Icons.do_not_disturb_on_outlined,
+                    title: l10n.focusToggle,
+                    subtitle: _android
+                        ? l10n.focusToggleSub
+                        : l10n.focusToggleSubIos,
+                    trailing: Switch(
+                      value: m.jamaatFocus,
+                      onChanged: set == null
+                          ? null
+                          : (v) {
+                              set(m.copyWith(jamaatFocus: v));
+                              if (v && _android && !_canSilence.value) {
+                                unawaited(_bridge.requestSilencePermission());
+                              }
+                            },
+                    ),
+                  ),
+                  if (m.jamaatFocus) ...[
+                    if (_android && !_canSilence.value)
+                      permission(
+                        l10n.focusPermSilence,
+                        _bridge.requestSilencePermission,
+                      ),
+                    _LeadRow(
+                      label: l10n.focusLeadLabel,
+                      minutes: m.jamaatFocusLead.inMinutes,
+                      min: 0,
+                      max: 30,
+                      onChanged: set == null
+                          ? null
+                          : (v) => set(
+                              m.copyWith(jamaatFocusLead: Duration(minutes: v)),
+                            ),
+                    ),
+                    _LeadRow(
+                      label: l10n.focusDurationLabel,
+                      minutes: m.jamaatFocusDuration.inMinutes,
+                      // Strict always ends on its own (see copyWith).
+                      min: m.jamaatFocusStrict ? 5 : 0,
+                      max: 90,
+                      zeroLabel: l10n.focusDurationManual,
+                      onChanged: set == null
+                          ? null
+                          : (v) => set(
+                              m.copyWith(
+                                jamaatFocusDuration: Duration(minutes: v),
+                              ),
+                            ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 52,
+                        bottom: QSpace.s2,
+                      ),
+                      child: Wrap(
+                        spacing: QSpace.s2,
+                        children: [
+                          for (final prayer in Prayer.values)
+                            FilterChip(
+                              label: Text(l10n.prayerLabel(prayer)),
+                              selected: m.jamaatFocusPrayers.contains(prayer),
+                              onSelected: set == null
+                                  ? null
+                                  : (on) => set(
+                                      m.copyWith(
+                                        jamaatFocusPrayers: on
+                                            ? {...m.jamaatFocusPrayers, prayer}
+                                            : ({...m.jamaatFocusPrayers}
+                                                ..remove(prayer)),
+                                      ),
+                                    ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    if (_android) ...[
+                      const Divider(),
+                      QListRow(
+                        icon: Icons.phonelink_lock_outlined,
+                        title: l10n.focusBlockToggle,
+                        subtitle: l10n.focusBlockToggleSub,
+                        trailing: Switch(
+                          value: m.jamaatFocusBlock,
+                          onChanged: set == null
+                              ? null
+                              : (v) => set(m.copyWith(jamaatFocusBlock: v)),
+                        ),
+                      ),
+                      if (m.jamaatFocusBlock && !_canBlock.value)
+                        permission(l10n.focusPermBlock, _requestBlock),
+                      const Divider(),
+                      QListRow(
+                        icon: Icons.lock_outline,
+                        title: l10n.focusStrictToggle,
+                        subtitle: l10n.focusStrictToggleSub,
+                        trailing: Switch(
+                          value: m.jamaatFocusStrict,
+                          onChanged: set == null
+                              ? null
+                              : (v) => set(m.copyWith(jamaatFocusStrict: v)),
+                        ),
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

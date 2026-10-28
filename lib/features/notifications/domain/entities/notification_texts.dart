@@ -24,6 +24,12 @@ final class NotificationTexts {
     required this.channelSilentName,
     required this.channelBeepName,
     required this.prayerNames,
+    this.focusTitle = '',
+    this.focusBody = '',
+    this.focusLockBody = '',
+    this.focusLockBodyUntil = '',
+    this.focusEndAction = '',
+    this.channelFocusName = '',
   });
 
   final String azanTitle;
@@ -49,6 +55,16 @@ final class NotificationTexts {
   final String channelRemindersName;
   final String channelSilentName;
   final String channelBeepName;
+
+  /// Jamaat focus: [focusTitle]/[focusBody] are the iOS nudge; the lock
+  /// texts are Android's lock screen + ongoing notification, titled
+  /// [channelFocusName]. [focusLockBodyUntil] takes `{time}` (session end).
+  final String focusTitle;
+  final String focusBody;
+  final String focusLockBody;
+  final String focusLockBodyUntil;
+  final String focusEndAction;
+  final String channelFocusName;
 
   /// Localized prayer display names keyed by `Prayer.name`.
   final Map<String, String> prayerNames;

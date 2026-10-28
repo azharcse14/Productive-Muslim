@@ -4,6 +4,7 @@ import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../entities/notification_item.dart';
+import 'build_focus_windows.dart';
 
 /// Builds the notification plan (guide §5) as pure logic.
 ///
@@ -25,6 +26,9 @@ import '../entities/notification_item.dart';
 /// [jamaatAt], when given, resolves the jamaat config at each prayer's waqt
 /// start (so time-based mosque rules apply per prayer) and takes precedence
 /// over [jamaat].
+///
+/// Each of [focusWindows] (iOS, where the app can't silence the phone)
+/// becomes a [NotificationKind.jamaatFocus] nudge at its start.
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
@@ -35,6 +39,7 @@ List<NotificationItem> buildNotificationPlan({
   int? maxItems,
   bool keepAlive = false,
   int hijriOffsetDays = 0,
+  List<FocusWindow> focusWindows = const [],
 }) {
   final until = from.add(window);
   final items = <NotificationItem>[];
@@ -122,6 +127,18 @@ List<NotificationItem> buildNotificationPlan({
           NotificationItem(kind: NotificationKind.dailyReminder, at: remindAt),
         );
       }
+    }
+  }
+
+  for (final focus in focusWindows) {
+    if (inWindow(focus.start)) {
+      items.add(
+        NotificationItem(
+          kind: NotificationKind.jamaatFocus,
+          prayer: focus.prayer,
+          at: focus.start,
+        ),
+      );
     }
   }
 

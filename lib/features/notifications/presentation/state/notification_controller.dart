@@ -201,6 +201,12 @@ final class NotificationController {
       channelRemindersName: l10n.channelReminders,
       channelSilentName: l10n.channelSilent,
       channelBeepName: l10n.channelBeep,
+      focusTitle: l10n.notifFocusTitle('{prayer}'),
+      focusBody: l10n.notifFocusBody,
+      focusLockBody: l10n.focusLockBody,
+      focusLockBodyUntil: l10n.focusLockBodyUntil('{time}'),
+      focusEndAction: l10n.focusEndAction,
+      channelFocusName: l10n.channelFocus,
       prayerNames: {
         for (final prayer in Prayer.values) prayer.name: l10n.prayerLabel(prayer),
       },

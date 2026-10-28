@@ -2341,4 +2341,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeCardDaily => 'Ayah, hadith & dua of the day';
+
+  @override
+  String get focusHeader => 'Jamaat focus';
+
+  @override
+  String get focusToggle => 'Silent & lock at jamaat';
+
+  @override
+  String get focusToggleSub =>
+      'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque';
+
+  @override
+  String get focusToggleSubIos =>
+      'iPhone doesn\'t let apps silence or lock the phone, so you\'ll get a reminder to switch to silent. Needs jamaat times in My Mosque';
+
+  @override
+  String get focusLeadLabel => 'Starts before jamaat';
+
+  @override
+  String get focusDurationLabel => 'Unlocks after';
+
+  @override
+  String get focusDurationManual => 'When I end it';
+
+  @override
+  String get focusPrayersLabel => 'Prayers';
+
+  @override
+  String get focusBlockToggle => 'Lock the phone';
+
+  @override
+  String get focusBlockToggleSub =>
+      'Other apps are blocked; phone calls stay allowed';
+
+  @override
+  String get focusStrictToggle => 'Strict mode';
+
+  @override
+  String get focusStrictToggleSub =>
+      'No early unlock, and these settings stay locked while a session runs';
+
+  @override
+  String get focusPermSilence =>
+      'Allow Do Not Disturb access to silence the phone';
+
+  @override
+  String get focusPermBlock => 'Allow accessibility access to lock the phone';
+
+  @override
+  String get focusAllow => 'Allow';
+
+  @override
+  String get focusDisclosureTitle => 'Accessibility access';
+
+  @override
+  String get focusDisclosureBody =>
+      'Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.';
+
+  @override
+  String get focusContinue => 'Continue';
+
+  @override
+  String focusActiveUntil(String time) {
+    return 'Jamaat focus is on until $time';
+  }
+
+  @override
+  String get focusActive => 'Jamaat focus is on';
+
+  @override
+  String get focusStrictLocked =>
+      'Strict mode — settings unlock when the session ends.';
+
+  @override
+  String get focusEndNow => 'End now';
+
+  @override
+  String notifFocusTitle(String prayer) {
+    return '$prayer jamaat — time to focus';
+  }
+
+  @override
+  String get notifFocusBody => 'Put your phone on silent and head to salah.';
+
+  @override
+  String get focusLockBody => 'Your phone is silenced for jamaat.';
+
+  @override
+  String focusLockBodyUntil(String time) {
+    return 'Silenced for jamaat until $time';
+  }
+
+  @override
+  String get focusEndAction => 'End';
+
+  @override
+  String get channelFocus => 'Jamaat focus';
 }

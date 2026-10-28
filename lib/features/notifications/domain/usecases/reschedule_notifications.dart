@@ -3,16 +3,30 @@ import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../entities/notification_item.dart';
 import '../entities/notification_texts.dart';
 import '../repositories/notification_scheduler.dart';
+import 'build_focus_windows.dart';
 import 'build_notification_plan.dart';
+
+/// Hands the planned jamaat focus sessions to the platform (Android).
+typedef FocusSink =
+    Future<void> Function(
+      List<FocusWindow> windows,
+      NotificationMatrix matrix,
+      NotificationTexts texts,
+    );
 
 /// Orchestrates a full reschedule: compute the prayer days covering
 /// [window], build the plan (capped at [maxItems], ending with a keep-alive
 /// nudge), and hand it to the scheduler. Called on app open/resume and
 /// whenever settings/location/jamaat change (guide §5).
+///
+/// Jamaat focus sessions ride along: to [focusSink] where the platform can
+/// silence/lock the phone, else (with [focusAsNotifications], iOS) as
+/// "put your phone on silent" nudges in the plan.
 final class RescheduleNotifications {
   const RescheduleNotifications({
     required GetPrayerDay getPrayerDay,
@@ -20,7 +34,11 @@ final class RescheduleNotifications {
     required ZonedClock clock,
     Duration window = const Duration(hours: 48),
     int? maxItems,
-  })  : _getPrayerDay = getPrayerDay,
+    FocusSink? focusSink,
+    bool focusAsNotifications = false,
+  })  : _focusSink = focusSink,
+        _focusAsNotifications = focusAsNotifications,
+        _getPrayerDay = getPrayerDay,
         _scheduler = scheduler,
         _clock = clock,
         _window = window,
@@ -31,6 +49,8 @@ final class RescheduleNotifications {
   final ZonedClock _clock;
   final Duration _window;
   final int? _maxItems;
+  final FocusSink? _focusSink;
+  final bool _focusAsNotifications;
 
   /// Returns the scheduled plan (empty when there is no location).
   /// [jamaatAt], when given, resolves the jamaat config at each prayer's
@@ -44,6 +64,7 @@ final class RescheduleNotifications {
     final location = settings.location;
     if (location == null) {
       await _scheduler.cancelAll();
+      await _focusSink?.call(const [], settings.notifications, texts);
       return const Result.success([]);
     }
 
@@ -65,6 +86,14 @@ final class RescheduleNotifications {
       }
     }
 
+    final focus = buildFocusWindows(
+      from: now,
+      days: days,
+      matrix: settings.notifications,
+      jamaat: jamaat,
+      jamaatAt: jamaatAt,
+      window: _window,
+    );
     final plan = buildNotificationPlan(
       from: now,
       days: days,
@@ -75,7 +104,9 @@ final class RescheduleNotifications {
       maxItems: _maxItems,
       keepAlive: true,
       hijriOffsetDays: settings.hijriOffsetDays,
+      focusWindows: _focusAsNotifications ? focus : const [],
     );
+    await _focusSink?.call(focus, settings.notifications, texts);
     final scheduled = await _scheduler.reschedule(plan, texts);
     return scheduled.map((_) => plan);
   }
