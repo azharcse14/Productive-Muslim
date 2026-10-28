@@ -133,6 +133,15 @@
   },
   "countdownSahriEnds": "Sahri ends in",
   "countdownIftarIn": "Iftar in",
+  "subEndsAt": "Ends at {time}",
+  "@subEndsAt": {
+    "description": "Caption under the countdown when counting down to a waqt's end, e.g. 'Ends at 4:46 AM'",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "subAt": "{label} at {time}",
   "@subAt": {
     "description": "Caption under the countdown numeral, e.g. 'Jamaat at 5:15 pm'",
@@ -676,7 +685,7 @@
       }
     }
   },
-  "monthTable": "Sahri & iftar this month",
+  "monthTable": "Ramadan sahri & iftar timetable",
   "zakatTitle": "Zakat calculator",
   "zakatSubtitle": "Work out the zakat due on your wealth",
   "zakatCash": "Cash on hand",

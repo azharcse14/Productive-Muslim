@@ -296,6 +296,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get countdownIftarIn => 'Iftar in';
 
   @override
+  String subEndsAt(String time) {
+    return 'Ends at $time';
+  }
+
+  @override
   String subAt(String label, String time) {
     return '$label at $time';
   }
@@ -1481,7 +1486,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get monthTable => 'Sahri & iftar this month';
+  String get monthTable => 'Ramadan sahri & iftar timetable';
 
   @override
   String get zakatTitle => 'Zakat calculator';

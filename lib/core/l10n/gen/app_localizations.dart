@@ -614,6 +614,12 @@ abstract class AppLocalizations {
   /// **'Iftar in'**
   String get countdownIftarIn;
 
+  /// Caption under the countdown when counting down to a waqt's end, e.g. 'Ends at 4:46 AM'
+  ///
+  /// In en, this message translates to:
+  /// **'Ends at {time}'**
+  String subEndsAt(String time);
+
   /// Caption under the countdown numeral, e.g. 'Jamaat at 5:15 pm'
   ///
   /// In en, this message translates to:
@@ -2177,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthTable.
   ///
   /// In en, this message translates to:
-  /// **'Sahri & iftar this month'**
+  /// **'Ramadan sahri & iftar timetable'**
   String get monthTable;
 
   /// No description provided for @zakatTitle.
