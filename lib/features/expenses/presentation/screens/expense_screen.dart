@@ -91,7 +91,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
         actions: [
           IconButton(
             tooltip: l10n.expenseBudget,
-            icon: const Icon(Icons.savings_outlined),
+            icon: const Icon(Icons.account_balance_wallet_outlined),
             onPressed: () => _showBudgetDialog(
               context,
               title: l10n.expenseBudget,
