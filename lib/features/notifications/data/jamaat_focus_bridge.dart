@@ -4,7 +4,7 @@ import '../domain/entities/notification_texts.dart';
 import '../domain/usecases/build_focus_windows.dart';
 
 /// Live session as reported by the native side.
-typedef FocusStatus = ({bool active, bool strict, DateTime? until});
+typedef FocusStatus = ({bool active, bool strict, bool nafs, DateTime? until});
 
 /// Android-only seam to the native jamaat focus engine (JamaatFocus.kt):
 /// it owns the alarms, Do Not Disturb, and the app-blocking accessibility
@@ -24,12 +24,16 @@ final class JamaatFocusBridge {
     required bool enabled,
     required bool block,
     required bool strict,
+    required bool nafs,
+    required Duration nafsDuration,
     required NotificationTexts texts,
     required DateTime Function(DateTime wall) toUtc,
   }) => _channel.invokeMethod<void>('schedule', {
     'enabled': enabled,
     'block': block,
     'strict': strict,
+    'nafs': nafs,
+    'nafsMinutes': nafsDuration.inMinutes,
     'windows': [
       for (final w in windows)
         [
@@ -42,6 +46,8 @@ final class JamaatFocusBridge {
     'bodyUntil': texts.focusLockBodyUntil,
     'endAction': texts.focusEndAction,
     'channelName': texts.channelFocusName,
+    'nafs.title': texts.nafsLockTitle,
+    'nafs.bodyUntil': texts.nafsLockBodyUntil,
   });
 
   Future<FocusStatus> status() async {
@@ -50,6 +56,7 @@ final class JamaatFocusBridge {
     return (
       active: map?['active'] == true,
       strict: map?['strict'] == true,
+      nafs: map?['nafs'] == true,
       until: until > 0 ? DateTime.fromMillisecondsSinceEpoch(until) : null,
     );
   }

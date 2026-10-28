@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="jamaat_focus_service_label">Productive Muslim — জামাত ফোকাস</string>
-    <string name="jamaat_focus_service_description">জামাতের সময় ফোন লক রাখে: জামাত ফোকাস সেশনে অন্য অ্যাপ খুললে তা জামাতের স্ক্রিন দিয়ে ঢেকে দেয়। আপনি যা দেখেন বা লেখেন তা পড়া বা সংগ্রহ করা হয় না।</string>
+    <string name="jamaat_focus_service_description">জামাতের সময়, আর ফোন জোরে ৫ বার ঝাঁকালে নির্দিষ্ট সময়ের জন্য (নফস লক) ফোন লক রাখে: সেশন চলাকালে অন্য অ্যাপ খুললে তা লক স্ক্রিন দিয়ে ঢেকে দেয়। আপনি যা দেখেন বা লেখেন তা পড়া বা সংগ্রহ করা হয় না।</string>
 </resources>

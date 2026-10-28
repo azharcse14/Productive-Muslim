@@ -14,9 +14,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.telecom.TelecomManager
 import android.text.format.DateFormat
@@ -28,6 +33,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import java.lang.ref.WeakReference
 import java.util.Date
+import kotlin.math.sqrt
 
 /**
  * Jamaat focus engine: silences the phone (Do Not Disturb) and, with the
@@ -35,6 +41,10 @@ import java.util.Date
  * for each planned session. Dart plans the sessions (buildFocusWindows) and
  * hands them over through the com.productivemuslim.app/focus channel; alarms
  * start and end them with the app closed.
+ *
+ * Nafs lock rides the same engine: with it on, the accessibility service
+ * counts hard shakes, and [NAFS_SHAKES] of them start a strict session of
+ * the set length right away ([lockNafs]).
  *
  * State lives in SharedPreferences so the alarm receiver, the accessibility
  * service and the lock screen agree without a running engine.
@@ -54,6 +64,11 @@ object JamaatFocus {
 
     // activeUntil: 0 = no session, -1 = until the user ends it, else epoch ms.
     private const val ACTIVE_UNTIL = "activeUntil"
+
+    const val NAFS_SHAKES = 5
+
+    // kind of the running session: "jamaat" or "nafs" (own texts, always blocks).
+    private const val KIND = "kind"
 
     private fun prefs(c: Context): SharedPreferences =
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -75,7 +90,12 @@ object JamaatFocus {
         )?.split(':')?.any { ComponentName.unflattenFromString(it) == me } == true
     }
 
-    fun blocking(c: Context) = prefs(c).getBoolean("block", false) && hasBlockAccess(c)
+    private fun isNafs(c: Context) = prefs(c).getString(KIND, "") == "nafs"
+
+    fun nafsEnabled(c: Context) = prefs(c).getBoolean("nafs", false)
+
+    fun blocking(c: Context) =
+        (isNafs(c) || prefs(c).getBoolean("block", false)) && hasBlockAccess(c)
 
     /** Replaces the plan (from Dart) and re-evaluates now. */
     fun schedule(c: Context, args: Map<*, *>) {
@@ -88,10 +108,16 @@ object JamaatFocus {
             putString("windows", if (enabled) windows.joinToString(";") else "")
             putBoolean("block", args["block"] == true)
             putBoolean("strict", args["strict"] == true)
-            for (key in listOf("title", "body", "bodyUntil", "endAction", "channelName")) {
+            putBoolean("nafs", args["nafs"] == true)
+            putInt("nafsMinutes", (args["nafsMinutes"] as? Number)?.toInt() ?: 5)
+            for (key in listOf(
+                "title", "body", "bodyUntil", "endAction", "channelName",
+                "nafs.title", "nafs.bodyUntil",
+            )) {
                 putString(key, args[key] as? String ?: "")
             }
         }.apply()
+        JamaatFocusService.current?.get()?.syncShake()
         // Switching the feature off ends a running session — unless strict.
         if (!enabled && isActive(c) && !isStrict(c)) {
             stop(c)
@@ -132,6 +158,7 @@ object JamaatFocus {
         prefs(c).edit()
             .putLong(ACTIVE_UNTIL, if (end > 0) end else -1L)
             .putLong("lastStart", start)
+            .putString(KIND, "jamaat")
             .putBoolean("sessionStrict", prefs(c).getBoolean("strict", false))
             .putBoolean("silenced", silence)
             .putInt("prevFilter", nm.currentInterruptionFilter)
@@ -143,6 +170,7 @@ object JamaatFocus {
         if (blocking(c)) {
             showLock(c)
         }
+        JamaatFocusService.current?.get()?.syncShake()
     }
 
     private fun stop(c: Context) {
@@ -157,9 +185,25 @@ object JamaatFocus {
                 p.getInt("prevFilter", NotificationManager.INTERRUPTION_FILTER_ALL)
             )
         }
-        p.edit().putLong(ACTIVE_UNTIL, 0L).putBoolean("silenced", false).apply()
+        p.edit().putLong(ACTIVE_UNTIL, 0L).putBoolean("silenced", false).remove(KIND).apply()
         nm.cancel(NOTIFICATION_ID)
         JamaatFocusActivity.current?.get()?.finish()
+        JamaatFocusService.current?.get()?.syncShake()
+    }
+
+    /** Shakes counted: a strict, app-blocking session from now. No-op mid-session. */
+    fun lockNafs(c: Context) {
+        if (isActive(c) || !nafsEnabled(c)) return
+        val minutes = prefs(c).getInt("nafsMinutes", 5).coerceAtLeast(1)
+        prefs(c).edit()
+            .putLong(ACTIVE_UNTIL, System.currentTimeMillis() + minutes * 60_000L)
+            .putString(KIND, "nafs")
+            .putBoolean("sessionStrict", true)
+            .putBoolean("silenced", false)
+            .apply()
+        showOngoing(c)
+        showLock(c)
+        tick(c) // arms the end alarm
     }
 
     /** User "End" — refused in strict mode. */
@@ -184,6 +228,7 @@ object JamaatFocus {
         "active" to isActive(c),
         "strict" to isStrict(c),
         "until" to prefs(c).getLong(ACTIVE_UNTIL, 0L),
+        "nafs" to isNafs(c),
     )
 
     private fun arm(c: Context, at: Long?) {
@@ -206,7 +251,12 @@ object JamaatFocus {
         }
     }
 
-    fun text(c: Context, key: String) = prefs(c).getString(key, "").orEmpty()
+    /** Session text; a nafs session reads its own "nafs.<key>" where set. */
+    fun text(c: Context, key: String): String {
+        val p = prefs(c)
+        val own = if (isNafs(c)) p.getString("nafs.$key", "").orEmpty() else ""
+        return own.ifEmpty { p.getString(key, "").orEmpty() }
+    }
 
     fun body(c: Context): String {
         val until = prefs(c).getLong(ACTIVE_UNTIL, 0L)
@@ -303,16 +353,58 @@ class JamaatFocusReceiver : BroadcastReceiver() {
  * Reads nothing but the package name of the new window.
  */
 class JamaatFocusService : AccessibilityService() {
+    companion object {
+        var current: WeakReference<JamaatFocusService>? = null
+    }
+
     private val filterChanged = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) = JamaatFocus.enforce(context)
     }
 
+    // Screen on/off: shakes only count while the screen is on (not in a pocket).
+    private val screenChanged = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) = syncShake()
+    }
+
+    private val shakes = ShakeCounter(JamaatFocus.NAFS_SHAKES) {
+        JamaatFocus.lockNafs(this)
+        if (JamaatFocus.isActive(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+        }
+        syncShake()
+    }
+    private var listening = false
+
     override fun onServiceConnected() {
+        current = WeakReference(this)
         val filter = IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+        val screen = IntentFilter(Intent.ACTION_SCREEN_ON).apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(filterChanged, filter, Context.RECEIVER_NOT_EXPORTED)
+            registerReceiver(screenChanged, screen, Context.RECEIVER_NOT_EXPORTED)
         } else {
             registerReceiver(filterChanged, filter)
+            registerReceiver(screenChanged, screen)
+        }
+        syncShake()
+    }
+
+    // ponytail: sensors in the accessibility service's process, no foreground
+    // service; if an OEM throttles background sensors, move this into one.
+    /** Accelerometer on only while nafs lock is on, the screen is on, and no session runs. */
+    fun syncShake() {
+        val sm = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val want = JamaatFocus.nafsEnabled(this) && !JamaatFocus.isActive(this) &&
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive
+        if (want && !listening) {
+            val accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return
+            listening = sm.registerListener(shakes, accel, SensorManager.SENSOR_DELAY_GAME)
+        } else if (!want && listening) {
+            sm.unregisterListener(shakes)
+            shakes.reset()
+            listening = false
         }
     }
 
@@ -331,8 +423,41 @@ class JamaatFocusService : AccessibilityService() {
 
     override fun onDestroy() {
         unregisterReceiver(filterChanged)
+        unregisterReceiver(screenChanged)
+        (getSystemService(Context.SENSOR_SERVICE) as SensorManager).unregisterListener(shakes)
+        if (current?.get() === this) current = null
         super.onDestroy()
     }
+}
+
+/**
+ * Calls [onShakes] after [needed] hard shakes (over ~2.7 g, at least 250 ms
+ * apart) inside 3 s. A walk or a bump never gets there; a deliberate shake does.
+ */
+class ShakeCounter(private val needed: Int, private val onShakes: () -> Unit) :
+    SensorEventListener {
+    private val times = ArrayDeque<Long>()
+
+    fun reset() = times.clear()
+
+    /** [gForce] in g (1.0 = still); [atMs] any monotonic clock. */
+    fun sample(gForce: Float, atMs: Long) {
+        if (gForce < 2.7f) return
+        if (times.isNotEmpty() && atMs - times.last() < 250) return
+        times.addLast(atMs)
+        while (atMs - times.first() > 3000) times.removeFirst()
+        if (times.size >= needed) {
+            times.clear()
+            onShakes()
+        }
+    }
+
+    override fun onSensorChanged(event: SensorEvent) {
+        val (x, y, z) = event.values
+        sample(sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH, event.timestamp / 1_000_000)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
 
 /** Full-screen jamaat cover. "End" only outside strict mode; calls stay open. */

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="jamaat_focus_service_label">Productive Muslim — Jamaat focus</string>
-    <string name="jamaat_focus_service_description">Locks the phone during jamaat: when another app opens in a jamaat focus session, it is covered with the jamaat screen. Nothing you see or type is read or collected.</string>
+    <string name="jamaat_focus_service_description">Locks the phone during jamaat, and for a set time when you shake it hard 5 times (nafs lock): while a session runs, other apps are covered with a lock screen. Nothing you see or type is read or collected.</string>
 </resources>

@@ -27,11 +27,11 @@ final class NotificationController {
     required SettingsStore settings,
     required MosqueStore mosque,
     DateTime Function() now = DateTime.now,
-  })  : _reschedule = reschedule,
-        _scheduler = scheduler,
-        _settings = settings,
-        _mosque = mosque,
-        _now = now;
+  }) : _reschedule = reschedule,
+       _scheduler = scheduler,
+       _settings = settings,
+       _mosque = mosque,
+       _now = now;
 
   final RescheduleNotifications _reschedule;
   final NotificationScheduler _scheduler;
@@ -93,9 +93,7 @@ final class NotificationController {
       _scheduleDebounced();
     });
     // The OS holds a finite schedule; refill it whenever the user returns.
-    _lifecycle = AppLifecycleListener(
-      onResume: () => unawaited(_onResume()),
-    );
+    _lifecycle = AppLifecycleListener(onResume: () => unawaited(_onResume()));
     try {
       await boot;
     } finally {
@@ -209,8 +207,11 @@ final class NotificationController {
       channelFocusName: l10n.channelFocus,
       focusEndTitle: l10n.notifFocusEndTitle('{prayer}'),
       focusEndBody: l10n.notifFocusEndBody,
+      nafsLockTitle: l10n.nafsLockTitle,
+      nafsLockBodyUntil: l10n.nafsLockBodyUntil('{time}'),
       prayerNames: {
-        for (final prayer in Prayer.values) prayer.name: l10n.prayerLabel(prayer),
+        for (final prayer in Prayer.values)
+          prayer.name: l10n.prayerLabel(prayer),
       },
     );
   }

@@ -24,6 +24,8 @@ final class NotificationMatrix {
     this.jamaatFocusPrayers = const {...Prayer.values},
     this.jamaatFocusBlock = true,
     this.jamaatFocusStrict = false,
+    this.nafsLock = false,
+    this.nafsLockDuration = const Duration(minutes: 5),
   });
 
   /// Missing key = [AzanMode.azan] (sound on by default).
@@ -64,6 +66,11 @@ final class NotificationMatrix {
   /// while a session runs.
   final bool jamaatFocusStrict;
 
+  /// Android: 5 hard shakes lock the phone (strict, apps blocked) for
+  /// [nafsLockDuration].
+  final bool nafsLock;
+  final Duration nafsLockDuration;
+
   AzanMode modeFor(Prayer prayer) => prayerModes[prayer] ?? AzanMode.azan;
 
   NotificationMatrix copyWith({
@@ -83,6 +90,8 @@ final class NotificationMatrix {
     Set<Prayer>? jamaatFocusPrayers,
     bool? jamaatFocusBlock,
     bool? jamaatFocusStrict,
+    bool? nafsLock,
+    Duration? nafsLockDuration,
   }) {
     final strict = jamaatFocusStrict ?? this.jamaatFocusStrict;
     final duration = jamaatFocusDuration ?? this.jamaatFocusDuration;
@@ -107,6 +116,8 @@ final class NotificationMatrix {
       jamaatFocusPrayers: jamaatFocusPrayers ?? this.jamaatFocusPrayers,
       jamaatFocusBlock: jamaatFocusBlock ?? this.jamaatFocusBlock,
       jamaatFocusStrict: strict,
+      nafsLock: nafsLock ?? this.nafsLock,
+      nafsLockDuration: nafsLockDuration ?? this.nafsLockDuration,
     );
   }
 
@@ -127,6 +138,8 @@ final class NotificationMatrix {
         other.jamaatFocusDuration != jamaatFocusDuration ||
         other.jamaatFocusBlock != jamaatFocusBlock ||
         other.jamaatFocusStrict != jamaatFocusStrict ||
+        other.nafsLock != nafsLock ||
+        other.nafsLockDuration != nafsLockDuration ||
         !other.jamaatFocusPrayers.containsAll(jamaatFocusPrayers) ||
         other.jamaatFocusPrayers.length != jamaatFocusPrayers.length ||
         other.prayerModes.length != prayerModes.length) {
@@ -142,25 +155,27 @@ final class NotificationMatrix {
 
   @override
   int get hashCode => Object.hash(
-        sahriAlert,
-        sahriLead,
-        iftarAlert,
-        jamaatReminder,
-        jamaatLead,
-        muhasabaEveningReminder,
-        dailyReminder,
-        dailyReminderMinute,
-        dailyReminderKind,
-        Object.hash(
-          jamaatFocus,
-          jamaatFocusLead,
-          jamaatFocusDuration,
-          jamaatFocusBlock,
-          jamaatFocusStrict,
-          Object.hashAllUnordered(jamaatFocusPrayers),
-        ),
-        Object.hashAllUnordered(
-          prayerModes.entries.map((e) => Object.hash(e.key, e.value)),
-        ),
-      );
+    sahriAlert,
+    sahriLead,
+    iftarAlert,
+    jamaatReminder,
+    jamaatLead,
+    muhasabaEveningReminder,
+    dailyReminder,
+    dailyReminderMinute,
+    dailyReminderKind,
+    Object.hash(
+      jamaatFocus,
+      jamaatFocusLead,
+      jamaatFocusDuration,
+      jamaatFocusBlock,
+      jamaatFocusStrict,
+      Object.hashAllUnordered(jamaatFocusPrayers),
+      nafsLock,
+      nafsLockDuration,
+    ),
+    Object.hashAllUnordered(
+      prayerModes.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+  );
 }

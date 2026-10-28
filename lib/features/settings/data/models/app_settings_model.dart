@@ -58,6 +58,8 @@ abstract final class AppSettingsModel {
       ],
       'jamaatFocusBlock': s.notifications.jamaatFocusBlock,
       'jamaatFocusStrict': s.notifications.jamaatFocusStrict,
+      'nafsLock': s.notifications.nafsLock,
+      'nafsLockMin': s.notifications.nafsLockDuration.inMinutes,
     },
     'themeMode': s.themeMode.name,
     'localeCode': s.localeCode,
@@ -228,6 +230,11 @@ abstract final class AppSettingsModel {
           _as<bool>(map['jamaatFocusBlock']) ?? defaults.jamaatFocusBlock,
       jamaatFocusStrict:
           _as<bool>(map['jamaatFocusStrict']) ?? defaults.jamaatFocusStrict,
+      nafsLock: _as<bool>(map['nafsLock']) ?? defaults.nafsLock,
+      nafsLockDuration: Duration(
+        minutes:
+            _as<int>(map['nafsLockMin']) ?? defaults.nafsLockDuration.inMinutes,
+      ),
     );
   }
 

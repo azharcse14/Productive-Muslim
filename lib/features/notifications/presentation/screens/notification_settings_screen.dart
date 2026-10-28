@@ -530,6 +530,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
   final _status = signal<FocusStatus>((
     active: false,
     strict: false,
+    nafs: false,
     until: null,
   ));
   final _canSilence = signal(true);
@@ -643,7 +644,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
               style: context.text.labelSmall,
             ),
             const SizedBox(height: QSpace.s3),
-            if (status.active) ...[
+            if (status.active && !status.nafs) ...[
               QBanner(
                 text: [
                   if (status.until case final until?)
@@ -788,6 +789,68 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                 ],
               ),
             ),
+            // Nafs lock: shake detection needs the Android accessibility
+            // service; iOS gives apps no way to lock the phone.
+            if (_android) ...[
+              const SizedBox(height: QSpace.s5),
+              Text(
+                l10n.nafsHeader.toUpperCase(),
+                style: context.text.labelSmall,
+              ),
+              const SizedBox(height: QSpace.s3),
+              if (status.active && status.nafs) ...[
+                QBanner(
+                  text: [
+                    if (status.until case final until?)
+                      l10n.nafsActiveUntil(_time(context, until)),
+                    l10n.focusStrictLocked,
+                  ].join('\n'),
+                  icon: Icons.lock_outline,
+                ),
+                const SizedBox(height: QSpace.s3),
+              ],
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
+                    QListRow(
+                      icon: Icons.vibration,
+                      title: l10n.nafsToggle,
+                      subtitle: l10n.nafsToggleSub,
+                      trailing: Switch(
+                        value: m.nafsLock,
+                        onChanged: set == null
+                            ? null
+                            : (v) {
+                                set(m.copyWith(nafsLock: v));
+                                if (v && !_canBlock.value) {
+                                  unawaited(_requestBlock());
+                                }
+                              },
+                      ),
+                    ),
+                    if (m.nafsLock) ...[
+                      if (!_canBlock.value)
+                        permission(l10n.nafsPermBlock, _requestBlock),
+                      _LeadRow(
+                        label: l10n.nafsDurationLabel,
+                        minutes: m.nafsLockDuration.inMinutes,
+                        onChanged: set == null
+                            ? null
+                            : (v) => set(
+                                m.copyWith(
+                                  nafsLockDuration: Duration(minutes: v),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },
@@ -805,36 +868,36 @@ Future<void> _showShortcutsGuide(BuildContext context) {
     builder: (sheetContext) {
       final q = sheetContext.q;
       Widget header(String text) => Padding(
-            padding: const EdgeInsets.only(top: QSpace.s4, bottom: QSpace.s2),
-            child: Text(text, style: QType.titleSm.copyWith(color: q.ink)),
-          );
+        padding: const EdgeInsets.only(top: QSpace.s4, bottom: QSpace.s2),
+        child: Text(text, style: QType.titleSm.copyWith(color: q.ink)),
+      );
       List<Widget> steps(List<String> texts) => [
-            for (final (i, text) in texts.indexed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: QSpace.s2),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      child: Text(
-                        LocaleDigits.localize(
-                          '${i + 1}.',
-                          Localizations.localeOf(sheetContext).languageCode,
-                        ),
-                        style: QType.caption.copyWith(color: q.primary),
-                      ),
+        for (final (i, text) in texts.indexed)
+          Padding(
+            padding: const EdgeInsets.only(bottom: QSpace.s2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: Text(
+                    LocaleDigits.localize(
+                      '${i + 1}.',
+                      Localizations.localeOf(sheetContext).languageCode,
                     ),
-                    Expanded(
-                      child: Text(
-                        text,
-                        style: QType.caption.copyWith(color: q.ink2),
-                      ),
-                    ),
-                  ],
+                    style: QType.caption.copyWith(color: q.primary),
+                  ),
                 ),
-              ),
-          ];
+                Expanded(
+                  child: Text(
+                    text,
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ];
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(

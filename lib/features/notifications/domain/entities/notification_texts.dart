@@ -32,6 +32,8 @@ final class NotificationTexts {
     this.channelFocusName = '',
     this.focusEndTitle = '',
     this.focusEndBody = '',
+    this.nafsLockTitle = '',
+    this.nafsLockBodyUntil = '',
   });
 
   final String azanTitle;
@@ -72,13 +74,13 @@ final class NotificationTexts {
   final String focusEndTitle;
   final String focusEndBody;
 
+  /// Nafs lock screen + ongoing notification; body takes `{time}`.
+  final String nafsLockTitle;
+  final String nafsLockBodyUntil;
+
   /// Localized prayer display names keyed by `Prayer.name`.
   final Map<String, String> prayerNames;
 
-  static String fill(
-    String template, {
-    String prayer = '',
-    String time = '',
-  }) =>
+  static String fill(String template, {String prayer = '', String time = ''}) =>
       template.replaceAll('{prayer}', prayer).replaceAll('{time}', time);
 }

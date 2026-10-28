@@ -3635,7 +3635,7 @@ abstract class AppLocalizations {
   /// No description provided for @focusDisclosureBody.
   ///
   /// In en, this message translates to:
-  /// **'Productive Muslim uses the Accessibility service only during a jamaat focus session: to notice when another app opens and cover it with the jamaat screen. It does not read, collect or share anything you see or type.'**
+  /// **'Productive Muslim uses the Accessibility service only for jamaat focus and nafs lock: during a session, to notice when another app opens and cover it with the lock screen; with nafs lock on, it also watches the motion sensor for 5 hard shakes. It does not read, collect or share anything you see or type.'**
   String get focusDisclosureBody;
 
   /// No description provided for @focusContinue.
@@ -3667,6 +3667,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End now'**
   String get focusEndNow;
+
+  /// No description provided for @nafsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafs lock'**
+  String get nafsHeader;
+
+  /// No description provided for @nafsToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shake to lock'**
+  String get nafsToggle;
+
+  /// No description provided for @nafsToggleSub.
+  ///
+  /// In en, this message translates to:
+  /// **'When the nafs pulls you towards something wrong, shake the phone hard 5 times: it locks and won\'t open until the time runs out. Calls stay allowed'**
+  String get nafsToggleSub;
+
+  /// No description provided for @nafsDurationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked for'**
+  String get nafsDurationLabel;
+
+  /// No description provided for @nafsPermBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow accessibility access for nafs lock to work'**
+  String get nafsPermBlock;
+
+  /// No description provided for @nafsActiveUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafs lock is on until {time}'**
+  String nafsActiveUntil(String time);
+
+  /// No description provided for @nafsLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafs lock'**
+  String get nafsLockTitle;
+
+  /// No description provided for @nafsLockBodyUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold on — remember Allah. Your phone opens at {time}.'**
+  String nafsLockBodyUntil(String time);
 
   /// No description provided for @notifFocusTitle.
   ///

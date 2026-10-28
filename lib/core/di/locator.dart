@@ -365,6 +365,8 @@ Future<void> _sendFocusWindows(
       enabled: matrix.jamaatFocus,
       block: matrix.jamaatFocusBlock,
       strict: matrix.jamaatFocusStrict,
+      nafs: matrix.nafsLock,
+      nafsDuration: matrix.nafsLockDuration,
       texts: texts,
       toUtc: (wall) => locator<ZonedClock>().utcInstantOf(location!, wall),
     );
