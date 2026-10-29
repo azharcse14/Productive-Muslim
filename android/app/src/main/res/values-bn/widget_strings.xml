@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">এক নজরে পরের নামাজের সময়</string>
+    <string name="widget_setup_action">সেট আপ করুন</string>
+    <string name="widget_setup_hint">অবস্থান সেট করতে অ্যাপটি খুলুন</string>
+</resources>

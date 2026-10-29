@@ -31,7 +31,8 @@ final class DailyAyahCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    final card = QCard(
+    return QCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -50,17 +51,18 @@ final class DailyAyahCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: QSpace.s3),
-          Text(
-            arabic,
-            textAlign: TextAlign.start,
-            textDirection: TextDirection.rtl,
-            style: QType.quran(22).copyWith(color: q.ink),
+          // Full width, so a short line still starts at the right edge.
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              arabic,
+              textAlign: TextAlign.start,
+              textDirection: TextDirection.rtl,
+              style: QType.quran(22).copyWith(color: q.ink),
+            ),
           ),
           const SizedBox(height: QSpace.s3),
-          Text(
-            translation,
-            style: QType.body.copyWith(color: q.ink2),
-          ),
+          Text(translation, style: QType.body.copyWith(color: q.ink2)),
           const SizedBox(height: QSpace.s2),
           Text(
             l10n.dailyAyahReference(surahName, ayahNumber),
@@ -68,14 +70,6 @@ final class DailyAyahCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-    if (onTap == null) {
-      return card;
-    }
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: card,
     );
   }
 }

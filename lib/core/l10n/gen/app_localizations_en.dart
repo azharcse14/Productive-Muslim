@@ -3344,4 +3344,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get a11yTypeValue => 'type a value';
+
+  @override
+  String get widgetSetupHint => 'Open the app to set your location';
+
+  @override
+  String get onboardingSaveFailed =>
+      'Your settings couldn\'t be saved. You can change them later in Settings.';
+
+  @override
+  String get specialTimesEmpty => 'No times to show for today.';
 }

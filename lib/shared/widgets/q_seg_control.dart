@@ -91,7 +91,6 @@ final class QSegControl extends StatelessWidget {
                           maxLines: 1,
                           textAlign: TextAlign.center,
                           style: QType.label.copyWith(
-                            fontSize: 13.5,
                             color: i == activeIndex ? q.ink : q.ink2,
                           ),
                         ),

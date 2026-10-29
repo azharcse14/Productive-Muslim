@@ -291,7 +291,7 @@ final class _SetJamaatButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        constraints: BoxConstraints(minHeight: dense ? 40 : 48),
+        constraints: const BoxConstraints(minHeight: QTouch.minTarget),
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: q.line)),
         ),
@@ -464,7 +464,9 @@ final class _PrayerRow extends StatelessWidget {
                             : Border.all(color: q.ink3, width: 1.8),
                       ),
                       child: AnimatedSwitcher(
-                        duration: QMotion.med,
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : QMotion.med,
                         switchInCurve: Curves.easeOutBack,
                         transitionBuilder: (child, anim) =>
                             ScaleTransition(scale: anim, child: child),
@@ -503,7 +505,7 @@ final class _MosqueStrip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: QTouch.minTarget),
         padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 12, 8),
         child: Row(
           children: [
@@ -514,11 +516,7 @@ final class _MosqueStrip extends StatelessWidget {
                 name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: QType.titleSm.copyWith(
-                  fontSize: 13.5,
-                  color: q.ink,
-                  fontVariations: const [FontVariation('wght', 600)],
-                ),
+                style: QType.label.copyWith(color: q.ink),
               ),
             ),
             if (badge case final b?) ...[

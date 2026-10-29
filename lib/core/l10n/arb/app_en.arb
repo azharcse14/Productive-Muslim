@@ -1544,5 +1544,8 @@
   "expenseSadaqahGiven": "+ {amount} given in sadaqah",
   "@expenseSadaqahGiven": {"placeholders": {"amount": {"type": "String"}}},
   "trackerValueInvalid": "Enter a number from 0 to 100000",
-  "a11yTypeValue": "type a value"
+  "a11yTypeValue": "type a value",
+  "widgetSetupHint": "Open the app to set your location",
+  "onboardingSaveFailed": "Your settings couldn't be saved. You can change them later in Settings.",
+  "specialTimesEmpty": "No times to show for today."
 }

@@ -4975,6 +4975,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'type a value'**
   String get a11yTypeValue;
+
+  /// No description provided for @widgetSetupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app to set your location'**
+  String get widgetSetupHint;
+
+  /// No description provided for @onboardingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your settings couldn\'t be saved. You can change them later in Settings.'**
+  String get onboardingSaveFailed;
+
+  /// No description provided for @specialTimesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No times to show for today.'**
+  String get specialTimesEmpty;
 }
 
 class _AppLocalizationsDelegate

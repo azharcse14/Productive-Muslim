@@ -17,6 +17,9 @@ const Map<Prayer, ({int fard, int sunnah, int witr})> _rakaat = {
   Prayer.isha: (fard: 4, sunnah: 2, witr: 3),
 };
 
+/// Jumu'ah replaces Friday Dhuhr: 2 fard, 4 sunnah before and 4 after.
+const _jumuahRakaat = (fard: 2, sunnah: 8, witr: 0);
+
 /// Opens the prayer detail bottom sheet (design: the app theme already gives
 /// the sheet a 24pt top radius and surface background, so shape is not
 /// re-specified here).
@@ -25,6 +28,7 @@ Future<void> showPrayerDetailSheet(
   required Prayer prayer,
   required String range,
   String? jamaatTime,
+  bool jumuah = false,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -33,6 +37,7 @@ Future<void> showPrayerDetailSheet(
       prayer: prayer,
       range: range,
       jamaatTime: jamaatTime,
+      jumuah: jumuah,
     ),
   );
 }
@@ -44,10 +49,15 @@ final class PrayerDetailSheet extends StatelessWidget {
     required this.prayer,
     required this.range,
     this.jamaatTime,
+    this.jumuah = false,
     super.key,
   });
 
   final Prayer prayer;
+
+  /// This is Friday's Dhuhr and the user prays Jumu'ah (a Jumu'ah time is
+  /// set), so it reads "Jumu'ah" with its own rakaat — as in the table.
+  final bool jumuah;
 
   /// Already-formatted window, e.g. "5:10 am – 6:40 am".
   final String range;
@@ -78,7 +88,9 @@ final class PrayerDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: QSpace.s5),
             Text(
-              l10n.prayerLabel(prayer),
+              jumuah && prayer == Prayer.dhuhr
+                  ? l10n.prayerJumuah
+                  : l10n.prayerLabel(prayer),
               style: QType.title.copyWith(color: q.ink),
             ),
             const SizedBox(height: QSpace.s4),
@@ -94,7 +106,7 @@ final class PrayerDetailSheet extends StatelessWidget {
               style: QType.label.copyWith(color: q.ink2),
             ),
             const SizedBox(height: QSpace.s2),
-            _RakaatChips(prayer: prayer),
+            _RakaatChips(prayer: prayer, jumuah: jumuah),
             const SizedBox(height: QSpace.s5),
             Text(
               _fazilat(context, prayer),
@@ -136,24 +148,25 @@ final class _InfoLine extends StatelessWidget {
 
 /// Non-zero rakaat segments for [PrayerDetailSheet]'s prayer, as soft pills.
 final class _RakaatChips extends StatelessWidget {
-  const _RakaatChips({required this.prayer});
+  const _RakaatChips({required this.prayer, required this.jumuah});
 
   final Prayer prayer;
+  final bool jumuah;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final counts = _rakaat[prayer]!;
+    final counts = jumuah && prayer == Prayer.dhuhr
+        ? _jumuahRakaat
+        : _rakaat[prayer]!;
     return Wrap(
       spacing: QSpace.s2,
       runSpacing: QSpace.s2,
       children: [
-        if (counts.fard > 0)
-          _Pill(count: counts.fard, label: l10n.rakaatFard),
+        if (counts.fard > 0) _Pill(count: counts.fard, label: l10n.rakaatFard),
         if (counts.sunnah > 0)
           _Pill(count: counts.sunnah, label: l10n.rakaatSunnah),
-        if (counts.witr > 0)
-          _Pill(count: counts.witr, label: l10n.rakaatWitr),
+        if (counts.witr > 0) _Pill(count: counts.witr, label: l10n.rakaatWitr),
       ],
     );
   }

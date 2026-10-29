@@ -169,12 +169,6 @@ final class CountdownCard extends StatelessWidget {
           child: Stack(
             children: [
               MotifBackground(color: c.fg, opacity: 0.055, cell: 120),
-              if (corner != null)
-                PositionedDirectional(
-                  top: compact ? 12 : 16,
-                  end: compact ? 12 : 16,
-                  child: corner!(c.fg),
-                ),
               Semantics(
                 container: true,
                 label: semanticLabel ?? '$eyebrow $big. $sub',
@@ -184,9 +178,17 @@ final class CountdownCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        eyebrow.toUpperCase(),
-                        style: QType.overline.copyWith(color: c.sub),
+                      Padding(
+                        // Keeps the eyebrow clear of the corner chip.
+                        // ponytail: fixed reserve sized for the qibla chip;
+                        // measure the corner if a wider one is added.
+                        padding: EdgeInsetsDirectional.only(
+                          end: corner == null ? 0 : 88,
+                        ),
+                        child: Text(
+                          eyebrow.toUpperCase(),
+                          style: QType.overline.copyWith(color: c.sub),
+                        ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
@@ -246,7 +248,7 @@ final class CountdownCard extends StatelessWidget {
                                     item.text,
                                     style: QType.num_(
                                       QType.caption,
-                                    ).copyWith(fontSize: 12, color: c.sub),
+                                    ).copyWith(color: c.sub),
                                   ),
                                 ],
                               ),
@@ -257,6 +259,13 @@ final class CountdownCard extends StatelessWidget {
                   ),
                 ),
               ),
+              // Last, so it sits above the text column and keeps its taps.
+              if (corner != null)
+                PositionedDirectional(
+                  top: compact ? 12 : 16,
+                  end: compact ? 12 : 16,
+                  child: corner!(c.fg),
+                ),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show mergeSort;
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -12,10 +13,12 @@ import 'special_times_card.dart';
 
 /// Opens [DayTimelineSheet] as a modal bottom sheet (theme supplies the
 /// 24pt top radius and surface background — no shape override here).
+/// [now] is read inside a [SignalBuilder], so passing a signal's value
+/// (e.g. `() => store.now.value`) keeps the "Now" marker moving while open.
 Future<void> showDayTimelineSheet(
   BuildContext context, {
   required PrayerDay day,
-  required DateTime now,
+  required DateTime Function() now,
   required String Function(DateTime) formatTime,
   Prayer? activePrayer,
   List<SpecialWindow> forbidden = const [],
@@ -24,13 +27,15 @@ Future<void> showDayTimelineSheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => DayTimelineSheet(
-      day: day,
-      now: now,
-      formatTime: formatTime,
-      activePrayer: activePrayer,
-      forbidden: forbidden,
-      jumuah: jumuah,
+    builder: (_) => SignalBuilder(
+      builder: (_) => DayTimelineSheet(
+        day: day,
+        now: now(),
+        formatTime: formatTime,
+        activePrayer: activePrayer,
+        forbidden: forbidden,
+        jumuah: jumuah,
+      ),
     ),
   );
 }

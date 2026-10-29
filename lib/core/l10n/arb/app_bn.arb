@@ -942,5 +942,8 @@
   "healthWeightRemoved": "ওজন মুছে ফেলা হয়েছে",
   "expenseSadaqahGiven": "+ {amount} সাদাকাহ দিয়েছেন",
   "trackerValueInvalid": "০ থেকে ১০০০০০ এর মধ্যে একটি সংখ্যা লিখুন",
-  "a11yTypeValue": "মান লিখুন"
+  "a11yTypeValue": "মান লিখুন",
+  "widgetSetupHint": "অবস্থান সেট করতে অ্যাপটি খুলুন",
+  "onboardingSaveFailed": "আপনার সেটিংস সংরক্ষণ করা যায়নি। পরে সেটিংস থেকে বদলে নিতে পারবেন।",
+  "specialTimesEmpty": "আজকের জন্য দেখানোর মতো কোনো সময় নেই।"
 }

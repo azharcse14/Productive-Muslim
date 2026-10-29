@@ -49,6 +49,16 @@ final class HomeEmptyLocation extends StatelessWidget {
               icon: Icons.place_outlined,
               onPressed: () => context.pushNamed(Routes.locationPicker.name),
             ),
+            if (failed) ...[
+              const SizedBox(height: QSpace.s2),
+              // The method lives on the Settings screen (no route of its own).
+              QButton(
+                label: l10n.settingMethod,
+                kind: QButtonKind.ghost,
+                icon: Icons.tune,
+                onPressed: () => context.goNamed(Routes.settings.name),
+              ),
+            ],
           ],
         ),
       ),

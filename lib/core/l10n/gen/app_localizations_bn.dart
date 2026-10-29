@@ -3327,4 +3327,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get a11yTypeValue => 'মান লিখুন';
+
+  @override
+  String get widgetSetupHint => 'অবস্থান সেট করতে অ্যাপটি খুলুন';
+
+  @override
+  String get onboardingSaveFailed =>
+      'আপনার সেটিংস সংরক্ষণ করা যায়নি। পরে সেটিংস থেকে বদলে নিতে পারবেন।';
+
+  @override
+  String get specialTimesEmpty => 'আজকের জন্য দেখানোর মতো কোনো সময় নেই।';
 }

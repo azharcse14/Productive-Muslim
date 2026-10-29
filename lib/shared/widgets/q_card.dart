@@ -54,10 +54,13 @@ final class QCard extends StatelessWidget {
       return DecoratedBox(decoration: decoration, child: content);
     }
     // Ink paints the surface on the Material, so the ripple shows above it.
-    return QPressable(
-      onTap: onTap!,
-      borderRadius: BorderRadius.circular(radius),
-      child: Ink(decoration: decoration, child: content),
+    return Semantics(
+      button: true,
+      child: QPressable(
+        onTap: onTap!,
+        borderRadius: BorderRadius.circular(radius),
+        child: Ink(decoration: decoration, child: content),
+      ),
     );
   }
 }
