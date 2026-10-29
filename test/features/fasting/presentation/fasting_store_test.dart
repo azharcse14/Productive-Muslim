@@ -83,6 +83,46 @@ void main() {
     });
   });
 
+  group('FastingStore — qaza', () {
+    test(
+      'qaza days persist, leave the nafl total, and unlog cleanly',
+      () async {
+        final s = store();
+        await s.load();
+        await s.toggle(DateTime(2026, 6, 11), asQaza: true);
+        await s.toggle(DateTime(2026, 6, 12));
+        // ~12 Ramadan 1447: a Ramadan fast, never qaza, not nafl either.
+        await s.toggle(DateTime(2026, 3, 2), asQaza: true);
+        expect(s.isQaza(DateTime(2026, 6, 11)), isTrue);
+        expect(s.isQaza(DateTime(2026, 3, 2)), isFalse);
+        expect(s.stats().total, 1, reason: 'only Jun 12 is nafl');
+
+        await s.setQazaOwed(5);
+        final fresh = store();
+        await fresh.load();
+        expect(fresh.qaza.value, {20260611});
+        expect(fresh.qazaOwed.value, 5);
+        // Old logs (no qaza key) read as nafl; achievements see every fast.
+        expect(fresh.logged.value, hasLength(3));
+
+        await fresh.toggle(DateTime(2026, 6, 11));
+        expect(fresh.isLogged(DateTime(2026, 6, 11)), isFalse);
+        expect(fresh.qaza.value, isEmpty);
+        await fresh.setQazaOwed(0);
+        expect(fresh.qazaOwed.value, isNull);
+      },
+    );
+
+    test('heatmapDate maps cells to days of the month', () {
+      final s = store();
+      // June 2026 starts on a Monday: one Sunday pad cell.
+      expect(s.heatmapDate(0, 0), isNull);
+      expect(s.heatmapDate(0, 1), DateTime(2026, 6));
+      expect(s.heatmapDate(4, 2), DateTime(2026, 6, 30));
+      expect(s.heatmapDate(4, 3), isNull);
+    });
+  });
+
   group('FastingStore — recommended passthrough', () {
     test('today (a Monday) is recommended', () {
       final s = store();

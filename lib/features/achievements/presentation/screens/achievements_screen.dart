@@ -28,11 +28,24 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
   // App-scoped store — never disposed here.
   late final AchievementStore _store = locator<AchievementStore>();
 
+  /// Badges that were new on entry; they stay tagged for this visit even
+  /// though they are marked seen right away.
+  Set<String> _fresh = const {};
+
   @override
   void initState() {
     super.initState();
-    // Refresh totals on entry, then mark everything seen.
-    unawaited(_store.refresh().then((_) => _store.markAllSeen()));
+    // Refresh totals on entry, remember what's new, then mark it seen.
+    unawaited(
+      _store.refresh().then((_) {
+        if (mounted) {
+          setState(
+            () => _fresh = {for (final a in _store.newlyUnlocked.value) a.id},
+          );
+        }
+        return _store.markAllSeen();
+      }),
+    );
   }
 
   static const _order = <AchievementCategory>[
@@ -89,18 +102,21 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Widget _grid(List<AchievementProgress> items) => GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: QSpace.s4,
-          crossAxisSpacing: QSpace.s3,
-          childAspectRatio: 0.72 / context.textGrowth,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, i) => AchievementCard(progress: items[i]),
-      );
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    padding: EdgeInsets.zero,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+      mainAxisSpacing: QSpace.s4,
+      crossAxisSpacing: QSpace.s3,
+      childAspectRatio: 0.72 / context.textGrowth,
+    ),
+    itemCount: items.length,
+    itemBuilder: (context, i) => AchievementCard(
+      progress: items[i],
+      isNew: _fresh.contains(items[i].achievement.id),
+    ),
+  );
 
   Widget _summary(BuildContext context) {
     final l10n = context.l10n;
@@ -124,8 +140,9 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
               children: [
                 Text(
                   LocaleDigits.localize('$unlocked / $total', locale),
-                  style:
-                      QType.num_(QType.title).copyWith(color: q.onPrimarySoft),
+                  style: QType.num_(
+                    QType.title,
+                  ).copyWith(color: q.onPrimarySoft),
                 ),
                 const SizedBox(height: 2),
                 Text(

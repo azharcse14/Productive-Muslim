@@ -1664,6 +1664,12 @@ abstract class AppLocalizations {
   /// **'Every deed done today — alhamdulillah'**
   String get muhasabaDayComplete;
 
+  /// No description provided for @muhasabaDayCompletePast.
+  ///
+  /// In en, this message translates to:
+  /// **'Every deed done that day — alhamdulillah'**
+  String get muhasabaDayCompletePast;
+
   /// No description provided for @muhasabaFirstDayBody.
   ///
   /// In en, this message translates to:
@@ -1688,6 +1694,18 @@ abstract class AppLocalizations {
   /// **'Add item'**
   String get addTracker;
 
+  /// No description provided for @reorderTrackers.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder items'**
+  String get reorderTrackers;
+
+  /// No description provided for @reorderTrackersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to set the order of your checklist'**
+  String get reorderTrackersHint;
+
   /// No description provided for @editTracker.
   ///
   /// In en, this message translates to:
@@ -1705,6 +1723,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type'**
   String get trackerKindLabel;
+
+  /// No description provided for @trackerKindLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The type can\'t be changed after an item is created.'**
+  String get trackerKindLocked;
 
   /// No description provided for @kindYesNo.
   ///
@@ -1820,6 +1844,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 day streak} other{{count} day streak}}'**
   String currentStreakLabel(int count);
 
+  /// No description provided for @streakStartToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a streak today'**
+  String get streakStartToday;
+
   /// No description provided for @bestStreakLabel.
   ///
   /// In en, this message translates to:
@@ -1861,6 +1891,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No entries in this range yet'**
   String get emptyRange;
+
+  /// No description provided for @heatmapDaysComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} days complete'**
+  String heatmapDaysComplete(int done, int total);
 
   /// No description provided for @minutesValue.
   ///
@@ -1945,6 +1981,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next day'**
   String get nextDay;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get chooseDate;
+
+  /// No description provided for @goToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to today'**
+  String get goToToday;
 
   /// No description provided for @quranLoadError.
   ///
@@ -2264,6 +2312,12 @@ abstract class AppLocalizations {
   /// **'Total'**
   String get fastingTotal;
 
+  /// No description provided for @fastingNaflTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Nafl'**
+  String get fastingNaflTotal;
+
   /// No description provided for @fastingThisMonth.
   ///
   /// In en, this message translates to:
@@ -2281,6 +2335,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fasted'**
   String get fastingFasted;
+
+  /// No description provided for @fastingHeatmapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day to log or remove a fast'**
+  String get fastingHeatmapHint;
+
+  /// No description provided for @fastTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log this fast as'**
+  String get fastTypeTitle;
+
+  /// No description provided for @fastTypeNafl.
+  ///
+  /// In en, this message translates to:
+  /// **'Voluntary (nafl)'**
+  String get fastTypeNafl;
+
+  /// No description provided for @fastTypeQaza.
+  ///
+  /// In en, this message translates to:
+  /// **'Make-up (qaza)'**
+  String get fastTypeQaza;
+
+  /// No description provided for @fastingQazaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qaza (make-up) fasts'**
+  String get fastingQazaTitle;
+
+  /// No description provided for @fastingQazaMadeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 made up} other{{count} made up}}'**
+  String fastingQazaMadeUp(int count);
+
+  /// No description provided for @fastingQazaOfOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {owed} made up'**
+  String fastingQazaOfOwed(int done, int owed);
+
+  /// No description provided for @fastingQazaSetOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Set number owed'**
+  String get fastingQazaSetOwed;
+
+  /// No description provided for @fastingQazaOwedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasts owed (optional)'**
+  String get fastingQazaOwedHint;
 
   /// No description provided for @fastingHeatmapLabel.
   ///
@@ -2335,6 +2443,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{unlocked} of {total} earned'**
   String achievementsCount(int unlocked, int total);
+
+  /// No description provided for @achievementUnlockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'New badge: {name}'**
+  String achievementUnlockedToast(String name);
+
+  /// No description provided for @achievementsView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get achievementsView;
+
+  /// No description provided for @achievementNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get achievementNew;
+
+  /// No description provided for @achievementsNewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new badge} other{{count} new badges}}'**
+  String achievementsNewCount(int count);
 
   /// No description provided for @achievementCategory.
   ///
@@ -2513,8 +2645,20 @@ abstract class AppLocalizations {
   /// No description provided for @monthTable.
   ///
   /// In en, this message translates to:
-  /// **'Ramadan sahri & iftar timetable'**
-  String get monthTable;
+  /// **'Ramadan {year} sahri & iftar timetable'**
+  String monthTable(String year);
+
+  /// No description provided for @laylatulQadrOddNights.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek Laylatul Qadr in the odd nights of the last ten'**
+  String get laylatulQadrOddNights;
+
+  /// No description provided for @oddNightBegins.
+  ///
+  /// In en, this message translates to:
+  /// **'Night of {night} Ramadan begins at sunset'**
+  String oddNightBegins(String night);
 
   /// No description provided for @zakatTitle.
   ///
@@ -2684,10 +2828,22 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get calendarTitle;
 
+  /// No description provided for @hijriAdjustedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Hijri dates adjusted {value}'**
+  String hijriAdjustedBy(String value);
+
+  /// No description provided for @hijriAdjustChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get hijriAdjustChange;
+
   /// No description provided for @islamicDayName.
   ///
   /// In en, this message translates to:
-  /// **'{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}'**
+  /// **'{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Night of the 27th (Laylatul Qadr)} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}'**
   String islamicDayName(String day);
 
   /// No description provided for @onboardingWelcomeTitle.

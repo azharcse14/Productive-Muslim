@@ -57,7 +57,12 @@ final class _ItemEditorState extends State<_ItemEditor> {
   bool _saving = false;
 
   bool get _isEdit => widget.existing != null;
-  bool get _structuralLocked => widget.existing?.isDefault ?? false;
+
+  /// Seeded defaults keep their (localized) name.
+  bool get _nameLocked => widget.existing?.isDefault ?? false;
+
+  // Kind is locked once the item exists: switching yes/no ↔ count ↔
+  // duration would reinterpret every logged value.
 
   /// A new tracker needs a name; an edit keeps the old one when blank.
   bool get _canSave => !_saving && (_isEdit || _name.text.trim().isNotEmpty);
@@ -72,7 +77,6 @@ final class _ItemEditorState extends State<_ItemEditor> {
               _icon != 'spark' ||
               _colorIndex != 0
         : (name.isNotEmpty && name != e.name) ||
-              (!_structuralLocked && _kind != e.kind) ||
               _target != e.dailyTarget ||
               _icon != e.icon ||
               _colorIndex != e.colorIndex;
@@ -95,7 +99,6 @@ final class _ItemEditorState extends State<_ItemEditor> {
       saved = await widget.store.updateItem(
         existing.copyWith(
           name: name.isEmpty ? existing.name : name,
-          kind: _structuralLocked ? null : _kind,
           dailyTarget: () => _target,
           icon: _icon,
           colorIndex: _colorIndex,
@@ -164,15 +167,23 @@ final class _ItemEditorState extends State<_ItemEditor> {
                 style: QType.title.copyWith(color: q.ink),
               ),
               const SizedBox(height: QSpace.s4),
-              if (!_structuralLocked) ...[
+              if (!_nameLocked) ...[
                 TextField(
                   controller: _name,
                   decoration: InputDecoration(hintText: l10n.trackerNameHint),
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: QSpace.s4),
-                Text(l10n.trackerKindLabel, style: context.text.labelSmall),
-                const SizedBox(height: QSpace.s2),
+              ],
+              Text(l10n.trackerKindLabel, style: context.text.labelSmall),
+              const SizedBox(height: QSpace.s2),
+              if (_isEdit)
+                Text(
+                  '${[l10n.kindYesNo, l10n.kindCount, l10n.kindDuration][_kind.index]}'
+                  ' · ${l10n.trackerKindLocked}',
+                  style: QType.caption.copyWith(color: q.ink2),
+                )
+              else
                 QSegControl(
                   options: [l10n.kindYesNo, l10n.kindCount, l10n.kindDuration],
                   activeIndex: _kind.index,
@@ -183,28 +194,27 @@ final class _ItemEditorState extends State<_ItemEditor> {
                     }
                   }),
                 ),
+              const SizedBox(height: QSpace.s4),
+              if (_kind != TrackerKind.yesNo) ...[
+                Text(l10n.targetLabel, style: context.text.labelSmall),
+                const SizedBox(height: QSpace.s2),
+                Row(
+                  children: [
+                    _TargetStepper(
+                      value: _target,
+                      step: _kind == TrackerKind.duration ? 5 : 1,
+                      onChanged: (v) => setState(() => _target = v),
+                    ),
+                    const SizedBox(width: QSpace.s2),
+                    Text(
+                      _kind == TrackerKind.duration
+                          ? l10n.targetMinutesSuffix
+                          : l10n.targetCountSuffix,
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: QSpace.s4),
-                if (_kind != TrackerKind.yesNo) ...[
-                  Text(l10n.targetLabel, style: context.text.labelSmall),
-                  const SizedBox(height: QSpace.s2),
-                  Row(
-                    children: [
-                      _TargetStepper(
-                        value: _target,
-                        step: _kind == TrackerKind.duration ? 5 : 1,
-                        onChanged: (v) => setState(() => _target = v),
-                      ),
-                      const SizedBox(width: QSpace.s2),
-                      Text(
-                        _kind == TrackerKind.duration
-                            ? l10n.targetMinutesSuffix
-                            : l10n.targetCountSuffix,
-                        style: QType.caption.copyWith(color: q.ink2),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: QSpace.s4),
-                ],
               ],
               Wrap(
                 spacing: QSpace.s2,

@@ -13,9 +13,16 @@ import 'achievement_visuals.dart';
 /// One badge tile. Unlocked = colored icon on a soft tonal disc; locked =
 /// greyed icon inside a progress ring showing how close the next tier is.
 final class AchievementCard extends StatelessWidget {
-  const AchievementCard({required this.progress, super.key});
+  const AchievementCard({
+    required this.progress,
+    this.isNew = false,
+    super.key,
+  });
 
   final AchievementProgress progress;
+
+  /// Unlocked since the user last opened the wall — shows a "New" tag.
+  final bool isNew;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +55,9 @@ final class AchievementCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: l10n.achievementName(a.id),
+      label: isNew
+          ? '${l10n.achievementName(a.id)}, ${l10n.achievementNew}'
+          : l10n.achievementName(a.id),
       child: InkWell(
         borderRadius: BorderRadius.circular(QRadius.md),
         onTap: () => _showHow(context),
@@ -56,7 +65,16 @@ final class AchievementCard extends StatelessWidget {
           opacity: unlocked ? 1 : 0.85,
           child: Column(
             children: [
-              disc,
+              if (isNew)
+                Badge(
+                  label: Text(l10n.achievementNew),
+                  backgroundColor: q.accent,
+                  textColor: q.onAccent,
+                  alignment: AlignmentDirectional.topEnd,
+                  child: disc,
+                )
+              else
+                disc,
               const SizedBox(height: QSpace.s2),
               Text(
                 l10n.achievementName(a.id),

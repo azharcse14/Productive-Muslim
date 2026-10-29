@@ -32,7 +32,8 @@ void main() {
           IslamicDay.nisfShaban);
       expect(IslamicDates.of(const HijriDate(1447, 9, 1)),
           IslamicDay.ramadanStart);
-      expect(IslamicDates.of(const HijriDate(1447, 9, 27)),
+      // The night of the 27th begins on the evening of the 26th.
+      expect(IslamicDates.of(const HijriDate(1447, 9, 26)),
           IslamicDay.laylatulQadr);
       expect(
           IslamicDates.of(const HijriDate(1447, 10, 1)), IslamicDay.eidAlFitr);
@@ -45,10 +46,19 @@ void main() {
       expect(IslamicDates.of(const HijriDate(1447, 1, 2)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 1, 11)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 2, 10)), isNull);
-      expect(IslamicDates.of(const HijriDate(1447, 9, 26)), isNull);
+      expect(IslamicDates.of(const HijriDate(1447, 9, 27)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 10, 2)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 12, 11)), isNull);
     });
+  });
+
+  test('isOddNightEve: the days whose evening starts nights 21..29', () {
+    final eves = [
+      for (var d = 1; d <= 30; d++)
+        if (IslamicDates.isOddNightEve(HijriDate(1447, 9, d))) d,
+    ];
+    expect(eves, [20, 22, 24, 26, 28]);
+    expect(IslamicDates.isOddNightEve(const HijriDate(1447, 8, 20)), isFalse);
   });
 
   group('IslamicDates.inGregorianMonth', () {

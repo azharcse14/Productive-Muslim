@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/muhasaba_fakes.dart';
 
@@ -313,5 +316,40 @@ void main() {
         expect(azkarDone(), 1);
       },
     );
+
+    test('a failed save bumps saveFailures (the screen toasts it)', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      final before = store.saveFailures.value;
+      repo.gate = Completer<bool>()..complete(false);
+      await store.setValue('quran', 5);
+      expect(store.saveFailures.value, before + 1);
+      expect(store.valueOf('quran'), 0);
+    });
+
+    test('reorder persists the new order, archived trail', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setArchived('tahajjud', archived: true);
+      final ids = [for (final i in store.items.value) i.id];
+      final reordered = [...ids.reversed];
+      await store.reorder(reordered);
+      expect([for (final i in store.items.value) i.id], reordered);
+      expect(repo.items_['tahajjud']!.sortOrder, reordered.length);
+    });
+
+    test('welcome dismissal is persisted across loads', () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+      final repo = InMemoryMuhasabaRepository();
+      final prefs = SharedPreferencesAsync();
+      final first = MuhasabaStore(repo, now: _fixedNow, prefs: prefs);
+      await first.load();
+      expect(first.welcomeDismissed.value, isFalse);
+      await first.dismissWelcome();
+      final second = MuhasabaStore(repo, now: _fixedNow, prefs: prefs);
+      await second.load();
+      expect(second.welcomeDismissed.value, isTrue);
+      first.dispose();
+      second.dispose();
+    });
   });
 }

@@ -14,6 +14,9 @@ abstract interface class MuhasabaRepository {
   /// Insert or update (by id). Custom item creation and edits.
   Future<Result<void>> upsertItem(TrackerItem item);
 
+  /// Persists the checklist order: [ids][i] gets sortOrder i.
+  Future<Result<void>> reorder(List<String> ids);
+
   /// Archive (or restore) — never deletes; history stays intact.
   Future<Result<void>> setArchived(String id, {required bool archived});
 

@@ -10,10 +10,14 @@ import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item
 void main() {
   late MuhasabaDatabase db;
   late MuhasabaRepositoryImpl repo;
+  // Repo "now" (created-on / archived-on stamps). Defaults to well before
+  // the scenario dates so items count on every scenario day.
+  late DateTime now;
 
   setUp(() {
+    now = DateTime(2025, 12, 31);
     db = MuhasabaDatabase(NativeDatabase.memory());
-    repo = MuhasabaRepositoryImpl(db);
+    repo = MuhasabaRepositoryImpl(db, clock: () => now);
   });
 
   tearDown(() async {
@@ -277,10 +281,10 @@ void main() {
       expect(result.previousCompletion, closeTo((1 / 3 + 1 / 6) / 7, 0.01));
     });
 
-    test('archived items are excluded from completion math', () async {
+    test('items archived before the range are excluded', () async {
       await seedScenario();
-      // c has entries on Jun 8 and Jun 10; archiving must drop it from
-      // the math while keeping its rows.
+      // Archived Dec 31 (repo clock): c is dropped from every June day
+      // while its rows are kept.
       await unwrap(repo.setArchived('c', archived: true));
       final result = await stats();
 
@@ -292,6 +296,49 @@ void main() {
       // c's entries still exist.
       final entries = await unwrap(repo.entriesOn(DateTime(2026, 6, 8)));
       expect(entries.map((e) => e.itemId), contains('c'));
+    });
+
+    test('adding a tracker does not change past days', () async {
+      await seedScenario();
+      final before = await stats();
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.upsertItem(_item('d', sortOrder: 3)));
+      final after = await stats();
+      for (var i = 0; i < 6; i++) {
+        expect(after.days[i].completion, before.days[i].completion);
+      }
+      // Today now has 4 items: a done -> 1/4.
+      expect(after.days[6].completion, closeTo(1 / 4, 0.01));
+      final d = after.items.firstWhere((s) => s.itemId == 'd');
+      expect(d.periodDays, 1);
+    });
+
+    test('archiving a tracker does not change past days', () async {
+      await seedScenario();
+      final before = await stats();
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.setArchived('c', archived: true));
+      final after = await stats();
+      for (var i = 0; i < 6; i++) {
+        expect(after.days[i].completion, before.days[i].completion);
+      }
+      // From today on c is gone: a done over a, b.
+      expect(after.days[6].completion, closeTo(1 / 2, 0.01));
+      expect(after.items.map((s) => s.itemId), ['a', 'b']);
+    });
+
+    test('back-filling before creation counts the item that day', () async {
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
+      await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 10), 1)));
+      final result = await stats();
+      // Jun 10: only a existed then (b created Jun 12).
+      expect(result.days[4].completion, 1);
+      expect(result.days[3].completion, 0); // Jun 9: nothing existed.
+      final byId = {for (final s in result.items) s.itemId: s};
+      expect(byId['a']!.periodDays, 3);
+      expect(byId['b']!.periodDays, 1);
     });
 
     test('best streak is never below the current streak', () async {

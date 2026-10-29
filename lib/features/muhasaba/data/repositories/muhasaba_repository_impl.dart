@@ -24,6 +24,12 @@ int _dayCount(DateTime start, DateTime end) =>
     ).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
     1;
 
+/// SQL fragment: whether item `i` counts toward day `e.date` — it existed
+/// (created on/before) and was not yet archived that day.
+const _existedOnEntryDay =
+    '(i.created_on IS NULL OR e.date >= i.created_on) '
+    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on))';
+
 /// SQL fragment: whether an entry value completes its item for a day
 /// (mirrors `TrackerItem.isDone`).
 const _doneCase =
@@ -33,9 +39,17 @@ const _doneCase =
 /// Drift-backed [MuhasabaRepository]. Aggregations run as SQL queries
 /// (guide §5) — Dart only fills bounded calendars and walks streaks.
 final class MuhasabaRepositoryImpl implements MuhasabaRepository {
-  const MuhasabaRepositoryImpl(this._db);
+  const MuhasabaRepositoryImpl(
+    this._db, {
+    DateTime Function() clock = DateTime.now,
+  }) : _clock = clock;
 
   final MuhasabaDatabase _db;
+
+  /// Stamps created-on / archived-on days (injectable for tests).
+  final DateTime Function() _clock;
+
+  int get _todayCode => _encodeDate(_clock());
 
   @override
   Future<Result<void>> seedDefaultsIfEmpty() async {
@@ -43,10 +57,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final count = await _db.trackerItems.count().getSingle();
       if (count == 0) {
         await _db.batch(
-          (batch) => batch.insertAll(
-            _db.trackerItems,
-            DefaultTrackers.items().map(_toCompanion).toList(),
-          ),
+          (batch) => batch.insertAll(_db.trackerItems, [
+            for (final item in DefaultTrackers.items())
+              _toCompanion(item).copyWith(createdOn: Value(_todayCode)),
+          ]),
         );
       }
       return const Result.success(null);
@@ -75,10 +89,32 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   @override
   Future<Result<void>> upsertItem(TrackerItem item) async {
     try {
-      await _db.trackerItems.insertOnConflictUpdate(_toCompanion(item));
+      // created_on is stamped on first insert only; edits keep it.
+      await _db.trackerItems.insertOne(
+        _toCompanion(item).copyWith(createdOn: Value(_todayCode)),
+        onConflict: DoUpdate((_) => _toCompanion(item)),
+      );
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to upsert item', e));
+    }
+  }
+
+  @override
+  Future<Result<void>> reorder(List<String> ids) async {
+    try {
+      await _db.batch((batch) {
+        for (final (i, id) in ids.indexed) {
+          batch.update(
+            _db.trackerItems,
+            TrackerItemsCompanion(sortOrder: Value(i)),
+            where: (t) => t.id.equals(id),
+          );
+        }
+      });
+      return const Result.success(null);
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Failed to reorder', e));
     }
   }
 
@@ -87,7 +123,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     try {
       // Flag update only — entries are never deleted (hard product rule).
       await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id))).write(
-        TrackerItemsCompanion(archived: Value(archived)),
+        TrackerItemsCompanion(
+          archived: Value(archived),
+          // ponytail: one archived-on day; archive→restore→archive keeps
+          // only the latest span. Store spans if that history matters.
+          archivedOn: Value(archived ? _todayCode : null),
+        ),
       );
       return const Result.success(null);
     } on Object catch (e) {
@@ -128,6 +169,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
               ..where((t) => t.date.equals(code)))
             .go();
       } else {
+        // Back-filling before the item's creation day means it existed
+        // then: move created_on back so that day counts it.
+        await _db.customStatement(
+          'UPDATE tracker_items SET created_on = ? '
+          'WHERE id = ? AND created_on > ?',
+          [code, entry.itemId, code],
+        );
         await _db.dailyEntries.insertOnConflictUpdate(
           DailyEntriesCompanion.insert(
             itemId: entry.itemId,
@@ -153,9 +201,19 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final endCode = _encodeDate(end);
       final periodDays = _dayCount(start, end);
 
-      final activeCount = await _db.trackerItems
-          .count(where: (t) => t.archived.equals(false))
-          .getSingle();
+      // Items that count on a given day (existed, not yet archived).
+      final spans = await _db.select(_db.trackerItems).get();
+      int countOn(DateTime day) {
+        final code = _encodeDate(day);
+        return spans
+            .where(
+              (r) =>
+                  (r.createdOn == null || r.createdOn! <= code) &&
+                  (!r.archived ||
+                      (r.archivedOn != null && code < r.archivedOn!)),
+            )
+            .length;
+      }
 
       // a) Day completions: SQL fraction sums, calendar filled in Dart.
       final fractionSums = await _dayFractionSums(startCode, endCode);
@@ -164,16 +222,17 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       for (var i = 0; i < periodDays; i++) {
         final day = DateTime(start.year, start.month, start.day + i);
         final sum = fractionSums[_encodeDate(day)] ?? 0;
-        final completion = activeCount == 0
+        final count = countOn(day);
+        final completion = count == 0
             ? 0.0
-            : (sum / activeCount).clamp(0, 1).toDouble();
+            : (sum / count).clamp(0, 1).toDouble();
         completionTotal += completion;
         days.add(DayCompletion(day, completion));
       }
       final completion = periodDays == 0 ? 0.0 : completionTotal / periodDays;
 
       // b) Per-item aggregates over the range.
-      final itemStats = await _itemStats(startCode, endCode, periodDays);
+      final itemStats = await _itemStats(start, end, periodDays);
 
       // c) Streaks: SQL day-has-done-item flags, walked in Dart. The scan
       // covers the whole history (one row per active day), so the best
@@ -220,10 +279,11 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         _encodeDate(prevEnd),
       );
       double? previousCompletion;
-      if (prevSums.isNotEmpty && activeCount > 0 && periodDays > 0) {
+      if (prevSums.isNotEmpty && periodDays > 0) {
         var total = 0.0;
-        for (final sum in prevSums.values) {
-          total += (sum / activeCount).clamp(0, 1);
+        for (final MapEntry(key: code, value: sum) in prevSums.entries) {
+          final count = countOn(_decodeDate(code));
+          if (count > 0) total += (sum / count).clamp(0, 1);
         }
         previousCompletion = total / periodDays;
       }
@@ -271,8 +331,8 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     }
   }
 
-  /// Per-day sum of per-item completion fractions over non-archived
-  /// items, keyed by yyyymmdd. Days without entries are absent.
+  /// Per-day sum of per-item completion fractions over the items that
+  /// counted on that day, keyed by yyyymmdd. Days without entries are absent.
   Future<Map<int, double>> _dayFractionSums(int from, int to) async {
     final rows = await _db
         .customSelect(
@@ -284,7 +344,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'END) AS REAL) AS fraction_sum '
           'FROM daily_entries e '
           'INNER JOIN tracker_items i ON i.id = e.item_id '
-          'WHERE i.archived = 0 AND e.date BETWEEN ? AND ? '
+          'WHERE ($_existedOnEntryDay) AND e.date BETWEEN ? AND ? '
           'GROUP BY e.date',
           variables: [Variable<int>(from), Variable<int>(to)],
           readsFrom: {_db.dailyEntries, _db.trackerItems},
@@ -313,15 +373,18 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     return {for (final row in rows) row.read<int>('day')};
   }
 
-  /// Per non-archived item: done-day count and value sum over the range.
+  /// Per non-archived item: done-day count and value sum over the range;
+  /// the bar's denominator is the days the item existed within it.
   Future<List<ItemPeriodStats>> _itemStats(
-    int from,
-    int to,
+    DateTime start,
+    DateTime end,
     int periodDays,
   ) async {
+    final from = _encodeDate(start);
+    final to = _encodeDate(end);
     final rows = await _db
         .customSelect(
-          'SELECT i.id AS item_id, i.kind AS kind, '
+          'SELECT i.id AS item_id, i.kind AS kind, i.created_on AS created_on, '
           'COALESCE(SUM(CASE WHEN e.value IS NULL THEN 0 '
           'WHEN ($_doneCase) THEN 1 ELSE 0 END), 0) AS days_done, '
           'COALESCE(SUM(e.value), 0) AS total_value '
@@ -338,11 +401,17 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     for (final row in rows) {
       final daysDone = row.read<int>('days_done');
       final isYesNo = row.read<int>('kind') == TrackerKind.yesNo.index;
+      final createdOn = row.readNullable<int>('created_on');
+      final existedDays = createdOn == null || createdOn <= from
+          ? periodDays
+          : createdOn > to
+          ? 0
+          : _dayCount(_decodeDate(createdOn), end);
       stats.add(
         ItemPeriodStats(
           itemId: row.read<String>('item_id'),
           daysDone: daysDone,
-          periodDays: periodDays,
+          periodDays: existedDays,
           // yesNo totals are done-day counts, not raw value sums.
           totalValue: isYesNo ? daysDone : row.read<int>('total_value'),
         ),

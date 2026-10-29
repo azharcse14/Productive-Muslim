@@ -7,7 +7,7 @@ final class FastingStats {
     required this.thisHijriMonth,
   });
 
-  /// Every nafl fast ever logged.
+  /// Every nafl fast ever logged (Ramadan and qaza days excluded).
   final int total;
 
   /// Fasts logged in the current Gregorian month.
