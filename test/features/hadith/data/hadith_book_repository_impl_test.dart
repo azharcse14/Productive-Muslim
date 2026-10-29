@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -6,6 +8,7 @@ import 'package:productive_muslim/features/hadith/data/hadith_book_catalog_data_
 import 'package:productive_muslim/features/hadith/data/hadith_book_remote_data_source.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_repository_impl.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_database.dart';
+import 'package:productive_muslim/features/hadith/data/http_fetcher.dart';
 
 import 'hadith_db_test_util.dart';
 
@@ -171,6 +174,25 @@ void main() {
   });
 
   group('section (online fetch)', () {
+    test('an oversize body yields a failure result', () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      server.listen((req) async {
+        req.response.write(_section('ar'));
+        await req.response.close();
+      });
+      final repo = makeRepo(
+        (_) => httpGetString(
+          Uri.parse('http://127.0.0.1:${server.port}/'),
+          maxBytes: 16,
+        ),
+      );
+      final book = (await repo.books()).valueOrNull!.first;
+
+      final result = await repo.section(book, book.sections.first, 'en');
+      expect(result.isSuccess, isFalse);
+    });
+
     test('zips Arabic with English translation and keeps numbers', () async {
       final repo = makeRepo((url) async {
         final u = url.toString();

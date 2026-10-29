@@ -9,7 +9,7 @@ class TrackerItems extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
 
-  /// Stored as `TrackerKind.index`.
+  /// Stored as `TrackerKind.code`.
   IntColumn get kind => integer()();
   IntColumn get dailyTarget => integer().nullable()();
   TextColumn get icon => text()();

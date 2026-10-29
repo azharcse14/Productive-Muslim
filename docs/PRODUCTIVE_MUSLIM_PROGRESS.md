@@ -8,6 +8,9 @@
 
 | Phase | Title | Status | Notes |
 |---|---|---|---|
+| 2026-10-29 | **Review fix 4.4**: `fitra_calculator.dart` header comment now matches the values (≈ 3.30 kg sa', ≈ 1.65 kg half sa'); comment only | analyze clean |
+| 2026-10-29 | **Review fix 4.2**: remote hadith sources (app fallback + `tool/hadith_db_build.dart`) pinned to full commit SHAs in `lib/config/content_sources.dart` (no `@1` / `/main`); `httpGetString` bounded by `maxBytes` (4 MiB ≈ 2× the largest section, ~1.96 MB raw), oversize → repository failure | analyze clean; pin, oversize-fetch and repository-failure tests |
+| 2026-10-29 | **Review fix 4.1** (branch `fix/review-p4-data-integrity`): `TrackerKind` persisted by an explicit stable `code` (0/1/2 = old indexes, no migration); repository reads via `fromCode` and skips unknown kinds (logged, never deleted) | analyze clean; pin + unknown-kind repository tests |
 | 0 | Cleanup & Baseline | ✅ | Done 2026-06-12; APK builds green on Gradle 9.1/AGP 9.0.1 |
 | 1 | Foundation: Tokens, Theme, L10n, Shell | ✅ | Done 2026-06-12; 37 tests green, APK builds |
 | 2 | Settings + Location | ✅ | Done 2026-06-12; 74 tests green, APK builds |
