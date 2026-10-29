@@ -23,6 +23,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.provider.AlarmClock
 import android.provider.Settings
 import android.telecom.TelecomManager
 import android.text.format.DateFormat
@@ -356,8 +357,27 @@ object JamaatFocus {
         }
     }
 
+    // Installed apps rarely change mid-process: resolve once.
+    private var clocks: Set<String>? = null
+
     /**
-     * Never covered: this app, the shade, keyboard, calls — and Settings, the
+     * Every app that shows alarms. A chooser (no default set) would resolve to
+     * "android", so take all handlers, not resolveActivity's pick.
+     */
+    private fun clocks(c: Context): Set<String> = clocks ?: run {
+        val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
+        val found = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            c.packageManager.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            c.packageManager.queryIntentActivities(intent, 0)
+        }
+        found.map { it.activityInfo.packageName }.toSet()
+    }.also { clocks = it }
+
+    /**
+     * Never covered: this app, the shade, keyboard, calls, alarm apps (an
+     * alarm must never be covered) — and Settings, the
      * package installer and Play, so the user can always turn the service off
      * or uninstall (Play accessibility policy).
      */
@@ -369,7 +389,7 @@ object JamaatFocus {
             pkg == "com.google.android.packageinstaller" || pkg == "com.android.vending"
         ) return true
         val tm = c.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
-        if (pkg == tm?.defaultDialerPackage) return true
+        if (pkg == tm?.defaultDialerPackage || pkg in clocks(c)) return true
         val ime = Settings.Secure.getString(c.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
         return ime?.startsWith("$pkg/") == true
     }
@@ -547,7 +567,7 @@ class JamaatFocusActivity : Activity() {
         })
         root.addView(ImageButton(this).apply {
             setImageResource(android.R.drawable.sym_action_call)
-            contentDescription = "Phone"
+            contentDescription = getString(R.string.jamaat_focus_phone)
             setOnClickListener {
                 startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:")))
             }
