@@ -7,6 +7,7 @@ import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/utils/locale_digits.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
 import '../../prayer_times/domain/usecases/get_prayer_day.dart';
+import '../../prayer_times/presentation/screens/home_formatting.dart';
 import '../../settings/domain/repositories/zoned_clock.dart';
 import '../../settings/presentation/state/settings_store.dart';
 import '../../settings/presentation/widgets/setting_labels.dart';
@@ -66,7 +67,7 @@ final class PrayerWidgetService {
           params: appSettings.prayerParams,
           date: today.add(const Duration(days: 1)),
         ).valueOrNull;
-        locationLabel = location.displayName;
+        locationLabel = formatLocationName(location, Locale(code), l10n);
       } else {
         now = DateTime.now();
       }

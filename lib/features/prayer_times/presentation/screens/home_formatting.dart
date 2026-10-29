@@ -50,7 +50,7 @@ String formatCountdown(BuildContext context, Duration d) {
   BuildContext context,
   CountdownTarget target,
 ) {
-  final prayerName = l10n.prayerLabel(target.prayer);
+  final prayerName = l10n.prayerLabelOn(target.prayer, target.at);
   final timeText = formatHomeTime(context, target.at);
   return switch (target.kind) {
     CountdownKind.waqtStart => (
@@ -75,6 +75,12 @@ String formatCountdown(BuildContext context, Duration d) {
       l10n.subAt(l10n.iftarLabel, timeText),
     ),
   };
+}
+
+/// A countdown for screen readers: "1 hour 24 minutes", not "01:24:36".
+String spokenDuration(AppLocalizations l10n, Duration d) {
+  final minutes = l10n.a11yMinutes(d.inMinutes % 60);
+  return d.inHours > 0 ? '${l10n.a11yHours(d.inHours)} $minutes' : minutes;
 }
 
 /// Time-of-day greeting shown in the header, from the memoized [DayPart].

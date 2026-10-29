@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/day_timeline_sheet.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
@@ -81,17 +82,33 @@ void main() {
     expect(find.text('Now'), findsOneWidget);
   });
 
-  testWidgets('shows no Now badge when activePrayer is null', (tester) async {
+  testWidgets('adds sunrise, forbidden windows and a now marker in order',
+      (tester) async {
+    final day = _sampleDay();
     await tester.pumpWidget(
       _app(
         DayTimelineSheet(
-          day: _sampleDay(),
+          day: day,
           now: DateTime(2026, 6, 14, 13),
           formatTime: _fmt,
+          forbidden: [
+            SpecialWindow(
+              time: SpecialTime.forbiddenZawal,
+              kind: SpecialKind.forbidden,
+              start: DateTime(2026, 6, 14, 12, 24),
+              end: day.dhuhr,
+            ),
+          ],
         ),
       ),
     );
 
-    expect(find.text('Now'), findsNothing);
+    expect(find.text('Sunrise'), findsOneWidget);
+    expect(find.text('12:24 – 12:30'), findsOneWidget);
+    double y(String text) => tester.getTopLeft(find.text(text)).dy;
+    expect(y('Sunrise'), lessThan(y('Dhuhr')));
+    expect(y('Midday (zawal)'), lessThan(y('Dhuhr')));
+    expect(y('Dhuhr'), lessThan(y('Now')));
+    expect(y('Now'), lessThan(y('Asr')));
   });
 }
