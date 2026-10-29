@@ -7,21 +7,7 @@ import 'package:flutter/widgets.dart'
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../config/app_config.dart';
-import '../../data/app_lock_data_source.dart';
-
-/// Biometric seam so the store is testable without the plugin.
-abstract interface class BiometricAuth {
-  Future<bool> canAuthenticate();
-  Future<bool> authenticate(String reason);
-
-  /// Whether the device has its own secure screen lock (PIN/pattern/
-  /// password or biometrics) that [authenticateWithDeviceLock] can use.
-  Future<bool> canUseDeviceLock();
-
-  /// Authenticates with the device's own screen lock (biometric or device
-  /// credential) — the "Forgot PIN?" path.
-  Future<bool> authenticateWithDeviceLock(String reason);
-}
+import '../../domain/repositories/app_lock_repository.dart';
 
 /// Outcome of the "Forgot PIN?" device-lock check.
 enum PinResetAuth { verified, failed, noDeviceLock }
@@ -41,7 +27,7 @@ final class AppLockStore {
   }) : _now = now ?? DateTime.now,
        _elapsed = elapsed ?? (now == null ? _stopwatch() : _since(now));
 
-  final AppLockDataSource _source;
+  final AppLockStorage _source;
   final BiometricAuth _biometric;
   final DateTime Function() _now;
 

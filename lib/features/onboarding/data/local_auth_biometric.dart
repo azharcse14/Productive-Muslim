@@ -1,6 +1,6 @@
 import 'package:local_auth/local_auth.dart';
 
-import '../presentation/state/app_lock_store.dart';
+import '../domain/repositories/app_lock_repository.dart';
 
 /// local_auth implementation — the only class touching the plugin.
 final class LocalAuthBiometric implements BiometricAuth {

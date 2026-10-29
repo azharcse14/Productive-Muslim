@@ -5,6 +5,8 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../domain/repositories/app_lock_repository.dart';
+
 /// App-lock persistence: a salted PIN hash + biometric preference.
 /// The raw PIN never touches disk.
 ///
@@ -12,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// out of cloud backup / device transfer; [legacy] is the shared store older
 /// installs kept the lock in, moved over on first use. On iOS [_prefs] is
 /// [KeychainPrefs], for the same reason.
-final class AppLockDataSource {
+final class AppLockDataSource implements AppLockStorage {
   AppLockDataSource(this._prefs, {SharedPreferencesAsync? legacy})
     : _legacy = legacy;
 
@@ -52,6 +54,7 @@ final class AppLockDataSource {
   static String _hash(String pin, String salt) =>
       sha256.convert(utf8.encode('$salt:$pin')).toString();
 
+  @override
   Future<({bool enabled, bool biometric})> read() async {
     await _ready();
     final raw = await _prefs.getString(_key);
@@ -87,6 +90,7 @@ final class AppLockDataSource {
     return base64Url.encode([for (var i = 0; i < 16; i++) random.nextInt(256)]);
   }
 
+  @override
   Future<void> enable(String pin, {required bool biometric}) async {
     await _ready();
     final salt = _newSalt();
@@ -100,6 +104,7 @@ final class AppLockDataSource {
     );
   }
 
+  @override
   Future<bool> verify(String pin) async {
     await _ready();
     final raw = await _prefs.getString(_key);
@@ -113,12 +118,14 @@ final class AppLockDataSource {
         map['hash'] == _hash(pin, salt ?? '');
   }
 
+  @override
   Future<void> disable() async {
     await _ready();
     await _prefs.remove(_key);
   }
 
   /// Wrong-PIN throttle state, persisted so an app restart can't reset it.
+  @override
   Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() async {
     await _ready();
     final raw = await _prefs.getString(_throttleKey);
@@ -137,6 +144,7 @@ final class AppLockDataSource {
     );
   }
 
+  @override
   Future<void> writeThrottle({
     required int failedAttempts,
     required DateTime? lockedUntil,

@@ -59,6 +59,7 @@ import '../../features/notifications/domain/usecases/reschedule_notifications.da
 import '../../features/notifications/presentation/state/notification_controller.dart';
 import '../../features/onboarding/data/app_lock_data_source.dart';
 import '../../features/onboarding/data/local_auth_biometric.dart';
+import '../../features/onboarding/domain/repositories/app_lock_repository.dart';
 import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import '../../features/prayer_times/domain/repositories/prayer_day_repository.dart';
@@ -130,7 +131,7 @@ Future<void> setupLocator() async {
 
   // ---- onboarding / app lock ----
   locator
-    ..registerLazySingleton(
+    ..registerLazySingleton<AppLockStorage>(
       () => defaultTargetPlatform == TargetPlatform.android
           // Its own file, excluded in backup_rules / data_extraction_rules:
           // the PIN hash never leaves the device, everything else backs up.
