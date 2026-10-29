@@ -205,34 +205,33 @@ final class _RuleCard extends StatelessWidget {
               ),
             ),
           const SizedBox(height: QSpace.s3),
-          Row(
+          // Wraps at large text / narrow widths instead of overflowing.
+          Wrap(
+            spacing: QSpace.s2,
+            runSpacing: QSpace.s2,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
                 l10n.scheduleFrom,
                 style: QType.caption.copyWith(color: q.ink2),
               ),
-              const SizedBox(width: QSpace.s2),
               _TimeChip(
                 label: formatTime(rule.start),
                 onTap: () => onPickTime(isStart: true),
               ),
-              const SizedBox(width: QSpace.s3),
               Text(
                 l10n.scheduleTo,
                 style: QType.caption.copyWith(color: q.ink2),
               ),
-              const SizedBox(width: QSpace.s2),
               _TimeChip(
                 label: formatTime(rule.end),
                 onTap: () => onPickTime(isStart: false),
               ),
-              if (rule.allDay) ...[
-                const SizedBox(width: QSpace.s3),
+              if (rule.allDay)
                 Text(
                   l10n.scheduleAllDay,
                   style: QType.caption.copyWith(color: q.ink3),
                 ),
-              ],
             ],
           ),
         ],

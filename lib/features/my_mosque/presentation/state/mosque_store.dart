@@ -32,14 +32,15 @@ final class MosqueStore {
 
   /// Storage couldn't be read: [state] holds defaults, not the user's data,
   /// so saving it would clobber whatever is stored (mirrors SettingsStore).
-  bool _readFailed = false;
+  /// Exposed so the screen shows a retry instead of an empty "add" state.
+  late final readFailed = signal(false);
 
   Future<void> load() async {
     final result = await _get();
     result.fold((value) {
-      _readFailed = false;
+      readFailed.value = false;
       state.value = value;
-    }, (_) => _readFailed = true);
+    }, (_) => readFailed.value = true);
     _idCounter = state.value.profiles.length;
   }
 
@@ -181,9 +182,9 @@ final class MosqueStore {
     MosqueState Function(MosqueState) change, {
     bool rollback = true,
   }) async {
-    if (_readFailed) {
+    if (readFailed.value) {
       await load();
-      if (_readFailed) {
+      if (readFailed.value) {
         // ponytail: still unreadable — saving would overwrite the stored
         // mosques with defaults, so the change is in memory only.
         state.value = change(state.value);

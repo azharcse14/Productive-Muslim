@@ -9,10 +9,19 @@ abstract final class Routes {
 
   /// Settings stack lives under the More branch.
   static const settings = (name: 'settings', path: 'settings');
+
+  /// Sources & licenses page, under Settings.
+  static const credits = (name: 'credits', path: 'credits');
   static const notifications = (name: 'notifications', path: '/notifications');
   static const notificationSettings = (
     name: 'notificationSettings',
     path: '/notifications/settings',
+  );
+
+  /// Jamaat focus + nafs lock (linked from notification settings).
+  static const notificationFocus = (
+    name: 'notificationFocus',
+    path: '/notifications/focus',
   );
 
   /// Top-level (outside the shell) so Home and Settings can both open it

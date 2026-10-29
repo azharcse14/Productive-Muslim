@@ -40,4 +40,9 @@ void main() {
     );
     expect(find.byIcon(Icons.emoji_events_outlined), findsOneWidget);
   });
+
+  testWidgets('app bar has a Settings shortcut', (tester) async {
+    await pump(tester, const AppSettings());
+    expect(find.byTooltip('Settings'), findsOneWidget);
+  });
 }

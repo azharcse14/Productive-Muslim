@@ -3357,4 +3357,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearSearch => 'Clear search';
+
+  @override
+  String get mosqueLoadError =>
+      'Couldn\'t load your mosques. Please try again.';
+
+  @override
+  String get jamaatOffsetHint => 'Minutes after waqt starts (1–60)';
+
+  @override
+  String get notifPermissionNotAskedBanner =>
+      'Notifications aren\'t on yet, so nothing below will be delivered until you enable them.';
+
+  @override
+  String get notifGroupDaily => 'Daily reminders';
+
+  @override
+  String get notifGroupDelivery => 'Delivery & status';
+
+  @override
+  String get focusPageTitle => 'Jamaat focus & nafs lock';
+
+  @override
+  String get focusPageRowSub => 'Stay undisturbed around jamaat';
+
+  @override
+  String get notificationsNoLocationTitle => 'Location not set';
+
+  @override
+  String get notificationsOffTitle => 'Notifications are off';
+
+  @override
+  String get groupAdvanced => 'Advanced';
+
+  @override
+  String get settingCreditsSub =>
+      'Sources of the Quran translations, hadith, data and fonts';
+
+  @override
+  String get creditsArabicText => 'Arabic text';
+
+  @override
+  String get creditsEnTranslation => 'English translation';
+
+  @override
+  String get creditsBnTranslation => 'Bangla translation';
+
+  @override
+  String get creditsHadithText => 'Arabic & English text';
+
+  @override
+  String get creditsGroupPlaces => 'Prayer times & places';
+
+  @override
+  String get creditsPrayerCalc => 'Prayer times & qibla';
+
+  @override
+  String get creditsPrayerCalcValue => 'Calculated on your device (adhan_dart)';
+
+  @override
+  String get creditsCities => 'City database';
+
+  @override
+  String get creditsGroupFonts => 'Fonts';
+
+  @override
+  String get creditsFontsUi => 'Interface';
+
+  @override
+  String get creditsFontQuran => 'Quran script';
+
+  @override
+  String get creditsReferences =>
+      'Duas, ruqyah and the hadith of the day cite their source on each item.';
 }

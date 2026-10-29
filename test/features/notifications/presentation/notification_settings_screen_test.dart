@@ -200,7 +200,10 @@ void main() {
       await tester.tap(jamaatSwitch.first);
       await tester.pump();
       expect(_repo.stored.notifications.jamaatReminder, isTrue);
-      expect(find.text('Lead time'), findsNWidgets(2)); // sahri + jamaat
+      // The lead row names what it's for (sahri has one too).
+      final lead = find.bySemanticsLabel('Decrease Jamaat reminder Lead time');
+      await tester.scrollUntilVisible(lead, 100);
+      expect(lead, findsOneWidget);
     });
 
     testWidgets('iOS: Shortcuts guide opens and launches Shortcuts', (
@@ -209,7 +212,8 @@ void main() {
       final launcher = _FakeLauncher(accept: false);
       await _register(_FakeScheduler());
       GetIt.I.registerSingleton<ExternalLauncher>(launcher);
-      await tester.pumpWidget(_app());
+      // Jamaat focus has its own page, linked from notification settings.
+      await tester.pumpWidget(_app(home: const JamaatFocusSettingsScreen()));
       await tester.pump();
       // No lock/strict on iOS — the OS doesn't allow them.
       expect(find.text('Strict mode'), findsNothing);
@@ -248,6 +252,21 @@ void main() {
       await tester.pump();
       expect(
         find.textContaining('Productive Muslim stays fully useful'),
+        findsOneWidget,
+      );
+      expect(find.text('Enable notifications'), findsOneWidget);
+    });
+
+    testWidgets('no Enable CTA before the permission is known', (tester) async {
+      await _register(
+        _FakeScheduler(permission: NotificationPermission.notRequested),
+      );
+      await tester.pumpWidget(_app());
+      expect(find.text('Enable notifications'), findsNothing);
+      await tester.pump();
+      // Never asked: explained too, not just a bare button.
+      expect(
+        find.textContaining("Notifications aren't on yet"),
         findsOneWidget,
       );
       expect(find.text('Enable notifications'), findsOneWidget);

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/theme/productive_muslim_colors.dart';
+import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 
@@ -128,9 +129,10 @@ final class _RingPainter extends CustomPainter {
       final painter = TextPainter(
         text: TextSpan(
           text: label,
-          style: TextStyle(
+          style: QType.label.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w700,
+            fontVariations: const [FontVariation('wght', 700)],
             color: i == 0 ? colors.urgent : colors.ink3,
           ),
         ),

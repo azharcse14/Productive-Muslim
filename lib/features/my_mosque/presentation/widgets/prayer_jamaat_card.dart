@@ -5,6 +5,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -37,6 +38,14 @@ final class PrayerJamaatCard extends StatelessWidget {
 
   /// Shown when a fixed time falls outside today's waqt.
   final String? warning;
+
+  static const _minOffset = 1;
+  static const _maxOffset = 60;
+
+  /// Steps snap to multiples of 5, kept within the bounds.
+  void _setOffset(int minutes) => onChanged(
+    OffsetJamaat(Duration(minutes: minutes.clamp(_minOffset, _maxOffset))),
+  );
 
   int get _modeIndex => switch (entry) {
     NoJamaat() => 0,
@@ -116,18 +125,38 @@ final class PrayerJamaatCard extends StatelessWidget {
                     size: 32,
                     icon: Icons.remove,
                     semanticLabel: l10n.a11yDecrease(stepperLabel),
-                    onTap: offset.inMinutes > 1
-                        ? () => onChanged(
-                            OffsetJamaat(offset - const Duration(minutes: 1)),
-                          )
+                    onTap: offset.inMinutes > _minOffset
+                        ? () => _setOffset(((offset.inMinutes - 1) ~/ 5) * 5)
                         : null,
                   ),
-                  SizedBox(
-                    width: 64,
-                    child: Text(
-                      l10n.minutesShort(offset.inMinutes),
-                      textAlign: TextAlign.center,
-                      style: QType.num_(QType.label).copyWith(color: q.ink),
+                  // ±5 nudges; tapping the value types an exact minute.
+                  InkWell(
+                    borderRadius: BorderRadius.circular(QRadius.sm),
+                    onTap: () async {
+                      final picked = await showNumberDialog(
+                        context,
+                        title: stepperLabel,
+                        hint: l10n.jamaatOffsetHint,
+                        actionLabel: l10n.save,
+                        max: _maxOffset,
+                        initial: offset.inMinutes,
+                      );
+                      if (picked != null) {
+                        _setOffset(picked);
+                      }
+                    },
+                    child: SizedBox(
+                      width: 64,
+                      height: QTouch.minTarget,
+                      child: Center(
+                        child: Text(
+                          l10n.minutesShort(offset.inMinutes),
+                          textAlign: TextAlign.center,
+                          style: QType.num_(
+                            QType.label,
+                          ).copyWith(color: q.primary),
+                        ),
+                      ),
                     ),
                   ),
                   QStepButton(
@@ -135,10 +164,8 @@ final class PrayerJamaatCard extends StatelessWidget {
                     size: 32,
                     icon: Icons.add,
                     semanticLabel: l10n.a11yIncrease(stepperLabel),
-                    onTap: offset.inMinutes < 60
-                        ? () => onChanged(
-                            OffsetJamaat(offset + const Duration(minutes: 1)),
-                          )
+                    onTap: offset.inMinutes < _maxOffset
+                        ? () => _setOffset((offset.inMinutes ~/ 5 + 1) * 5)
                         : null,
                   ),
                 ],

@@ -14,6 +14,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
+import '../../../../shared/widgets/q_empty_state.dart';
 import '../../domain/usecases/compass_math.dart';
 import '../state/qibla_store.dart';
 import '../widgets/compass_dial.dart';
@@ -91,9 +92,9 @@ final class _QiblaScreenState extends State<QiblaScreen> {
             final status = _store.status.value;
             final bearing = _store.bearing.value;
             return switch (status) {
-              QiblaStatus.needsLocation => _CenteredNote(
+              QiblaStatus.needsLocation => QEmptyState(
                 icon: Icons.place_outlined,
-                text: l10n.qiblaNeedsLocation,
+                body: l10n.qiblaNeedsLocation,
                 action: QButton(
                   label: l10n.homeSetLocationCta,
                   icon: Icons.place_outlined,
@@ -101,9 +102,9 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                       context.pushNamed(Routes.locationPicker.name),
                 ),
               ),
-              QiblaStatus.sensorUnavailable => _CenteredNote(
+              QiblaStatus.sensorUnavailable => QEmptyState(
                 icon: Icons.explore_off_outlined,
-                text: l10n.qiblaSensorUnavailable,
+                body: l10n.qiblaSensorUnavailable,
                 detail: bearing == null
                     ? null
                     : l10n.qiblaVerbalBearing(
@@ -111,128 +112,22 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                         _point(context, bearing),
                       ),
               ),
-              QiblaStatus.calibrating || QiblaStatus.ready => Stack(
+              QiblaStatus.calibrating || QiblaStatus.ready => Column(
                 children: [
-                  LayoutBuilder(
-                    builder: (context, box) => SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: box.maxHeight),
-                        child: Center(
-                          child: SignalBuilder(
-                            builder: (context) {
-                              final reading = _store.heading.value;
-                              final aligned = _store.aligned.value;
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // The dial is a visual aid only; screen readers get
-                                  // the spoken status (live region) and the standing
-                                  // qibla-bearing line below instead.
-                                  ExcludeSemantics(
-                                    child: CompassDial(
-                                      heading: reading,
-                                      bearing: bearing ?? 0,
-                                      aligned: aligned,
-                                      size: math.min(
-                                        300,
-                                        0.8 * box.biggest.shortestSide,
-                                      ),
-                                      cardinals: [
-                                        for (final c in const [
-                                          'N',
-                                          'E',
-                                          'S',
-                                          'W',
-                                        ])
-                                          l10n.qiblaCompassPoint(c),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: QSpace.s6),
-                                  // Live only once aligned: a live heading would
-                                  // be re-announced on every sensor tick.
-                                  Semantics(
-                                    liveRegion: aligned,
-                                    child: AnimatedDefaultTextStyle(
-                                      duration: QMotion.med,
-                                      curve: QMotion.ease,
-                                      style: QType.title.copyWith(
-                                        color: aligned ? q.accentStrong : q.ink,
-                                      ),
-                                      child: Text(
-                                        aligned
-                                            ? l10n.qiblaAligned
-                                            : reading == null
-                                            // No sensor event yet: don't pass
-                                            // a 0° placeholder off as real.
-                                            ? l10n.qiblaFinding
-                                            : _turnText(
-                                                context,
-                                                reading,
-                                                bearing,
-                                              ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  if (reading != null) ...[
-                                    const SizedBox(height: QSpace.s2),
-                                    Text(
-                                      l10n.qiblaHeading(
-                                        _digits(
-                                          context,
-                                          reading.round().toString(),
-                                        ),
-                                        _point(context, reading),
-                                      ),
-                                      style: QType.caption.copyWith(
-                                        color: q.ink2,
-                                      ),
-                                    ),
-                                  ],
-                                  if (bearing != null) ...[
-                                    const SizedBox(height: QSpace.s2),
-                                    Text(
-                                      l10n.qiblaVerbalBearing(
-                                        _digits(
-                                          context,
-                                          bearing.round().toString(),
-                                        ),
-                                        _point(context, bearing),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      style: QType.caption.copyWith(
-                                        color: q.ink3,
-                                      ),
-                                    ),
-                                  ],
-                                  if (_store.distanceKm.value
-                                      case final double km) ...[
-                                    const SizedBox(height: QSpace.s2),
-                                    Text(
-                                      l10n.qiblaDistance(
-                                        _digits(context, km.round().toString()),
-                                      ),
-                                      style: QType.caption.copyWith(
-                                        color: q.ink3,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+                  // Inline, with its space always reserved, so the flag
+                  // coming and going neither covers nor shoves the dial.
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      QSpace.s5,
+                      QSpace.s2,
+                      QSpace.s5,
+                      0,
                     ),
-                  ),
-                  // Overlaid rather than stacked above, so the flag coming
-                  // and going doesn't shove the dial.
-                  if (status == QiblaStatus.calibrating)
-                    PositionedDirectional(
-                      top: QSpace.s2,
-                      start: QSpace.s5,
-                      end: QSpace.s5,
+                    child: Visibility(
+                      visible: status == QiblaStatus.calibrating,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
                       child: QBanner(
                         text: l10n.qiblaCalibrate,
                         icon: Icons.all_inclusive,
@@ -240,55 +135,131 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                         foreground: q.warn,
                       ),
                     ),
+                  ),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, box) => SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: box.maxHeight),
+                          child: Center(
+                            child: SignalBuilder(
+                              builder: (context) {
+                                final reading = _store.heading.value;
+                                final aligned = _store.aligned.value;
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // The dial is a visual aid only; screen readers get
+                                    // the spoken status (live region) and the standing
+                                    // qibla-bearing line below instead.
+                                    ExcludeSemantics(
+                                      child: CompassDial(
+                                        heading: reading,
+                                        bearing: bearing ?? 0,
+                                        aligned: aligned,
+                                        size: math.min(
+                                          300,
+                                          0.8 * box.biggest.shortestSide,
+                                        ),
+                                        cardinals: [
+                                          for (final c in const [
+                                            'N',
+                                            'E',
+                                            'S',
+                                            'W',
+                                          ])
+                                            l10n.qiblaCompassPoint(c),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: QSpace.s6),
+                                    // Live only once aligned: a live heading would
+                                    // be re-announced on every sensor tick.
+                                    Semantics(
+                                      liveRegion: aligned,
+                                      child: AnimatedDefaultTextStyle(
+                                        duration: QMotion.med,
+                                        curve: QMotion.ease,
+                                        style: QType.title.copyWith(
+                                          color: aligned
+                                              ? q.accentStrong
+                                              : q.ink,
+                                        ),
+                                        child: Text(
+                                          aligned
+                                              ? l10n.qiblaAligned
+                                              : reading == null
+                                              // No sensor event yet: don't pass
+                                              // a 0° placeholder off as real.
+                                              ? l10n.qiblaFinding
+                                              : _turnText(
+                                                  context,
+                                                  reading,
+                                                  bearing,
+                                                ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    if (reading != null) ...[
+                                      const SizedBox(height: QSpace.s2),
+                                      Text(
+                                        l10n.qiblaHeading(
+                                          _digits(
+                                            context,
+                                            reading.round().toString(),
+                                          ),
+                                          _point(context, reading),
+                                        ),
+                                        style: QType.caption.copyWith(
+                                          color: q.ink2,
+                                        ),
+                                      ),
+                                    ],
+                                    if (bearing != null) ...[
+                                      const SizedBox(height: QSpace.s2),
+                                      Text(
+                                        l10n.qiblaVerbalBearing(
+                                          _digits(
+                                            context,
+                                            bearing.round().toString(),
+                                          ),
+                                          _point(context, bearing),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        style: QType.caption.copyWith(
+                                          color: q.ink3,
+                                        ),
+                                      ),
+                                    ],
+                                    if (_store.distanceKm.value
+                                        case final double km) ...[
+                                      const SizedBox(height: QSpace.s2),
+                                      Text(
+                                        l10n.qiblaDistance(
+                                          _digits(
+                                            context,
+                                            km.round().toString(),
+                                          ),
+                                        ),
+                                        style: QType.caption.copyWith(
+                                          color: q.ink3,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             };
           },
-        ),
-      ),
-    );
-  }
-}
-
-final class _CenteredNote extends StatelessWidget {
-  const _CenteredNote({
-    required this.icon,
-    required this.text,
-    this.detail,
-    this.action,
-  });
-
-  final IconData icon;
-  final String text;
-  final String? detail;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(QSpace.s8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 56, color: q.ink3),
-            const SizedBox(height: QSpace.s4),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
-            if (detail != null) ...[
-              const SizedBox(height: QSpace.s3),
-              Text(
-                detail!,
-                textAlign: TextAlign.center,
-                style: QType.title.copyWith(color: q.ink),
-              ),
-            ],
-            if (action != null) ...[const SizedBox(height: QSpace.s6), action!],
-          ],
         ),
       ),
     );

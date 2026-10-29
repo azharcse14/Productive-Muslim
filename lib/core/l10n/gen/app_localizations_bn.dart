@@ -3340,4 +3340,77 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get clearSearch => 'খোঁজা মুছুন';
+
+  @override
+  String get mosqueLoadError =>
+      'আপনার মসজিদগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get jamaatOffsetHint => 'ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)';
+
+  @override
+  String get notifPermissionNotAskedBanner =>
+      'নোটিফিকেশন এখনো চালু হয়নি, তাই চালু না করা পর্যন্ত নিচের কোনোটিই পৌঁছাবে না।';
+
+  @override
+  String get notifGroupDaily => 'দৈনিক রিমাইন্ডার';
+
+  @override
+  String get notifGroupDelivery => 'ডেলিভারি ও অবস্থা';
+
+  @override
+  String get focusPageTitle => 'জামাত ফোকাস ও নফস লক';
+
+  @override
+  String get focusPageRowSub => 'জামাতের সময় নিরবচ্ছিন্ন থাকুন';
+
+  @override
+  String get notificationsNoLocationTitle => 'লোকেশন সেট করা নেই';
+
+  @override
+  String get notificationsOffTitle => 'নোটিফিকেশন বন্ধ আছে';
+
+  @override
+  String get groupAdvanced => 'উন্নত';
+
+  @override
+  String get settingCreditsSub => 'কুরআনের অনুবাদ, হাদিস, ডেটা ও ফন্টের উৎস';
+
+  @override
+  String get creditsArabicText => 'আরবি পাঠ';
+
+  @override
+  String get creditsEnTranslation => 'ইংরেজি অনুবাদ';
+
+  @override
+  String get creditsBnTranslation => 'বাংলা অনুবাদ';
+
+  @override
+  String get creditsHadithText => 'আরবি ও ইংরেজি পাঠ';
+
+  @override
+  String get creditsGroupPlaces => 'নামাজের সময় ও স্থান';
+
+  @override
+  String get creditsPrayerCalc => 'নামাজের সময় ও কিবলা';
+
+  @override
+  String get creditsPrayerCalcValue =>
+      'আপনার ডিভাইসেই হিসাব করা হয় (adhan_dart)';
+
+  @override
+  String get creditsCities => 'শহরের ডেটাবেস';
+
+  @override
+  String get creditsGroupFonts => 'ফন্ট';
+
+  @override
+  String get creditsFontsUi => 'ইন্টারফেস';
+
+  @override
+  String get creditsFontQuran => 'কুরআনের লিপি';
+
+  @override
+  String get creditsReferences =>
+      'দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।';
 }

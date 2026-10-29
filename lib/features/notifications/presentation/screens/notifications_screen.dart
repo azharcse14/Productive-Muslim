@@ -11,6 +11,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_empty_state.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../prayer_times/presentation/screens/home_formatting.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
@@ -92,21 +93,31 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
           final location = _settings.location.value;
           final permission = _permission.value;
           if (location == null) {
-            return _Empty(
-              sub: l10n.notificationsNoLocationSub,
-              action: l10n.homeSetLocationCta,
-              icon: Icons.location_on_outlined,
-              onAction: () =>
-                  unawaited(context.pushNamed(Routes.locationPicker.name)),
+            return QEmptyState(
+              icon: Icons.location_off_outlined,
+              title: l10n.notificationsNoLocationTitle,
+              body: l10n.notificationsNoLocationSub,
+              action: QButton(
+                label: l10n.homeSetLocationCta,
+                kind: QButtonKind.tonal,
+                icon: Icons.location_on_outlined,
+                onPressed: () =>
+                    unawaited(context.pushNamed(Routes.locationPicker.name)),
+              ),
             );
           }
           if (permission != null &&
               permission != NotificationPermission.granted) {
-            return _Empty(
-              sub: l10n.notificationsOffSub,
-              action: l10n.notifEnableCta,
-              icon: Icons.notifications_active_outlined,
-              onAction: () => unawaited(_enable()),
+            return QEmptyState(
+              icon: Icons.notifications_off_outlined,
+              title: l10n.notificationsOffTitle,
+              body: l10n.notificationsOffSub,
+              action: QButton(
+                label: l10n.notifEnableCta,
+                kind: QButtonKind.tonal,
+                icon: Icons.notifications_active_outlined,
+                onPressed: () => unawaited(_enable()),
+              ),
             );
           }
           final matrix = _settings.settings.value.notifications;
@@ -120,12 +131,17 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
                 item,
           ];
           if (items.isEmpty) {
-            return _Empty(
-              sub: l10n.notificationsEmptySub,
-              action: l10n.notifSettingsTitle,
-              icon: Icons.tune,
-              onAction: () => unawaited(
-                context.pushNamed(Routes.notificationSettings.name),
+            return QEmptyState(
+              icon: Icons.notifications_none_outlined,
+              title: l10n.notificationsEmptyTitle,
+              body: l10n.notificationsEmptySub,
+              action: QButton(
+                label: l10n.notifSettingsTitle,
+                kind: QButtonKind.tonal,
+                icon: Icons.tune,
+                onPressed: () => unawaited(
+                  context.pushNamed(Routes.notificationSettings.name),
+                ),
               ),
             );
           }
@@ -163,7 +179,8 @@ final class _Tile extends StatelessWidget {
     final (icon, title, body, route) = switch (item.kind) {
       NotificationKind.azan => (
         item.silent ? Icons.notifications_off_outlined : Icons.mosque_outlined,
-        l10n.notifAzanTitle(prayer, time(item.at)),
+        // The time is already on the tile's trailing edge.
+        prayer,
         l10n.notifAzanBody(prayer),
         // Same as tapping the azan itself: Home, whose table ticks it.
         Routes.home.path,
@@ -275,55 +292,6 @@ final class _Tile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-final class _Empty extends StatelessWidget {
-  const _Empty({
-    required this.sub,
-    required this.action,
-    required this.icon,
-    required this.onAction,
-  });
-
-  final String sub;
-  final String action;
-  final IconData icon;
-  final VoidCallback onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(QSpace.s6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.notifications_none_outlined, size: 64, color: q.ink3),
-            const SizedBox(height: QSpace.s4),
-            Text(
-              context.l10n.notificationsEmptyTitle,
-              style: QType.title,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: QSpace.s2),
-            Text(
-              sub,
-              style: QType.caption.copyWith(color: q.ink2),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: QSpace.s5),
-            QButton(
-              label: action,
-              kind: QButtonKind.tonal,
-              icon: icon,
-              onPressed: onAction,
-            ),
-          ],
-        ),
       ),
     );
   }
