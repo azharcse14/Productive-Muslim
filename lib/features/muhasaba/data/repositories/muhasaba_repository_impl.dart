@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/daily_entry.dart';
@@ -83,7 +84,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         query.where((t) => t.archived.equals(false));
       }
       final rows = await query.get();
-      return Result.success(rows.map(_toDomain).toList());
+      return Result.success(rows.map(_toDomain).nonNulls.toList());
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to load items', e));
     }
@@ -414,8 +415,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         .get();
     final stats = <ItemPeriodStats>[];
     for (final row in rows) {
+      final kind = TrackerKind.fromCode(row.read<int>('kind'));
+      if (kind == null) continue; // Unknown kind: hidden, like in items().
       final daysDone = row.read<int>('days_done');
-      final isYesNo = row.read<int>('kind') == TrackerKind.yesNo.index;
+      final isYesNo = kind == TrackerKind.yesNo;
       final createdOn = row.readNullable<int>('created_on');
       final existedDays = createdOn == null || createdOn <= from
           ? periodDays
@@ -435,23 +438,32 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     return stats;
   }
 
-  TrackerItem _toDomain(TrackerItemRow row) => TrackerItem(
-    id: row.id,
-    name: row.name,
-    kind: TrackerKind.values[row.kind],
-    dailyTarget: row.dailyTarget,
-    icon: row.icon,
-    colorIndex: row.colorIndex,
-    isDefault: row.isDefault,
-    archived: row.archived,
-    sortOrder: row.sortOrder,
-  );
+  /// Null for a row with an unknown kind code (e.g. written by a newer
+  /// app version) — skipped, never deleted or rewritten.
+  TrackerItem? _toDomain(TrackerItemRow row) {
+    final kind = TrackerKind.fromCode(row.kind);
+    if (kind == null) {
+      debugPrint('Skipping tracker ${row.id}: unknown kind ${row.kind}');
+      return null;
+    }
+    return TrackerItem(
+      id: row.id,
+      name: row.name,
+      kind: kind,
+      dailyTarget: row.dailyTarget,
+      icon: row.icon,
+      colorIndex: row.colorIndex,
+      isDefault: row.isDefault,
+      archived: row.archived,
+      sortOrder: row.sortOrder,
+    );
+  }
 
   TrackerItemsCompanion _toCompanion(TrackerItem item) =>
       TrackerItemsCompanion.insert(
         id: item.id,
         name: item.name,
-        kind: item.kind.index,
+        kind: item.kind.code,
         dailyTarget: Value(item.dailyTarget),
         icon: item.icon,
         colorIndex: item.colorIndex,

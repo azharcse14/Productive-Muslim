@@ -1,6 +1,26 @@
 /// Input style of a tracker (design §4.7 — three types rendered
 /// distinctly).
-enum TrackerKind { yesNo, count, duration }
+///
+/// Persisted in the muhasaba DB — never change or reuse a code; append new
+/// kinds.
+enum TrackerKind {
+  yesNo(0),
+  count(1),
+  duration(2);
+
+  const TrackerKind(this.code);
+
+  /// Stable value stored in `tracker_items.kind`.
+  final int code;
+
+  /// The kind stored as [code], or null for an unknown code.
+  static TrackerKind? fromCode(int code) {
+    for (final kind in values) {
+      if (kind.code == code) return kind;
+    }
+    return null;
+  }
+}
 
 /// One muhasaba tracker definition. Items are ARCHIVED, never deleted —
 /// history is preserved (hard product rule).

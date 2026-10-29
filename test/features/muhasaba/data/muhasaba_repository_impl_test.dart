@@ -33,6 +33,36 @@ void main() {
     );
   }
 
+  group('tracker kind codes', () {
+    test('persisted codes are pinned', () {
+      expect(TrackerKind.values.map((k) => k.code), [0, 1, 2]);
+      expect(TrackerKind.fromCode(2), TrackerKind.duration);
+      expect(TrackerKind.fromCode(99), isNull);
+    });
+
+    test('a row with an unknown kind is skipped, not deleted', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('future', sortOrder: 1)));
+      await db.customStatement(
+        "UPDATE tracker_items SET kind = 99 WHERE id = 'future'",
+      );
+
+      final items = await unwrap(repo.items(includeArchived: true));
+      expect(items.map((i) => i.id), ['a']);
+      final stats = await unwrap(
+        repo.periodStats(
+          start: DateTime(2026, 6, 6),
+          end: DateTime(2026, 6, 12),
+          today: DateTime(2026, 6, 12),
+        ),
+      );
+      expect(stats.items.map((i) => i.itemId), ['a']);
+
+      final raw = await db.select(db.trackerItems).get();
+      expect(raw.firstWhere((r) => r.id == 'future').kind, 99);
+    });
+  });
+
   group('seedDefaults', () {
     test('populates all defaults exactly once', () async {
       await unwrap(repo.seedDefaults());

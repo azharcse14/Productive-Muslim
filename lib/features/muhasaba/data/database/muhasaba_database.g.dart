@@ -301,7 +301,7 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
   final String id;
   final String name;
 
-  /// Stored as `TrackerKind.index`.
+  /// Stored as `TrackerKind.code`.
   final int kind;
   final int? dailyTarget;
   final String icon;
