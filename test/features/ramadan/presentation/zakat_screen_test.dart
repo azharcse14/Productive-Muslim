@@ -102,4 +102,20 @@ void main() {
     expect(find.text(l10n.zakatInvalidNumber), findsOneWidget);
     expect(find.textContaining('Zakat due'), findsNothing);
   });
+
+  testWidgets('result names the nisab used and clears on edit', (tester) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatGoldPrice), '100');
+    await tester.enterText(field(l10n.zakatGold), '100');
+    await calculate(tester);
+
+    expect(find.text('Gold nisab (87.48 g)'), findsOneWidget);
+    expect(find.text(l10n.zakatRowMetals), findsOneWidget);
+
+    await tester.enterText(field(l10n.zakatGold), '50');
+    await tester.pump();
+    expect(find.textContaining('Zakat due'), findsNothing);
+    expect(find.text('Gold nisab (87.48 g)'), findsNothing);
+  });
 }

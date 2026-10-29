@@ -33,6 +33,9 @@ final class _ZakatScreenState extends State<ZakatScreen> {
 
   ZakatResult? _result;
 
+  /// Whether [_result] was measured against the gold (vs silver) nisab.
+  bool _goldNisab = false;
+
   /// Fields whose non-empty text didn't parse; shown as field errors.
   Set<TextEditingController> _invalid = {};
 
@@ -70,6 +73,14 @@ final class _ZakatScreenState extends State<ZakatScreen> {
     return value != null && value.isFinite && value >= 0 ? value : null;
   }
 
+  /// Drops the result and every error on any edit, so nothing stale shows.
+  void _edit() => setState(() {
+    _result = null;
+    _invalid = {};
+    _unpriced = {};
+    _needSilverPrice = false;
+  });
+
   double _valueOf(TextEditingController controller) => _parse(controller) ?? 0;
 
   bool _isInvalid(TextEditingController controller) =>
@@ -92,7 +103,8 @@ final class _ZakatScreenState extends State<ZakatScreen> {
     setState(() {
       _invalid = controllers.where(_isInvalid).toSet();
       // Gold alone uses the gold nisab (its price is checked below).
-      _needSilverPrice = !ZakatCalculator.usesGoldNisab(input) &&
+      _needSilverPrice =
+          !ZakatCalculator.usesGoldNisab(input) &&
           input.silverPricePerGram <= 0;
       _unpriced = {
         if (input.goldGrams > 0 && input.goldPricePerGram <= 0) _goldPrice,
@@ -103,6 +115,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
         _result = null;
         return;
       }
+      _goldNisab = ZakatCalculator.usesGoldNisab(input);
       _result = ZakatCalculator.calculate(input);
     });
   }
@@ -110,7 +123,9 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   String _formatAmount(BuildContext context, double amount) {
     final locale = Localizations.localeOf(context);
     return LocaleDigits.localize(
-      NumberFormat.decimalPattern(locale.toString()).format(amount),
+      (NumberFormat.decimalPattern(
+        locale.toString(),
+      )..maximumFractionDigits = 2).format(amount),
       locale.languageCode,
     );
   }
@@ -146,6 +161,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  onChanged: (_) => _edit(),
                   style: QType.num_(QType.body).copyWith(color: q.ink),
                   decoration: InputDecoration(
                     labelText: label,
@@ -190,6 +206,51 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                       ),
                       style: QType.body.copyWith(color: q.ink2),
                     ),
+                    Text(
+                      _goldNisab
+                          ? l10n.zakatNisabGold(
+                              _formatAmount(
+                                context,
+                                ZakatCalculator.nisabGoldGrams,
+                              ),
+                            )
+                          : l10n.zakatNisabSilver(
+                              _formatAmount(
+                                context,
+                                ZakatCalculator.nisabSilverGrams,
+                              ),
+                            ),
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                    const SizedBox(height: QSpace.s3),
+                    for (final (label, amount) in [
+                      (l10n.zakatRowCash, result.cashTotal),
+                      (l10n.zakatRowMetals, result.metalsValue),
+                      (l10n.zakatRowBusiness, result.businessTotal),
+                      (
+                        l10n.zakatRowDebts,
+                        result.totalWealth - result.zakatableWealth,
+                      ),
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: QSpace.s1),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: QType.body.copyWith(color: q.ink2),
+                              ),
+                            ),
+                            Text(
+                              _formatAmount(context, amount),
+                              style: QType.num_(
+                                QType.body,
+                              ).copyWith(color: q.ink),
+                            ),
+                          ],
+                        ),
+                      ),
                     const SizedBox(height: QSpace.s3),
                     if (result.isPayable)
                       Text(
@@ -208,6 +269,8 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                 ),
               ),
             ],
+            const SizedBox(height: QSpace.s4),
+            QBanner(text: l10n.zakatDisclaimer),
           ],
         ),
       ),
