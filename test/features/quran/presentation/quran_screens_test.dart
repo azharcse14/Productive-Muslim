@@ -150,11 +150,11 @@ final class FakeQuranRepository implements QuranRepository {
 }
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 void main() {
   late FakeQuranRepository repo;
@@ -177,8 +177,9 @@ void main() {
       tester.pump(const Duration(milliseconds: 600));
 
   group('QuranScreen', () {
-    testWidgets('renders the surah index with first-open banner',
-        (tester) async {
+    testWidgets('renders the surah index with first-open banner', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const QuranScreen()));
       await tester.pump();
 
@@ -197,8 +198,9 @@ void main() {
       expect(find.text('Continue reading'), findsNothing);
     });
 
-    testWidgets('shows the resume card when a position is stored',
-        (tester) async {
+    testWidgets('shows the resume card when a position is stored', (
+      tester,
+    ) async {
       repo.storedLastRead = const QuranPosition(2, 2);
       await store.load();
       await tester.pumpWidget(_app(const QuranScreen()));
@@ -208,8 +210,9 @@ void main() {
       expect(find.text('Al-Baqara · 2'), findsOneWidget);
     });
 
-    testWidgets('search filters the list and empty results show a notice',
-        (tester) async {
+    testWidgets('search filters the list and empty results show a notice', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const QuranScreen()));
       await tester.pump();
 
@@ -227,13 +230,14 @@ void main() {
 
       expect(find.text('Al-Baqara'), findsNothing);
       expect(
-        find.text('No matching city — try a different spelling'),
+        find.text('No matching surah — try another name or number'),
         findsOneWidget,
       );
     });
 
-    testWidgets('bookmarks sheet lists saved ayahs and opens the reader',
-        (tester) async {
+    testWidgets('bookmarks sheet lists saved ayahs and opens the reader', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const QuranScreen()));
       await tester.pump();
 
@@ -247,14 +251,35 @@ void main() {
       await store.toggleBookmark(4);
       await tester.tap(find.byTooltip('Bookmarks'));
       await tester.pumpAndSettle();
-      expect(find.text('2:2'), findsOneWidget);
+      // Reference plus a first-words preview of the ayah.
+      expect(find.text('2:2 · This is the Book'), findsOneWidget);
 
-      await tester.tap(find.text('2:2'));
+      await tester.tap(find.textContaining('2:2'));
       await tester.pumpAndSettle();
       expect(find.byType(QuranReaderScreen), findsOneWidget);
       expect(find.text('This is the Book'), findsOneWidget);
 
       await flushMarkRead(tester);
+    });
+
+    testWidgets('swiping a bookmark away removes it, with undo', (
+      tester,
+    ) async {
+      await store.toggleBookmark(4);
+      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.textContaining('2:2'), const Offset(-600, 0));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, isEmpty);
+      expect(find.text('Bookmark removed'), findsOneWidget);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, {4});
+      expect(find.textContaining('2:2'), findsOneWidget);
     });
 
     testWidgets('tapping a surah row opens the reader', (tester) async {
@@ -287,8 +312,7 @@ void main() {
       expect(repo.storedLastRead, isNull);
     });
 
-    testWidgets('settings sheet switch hides the translation',
-        (tester) async {
+    testWidgets('settings sheet switch hides the translation', (tester) async {
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();
       expect(find.text('In the name of Allah'), findsOneWidget);
@@ -307,8 +331,9 @@ void main() {
       await flushMarkRead(tester);
     });
 
-    testWidgets('bookmark tap updates the store and fills the icon',
-        (tester) async {
+    testWidgets('bookmark tap updates the store and fills the icon', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();
 
@@ -350,8 +375,9 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('after a user scroll, records the ayah at the top edge',
-        (tester) async {
+    testWidgets('after a user scroll, records the ayah at the top edge', (
+      tester,
+    ) async {
       repo.extraAyahs[1] = [
         for (var i = 1; i <= 40; i++)
           Ayah(
@@ -387,8 +413,9 @@ void main() {
       expect(repo.storedLastRead?.ayah, expected);
     });
 
-    testWidgets('resume jump lands on the ayah despite uneven card heights',
-        (tester) async {
+    testWidgets('resume jump lands on the ayah despite uneven card heights', (
+      tester,
+    ) async {
       repo.extraAyahs[1] = [
         for (var i = 1; i <= 60; i++)
           Ayah(
@@ -417,8 +444,67 @@ void main() {
       expect(repo.storedLastRead, isNull);
     });
 
-    testWidgets('a failed load shows a retry instead of an endless skeleton',
-        (tester) async {
+    testWidgets('a surah that fits on screen is recorded without a scroll', (
+      tester,
+    ) async {
+      // Aal-i-Imraan has a single ayah here.
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 3)));
+      await tester.pumpAndSettle();
+      expect(repo.storedLastRead, const QuranPosition(3, 1));
+    });
+
+    testWidgets('go to ayah accepts localized digits and jumps there', (
+      tester,
+    ) async {
+      repo.extraAyahs[1] = [
+        for (var i = 1; i <= 40; i++)
+          Ayah(
+            id: 1000 + i,
+            surah: 1,
+            number: i,
+            arabic: 'arabic $i',
+            translationEn: 'translation $i',
+            translationBn: '',
+          ),
+      ];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pumpAndSettle();
+      expect(find.text('arabic 30'), findsNothing);
+
+      await tester.tap(find.byTooltip('Go to ayah'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '৪১'); // out of range
+      await tester.tap(find.text('Go'));
+      await tester.pump();
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '৩০');
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+      expect(find.text('arabic 30'), findsOneWidget);
+    });
+
+    testWidgets('the last card opens the next surah, none after 114', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pumpAndSettle();
+      expect(find.text('Next surah'), findsOneWidget);
+
+      await tester.tap(find.text('Next surah'));
+      await tester.pumpAndSettle();
+      expect(find.text('Alif Lam Meem'), findsOneWidget);
+
+      repo.extraAyahs[114] = FakeQuranRepository.ayahsData[3]!;
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 114)));
+      await tester.pumpAndSettle();
+      expect(find.text('Next surah'), findsNothing);
+    });
+
+    testWidgets('a failed load shows a retry instead of an endless skeleton', (
+      tester,
+    ) async {
       repo.failAyahs = true;
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();
@@ -431,16 +517,18 @@ void main() {
       await flushMarkRead(tester);
     });
 
-    testWidgets('an empty surah shows a retry, not an endless skeleton',
-        (tester) async {
+    testWidgets('an empty surah shows a retry, not an endless skeleton', (
+      tester,
+    ) async {
       repo.extraAyahs[1] = const [];
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();
       expect(find.text('Try again'), findsOneWidget);
     });
 
-    testWidgets('records as soon as the scroll settles (leaving right after)',
-        (tester) async {
+    testWidgets('records as soon as the scroll settles (leaving right after)', (
+      tester,
+    ) async {
       repo.extraAyahs[1] = [
         for (var i = 1; i <= 40; i++)
           Ayah(

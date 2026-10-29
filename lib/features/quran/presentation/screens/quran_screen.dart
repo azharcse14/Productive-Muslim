@@ -15,6 +15,7 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
+import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
@@ -37,6 +38,12 @@ final class _QuranScreenState extends State<QuranScreen> {
   final _results = signal<List<Surah>?>(null);
 
   Timer? _debounce;
+
+  /// Last bookmark swiped away in the sheet, offered back via undo.
+  final _removedBookmark = signal<int?>(null);
+
+  /// One read per surah for the bookmark previews, shared across rows.
+  final Map<int, Future<List<Ayah>?>> _previewAyahs = {};
 
   @override
   void initState() {
@@ -76,6 +83,7 @@ final class _QuranScreenState extends State<QuranScreen> {
   }
 
   void _showBookmarks() {
+    _removedBookmark.value = null;
     unawaited(
       showModalBottomSheet<void>(
         context: context,
@@ -89,10 +97,8 @@ final class _QuranScreenState extends State<QuranScreen> {
     final l10n = context.l10n;
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final positions = [
-      for (final id in _store.bookmarks.value.toList()..sort())
-        ?_store.positionOf(id),
-    ];
+    final ids = _store.bookmarks.value.toList()..sort();
+    final removed = _removedBookmark.value;
     return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -109,7 +115,33 @@ final class _QuranScreenState extends State<QuranScreen> {
                 style: QType.title.copyWith(color: q.ink),
               ),
             ),
-            if (positions.isEmpty)
+            if (removed != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  QSpace.s5,
+                  0,
+                  QSpace.s3,
+                  QSpace.s2,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.bookmarkRemoved,
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        _removedBookmark.value = null;
+                        unawaited(_store.toggleBookmark(removed));
+                      },
+                      child: Text(l10n.bookmarkUndo),
+                    ),
+                  ],
+                ),
+              ),
+            if (ids.isEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   QSpace.s5,
@@ -128,24 +160,54 @@ final class _QuranScreenState extends State<QuranScreen> {
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
                   children: [
-                    for (final position in positions)
-                      QListRow(
-                        icon: Icons.bookmark_outline,
-                        title:
-                            _surahById(position.surah)?.transliteration ?? '',
-                        subtitle: LocaleDigits.localize(
-                          '${position.surah}:${position.ayah}',
-                          languageCode,
+                    for (final id in ids)
+                      if (_store.positionOf(id) case final position?)
+                        Dismissible(
+                          key: ValueKey(id),
+                          onDismissed: (_) {
+                            _removedBookmark.value = id;
+                            unawaited(_store.toggleBookmark(id));
+                          },
+                          child: FutureBuilder(
+                            future: _previewAyahs.putIfAbsent(
+                              position.surah,
+                              () => _store.ayahsOf(position.surah),
+                            ),
+                            builder: (context, snapshot) {
+                              final reference = LocaleDigits.localize(
+                                '${position.surah}:${position.ayah}',
+                                languageCode,
+                              );
+                              final preview = _preview(
+                                snapshot.data,
+                                position.ayah,
+                                languageCode,
+                              );
+                              return QListRow(
+                                icon: Icons.bookmark_outline,
+                                title:
+                                    _surahById(
+                                      position.surah,
+                                    )?.transliteration ??
+                                    '',
+                                subtitle: preview == null
+                                    ? reference
+                                    : '$reference · $preview',
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: q.ink3,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  _openReader(
+                                    position.surah,
+                                    initialAyah: position.ayah,
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ),
-                        trailing: Icon(Icons.chevron_right, color: q.ink3),
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          _openReader(
-                            position.surah,
-                            initialAyah: position.ayah,
-                          );
-                        },
-                      ),
                   ],
                 ),
               ),
@@ -153,6 +215,17 @@ final class _QuranScreenState extends State<QuranScreen> {
         ),
       ),
     );
+  }
+
+  /// First words of the bookmarked ayah's translation, or null until the
+  /// surah has been read.
+  static String? _preview(List<Ayah>? ayahs, int number, String languageCode) {
+    final ayah = ayahs?.where((a) => a.number == number).firstOrNull;
+    if (ayah == null) {
+      return null;
+    }
+    final text = ayah.translationFor(languageCode).trim();
+    return text.length <= 60 ? text : '${text.substring(0, 60).trimRight()}…';
   }
 
   @override
@@ -291,7 +364,7 @@ final class _QuranScreenState extends State<QuranScreen> {
     if (surahs.isEmpty) {
       return Center(
         child: Text(
-          l10n.searchNoResults,
+          l10n.surahSearchNoResults,
           style: QType.body.copyWith(color: q.ink2),
         ),
       );

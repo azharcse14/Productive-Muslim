@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../config/app_config.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -14,11 +13,14 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/ayah_medallion.dart';
+import '../widgets/reader_settings_sheet.dart';
 
 /// Ayah-card extent guess for the first index→offset jump, before any card
 /// has been measured. The jump then refines itself (see `_jumpToIndex`).
@@ -28,11 +30,7 @@ const _estimatedCardExtent = 180.0;
 /// an independent user scale, per-ayah bookmark/copy actions, a scroll
 /// progress bar under the app bar and a reading-settings sheet.
 final class QuranReaderScreen extends StatefulWidget {
-  const QuranReaderScreen({
-    required this.surahId,
-    this.initialAyah,
-    super.key,
-  });
+  const QuranReaderScreen({required this.surahId, this.initialAyah, super.key});
 
   final int surahId;
 
@@ -90,6 +88,45 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         _jumpToIndex(index);
       }
     }
+    // A surah that fits on screen never scrolls, so record it as read once
+    // laid out.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          _controller.hasClients &&
+          _controller.position.maxScrollExtent == 0) {
+        _markRead();
+      }
+    });
+  }
+
+  Future<void> _goToAyah() async {
+    final l10n = context.l10n;
+    final count = _ayahs.value.length;
+    final number = await showNumberDialog(
+      context,
+      title: l10n.goToAyah,
+      hint: l10n.goToAyahHint(
+        LocaleDigits.localize(
+          '$count',
+          Localizations.localeOf(context).languageCode,
+        ),
+      ),
+      actionLabel: l10n.goToAction,
+      max: count,
+    );
+    if (number != null && mounted) {
+      _jumpToIndex(number - 1);
+    }
+  }
+
+  void _openNextSurah() {
+    unawaited(
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => QuranReaderScreen(surahId: widget.surahId + 1),
+        ),
+      ),
+    );
   }
 
   /// Cards vary in height (font size, translation, ayah length), so one
@@ -123,8 +160,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         count++;
         if (anchor == null || index < anchor) {
           anchor = index;
-          anchorOffset =
-              RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+          anchorOffset = RenderAbstractViewport.of(
+            box,
+          ).getOffsetToReveal(box, 0).offset;
         }
       }
       final extent = count == 0 ? _estimatedCardExtent : total / count;
@@ -143,7 +181,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     final position = _controller.position;
     _progress.value = position.maxScrollExtent <= 0
         ? 0
-        : (position.pixels / position.maxScrollExtent).clamp(0.0, 1.0).toDouble();
+        : (position.pixels / position.maxScrollExtent)
+              .clamp(0.0, 1.0)
+              .toDouble();
   }
 
   /// Index of the built item covering the viewport's leading edge: the one
@@ -165,8 +205,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       if (first == null || index < first) {
         first = index;
       }
-      final reveal =
-          RenderAbstractViewport.of(box).getOffsetToReveal(box, 0).offset;
+      final reveal = RenderAbstractViewport.of(
+        box,
+      ).getOffsetToReveal(box, 0).offset;
       if (reveal <= pixels + 0.5 && (topReveal == null || reveal > topReveal)) {
         top = index;
         topReveal = reveal;
@@ -186,9 +227,10 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     );
   }
 
-  Surah? _surah() {
+  Surah? _surah([int? id]) {
+    final target = id ?? widget.surahId;
     for (final surah in _store.surahs.value) {
-      if (surah.id == widget.surahId) {
+      if (surah.id == target) {
         return surah;
       }
     }
@@ -201,15 +243,36 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: SignalBuilder(
-          builder: (context) => Text(
-            _surah()?.transliteration ?? context.l10n.quranTitle,
-          ),
+          builder: (context) =>
+              Text(_surah()?.transliteration ?? context.l10n.quranTitle),
         ),
         actions: [
+          SignalBuilder(
+            builder: (context) => IconButton(
+              tooltip: context.l10n.goToAyah,
+              icon: const Icon(Icons.format_list_numbered),
+              onPressed: _ayahs.value.length > 1
+                  ? () => unawaited(_goToAyah())
+                  : null,
+            ),
+          ),
           IconButton(
             tooltip: context.l10n.readerSettings,
             icon: const Icon(Icons.tune),
-            onPressed: () => unawaited(_openReaderSettings(context)),
+            onPressed: () => unawaited(
+              showReaderSettingsSheet(
+                context,
+                showTranslationToggle: true,
+                // Keep the ayah at the top in place while cards resize.
+                onFontChangeStart: () => _fontAnchor = _topVisibleIndex(),
+                onFontChanged: () {
+                  final anchor = _fontAnchor;
+                  if (anchor != null) {
+                    _jumpToIndex(anchor);
+                  }
+                },
+              ),
+            ),
           ),
         ],
         bottom: PreferredSize(
@@ -253,8 +316,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                   // Once per settled scroll (not per frame): record the
                   // ayah at the top of the viewport, after the frame that
                   // lays the items out at the final offset.
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) => _markRead());
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => _markRead(),
+                  );
                 }
                 return false;
               },
@@ -266,28 +330,50 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                   QSpace.s5,
                   QSpace.s5,
                 ),
-                itemCount: ayahs.length,
+                // The last surah (114) has no "next surah" card.
+                itemCount: ayahs.length + (widget.surahId < 114 ? 1 : 0),
                 // The builder context is the sliver's, so each item gets its
                 // own Builder context for the top-visible-ayah lookup.
-                itemBuilder: (_, index) => Builder(
-                  builder: (itemContext) {
-                    _itemContexts[index] = itemContext;
-                    return Padding(
-                      padding:
-                          const EdgeInsetsDirectional.only(bottom: QSpace.s3),
-                      // Lazy items build outside the body SignalBuilder's
-                      // tracked scope, so each card subscribes on its own.
-                      child: SignalBuilder(
-                        builder: (context) =>
-                            _ayahCard(context, ayahs[index]),
+                itemBuilder: (_, index) => index == ayahs.length
+                    ? _nextSurahCard(context)
+                    : Builder(
+                        builder: (itemContext) {
+                          _itemContexts[index] = itemContext;
+                          return Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                              bottom: QSpace.s3,
+                            ),
+                            // Lazy items build outside the body SignalBuilder's
+                            // tracked scope, so each card subscribes on its own.
+                            child: SignalBuilder(
+                              builder: (context) =>
+                                  _ayahCard(context, ayahs[index]),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _nextSurahCard(BuildContext context) {
+    final q = context.q;
+    final next = _surah(widget.surahId + 1);
+    return QCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: QSpace.s4,
+        vertical: QSpace.s2,
+      ),
+      child: QListRow(
+        icon: Icons.menu_book_outlined,
+        title: context.l10n.nextSurah,
+        subtitle: next?.transliteration,
+        trailing: Icon(Icons.chevron_right, color: q.ink3),
+        onTap: _openNextSurah,
       ),
     );
   }
@@ -307,11 +393,14 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             textDirection: TextDirection.rtl,
             child: Text(
               ayah.arabic,
+              // Lets screen readers pick an Arabic voice.
+              locale: const Locale('ar'),
               // The reader has its own size setting (design §4.5), so the
               // system text scale must not multiply it again.
               textScaler: TextScaler.noScaling,
-              style: QType.quran(_store.readerFontSize.value)
-                  .copyWith(color: q.ink),
+              style: QType.quran(
+                _store.readerFontSize.value,
+              ).copyWith(color: q.ink),
             ),
           ),
           if (_store.showTranslation.value) ...[
@@ -367,82 +456,12 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     final languageCode = Localizations.localeOf(context).languageCode;
     await Clipboard.setData(
       ClipboardData(
-        text: '${ayah.arabic}\n'
+        text:
+            '${ayah.arabic}\n'
             '${ayah.translationFor(languageCode)}\n'
             '${l10n.ayahShareSuffix(ayah.surah, ayah.number)}',
       ),
     );
     messenger.showSnackBar(SnackBar(content: Text(l10n.ayahCopied)));
-  }
-
-  Future<void> _openReaderSettings(BuildContext context) {
-    final l10n = context.l10n;
-    return showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            QSpace.s5,
-            0,
-            QSpace.s5,
-            QSpace.s5,
-          ),
-          child: SignalBuilder(
-            builder: (context) {
-              final q = context.q;
-              final size = _store.readerFontSize.value;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.readerFontSize,
-                    style: QType.label.copyWith(color: q.ink),
-                  ),
-                  Slider(
-                    value: size,
-                    min: AppConfig.quranFontSizeMin,
-                    max: AppConfig.quranFontSizeMax,
-                    divisions: ((AppConfig.quranFontSizeMax -
-                                AppConfig.quranFontSizeMin) /
-                            AppConfig.quranFontSizeStep)
-                        .round(),
-                    label: LocaleDigits.localize(
-                      '${size.round()}',
-                      Localizations.localeOf(context).languageCode,
-                    ),
-                    // Keep the ayah at the top in place while cards resize;
-                    // persist once on release, not on every tick.
-                    onChangeStart: (_) => _fontAnchor = _topVisibleIndex(),
-                    onChanged: (value) {
-                      unawaited(
-                        _store.setReaderFontSize(value, persist: false),
-                      );
-                      final anchor = _fontAnchor;
-                      if (anchor != null) {
-                        _jumpToIndex(anchor);
-                      }
-                    },
-                    onChangeEnd: (value) =>
-                        unawaited(_store.setReaderFontSize(value)),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      l10n.showTranslation,
-                      style: QType.titleSm.copyWith(color: q.ink),
-                    ),
-                    value: _store.showTranslation.value,
-                    onChanged: (value) =>
-                        unawaited(_store.setShowTranslation(value: value)),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
   }
 }
