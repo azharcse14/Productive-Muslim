@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
@@ -44,15 +45,65 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
     await _quiz.start(_names.asma.value);
   }
 
-  void _onSelectMode(int i) {
+  Future<void> _onSelectMode(int i) async {
     final mode = AsmaQuizMode.values[i];
     if (mode == _quiz.mode.value) {
       return;
     }
-    unawaited(_quiz.start(_names.asma.value, mode: mode));
+    // Switching restarts the run, so don't throw away answers silently.
+    final started = _quiz.index.value > 0 || _quiz.answered.value;
+    if (started && !(await _confirmModeSwitch())) {
+      return;
+    }
+    await _quiz.start(_names.asma.value, mode: mode);
   }
 
-  void _onAnswer(int i) => _quiz.answer(i);
+  Future<bool> _confirmModeSwitch() async {
+    final l10n = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.asmaQuizSwitchModeTitle),
+        content: Text(l10n.asmaQuizSwitchModeBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.asmaQuizSwitchMode),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  void _onAnswer(int i) {
+    final question = _quiz.current.value;
+    if (question == null || _quiz.answered.value) {
+      return;
+    }
+    _quiz.answer(i);
+    final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final answer = question.options[question.answerIndex];
+    final message = question.isCorrect(i)
+        ? l10n.asmaQuizCorrect
+        : l10n.asmaQuizWrongAnswerIs(
+            question.mode == AsmaQuizMode.meaningToName
+                ? answer.transliteration
+                : answer.meaningFor(languageCode),
+          );
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        message,
+        Directionality.of(context),
+      ),
+    );
+  }
 
   void _onNext() => unawaited(_quiz.next());
 
@@ -89,7 +140,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
               selected: _quiz.selected.value,
               answered: _quiz.answered.value,
               modeIndex: AsmaQuizMode.values.indexOf(_quiz.mode.value),
-              onSelectMode: _onSelectMode,
+              onSelectMode: (i) => unawaited(_onSelectMode(i)),
               onAnswer: _onAnswer,
               onNext: _onNext,
             );
@@ -200,6 +251,8 @@ final class _QuestionView extends StatelessWidget {
             label: showMeaningAsPrompt
                 ? option.transliteration
                 : option.meaningFor(languageCode),
+            // The name itself alongside its transliteration.
+            arabic: showMeaningAsPrompt ? option.arabic : null,
             isCorrect: i == question.answerIndex,
             isSelected: i == selected,
             answered: answered,
@@ -227,6 +280,7 @@ final class _QuestionView extends StatelessWidget {
 final class _OptionTile extends StatelessWidget {
   const _OptionTile({
     required this.label,
+    this.arabic,
     required this.isCorrect,
     required this.isSelected,
     required this.answered,
@@ -234,6 +288,7 @@ final class _OptionTile extends StatelessWidget {
   });
 
   final String label;
+  final String? arabic;
   final bool isCorrect;
   final bool isSelected;
   final bool answered;
@@ -251,18 +306,25 @@ final class _OptionTile extends StatelessWidget {
     )) {
       (true, true, _) => (q.okSoft, q.ok, q.ink, Icons.check_circle_outline),
       (true, false, true) => (
-          q.urgentSoft,
-          q.urgent,
-          q.ink,
-          Icons.cancel_outlined,
-        ),
+        q.urgentSoft,
+        q.urgent,
+        q.ink,
+        Icons.cancel_outlined,
+      ),
       _ => (q.surface, q.line, q.ink, null),
     };
 
+    final l10n = context.l10n;
     return Semantics(
       button: true,
       selected: isSelected,
-      label: label,
+      label: switch ((answered, isCorrect, isSelected)) {
+        (true, true, _) => l10n.asmaQuizCorrectOption(label),
+        (true, false, true) => l10n.asmaQuizWrongOption(label),
+        _ => label,
+      },
+      onTap: onTap,
+      excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
@@ -283,6 +345,14 @@ final class _OptionTile extends StatelessWidget {
               Expanded(
                 child: Text(label, style: QType.titleSm.copyWith(color: fg)),
               ),
+              if (arabic != null) ...[
+                const SizedBox(width: QSpace.s2),
+                Text(
+                  arabic!,
+                  textDirection: TextDirection.rtl,
+                  style: QType.quran(22).copyWith(color: fg),
+                ),
+              ],
               if (mark != null) ...[
                 const SizedBox(width: QSpace.s2),
                 Icon(mark, size: 20, color: border),

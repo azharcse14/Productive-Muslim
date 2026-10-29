@@ -173,6 +173,8 @@ final class _AsmaRow extends StatelessWidget {
             Text(
               name.arabic,
               textDirection: TextDirection.rtl,
+              // A non-Arabic TTS garbles raw Arabic glyphs.
+              semanticsLabel: name.transliteration,
               style: QType.quran(22).copyWith(color: q.ink),
             ),
           ],
@@ -203,6 +205,8 @@ final class _AsmaDetailSheet extends StatelessWidget {
               name.arabic,
               textAlign: TextAlign.center,
               textDirection: TextDirection.rtl,
+              // A non-Arabic TTS garbles raw Arabic glyphs.
+              semanticsLabel: name.transliteration,
               style: QType.quran(36).copyWith(color: q.ink),
             ),
             const SizedBox(height: QSpace.s3),
