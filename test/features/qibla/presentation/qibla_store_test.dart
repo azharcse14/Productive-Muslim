@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
-import 'package:productive_muslim/features/qibla/data/datasources/sensor_data_source.dart';
+import 'package:productive_muslim/features/qibla/domain/repositories/compass_sensor_source.dart';
 import 'package:productive_muslim/features/qibla/domain/usecases/magnetic_declination.dart';
 import 'package:productive_muslim/features/qibla/presentation/state/qibla_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';

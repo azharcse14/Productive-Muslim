@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../settings/presentation/state/settings_store.dart';
-import '../../data/datasources/sensor_data_source.dart';
+import '../../domain/repositories/compass_sensor_source.dart';
 import '../../domain/usecases/compass_math.dart';
 import '../../domain/usecases/magnetic_declination.dart';
 

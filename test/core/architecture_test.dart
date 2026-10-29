@@ -202,7 +202,6 @@ const _baseline = <String>{
   'lib/features/prayer_times/presentation/widgets/prayer_detail_sheet.dart -> lib/features/settings/presentation/widgets/setting_labels.dart',
   'lib/features/prayer_times/presentation/widgets/prayer_table.dart -> lib/features/settings/presentation/widgets/setting_labels.dart',
   'lib/features/prayer_times/presentation/widgets/tasbih_quick_card.dart -> locator',
-  'lib/features/qibla/presentation/state/qibla_store.dart -> lib/features/qibla/data/datasources/sensor_data_source.dart',
   'lib/features/qibla/presentation/state/qibla_store.dart -> lib/features/settings/presentation/state/settings_store.dart',
   'lib/features/quran/presentation/state/quran_store.dart -> package:shared_preferences',
   'lib/features/quran/presentation/widgets/reader_settings_sheet.dart -> GetIt',

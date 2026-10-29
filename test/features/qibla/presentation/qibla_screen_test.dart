@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
-import 'package:productive_muslim/features/qibla/data/datasources/sensor_data_source.dart';
+import 'package:productive_muslim/features/qibla/domain/repositories/compass_sensor_source.dart';
 import 'package:productive_muslim/features/qibla/presentation/screens/qibla_screen.dart';
 import 'package:productive_muslim/features/qibla/presentation/state/qibla_store.dart';
 import 'package:productive_muslim/features/qibla/presentation/widgets/compass_dial.dart';

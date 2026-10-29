@@ -4,21 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
-/// One raw sensor sample pair, in the device coordinate system.
-typedef SensorVectors = ({
-  double ax,
-  double ay,
-  double az,
-  double mx,
-  double my,
-  double mz,
-});
-
-/// Seam over sensors_plus so the store (and tests) never touch plugin
-/// statics. Streams error on devices without the sensor.
-abstract interface class CompassSensorSource {
-  Stream<SensorVectors> vectors();
-}
+import '../../domain/repositories/compass_sensor_source.dart';
 
 final class SensorsPlusSource implements CompassSensorSource {
   const SensorsPlusSource();

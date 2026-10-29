@@ -66,6 +66,7 @@ import '../../features/prayer_times/domain/repositories/prayer_day_repository.da
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
 import '../../features/qibla/data/datasources/sensor_data_source.dart';
+import '../../features/qibla/domain/repositories/compass_sensor_source.dart';
 import '../../features/qibla/presentation/state/qibla_store.dart';
 import '../../features/quran/data/datasources/quran_database.dart';
 import '../../features/quran/data/repositories/quran_repository_impl.dart';
