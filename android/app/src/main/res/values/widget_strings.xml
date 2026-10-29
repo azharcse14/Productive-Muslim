@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="widget_description">Next prayer time at a glance</string>
+    <string name="widget_setup_title" translatable="false">Productive Muslim</string>
+    <string name="widget_setup_action">Set up</string>
+    <string name="widget_setup_hint">Open the app to set your location</string>
 </resources>

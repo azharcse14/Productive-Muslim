@@ -347,6 +347,7 @@ Future<void> setupLocator() async {
       getPrayerDay: locator(),
       clock: locator(),
       settings: locator(),
+      mosque: locator(),
     ),
   );
 

@@ -9,7 +9,8 @@ typedef WidgetPayload = Map<String, String>;
 
 /// Builds the widget's display strings. All localization/time formatting is
 /// done here in Dart so the native side only renders ready strings — no
-/// platform l10n needed. [day] is null until a location is configured.
+/// platform l10n needed. [day] is null until a location is configured;
+/// [setupHint] is then shown by the native "not set up" state.
 ///
 /// `widget_schedule` lets the native side pick the next prayer itself while
 /// the app isn't running: one `epochMillis<TAB>name<TAB>time` line per
@@ -22,9 +23,10 @@ WidgetPayload buildWidgetPayload({
   required PrayerDay? day,
   required DateTime now,
   required String nextPrayerLabel,
-  required String Function(Prayer) prayerName,
+  required String Function(Prayer prayer, DateTime at) prayerName,
   required String Function(DateTime) formatTime,
   required String locationLabel,
+  String setupHint = '',
   PrayerDay? tomorrow,
   DateTime Function(DateTime wall)? instantOf,
 }) {
@@ -39,12 +41,13 @@ WidgetPayload buildWidgetPayload({
       'widget_schedule': '',
       'widget_times_next': '',
       'widget_day_flip': '',
+      'widget_setup_hint': setupHint,
     };
   }
   final toInstant = instantOf ?? (DateTime wall) => wall;
   String line(Prayer prayer, DateTime at) => [
     toInstant(at).millisecondsSinceEpoch,
-    prayerName(prayer),
+    prayerName(prayer, at),
     formatTime(at),
   ].join('\t');
   final schedule = [
@@ -57,12 +60,12 @@ WidgetPayload buildWidgetPayload({
   final next = resolveNextPrayer(day, now);
   String strip(PrayerDay d) => [
     for (final prayer in Prayer.values)
-      '${prayerName(prayer)} ${formatTime(d.startOf(prayer))}',
+      '${prayerName(prayer, d.startOf(prayer))} ${formatTime(d.startOf(prayer))}',
   ].join('   ');
   return {
     'widget_configured': '1',
     'widget_label': nextPrayerLabel,
-    'widget_prayer': prayerName(next.prayer),
+    'widget_prayer': prayerName(next.prayer, next.at),
     'widget_time': formatTime(next.at),
     'widget_location': locationLabel,
     'widget_times': strip(day),

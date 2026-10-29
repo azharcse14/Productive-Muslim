@@ -14,7 +14,7 @@ PrayerDay _day(DateTime d) => PrayerDay(
   ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
 );
 
-String _name(Prayer p) => p.name;
+String _name(Prayer p, DateTime _) => p.name;
 String _fmt(DateTime t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
 
 void main() {

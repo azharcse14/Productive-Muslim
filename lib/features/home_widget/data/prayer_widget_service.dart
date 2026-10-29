@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/utils/locale_digits.dart';
+import '../../my_mosque/domain/usecases/resolve_active_mosque.dart';
+import '../../my_mosque/presentation/state/mosque_store.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
 import '../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../prayer_times/presentation/screens/home_formatting.dart';
@@ -24,15 +26,18 @@ final class PrayerWidgetService {
     required GetPrayerDay getPrayerDay,
     required ZonedClock clock,
     required SettingsStore settings,
+    MosqueStore? mosque,
     WidgetBridge bridge = const WidgetBridge(),
   }) : _getPrayerDay = getPrayerDay,
        _clock = clock,
        _settings = settings,
+       _mosque = mosque,
        _bridge = bridge;
 
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
   final SettingsStore _settings;
+  final MosqueStore? _mosque;
   final WidgetBridge _bridge;
 
   /// Fires [update] at the next prayer start or midnight, whichever first,
@@ -76,13 +81,23 @@ final class PrayerWidgetService {
       String formatTime(DateTime t) =>
           LocaleDigits.localize(DateFormat.jm(code).format(t), code);
 
+      // Same rule as the prayer table: Friday Dhuhr reads Jumu'ah only when
+      // the active mosque has a Jumu'ah time.
+      final jumuah = switch (_mosque) {
+        final m? =>
+          resolveActiveMosque(m.state.value, now).profile?.config.jumuah !=
+              null,
+        null => false,
+      };
+
       final payload = buildWidgetPayload(
         day: day,
         now: now,
         nextPrayerLabel: l10n.widgetNextPrayerLabel,
-        prayerName: l10n.prayerLabel,
+        prayerName: (p, at) => l10n.prayerLabelOn(p, at, jumuah: jumuah),
         formatTime: formatTime,
         locationLabel: locationLabel,
+        setupHint: l10n.widgetSetupHint,
         tomorrow: tomorrow,
         instantOf: location == null
             ? null

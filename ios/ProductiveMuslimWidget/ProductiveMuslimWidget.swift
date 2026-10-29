@@ -17,12 +17,13 @@ struct ProductiveMuslimEntry: TimelineEntry {
   let time: String
   let location: String
   let times: String
+  let setupHint: String
 }
 
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> ProductiveMuslimEntry {
     ProductiveMuslimEntry(date: Date(), configured: false, label: "Productive Muslim",
-                prayer: "Set up", time: "", location: "", times: "")
+                prayer: "Set up", time: "", location: "", times: "", setupHint: "")
   }
 
   func getSnapshot(in context: Context, completion: @escaping (ProductiveMuslimEntry) -> Void) {
@@ -76,7 +77,8 @@ struct Provider: TimelineProvider {
       prayer: next?.prayer ?? d?.string(forKey: "widget_prayer") ?? "—",
       time: next?.time ?? d?.string(forKey: "widget_time") ?? "",
       location: d?.string(forKey: "widget_location") ?? "",
-      times: flipped ? nextDay : d?.string(forKey: "widget_times") ?? ""
+      times: flipped ? nextDay : d?.string(forKey: "widget_times") ?? "",
+      setupHint: d?.string(forKey: "widget_setup_hint") ?? ""
     )
   }
 }
@@ -92,14 +94,16 @@ struct ProductiveMuslimWidgetEntryView: View {
           .foregroundColor(qSoft)
         HStack(alignment: .lastTextBaseline) {
           Text(entry.prayer)
-            .font(.system(size: 24, weight: .bold))
+            .font(.title2.weight(.bold))
             .foregroundColor(.white)
             .lineLimit(1)
+            .minimumScaleFactor(0.6)
           Spacer()
           Text(entry.time)
-            .font(.system(size: 22))
+            .font(.title2)
             .foregroundColor(.white)
             .lineLimit(1)
+            .minimumScaleFactor(0.6)
         }
         Text(entry.location)
           .font(.caption2)
@@ -107,14 +111,16 @@ struct ProductiveMuslimWidgetEntryView: View {
           .lineLimit(1)
         Spacer()
         Text(entry.times)
-          .font(.system(size: 11))
+          .font(.caption2)
           .foregroundColor(qFaint)
           .lineLimit(1)
+          .minimumScaleFactor(0.5)
       } else {
         Text("Productive Muslim")
           .font(.headline)
           .foregroundColor(.white)
-        Text("Open the app to set your location")
+        // Localized hint pushed by the app; English until it first runs.
+        Text(entry.setupHint.isEmpty ? "Open the app to set your location" : entry.setupHint)
           .font(.caption2)
           .foregroundColor(qSoft)
       }

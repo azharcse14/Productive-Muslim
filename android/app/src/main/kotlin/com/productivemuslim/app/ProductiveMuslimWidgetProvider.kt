@@ -119,11 +119,11 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
                     setTextViewText(R.id.widget_location, data.getString("widget_location", "") ?: "")
                     setTextViewText(R.id.widget_times, times(context))
                 } else {
-                    setTextViewText(R.id.widget_label, "Productive Muslim")
-                    setTextViewText(R.id.widget_prayer, "Set up")
+                    setTextViewText(R.id.widget_label, context.getString(R.string.widget_setup_title))
+                    setTextViewText(R.id.widget_prayer, context.getString(R.string.widget_setup_action))
                     setTextViewText(R.id.widget_time, "")
                     setTextViewText(R.id.widget_location, "")
-                    setTextViewText(R.id.widget_times, "Open the app to set your location")
+                    setTextViewText(R.id.widget_times, context.getString(R.string.widget_setup_hint))
                 }
 
                 val launch = context.packageManager
