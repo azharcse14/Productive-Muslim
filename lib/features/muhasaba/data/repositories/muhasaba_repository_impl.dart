@@ -101,6 +101,24 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   }
 
   @override
+  Future<Result<void>> reorder(List<String> ids) async {
+    try {
+      await _db.batch((batch) {
+        for (final (i, id) in ids.indexed) {
+          batch.update(
+            _db.trackerItems,
+            TrackerItemsCompanion(sortOrder: Value(i)),
+            where: (t) => t.id.equals(id),
+          );
+        }
+      });
+      return const Result.success(null);
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Failed to reorder', e));
+    }
+  }
+
+  @override
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     try {
       // Flag update only — entries are never deleted (hard product rule).

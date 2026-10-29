@@ -858,6 +858,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muhasabaDayComplete => 'Every deed done today — alhamdulillah';
 
   @override
+  String get muhasabaDayCompletePast =>
+      'Every deed done that day — alhamdulillah';
+
+  @override
   String get muhasabaFirstDayBody =>
       'Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.';
 
@@ -886,6 +890,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTracker => 'Add item';
 
   @override
+  String get reorderTrackers => 'Reorder items';
+
+  @override
+  String get reorderTrackersHint => 'Drag to set the order of your checklist';
+
+  @override
   String get editTracker => 'Edit item';
 
   @override
@@ -893,6 +903,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerKindLabel => 'Type';
+
+  @override
+  String get trackerKindLocked =>
+      'The type can\'t be changed after an item is created.';
 
   @override
   String get kindYesNo => 'Yes / No';
@@ -962,6 +976,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get streakStartToday => 'Start a streak today';
+
+  @override
   String bestStreakLabel(int count) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
@@ -972,6 +989,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get salahLockedToast => 'This prayer\'s time hasn\'t started yet';
+
+  @override
+  String get trackerSaveFailed => 'Couldn\'t save. Please try again.';
 
   @override
   String a11yMarkPrayed(String prayer) {
@@ -1009,6 +1029,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyRange => 'No entries in this range yet';
+
+  @override
+  String heatmapDaysComplete(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$doneString of $totalString days complete';
+  }
 
   @override
   String minutesValue(int count) {
@@ -1067,6 +1100,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextDay => 'Next day';
+
+  @override
+  String get chooseDate => 'Choose a date';
+
+  @override
+  String get goToToday => 'Go to today';
 
   @override
   String get quranLoadError =>
@@ -1232,6 +1271,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingTotal => 'Total';
 
   @override
+  String get fastingNaflTotal => 'Nafl';
+
+  @override
   String get fastingThisMonth => 'This month';
 
   @override
@@ -1239,6 +1281,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fastingFasted => 'Fasted';
+
+  @override
+  String get fastingHeatmapHint => 'Tap a day to log or remove a fast';
+
+  @override
+  String get fastTypeTitle => 'Log this fast as';
+
+  @override
+  String get fastTypeNafl => 'Voluntary (nafl)';
+
+  @override
+  String get fastTypeQaza => 'Make-up (qaza)';
+
+  @override
+  String get fastingQazaTitle => 'Qaza (make-up) fasts';
+
+  @override
+  String fastingQazaMadeUp(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString made up',
+      one: '1 made up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fastingQazaOfOwed(int done, int owed) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat owedNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String owedString = owedNumberFormat.format(owed);
+
+    return '$doneString of $owedString made up';
+  }
+
+  @override
+  String get fastingQazaSetOwed => 'Set number owed';
+
+  @override
+  String get fastingQazaOwedHint => 'Fasts owed (optional)';
 
   @override
   String fastingHeatmapLabel(int count) {
@@ -1327,6 +1419,32 @@ class AppLocalizationsEn extends AppLocalizations {
     final String totalString = totalNumberFormat.format(total);
 
     return '$unlockedString of $totalString earned';
+  }
+
+  @override
+  String achievementUnlockedToast(String name) {
+    return 'New badge: $name';
+  }
+
+  @override
+  String get achievementsView => 'View';
+
+  @override
+  String get achievementNew => 'New';
+
+  @override
+  String achievementsNewCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString new badges',
+      one: '1 new badge',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1519,7 +1637,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get monthTable => 'Ramadan sahri & iftar timetable';
+  String monthTable(String year) {
+    return 'Ramadan $year sahri & iftar timetable';
+  }
+
+  @override
+  String get laylatulQadrOddNights =>
+      'Seek Laylatul Qadr in the odd nights of the last ten';
+
+  @override
+  String oddNightBegins(String night) {
+    return 'Night of $night Ramadan begins at sunset';
+  }
 
   @override
   String get zakatTitle => 'Zakat calculator';
@@ -1593,6 +1722,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarTitle => 'Calendar';
 
   @override
+  String hijriAdjustedBy(String value) {
+    return 'Hijri dates adjusted $value';
+  }
+
+  @override
+  String get hijriAdjustChange => 'Change';
+
+  @override
   String islamicDayName(String day) {
     String _temp0 = intl.Intl.selectLogic(day, {
       'hijriNewYear': 'Hijri New Year',
@@ -1601,7 +1738,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'israMiraj': 'Isra & Miraj',
       'nisfShaban': 'Mid-Shaban',
       'ramadanStart': 'Ramadan begins',
-      'laylatulQadr': 'Laylatul Qadr',
+      'laylatulQadr': 'Night of the 27th (Laylatul Qadr)',
       'eidAlFitr': 'Eid al-Fitr',
       'arafah': 'Day of Arafah',
       'eidAlAdha': 'Eid al-Adha',

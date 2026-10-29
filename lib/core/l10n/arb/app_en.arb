@@ -377,6 +377,7 @@
   "muhasabaTitle": "Muhasaba",
   "muhasabaFirstDayTitle": "Your daily muhasaba",
   "muhasabaDayComplete": "Every deed done today — alhamdulillah",
+  "muhasabaDayCompletePast": "Every deed done that day — alhamdulillah",
   "muhasabaFirstDayBody": "Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.",
   "muhasabaStart": "Bismillah, let's begin",
   "trackerName": "{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}",
@@ -388,9 +389,12 @@
     }
   },
   "addTracker": "Add item",
+  "reorderTrackers": "Reorder items",
+  "reorderTrackersHint": "Drag to set the order of your checklist",
   "editTracker": "Edit item",
   "trackerNameHint": "Name (e.g. Morning adhkar)",
   "trackerKindLabel": "Type",
+  "trackerKindLocked": "The type can't be changed after an item is created.",
   "kindYesNo": "Yes / No",
   "kindCount": "Count",
   "kindDuration": "Duration",
@@ -417,6 +421,7 @@
       }
     }
   },
+  "streakStartToday": "Start a streak today",
   "bestStreakLabel": "Best: {count}",
   "@bestStreakLabel": {
     "placeholders": {
@@ -427,6 +432,7 @@
     }
   },
   "salahLockedToast": "This prayer's time hasn't started yet",
+  "trackerSaveFailed": "Couldn't save. Please try again.",
   "a11yMarkPrayed": "Mark {prayer} as prayed",
   "@a11yMarkPrayed": { "placeholders": { "prayer": { "type": "String" } } },
   "a11yPrayerLocked": "{prayer}: its time hasn't started yet",
@@ -453,6 +459,8 @@
     }
   },
   "emptyRange": "No entries in this range yet",
+  "heatmapDaysComplete": "{done} of {total} days complete",
+  "@heatmapDaysComplete": {"placeholders": {"done": {"type": "int", "format": "decimalPattern"}, "total": {"type": "int", "format": "decimalPattern"}}},
   "minutesValue": "{count} min",
   "@minutesValue": {
     "placeholders": {
@@ -492,6 +500,8 @@
   "copyAyah": "Copy ayah",
   "previousDay": "Previous day",
   "nextDay": "Next day",
+  "chooseDate": "Choose a date",
+  "goToToday": "Go to today",
   "quranLoadError": "Couldn't open the Quran text. Please try again.",
   "copyLabel": "Copy",
   "copiedLabel": "Copied",
@@ -561,9 +571,21 @@
   "fastingLoggedToday": "Logged for today",
   "fastingLogTitle": "Your fasting log",
   "fastingTotal": "Total",
+  "fastingNaflTotal": "Nafl",
   "fastingThisMonth": "This month",
   "fastingThisHijriMonth": "This hijri month",
   "fastingFasted": "Fasted",
+  "fastingHeatmapHint": "Tap a day to log or remove a fast",
+  "fastTypeTitle": "Log this fast as",
+  "fastTypeNafl": "Voluntary (nafl)",
+  "fastTypeQaza": "Make-up (qaza)",
+  "fastingQazaTitle": "Qaza (make-up) fasts",
+  "fastingQazaMadeUp": "{count, plural, =1{1 made up} other{{count} made up}}",
+  "@fastingQazaMadeUp": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "fastingQazaOfOwed": "{done} of {owed} made up",
+  "@fastingQazaOfOwed": {"placeholders": {"done": {"type": "int", "format": "decimalPattern"}, "owed": {"type": "int", "format": "decimalPattern"}}},
+  "fastingQazaSetOwed": "Set number owed",
+  "fastingQazaOwedHint": "Fasts owed (optional)",
   "fastingHeatmapLabel": "{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
@@ -600,6 +622,12 @@
       "total": { "type": "int", "format": "decimalPattern" }
     }
   },
+  "achievementUnlockedToast": "New badge: {name}",
+  "@achievementUnlockedToast": {"placeholders": {"name": {"type": "String"}}},
+  "achievementsView": "View",
+  "achievementNew": "New",
+  "achievementsNewCount": "{count, plural, =1{1 new badge} other{{count} new badges}}",
+  "@achievementsNewCount": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
   "achievementCategory": "{key, select, streaks{Streaks} salah{Salah} dhikr{Dhikr} quran{Quran} fasting{Fasting} other{Achievements}}",
   "@achievementCategory": {
     "placeholders": { "key": { "type": "String" } }
@@ -695,7 +723,11 @@
       }
     }
   },
-  "monthTable": "Ramadan sahri & iftar timetable",
+  "monthTable": "Ramadan {year} sahri & iftar timetable",
+  "@monthTable": {"placeholders": {"year": {"type": "String"}}},
+  "laylatulQadrOddNights": "Seek Laylatul Qadr in the odd nights of the last ten",
+  "oddNightBegins": "Night of {night} Ramadan begins at sunset",
+  "@oddNightBegins": {"placeholders": {"night": {"type": "String"}}},
   "zakatTitle": "Zakat calculator",
   "zakatSubtitle": "Work out the zakat due on your wealth",
   "zakatCash": "Cash on hand",
@@ -731,7 +763,10 @@
   "zakatNotPayable": "Your zakatable wealth is below the nisab — no zakat is due.",
   "fitraInfo": "Sadaqat al-fitr is due per person before Eid prayer — roughly one sa' (~2.5–3 kg) of staple food, or its value, per family member.",
   "calendarTitle": "Calendar",
-  "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
+  "hijriAdjustedBy": "Hijri dates adjusted {value}",
+  "@hijriAdjustedBy": {"placeholders": {"value": {"type": "String"}}},
+  "hijriAdjustChange": "Change",
+  "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Night of the 27th (Laylatul Qadr)} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
   "@islamicDayName": {
     "placeholders": {
       "day": {
