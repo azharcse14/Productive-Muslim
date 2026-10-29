@@ -12,7 +12,10 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../domain/entities/fasting_stats.dart';
 import '../../domain/entities/recommended_fast.dart';
@@ -32,25 +35,62 @@ final class _FastingScreenState extends State<FastingScreen> {
   // App-scoped store — never disposed here.
   late final FastingStore _store = locator<FastingStore>();
 
+  /// The log couldn't be read; the screen offers a retry.
+  bool _loadFailed = false;
+
   @override
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
-      // A failure is retried by the next load or toggle.
-      unawaited(_store.load().catchError((Object _) {}));
+      _load();
     }
   }
 
+  void _load() {
+    if (_loadFailed) {
+      setState(() => _loadFailed = false);
+    }
+    unawaited(
+      _store.load().catchError((Object _) {
+        if (mounted) {
+          setState(() => _loadFailed = true);
+        }
+      }),
+    );
+  }
+
+  void _snack(SnackBar bar) => ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(bar);
+
   Future<void> _toggle(DateTime date, {bool asQaza = false}) async {
+    final wasLogged = _store.isLogged(date);
+    final wasQaza = _store.isQaza(date);
     try {
       await _store.toggle(date, asQaza: asQaza);
     } on Object {
       // The store already put the log back; say why the tick vanished.
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.fastingSaveFailed)));
+        _snack(SnackBar(content: Text(context.l10n.saveFailed)));
       }
+      return;
+    }
+    // Un-logging is one tap on a filled cell: make it recoverable.
+    if (wasLogged && mounted) {
+      _snack(
+        SnackBar(
+          content: Text(context.l10n.fastingUnlogged),
+          persist: false,
+          action: SnackBarAction(
+            label: context.l10n.undo,
+            onPressed: () {
+              if (!_store.isLogged(date)) {
+                unawaited(_toggle(date, asQaza: wasQaza));
+              }
+            },
+          ),
+        ),
+      );
     }
   }
 
@@ -71,36 +111,24 @@ final class _FastingScreenState extends State<FastingScreen> {
 
   Future<void> _setOwed(BuildContext context) async {
     final l10n = context.l10n;
-    final controller = TextEditingController(
-      text: _store.qazaOwed.value?.toString() ?? '',
+    // 0 clears the count (the store treats 0 as unset).
+    final owed = await showNumberDialog(
+      context,
+      title: l10n.fastingQazaSetOwed,
+      hint: l10n.fastingQazaOwedInvalid,
+      actionLabel: l10n.save,
+      min: 0,
+      initial: _store.qazaOwed.value,
     );
-    final owed = await showDialog<int?>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.fastingQazaSetOwed),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(hintText: l10n.fastingQazaOwedHint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(
-              int.tryParse(LocaleDigits.toAscii(controller.text.trim())) ?? 0,
-            ),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (owed != null) {
+    if (owed == null) {
+      return;
+    }
+    try {
       await _store.setQazaOwed(owed);
+    } on Object {
+      if (mounted) {
+        _snack(SnackBar(content: Text(l10n.saveFailed)));
+      }
     }
   }
 
@@ -112,6 +140,16 @@ final class _FastingScreenState extends State<FastingScreen> {
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
+            if (_loadFailed) {
+              return QErrorRetry(
+                message: l10n.dataLoadFailed,
+                retryLabel: l10n.hadithRetry,
+                onRetry: _load,
+              );
+            }
+            if (!_store.loaded.value) {
+              return const QSkeletonList(count: 3, height: 160);
+            }
             // Touch the signals so the builder re-runs on change.
             _store.logged.value;
             _store.qaza.value;
@@ -157,18 +195,20 @@ final class _FastingScreenState extends State<FastingScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: QSpace.s4),
-                _UpcomingCard(
-                  upcoming: upcoming,
-                  isLogged: _store.isLogged,
-                  canLog: _store.canLog,
-                  // Rows are plain InkWells; the today card's QButton
-                  // already buzzes on its own.
-                  onToggle: (date) {
-                    Haptics.selection();
-                    unawaited(_toggle(date));
-                  },
-                ),
+                if (upcoming.isNotEmpty) ...[
+                  const SizedBox(height: QSpace.s4),
+                  _UpcomingCard(
+                    upcoming: upcoming,
+                    isLogged: _store.isLogged,
+                    canLog: _store.canLog,
+                    // Rows are plain InkWells; the today card's QButton
+                    // already buzzes on its own.
+                    onToggle: (date) {
+                      Haptics.selection();
+                      unawaited(_toggle(date));
+                    },
+                  ),
+                ],
                 const SizedBox(height: QSpace.s4),
                 _QazaCard(
                   done: _store.qaza.value.length,
@@ -353,46 +393,44 @@ final class _QazaCard extends StatelessWidget {
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
     final owed = this.owed;
+    // The button sits under the progress, not beside it: a long label
+    // must not squeeze the text column.
     return QCard(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.fastingQazaTitle,
-                  style: QType.titleSm.copyWith(color: q.ink),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  LocaleDigits.localize(
-                    owed == null
-                        ? l10n.fastingQazaMadeUp(done)
-                        : l10n.fastingQazaOfOwed(done, owed),
-                    code,
-                  ),
-                  style: QType.caption.copyWith(color: q.ink2),
-                ),
-                if (owed != null) ...[
-                  const SizedBox(height: QSpace.s2),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(QRadius.full),
-                    child: LinearProgressIndicator(
-                      value: (done / owed).clamp(0.0, 1.0),
-                      minHeight: 6,
-                      color: q.primary,
-                      backgroundColor: q.surface2,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+          Text(
+            l10n.fastingQazaTitle,
+            style: QType.titleSm.copyWith(color: q.ink),
           ),
-          const SizedBox(width: QSpace.s3),
-          TextButton(
-            onPressed: onSetOwed,
-            child: Text(l10n.fastingQazaSetOwed),
+          const SizedBox(height: 2),
+          Text(
+            LocaleDigits.localize(
+              owed == null
+                  ? l10n.fastingQazaMadeUp(done)
+                  : l10n.fastingQazaOfOwed(done, owed),
+              code,
+            ),
+            style: QType.caption.copyWith(color: q.ink2),
+          ),
+          if (owed != null) ...[
+            const SizedBox(height: QSpace.s2),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(QRadius.full),
+              child: LinearProgressIndicator(
+                value: (done / owed).clamp(0.0, 1.0),
+                minHeight: 6,
+                color: q.primary,
+                backgroundColor: q.surface2,
+              ),
+            ),
+          ],
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: onSetOwed,
+              child: Text(l10n.fastingQazaSetOwed),
+            ),
           ),
         ],
       ),
@@ -605,7 +643,7 @@ final class _UpcomingRow extends StatelessWidget {
       child: InkWell(
         onTap: onToggle,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: QSpace.s3),
           child: Row(
             children: [
               Expanded(

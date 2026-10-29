@@ -10,6 +10,8 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/achievements.dart';
 import '../state/achievement_store.dart';
 import '../widgets/achievement_card.dart';
@@ -32,19 +34,41 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
   /// though they are marked seen right away.
   Set<String> _fresh = const {};
 
+  /// Totals are trustworthy: loaded before, or refreshed on this visit.
+  /// Until then the all-zero defaults would read as "nothing earned".
+  late bool _ready = _store.loaded.value;
+
+  /// The refresh failed with nothing loaded to show; offers a retry.
+  bool _failed = false;
+
   @override
   void initState() {
     super.initState();
-    // Refresh totals on entry, remember what's new, then mark it seen.
+    _refresh();
+  }
+
+  /// Refreshes totals, remembers what's new, then marks it seen.
+  void _refresh() {
+    if (_failed) {
+      setState(() => _failed = false);
+    }
     unawaited(
-      _store.refresh().then((_) {
-        if (mounted) {
-          setState(
-            () => _fresh = {for (final a in _store.newlyUnlocked.value) a.id},
-          );
-        }
-        return _store.markAllSeen();
-      }),
+      _store
+          .refresh()
+          .then((_) {
+            if (mounted) {
+              setState(() {
+                _ready = true;
+                _fresh = {for (final a in _store.newlyUnlocked.value) a.id};
+              });
+            }
+            return _store.markAllSeen();
+          })
+          .catchError((Object _) {
+            if (mounted && !_ready) {
+              setState(() => _failed = true);
+            }
+          }),
     );
   }
 
@@ -67,6 +91,16 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
+            if (_failed) {
+              return QErrorRetry(
+                message: l10n.dataLoadFailed,
+                retryLabel: l10n.hadithRetry,
+                onRetry: _refresh,
+              );
+            }
+            if (!_ready && !_store.loaded.value) {
+              return const QSkeletonList(count: 3, height: 160);
+            }
             final byCategory =
                 <AchievementCategory, List<AchievementProgress>>{};
             for (final p in _store.progress.value) {

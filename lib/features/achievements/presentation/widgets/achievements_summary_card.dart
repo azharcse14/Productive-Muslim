@@ -64,50 +64,47 @@ final class _AchievementsSummaryCardState
         final unlocked = store.unlockedCount.value;
         final total = store.totalCount.value;
         final fresh = store.newlyUnlocked.value.length;
-        return InkWell(
-          borderRadius: BorderRadius.circular(QRadius.lg),
+        return QCard(
           onTap: () => context.pushNamed(Routes.achievements.name),
-          child: QCard(
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: q.accentSoft,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.workspace_premium_outlined,
-                    size: 20,
-                    color: q.onAccentSoft,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: q.accentSoft,
+                  borderRadius: BorderRadius.circular(QRadius.sm),
                 ),
-                const SizedBox(width: QSpace.s3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.achievementsTitle,
-                        style: QType.titleSm.copyWith(color: q.ink),
-                      ),
-                      Text(
-                        l10n.achievementsCount(unlocked, total),
-                        style: QType.caption.copyWith(color: q.ink2),
-                      ),
-                    ],
-                  ),
+                child: Icon(
+                  Icons.workspace_premium_outlined,
+                  size: 20,
+                  color: q.onAccentSoft,
                 ),
-                if (fresh > 0)
-                  Badge(
-                    label: Text(l10n.achievementsNewCount(fresh)),
-                    backgroundColor: q.accent,
-                    textColor: q.onAccent,
-                  ),
-                Icon(Icons.chevron_right, color: q.ink3),
-              ],
-            ),
+              ),
+              const SizedBox(width: QSpace.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.achievementsTitle,
+                      style: QType.titleSm.copyWith(color: q.ink),
+                    ),
+                    Text(
+                      l10n.achievementsCount(unlocked, total),
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                  ],
+                ),
+              ),
+              if (fresh > 0)
+                Badge(
+                  label: Text(l10n.achievementsNewCount(fresh)),
+                  backgroundColor: q.accent,
+                  textColor: q.onAccent,
+                ),
+              Icon(Icons.chevron_right, color: q.ink3),
+            ],
           ),
         );
       },

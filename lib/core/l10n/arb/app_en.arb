@@ -1536,5 +1536,13 @@
   "@healthKg": {"placeholders": {"kg": {"type": "String"}}},
   "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}},
   "saveFailed": "Couldn't save. Please try again.",
-  "undo": "Undo"
+  "undo": "Undo",
+  "dataLoadFailed": "Couldn't load your data. Please try again.",
+  "fastingUnlogged": "Fast removed from your log",
+  "fastingQazaOwedInvalid": "Enter a whole number (0 clears it)",
+  "healthWeightRemoved": "Weight removed",
+  "expenseSadaqahGiven": "+ {amount} given in sadaqah",
+  "@expenseSadaqahGiven": {"placeholders": {"amount": {"type": "String"}}},
+  "trackerValueInvalid": "Enter a number from 0 to 100000",
+  "a11yTypeValue": "type a value"
 }

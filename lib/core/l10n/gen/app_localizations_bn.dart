@@ -3303,4 +3303,28 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get undo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get dataLoadFailed => 'তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get fastingUnlogged => 'রোজাটি লগ থেকে সরানো হয়েছে';
+
+  @override
+  String get fastingQazaOwedInvalid =>
+      'একটি পূর্ণ সংখ্যা লিখুন (০ দিলে মুছে যাবে)';
+
+  @override
+  String get healthWeightRemoved => 'ওজন মুছে ফেলা হয়েছে';
+
+  @override
+  String expenseSadaqahGiven(String amount) {
+    return '+ $amount সাদাকাহ দিয়েছেন';
+  }
+
+  @override
+  String get trackerValueInvalid => '০ থেকে ১০০০০০ এর মধ্যে একটি সংখ্যা লিখুন';
+
+  @override
+  String get a11yTypeValue => 'মান লিখুন';
 }

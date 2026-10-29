@@ -61,46 +61,44 @@ final class AchievementCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(QRadius.md),
         onTap: () => _showHow(context),
-        child: Opacity(
-          opacity: unlocked ? 1 : 0.85,
-          child: Column(
-            children: [
-              if (isNew)
-                Badge(
-                  label: Text(l10n.achievementNew),
-                  backgroundColor: q.accent,
-                  textColor: q.onAccent,
-                  alignment: AlignmentDirectional.topEnd,
-                  child: disc,
-                )
-              else
-                disc,
-              const SizedBox(height: QSpace.s2),
-              Text(
-                l10n.achievementName(a.id),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: QType.caption.copyWith(
-                  color: unlocked ? q.ink : q.ink2,
-                  fontWeight: FontWeight.w600,
-                ),
+        child: Column(
+          children: [
+            if (isNew)
+              Badge(
+                label: Text(l10n.achievementNew),
+                backgroundColor: q.accent,
+                textColor: q.onAccent,
+                alignment: AlignmentDirectional.topEnd,
+                child: disc,
+              )
+            else
+              // Only the disc dims: faded text would fail contrast.
+              Opacity(opacity: unlocked ? 1 : 0.85, child: disc),
+            const SizedBox(height: QSpace.s2),
+            Text(
+              l10n.achievementName(a.id),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: QType.caption.copyWith(
+                color: unlocked ? q.ink : q.ink2,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 2),
-              Text(
-                unlocked
-                    ? l10n.achievementUnlocked
-                    : LocaleDigits.localize(
-                        '${progress.current} / ${a.threshold}',
-                        locale,
-                      ),
-                textAlign: TextAlign.center,
-                style: QType.num_(
-                  QType.caption,
-                ).copyWith(color: unlocked ? q.ok : q.ink3),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              unlocked
+                  ? l10n.achievementUnlocked
+                  : LocaleDigits.localize(
+                      '${progress.current} / ${a.threshold}',
+                      locale,
+                    ),
+              textAlign: TextAlign.center,
+              style: QType.num_(
+                QType.caption,
+              ).copyWith(color: unlocked ? q.ok : q.ink2),
+            ),
+          ],
         ),
       ),
     );

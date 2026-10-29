@@ -12,6 +12,8 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/domain/entities/tracker_item.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../../../muhasaba/presentation/widgets/tracker_row.dart';
@@ -32,34 +34,74 @@ final class _HealthScreenState extends State<HealthScreen> {
   late final HealthStore _store = locator<HealthStore>();
   late final MuhasabaStore _muhasaba = locator<MuhasabaStore>();
 
+  /// The weight log couldn't be read; its card offers a retry.
+  bool _loadFailed = false;
+
   @override
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
-      // A failure is retried by the next load or write.
-      unawaited(_store.load().catchError((Object _) {}));
+      _load();
     }
   }
 
-  void _snack(String message) => ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+  void _load() {
+    if (_loadFailed) {
+      setState(() => _loadFailed = false);
+    }
+    unawaited(
+      _store.load().catchError((Object _) {
+        if (mounted) {
+          setState(() => _loadFailed = true);
+        }
+      }),
+    );
+  }
+
+  void _snack(String message, {SnackBarAction? action}) =>
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            persist: action == null ? null : false,
+            action: action,
+          ),
+        );
 
   Future<void> _enableHabits() async {
     if (!await _muhasaba.enableHealthHabits() && mounted) {
-      _snack(context.l10n.fastingSaveFailed);
+      _snack(context.l10n.saveFailed);
     }
   }
 
-  Future<void> _saveWeight(DateTime day, double? kg) async {
+  /// Saves [kg] for [day]; true when it was stored.
+  Future<bool> _saveWeight(DateTime day, double? kg) async {
     try {
-      if (!await _store.setWeight(day, kg) && mounted) {
+      if (await _store.setWeight(day, kg)) {
+        return true;
+      }
+      if (mounted) {
         _snack(context.l10n.healthWeightInvalid);
       }
     } on Object {
       if (mounted) {
-        _snack(context.l10n.fastingSaveFailed);
+        _snack(context.l10n.saveFailed);
       }
+    }
+    return false;
+  }
+
+  /// Removes [day]'s weight and offers Undo (the dialog doesn't confirm).
+  Future<void> _removeWeight(DateTime day, double previous) async {
+    if (await _saveWeight(day, null) && mounted) {
+      _snack(
+        context.l10n.healthWeightRemoved,
+        action: SnackBarAction(
+          label: context.l10n.undo,
+          onPressed: () => unawaited(_saveWeight(day, previous)),
+        ),
+      );
     }
   }
 
@@ -81,6 +123,9 @@ final class _HealthScreenState extends State<HealthScreen> {
               for (final i in _muhasaba.items.value)
                 if (DefaultTrackers.healthIds.contains(i.id)) i,
             ];
+            final archivedHabits = _muhasaba.archivedItems.value.any(
+              (i) => DefaultTrackers.healthIds.contains(i.id),
+            );
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -89,12 +134,18 @@ final class _HealthScreenState extends State<HealthScreen> {
                 QSpace.s5,
               ),
               children: [
-                _Section(l10n.healthToday),
-                // Only once loaded: an empty list mid-load isn't "archived".
-                if (habits.isEmpty &&
-                    _muhasaba.archivedItems.value.any(
-                      (i) => DefaultTrackers.healthIds.contains(i.id),
-                    )) ...[
+                // No header over nothing: hidden when there are no
+                // habits to show or restore.
+                if (!_muhasaba.loaded.value ||
+                    habits.isNotEmpty ||
+                    archivedHabits)
+                  _Section(l10n.healthToday),
+                if (!_muhasaba.loaded.value) ...[
+                  for (var i = 0; i < 3; i++) ...[
+                    const QSkeleton(height: 56, radius: QRadius.md),
+                    const SizedBox(height: QSpace.s2),
+                  ],
+                ] else if (habits.isEmpty && archivedHabits) ...[
                   Text(
                     l10n.healthNoHabits,
                     style: QType.body.copyWith(color: context.q.ink2),
@@ -119,24 +170,38 @@ final class _HealthScreenState extends State<HealthScreen> {
                   const SizedBox(height: QSpace.s2),
                 ],
                 const SizedBox(height: QSpace.s4),
-                _WeightCard(
-                  history: _store.history,
-                  today: _store.today,
-                  onLog: (current) {
-                    // Pinned at open: a save past midnight still edits
-                    // the day the dialog showed.
-                    final day = _store.today;
-                    unawaited(
-                      showDialog<void>(
-                        context: context,
-                        builder: (_) => _WeightDialog(
-                          current: current,
-                          onSave: (kg) => _saveWeight(day, kg),
+                if (_loadFailed)
+                  QCard(
+                    child: QErrorRetry(
+                      message: l10n.dataLoadFailed,
+                      retryLabel: l10n.hadithRetry,
+                      onRetry: _load,
+                    ),
+                  )
+                else if (!_store.loaded.value)
+                  const QSkeleton(height: 140, radius: QRadius.lg)
+                else
+                  _WeightCard(
+                    history: _store.history,
+                    today: _store.today,
+                    onLog: (current) {
+                      // Pinned at open: a save past midnight still edits
+                      // the day the dialog showed.
+                      final day = _store.today;
+                      unawaited(
+                        showDialog<void>(
+                          context: context,
+                          builder: (_) => _WeightDialog(
+                            current: current,
+                            onSave: (kg) => _saveWeight(day, kg),
+                            onRemove: current == null
+                                ? null
+                                : () => _removeWeight(day, current),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
                 const SizedBox(height: QSpace.s4),
                 _Section(l10n.healthSunnahTitle),
                 for (final (title, body, ref) in _tips(l10n)) ...[
@@ -282,10 +347,17 @@ final class _WeightCard extends StatelessWidget {
 /// Owns its controller so it outlives the dialog's exit animation
 /// (mirrors the expense budget dialog).
 final class _WeightDialog extends StatefulWidget {
-  const _WeightDialog({required this.current, required this.onSave});
+  const _WeightDialog({
+    required this.current,
+    required this.onSave,
+    required this.onRemove,
+  });
 
   final double? current;
-  final Future<void> Function(double?) onSave;
+  final Future<void> Function(double) onSave;
+
+  /// Null when there's nothing logged to remove.
+  final Future<void> Function()? onRemove;
 
   @override
   State<_WeightDialog> createState() => _WeightDialogState();
@@ -293,7 +365,12 @@ final class _WeightDialog extends StatefulWidget {
 
 final class _WeightDialogState extends State<_WeightDialog> {
   late final _controller = TextEditingController(
-    text: widget.current?.toStringAsFixed(1) ?? '',
+    text: widget.current == null
+        ? ''
+        : LocaleDigits.localize(
+            widget.current!.toStringAsFixed(1),
+            Localizations.localeOf(context).languageCode,
+          ),
   );
 
   double? get _parsed {
@@ -305,8 +382,8 @@ final class _WeightDialogState extends State<_WeightDialog> {
         : null;
   }
 
-  void _save(double? kg) {
-    unawaited(widget.onSave(kg));
+  void _close(Future<void> pending) {
+    unawaited(pending);
     Navigator.of(context).pop();
   }
 
@@ -335,14 +412,20 @@ final class _WeightDialogState extends State<_WeightDialog> {
         onChanged: (_) => setState(() {}),
       ),
       actions: [
-        if (widget.current != null)
+        if (widget.onRemove case final remove?)
           TextButton(
-            onPressed: () => _save(null),
+            onPressed: () => _close(remove()),
             child: Text(l10n.healthWeightRemove),
           ),
         TextButton(
-          onPressed: _parsed == null ? null : () => _save(_parsed),
-          child: Text(l10n.expenseSave),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: _parsed == null
+              ? null
+              : () => _close(widget.onSave(_parsed!)),
+          child: Text(l10n.save),
         ),
       ],
     );

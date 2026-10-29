@@ -7,6 +7,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
+import '../../../../shared/widgets/q_confirm_discard.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
@@ -138,9 +139,9 @@ final class _ItemEditorState extends State<_ItemEditor> {
       return;
     }
     setState(() => _saving = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.trackerSaveFailed)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.trackerSaveFailed)));
   }
 
   @override
@@ -151,7 +152,7 @@ final class _ItemEditorState extends State<_ItemEditor> {
       canPop: !_dirty,
       onPopInvokedWithResult: (didPop, _) async {
         final navigator = Navigator.of(context);
-        if (!didPop && await _confirmDiscard(context)) {
+        if (!didPop && await confirmDiscard(context)) {
           navigator.pop();
         }
       },
@@ -282,28 +283,6 @@ final class _ItemEditorState extends State<_ItemEditor> {
   }
 }
 
-/// Asks before an edited sheet is closed without saving.
-Future<bool> _confirmDiscard(BuildContext context) async {
-  final l10n = context.l10n;
-  final discard = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(l10n.editorDiscardTitle),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(l10n.cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(l10n.editorDiscard),
-        ),
-      ],
-    ),
-  );
-  return discard ?? false;
-}
-
 final class _TargetStepper extends StatelessWidget {
   const _TargetStepper({
     required this.value,
@@ -334,8 +313,9 @@ final class _TargetStepper extends StatelessWidget {
                 ? null
                 : () => onChanged(value! - step <= 0 ? null : value! - step),
           ),
-          SizedBox(
-            width: 44,
+          // A floor, not a fixed width: big text or long numbers grow it.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44),
             child: Text(
               value == null ? '—' : context.digits('$value'),
               textAlign: TextAlign.center,

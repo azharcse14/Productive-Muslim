@@ -324,104 +324,116 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        final cardWidth = ((availableWidth - 24) / 5).clamp(58.0, 80.0);
+        final cardWidth = ((availableWidth - 4 * QSpace.s1) / 5).clamp(
+          58.0,
+          80.0,
+        );
+        final reduced = MediaQuery.disableAnimationsOf(context);
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              for (final (index, item) in salah.indexed) ...[
-                if (index > 0) const SizedBox(width: 6),
-                Builder(
-                  builder: (context) {
-                    final isLocked = locked.contains(item.id);
-                    final completed = _store.valueOf(item.id) > 0;
-                    // Short waqt name ("Fajr", not "Fajr prayer").
-                    final name = switch (item.id) {
-                      'salah_fajr' => l10n.prayerFajr,
-                      'salah_dhuhr' => l10n.prayerDhuhr,
-                      'salah_asr' => l10n.prayerAsr,
-                      'salah_maghrib' => l10n.prayerMaghrib,
-                      'salah_isha' => l10n.prayerIsha,
-                      _ => _nameOf(l10n, item),
-                    };
+          // Equal heights when a name wraps to a second line.
+          child: IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (index, item) in salah.indexed) ...[
+                  if (index > 0) const SizedBox(width: QSpace.s1),
+                  Builder(
+                    builder: (context) {
+                      final isLocked = locked.contains(item.id);
+                      final completed = _store.valueOf(item.id) > 0;
+                      // Short waqt name ("Fajr", not "Fajr prayer").
+                      final name = switch (item.id) {
+                        'salah_fajr' => l10n.prayerFajr,
+                        'salah_dhuhr' => l10n.prayerDhuhr,
+                        'salah_asr' => l10n.prayerAsr,
+                        'salah_maghrib' => l10n.prayerMaghrib,
+                        'salah_isha' => l10n.prayerIsha,
+                        _ => _nameOf(l10n, item),
+                      };
 
-                    final cardColor = completed ? q.primary : q.surface;
-                    final borderColor = completed ? q.primary : q.line;
-                    final textColor = completed
-                        ? q.onPrimary
-                        : (isLocked ? q.ink3 : q.ink);
+                      final cardColor = completed ? q.primary : q.surface;
+                      final borderColor = completed ? q.primary : q.line;
+                      final textColor = completed
+                          ? q.onPrimary
+                          : (isLocked ? q.ink3 : q.ink);
 
-                    void onTap() {
-                      if (isLocked) {
-                        if (_store.lockedSalah.contains(item.id)) {
-                          _showLockedToast(context);
+                      void onTap() {
+                        if (isLocked) {
+                          if (_store.lockedSalah.contains(item.id)) {
+                            _showLockedToast(context);
+                          } else {
+                            unawaited(_store.setValue(item.id, 1));
+                          }
                         } else {
-                          unawaited(_store.setValue(item.id, 1));
+                          unawaited(
+                            _store.setValue(item.id, completed ? 0 : 1),
+                          );
                         }
-                      } else {
-                        unawaited(_store.setValue(item.id, completed ? 0 : 1));
                       }
-                    }
 
-                    return Semantics(
-                      button: true,
-                      checked: completed,
-                      label: name,
-                      excludeSemantics: true,
-                      onTap: onTap,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: onTap,
-                          borderRadius: BorderRadius.circular(QRadius.md),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: cardWidth,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: cardColor,
-                              borderRadius: BorderRadius.circular(QRadius.md),
-                              border: Border.all(
-                                color: borderColor,
-                                width: 1.2,
+                      return Semantics(
+                        button: true,
+                        checked: completed,
+                        label: isLocked ? l10n.a11yPrayerLocked(name) : name,
+                        hint: isLocked || completed
+                            ? null
+                            : l10n.a11yMarkPrayed(name),
+                        excludeSemantics: true,
+                        onTap: onTap,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: onTap,
+                            borderRadius: BorderRadius.circular(QRadius.md),
+                            child: AnimatedContainer(
+                              duration: reduced ? Duration.zero : QMotion.fast,
+                              width: cardWidth,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: QSpace.s2,
+                                horizontal: 2,
                               ),
-                              boxShadow: [
-                                if (completed)
-                                  BoxShadow(
-                                    color: q.primary.withValues(alpha: 0.12),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  isLocked
-                                      ? Icons.schedule
-                                      : _waqtIcons[item.id] ??
-                                            Icons.mosque_outlined,
-                                  size: 22,
-                                  color: completed
-                                      ? q.onPrimary
-                                      : (isLocked ? q.ink3 : q.primary),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(QRadius.md),
+                                border: Border.all(
+                                  color: borderColor,
+                                  width: 1.2,
                                 ),
-                                const SizedBox(height: 6),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
+                                boxShadow: [
+                                  if (completed)
+                                    BoxShadow(
+                                      color: q.primary.withValues(alpha: 0.12),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    isLocked
+                                        ? Icons.schedule
+                                        : _waqtIcons[item.id] ??
+                                              Icons.mosque_outlined,
+                                    size: 22,
+                                    color: completed
+                                        ? q.onPrimary
+                                        : (isLocked ? q.ink3 : q.primary),
+                                  ),
+                                  const SizedBox(height: QSpace.s1),
+                                  // Scales with the user's text size; a long
+                                  // name wraps and the card grows.
+                                  Text(
                                     name,
-                                    maxLines: 1,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.center,
-                                    style: QType.caption.copyWith(
-                                      fontSize: 12,
+                                    style: QType.label.copyWith(
                                       color: textColor,
                                       fontVariations: [
                                         FontVariation(
@@ -431,17 +443,17 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },
@@ -968,7 +980,7 @@ final class _ReorderSheetState extends State<_ReorderSheet> {
                 shrinkWrap: true,
                 onReorderItem: _onReorder,
                 children: [
-                  for (final item in _items)
+                  for (final (i, item) in _items.indexed)
                     ListTile(
                       key: ValueKey(item.id),
                       leading: Icon(
@@ -976,7 +988,11 @@ final class _ReorderSheetState extends State<_ReorderSheet> {
                         color: TrackerVisuals.colorOf(q, item.colorIndex),
                       ),
                       title: Text(widget.nameOf(l10n, item)),
-                      trailing: const Icon(Icons.drag_handle),
+                      // Drags at once; a long press anywhere still works.
+                      trailing: ReorderableDragStartListener(
+                        index: i,
+                        child: const Icon(Icons.drag_handle),
+                      ),
                     ),
                 ],
               ),

@@ -14,6 +14,9 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_confirm_discard.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../state/expense_store.dart';
 
 const _icons = {
@@ -45,13 +48,28 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// Bumped per swipe-delete of that row; part of its key.
   final _dismissals = <int, int>{};
 
+  /// The log couldn't be read; the screen offers a retry.
+  bool _loadFailed = false;
+
   @override
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
-      // A failure is retried by the next load or write; nothing to show yet.
-      unawaited(_store.load().catchError((Object _) {}));
+      _load();
     }
+  }
+
+  void _load() {
+    if (_loadFailed) {
+      setState(() => _loadFailed = false);
+    }
+    unawaited(
+      _store.load().catchError((Object _) {
+        if (mounted) {
+          setState(() => _loadFailed = true);
+        }
+      }),
+    );
   }
 
   // ponytail: clipboard as transport — swap for a share sheet / file once
@@ -135,6 +153,16 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
+            if (_loadFailed) {
+              return QErrorRetry(
+                message: l10n.dataLoadFailed,
+                retryLabel: l10n.hadithRetry,
+                onRetry: _load,
+              );
+            }
+            if (!_store.loaded.value) {
+              return const QSkeletonList(count: 3, height: 160);
+            }
             _store.entries.value;
             final budget = _store.budget.value;
             final categoryBudgets = _store.categoryBudgets.value;
@@ -151,15 +179,20 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                 dayTotals[day] = (dayTotals[day] ?? 0) + e.amount;
               }
             }
-            final total = totals.values.fold(0, (a, b) => a + b);
+            // Every outflow, for the category shares.
+            final gross = totals.values.fold(0, (a, b) => a + b);
+            final sadaqah = totals[ExpenseCategory.sadaqah]!;
+            // Spending (sadaqah excluded) drives the budget and comparison.
+            final total = gross - sadaqah;
             // The current month is partial: compare against the same span of
             // last month, not all of it.
             final now = _store.now();
             final soFar = _offset == 0;
-            final prev = _store
-                .inMonth(_store.month(_offset - 1))
-                .where((e) => !soFar || e.date.day <= now.day)
-                .fold(0, (a, e) => a + e.amount);
+            final prev = ExpenseStore.spendingOf(
+              _store
+                  .inMonth(_store.month(_offset - 1))
+                  .where((e) => !soFar || e.date.day <= now.day),
+            );
             final diff = total - prev;
             // Calendar days, not 24h spans: a DST shift can't mislabel.
             final yesterday = DateTime(now.year, now.month, now.day - 1);
@@ -173,7 +206,8 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                 QSpace.s5,
                 QSpace.s3,
                 QSpace.s5,
-                96,
+                // Clears the FAB.
+                QSpace.s10 * 2 + QSpace.s4,
               ),
               children: [
                 QCard(
@@ -215,6 +249,11 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                         l10n.expenseMonthTotal,
                         style: QType.caption.copyWith(color: q.ink2),
                       ),
+                      if (sadaqah > 0)
+                        Text(
+                          l10n.expenseSadaqahGiven(n(sadaqah)),
+                          style: QType.caption.copyWith(color: q.ink2),
+                        ),
                       if (prev > 0) ...[
                         const SizedBox(height: QSpace.s1),
                         Text(
@@ -263,7 +302,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                         _CategoryRow(
                           category: c,
                           spent: totals[c]!,
-                          monthTotal: total,
+                          monthTotal: gross,
                           budget: categoryBudgets[c],
                           format: n,
                           selected: _filter == c,
@@ -422,28 +461,6 @@ void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   unawaited(undo.closed.then((_) => undoShowing = false));
 }
 
-/// Asks before an edited sheet is closed without saving.
-Future<bool> _confirmDiscard(BuildContext context) async {
-  final l10n = context.l10n;
-  final discard = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(l10n.editorDiscardTitle),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(l10n.cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(l10n.editorDiscard),
-        ),
-      ],
-    ),
-  );
-  return discard ?? false;
-}
-
 void _showSaveFailed(BuildContext context) => ScaffoldMessenger.of(
   context,
 ).showSnackBar(SnackBar(content: Text(context.l10n.expenseSaveFailed)));
@@ -506,37 +523,55 @@ final class _CategoryRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      // One line when it fits; the amount wraps under the
+                      // name on a narrow screen or at large text.
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: QSpace.s2,
                         children: [
-                          Icon(_icons[category], size: 18, color: q.ink2),
-                          const SizedBox(width: QSpace.s2),
-                          Expanded(
-                            child: Text(
-                              l10n.expenseCategory(category.name),
-                              style: QType.body.copyWith(color: q.ink),
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_icons[category], size: 18, color: q.ink2),
+                              const SizedBox(width: QSpace.s2),
+                              Flexible(
+                                child: Text(
+                                  l10n.expenseCategory(category.name),
+                                  style: QType.body.copyWith(color: q.ink),
+                                ),
+                              ),
+                            ],
                           ),
-                          // Not color alone: an icon and word mark the overrun too.
-                          if (over) ...[
-                            Icon(
-                              Icons.warning_amber_rounded,
-                              size: 16,
-                              color: q.urgent,
-                            ),
-                            const SizedBox(width: QSpace.s1),
-                            Text(
-                              l10n.expenseCategoryOver,
-                              style: QType.label.copyWith(color: q.urgent),
-                            ),
-                            const SizedBox(width: QSpace.s2),
-                          ],
-                          Text(
-                            b == null
-                                ? format(spent)
-                                : '${format(spent)} / ${format(b)}',
-                            style: QType.label.copyWith(
-                              color: over ? q.urgent : q.ink,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Not color alone: an icon and word mark the
+                              // overrun too.
+                              if (over) ...[
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: 16,
+                                  color: q.urgent,
+                                ),
+                                const SizedBox(width: QSpace.s1),
+                                Text(
+                                  l10n.expenseCategoryOver,
+                                  style: QType.label.copyWith(color: q.urgent),
+                                ),
+                                const SizedBox(width: QSpace.s2),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  b == null
+                                      ? format(spent)
+                                      : '${format(spent)} / ${format(b)}',
+                                  style: QType.label.copyWith(
+                                    color: over ? q.urgent : q.ink,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -822,7 +857,7 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       canPop: !_dirty,
       onPopInvokedWithResult: (didPop, _) async {
         final navigator = Navigator.of(context);
-        if (!didPop && await _confirmDiscard(context)) {
+        if (!didPop && await confirmDiscard(context)) {
           navigator.pop();
         }
       },

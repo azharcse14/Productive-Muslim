@@ -4933,6 +4933,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get undo;
+
+  /// No description provided for @dataLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your data. Please try again.'**
+  String get dataLoadFailed;
+
+  /// No description provided for @fastingUnlogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast removed from your log'**
+  String get fastingUnlogged;
+
+  /// No description provided for @fastingQazaOwedInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number (0 clears it)'**
+  String get fastingQazaOwedInvalid;
+
+  /// No description provided for @healthWeightRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight removed'**
+  String get healthWeightRemoved;
+
+  /// No description provided for @expenseSadaqahGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'+ {amount} given in sadaqah'**
+  String expenseSadaqahGiven(String amount);
+
+  /// No description provided for @trackerValueInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 0 to 100000'**
+  String get trackerValueInvalid;
+
+  /// No description provided for @a11yTypeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'type a value'**
+  String get a11yTypeValue;
 }
 
 class _AppLocalizationsDelegate

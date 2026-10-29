@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
-import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
 import 'tracker_visuals.dart';
@@ -165,12 +165,17 @@ final class _Stepper extends StatelessWidget {
 
   /// Typing beats 12 taps of +5 for an hour of tahajjud.
   Future<void> _typeValue(BuildContext context) async {
-    final typed = await showDialog<int>(
-      context: context,
-      builder: (_) =>
-          _TypeValueDialog(label: label, initial: context.digits('$value')),
+    // Capped: a huge value would overflow SQLite's SUM in the stats query.
+    final typed = await showNumberDialog(
+      context,
+      title: label,
+      hint: context.l10n.trackerValueInvalid,
+      actionLabel: context.l10n.save,
+      min: 0,
+      max: 100000,
+      initial: value,
     );
-    if (typed != null && typed >= 0) {
+    if (typed != null) {
       onChanged?.call(typed);
     }
   }
@@ -194,15 +199,28 @@ final class _Stepper extends StatelessWidget {
                 ? () => onChanged!(value - step < 0 ? 0 : value - step)
                 : null,
           ),
-          InkWell(
+          Semantics(
+            button: onChanged != null,
+            label: label,
+            value: context.digits('$value'),
+            onTapHint: l10n.a11yTypeValue,
             onTap: onChanged == null ? null : () => _typeValue(context),
-            child: SizedBox(
-              width: 38,
-              height: QTouch.minTarget,
-              child: Center(
-                child: Text(
-                  context.digits('$value'),
-                  style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: onChanged == null ? null : () => _typeValue(context),
+              // A floor, not a fixed width: big text or long numbers grow it.
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: 38,
+                  minHeight: QTouch.minTarget,
+                ),
+                child: Center(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: Text(
+                    context.digits('$value'),
+                    style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+                  ),
                 ),
               ),
             ),
@@ -214,54 +232,6 @@ final class _Stepper extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Owns its controller, so it is disposed with the dialog — after the
-/// exit animation, not while the field is still on screen.
-final class _TypeValueDialog extends StatefulWidget {
-  const _TypeValueDialog({required this.label, required this.initial});
-
-  final String label;
-  final String initial;
-
-  @override
-  State<_TypeValueDialog> createState() => _TypeValueDialogState();
-}
-
-final class _TypeValueDialogState extends State<_TypeValueDialog> {
-  late final _controller = TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  // Capped: a huge value would overflow SQLite's SUM in the stats query.
-  void _submit() => Navigator.of(context).pop(
-    int.tryParse(LocaleDigits.toAscii(_controller.text.trim()))?.clamp(0, 100000),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AlertDialog(
-      title: Text(widget.label),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        keyboardType: TextInputType.number,
-        onSubmitted: (_) => _submit(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(l10n.save)),
-      ],
     );
   }
 }

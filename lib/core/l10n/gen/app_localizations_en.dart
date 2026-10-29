@@ -3321,4 +3321,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undo => 'Undo';
+
+  @override
+  String get dataLoadFailed => 'Couldn\'t load your data. Please try again.';
+
+  @override
+  String get fastingUnlogged => 'Fast removed from your log';
+
+  @override
+  String get fastingQazaOwedInvalid => 'Enter a whole number (0 clears it)';
+
+  @override
+  String get healthWeightRemoved => 'Weight removed';
+
+  @override
+  String expenseSadaqahGiven(String amount) {
+    return '+ $amount given in sadaqah';
+  }
+
+  @override
+  String get trackerValueInvalid => 'Enter a number from 0 to 100000';
+
+  @override
+  String get a11yTypeValue => 'type a value';
 }

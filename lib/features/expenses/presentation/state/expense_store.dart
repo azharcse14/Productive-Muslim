@@ -398,6 +398,12 @@ final class ExpenseStore {
     return totals;
   }
 
+  /// What counts as spending (budget, month-over-month): everything but
+  /// sadaqah — giving more must never read as overspending.
+  static int spendingOf(Iterable<Expense> list) => list
+      .where((e) => e.category != ExpenseCategory.sadaqah)
+      .fold(0, (a, e) => a + e.amount);
+
   static const _csvHeader = 'date,category,amount,note';
   // Leading quotes count too, so a note like '=x round-trips. Tab and CR
   // also start formulas in some spreadsheets (OWASP CSV injection).
