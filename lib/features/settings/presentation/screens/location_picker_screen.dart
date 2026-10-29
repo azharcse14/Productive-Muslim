@@ -131,6 +131,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isBn = Localizations.localeOf(context).languageCode == 'bn';
     final q = context.q;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.locationTitle)),
@@ -165,9 +166,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               ),
                             )
                           : Icon(Icons.chevron_right, color: q.ink3),
-                      onTap: _gpsBusy.value
-                          ? null
-                          : () => unawaited(_useGps()),
+                      onTap: _gpsBusy.value ? null : () => unawaited(_useGps()),
                     ),
                   ),
                 ),
@@ -176,51 +175,54 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   l10n.locationPrimingBody,
                   style: QType.caption.copyWith(color: q.ink2),
                 ),
-                SignalBuilder(builder: (context) {
-                  final failure = _gpsFailure.value;
-                  if (failure == null) {
-                    return const SizedBox.shrink();
-                  }
-                  // Settings fixes services-off and "don't ask again";
-                  // a plain denial or a missed fix just needs another try.
-                  final needsSettings =
-                      failure is LocationServiceDisabled ||
-                      failure is LocationPermissionDeniedForever;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: QSpace.s3),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        QBanner(
-                          text: switch (failure) {
-                            LocationServiceDisabled() => l10n.locationServiceOff,
-                            LocationPermissionDeniedForever() =>
-                              l10n.locationDeniedForever,
-                            LocationPermissionDenied() =>
-                              l10n.locationDeniedFallback,
-                            _ => l10n.locationUnavailable,
-                          },
-                          icon: Icons.explore_outlined,
-                        ),
-                        TextButton(
-                          onPressed: needsSettings
-                              ? () => unawaited(
-                                  _getLocation.openSettings(
-                                    locationService:
-                                        failure is LocationServiceDisabled,
-                                  ),
-                                )
-                              : () => unawaited(_useGps()),
-                          child: Text(
-                            needsSettings
-                                ? l10n.openSystemSettings
-                                : l10n.locationRetry,
+                SignalBuilder(
+                  builder: (context) {
+                    final failure = _gpsFailure.value;
+                    if (failure == null) {
+                      return const SizedBox.shrink();
+                    }
+                    // Settings fixes services-off and "don't ask again";
+                    // a plain denial or a missed fix just needs another try.
+                    final needsSettings =
+                        failure is LocationServiceDisabled ||
+                        failure is LocationPermissionDeniedForever;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: QSpace.s3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          QBanner(
+                            text: switch (failure) {
+                              LocationServiceDisabled() =>
+                                l10n.locationServiceOff,
+                              LocationPermissionDeniedForever() =>
+                                l10n.locationDeniedForever,
+                              LocationPermissionDenied() =>
+                                l10n.locationDeniedFallback,
+                              _ => l10n.locationUnavailable,
+                            },
+                            icon: Icons.explore_outlined,
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+                          TextButton(
+                            onPressed: needsSettings
+                                ? () => unawaited(
+                                    _getLocation.openSettings(
+                                      locationService:
+                                          failure is LocationServiceDisabled,
+                                    ),
+                                  )
+                                : () => unawaited(_useGps()),
+                            child: Text(
+                              needsSettings
+                                  ? l10n.openSystemSettings
+                                  : l10n.locationRetry,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: QSpace.s5),
                 TextField(
                   onChanged: _onQueryChanged,
@@ -234,46 +236,49 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
           ),
           const SizedBox(height: QSpace.s2),
           Expanded(
-            child: SignalBuilder(builder: (context) {
-              if (_searching.value) {
-                return ListView(
-                  padding: const EdgeInsets.all(QSpace.s5),
-                  children: [
-                    for (var i = 0; i < 8; i++) ...[
-                      const QSkeleton(height: 44, radius: QRadius.sm),
-                      const SizedBox(height: QSpace.s2),
+            child: SignalBuilder(
+              builder: (context) {
+                if (_searching.value) {
+                  return ListView(
+                    padding: const EdgeInsets.all(QSpace.s5),
+                    children: [
+                      for (var i = 0; i < 8; i++) ...[
+                        const QSkeleton(height: 44, radius: QRadius.sm),
+                        const SizedBox(height: QSpace.s2),
+                      ],
                     ],
-                  ],
-                );
-              }
-              final cities = _results.value;
-              if (cities.isEmpty) {
-                return Center(
-                  child: Text(
-                    _searchFailed.value
-                        ? l10n.locationSearchError
-                        : l10n.searchNoResults,
-                    style: QType.body.copyWith(color: q.ink2),
-                  ),
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
-                itemCount: cities.length,
-                itemBuilder: (context, index) {
-                  final city = cities[index];
-                  // Flag + country code reads better than a raw IANA zone.
-                  return QListRow(
-                    title: city.name,
-                    subtitle: [
-                      '${_flag(city.countryCode)} ${city.countryCode}',
-                      ?city.nameBn,
-                    ].join(' · '),
-                    onTap: () => unawaited(_selectCity(city)),
                   );
-                },
-              );
-            }),
+                }
+                final cities = _results.value;
+                if (cities.isEmpty) {
+                  return Center(
+                    child: Text(
+                      _searchFailed.value
+                          ? l10n.locationSearchError
+                          : l10n.searchNoResults,
+                      style: QType.body.copyWith(color: q.ink2),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
+                  itemCount: cities.length,
+                  itemBuilder: (context, index) {
+                    final city = cities[index];
+                    final bn = isBn ? city.nameBn : null;
+                    // Flag + country code reads better than a raw IANA zone.
+                    return QListRow(
+                      title: bn ?? city.name,
+                      subtitle: [
+                        '${_flag(city.countryCode)} ${city.countryCode}',
+                        ?(bn == null ? city.nameBn : city.name),
+                      ].join(' · '),
+                      onTap: () => unawaited(_selectCity(city)),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
