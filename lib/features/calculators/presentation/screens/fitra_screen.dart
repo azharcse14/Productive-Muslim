@@ -9,6 +9,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_form.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/fitra_calculator.dart';
@@ -32,6 +33,7 @@ final class _FitraScreenState extends State<FitraScreen> {
 
   FitraStaple _staple = FitraStaple.wheat;
   FitraResult? _result;
+  final _resultKey = GlobalKey();
 
   /// Fields that are empty, unparseable or out of range; shown as errors.
   Set<TextEditingController> _invalid = {};
@@ -52,6 +54,7 @@ final class _FitraScreenState extends State<FitraScreen> {
   });
 
   void _calculate() {
+    FocusScope.of(context).unfocus();
     final priceText = LocaleDigits.toAscii(_price.text).trim();
     final peopleText = LocaleDigits.toAscii(_people.text).trim();
     final price = double.tryParse(priceText);
@@ -73,6 +76,9 @@ final class _FitraScreenState extends State<FitraScreen> {
         ),
       );
     });
+    if (_result != null) {
+      revealAfterFrame(context, _resultKey);
+    }
   }
 
   String _formatAmount(BuildContext context, double amount) {
@@ -110,6 +116,7 @@ final class _FitraScreenState extends State<FitraScreen> {
       appBar: AppBar(title: Text(l10n.fitraTitle)),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
             Text(l10n.fitraSubtitle, style: QType.body.copyWith(color: q.ink2)),
@@ -148,6 +155,9 @@ final class _FitraScreenState extends State<FitraScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              inputFormatters: QInputFormat.decimal,
+              textInputAction: TextInputAction.next,
+              onTapOutside: unfocusOnTapOutside,
               onChanged: (_) => _edit(() {}),
               style: QType.num_(QType.body).copyWith(color: q.ink),
               decoration: InputDecoration(
@@ -161,6 +171,9 @@ final class _FitraScreenState extends State<FitraScreen> {
             TextField(
               controller: _people,
               keyboardType: TextInputType.number,
+              inputFormatters: QInputFormat.digits,
+              textInputAction: TextInputAction.done,
+              onTapOutside: unfocusOnTapOutside,
               onChanged: (_) => _edit(() {}),
               style: QType.num_(QType.body).copyWith(color: q.ink),
               decoration: InputDecoration(
@@ -180,6 +193,7 @@ final class _FitraScreenState extends State<FitraScreen> {
             if (_result case final FitraResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
+                key: _resultKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

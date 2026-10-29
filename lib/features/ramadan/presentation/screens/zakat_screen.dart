@@ -8,6 +8,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_form.dart';
 import '../../domain/usecases/zakat_calculator.dart';
 
 /// Zakat calculator (design §4.x): wealth + metal-price form over the pure
@@ -32,6 +33,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   final _silverPrice = TextEditingController();
 
   ZakatResult? _result;
+  final _resultKey = GlobalKey();
 
   /// Whether [_result] was measured against the gold (vs silver) nisab.
   bool _goldNisab = false;
@@ -118,6 +120,9 @@ final class _ZakatScreenState extends State<ZakatScreen> {
       _goldNisab = ZakatCalculator.usesGoldNisab(input);
       _result = ZakatCalculator.calculate(input);
     });
+    if (_result != null) {
+      revealAfterFrame(context, _resultKey);
+    }
   }
 
   String _formatAmount(BuildContext context, double amount) {
@@ -151,6 +156,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
       appBar: AppBar(title: Text(l10n.zakatTitle)),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
             for (final (label, controller) in fields)
@@ -161,6 +167,11 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  inputFormatters: QInputFormat.decimal,
+                  textInputAction: controller == fields.last.$2
+                      ? TextInputAction.done
+                      : TextInputAction.next,
+                  onTapOutside: unfocusOnTapOutside,
                   onChanged: (_) => _edit(),
                   style: QType.num_(QType.body).copyWith(color: q.ink),
                   decoration: InputDecoration(
@@ -197,6 +208,7 @@ final class _ZakatScreenState extends State<ZakatScreen> {
             if (_result case final ZakatResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
+                key: _resultKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

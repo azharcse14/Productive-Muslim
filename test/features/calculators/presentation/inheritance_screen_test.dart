@@ -110,20 +110,21 @@ void main() {
       _useTallSurface(tester);
       await tester.pumpWidget(_app());
       await tester.pump();
-      await tester.enterText(find.byType(TextField).first, 'NaN');
+      await tester.enterText(find.byType(TextField).first, '1.2.3');
       await tester.tap(find.text('Calculate'));
       await tester.pumpAndSettle();
       expect(find.text('Enter a valid amount'), findsOneWidget);
     });
 
-    testWidgets('negative estate shows a field error', (tester) async {
+    testWidgets('estate field drops a minus sign', (tester) async {
       _useTallSurface(tester);
       await tester.pumpWidget(_app());
       await tester.pump();
       await tester.enterText(find.byType(TextField).first, '-1000');
-      await tester.tap(find.text('Calculate'));
-      await tester.pumpAndSettle();
-      expect(find.text('Enter a valid amount'), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        '1000',
+      );
     });
 
     testWidgets('a group of heirs also shows the per-head amount', (

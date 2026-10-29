@@ -9,9 +9,11 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_form.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/qaza_calculator.dart';
+import '../widgets/date_field.dart';
 
 /// Qaza Salah calculator: estimates outstanding obligatory prayers over a
 /// chosen period so the user can plan to make them up. Deliberately calm,
@@ -33,6 +35,7 @@ final class _QazaScreenState extends State<QazaScreen> {
   final _excluded = TextEditingController();
 
   QazaResult? _result;
+  final _resultKey = GlobalKey();
 
   /// "Already made up" text didn't parse as a whole number.
   bool _madeUpInvalid = false;
@@ -79,12 +82,13 @@ final class _QazaScreenState extends State<QazaScreen> {
     if (start == null || end == null) {
       return;
     }
+    FocusScope.of(context).unfocus();
     final text = LocaleDigits.toAscii(_madeUp.text).trim();
     final madeUp = int.tryParse(text);
     final excludedText = LocaleDigits.toAscii(_excluded.text).trim();
     final excluded = int.tryParse(excludedText);
     setState(() {
-      _madeUpInvalid = text.isNotEmpty && madeUp == null;
+      _madeUpInvalid = text.isNotEmpty && (madeUp == null || madeUp < 0);
       _excludedInvalid =
           excludedText.isNotEmpty &&
           (excluded == null || excluded < 0 || excluded > 30);
@@ -102,6 +106,9 @@ final class _QazaScreenState extends State<QazaScreen> {
         ),
       );
     });
+    if (_result != null) {
+      revealAfterFrame(context, _resultKey);
+    }
   }
 
   String _formatCount(BuildContext context, int n) {
@@ -128,34 +135,24 @@ final class _QazaScreenState extends State<QazaScreen> {
       appBar: AppBar(title: Text(l10n.qazaTitle)),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
             Text(l10n.qazaSubtitle, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s4),
-            _DateTile(
+            DateField(
               label: l10n.qazaStartDate,
-              valueText: _startDate == null
+              value: _startDate == null
                   ? l10n.qazaSelectDate
                   : _formatDate(context, _startDate!),
               hasValue: _startDate != null,
+              helperText: l10n.qazaStartHelper,
               onTap: () => _pickDate(isStart: true),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                QSpace.s4,
-                QSpace.s2,
-                QSpace.s4,
-                0,
-              ),
-              child: Text(
-                l10n.qazaStartHelper,
-                style: QType.caption.copyWith(color: q.ink2),
-              ),
-            ),
             const SizedBox(height: QSpace.s3),
-            _DateTile(
+            DateField(
               label: l10n.qazaEndDate,
-              valueText: _endDate == null
+              value: _endDate == null
                   ? l10n.qazaSelectDate
                   : _formatDate(context, _endDate!),
               hasValue: _endDate != null,
@@ -186,6 +183,9 @@ final class _QazaScreenState extends State<QazaScreen> {
             TextField(
               controller: _madeUp,
               keyboardType: TextInputType.number,
+              inputFormatters: QInputFormat.digits,
+              textInputAction: TextInputAction.next,
+              onTapOutside: unfocusOnTapOutside,
               onChanged: (_) => setState(() {
                 _result = null;
                 _madeUpInvalid = false;
@@ -200,6 +200,9 @@ final class _QazaScreenState extends State<QazaScreen> {
             TextField(
               controller: _excluded,
               keyboardType: TextInputType.number,
+              inputFormatters: QInputFormat.digits,
+              textInputAction: TextInputAction.done,
+              onTapOutside: unfocusOnTapOutside,
               onChanged: (_) => setState(() {
                 _result = null;
                 _excludedInvalid = false;
@@ -234,6 +237,7 @@ final class _QazaScreenState extends State<QazaScreen> {
             if (_result case final QazaResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
+                key: _resultKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -274,49 +278,6 @@ final class _QazaScreenState extends State<QazaScreen> {
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Tappable row that opens a date picker and shows the chosen date (or a
-/// placeholder when none is selected yet).
-final class _DateTile extends StatelessWidget {
-  const _DateTile({
-    required this.label,
-    required this.valueText,
-    required this.hasValue,
-    required this.onTap,
-  });
-
-  final String label;
-  final String valueText;
-  final bool hasValue;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return QCard(
-      padding: EdgeInsets.zero,
-      child: Material(
-        type: MaterialType.transparency,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: QSpace.s4,
-            vertical: QSpace.s1,
-          ),
-          leading: Icon(Icons.calendar_today_outlined, color: q.primary),
-          title: Text(label, style: QType.label.copyWith(color: q.ink2)),
-          subtitle: Text(
-            valueText,
-            style: QType.num_(
-              QType.titleSm,
-            ).copyWith(color: hasValue ? q.ink : q.ink2),
-          ),
-          trailing: Icon(Icons.chevron_right, color: q.ink2),
-          onTap: onTap,
         ),
       ),
     );

@@ -8,6 +8,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_form.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/usecases/inheritance_calculator.dart';
@@ -39,6 +40,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   bool _otherRelatives = false;
 
   InheritanceResult? _result;
+  final _resultKey = GlobalKey();
 
   /// The estate text didn't parse as a finite, non-negative number.
   bool _estateInvalid = false;
@@ -57,6 +59,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   });
 
   void _calculate() {
+    FocusScope.of(context).unfocus();
     final text = LocaleDigits.toAscii(_estate.text).trim();
     final estate = double.tryParse(text);
     setState(() {
@@ -81,6 +84,9 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
         ),
       );
     });
+    if (_result != null) {
+      revealAfterFrame(context, _resultKey);
+    }
   }
 
   String _basisLabel(BuildContext context, ShareBasis basis) {
@@ -134,6 +140,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
       appBar: AppBar(title: Text(l10n.faraidTitle)),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
             Text(
@@ -148,6 +155,9 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              inputFormatters: QInputFormat.decimal,
+              textInputAction: TextInputAction.done,
+              onTapOutside: unfocusOnTapOutside,
               onChanged: (_) => _edit(() => _estateInvalid = false),
               style: QType.num_(QType.body).copyWith(color: q.ink),
               decoration: InputDecoration(
@@ -240,6 +250,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                 when result.outOfScope) ...[
               const SizedBox(height: QSpace.s4),
               QBanner(
+                key: _resultKey,
                 text: l10n.faraidOutOfScope,
                 tone: q.warnSoft,
                 foreground: q.ink,
@@ -247,6 +258,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             ] else if (_result case final InheritanceResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
+                key: _resultKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -370,12 +382,16 @@ final class _Stepper extends StatelessWidget {
           fill: q.surface2,
           onTap: value > min ? () => onChanged(value - 1) : null,
         ),
-        Text(
-          LocaleDigits.localize(
-            '$value',
-            Localizations.localeOf(context).languageCode,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 32),
+          child: Text(
+            LocaleDigits.localize(
+              '$value',
+              Localizations.localeOf(context).languageCode,
+            ),
+            textAlign: TextAlign.center,
+            style: QType.num_(QType.titleSm).copyWith(color: q.ink),
           ),
-          style: QType.num_(QType.titleSm).copyWith(color: q.ink),
         ),
         QStepButton(
           icon: Icons.add,
