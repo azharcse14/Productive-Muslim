@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -50,7 +52,6 @@ Future<SettingsStore> _pump(WidgetTester tester, {required bool setup}) async {
           timezone: 'Asia/Dhaka',
         ),
       ),
-      prayerParams: const PrayerParams(method: CalculationMethodId.karachi),
     ),
   );
   GetIt.I
@@ -71,7 +72,7 @@ Future<SettingsStore> _pump(WidgetTester tester, {required bool setup}) async {
       routerConfig: router,
     ),
   );
-  router.push('/l');
+  unawaited(router.push<void>('/l'));
   await tester.pumpAndSettle();
   return store;
 }
