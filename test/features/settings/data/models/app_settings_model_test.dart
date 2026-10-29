@@ -61,6 +61,28 @@ void main() {
       expect(restored.location, settings.location);
     });
 
+    test('keeps a city\'s Bangla name', () {
+      const settings = AppSettings(
+        location: ManualCityLocation(
+          City(
+            name: 'Tangail',
+            countryCode: 'BD',
+            latitude: 24.25,
+            longitude: 89.92,
+            timezone: 'Asia/Dhaka',
+            nameBn: 'টাঙ্গাইল',
+          ),
+        ),
+      );
+      final restored = AppSettingsModel.fromMap(
+        AppSettingsModel.toMap(settings),
+      );
+      expect(
+        (restored.location! as ManualCityLocation).city.nameBn,
+        'টাঙ্গাইল',
+      );
+    });
+
     test('one wrong-typed field keeps every other setting', () {
       final restored = AppSettingsModel.fromMap(const {
         'setupComplete': true,
