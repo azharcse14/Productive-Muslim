@@ -1733,6 +1733,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appLockWrongPin => 'ভুল পিন — আবার চেষ্টা করুন';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ভুল পিন — অপেক্ষার আগে আর $countStringবার চেষ্টা করা যাবে',
+      one: 'ভুল পিন — অপেক্ষার আগে আর ১বার চেষ্টা করা যাবে',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন';
 
   @override
@@ -1766,6 +1781,20 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'আপনার ডিভাইসে কোনো স্ক্রিন লক নেই, তাই আপনাকে যাচাই করা যাচ্ছে না। ডিভাইসের সেটিংসে স্ক্রিন লক চালু করে আবার চেষ্টা করুন। অ্যাপের ডেটা মুছে ফেললেও পিন সরে যায়, তবে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockResetFailed =>
+      'আপনাকে যাচাই করা যায়নি। পিন আগের মতোই আছে।';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'এই ডিভাইসে কোনো স্ক্রিন লক নেই';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'ডিভাইসে স্ক্রিন লক না থাকলে অ্যাপের পিন ভুলে গেলে তা রিসেট করা যাবে না। কেবল অ্যাপের ডেটা মুছলেই পিন সরে যায় — আর তাতে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'বুঝেছি';
 
   @override
   String get appLockNewPin => 'নতুন ৪-সংখ্যার পিন দিন';

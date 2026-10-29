@@ -1740,6 +1740,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockWrongPin => 'Wrong PIN — try again';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong PIN — $countString attempts left before a wait',
+      one: 'Wrong PIN — 1 attempt left before a wait',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'Use fingerprint / face';
 
   @override
@@ -1772,6 +1787,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.';
+
+  @override
+  String get appLockResetFailed =>
+      'Couldn\'t confirm it\'s you. Your PIN is unchanged.';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'No screen lock on this device';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'Without a device screen lock, a forgotten app PIN can\'t be reset. Only clearing the app\'s data removes it — and that erases your saved progress.';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'I understand';
 
   @override
   String get appLockNewPin => 'Set a new 4-digit PIN';

@@ -2606,6 +2606,12 @@ abstract class AppLocalizations {
   /// **'Wrong PIN — try again'**
   String get appLockWrongPin;
 
+  /// No description provided for @appLockAttemptsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Wrong PIN — 1 attempt left before a wait} other{Wrong PIN — {count} attempts left before a wait}}'**
+  String appLockAttemptsLeft(int count);
+
   /// No description provided for @appLockUseBiometric.
   ///
   /// In en, this message translates to:
@@ -2665,6 +2671,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.'**
   String get appLockNoDeviceLockBody;
+
+  /// No description provided for @appLockResetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t confirm it\'s you. Your PIN is unchanged.'**
+  String get appLockResetFailed;
+
+  /// No description provided for @appLockSetupNoDeviceLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen lock on this device'**
+  String get appLockSetupNoDeviceLockTitle;
+
+  /// No description provided for @appLockSetupNoDeviceLockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a device screen lock, a forgotten app PIN can\'t be reset. Only clearing the app\'s data removes it — and that erases your saved progress.'**
+  String get appLockSetupNoDeviceLockBody;
+
+  /// No description provided for @appLockSetupNoDeviceLockAck.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get appLockSetupNoDeviceLockAck;
 
   /// No description provided for @appLockNewPin.
   ///

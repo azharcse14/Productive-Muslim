@@ -13,11 +13,11 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import '../../helpers/lock_fakes.dart';
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const LockScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const LockScreen(),
+);
 
 late DateTime _clock;
 
@@ -46,8 +46,9 @@ Future<void> _enter(WidgetTester tester, String pin) async {
 void main() {
   tearDown(() => GetIt.I.reset());
 
-  testWidgets('throttled: shows remaining time and ignores digits',
-      (tester) async {
+  testWidgets('throttled: shows remaining time and ignores digits', (
+    tester,
+  ) async {
     final store = await _register(FakeBiometric());
     await tester.runAsync(() async {
       for (var i = 0; i < AppLockStore.freeAttempts; i++) {
@@ -73,8 +74,9 @@ void main() {
     await tester.pumpWidget(const SizedBox()); // cancels the ticker
   });
 
-  testWidgets('forgot PIN: device lock, then a new PIN unlocks',
-      (tester) async {
+  testWidgets('forgot PIN: device lock, then a new PIN unlocks', (
+    tester,
+  ) async {
     final store = await _register(FakeBiometric());
     await tester.pumpWidget(_app());
     await tester.pump();
@@ -90,8 +92,7 @@ void main() {
     expect(await tester.runAsync(() => store.unlockWithPin('9876')), isTrue);
   });
 
-  testWidgets('leaving the app mid-reset returns to PIN entry',
-      (tester) async {
+  testWidgets('leaving the app mid-reset returns to PIN entry', (tester) async {
     final store = await _register(FakeBiometric());
     await tester.pumpWidget(_app());
     await tester.pump();
@@ -106,8 +107,9 @@ void main() {
     expect(find.text('Forgot PIN?'), findsOneWidget);
   });
 
-  testWidgets('forgot PIN without a device screen lock explains why',
-      (tester) async {
+  testWidgets('forgot PIN without a device screen lock explains why', (
+    tester,
+  ) async {
     final store = await _register(FakeBiometric()..deviceLock = false);
     await tester.pumpWidget(_app());
     await tester.pump();
@@ -120,8 +122,9 @@ void main() {
     expect(store.locked.value, isTrue);
   });
 
-  testWidgets('verify mode (turning the lock off) pops true only on the PIN',
-      (tester) async {
+  testWidgets('verify mode (turning the lock off) pops true only on the PIN', (
+    tester,
+  ) async {
     final store = await _register(FakeBiometric());
     await store.unlockWithPin('1234'); // in the app, unlocked
     bool? result;
@@ -135,8 +138,7 @@ void main() {
             onPressed: () async {
               result = await Navigator.of(context).push<bool>(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      const LockScreen(mode: LockScreenMode.verify),
+                  builder: (_) => const LockScreen(mode: LockScreenMode.verify),
                 ),
               );
             },
@@ -163,5 +165,71 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(result, isNull);
+  });
+
+  testWidgets('from the third miss, warns how many tries remain', (
+    tester,
+  ) async {
+    await _register(FakeBiometric());
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    final message = find.byKey(const ValueKey('lock-message'));
+    for (var i = 0; i < 2; i++) {
+      await tester.runAsync(() => _enter(tester, '0000'));
+      await tester.pump();
+    }
+    expect(tester.widget<Text>(message).data, 'Wrong PIN — try again');
+    await tester.runAsync(() => _enter(tester, '0000'));
+    await tester.pump();
+    expect(
+      tester.widget<Text>(message).data,
+      'Wrong PIN — 2 attempts left before a wait',
+    );
+  });
+
+  testWidgets('a cancelled forgot-PIN check says so', (tester) async {
+    await _register(FakeBiometric()..deviceLockSucceeds = false);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.tap(find.text('Forgot PIN?'));
+    await tester.pump();
+    expect(
+      find.text("Couldn't confirm it's you. Your PIN is unchanged."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('setup without a device lock needs an acknowledgement', (
+    tester,
+  ) async {
+    await _register(FakeBiometric()..deviceLock = false);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => const LockScreen(mode: LockScreenMode.setup),
+              ),
+            ),
+            child: const Text('on'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('on'));
+    await tester.pumpAndSettle();
+    expect(find.text('No screen lock on this device'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LockScreen), findsNothing);
+    await tester.tap(find.text('on'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('I understand'));
+    await tester.pumpAndSettle();
+    expect(find.text('Set a 4-digit PIN'), findsOneWidget);
   });
 }

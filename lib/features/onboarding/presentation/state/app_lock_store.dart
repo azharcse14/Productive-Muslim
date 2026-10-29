@@ -205,6 +205,14 @@ final class AppLockStore {
   /// Whether biometric unlock is available to offer at PIN setup.
   Future<bool> canUseBiometric() => _biometric.canAuthenticate();
 
+  /// Whether a device screen lock exists — the only way to reset a
+  /// forgotten PIN ("Forgot PIN?").
+  Future<bool> canUseDeviceLock() => _biometric.canUseDeviceLock();
+
+  /// Wrong PINs still allowed before the first cooldown (0 once throttling
+  /// has begun).
+  int get attemptsBeforeCooldown => math.max(0, freeAttempts - _failedAttempts);
+
   Future<void> enable(String pin, {required bool biometric}) async {
     await _source.enable(pin, biometric: biometric);
     await _resetThrottle();
