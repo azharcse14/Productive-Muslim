@@ -94,7 +94,7 @@ final class MuhasabaStore {
   }
 
   Future<void> load() async {
-    await _repository.seedDefaultsIfEmpty();
+    await _repository.seedDefaults();
     await _reloadItems();
     _day = _today();
     await selectDate(_day!);
@@ -197,6 +197,22 @@ final class MuhasabaStore {
 
   Future<void> setValue(String itemId, int value) =>
       _setOn(itemId, selectedDate.value, value, debounceStats: true);
+
+  /// Midnight-normalised "today" per the injected clock.
+  DateTime get today => _today();
+
+  /// Sets [itemId] on [day] without moving [selectedDate] (the Health
+  /// screen logs today whatever date this tab is back-filling).
+  Future<void> setValueOn(String itemId, DateTime day, int value) async {
+    final d = DateTime(day.year, day.month, day.day);
+    if (d.isAfter(_today())) {
+      return;
+    }
+    if (!_days.value.containsKey(d)) {
+      await _loadDay(d);
+    }
+    await _setOn(itemId, d, value, debounceStats: true);
+  }
 
   Future<void> _setOn(
     String itemId,
@@ -368,6 +384,20 @@ final class MuhasabaStore {
     await _reloadItems();
     await refreshStats();
     return true;
+  }
+
+  /// Restores every archived health default (Health screen opt-in);
+  /// false when any couldn't be saved.
+  Future<bool> enableHealthHabits() async {
+    var ok = true;
+    for (final i in archivedItems.value) {
+      if (DefaultTrackers.healthIds.contains(i.id)) {
+        ok &= (await _repository.setArchived(i.id, archived: false)).isSuccess;
+      }
+    }
+    await _reloadItems();
+    await refreshStats();
+    return ok;
   }
 
   void dispose() {

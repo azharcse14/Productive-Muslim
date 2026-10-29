@@ -240,7 +240,7 @@ void main() {
       expect(find.text('Muhasaba'), findsOneWidget);
       expect(find.text('0%'), findsOneWidget);
       // 10 seeded default trackers, none done yet.
-      expect(find.text('0/10 done'), findsOneWidget);
+      expect(find.text('0/14 done'), findsOneWidget);
     });
 
     testHomeWidgets('hidden home cards are not built', (tester) async {
@@ -256,7 +256,7 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(find.text('Forbidden times', skipOffstage: false), findsNothing);
-      expect(find.text('0/10 done', skipOffstage: false), findsNothing);
+      expect(find.text('0/14 done', skipOffstage: false), findsNothing);
       // The core of Home stays.
       expect(find.text('Sahri ends', skipOffstage: false), findsOneWidget);
     });
@@ -328,11 +328,11 @@ void main() {
       // The summary card's count reflects the new done item live; it sits below
       // the fold now, so scroll it into view to confirm.
       await tester.scrollUntilVisible(
-        find.text('1/10 done'),
+        find.text('1/14 done'),
         300,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('1/10 done'), findsOneWidget);
+      expect(find.text('1/14 done'), findsOneWidget);
       // Scroll back up to the table and tap again to toggle off.
       await tester.scrollUntilVisible(
         checks,

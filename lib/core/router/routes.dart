@@ -10,8 +10,10 @@ abstract final class Routes {
   /// Settings stack lives under the More branch.
   static const settings = (name: 'settings', path: 'settings');
   static const notifications = (name: 'notifications', path: '/notifications');
-  static const notificationSettings =
-      (name: 'notificationSettings', path: '/notifications/settings');
+  static const notificationSettings = (
+    name: 'notificationSettings',
+    path: '/notifications/settings',
+  );
 
   /// Top-level (outside the shell) so Home and Settings can both open it
   /// full-screen without switching tabs.
@@ -56,6 +58,9 @@ abstract final class Routes {
 
   /// Islamic expense tracker — monthly hisab, no israf (More tab).
   static const expenses = (name: 'expenses', path: '/expenses');
+
+  /// Sunnah health tracker — habits, weight, guidance (More tab).
+  static const health = (name: 'health', path: '/health');
 
   /// Achievements / badges (More tab + muhasaba summary).
   static const achievements = (name: 'achievements', path: '/achievements');

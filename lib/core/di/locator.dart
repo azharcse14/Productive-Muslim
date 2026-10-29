@@ -35,6 +35,7 @@ import '../../features/hadith/domain/repositories/hadith_repository.dart';
 import '../../features/hadith/presentation/state/hadith_books_store.dart';
 import '../../features/hadith/presentation/state/hadith_section_store.dart';
 import '../../features/hadith/presentation/state/hadith_store.dart';
+import '../../features/health/presentation/state/health_store.dart';
 import '../../features/home_widget/data/prayer_widget_service.dart';
 import '../../features/muhasaba/data/database/muhasaba_database.dart';
 import '../../features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
@@ -301,6 +302,11 @@ Future<void> setupLocator() async {
       now: _wallNow,
       onSadaqah: (date) => locator<MuhasabaStore>().markDoneOn('sadaqah', date),
     ),
+  );
+
+  // ---- health (weight log; habits live in muhasaba) ----
+  locator.registerLazySingleton(
+    () => HealthStore(SharedPreferencesAsync(), now: _wallNow),
   );
 
   // ---- achievements ----

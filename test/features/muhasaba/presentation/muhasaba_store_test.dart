@@ -22,6 +22,28 @@ void main() {
       expect(repo.seeds, 1, reason: 'seed is idempotent');
     });
 
+    test('setValueOn edits that day without moving selectedDate', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.selectDate(DateTime(2026, 6, 10));
+      await store.setValueOn('water', DateTime(2026, 6, 12), 3);
+      expect(store.selectedDate.value, DateTime(2026, 6, 10));
+      expect(store.entriesOn(DateTime(2026, 6, 12))['water'], 3);
+      expect(repo.entries_[('water', 20260612)], 3);
+      await store.setValueOn('water', DateTime(2026, 6, 13), 1);
+      expect(repo.entries_.containsKey(('water', 20260613)), isFalse);
+    });
+
+    test('enableHealthHabits restores only archived health defaults', () async {
+      final (store, _) = await makeMuhasabaStore(now: _fixedNow);
+      for (final id in [...DefaultTrackers.healthIds, 'sadaqah']) {
+        await store.setArchived(id, archived: true);
+      }
+      expect(await store.enableHealthHabits(), isTrue);
+      final active = store.items.value.map((i) => i.id);
+      expect(active, containsAll(DefaultTrackers.healthIds));
+      expect(store.archivedItems.value.map((i) => i.id), ['sadaqah']);
+    });
+
     test('setValue persists, updates the map, deletes on zero', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
       await store.setValue('quran', 15);

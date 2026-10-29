@@ -134,7 +134,8 @@ final class TrackerRow extends StatelessWidget {
                 ),
                 TrackerKind.duration => _Stepper(
                   value: value,
-                  step: 5,
+                  // Long targets (sleep) in half hours, not 84 taps.
+                  step: (item.dailyTarget ?? 0) >= 120 ? 30 : 5,
                   label: displayName,
                   onChanged: onChanged,
                 ),

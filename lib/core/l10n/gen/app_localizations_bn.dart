@@ -873,6 +873,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'sadaqah': 'সদকা',
       'tahajjud': 'তাহাজ্জুদ',
       'roza': 'রোজা',
+      'water': 'পানি পান',
+      'sleep': 'ঘুম',
+      'exercise': 'ব্যায়াম / হাঁটা',
+      'miswak': 'মিসওয়াক',
       'other': '$key',
     });
     return '$_temp0';
@@ -2744,4 +2748,114 @@ class AppLocalizationsBn extends AppLocalizations {
   String nafsLockBodyUntil(String time) {
     return 'একটু থামুন — আল্লাহকে স্মরণ করুন। ফোন খুলবে $time-এ।';
   }
+
+  @override
+  String get healthTitle => 'স্বাস্থ্য ট্র্যাকার';
+
+  @override
+  String get healthSubtitle => 'সুন্নাহ মেনে পানি, ঘুম, ব্যায়াম ও ওজন';
+
+  @override
+  String get healthToday => 'আজকের অভ্যাস';
+
+  @override
+  String get healthNoHabits =>
+      'মুহাসাবার সাথে পানি, ঘুম, ব্যায়াম ও মিসওয়াকের হিসাব রাখুন।';
+
+  @override
+  String get healthEnableHabits => 'স্বাস্থ্য অভ্যাস চালু করুন';
+
+  @override
+  String get healthSunnahTitle => 'নববী নির্দেশনা';
+
+  @override
+  String get healthWeightTitle => 'ওজন';
+
+  @override
+  String get healthWeightEmpty => 'এখনো লেখা হয়নি';
+
+  @override
+  String get healthWeightLog => 'আজকের ওজন লিখুন';
+
+  @override
+  String get healthWeightEdit => 'আজকের ওজন বদলান';
+
+  @override
+  String get healthWeightHint => 'কেজি, যেমন ৬৫.৫';
+
+  @override
+  String get healthWeightInvalid => 'সঠিক ওজন লিখুন (২–৪০০ কেজি)';
+
+  @override
+  String get healthWeightRemove => 'মুছুন';
+
+  @override
+  String healthKg(String kg) {
+    return '$kg কেজি';
+  }
+
+  @override
+  String healthWeightChange(String delta) {
+    return 'শেষ কয়েকবারে $delta কেজি';
+  }
+
+  @override
+  String get healthTipEatTitle => 'পরিমিত আহার';
+
+  @override
+  String get healthTipEatBody =>
+      '“আদম সন্তান পেটের চেয়ে খারাপ কোনো পাত্র পূর্ণ করে না… এক-তৃতীয়াংশ খাবারের জন্য, এক-তৃতীয়াংশ পানির জন্য আর এক-তৃতীয়াংশ শ্বাসের জন্য।” আর আল্লাহ বলেন: “খাও ও পান করো, কিন্তু অপচয় করো না।”';
+
+  @override
+  String get healthTipEatRef => 'তিরমিজি ২৩৮০ · সূরা আল-আ\'রাফ ৭:৩১';
+
+  @override
+  String get healthTipDrinkTitle => 'পানি পানের আদব';
+
+  @override
+  String get healthTipDrinkBody =>
+      'নবী ﷺ পান করার সময় তিনবার শ্বাস নিতেন এবং দাঁড়িয়ে পান করতে নিষেধ করেছেন। বসে, ধীরে পান করুন।';
+
+  @override
+  String get healthTipDrinkRef => 'সহিহ বুখারি ৫৬৩১ · সহিহ মুসলিম ২০২৮, ২০২৪';
+
+  @override
+  String get healthTipSleepTitle => 'তাড়াতাড়ি ঘুম';
+
+  @override
+  String get healthTipSleepBody =>
+      'নবী ﷺ এশার আগে ঘুমানো ও এশার পরে গল্পগুজব অপছন্দ করতেন। ঘুমের আগে অজু করে ডান কাতে শোবেন।';
+
+  @override
+  String get healthTipSleepRef => 'সহিহ বুখারি ৫৬৮, ২৪৭';
+
+  @override
+  String get healthTipMiswakTitle => 'মিসওয়াক';
+
+  @override
+  String get healthTipMiswakBody =>
+      '“আমার উম্মতের জন্য কষ্টকর না হলে আমি তাদের প্রত্যেক নামাজের আগে মিসওয়াক করার নির্দেশ দিতাম।”';
+
+  @override
+  String get healthTipMiswakRef => 'সহিহ বুখারি ৮৮৭ · সহিহ মুসলিম ২৫২';
+
+  @override
+  String get healthTipStrongTitle => 'শক্তিশালী মুমিন';
+
+  @override
+  String get healthTipStrongBody =>
+      '“শক্তিশালী মুমিন দুর্বল মুমিনের চেয়ে উত্তম ও আল্লাহর কাছে বেশি প্রিয়, তবে উভয়ের মধ্যেই কল্যাণ আছে।”';
+
+  @override
+  String get healthTipStrongRef => 'সহিহ মুসলিম ২৬৬৪';
+
+  @override
+  String get healthTipBlessingTitle => 'সুস্থতা একটি নিয়ামত';
+
+  @override
+  String get healthTipBlessingBody =>
+      '“দুটি নিয়ামতের ব্যাপারে অনেক মানুষ ক্ষতিগ্রস্ত: সুস্থতা ও অবসর।”';
+
+  @override
+  String get healthTipBlessingRef => 'সহিহ বুখারি ৬৪১২';
 }

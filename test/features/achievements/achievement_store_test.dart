@@ -18,7 +18,7 @@ void main() {
 
   test('badge totals count distinct days from every source', () async {
     final repo = InMemoryMuhasabaRepository();
-    await repo.seedDefaultsIfEmpty();
+    await repo.seedDefaults();
     Future<void> log(String id, int day) => repo.setEntry(
           DailyEntry(itemId: id, date: DateTime(2026, 6, day), value: 1),
         );
@@ -55,7 +55,7 @@ void main() {
   test('refresh is single-flight: a burst collapses into one trailing run',
       () async {
     final repo = InMemoryMuhasabaRepository();
-    await repo.seedDefaultsIfEmpty();
+    await repo.seedDefaults();
     final store = AchievementStore(
       muhasaba: repo,
       prefs: SharedPreferencesAsync(),

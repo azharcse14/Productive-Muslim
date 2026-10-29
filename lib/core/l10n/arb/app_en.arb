@@ -379,7 +379,7 @@
   "muhasabaDayComplete": "Every deed done today — alhamdulillah",
   "muhasabaFirstDayBody": "Muhasaba is gentle self-accounting: small daily deeds, tracked kindly. Check off what you did — every bit counts.",
   "muhasabaStart": "Bismillah, let's begin",
-  "trackerName": "{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}",
+  "trackerName": "{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} water{Drinking water} sleep{Sleep} exercise{Exercise / walk} miswak{Miswak} other{{key}}}",
   "@trackerName": {
     "placeholders": {
       "key": {
@@ -1226,5 +1226,40 @@
         "type": "String"
       }
     }
-  }
+  },
+  "healthTitle": "Health tracker",
+  "healthSubtitle": "Water, sleep, exercise & weight — the Sunnah way",
+  "healthToday": "Today's habits",
+  "healthNoHabits": "Track water, sleep, exercise and miswak alongside your Muhasaba.",
+  "healthEnableHabits": "Turn on health habits",
+  "healthSunnahTitle": "Prophetic guidance",
+  "healthWeightTitle": "Weight",
+  "healthWeightEmpty": "Not logged yet",
+  "healthWeightLog": "Log today's weight",
+  "healthWeightEdit": "Edit today's weight",
+  "healthWeightHint": "kg, e.g. 65.5",
+  "healthWeightInvalid": "Enter a valid weight (2–400 kg)",
+  "healthWeightRemove": "Remove",
+  "healthKg": "{kg} kg",
+  "healthWeightChange": "{delta} kg over the last logs",
+  "healthTipEatTitle": "Eat in moderation",
+  "healthTipEatBody": "“The son of Adam fills no vessel worse than his stomach… a third for food, a third for drink and a third for breath.” And Allah says: “Eat and drink, but do not be excessive.”",
+  "healthTipEatRef": "Tirmidhi 2380 · Al-A'raf 7:31",
+  "healthTipDrinkTitle": "Etiquette of drinking",
+  "healthTipDrinkBody": "The Prophet ﷺ used to take three breaths while drinking, and forbade drinking while standing. Drink slowly, seated.",
+  "healthTipDrinkRef": "Sahih al-Bukhari 5631 · Sahih Muslim 2028, 2024",
+  "healthTipSleepTitle": "Sleep early",
+  "healthTipSleepBody": "The Prophet ﷺ disliked sleeping before Isha and talking after it. Make wudu before bed and lie on your right side.",
+  "healthTipSleepRef": "Sahih al-Bukhari 568, 247",
+  "healthTipMiswakTitle": "Miswak",
+  "healthTipMiswakBody": "“Were it not too hard on my ummah, I would have ordered them to use the siwak before every prayer.”",
+  "healthTipMiswakRef": "Sahih al-Bukhari 887 · Sahih Muslim 252",
+  "healthTipStrongTitle": "The strong believer",
+  "healthTipStrongBody": "“The strong believer is better and more beloved to Allah than the weak believer, while there is good in both.”",
+  "healthTipStrongRef": "Sahih Muslim 2664",
+  "healthTipBlessingTitle": "Health is a blessing",
+  "healthTipBlessingBody": "“There are two blessings in which many people are at a loss: health and free time.”",
+  "healthTipBlessingRef": "Sahih al-Bukhari 6412",
+  "@healthKg": {"placeholders": {"kg": {"type": "String"}}},
+  "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}}
 }

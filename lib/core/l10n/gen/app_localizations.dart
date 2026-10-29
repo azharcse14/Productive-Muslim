@@ -1535,7 +1535,7 @@ abstract class AppLocalizations {
   /// No description provided for @trackerName.
   ///
   /// In en, this message translates to:
-  /// **'{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} other{{key}}}'**
+  /// **'{key, select, salah_fajr{Fajr prayer} salah_dhuhr{Dhuhr prayer} salah_asr{Asr prayer} salah_maghrib{Maghrib prayer} salah_isha{Isha prayer} quran{Quran reading} azkar{Azkar} sadaqah{Sadaqah} tahajjud{Tahajjud} roza{Fasting} water{Drinking water} sleep{Sleep} exercise{Exercise / walk} miswak{Miswak} other{{key}}}'**
   String trackerName(String key);
 
   /// No description provided for @addTracker.
@@ -4135,6 +4135,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hold on — remember Allah. Your phone opens at {time}.'**
   String nafsLockBodyUntil(String time);
+
+  /// No description provided for @healthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health tracker'**
+  String get healthTitle;
+
+  /// No description provided for @healthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Water, sleep, exercise & weight — the Sunnah way'**
+  String get healthSubtitle;
+
+  /// No description provided for @healthToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s habits'**
+  String get healthToday;
+
+  /// No description provided for @healthNoHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Track water, sleep, exercise and miswak alongside your Muhasaba.'**
+  String get healthNoHabits;
+
+  /// No description provided for @healthEnableHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on health habits'**
+  String get healthEnableHabits;
+
+  /// No description provided for @healthSunnahTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophetic guidance'**
+  String get healthSunnahTitle;
+
+  /// No description provided for @healthWeightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get healthWeightTitle;
+
+  /// No description provided for @healthWeightEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Not logged yet'**
+  String get healthWeightEmpty;
+
+  /// No description provided for @healthWeightLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Log today\'s weight'**
+  String get healthWeightLog;
+
+  /// No description provided for @healthWeightEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit today\'s weight'**
+  String get healthWeightEdit;
+
+  /// No description provided for @healthWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'kg, e.g. 65.5'**
+  String get healthWeightHint;
+
+  /// No description provided for @healthWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid weight (2–400 kg)'**
+  String get healthWeightInvalid;
+
+  /// No description provided for @healthWeightRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get healthWeightRemove;
+
+  /// No description provided for @healthKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg'**
+  String healthKg(String kg);
+
+  /// No description provided for @healthWeightChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} kg over the last logs'**
+  String healthWeightChange(String delta);
+
+  /// No description provided for @healthTipEatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat in moderation'**
+  String get healthTipEatTitle;
+
+  /// No description provided for @healthTipEatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“The son of Adam fills no vessel worse than his stomach… a third for food, a third for drink and a third for breath.” And Allah says: “Eat and drink, but do not be excessive.”'**
+  String get healthTipEatBody;
+
+  /// No description provided for @healthTipEatRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Tirmidhi 2380 · Al-A\'raf 7:31'**
+  String get healthTipEatRef;
+
+  /// No description provided for @healthTipDrinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Etiquette of drinking'**
+  String get healthTipDrinkTitle;
+
+  /// No description provided for @healthTipDrinkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Prophet ﷺ used to take three breaths while drinking, and forbade drinking while standing. Drink slowly, seated.'**
+  String get healthTipDrinkBody;
+
+  /// No description provided for @healthTipDrinkRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 5631 · Sahih Muslim 2028, 2024'**
+  String get healthTipDrinkRef;
+
+  /// No description provided for @healthTipSleepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep early'**
+  String get healthTipSleepTitle;
+
+  /// No description provided for @healthTipSleepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Prophet ﷺ disliked sleeping before Isha and talking after it. Make wudu before bed and lie on your right side.'**
+  String get healthTipSleepBody;
+
+  /// No description provided for @healthTipSleepRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 568, 247'**
+  String get healthTipSleepRef;
+
+  /// No description provided for @healthTipMiswakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Miswak'**
+  String get healthTipMiswakTitle;
+
+  /// No description provided for @healthTipMiswakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“Were it not too hard on my ummah, I would have ordered them to use the siwak before every prayer.”'**
+  String get healthTipMiswakBody;
+
+  /// No description provided for @healthTipMiswakRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 887 · Sahih Muslim 252'**
+  String get healthTipMiswakRef;
+
+  /// No description provided for @healthTipStrongTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The strong believer'**
+  String get healthTipStrongTitle;
+
+  /// No description provided for @healthTipStrongBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“The strong believer is better and more beloved to Allah than the weak believer, while there is good in both.”'**
+  String get healthTipStrongBody;
+
+  /// No description provided for @healthTipStrongRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih Muslim 2664'**
+  String get healthTipStrongRef;
+
+  /// No description provided for @healthTipBlessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health is a blessing'**
+  String get healthTipBlessingTitle;
+
+  /// No description provided for @healthTipBlessingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“There are two blessings in which many people are at a loss: health and free time.”'**
+  String get healthTipBlessingBody;
+
+  /// No description provided for @healthTipBlessingRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahih al-Bukhari 6412'**
+  String get healthTipBlessingRef;
 }
 
 class _AppLocalizationsDelegate

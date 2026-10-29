@@ -877,6 +877,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'sadaqah': 'Sadaqah',
       'tahajjud': 'Tahajjud',
       'roza': 'Fasting',
+      'water': 'Drinking water',
+      'sleep': 'Sleep',
+      'exercise': 'Exercise / walk',
+      'miswak': 'Miswak',
       'other': '$key',
     });
     return '$_temp0';
@@ -2757,4 +2761,116 @@ class AppLocalizationsEn extends AppLocalizations {
   String nafsLockBodyUntil(String time) {
     return 'Hold on — remember Allah. Your phone opens at $time.';
   }
+
+  @override
+  String get healthTitle => 'Health tracker';
+
+  @override
+  String get healthSubtitle =>
+      'Water, sleep, exercise & weight — the Sunnah way';
+
+  @override
+  String get healthToday => 'Today\'s habits';
+
+  @override
+  String get healthNoHabits =>
+      'Track water, sleep, exercise and miswak alongside your Muhasaba.';
+
+  @override
+  String get healthEnableHabits => 'Turn on health habits';
+
+  @override
+  String get healthSunnahTitle => 'Prophetic guidance';
+
+  @override
+  String get healthWeightTitle => 'Weight';
+
+  @override
+  String get healthWeightEmpty => 'Not logged yet';
+
+  @override
+  String get healthWeightLog => 'Log today\'s weight';
+
+  @override
+  String get healthWeightEdit => 'Edit today\'s weight';
+
+  @override
+  String get healthWeightHint => 'kg, e.g. 65.5';
+
+  @override
+  String get healthWeightInvalid => 'Enter a valid weight (2–400 kg)';
+
+  @override
+  String get healthWeightRemove => 'Remove';
+
+  @override
+  String healthKg(String kg) {
+    return '$kg kg';
+  }
+
+  @override
+  String healthWeightChange(String delta) {
+    return '$delta kg over the last logs';
+  }
+
+  @override
+  String get healthTipEatTitle => 'Eat in moderation';
+
+  @override
+  String get healthTipEatBody =>
+      '“The son of Adam fills no vessel worse than his stomach… a third for food, a third for drink and a third for breath.” And Allah says: “Eat and drink, but do not be excessive.”';
+
+  @override
+  String get healthTipEatRef => 'Tirmidhi 2380 · Al-A\'raf 7:31';
+
+  @override
+  String get healthTipDrinkTitle => 'Etiquette of drinking';
+
+  @override
+  String get healthTipDrinkBody =>
+      'The Prophet ﷺ used to take three breaths while drinking, and forbade drinking while standing. Drink slowly, seated.';
+
+  @override
+  String get healthTipDrinkRef =>
+      'Sahih al-Bukhari 5631 · Sahih Muslim 2028, 2024';
+
+  @override
+  String get healthTipSleepTitle => 'Sleep early';
+
+  @override
+  String get healthTipSleepBody =>
+      'The Prophet ﷺ disliked sleeping before Isha and talking after it. Make wudu before bed and lie on your right side.';
+
+  @override
+  String get healthTipSleepRef => 'Sahih al-Bukhari 568, 247';
+
+  @override
+  String get healthTipMiswakTitle => 'Miswak';
+
+  @override
+  String get healthTipMiswakBody =>
+      '“Were it not too hard on my ummah, I would have ordered them to use the siwak before every prayer.”';
+
+  @override
+  String get healthTipMiswakRef => 'Sahih al-Bukhari 887 · Sahih Muslim 252';
+
+  @override
+  String get healthTipStrongTitle => 'The strong believer';
+
+  @override
+  String get healthTipStrongBody =>
+      '“The strong believer is better and more beloved to Allah than the weak believer, while there is good in both.”';
+
+  @override
+  String get healthTipStrongRef => 'Sahih Muslim 2664';
+
+  @override
+  String get healthTipBlessingTitle => 'Health is a blessing';
+
+  @override
+  String get healthTipBlessingBody =>
+      '“There are two blessings in which many people are at a loss: health and free time.”';
+
+  @override
+  String get healthTipBlessingRef => 'Sahih al-Bukhari 6412';
 }

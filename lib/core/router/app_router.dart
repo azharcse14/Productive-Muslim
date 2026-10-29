@@ -18,6 +18,7 @@ import '../../features/expenses/presentation/screens/expense_screen.dart';
 import '../../features/fasting/presentation/screens/fasting_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_detail_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_screen.dart';
+import '../../features/health/presentation/screens/health_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -176,14 +177,14 @@ GoRouter buildRouter() {
                 path: Routes.dua.path,
                 // ?category= opens that category (focus end notification);
                 // keyed so the same tab re-opens it on a new link.
-                builder: (context, state) => switch (
-                    state.uri.queryParameters['category']) {
-                  null => const DuaScreen(),
-                  final category => DuaScreen(
-                      key: ValueKey(state.uri.toString()),
-                      openCategory: category,
-                    ),
-                },
+                builder: (context, state) =>
+                    switch (state.uri.queryParameters['category']) {
+                      null => const DuaScreen(),
+                      final category => DuaScreen(
+                        key: ValueKey(state.uri.toString()),
+                        openCategory: category,
+                      ),
+                    },
               ),
             ],
           ),
@@ -300,6 +301,11 @@ GoRouter buildRouter() {
         name: Routes.expenses.name,
         path: Routes.expenses.path,
         builder: (context, state) => const ExpenseScreen(),
+      ),
+      GoRoute(
+        name: Routes.health.name,
+        path: Routes.health.path,
+        builder: (context, state) => const HealthScreen(),
       ),
       GoRoute(
         name: Routes.achievements.name,

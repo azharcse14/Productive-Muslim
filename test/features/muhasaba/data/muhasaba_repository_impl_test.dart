@@ -29,9 +29,9 @@ void main() {
     );
   }
 
-  group('seedDefaultsIfEmpty', () {
+  group('seedDefaults', () {
     test('populates all defaults exactly once', () async {
-      await unwrap(repo.seedDefaultsIfEmpty());
+      await unwrap(repo.seedDefaults());
       final defaults = DefaultTrackers.items();
       final items = await unwrap(repo.items());
       expect(items.length, defaults.length);
@@ -41,10 +41,24 @@ void main() {
       await unwrap(
         repo.setArchived(DefaultTrackers.salahIds.first, archived: true),
       );
-      await unwrap(repo.seedDefaultsIfEmpty());
+      await unwrap(repo.seedDefaults());
       final after = await unwrap(repo.items(includeArchived: true));
       expect(after.length, defaults.length);
       expect(after.first.archived, isTrue);
+    });
+
+    test('adds defaults missing from an existing install', () async {
+      // An install seeded before the health defaults existed.
+      await unwrap(
+        repo.upsertItem(DefaultTrackers.items().first.copyWith(name: 'edited')),
+      );
+      await unwrap(repo.seedDefaults());
+      final all = await unwrap(repo.items(includeArchived: true));
+      expect(all.length, DefaultTrackers.items().length);
+      expect(all.first.name, 'edited', reason: 'existing rows untouched');
+      // Arrive archived (opt-in): past completion isn't diluted.
+      final active = await unwrap(repo.items());
+      expect(active.map((i) => i.id), [DefaultTrackers.items().first.id]);
     });
   });
 

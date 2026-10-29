@@ -165,5 +165,53 @@ abstract final class DefaultTrackers {
       isDefault: true,
       sortOrder: 9,
     ),
+    ...health,
+  ];
+
+  /// Sunnah-guided health habits, also shown on the Health screen.
+  static const healthIds = ['water', 'sleep', 'exercise', 'miswak'];
+
+  static const health = [
+    // Moderate drinking through the day, in three breaths (Muslim 2028).
+    TrackerItem(
+      id: 'water',
+      name: 'water',
+      kind: TrackerKind.count,
+      dailyTarget: 8,
+      icon: 'water',
+      isDefault: true,
+      sortOrder: 10,
+    ),
+    // Early to bed after Isha, up for Fajr (Bukhari 568).
+    TrackerItem(
+      id: 'sleep',
+      name: 'sleep',
+      kind: TrackerKind.duration,
+      dailyTarget: 420,
+      icon: 'bed',
+      colorIndex: 4,
+      isDefault: true,
+      sortOrder: 11,
+    ),
+    // "The strong believer is better…" (Muslim 2664).
+    TrackerItem(
+      id: 'exercise',
+      name: 'exercise',
+      kind: TrackerKind.duration,
+      dailyTarget: 30,
+      icon: 'walk',
+      colorIndex: 2,
+      isDefault: true,
+      sortOrder: 12,
+    ),
+    // Siwak before prayers (Bukhari 887).
+    TrackerItem(
+      id: 'miswak',
+      name: 'miswak',
+      kind: TrackerKind.yesNo,
+      colorIndex: 1,
+      isDefault: true,
+      sortOrder: 13,
+    ),
   ];
 }

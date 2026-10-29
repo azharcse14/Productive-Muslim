@@ -6,8 +6,9 @@ import '../entities/tracker_item.dart';
 /// Muhasaba persistence (drift/SQLite in the data layer). Aggregations
 /// run as SQL queries, not in-memory loops over full history (guide §5).
 abstract interface class MuhasabaRepository {
-  /// Seeds [DefaultTrackers.items] on first run only.
-  Future<Result<void>> seedDefaultsIfEmpty();
+  /// Inserts any [DefaultTrackers.items] not yet stored (archived on an
+  /// existing install); never touches existing rows.
+  Future<Result<void>> seedDefaults();
 
   Future<Result<List<TrackerItem>>> items({bool includeArchived = false});
 

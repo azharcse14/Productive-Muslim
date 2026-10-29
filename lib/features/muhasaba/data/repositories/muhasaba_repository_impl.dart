@@ -38,17 +38,18 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   final MuhasabaDatabase _db;
 
   @override
-  Future<Result<void>> seedDefaultsIfEmpty() async {
+  Future<Result<void>> seedDefaults() async {
     try {
-      final count = await _db.trackerItems.count().getSingle();
-      if (count == 0) {
-        await _db.batch(
-          (batch) => batch.insertAll(
-            _db.trackerItems,
-            DefaultTrackers.items().map(_toCompanion).toList(),
-          ),
-        );
-      }
+      // Insert-or-ignore: existing rows (edited or archived) stay as they
+      // are. Defaults added in a later release reach existing installs
+      // archived — opt-in, so past days' completion isn't diluted.
+      final upgrade = await _db.trackerItems.count().getSingle() > 0;
+      await _db.batch(
+        (batch) => batch.insertAll(_db.trackerItems, [
+          for (final item in DefaultTrackers.items())
+            _toCompanion(upgrade ? item.copyWith(archived: true) : item),
+        ], mode: InsertMode.insertOrIgnore),
+      );
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to seed defaults', e));
