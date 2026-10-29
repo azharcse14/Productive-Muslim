@@ -37,6 +37,10 @@ final class FocusWindow {
   String toString() => 'FocusWindow($prayer, $start → $end)';
 }
 
+/// How late an "until I end it" session may still start natively — keep in
+/// sync with `MANUAL_GRACE_MS` in android/.../JamaatFocus.kt.
+const focusManualGrace = Duration(minutes: 30);
+
 /// Jamaat focus sessions over [days] (same contract as
 /// `buildNotificationPlan`): each enabled prayer with a jamaat time yields
 /// one session starting `jamaatFocusLead` before jamaat. Sessions still
@@ -68,7 +72,9 @@ List<FocusWindow> buildFocusWindows({
       }
       final start = jamaatTime.subtract(matrix.jamaatFocusLead);
       final end = length == Duration.zero ? null : start.add(length);
-      if (start.isAfter(until) || !(end ?? start).isAfter(from)) {
+      // Open-ended sessions stay planned through the native late-start grace.
+      if (start.isAfter(until) ||
+          !(end ?? start.add(focusManualGrace)).isAfter(from)) {
         continue;
       }
       windows.add(

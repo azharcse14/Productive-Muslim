@@ -9,6 +9,7 @@ import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.da
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_books_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_detail_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_sections_screen.dart';
@@ -37,6 +38,16 @@ final class _FakeHadithRepository implements HadithRepository {
       ]);
 }
 
+/// Fails the first load, succeeds after.
+final class _FlakyHadithRepository implements HadithRepository {
+  int calls = 0;
+
+  @override
+  Future<Result<List<Hadith>>> all() async => calls++ == 0
+      ? const Result.failure(UnexpectedFailure('broken'))
+      : Result.success([_h('1', 'faith')]);
+}
+
 const _bukhari = HadithBook(
   id: 'bukhari',
   en: 'Sahih al-Bukhari',
@@ -57,6 +68,9 @@ final class _FakeBookRepository implements HadithBookRepository {
 
   final bool fail;
 
+  /// Language of every section fetch, in order.
+  final languages = <String>[];
+
   @override
   Future<Result<List<HadithBook>>> books() async =>
       const Result.success([_bukhari]);
@@ -67,6 +81,7 @@ final class _FakeBookRepository implements HadithBookRepository {
     HadithSection section,
     String languageCode,
   ) async {
+    languages.add(languageCode);
     if (fail) {
       return const Result.failure(UnexpectedFailure('offline'));
     }
@@ -82,14 +97,15 @@ final class _FakeBookRepository implements HadithBookRepository {
   }
 }
 
-Widget _app(Widget home) => MaterialApp(
+Widget _app(Widget home, {Locale? locale}) => MaterialApp(
       theme: AppTheme.light(),
+      locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: home,
     );
 
-Future<void> _register({bool failSection = false}) async {
+Future<_FakeBookRepository> _register({bool failSection = false}) async {
   final store = HadithStore(_FakeHadithRepository());
   await store.load();
   final booksRepo = _FakeBookRepository(fail: failSection);
@@ -99,6 +115,7 @@ Future<void> _register({bool failSection = false}) async {
     ..registerSingleton<HadithStore>(store)
     ..registerSingleton<HadithBooksStore>(booksStore)
     ..registerFactory<HadithSectionStore>(() => HadithSectionStore(booksRepo));
+  return booksRepo;
 }
 
 void main() {
@@ -130,6 +147,21 @@ void main() {
       expect(find.text('English 2'), findsOneWidget);
       expect(find.text('Sahih'), findsWidgets);
     });
+  });
+
+  testWidgets('detail: a failed load offers retry, not "not found"',
+      (tester) async {
+    final store = HadithStore(_FlakyHadithRepository());
+    await store.load();
+    GetIt.I.registerSingleton<HadithStore>(store);
+    await tester.pumpWidget(_app(const HadithDetailScreen(id: '1')));
+    await tester.pump();
+
+    expect(find.text("This hadith isn't available."), findsNothing);
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('English 1'), findsOneWidget);
   });
 
   group('Hadith books browsing', () {
@@ -167,6 +199,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Try again'), findsOneWidget);
+    });
+
+    testWidgets('retry after a language switch refetches the opened '
+        "language's chapter", (tester) async {
+      final repo = await _register(failSection: true);
+      const screen = HadithSectionScreen(
+        book: _bukhari,
+        section: HadithSection(number: 1, name: 'Revelation', count: 7),
+      );
+      await tester.pumpWidget(_app(screen, locale: const Locale('bn')));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(_app(screen, locale: const Locale('en')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+
+      // Section numbers differ between the bn and en lists, so the
+      // section must keep coming from the language it was opened in.
+      expect(repo.languages, ['bn', 'bn']);
     });
   });
 }

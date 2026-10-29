@@ -51,13 +51,17 @@ final class HadithDatabase extends GeneratedDatabase {
     Future<ByteData> Function() load,
   ) async {
     if (file.existsSync()) {
-      final existing = sqlite.sqlite3.open(file.path);
       try {
-        if (existing.userVersion == bundledVersion) {
-          return;
+        final existing = sqlite.sqlite3.open(file.path);
+        try {
+          if (existing.userVersion == bundledVersion) {
+            return;
+          }
+        } finally {
+          existing.close();
         }
-      } finally {
-        existing.close();
+      } on sqlite.SqliteException {
+        // Corrupt / not a database: nothing to keep, re-copy below.
       }
     }
     final bytes = await load();

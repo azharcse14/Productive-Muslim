@@ -65,14 +65,19 @@ final class QuranDatabase extends GeneratedDatabase {
   ) async {
     _UserState? preserved;
     if (file.existsSync()) {
-      final existing = sqlite.sqlite3.open(file.path);
       try {
-        if (existing.userVersion == bundledVersion) {
-          return;
+        final existing = sqlite.sqlite3.open(file.path);
+        try {
+          if (existing.userVersion == bundledVersion) {
+            return;
+          }
+          preserved = _UserState.read(existing);
+        } finally {
+          existing.close();
         }
-        preserved = _UserState.read(existing);
-      } finally {
-        existing.close();
+      } on sqlite.SqliteException {
+        // Corrupt / not a database: re-copy below. Bookmarks survive only
+        // when they were read before the failure.
       }
     }
     final bytes = await load();

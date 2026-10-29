@@ -64,6 +64,10 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   /// Top visible ayah index captured when a font-size drag starts.
   int? _fontAnchor;
 
+  /// Bumped per [_jumpToIndex] call; an older refine chain sees the newer
+  /// value and stops, so slider ticks don't stack jump chains.
+  int _jumpGeneration = 0;
+
   @override
   void initState() {
     super.initState();
@@ -95,9 +99,13 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   /// Cards vary in height (font size, translation, ayah length), so one
   /// estimated jump drifts in long surahs. Jump from the measured built
   /// cards until the target card itself is built, then reveal it exactly.
-  void _jumpToIndex(int target, [int attempt = 0]) {
+  void _jumpToIndex(int target) => _refineJump(target, ++_jumpGeneration, 0);
+
+  void _refineJump(int target, int generation, int attempt) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_controller.hasClients) {
+      if (!mounted ||
+          !_controller.hasClients ||
+          generation != _jumpGeneration) {
         return;
       }
       final targetContext = _itemContexts[target];
@@ -135,7 +143,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         offset.clamp(0.0, _controller.position.maxScrollExtent),
       );
       WidgetsBinding.instance.scheduleFrame();
-      _jumpToIndex(target, attempt + 1);
+      _refineJump(target, generation, attempt + 1);
     });
   }
 

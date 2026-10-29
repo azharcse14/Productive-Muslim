@@ -33,13 +33,29 @@ final class QuranStore {
   /// The surah index failed to load; the Quran tab offers a retry.
   late final failed = signal(false);
 
-  Future<void> load() async {
+  /// Shared in-flight load: Home, AchievementStore and the Quran tab all
+  /// call [load] before it finishes; cleared when done so Retry reloads.
+  Future<void>? _loading;
+
+  /// Bumped by [toggleBookmark] so a load racing it keeps the tap.
+  int _bookmarkEdits = 0;
+
+  Future<void> load() =>
+      _loading ??= _load().whenComplete(() => _loading = null);
+
+  Future<void> _load() async {
     final index = (await _repository.surahs()).valueOrNull;
     failed.value = index == null;
     surahs.value = index ?? const [];
-    lastRead.value = (await _repository.lastRead()).valueOrNull;
-    bookmarks.value =
-        (await _repository.bookmarkedAyahIds()).valueOrNull ?? const {};
+    // Memory is never behind the DB ([markRead] writes both), so a
+    // position marked while this load awaited wins over the DB read.
+    final position = (await _repository.lastRead()).valueOrNull;
+    lastRead.value ??= position;
+    final edits = _bookmarkEdits;
+    final ids = (await _repository.bookmarkedAyahIds()).valueOrNull;
+    if (edits == _bookmarkEdits) {
+      bookmarks.value = ids ?? const {};
+    }
     readerFontSize.value = _clampFontSize(
       await _prefs.getDouble(_fontSizeKey) ?? _defaultFontSize,
     );
@@ -66,15 +82,21 @@ final class QuranStore {
   }
 
   Future<void> toggleBookmark(int ayahId) async {
+    _flipBookmark(ayahId);
+    if (!(await _repository.toggleBookmark(ayahId)).isSuccess) {
+      // Keep the screen honest about the DB: undo only this tap, not any
+      // toggle that landed while the write was in flight.
+      _flipBookmark(ayahId);
+    }
+  }
+
+  void _flipBookmark(int ayahId) {
+    _bookmarkEdits++;
     final next = {...bookmarks.value};
     if (!next.remove(ayahId)) {
       next.add(ayahId);
     }
-    final previous = bookmarks.value;
     bookmarks.value = next;
-    if (!(await _repository.toggleBookmark(ayahId)).isSuccess) {
-      bookmarks.value = previous; // keep the screen honest about the DB
-    }
   }
 
   /// Maps a global ayah id (1..6236) to surah/ayah via the index's ayah

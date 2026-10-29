@@ -93,12 +93,15 @@ final class _FakeScheduler implements NotificationScheduler {
 }
 
 final class _FakeLauncher implements ExternalLauncher {
+  _FakeLauncher({this.accept = true});
+
+  final bool accept;
   final launched = <Uri>[];
 
   @override
   Future<bool> launch(Uri uri) async {
     launched.add(uri);
-    return true;
+    return accept;
   }
 }
 
@@ -192,7 +195,7 @@ void main() {
 
     testWidgets('iOS: Shortcuts guide opens and launches Shortcuts',
         (tester) async {
-      final launcher = _FakeLauncher();
+      final launcher = _FakeLauncher(accept: false);
       await _register(_FakeScheduler());
       GetIt.I.registerSingleton<ExternalLauncher>(launcher);
       await tester.pumpWidget(_app());
@@ -211,6 +214,17 @@ void main() {
       await tester.tap(find.text('Open Shortcuts'));
       await tester.pump();
       expect(launcher.launched, [Uri.parse('shortcuts://')]);
+      // A refused launch says so, visibly (not hidden under the sheet).
+      await tester.pumpAndSettle();
+      expect(
+        find
+            .text(
+              "Couldn't open Shortcuts. Make sure the Shortcuts app is "
+              'installed.',
+            )
+            .hitTestable(),
+        findsOneWidget,
+      );
     }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
     testWidgets('denied permission shows education banner and CTA',

@@ -2532,6 +2532,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shortcutsOpen => 'Open Shortcuts';
 
   @override
+  String get shortcutsOpenFailed =>
+      'Couldn\'t open Shortcuts. Make sure the Shortcuts app is installed.';
+
+  @override
   String notifFocusEndTitle(String prayer) {
     return '$prayer — prayed in jamaat?';
   }

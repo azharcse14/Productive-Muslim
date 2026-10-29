@@ -2523,6 +2523,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shortcutsOpen => 'Shortcuts খুলুন';
 
   @override
+  String get shortcutsOpenFailed =>
+      'Shortcuts খোলা গেল না। Shortcuts অ্যাপটি ইনস্টল আছে কিনা দেখুন।';
+
+  @override
   String notifFocusEndTitle(String prayer) {
     return '$prayer — জামাতে পড়েছেন?';
   }
