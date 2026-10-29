@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
@@ -25,6 +26,16 @@ final class _InMemoryRepo implements SettingsRepository {
   Future<Result<void>> save(AppSettings settings) async {
     stored = settings;
     return const Result.success(null);
+  }
+}
+
+final class _FakeLauncher implements ExternalLauncher {
+  final launched = <Uri>[];
+
+  @override
+  Future<bool> launch(Uri uri) async {
+    launched.add(uri);
+    return true;
   }
 }
 
@@ -135,6 +146,16 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.scrollUntilVisible(find.textContaining('GeoNames'), 200);
       expect(find.textContaining('KFGQPC'), findsOneWidget);
+    });
+
+    testWidgets('Tanzil credit opens tanzil.net', (tester) async {
+      final launcher = _FakeLauncher();
+      GetIt.I.registerSingleton<ExternalLauncher>(launcher);
+      _tall(tester);
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Quran text: Tanzil Project'));
+      await tester.pump();
+      expect(launcher.launched, [Uri.parse('https://tanzil.net')]);
     });
 
     testWidgets('Hijri offset stepper adjusts and clamps at +2', (

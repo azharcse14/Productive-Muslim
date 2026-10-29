@@ -151,7 +151,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get creditsBody =>
-      'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.';
+      'Prayer times are computed on-device.\nEnglish Quran translation: Mohammed Marmaduke William Pickthall, \"The Meaning of the Glorious Koran\" (via Tanzil).\nBengali Quran translation: Muhiuddin Khan (via Tanzil).\nHadith (Arabic & English): fawazahmed0/hadith-api (Unlicense).\nBengali hadith: hadithbangla project (md-rifatkhan/hadithbangla).\nDuas: Hisnul Muslim, via aminurdev/dua-ruqya-server.\nRuqyah: compiled from the Qur\'an and authentic hadith; the reference is shown with each passage.\nCity database © GeoNames (CC BY 4.0).\nFonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.';
+
+  @override
+  String get creditsQuranText => 'Quran text: Tanzil Project';
+
+  @override
+  String get creditsQuranTextLink => 'tanzil.net — tap to open';
 
   @override
   String get madhabHanafi => 'Hanafi';
@@ -2580,7 +2586,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Source: fawazahmed0/hadith-api (public domain)';
 
   @override
-  String get hadithSourceNoteBn => 'Bengali source: hadithbangla (open source)';
+  String get hadithSourceNoteBn => 'Bengali source: hadithbangla project';
 
   @override
   String get hadithEnglishOnly => 'English only';

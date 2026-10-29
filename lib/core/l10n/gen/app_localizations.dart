@@ -353,8 +353,20 @@ abstract class AppLocalizations {
   /// No description provided for @creditsBody.
   ///
   /// In en, this message translates to:
-  /// **'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.'**
+  /// **'Prayer times are computed on-device.\nEnglish Quran translation: Mohammed Marmaduke William Pickthall, \"The Meaning of the Glorious Koran\" (via Tanzil).\nBengali Quran translation: Muhiuddin Khan (via Tanzil).\nHadith (Arabic & English): fawazahmed0/hadith-api (Unlicense).\nBengali hadith: hadithbangla project (md-rifatkhan/hadithbangla).\nDuas: Hisnul Muslim, via aminurdev/dua-ruqya-server.\nRuqyah: compiled from the Qur\'an and authentic hadith; the reference is shown with each passage.\nCity database © GeoNames (CC BY 4.0).\nFonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.'**
   String get creditsBody;
+
+  /// No description provided for @creditsQuranText.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran text: Tanzil Project'**
+  String get creditsQuranText;
+
+  /// No description provided for @creditsQuranTextLink.
+  ///
+  /// In en, this message translates to:
+  /// **'tanzil.net — tap to open'**
+  String get creditsQuranTextLink;
 
   /// No description provided for @madhabHanafi.
   ///
@@ -3809,7 +3821,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithSourceNoteBn.
   ///
   /// In en, this message translates to:
-  /// **'Bengali source: hadithbangla (open source)'**
+  /// **'Bengali source: hadithbangla project'**
   String get hadithSourceNoteBn;
 
   /// No description provided for @hadithEnglishOnly.

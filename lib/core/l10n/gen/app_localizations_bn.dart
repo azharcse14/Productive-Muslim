@@ -150,7 +150,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get creditsBody =>
-      'নামাজের সময় ডিভাইসেই হিসাব করা হয়। শহরের ডেটাবেস © GeoNames (CC BY 4.0)। ফন্ট: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © কিং ফাহদ গ্লোরিয়াস কুরআন প্রিন্টিং কমপ্লেক্স।';
+      'নামাজের সময় ডিভাইসেই হিসাব করা হয়।\nকুরআনের ইংরেজি অনুবাদ: মোহাম্মদ মারমাডিউক উইলিয়াম পিকথল, \"The Meaning of the Glorious Koran\" (Tanzil-এর মাধ্যমে)।\nকুরআনের বাংলা অনুবাদ: মুহিউদ্দীন খান (Tanzil-এর মাধ্যমে)।\nহাদিস (আরবি ও ইংরেজি): fawazahmed0/hadith-api (Unlicense)।\nবাংলা হাদিস: hadithbangla প্রজেক্ট (md-rifatkhan/hadithbangla)।\nদোয়া: হিসনুল মুসলিম, aminurdev/dua-ruqya-server থেকে।\nরুকইয়াহ: কুরআন ও সহিহ হাদিস থেকে সংকলিত; প্রতিটি অংশের সাথে সূত্র দেওয়া আছে।\nশহরের ডেটাবেস © GeoNames (CC BY 4.0)।\nফন্ট: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © কিং ফাহদ গ্লোরিয়াস কুরআন প্রিন্টিং কমপ্লেক্স।';
+
+  @override
+  String get creditsQuranText => 'কুরআনের মূল পাঠ: Tanzil Project';
+
+  @override
+  String get creditsQuranTextLink => 'tanzil.net — খুলতে ট্যাপ করুন';
 
   @override
   String get madhabHanafi => 'হানাফি';
@@ -2572,7 +2578,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)';
 
   @override
-  String get hadithSourceNoteBn => 'বাংলা সূত্র: hadithbangla (ওপেন সোর্স)';
+  String get hadithSourceNoteBn => 'বাংলা সূত্র: hadithbangla প্রজেক্ট';
 
   @override
   String get hadithEnglishOnly => 'শুধু ইংরেজি';

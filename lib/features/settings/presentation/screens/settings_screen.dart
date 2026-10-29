@@ -12,6 +12,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_step_button.dart';
+import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
 import '../../../onboarding/presentation/screens/onboarding_screen.dart';
@@ -26,6 +27,9 @@ import '../widgets/setting_labels.dart';
 /// Grouped settings (design §12): calculation / notifications /
 /// appearance & language / privacy / about. Notification matrix UI lands
 /// in Phase 4; app lock in Phase 11.
+/// Tanzil's terms ask apps using its Quran text to link to tanzil.net.
+final _tanzilUrl = Uri.parse('https://tanzil.net');
+
 final class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -281,10 +285,24 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                   horizontal: QSpace.s4,
                   vertical: QSpace.s1,
                 ),
-                child: QListRow(
-                  icon: Icons.info_outline,
-                  title: l10n.settingCredits,
-                  subtitle: l10n.creditsBody,
+                child: Column(
+                  children: [
+                    QListRow(
+                      icon: Icons.menu_book_outlined,
+                      title: l10n.creditsQuranText,
+                      subtitle: l10n.creditsQuranTextLink,
+                      trailing: Icon(Icons.open_in_new, color: q.ink3),
+                      onTap: () => unawaited(
+                        locator<ExternalLauncher>().launch(_tanzilUrl),
+                      ),
+                    ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.info_outline,
+                      title: l10n.settingCredits,
+                      subtitle: l10n.creditsBody,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: QSpace.s10),
