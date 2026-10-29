@@ -277,9 +277,13 @@ final class MuhasabaStore {
     };
   }
 
+  /// Bumped per [refreshStats]; only the latest pass may write [stats].
+  int _statsRequest = 0;
+
   Future<void> refreshStats() async {
     // Anything pending is covered by this pass.
     _statsTimer?.cancel();
+    final request = ++_statsRequest;
     final today = _today();
     _statsDay = today;
     final (start, end) = _range();
@@ -288,18 +292,29 @@ final class MuhasabaStore {
       end: end,
       today: today,
     );
+    // A slower earlier pass must not overwrite a newer one's result.
+    if (request != _statsRequest) {
+      return;
+    }
     if (result.valueOrNull case final value?) {
       stats.value = value;
     }
   }
 
-  Future<void> addItem({
+  /// Adds a custom tracker; false when it couldn't be saved.
+  Future<bool> addItem({
     required String name,
     required TrackerKind kind,
     int? dailyTarget,
     required String icon,
     required int colorIndex,
   }) async {
+    // After every existing one, archived included (a count would collide
+    // once something is archived). Custom items start at 100.
+    final last = [
+      ...items.value,
+      ...archivedItems.value,
+    ].fold(99, (m, i) => i.sortOrder > m ? i.sortOrder : m);
     final item = TrackerItem(
       id: 'custom_${_now().millisecondsSinceEpoch}',
       name: name,
@@ -307,25 +322,36 @@ final class MuhasabaStore {
       dailyTarget: dailyTarget,
       icon: icon,
       colorIndex: colorIndex,
-      sortOrder: 100 + items.value.length,
+      sortOrder: last + 1,
     );
-    await _repository.upsertItem(item);
+    if (!(await _repository.upsertItem(item)).isSuccess) {
+      return false;
+    }
     await _reloadItems();
     // A new active item changes the completion denominator.
     await refreshStats();
+    return true;
   }
 
-  Future<void> updateItem(TrackerItem item) async {
-    await _repository.upsertItem(item);
+  /// False when the edit couldn't be saved.
+  Future<bool> updateItem(TrackerItem item) async {
+    if (!(await _repository.upsertItem(item)).isSuccess) {
+      return false;
+    }
     await _reloadItems();
     // A target change flips done-days, so the dashboard must follow.
     await refreshStats();
+    return true;
   }
 
-  Future<void> setArchived(String id, {required bool archived}) async {
-    await _repository.setArchived(id, archived: archived);
+  /// False when the change couldn't be saved.
+  Future<bool> setArchived(String id, {required bool archived}) async {
+    if (!(await _repository.setArchived(id, archived: archived)).isSuccess) {
+      return false;
+    }
     await _reloadItems();
     await refreshStats();
+    return true;
   }
 
   void dispose() {

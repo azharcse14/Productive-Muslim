@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
@@ -290,6 +291,39 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(store.entries.value, hasLength(1));
+  });
+
+  testWidgets('a failed CSV restore shows an error snackbar', (tester) async {
+    final prefs = _FailingWrites();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    register();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async => call.method == 'Clipboard.getData'
+          ? {
+              'text': 'date,category,amount,note\n'
+                  '2026-10-01T10:00:00.000,need,5,"x"',
+            }
+          : null,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    prefs.fail = true;
+    await tester.tap(find.byTooltip('Backup'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Restore from copied CSV'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text("Couldn't restore the backup. Please try again."),
+      findsOneWidget,
+    );
+    expect(store.entries.value, isEmpty);
   });
 }
 

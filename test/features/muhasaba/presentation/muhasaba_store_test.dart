@@ -194,6 +194,53 @@ void main() {
       expect(store.archivedItems.value.any((i) => i.id == custom.id), isTrue);
     });
 
+    test('a custom tracker added after an archive sorts last', () async {
+      final (store, _) = await makeMuhasabaStore(now: _fixedNow);
+      await store.addItem(
+        name: 'A',
+        kind: TrackerKind.yesNo,
+        icon: 'walk',
+        colorIndex: 0,
+      );
+      final a = store.items.value.firstWhere((i) => i.name == 'A');
+      await store.setArchived(a.id, archived: true);
+      await store.addItem(
+        name: 'B',
+        kind: TrackerKind.yesNo,
+        icon: 'walk',
+        colorIndex: 0,
+      );
+      final b = store.items.value.firstWhere((i) => i.name == 'B');
+      expect(b.sortOrder, greaterThan(a.sortOrder));
+    });
+
+    test('item writes report failure and leave the lists alone', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      final before = store.items.value;
+      repo.failItemWrites = true;
+      expect(
+        await store.addItem(
+          name: 'Walk',
+          kind: TrackerKind.yesNo,
+          icon: 'walk',
+          colorIndex: 0,
+        ),
+        isFalse,
+      );
+      expect(await store.setArchived('quran', archived: true), isFalse);
+      expect(store.items.value, before);
+    });
+
+    test('a slower earlier stats pass never overwrites a newer one', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      final gate = repo.statsGate = Completer<void>();
+      final slow = store.setPeriod(MuhasabaPeriod.month);
+      await store.setPeriod(MuhasabaPeriod.today);
+      gate.complete();
+      await slow;
+      expect(store.stats.value!.days, hasLength(1));
+    });
+
     test('rolls over to the new day when "today" was selected', () async {
       var clock = DateTime(2026, 6, 12, 23, 50);
       final (store, repo) = await makeMuhasabaStore(now: () => clock);

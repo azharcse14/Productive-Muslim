@@ -40,14 +40,23 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     return Result.success(list);
   }
 
+  /// When true, [upsertItem] and [setArchived] fail without writing.
+  bool failItemWrites = false;
+
   @override
   Future<Result<void>> upsertItem(TrackerItem item) async {
+    if (failItemWrites) {
+      return const Result.failure(UnexpectedFailure('save failed'));
+    }
     items_[item.id] = item;
     return const Result.success(null);
   }
 
   @override
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
+    if (failItemWrites) {
+      return const Result.failure(UnexpectedFailure('save failed'));
+    }
     final item = items_[id];
     if (item != null) {
       items_[id] = item.copyWith(archived: archived);
@@ -89,6 +98,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   int periodStatsCalls = 0;
   int allItemsCalls = 0;
 
+  /// When set, the next [periodStats] waits on it (out-of-order replies).
+  Completer<void>? statsGate;
+
   @override
   Future<Result<PeriodStats>> periodStats({
     required DateTime start,
@@ -96,6 +108,10 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     required DateTime today,
   }) async {
     periodStatsCalls++;
+    if (statsGate case final g?) {
+      statsGate = null;
+      await g.future;
+    }
     final active = items_.values.where((i) => !i.archived).toList();
     final days = <DayCompletion>[];
     var day = DateTime(start.year, start.month, start.day);

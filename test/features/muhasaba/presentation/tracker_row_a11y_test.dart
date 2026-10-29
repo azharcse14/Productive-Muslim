@@ -102,4 +102,27 @@ void main() {
       'HapticFeedbackType.mediumImpact',
     ]);
   });
+
+  testWidgets('typing a value saves it without a disposed-controller error', (
+    tester,
+  ) async {
+    int? changed;
+    await tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: _countItem,
+          value: 2,
+          displayName: 'Sadaqah',
+          onChanged: (v) => changed = v,
+        ),
+      ),
+    );
+    await tester.tap(find.text('2'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '45');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(changed, 45);
+  });
 }

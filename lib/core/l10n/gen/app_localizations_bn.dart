@@ -915,6 +915,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get unarchiveTracker => 'ফিরিয়ে আনুন';
 
   @override
+  String get trackerSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get archiveExplain =>
       'আর্কাইভ করা আইটেম দৈনিক তালিকা থেকে সরে যায়, কিন্তু আগের সব এন্ট্রি সংরক্ষিত থাকে।';
 
@@ -1553,8 +1556,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get zakatSilverPrice => 'প্রতি গ্রাম রুপার দাম';
 
   @override
-  String get zakatNeedPrice =>
-      'নিসাব হিসাব করতে আজকের স্বর্ণ বা রুপার দাম লিখুন।';
+  String get zakatNeedSilverPrice =>
+      'আজকের রুপার দাম লিখুন — স্বর্ণই একমাত্র সম্পদ না হলে নিসাব রুপার দামে হিসাব হয়।';
 
   @override
   String get zakatInvalidNumber => 'সঠিক সংখ্যা লিখুন';
@@ -2329,6 +2332,13 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get expenseExported =>
       'কপি হয়েছে। নিরাপদে রাখতে নোট, ইমেইল বা স্প্রেডশিটে পেস্ট করুন।';
+
+  @override
+  String get expenseExportFailed => 'ব্যাকআপ কপি করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get expenseImportFailed =>
+      'ব্যাকআপ ফেরত আনা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get expenseImportInvalid => 'ক্লিপবোর্ডে খরচের ব্যাকআপ নেই।';

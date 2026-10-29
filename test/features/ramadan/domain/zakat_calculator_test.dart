@@ -76,22 +76,7 @@ void main() {
       expect(r.zakatDue, 0);
     });
 
-    test('nisab uses the lower threshold — silver when silver is cheaper',
-        () {
-      final r = ZakatCalculator.calculate(
-        const ZakatInput(
-          cashOnHand: 5000,
-          goldPricePerGram: goldPrice,
-          silverPricePerGram: silverPrice,
-        ),
-      );
-      // Silver: 612.36 × 1 = 612.36 < gold: 87.48 × 100 = 8748.
-      expect(r.nisabThreshold, closeTo(612.36, 0.001));
-      // 5000 is below the gold nisab but above silver — payable.
-      expect(r.isPayable, isTrue);
-    });
-
-    test('nisab uses the lower threshold — gold when gold is cheaper', () {
+    test('cash uses the silver nisab even when gold\'s is lower', () {
       final r = ZakatCalculator.calculate(
         const ZakatInput(
           cashOnHand: 5000,
@@ -99,9 +84,35 @@ void main() {
           silverPricePerGram: 50,
         ),
       );
-      // Gold: 87.48 × 10 = 874.8 < silver: 612.36 × 50 = 30618.
-      expect(r.nisabThreshold, closeTo(874.8, 0.001));
+      // Silver: 612.36 × 50 = 30618 (gold's 874.8 is not used).
+      expect(r.nisabThreshold, closeTo(30618, 0.001));
+      expect(r.isPayable, isFalse);
+    });
+
+    test('gold as the only asset uses the gold nisab', () {
+      final r = ZakatCalculator.calculate(
+        const ZakatInput(
+          goldGrams: 90,
+          debts: 100,
+          goldPricePerGram: goldPrice,
+          silverPricePerGram: 0,
+        ),
+      );
+      // Gold: 87.48 × 100 = 8748; 90 g × 100 − 100 debts = 8900.
+      expect(r.nisabThreshold, closeTo(8748, 0.001));
       expect(r.isPayable, isTrue);
+    });
+
+    test('gold plus any other asset uses the silver nisab', () {
+      final r = ZakatCalculator.calculate(
+        const ZakatInput(
+          goldGrams: 90,
+          moneyOwedToYou: 1,
+          goldPricePerGram: goldPrice,
+          silverPricePerGram: silverPrice,
+        ),
+      );
+      expect(r.nisabThreshold, closeTo(612.36, 0.001));
     });
 
     test('both prices zero → nisab 0 → never payable', () {
@@ -117,7 +128,7 @@ void main() {
       expect(r.zakatDue, 0);
     });
 
-    test('one price blank → nisab from the provided metal only', () {
+    test('cash with only a gold price → nisab 0, not payable', () {
       final r = ZakatCalculator.calculate(
         const ZakatInput(
           cashOnHand: 1000000,
@@ -125,11 +136,8 @@ void main() {
           silverPricePerGram: 0,
         ),
       );
-      expect(
-        r.nisabThreshold,
-        closeTo(ZakatCalculator.nisabGoldGrams * goldPrice, 0.001),
-      );
-      expect(r.isPayable, isTrue);
+      expect(r.nisabThreshold, 0);
+      expect(r.isPayable, isFalse);
     });
 
     test('breakdown fields sum to total wealth', () {

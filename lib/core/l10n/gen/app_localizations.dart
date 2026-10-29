@@ -1610,6 +1610,12 @@ abstract class AppLocalizations {
   /// **'Restore'**
   String get unarchiveTracker;
 
+  /// No description provided for @trackerSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Please try again.'**
+  String get trackerSaveFailed;
+
   /// No description provided for @archiveExplain.
   ///
   /// In en, this message translates to:
@@ -2318,11 +2324,11 @@ abstract class AppLocalizations {
   /// **'Silver price per gram'**
   String get zakatSilverPrice;
 
-  /// No description provided for @zakatNeedPrice.
+  /// No description provided for @zakatNeedSilverPrice.
   ///
   /// In en, this message translates to:
-  /// **'Enter today\'s gold or silver price to work out the nisab.'**
-  String get zakatNeedPrice;
+  /// **'Enter today\'s silver price — the nisab is based on silver unless gold is your only asset.'**
+  String get zakatNeedSilverPrice;
 
   /// No description provided for @zakatInvalidNumber.
   ///
@@ -3529,6 +3535,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied. Paste it into Notes, email or a spreadsheet to keep it safe.'**
   String get expenseExported;
+
+  /// No description provided for @expenseExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t copy the backup. Please try again.'**
+  String get expenseExportFailed;
+
+  /// No description provided for @expenseImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t restore the backup. Please try again.'**
+  String get expenseImportFailed;
 
   /// No description provided for @expenseImportInvalid.
   ///

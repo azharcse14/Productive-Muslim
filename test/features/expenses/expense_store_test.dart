@@ -230,6 +230,26 @@ void main() {
     );
   });
 
+  test('CSV neutralises notes starting with tab or CR', () async {
+    final first = store();
+    // Notes are trimmed on add, so these can only arrive via import.
+    const csv = 'date,category,amount,note\n'
+        '2026-10-01T10:00:00.000,need,1,"\t=x"\n'
+        '2026-10-02T10:00:00.000,need,1,"\r=y"';
+    expect(await first.importCsv(csv), 2);
+    final out = await first.toCsv();
+    expect(out, contains('"\'\t=x"'));
+    expect(out, contains('"\'\r=y"'));
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final restored = store();
+    expect(await restored.importCsv(out), 2);
+    expect(
+      restored.entries.value.map((e) => e.note),
+      containsAll(['\t=x', '\r=y']),
+    );
+  });
+
   test('CSV round-trips; import before load merges, never clobbers', () async {
     final first = store();
     await first.add(

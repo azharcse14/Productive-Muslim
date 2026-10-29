@@ -90,8 +90,9 @@ final class _ItemEditorState extends State<_ItemEditor> {
       return;
     }
     setState(() => _saving = true);
+    final bool saved;
     if (widget.existing case final existing?) {
-      await widget.store.updateItem(
+      saved = await widget.store.updateItem(
         existing.copyWith(
           name: name.isEmpty ? existing.name : name,
           kind: _structuralLocked ? null : _kind,
@@ -101,7 +102,7 @@ final class _ItemEditorState extends State<_ItemEditor> {
         ),
       );
     } else {
-      await widget.store.addItem(
+      saved = await widget.store.addItem(
         name: name,
         kind: _kind,
         dailyTarget: _target,
@@ -109,9 +110,7 @@ final class _ItemEditorState extends State<_ItemEditor> {
         colorIndex: _colorIndex,
       );
     }
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+    _closeOrReport(saved);
   }
 
   Future<void> _archive() async {
@@ -119,10 +118,26 @@ final class _ItemEditorState extends State<_ItemEditor> {
     if (existing == null) {
       return;
     }
-    await widget.store.setArchived(existing.id, archived: !existing.archived);
-    if (mounted) {
-      Navigator.of(context).pop();
+    setState(() => _saving = true);
+    _closeOrReport(
+      await widget.store.setArchived(existing.id, archived: !existing.archived),
+    );
+  }
+
+  /// Closes on success; on failure keeps the sheet (and its edits) open
+  /// with the buttons re-enabled for a retry.
+  void _closeOrReport(bool saved) {
+    if (!mounted) {
+      return;
     }
+    if (saved) {
+      Navigator.of(context).pop();
+      return;
+    }
+    setState(() => _saving = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.trackerSaveFailed)),
+    );
   }
 
   @override

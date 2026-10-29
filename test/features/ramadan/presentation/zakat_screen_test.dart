@@ -66,4 +66,40 @@ void main() {
     expect(find.text(l10n.zakatInvalidNumber), findsNWidgets(2));
     expect(find.textContaining('Zakat due'), findsNothing);
   });
+
+  testWidgets('cash without a silver price flags the silver price field', (
+    tester,
+  ) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatGoldPrice), '100');
+    await tester.enterText(field(l10n.zakatCash), '100000');
+    await calculate(tester);
+
+    // Silver price field error + banner, no gold-nisab fallback.
+    expect(find.text(l10n.zakatNeedSilverPrice), findsNWidgets(2));
+    expect(find.textContaining('Zakat due'), findsNothing);
+  });
+
+  testWidgets('gold alone needs only the gold price', (tester) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatGoldPrice), '100');
+    await tester.enterText(field(l10n.zakatGold), '100');
+    await calculate(tester);
+
+    expect(find.text(l10n.zakatNeedSilverPrice), findsNothing);
+    expect(find.textContaining('Zakat due'), findsOneWidget);
+  });
+
+  testWidgets('a negative amount is a field error', (tester) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatSilverPrice), '1');
+    await tester.enterText(field(l10n.zakatCash), '-500');
+    await calculate(tester);
+
+    expect(find.text(l10n.zakatInvalidNumber), findsOneWidget);
+    expect(find.textContaining('Zakat due'), findsNothing);
+  });
 }

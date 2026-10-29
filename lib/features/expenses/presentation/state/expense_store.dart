@@ -399,9 +399,10 @@ final class ExpenseStore {
   }
 
   static const _csvHeader = 'date,category,amount,note';
-  // Leading quotes count too, so a note like '=x round-trips.
-  static final _formulaStart = RegExp(r"^'*[=+\-@]");
-  static final _escapedFormula = RegExp(r"^''*[=+\-@]");
+  // Leading quotes count too, so a note like '=x round-trips. Tab and CR
+  // also start formulas in some spreadsheets (OWASP CSV injection).
+  static final _formulaStart = RegExp(r"^'*[=+\-@\t\r]");
+  static final _escapedFormula = RegExp(r"^''*[=+\-@\t\r]");
 
   /// All entries as CSV (oldest first) — opens in any spreadsheet and is
   /// the backup format [importCsv] reads back. Budgets are not included.

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/age_calculator.dart';
 
 /// Age calculator screen: pick a date of birth and an "as of" date, then show
@@ -54,7 +56,11 @@ final class _AgeScreenState extends State<AgeScreen> {
       return;
     }
     setState(() {
-      _result = AgeCalculator.calculate(birthDate: birth, onDate: _asOf);
+      _result = AgeCalculator.calculate(
+        birthDate: birth,
+        onDate: _asOf,
+        hijriOffsetDays: locator<SettingsStore>().hijriOffsetDays.value,
+      );
     });
   }
 
