@@ -28,6 +28,8 @@ import android.telecom.TelecomManager
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.accessibility.AccessibilityEvent
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -508,9 +510,20 @@ class JamaatFocusActivity : Activity() {
         var current: WeakReference<Activity>? = null
     }
 
+    // API 33+: apps targeting 36 get no onBackPressed on Android 16, so the
+    // gesture would dismiss the cover. Typed Any: the class is API 33+ only.
+    private var swallowBack: Any? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         current = WeakReference(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val cb = OnBackInvokedCallback { }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT, cb
+            )
+            swallowBack = cb
+        }
         val density = resources.displayMetrics.density
         val pad = (32 * density).toInt()
         val root = LinearLayout(this).apply {
@@ -564,10 +577,16 @@ class JamaatFocusActivity : Activity() {
 
     @Deprecated("Back would just reveal the covered app.")
     override fun onBackPressed() {
-        // Swallowed: leaving is via "End" (non-strict) or the session ending.
+        // Swallowed (pre-33, or 33+ without the callback path): leaving is via
+        // "End" (non-strict) or the session ending.
     }
 
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            (swallowBack as? OnBackInvokedCallback)?.let {
+                onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
+            }
+        }
         if (current?.get() === this) current = null
         super.onDestroy()
     }
