@@ -184,6 +184,18 @@ void main() {
       expect(find.text('Set location'), findsOneWidget);
     });
 
+    testHomeWidgets("with a Jumu'ah time, Friday's Dhuhr reads Jumu'ah", (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      final mosque = GetIt.I<MosqueStore>();
+      final profile = await mosque.addProfile('Baitul');
+      await mosque.setJumuah(profile.id, const ClockTime(13, 30));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text("Jumu'ah"), findsOneWidget);
+    });
+
     testHomeWidgets('with a location renders header, table and meal row', (
       tester,
     ) async {
@@ -192,8 +204,9 @@ void main() {
       await tester.pump();
       expect(find.text('Dhaka, BD'), findsOneWidget);
       expect(find.text('Fajr'), findsOneWidget);
-      // 12 Jun 2026 is a Friday: Dhuhr reads Jumu'ah.
-      expect(find.text("Jumu'ah"), findsOneWidget);
+      // 12 Jun 2026 is a Friday, but no Jumu'ah time is set: plain Dhuhr.
+      expect(find.text('Dhuhr'), findsOneWidget);
+      expect(find.text("Jumu'ah"), findsNothing);
       expect(find.text('Asr'), findsOneWidget);
       expect(find.text('Maghrib'), findsOneWidget);
       expect(find.text('Isha'), findsOneWidget);

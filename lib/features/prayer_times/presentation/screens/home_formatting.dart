@@ -47,9 +47,14 @@ String formatCountdown(BuildContext context, Duration d) {
 (String eyebrow, String sub) countdownLabels(
   AppLocalizations l10n,
   BuildContext context,
-  CountdownTarget target,
-) {
-  final prayerName = l10n.prayerLabelOn(target.prayer, target.at);
+  CountdownTarget target, {
+  bool jumuah = false,
+}) {
+  final prayerName = l10n.prayerLabelOn(
+    target.prayer,
+    target.at,
+    jumuah: jumuah,
+  );
   final timeText = formatHomeTime(context, target.at);
   return switch (target.kind) {
     CountdownKind.waqtStart => (

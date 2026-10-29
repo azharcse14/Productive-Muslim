@@ -19,6 +19,7 @@ Future<void> showDayTimelineSheet(
   required String Function(DateTime) formatTime,
   Prayer? activePrayer,
   List<SpecialWindow> forbidden = const [],
+  bool jumuah = false,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -29,6 +30,7 @@ Future<void> showDayTimelineSheet(
       formatTime: formatTime,
       activePrayer: activePrayer,
       forbidden: forbidden,
+      jumuah: jumuah,
     ),
   );
 }
@@ -45,8 +47,12 @@ final class DayTimelineSheet extends StatelessWidget {
     required this.formatTime,
     this.activePrayer,
     this.forbidden = const [],
+    this.jumuah = false,
     super.key,
   });
+
+  /// A Jumu'ah time is set, so Friday's Dhuhr reads "Jumu'ah".
+  final bool jumuah;
 
   final PrayerDay day;
   final DateTime now;
@@ -80,7 +86,7 @@ final class DayTimelineSheet extends StatelessWidget {
           for (final p in Prayer.values)
             (
               at: day.startOf(p),
-              label: l10n.prayerLabelOn(p, day.dhuhr),
+              label: l10n.prayerLabelOn(p, day.dhuhr, jumuah: jumuah),
               time: formatTime(day.startOf(p)),
               tone: _Tone.prayer,
               prayer: p,

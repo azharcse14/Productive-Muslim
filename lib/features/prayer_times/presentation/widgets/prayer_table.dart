@@ -128,7 +128,11 @@ final class PrayerTable extends StatelessWidget {
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
                 prayer: prayer,
-                name: l10n.prayerLabelOn(prayer, day.dhuhr),
+                name: l10n.prayerLabelOn(
+                  prayer,
+                  day.dhuhr,
+                  jumuah: jamaat.jumuah != null,
+                ),
                 range: overnight?.prayer == prayer
                     ? _range(
                         formatTime(overnight!.start),

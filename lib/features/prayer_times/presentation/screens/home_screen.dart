@@ -518,7 +518,13 @@ final class _HomeScreenState extends State<HomeScreen> {
           if (target == null) {
             return const SizedBox.shrink();
           }
-          var (eyebrow, sub) = countdownLabels(l10n, context, target);
+          final jumuah = _store.jamaatConfig.value.jumuah != null;
+          var (eyebrow, sub) = countdownLabels(
+            l10n,
+            context,
+            target,
+            jumuah: jumuah,
+          );
           final special = _store.activeSpecial.value;
           final forbidden = special?.kind == SpecialKind.forbidden;
           if (forbidden) {
@@ -551,6 +557,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                   now: _store.now.value,
                   formatTime: (t) => formatHomeTime(context, t),
                   activePrayer: _store.activeWaqt.value?.prayer,
+                  jumuah: jumuah,
                   forbidden: [
                     for (final w in _store.specialWindows.value)
                       if (w.kind == SpecialKind.forbidden) w,
