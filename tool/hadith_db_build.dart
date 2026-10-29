@@ -3,7 +3,7 @@
 // being moved or deleted (the app no longer depends on them at runtime).
 //
 // Sources (snapshotted once, here, at build time):
-//   * Arabic + English — fawazahmed0/hadith-api (CC0), via the jsDelivr CDN:
+//   * Arabic + English — fawazahmed0/hadith-api (Unlicense), via the jsDelivr CDN:
 //       editions/{edition}/sections/{n}.min.json
 //     Editions: ara-{id}, eng-{id}; plus ben-{id} for books that no
 //     hadithbangla folder covers (40 Hadith Nawawi/Qudsi, Muwatta Malik).
@@ -46,7 +46,7 @@ const _faBase =
 const _bnBase = 'https://raw.githubusercontent.com/azharcse14/hadithbangla/main';
 
 const _attributionLines = [
-  'Hadith text (Arabic/English): fawazahmed0/hadith-api (CC0) — '
+  'Hadith text (Arabic/English): fawazahmed0/hadith-api (Unlicense) — '
       'snapshotted via the jsDelivr CDN',
   'Hadith translation (Bengali): azharcse14/hadithbangla — '
       'snapshotted via raw.githubusercontent.com',

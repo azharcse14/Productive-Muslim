@@ -40,14 +40,28 @@ healthy maintenance. Log the check date and a one-line justification here.
 
 ## Fonts & Data Licenses
 
-| Asset | Source | License | Checked |
-|---|---|---|---|
-| World city DB (assets/data/cities.json, 33,824 cities) | GeoNames cities15000 via `tool/city_db_build.dart` | CC BY 4.0 — attribution in Settings → Credits | 2026-06-12 |
-| Quran DB (assets/data/quran.db, 4.9 MB, 114/6236) | Tanzil Quran Text (Simple) via fawazahmed0/quran-api (Unlicense), built by `tool/quran_db_build.dart` | Quran text: Tanzil.net terms (redistribution w/ attribution). EN: Pickthall (public domain). BN: Muhiuddin Khan. **TODO Phase 11 polish:** switch to full Uthmani-script edition (U+06E1 small-sukun aware) for mushaf fidelity | 2026-06-12 |
-| Hadith DB (assets/data/hadith.db, 24 MB, full text 9 books — 72,784 ara/eng + 34,312 bn hadith, gzip-blob per section) | fawazahmed0/hadith-api (CC0, ara/eng) + azharcse14/hadithbangla (bn) — **snapshotted once** by `tool/hadith_db_build.dart`; runtime no longer depends on either source (network is only a fallback for gaps) | Hadith text CC0 (fawazahmed0); Bengali translation via hadithbangla — attribution in Settings → Credits | 2026-06-15 |
-| Dua collection (assets/data/duas.json, 43 duas / 8 categories) | Hisnul-Muslim-style compilation (Quran/Sunnah texts, not copyrightable); refs cited per dua | attributions in-app via reference field | 2026-06-12 |
-| Asmaul Husna (assets/data/asmaul_husna.json) | Public religious data, curated in-repo | — | 2026-06-12 |
-| Schibsted Grotesk (variable) | google/fonts (ofl/schibstedgrotesk) | OFL 1.1 | 2026-06-12 |
-| Noto Sans Bengali (variable) | google/fonts (ofl/notosansbengali) | OFL 1.1 | 2026-06-12 |
-| IBM Plex Sans Arabic (400/500/600/700) | google/fonts (ofl/ibmplexsansarabic) | OFL 1.1 | 2026-06-12 |
-| KFGQPC Uthmanic Script HAFS v22 | KFGQPC via mustafa0x/qpc-fonts mirror | KFGQPC font license — embedding permitted; attribution required in About (Phase 8 verifies wording) | 2026-06-12 |
+One row per file in `assets/data/` (`test/docs/content_ledger_test.dart` keeps this
+complete). Counts are read from the files. Status: `OK` (license verified at the cited
+source) · `UNVERIFIED — owner to confirm` · `NO LICENSE — permission needed`. Never mark
+a row `OK` without citing where the license was read.
+
+| Asset | Source (repo + edition/path) | License as stated by the source | Status | Checked |
+|---|---|---|---|---|
+| `assets/data/cities.json` — 34,740 cities | GeoNames `cities15000` + `BD` dumps (https://download.geonames.org/export/dump/) via `tool/city_db_build.dart` | CC BY 4.0 (https://download.geonames.org/export/dump/readme.txt) — attribution in Settings → Credits | OK | 2026-10-29 |
+| `assets/data/quran.db` — Arabic text (114 surahs / 6,236 ayahs) | Tanzil Quran Text (Simple), https://tanzil.net, via https://github.com/fawazahmed0/quran-api edition `ara-quransimple` (jsDelivr `@1`), built by `tool/quran_db_build.dart` | Tanzil: CC BY 3.0; verbatim copies only, name the Tanzil Project and link to tanzil.net, keep the copyright notice "in all files derived from" the text (https://tanzil.net/docs/text_license). quran-api repo: Unlicense | UNVERIFIED — owner to confirm (name + link are in Settings → Credits; quran.db carries no Tanzil notice, and the fawazahmed0 copy has not been compared with Tanzil's) | 2026-10-29 |
+| `assets/data/quran.db` — English translation | Mohammed Marmaduke William Pickthall, "The Meaning of the Glorious Koran" (1930), via fawazahmed0/quran-api `eng-mohammedmarmadu` (from Tanzil) | None stated. Tanzil's translations page: "for non-commercial purposes only", otherwise permission from the translator or publisher (https://tanzil.net/trans/). Translator died 1936 | UNVERIFIED — owner to confirm (likely public domain by age) | 2026-10-29 |
+| `assets/data/quran.db` — Bengali translation | Muhiuddin Khan, via fawazahmed0/quran-api `ben-muhiuddinkhan` (from Tanzil) | None stated. Tanzil's translations page: non-commercial only, otherwise permission from the translator or publisher (https://tanzil.net/trans/) | UNVERIFIED — owner to confirm | 2026-10-29 |
+| `assets/data/hadith.db` — Arabic + English (9 books, 35,717 hadith each) and Bengali for 40 Hadith Nawawi + Muwatta Malik (1,882 hadith) | https://github.com/fawazahmed0/hadith-api editions `ara-*`, `eng-*`, `ben-nawawi`, `ben-malik` (jsDelivr `@1`), table `hadith_section`, built by `tool/hadith_db_build.dart` | Unlicense (https://github.com/fawazahmed0/hadith-api/blob/1/LICENSE) — the old ledger said CC0, which was wrong | OK | 2026-10-29 |
+| `assets/data/hadith.db` — Bengali, 6 books (Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah; 330 chapters, 34,312 hadith) | hadithbangla: snapshot of `azharcse14/hadithbangla@main` (`{folder}/Chapter/{n}.json`), a fork of `mohacelhosen/hadithbangla`; the README credits `md-rifatkhan/hadithbangla` (that repo now returns 404). Table `hadith_bn_section` | None. No LICENSE file in azharcse14 or mohacelhosen (GitHub API: no license); the README names no translator or publisher | NO LICENSE — permission needed | 2026-10-29 |
+| `assets/data/hadith_books.json` — catalog: 9 books, 397 sections + 330 Bengali chapter titles | Book/section metadata from fawazahmed0/hadith-api (`info.json`); `sections_bn` titles from hadithbangla (as above) | fawazahmed0: Unlicense. hadithbangla: none | NO LICENSE — permission needed (the Bengali chapter titles; the rest is OK) | 2026-10-29 |
+| `assets/data/hadith.json` — 40 hadith of the day (9 topics) | Curated in-repo (2026-06-13/14); each entry cites its collection + number (e.g. Sahih Bukhari 1). Source of the English/Bengali wording not recorded | Not recorded | UNVERIFIED — owner to confirm | 2026-10-29 |
+| `assets/data/duas.json` — 156 duas / 20 categories | 90 (`hm_*` ids) imported from Hisnul Muslim `dua_main.sqlite` in https://github.com/aminurdev/dua-ruqya-server (2026-06-15); the other 66 curated in-repo with per-dua references | aminurdev/dua-ruqya-server: none (no LICENSE file; GitHub API: no license). Arabic is Qur'an/Sunnah text; the translations and transliterations are someone's work | NO LICENSE — permission needed (the 90 imported duas) | 2026-10-29 |
+| `assets/data/ruqyah.json` — 11 categories / 37 passages | Curated in-repo (2026-06-14) from the Qur'an and sahih hadith, reference per passage. Source of the English/Bengali wording not recorded | Not recorded | UNVERIFIED — owner to confirm | 2026-10-29 |
+| `assets/data/asmaul_husna.json` — 99 names | Curated in-repo (2026-06-12); source of the meanings not recorded | Not recorded | UNVERIFIED — owner to confirm | 2026-10-29 |
+| Schibsted Grotesk (variable) | https://github.com/google/fonts `ofl/schibstedgrotesk` | OFL 1.1 (`OFL.txt` in that folder) | OK | 2026-10-29 |
+| Noto Sans Bengali (variable) | https://github.com/google/fonts `ofl/notosansbengali` | OFL 1.1 (`OFL.txt` in that folder) | OK | 2026-10-29 |
+| IBM Plex Sans Arabic (400/500/600/700) | https://github.com/google/fonts `ofl/ibmplexsansarabic` | OFL 1.1 (`OFL.txt` in that folder) | OK | 2026-10-29 |
+| KFGQPC Uthmanic Script HAFS v22 | KFGQPC via `mustafa0x/qpc-fonts` mirror | KFGQPC font license — embedding permitted, attribution required (credited in Settings → Credits); wording not re-checked | UNVERIFIED — owner to confirm | 2026-06-12 |
+
+Quran DB TODO (unchanged): switch to the full Uthmani-script edition (U+06E1 small-sukun
+aware) for mushaf fidelity.
