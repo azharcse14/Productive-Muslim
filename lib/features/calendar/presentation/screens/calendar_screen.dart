@@ -430,7 +430,7 @@ final class _DaySheet extends StatelessWidget {
     final oddNightEve = IslamicDates.isOddNightEve(hijri);
     final localPrayerDay = prayerDay;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           QSpace.s5,
           QSpace.s5,
@@ -479,9 +479,11 @@ final class _DaySheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: QSpace.s2),
-                  Text(
-                    l10n.islamicDayName(event.name),
-                    style: QType.titleSm.copyWith(color: q.accentStrong),
+                  Expanded(
+                    child: Text(
+                      l10n.islamicDayName(event.name),
+                      style: QType.titleSm.copyWith(color: q.accentStrong),
+                    ),
                   ),
                 ],
               ),
