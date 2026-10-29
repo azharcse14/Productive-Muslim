@@ -40,11 +40,12 @@ void main() {
 
     setUpAll(() {
       final raw = File('assets/data/ruqyah.json').readAsStringSync();
-      final decoded =
-          (jsonDecode(raw) as Map<dynamic, dynamic>).cast<String, Object?>();
+      final decoded = (jsonDecode(raw) as Map<dynamic, dynamic>)
+          .cast<String, Object?>();
       categories = (decoded['categories']! as List<Object?>)
-          .map((Object? e) =>
-              (e as Map<dynamic, dynamic>).cast<String, Object?>())
+          .map(
+            (Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+          )
           .toList();
       allItems = categories
           .expand(
@@ -56,11 +57,10 @@ void main() {
           .toList();
     });
 
-    test('has exactly the ruqyah categories (everyday duas live in duas.json)',
-        () {
-      expect(
-        categories.map((Map<String, Object?> c) => c['id']),
-        <String>[
+    test(
+      'has exactly the ruqyah categories (everyday duas live in duas.json)',
+      () {
+        expect(categories.map((Map<String, Object?> c) => c['id']), <String>[
           'protection',
           'three_quls',
           'healing',
@@ -72,9 +72,9 @@ void main() {
           'enemies',
           'children',
           'fitan',
-        ],
-      );
-    });
+        ]);
+      },
+    );
 
     test('has at least 37 ruqyah passages in total', () {
       expect(allItems.length, greaterThanOrEqualTo(37));
@@ -84,8 +84,11 @@ void main() {
       final seen = <String, Object?>{};
       for (final item in allItems) {
         final key = bareArabic(item['ar']! as String);
-        expect(seen[key], isNull,
-            reason: '${item['id']} duplicates ${seen[key]}');
+        expect(
+          seen[key],
+          isNull,
+          reason: '${item['id']} duplicates ${seen[key]}',
+        );
         seen[key] = item['id'];
       }
     });
@@ -136,24 +139,79 @@ void main() {
 
     test('item ids are unique across the whole collection', () {
       final ids = allItems.map((Map<String, Object?> i) => i['id']).toList();
-      expect(ids.toSet(), hasLength(ids.length),
-          reason: 'duplicate ruqyah ids found');
+      expect(
+        ids.toSet(),
+        hasLength(ids.length),
+        reason: 'duplicate ruqyah ids found',
+      );
     });
 
     test('the three Quls category holds Ikhlas, Falaq and Nas', () {
-      final quls = categories
-          .firstWhere((Map<String, Object?> c) => c['id'] == 'three_quls');
+      final quls = categories.firstWhere(
+        (Map<String, Object?> c) => c['id'] == 'three_quls',
+      );
       final ids = (quls['items']! as List<Object?>)
-          .map((Object? e) =>
-              (e as Map<dynamic, dynamic>).cast<String, Object?>()['id'])
+          .map(
+            (Object? e) =>
+                (e as Map<dynamic, dynamic>).cast<String, Object?>()['id'],
+          )
           .toList();
       expect(ids, containsAll(<String>['ikhlas', 'falaq', 'nas']));
     });
   });
 
+  test('tibb_nabawi.json: complete bilingual items, unique ids, no ruqyah '
+      'overlap', () {
+    List<Map<String, Object?>> items(String path) {
+      final root =
+          (jsonDecode(File(path).readAsStringSync()) as Map<dynamic, dynamic>)
+              .cast<String, Object?>();
+      return [
+        for (final c in root['categories']! as List<Object?>)
+          for (final i
+              in (c! as Map<dynamic, dynamic>)['items'] as List<Object?>)
+            (i! as Map<dynamic, dynamic>).cast<String, Object?>(),
+      ];
+    }
+
+    final tibb = items('assets/data/tibb_nabawi.json');
+    final ruqyahIds = items('assets/data/ruqyah.json').map((i) => i['id']);
+    expect(tibb.length, greaterThanOrEqualTo(20));
+    for (final item in tibb) {
+      for (final field in [
+        'id',
+        'titleEn',
+        'titleBn',
+        'ar',
+        'tr',
+        'en',
+        'bn',
+        'ref',
+        'detailsEn',
+        'detailsBn',
+      ]) {
+        expect(
+          (item[field] as String?)?.trim(),
+          isNotEmpty,
+          reason: '${item['id']}.$field',
+        );
+      }
+    }
+    final ids = tibb.map((i) => i['id']).toList();
+    expect(ids.toSet(), hasLength(ids.length));
+    expect(ids.toSet().intersection(ruqyahIds.toSet()), isEmpty);
+    expect(
+      misplacedSalawat(
+        jsonDecode(File('assets/data/tibb_nabawi.json').readAsStringSync()),
+      ),
+      isEmpty,
+    );
+  });
+
   test('ﷺ in ruqyah.json only follows the Prophet / Messenger / Muhammad', () {
-    final decoded =
-        jsonDecode(File('assets/data/ruqyah.json').readAsStringSync());
+    final decoded = jsonDecode(
+      File('assets/data/ruqyah.json').readAsStringSync(),
+    );
     expect(misplacedSalawat(decoded), isEmpty);
   });
 

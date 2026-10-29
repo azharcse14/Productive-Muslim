@@ -2504,6 +2504,24 @@ abstract class AppLocalizations {
   /// **'Ruqyah'**
   String get ruqyahTitle;
 
+  /// No description provided for @tibbNabawiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibb an-Nabawi'**
+  String get tibbNabawiTitle;
+
+  /// No description provided for @tibbNabawiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophetic medicine — honey, black seed, hijama & more'**
+  String get tibbNabawiSubtitle;
+
+  /// No description provided for @tibbNabawiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentic narrations on remedies the Prophet ﷺ used and recommended. Healing is from Allah alone; take the means, and consult a qualified doctor for any illness.'**
+  String get tibbNabawiNote;
+
   /// No description provided for @ruqyahSubtitle.
   ///
   /// In en, this message translates to:

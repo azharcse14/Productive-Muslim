@@ -70,6 +70,11 @@ final class RuqyahCard extends StatelessWidget {
             item.translationFor(languageCode),
             style: QType.body.copyWith(color: q.ink),
           ),
+          if (item.detailsFor(languageCode) case final details
+              when details.isNotEmpty) ...[
+            const SizedBox(height: QSpace.s2),
+            Text(details, style: QType.body.copyWith(color: q.ink2)),
+          ],
           if (item.reference.isNotEmpty) ...[
             const SizedBox(height: QSpace.s2),
             Text(

@@ -7,6 +7,9 @@ import '../../domain/repositories/ruqyah_repository.dart';
 final class RuqyahStore {
   RuqyahStore(this._repository);
 
+  /// get_it instance name of the store backing the Tibb an-Nabawi screen.
+  static const tibbNabawi = 'tibbNabawi';
+
   final RuqyahRepository _repository;
 
   late final categories = signal(const <RuqyahCategory>[]);

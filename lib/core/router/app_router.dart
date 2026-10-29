@@ -37,6 +37,7 @@ import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/ramadan/presentation/screens/zakat_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_screen.dart';
+import '../../features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
 import '../../features/settings/presentation/screens/credits_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
@@ -327,6 +328,11 @@ GoRouter buildRouter() {
         name: Routes.health.name,
         path: Routes.health.path,
         builder: (context, state) => const HealthScreen(),
+      ),
+      GoRoute(
+        name: Routes.tibbNabawi.name,
+        path: Routes.tibbNabawi.path,
+        builder: (context, state) => const TibbNabawiScreen(),
       ),
       GoRoute(
         name: Routes.achievements.name,

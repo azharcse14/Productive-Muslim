@@ -285,7 +285,18 @@ Future<void> setupLocator() async {
     ..registerLazySingleton<RuqyahRepository>(
       () => RuqyahRepositoryImpl(locator()),
     )
-    ..registerLazySingleton(() => RuqyahStore(locator()));
+    ..registerLazySingleton(() => RuqyahStore(locator()))
+    ..registerLazySingleton(
+      () => RuqyahStore(
+        RuqyahRepositoryImpl(
+          RuqyahAssetDataSource(
+            rootBundle,
+            assetPath: RuqyahAssetDataSource.tibbNabawiPath,
+          ),
+        ),
+      ),
+      instanceName: RuqyahStore.tibbNabawi,
+    );
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(

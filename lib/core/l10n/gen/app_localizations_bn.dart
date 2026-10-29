@@ -1695,6 +1695,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get ruqyahTitle => 'রুকইয়া';
 
   @override
+  String get tibbNabawiTitle => 'তিব্বে নববী';
+
+  @override
+  String get tibbNabawiSubtitle =>
+      'নবীজির ﷺ চিকিৎসা — মধু, কালোজিরা, হিজামা ও আরও';
+
+  @override
+  String get tibbNabawiNote =>
+      'রাসূলুল্লাহ ﷺ যেসব চিকিৎসা ব্যবহার ও পরামর্শ দিয়েছেন, সে বিষয়ে সহিহ বর্ণনা। আরোগ্য কেবল আল্লাহর পক্ষ থেকে; উপায় অবলম্বন করুন এবং যেকোনো অসুস্থতায় অভিজ্ঞ চিকিৎসকের পরামর্শ নিন।';
+
+  @override
   String get ruqyahSubtitle => 'কুরআনি সুরক্ষা ও আরোগ্য';
 
   @override

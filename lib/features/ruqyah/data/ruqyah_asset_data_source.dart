@@ -7,11 +7,15 @@ import '../domain/entities/ruqyah.dart';
 /// Loads the bundled ruqyah collection from a JSON asset.
 /// Malformed entries are skipped silently — a partial list beats a crash.
 final class RuqyahAssetDataSource {
-  RuqyahAssetDataSource(this._bundle);
+  RuqyahAssetDataSource(this._bundle, {this.assetPath = ruqyahPath});
 
-  static const assetPath = 'assets/data/ruqyah.json';
+  static const ruqyahPath = 'assets/data/ruqyah.json';
+
+  /// Prophetic medicine — same schema, its own screen (not a ruqyah).
+  static const tibbNabawiPath = 'assets/data/tibb_nabawi.json';
 
   final AssetBundle _bundle;
+  final String assetPath;
   List<RuqyahCategory>? _cache;
 
   Future<List<RuqyahCategory>> loadCategories() async {
@@ -69,6 +73,8 @@ final class RuqyahAssetDataSource {
     final bn = map['bn'];
     final ref = map['ref'];
     final repeat = map['repeat'];
+    final detailsEn = map['detailsEn'];
+    final detailsBn = map['detailsBn'];
     return RuqyahItem(
       id: id,
       titleEn: titleEn is String ? titleEn : '',
@@ -79,6 +85,8 @@ final class RuqyahAssetDataSource {
       translationBn: bn is String ? bn : '',
       reference: ref is String ? ref : '',
       repeat: repeat is int && repeat > 0 ? repeat : 1,
+      detailsEn: detailsEn is String ? detailsEn : '',
+      detailsBn: detailsBn is String ? detailsBn : '',
     );
   }
 }

@@ -71,7 +71,7 @@ void main() {
       RuqyahRepositoryImpl(RuqyahAssetDataSource(bundle));
 
   _FakeAssetBundle goodBundle() => _FakeAssetBundle({
-        RuqyahAssetDataSource.assetPath: _ruqyahJson,
+        RuqyahAssetDataSource.ruqyahPath: _ruqyahJson,
       });
 
   group('RuqyahRepositoryImpl.categories', () {
@@ -132,7 +132,7 @@ void main() {
       await repo.categories();
       await repo.categories();
 
-      expect(bundle.loadCounts[RuqyahAssetDataSource.assetPath], 1);
+      expect(bundle.loadCounts[RuqyahAssetDataSource.ruqyahPath], 1);
     });
 
     test('missing asset returns a failure result', () async {

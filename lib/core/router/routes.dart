@@ -71,6 +71,9 @@ abstract final class Routes {
   /// Sunnah health tracker — habits, weight, guidance (More tab).
   static const health = (name: 'health', path: '/health');
 
+  /// Tibb an-Nabawi — prophetic medicine (More tab + Ruqyah screen).
+  static const tibbNabawi = (name: 'tibbNabawi', path: '/tibb-nabawi');
+
   /// Achievements / badges (More tab + muhasaba summary).
   static const achievements = (name: 'achievements', path: '/achievements');
 

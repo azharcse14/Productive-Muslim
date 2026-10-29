@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -11,6 +13,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_category_tile.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
@@ -133,6 +136,21 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                         ),
                     ],
                   ),
+                const SizedBox(height: QSpace.s4),
+                // Prophetic medicine has its own screen; linked here because
+                // people seeking healing through ruqyah often want it too.
+                QCard(
+                  child: QListRow(
+                    icon: Icons.spa_outlined,
+                    title: l10n.tibbNabawiTitle,
+                    subtitle: l10n.tibbNabawiSubtitle,
+                    trailing: Icon(Icons.chevron_right, color: context.q.ink3),
+                    onTap: () {
+                      Haptics.selection();
+                      unawaited(context.pushNamed(Routes.tibbNabawi.name));
+                    },
+                  ),
+                ),
               ],
             );
           },

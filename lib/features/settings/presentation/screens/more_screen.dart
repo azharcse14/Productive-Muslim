@@ -123,6 +123,12 @@ final class MoreScreen extends StatelessWidget {
               l10n.healthSubtitle,
               () => context.pushNamed(Routes.health.name),
             ),
+            _Entry(
+              Icons.spa_outlined,
+              l10n.tibbNabawiTitle,
+              l10n.tibbNabawiSubtitle,
+              () => context.pushNamed(Routes.tibbNabawi.name),
+            ),
           ]),
           _Header(l10n.moreGroupYou),
           _Group([

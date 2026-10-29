@@ -11,6 +11,8 @@ final class RuqyahItem {
     required this.translationBn,
     required this.reference,
     required this.repeat,
+    this.detailsEn = '',
+    this.detailsBn = '',
   });
 
   final String id;
@@ -27,15 +29,24 @@ final class RuqyahItem {
   /// Authentic recitation count (1/3/7/100) — drives the repeat chip.
   final int repeat;
 
+  /// Optional explanation: context, how scholars applied it, practical use.
+  final String detailsEn;
+  final String detailsBn;
+
+  String detailsFor(String languageCode) => switch (languageCode) {
+    'bn' when detailsBn.isNotEmpty => detailsBn,
+    _ => detailsEn,
+  };
+
   String titleFor(String languageCode) => switch (languageCode) {
-        'bn' when titleBn.isNotEmpty => titleBn,
-        _ => titleEn,
-      };
+    'bn' when titleBn.isNotEmpty => titleBn,
+    _ => titleEn,
+  };
 
   String translationFor(String languageCode) => switch (languageCode) {
-        'bn' when translationBn.isNotEmpty => translationBn,
-        _ => translationEn,
-      };
+    'bn' when translationBn.isNotEmpty => translationBn,
+    _ => translationEn,
+  };
 }
 
 /// A themed group of ruqyah passages (protection, healing, evil eye…).

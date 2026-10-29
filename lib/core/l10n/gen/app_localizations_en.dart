@@ -1704,6 +1704,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ruqyahTitle => 'Ruqyah';
 
   @override
+  String get tibbNabawiTitle => 'Tibb an-Nabawi';
+
+  @override
+  String get tibbNabawiSubtitle =>
+      'Prophetic medicine — honey, black seed, hijama & more';
+
+  @override
+  String get tibbNabawiNote =>
+      'Authentic narrations on remedies the Prophet ﷺ used and recommended. Healing is from Allah alone; take the means, and consult a qualified doctor for any illness.';
+
+  @override
   String get ruqyahSubtitle => 'Qur\'anic protection & healing';
 
   @override
