@@ -11,8 +11,10 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/asma_quiz.dart';
 import '../state/asma_quiz_store.dart';
 import '../state/dua_store.dart';
@@ -42,6 +44,11 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
       await _names.load();
     }
     await _quiz.load();
+    await _quiz.start(_names.asma.value);
+  }
+
+  Future<void> _retry() async {
+    await _names.load();
     await _quiz.start(_names.asma.value);
   }
 
@@ -121,9 +128,13 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
             if (questions.isEmpty) {
               // Loaded but no names: the asset failed, don't spin forever.
               if (_names.loaded.value && _names.asma.value.isEmpty) {
-                return Center(child: Text(l10n.asmaLoadError));
+                return QErrorRetry(
+                  message: l10n.asmaLoadError,
+                  retryLabel: l10n.hadithRetry,
+                  onRetry: () => unawaited(_retry()),
+                );
               }
-              return const Center(child: CircularProgressIndicator());
+              return const QSkeletonList(count: 5, height: 72);
             }
             if (_quiz.finished.value) {
               return _ResultView(

@@ -12,13 +12,13 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
-import '../widgets/ayah_medallion.dart';
 import 'quran_reader_screen.dart';
 
 /// Quran tab (design §4.5): continue-reading resume card, surah search
@@ -401,7 +401,7 @@ final class _QuranScreenState extends State<QuranScreen> {
         ),
         child: Row(
           children: [
-            AyahMedallion(number: surah.id),
+            QMedallion(number: surah.id),
             const SizedBox(width: QSpace.s4),
             Expanded(
               child: Column(

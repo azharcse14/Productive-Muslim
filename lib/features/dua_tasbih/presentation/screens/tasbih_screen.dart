@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -14,6 +13,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../state/tasbih_store.dart';
 
@@ -128,9 +128,15 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   }
 
   Future<void> _pickCustomTarget() async {
-    final picked = await showDialog<int>(
-      context: context,
-      builder: (_) => const _CustomTargetDialog(),
+    final l10n = context.l10n;
+    final picked = await showNumberDialog(
+      context,
+      title: l10n.tasbihTarget,
+      hint: l10n.tasbihTargetInvalid,
+      actionLabel: l10n.save,
+      initial: _presets.contains(_store.target.value)
+          ? null
+          : _store.target.value,
     );
     if (picked != null) {
       _setTarget(picked);
@@ -240,9 +246,14 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                     value: LocaleDigits.localize('$count', languageCode),
                     onTap: _tap,
                     child: ExcludeSemantics(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
+                      // Ripple from the touch point as bead feedback; no
+                      // double-tap recognizer, so rapid taps each count.
+                      child: InkWell(
                         onTap: _tap,
+                        highlightColor: Colors.transparent,
+                        splashFactory: reduced
+                            ? NoSplash.splashFactory
+                            : InkRipple.splashFactory,
                         // The 240dp ring shrinks to fit short screens.
                         child: Center(
                           child: FittedBox(
@@ -365,70 +376,6 @@ final class _TasbihScreenState extends State<TasbihScreen> {
           },
         ),
       ),
-    );
-  }
-}
-
-final class _CustomTargetDialog extends StatefulWidget {
-  const _CustomTargetDialog();
-
-  @override
-  State<_CustomTargetDialog> createState() => _CustomTargetDialogState();
-}
-
-final class _CustomTargetDialogState extends State<_CustomTargetDialog> {
-  final TextEditingController _controller = TextEditingController();
-
-  /// Shown instead of closing silently on an empty/zero entry.
-  bool _invalid = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    // Bengali/Arabic-Indic digits are typed on localized keyboards.
-    final value = int.tryParse(LocaleDigits.toAscii(_controller.text));
-    if (value == null || value < 1) {
-      setState(() => _invalid = true);
-      return;
-    }
-    Navigator.of(context).pop(value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AlertDialog(
-      title: Text(l10n.tasbihTarget),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp('[0-9০-৯٠-٩۰-۹]')),
-          LengthLimitingTextInputFormatter(5),
-        ],
-        decoration: InputDecoration(
-          hintText: l10n.tasbihCustom,
-          errorText: _invalid ? l10n.tasbihTargetInvalid : null,
-        ),
-        onChanged: (_) {
-          if (_invalid) {
-            setState(() => _invalid = false);
-          }
-        },
-        onSubmitted: (_) => _submit(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(l10n.save)),
-      ],
     );
   }
 }

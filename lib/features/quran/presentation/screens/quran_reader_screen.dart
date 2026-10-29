@@ -14,12 +14,12 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
-import '../widgets/ayah_medallion.dart';
 import '../widgets/reader_settings_sheet.dart';
 
 /// Ayah-card extent guess for the first index→offset jump, before any card
@@ -428,7 +428,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [AyahMedallion(number: ayah.number, size: 34)]),
+          Row(children: [QMedallion(number: ayah.number, size: 34)]),
           const SizedBox(height: QSpace.s3),
           Directionality(
             textDirection: TextDirection.rtl,

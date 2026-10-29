@@ -8,10 +8,9 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
-import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
-import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/dua.dart';
@@ -105,32 +104,6 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
   }
 }
 
-final class _NumberMedallion extends StatelessWidget {
-  const _NumberMedallion({required this.number, this.size = 40});
-
-  final int number;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Star8(color: q.primary, size: size),
-          Text(
-            LocaleDigits.localize('$number', languageCode),
-            style: QType.num_(QType.caption).copyWith(color: q.ink),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 final class _AsmaRow extends StatelessWidget {
   const _AsmaRow({required this.name, required this.onTap});
 
@@ -152,7 +125,7 @@ final class _AsmaRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _NumberMedallion(number: name.number),
+            QMedallion(number: name.number),
             const SizedBox(width: QSpace.s4),
             Expanded(
               child: Column(
@@ -199,7 +172,7 @@ final class _AsmaDetailSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _NumberMedallion(number: name.number, size: 48),
+            QMedallion(number: name.number, size: 48),
             const SizedBox(height: QSpace.s4),
             Text(
               name.arabic,
