@@ -1736,6 +1736,12 @@ abstract class AppLocalizations {
   /// **'Search surah…'**
   String get searchSurahHint;
 
+  /// No description provided for @surahSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching surah — try another name or number'**
+  String get surahSearchNoResults;
+
   /// No description provided for @continueReading.
   ///
   /// In en, this message translates to:
@@ -1826,6 +1832,42 @@ abstract class AppLocalizations {
   /// **'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.'**
   String get bookmarksEmpty;
 
+  /// No description provided for @bookmarkRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark removed'**
+  String get bookmarkRemoved;
+
+  /// No description provided for @bookmarkUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get bookmarkUndo;
+
+  /// No description provided for @goToAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to ayah'**
+  String get goToAyah;
+
+  /// No description provided for @goToAyahHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah 1–{max}'**
+  String goToAyahHint(String max);
+
+  /// No description provided for @goToAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get goToAction;
+
+  /// No description provided for @nextSurah.
+  ///
+  /// In en, this message translates to:
+  /// **'Next surah'**
+  String get nextSurah;
+
   /// No description provided for @bookmarkLabel.
   ///
   /// In en, this message translates to:
@@ -1909,6 +1951,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next'**
   String get asmaQuizNext;
+
+  /// No description provided for @asmaQuizSwitchModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch quiz mode?'**
+  String get asmaQuizSwitchModeTitle;
+
+  /// No description provided for @asmaQuizSwitchModeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This starts a new quiz; your current progress will be lost.'**
+  String get asmaQuizSwitchModeBody;
+
+  /// No description provided for @asmaQuizSwitchMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get asmaQuizSwitchMode;
+
+  /// No description provided for @asmaQuizCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get asmaQuizCorrect;
+
+  /// No description provided for @asmaQuizWrongAnswerIs.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite — the answer is {answer}'**
+  String asmaQuizWrongAnswerIs(String answer);
+
+  /// No description provided for @asmaQuizCorrectOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, correct answer'**
+  String asmaQuizCorrectOption(String label);
+
+  /// No description provided for @asmaQuizWrongOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, your answer, incorrect'**
+  String asmaQuizWrongOption(String label);
 
   /// No description provided for @asmaQuizSeeResult.
   ///
@@ -2132,6 +2216,18 @@ abstract class AppLocalizations {
   /// **'Repeat {count}×'**
   String repeatTimes(int count);
 
+  /// No description provided for @duaRepeatProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{target}'**
+  String duaRepeatProgress(String count, String target);
+
+  /// No description provided for @duaRepeatCounterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted {count} of {target}. Tap to count, long-press to reset.'**
+  String duaRepeatCounterLabel(String count, String target);
+
   /// No description provided for @referenceLabel.
   ///
   /// In en, this message translates to:
@@ -2221,6 +2317,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Target reached — may Allah accept'**
   String get tasbihTargetReached;
+
+  /// No description provided for @tasbihDhikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhikr'**
+  String get tasbihDhikr;
+
+  /// No description provided for @tasbihPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'{id, select, subhanallah{SubhanAllah} alhamdulillah{Alhamdulillah} allahuakbar{Allahu Akbar} tahlil{La ilaha illallah} astaghfirullah{Astaghfirullah} other{{id}}}'**
+  String tasbihPhrase(String id);
+
+  /// No description provided for @tasbihAfterSalah.
+  ///
+  /// In en, this message translates to:
+  /// **'After prayer 33·33·34'**
+  String get tasbihAfterSalah;
+
+  /// No description provided for @tasbihStepProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {target}'**
+  String tasbihStepProgress(String count, String target);
 
   /// No description provided for @ramadanTitle.
   ///
@@ -3227,7 +3347,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithBooksSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Browse the full books, fetched from an open dataset'**
+  /// **'Browse the full books — available offline'**
   String get hadithBooksSubtitle;
 
   /// No description provided for @hadithBookAllSahih.
@@ -3245,7 +3365,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithLoadError.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load. Check your connection and try again.'**
+  /// **'Couldn\'t load this. Please try again.'**
   String get hadithLoadError;
 
   /// No description provided for @hadithRetry.
@@ -3955,6 +4075,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No hadith in this chapter.'**
   String get hadithSectionEmpty;
+
+  /// No description provided for @hadithGoToNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to hadith number'**
+  String get hadithGoToNumber;
+
+  /// No description provided for @hadithNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith number'**
+  String get hadithNumberHint;
+
+  /// No description provided for @hadithNumberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith with that number in this book'**
+  String get hadithNumberNotFound;
 
   /// One word of an English-source hadith grade; other{—} means pass the word through unchanged.
   ///

@@ -465,6 +465,7 @@
   "notYet": "Not yet",
   "quranTitle": "Quran",
   "searchSurahHint": "Search surah…",
+  "surahSearchNoResults": "No matching surah — try another name or number",
   "continueReading": "Continue reading",
   "surahMeta": "{count} ayahs · {place}",
   "@surahMeta": {
@@ -498,6 +499,19 @@
   "ayahCopied": "Ayah copied",
   "bookmarksTitle": "Bookmarks",
   "bookmarksEmpty": "No bookmarks yet. Tap the bookmark icon on any ayah to save it here.",
+  "bookmarkRemoved": "Bookmark removed",
+  "bookmarkUndo": "Undo",
+  "goToAyah": "Go to ayah",
+  "goToAyahHint": "Ayah 1–{max}",
+  "@goToAyahHint": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "goToAction": "Go",
+  "nextSurah": "Next surah",
   "bookmarkLabel": "Bookmark",
   "quranFirstOpen": "Bismillah — start reading and Productive Muslim will remember where you left off.",
   "ayahShareSuffix": "— Quran {surah}:{ayah}",
@@ -530,6 +544,34 @@
     }
   },
   "asmaQuizNext": "Next",
+  "asmaQuizSwitchModeTitle": "Switch quiz mode?",
+  "asmaQuizSwitchModeBody": "This starts a new quiz; your current progress will be lost.",
+  "asmaQuizSwitchMode": "Switch",
+  "asmaQuizCorrect": "Correct",
+  "asmaQuizWrongAnswerIs": "Not quite — the answer is {answer}",
+  "@asmaQuizWrongAnswerIs": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "asmaQuizCorrectOption": "{label}, correct answer",
+  "@asmaQuizCorrectOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "asmaQuizWrongOption": "{label}, your answer, incorrect",
+  "@asmaQuizWrongOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "asmaQuizSeeResult": "See result",
   "asmaQuizResultTitle": "Quiz complete",
   "asmaQuizResultEncouragement": "Every name you revisit draws you closer. There's no pass or fail here — return whenever you like and try again.",
@@ -634,6 +676,28 @@
       }
     }
   },
+  "duaRepeatProgress": "{count}/{target}",
+  "@duaRepeatProgress": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "duaRepeatCounterLabel": "Counted {count} of {target}. Tap to count, long-press to reset.",
+  "@duaRepeatCounterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "referenceLabel": "Reference",
   "ruqyahTitle": "Ruqyah",
   "ruqyahSubtitle": "Qur'anic protection & healing",
@@ -672,6 +736,27 @@
     }
   },
   "tasbihTargetReached": "Target reached — may Allah accept",
+  "tasbihDhikr": "Dhikr",
+  "tasbihPhrase": "{id, select, subhanallah{SubhanAllah} alhamdulillah{Alhamdulillah} allahuakbar{Allahu Akbar} tahlil{La ilaha illallah} astaghfirullah{Astaghfirullah} other{{id}}}",
+  "@tasbihPhrase": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "tasbihAfterSalah": "After prayer 33·33·34",
+  "tasbihStepProgress": "{count} of {target}",
+  "@tasbihStepProgress": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
   "ramadanTitle": "Ramadan",
   "rozaDayOf": "Day {day} of {total}",
   "@rozaDayOf": {
@@ -961,13 +1046,13 @@
   },
   "hadithBooksCardTitle": "Full collections",
   "hadithBooksTitle": "Hadith collections",
-  "hadithBooksSubtitle": "Browse the full books, fetched from an open dataset",
+  "hadithBooksSubtitle": "Browse the full books — available offline",
   "hadithBookAllSahih": "Every hadith authentic (Sahih)",
   "hadithGradeLabel": "Grade: {grade}",
   "@hadithGradeLabel": {
     "placeholders": { "grade": { "type": "String" } }
   },
-  "hadithLoadError": "Couldn't load. Check your connection and try again.",
+  "hadithLoadError": "Couldn't load this. Please try again.",
   "hadithRetry": "Try again",
   "hadithSourceNote": "Source: fawazahmed0/hadith-api (public domain)",
   "hadithSourceNoteBn": "Bengali source: hadithbangla (open source)",
@@ -1177,6 +1262,9 @@
   "ruqyahLoadError": "Couldn't load ruqyah. Please try again.",
   "duaLoadError": "Couldn't load the duas. Please try again.",
   "hadithSectionEmpty": "No hadith in this chapter.",
+  "hadithGoToNumber": "Go to hadith number",
+  "hadithNumberHint": "Hadith number",
+  "hadithNumberNotFound": "No hadith with that number in this book",
   "hadithGradeWord": "{word, select, sahih{Sahih} hasan{Hasan} daif{Da'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} other{—}}",
   "@hadithGradeWord": {
     "description": "One word of an English-source hadith grade; other{—} means pass the word through unchanged.",
