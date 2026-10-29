@@ -12,11 +12,17 @@ final class RawHadith {
     required this.number,
     required this.text,
     required this.grade,
+    this.ref = '',
   });
 
   final int number;
   final String text;
   final String grade;
+
+  /// Standard (sunnah.com-style) reference number when it differs from
+  /// [number] — e.g. Sahih Muslim's sequential 93 is "8a" (Abd al-Baqi).
+  /// Empty when [number] already is the standard reference.
+  final String ref;
 
   static RawHadith? parse(Object? entry) {
     if (entry is! Map) {
@@ -32,7 +38,33 @@ final class RawHadith {
       number: number.toInt(),
       text: text.trim(),
       grade: firstGrade(map['grades']),
+      ref: standardRef(map['arabicnumber'], number.toInt()),
     );
+  }
+
+  /// Upstream `arabicnumber` ("8.01" = 8a, "8.02" = 8b, "9" = 9) as a
+  /// sunnah.com-style reference. '' when absent or when its whole-number part
+  /// equals [number]: then [number] already is the standard reference and the
+  /// fraction only marks a sub-narration (Bukhari 402.2 "as above",
+  /// Tirmidhi 3604.02), which sunnah.com files under the same number.
+  static String standardRef(Object? arabicNumber, int number) {
+    final raw = switch (arabicNumber) {
+      final String s => s.trim(),
+      final num n => '${n.truncate()}', // numeric fractions = sub-narrations
+      _ => '',
+    };
+    final parts = raw.split('.');
+    if (raw.isEmpty || parts.first == '$number') {
+      return '';
+    }
+    if (parts.length == 2) {
+      final variant = int.tryParse(parts[1]) ?? 0;
+      if (variant < 1 || variant > 26) {
+        return raw;
+      }
+      return parts.first + String.fromCharCode(0x60 + variant); // 1 -> a
+    }
+    return raw;
   }
 
   /// Prefers an Al-Albani grading when present (the most-cited for the Sunan),
@@ -115,18 +147,20 @@ List<BookHadith> assembleSection({
   required bool translationIsEnglish,
 }) {
   final fallback = translationIsEnglish
-      ? const <int, RawHadith>{}
-      : {for (final h in englishFallback) h.number: h};
+      ? const <(int, int), RawHadith>{}
+      : _byOccurrence(englishFallback);
   final wantsNonEnglish = !translationIsEnglish;
-  final translationByNumber = {for (final h in translation) h.number: h};
+  final translationByKey = _byOccurrence(translation);
+  final arabicSeen = <int, int>{};
   return [
     for (final ar in arabic)
       () {
-        final preferred = translationByNumber[ar.number];
+        final key = (ar.number, _nextOccurrence(arabicSeen, ar.number));
+        final preferred = translationByKey[key];
         final hasPreferred = preferred != null && preferred.text.isNotEmpty;
         final text = hasPreferred
             ? preferred.text
-            : (fallback[ar.number]?.text ?? '');
+            : (fallback[key]?.text ?? '');
         return BookHadith(
           number: ar.number,
           arabic: ar.text,
@@ -134,7 +168,7 @@ List<BookHadith> assembleSection({
           // Bukhari/Muslim ship no per-hadith grade because the whole book is
           // rigorously authentic — surface "Sahih" so every entry is labelled.
           grade: _grade(ar, preferred, book.isSahih),
-          reference: '${book.en} ${ar.number}',
+          reference: '${book.en} ${ar.ref.isNotEmpty ? ar.ref : ar.number}',
           // bn requested but only English was available for this hadith.
           fallbackTranslation:
               wantsNonEnglish && !hasPreferred && text.isNotEmpty,
@@ -142,6 +176,20 @@ List<BookHadith> assembleSection({
       }(),
   ];
 }
+
+/// Upstream sometimes gives several distinct narrations the same hadith
+/// number within a section (e.g. Tirmidhi 3604 ×10). Editions list them in
+/// the same order, so key by (number, nth occurrence) — keying by number alone
+/// would pair every one of them with the last translation.
+Map<(int, int), RawHadith> _byOccurrence(List<RawHadith> hadiths) {
+  final seen = <int, int>{};
+  return {
+    for (final h in hadiths) (h.number, _nextOccurrence(seen, h.number)): h,
+  };
+}
+
+int _nextOccurrence(Map<int, int> seen, int number) =>
+    seen[number] = (seen[number] ?? -1) + 1;
 
 /// Shapes one Bengali chapter (hadithbangla source) into display hadith.
 List<BookHadith> assembleBangla(HadithBook book, List<BnHadith> raw) => [

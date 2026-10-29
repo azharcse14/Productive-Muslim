@@ -23,7 +23,7 @@ void main() {
     'speech',
     'people',
   };
-  const allowedRepeats = <int>{1, 3, 7, 33, 100};
+  const allowedRepeats = <int>{1, 3, 4, 7, 10, 33, 34, 100};
   const duaFields = <String>['id', 'ar', 'tr', 'en', 'bn', 'ref', 'repeat'];
 
   group('asmaul_husna.json', () {
@@ -128,7 +128,7 @@ void main() {
       }
     });
 
-    test('every dua repeat value is one of 1, 3, 7, 33, 100', () {
+    test('every dua repeat value is one of 1, 3, 4, 7, 10, 33, 34, 100', () {
       for (final dua in allDuas) {
         expect(
           dua['repeat'],

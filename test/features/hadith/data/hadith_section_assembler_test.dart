@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 
@@ -31,6 +32,27 @@ void main() {
       expect(h.text, 'hello');
       expect(h.grade, 'Sahih'); // Al-Albani preferred over the earlier entry
     });
+
+    test(
+      'standardRef maps upstream arabicnumber to a sunnah.com-style ref',
+      () {
+        expect(RawHadith.standardRef('8.01', 93), '8a');
+        expect(RawHadith.standardRef('8.02', 94), '8b');
+        expect(RawHadith.standardRef('9', 98), '9');
+        expect(RawHadith.standardRef('5', 5), ''); // already standard
+        expect(RawHadith.standardRef(7, 7), '');
+        // Sub-narrations under the same number keep the plain number.
+        expect(RawHadith.standardRef(402.2, 402), '');
+        expect(RawHadith.standardRef('3604.02', 3604), '');
+        expect(RawHadith.standardRef(null, 3), '');
+        final h = RawHadith.parse({
+          'hadithnumber': 93,
+          'arabicnumber': '8.01',
+          'text': 'x',
+        });
+        expect(h!.ref, '8a');
+      },
+    );
 
     test('returns null on malformed entries', () {
       expect(RawHadith.parse('nope'), isNull);
@@ -97,6 +119,55 @@ void main() {
       expect(items.first.reference, 'Sahih al-Bukhari 1');
     });
 
+    test('repeated hadith numbers pair by occurrence, not the last one', () {
+      // Upstream shape of e.g. Tirmidhi 815: two narrations share number 815.
+      final items = assembleSection(
+        book: _book(kind: 'graded'),
+        arabic: [r(814, 'ar0'), r(815, 'arA'), r(815, 'arB'), r(816, 'ar2')],
+        translation: [
+          r(814, 'en0'),
+          r(815, 'enA'),
+          r(815, 'enB'),
+          r(816, 'en2'),
+        ],
+        englishFallback: const [],
+        translationIsEnglish: true,
+      );
+      expect(items.map((h) => h.translation), ['en0', 'enA', 'enB', 'en2']);
+    });
+
+    test(
+      'repeated numbers also pair by occurrence in the English fallback',
+      () {
+        final items = assembleSection(
+          book: _book(kind: 'graded'),
+          arabic: [r(7, 'arA'), r(7, 'arB')],
+          translation: const [],
+          englishFallback: [r(7, 'enA'), r(7, 'enB')],
+          translationIsEnglish: false,
+        );
+        expect(items.map((h) => h.translation), ['enA', 'enB']);
+      },
+    );
+
+    test('reference prefers the standard ref over the sequential number', () {
+      final items = assembleSection(
+        book: _book(),
+        arabic: const [
+          RawHadith(number: 93, text: 'ar', grade: '', ref: '8a'),
+          RawHadith(number: 98, text: 'ar', grade: ''),
+        ],
+        translation: [r(93, 'en'), r(98, 'en')],
+        englishFallback: const [],
+        translationIsEnglish: true,
+      );
+      expect(items.map((h) => h.reference), [
+        'Sahih al-Bukhari 8a',
+        'Sahih al-Bukhari 98',
+      ]);
+      expect(items.first.number, 93); // navigation number unchanged
+    });
+
     test('non-English path falls back to English for gaps', () {
       final items = assembleSection(
         book: _book(kind: 'graded'),
@@ -113,6 +184,20 @@ void main() {
       expect(items.first.grade, '');
     });
   });
+
+  test(
+    'edition blob round-trips the standard ref (and omits it when empty)',
+    () {
+      final out = decodeEditionBlob(
+        encodeEditionBlob(const [
+          RawHadith(number: 93, text: 't', grade: 'g', ref: '8a'),
+          RawHadith(number: 98, text: 't', grade: ''),
+        ]),
+      );
+      expect(out.map((h) => h.ref), ['8a', '']);
+      expect(out.map((h) => h.number), [93, 98]);
+    },
+  );
 
   group('assembleBangla', () {
     test('maps fields and defaults the grade for sahih books', () {

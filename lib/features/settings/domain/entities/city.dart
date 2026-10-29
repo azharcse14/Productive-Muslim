@@ -21,7 +21,7 @@ final class City {
   final String timezone;
 
   /// Bengali name for BD places, used for search and as a subtitle.
-  /// Not persisted and not part of equality, so saved cities still match.
+  /// Not part of equality, so cities saved before it existed still match.
   final String? nameBn;
 
   @override

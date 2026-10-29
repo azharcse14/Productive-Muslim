@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_remote_data_source.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 
-const _section = HadithSection(number: 3, name: 'Knowledge', count: 2);
+const _section = HadithSection(number: 3, name: 'Knowledge', first: 1, last: 2, count: 2);
 
 HadithBook _book({String kind = 'graded', bool bangla = false}) => HadithBook(
       id: 'tirmidhi',

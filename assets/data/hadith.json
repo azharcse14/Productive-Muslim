@@ -54,7 +54,7 @@
       "id": "h006",
       "topic": "character",
       "grade": "Hasan",
-      "ar": "مَنْ حَسُنَ إِسْلَامُ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ",
+      "ar": "مِنْ حُسْنِ إِسْلَامِ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ",
       "en": "Part of the excellence of a person's Islam is his leaving that which does not concern him.",
       "bn": "মানুষের ইসলামের সৌন্দর্যের অন্যতম হলো, অনর্থক বিষয় পরিত্যাগ করা।",
       "narrator": "Abu Hurairah (RA)",
@@ -108,7 +108,7 @@
       "en": "Whoever does not show mercy to people, Allah will not show mercy to him.",
       "bn": "যে মানুষের প্রতি দয়া করে না, আল্লাহও তার প্রতি দয়া করেন না।",
       "narrator": "Jarir ibn Abdullah (RA)",
-      "ref": "Sahih Bukhari 7376"
+      "ref": "Sahih Muslim 2319"
     },
     {
       "id": "h012",
@@ -168,7 +168,7 @@
       "en": "Whoever remains silent is saved.",
       "bn": "যে নীরব থাকে, সে নাজাত পায়।",
       "narrator": "Abdullah ibn Amr (RA)",
-      "ref": "Jami at-Tirmidhi 2501"
+      "ref": "Jami at-Tirmidhi 2501 — Tirmidhi: gharib; Sahih per al-Albani"
     },
     {
       "id": "h018",
@@ -226,7 +226,7 @@
       "grade": "Sahih",
       "ar": "الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا",
       "en": "The believer to another believer is like a building whose parts support one another.",
-      "bn": "এক মুমিন অপর মুমিনের জন্য একটি দালালের মতো, যার এক অংশ অপর অংশকে মজবুত করে।",
+      "bn": "এক মুমিন অপর মুমিনের জন্য একটি দালানের মতো, যার এক অংশ অপর অংশকে মজবুত করে।",
       "narrator": "Abu Musa al-Ash'ari (RA)",
       "ref": "Sahih Bukhari 481"
     },
@@ -256,7 +256,7 @@
       "grade": "Sahih",
       "ar": "إِنَّ مِنْ خِيَارِكُمْ أَحْسَنَكُمْ أَخْلَاقًا",
       "en": "Among the best of you are those who have the best character.",
-      "bn": "নিশ্চয়ই তোমাদের মধ্যে সর্বোত্তম সেই, যার চরিত্র সবচেয়ে উত্তম।",
+      "bn": "নিশ্চয়ই তোমাদের মধ্যে সর্বোত্তমদের অন্যতম সেই, যার চরিত্র সবচেয়ে উত্তম।",
       "narrator": "Abdullah ibn Amr (RA)",
       "ref": "Sahih Bukhari 3559"
     },
@@ -308,15 +308,15 @@
       "en": "The best of people are those most beneficial to people.",
       "bn": "সর্বোত্তম মানুষ সেই, যে অন্য মানুষের জন্য সবচেয়ে উপকারী।",
       "narrator": "Jabir ibn Abdullah (RA)",
-      "ref": "Mu'jam al-Awsat 5787"
+      "ref": "Mu'jam al-Awsat 5787 — Hasan per al-Albani (by supporting routes); chain has 'Amr ibn Bakr al-Saksaki (very weak)"
     },
     {
       "id": "h032",
       "topic": "mercy",
       "grade": "Sahih",
-      "ar": "مَنْ تَوَاضَعَ لِلَّهِ رَفَعَهُ اللَّهُ",
-      "en": "Whoever humbles himself for Allah, Allah will raise him.",
-      "bn": "যে ব্যক্তি আল্লাহর জন্য বিনয়ী হয়, আল্লাহ তাকে উঁচু করে দেন।",
+      "ar": "مَا تَوَاضَعَ أَحَدٌ لِلَّهِ إِلَّا رَفَعَهُ اللَّهُ",
+      "en": "No one humbles himself for Allah except that Allah raises him.",
+      "bn": "যে কেউ আল্লাহর জন্য বিনয়ী হয়, আল্লাহ অবশ্যই তাকে উঁচু করে দেন।",
       "narrator": "Abu Hurairah (RA)",
       "ref": "Sahih Muslim 2588"
     },

@@ -25,6 +25,7 @@ abstract final class AppSettingsModel {
         'lat': city.latitude,
         'lng': city.longitude,
         'tz': city.timezone,
+        'nameBn': city.nameBn,
       },
     },
     'prayerParams': {
@@ -132,6 +133,7 @@ abstract final class AppSettingsModel {
           latitude: lat,
           longitude: lng,
           timezone: _as<String>(map['tz']) ?? 'UTC',
+          nameBn: _as<String>(map['nameBn']),
         ),
       ),
       _ => null,

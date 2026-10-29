@@ -25,7 +25,7 @@ void main() {
   int scalar(String sql) =>
       db.select(sql).first.values.first! as int;
 
-  test('schema version matches QuranDatabase.bundledVersion', () {
+  test('schema version is 2', () {
     expect(scalar('PRAGMA user_version'), 2);
   });
 
@@ -50,11 +50,15 @@ void main() {
     );
   });
 
-  test('only 1:1 carries the bismillah; other ayah 1s start with the ayah',
-      () {
+  test('ayah 1 of other surahs does not carry the basmala', () {
+    // 1:1 is the basmala itself; every other ayah 1 must not start with it.
     expect(
-      scalar("SELECT COUNT(*) FROM ayahs WHERE number = 1 AND surah <> 1 "
-          "AND arabic LIKE 'بِسْمِ اللَّهِ%'"),
+      scalar('''
+        SELECT COUNT(*) FROM ayahs
+        WHERE number = 1 AND surah != 1
+          AND instr(arabic, (SELECT arabic FROM ayahs
+                             WHERE surah = 1 AND number = 1)) = 1
+      '''),
       0,
     );
   });

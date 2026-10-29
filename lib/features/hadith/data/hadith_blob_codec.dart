@@ -11,12 +11,18 @@ import 'hadith_section_assembler.dart';
 /// (tool/hadith_db_build.dart) and the runtime data source share this codec so
 /// the on-disk shape can never drift.
 
-/// fawazahmed0 edition section → blob. Keys kept short (`n`/`t`/`g`) to trim
+/// fawazahmed0 edition section → blob. Keys kept short (`n`/`t`/`g`/`r`) to trim
 /// the pre-compression JSON.
 List<int> encodeEditionBlob(List<RawHadith> hadiths) => gzip.encode(
       utf8.encode(
         jsonEncode([
-          for (final h in hadiths) {'n': h.number, 't': h.text, 'g': h.grade},
+          for (final h in hadiths)
+            {
+              'n': h.number,
+              't': h.text,
+              'g': h.grade,
+              if (h.ref.isNotEmpty) 'r': h.ref,
+            },
         ]),
       ),
     );
@@ -33,6 +39,7 @@ List<RawHadith> decodeEditionBlob(List<int> blob) {
           number: (e['n'] as num).toInt(),
           text: e['t'] as String? ?? '',
           grade: e['g'] as String? ?? '',
+          ref: e['r'] as String? ?? '',
         ),
   ];
 }

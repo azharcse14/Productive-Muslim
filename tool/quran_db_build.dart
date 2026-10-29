@@ -228,7 +228,7 @@ void _buildDatabase(
             ++globalId,
             chapter.id,
             number,
-            _withoutBismillah(key, arabic[key]!, arabic[(1, 1)]!),
+            _stripBasmala(chapter.id, number, arabic[key]!),
             english[key],
             bangla[key],
           ]);
@@ -246,16 +246,6 @@ void _buildDatabase(
   }
 }
 
-/// The source prefixes ayah 1 of every surah but 1 and 9 with the bismillah;
-/// it isn't part of that ayah (translations omit it), so the reader shows it
-/// as a header instead.
-String _withoutBismillah((int, int) key, String text, String bismillah) {
-  final (surah, number) = key;
-  return number == 1 && surah != 1 && text.startsWith('$bismillah ')
-      ? text.substring(bismillah.length + 1)
-      : text;
-}
-
 Never _fail(String message) {
   stderr.writeln('ERROR: $message');
   exit(1);
@@ -267,4 +257,13 @@ void _run(String cmd, List<String> args) {
     stderr.writeln(result.stderr);
     throw ProcessException(cmd, args, 'exit ${result.exitCode}');
   }
+}
+
+/// `ara-quransimple` glues the basmala onto ayah 1 of every surah but 1 and 9,
+/// while the translations don't carry it. Strip it so the Arabic matches its
+/// translation; the reader shows the basmala as a surah header instead.
+String _stripBasmala(int surah, int number, String text) {
+  const basmala = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ';
+  if (surah == 1 || number != 1 || !text.startsWith(basmala)) return text;
+  return text.substring(basmala.length);
 }

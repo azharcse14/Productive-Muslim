@@ -59,7 +59,7 @@ const _bukhari = HadithBook(
   editionEn: 'eng-bukhari',
   editionBn: 'ben-bukhari',
   sections: [
-    HadithSection(number: 1, name: 'Revelation', count: 7),
+    HadithSection(number: 1, name: 'Revelation', first: 1, last: 7, count: 7),
   ],
 );
 
@@ -192,7 +192,7 @@ void main() {
           section: HadithSection(
             number: 1,
             name: 'Revelation',
-            count: 7,
+            first: 1, last: 7, count: 7,
           ),
         )),
       );
@@ -206,7 +206,7 @@ void main() {
       final repo = await _register(failSection: true);
       const screen = HadithSectionScreen(
         book: _bukhari,
-        section: HadithSection(number: 1, name: 'Revelation', count: 7),
+        section: HadithSection(number: 1, name: 'Revelation', first: 1, last: 7, count: 7),
       );
       await tester.pumpWidget(_app(screen, locale: const Locale('bn')));
       await tester.pumpAndSettle();

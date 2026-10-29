@@ -21,7 +21,7 @@ final class _SlowRepository implements HadithBookRepository {
       pending.future;
 }
 
-const _section = HadithSection(number: 1, name: 'Revelation', count: 2);
+const _section = HadithSection(number: 1, name: 'Revelation', first: 1, last: 2, count: 2);
 
 const _book = HadithBook(
   id: 'bukhari',
