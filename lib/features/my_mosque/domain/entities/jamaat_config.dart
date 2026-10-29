@@ -3,8 +3,8 @@ import '../../../settings/domain/entities/prayer_params.dart';
 /// Wall-clock time of day, Flutter-free (domain stays pure Dart).
 final class ClockTime {
   const ClockTime(this.hour, this.minute)
-      : assert(hour >= 0 && hour < 24, 'hour out of range'),
-        assert(minute >= 0 && minute < 60, 'minute out of range');
+    : assert(hour >= 0 && hour < 24, 'hour out of range'),
+      assert(minute >= 0 && minute < 60, 'minute out of range');
 
   final int hour;
   final int minute;
@@ -61,24 +61,40 @@ final class NoJamaat extends JamaatEntry {
 /// The active mosque's jamaat times. Phase 5 adds named profiles; the
 /// countdown state machine only needs [timeFor].
 final class JamaatConfig {
-  const JamaatConfig([this.entries = const {}]);
+  const JamaatConfig([this.entries = const {}, this.jumuah]);
 
   static const none = JamaatConfig();
 
   final Map<Prayer, JamaatEntry> entries;
 
+  /// Friday's Jumu'ah jamaat, replacing Dhuhr's entry on Fridays when set.
+  final ClockTime? jumuah;
+
   /// Resolved jamaat moment for [prayer] whose waqt begins at [waqtStart]
   /// (wall clock), or null when not configured.
-  DateTime? timeFor(Prayer prayer, DateTime waqtStart) =>
+  DateTime? timeFor(Prayer prayer, DateTime waqtStart) => switch (jumuah) {
+    final j?
+        when prayer == Prayer.dhuhr && waqtStart.weekday == DateTime.friday =>
+      DateTime(
+        waqtStart.year,
+        waqtStart.month,
+        waqtStart.day,
+        j.hour,
+        j.minute,
+      ),
+    _ => _entryTime(prayer, waqtStart),
+  };
+
+  DateTime? _entryTime(Prayer prayer, DateTime waqtStart) =>
       switch (entries[prayer]) {
         null || NoJamaat() => null,
         FixedJamaat(:final time) => DateTime(
-            waqtStart.year,
-            waqtStart.month,
-            waqtStart.day,
-            time.hour,
-            time.minute,
-          ),
+          waqtStart.year,
+          waqtStart.month,
+          waqtStart.day,
+          time.hour,
+          time.minute,
+        ),
         OffsetJamaat(:final offset) => waqtStart.add(offset),
       };
 }

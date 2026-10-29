@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart' show AppLifecycleListener;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../domain/entities/daily_entry.dart';
@@ -19,12 +20,24 @@ final class MuhasabaStore {
     DateTime Function()? now,
     Set<String> Function(DateTime date)? lockedSalahOn,
     Duration statsDebounce = const Duration(milliseconds: 300),
-  }) : _now = now ?? DateTime.now,
+    SharedPreferencesAsync? prefs,
+  }) : _prefs = prefs,
+       _now = now ?? DateTime.now,
        _lockedSalahOn = lockedSalahOn,
        _statsDebounce = statsDebounce;
 
   final MuhasabaRepository _repository;
   final DateTime Function() _now;
+
+  /// Persists the welcome-banner dismissal; null (tests) = session only.
+  final SharedPreferencesAsync? _prefs;
+  static const _welcomeKey = 'muhasaba_welcome_dismissed';
+
+  /// The welcome banner was dismissed (persisted across launches).
+  late final welcomeDismissed = signal(false);
+
+  /// Bumped each time an entry fails to save (the UI says so once per bump).
+  late final saveFailures = signal(0);
 
   /// Trailing delay before [setValue] recomputes the dashboard: a burst of
   /// stepper taps costs one stats pass (and one achievements refresh), not
@@ -94,6 +107,9 @@ final class MuhasabaStore {
   }
 
   Future<void> load() async {
+    if (await _prefs?.getBool(_welcomeKey) ?? false) {
+      welcomeDismissed.value = true;
+    }
     await _repository.seedDefaultsIfEmpty();
     await _reloadItems();
     _day = _today();
@@ -221,6 +237,7 @@ final class MuhasabaStore {
       if ((entriesOn(day)[itemId] ?? 0) == clamped) {
         _put(day, itemId, previous);
       }
+      saveFailures.value++;
       return;
     }
     if (debounceStats && _statsDebounce > Duration.zero) {
@@ -358,6 +375,28 @@ final class MuhasabaStore {
     // A target change flips done-days, so the dashboard must follow.
     await refreshStats();
     return true;
+  }
+
+  /// Hides the welcome banner for good.
+  Future<void> dismissWelcome() async {
+    welcomeDismissed.value = true;
+    await _prefs?.setBool(_welcomeKey, true);
+  }
+
+  /// New checklist order for the active items ([ids] = all active ids).
+  Future<void> reorder(List<String> ids) async {
+    final byId = {for (final i in items.value) i.id: i};
+    // Optimistic: the list moves under the finger, then persists.
+    items.value = [
+      for (final (i, id) in ids.indexed)
+        if (byId[id] case final item?) item.copyWith(sortOrder: i),
+    ];
+    // Archived items keep trailing slots so a restore lands at the end.
+    await _repository.reorder([
+      ...ids,
+      for (final a in archivedItems.value) a.id,
+    ]);
+    await _reloadItems();
   }
 
   /// False when the change couldn't be saved.

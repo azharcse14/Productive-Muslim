@@ -41,7 +41,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pages = PageController();
   int _step = 0;
 
-  static const _stepCount = 5;
+  static const _stepCount = 6;
 
   @override
   void dispose() {
@@ -77,7 +77,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
         SnackBar(content: Text(context.l10n.onboardingNotifDenied)),
       );
     }
-    await _finish();
+    _go(_step + 1);
   }
 
   Future<void> _finish() async {
@@ -196,6 +196,13 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                     ),
+                    // A rerun can be left from any step (each one saves).
+                    if (widget.rerun && _step > 0)
+                      IconButton(
+                        tooltip: materialL10n.closeButtonTooltip,
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                   ],
                 ),
               ),
@@ -209,6 +216,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                     _madhab(),
                     _method(),
                     _notifications(),
+                    _bismillah(),
                   ],
                 ),
               ),
@@ -220,7 +228,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _frame({
-    required String title,
+    required String? title,
     String? note,
     required Widget child,
     required Widget actions,
@@ -236,12 +244,13 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           Expanded(
             child: CustomScrollView(
               slivers: [
-                SliverToBoxAdapter(
-                  child: Text(
-                    title,
-                    style: QType.headline.copyWith(color: q.ink),
+                if (title != null)
+                  SliverToBoxAdapter(
+                    child: Text(
+                      title,
+                      style: QType.headline.copyWith(color: q.ink),
+                    ),
                   ),
-                ),
                 if (note != null)
                   SliverPadding(
                     padding: const EdgeInsets.only(top: QSpace.s2),
@@ -361,10 +370,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     note: context.l10n.onboardingMadhabNote,
     child: SignalBuilder(
       builder: (context) {
-        final current = _settings.prayerParams.value.madhab;
+        final current = asrMadhabOf(_settings.prayerParams.value.madhab);
         return Column(
           children: [
-            for (final madhab in Madhab.values)
+            for (final madhab in asrMadhabChoices)
               QListRow(
                 icon: Icons.balance_outlined,
                 title: context.l10n.madhabLabel(madhab),
@@ -373,7 +382,10 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                     : null,
                 onTap: () {
                   _madhabChosen = true;
-                  unawaited(_settings.setMadhab(madhab));
+                  // "Standard" keeps a stored maliki/hanbali as is.
+                  if (madhab != current) {
+                    unawaited(_settings.setMadhab(madhab));
+                  }
                 },
               ),
           ],
@@ -403,6 +415,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
               QListRow(
                 icon: Icons.functions_outlined,
                 title: context.l10n.methodLabel(method),
+                subtitle: method == suggested
+                    ? context.l10n.methodSuggested
+                    : null,
                 trailing: current == method
                     ? Icon(Icons.check_circle, color: context.q.primary)
                     : null,
@@ -439,9 +454,53 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           label: context.l10n.onboardingNotifSkip,
           kind: QButtonKind.ghost,
           expand: true,
-          onPressed: () => unawaited(_finish()),
+          onPressed: () => _go(_step + 1),
         ),
       ],
+    ),
+  );
+
+  /// Design §4.2.7: a brief "Bismillah" moment before Home.
+  Widget _bismillah() => _frame(
+    title: null,
+    child: Center(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: _step == _stepCount - 1 ? 1 : 0),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : QMotion.slow,
+        curve: QMotion.ease,
+        builder: (context, t, child) => Opacity(
+          opacity: t,
+          child: Transform.scale(scale: 0.9 + 0.1 * t, child: child),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QalbMark(
+              size: 120,
+              color: context.q.primary,
+              accent: context.q.primary,
+            ),
+            const SizedBox(height: QSpace.s6),
+            Text(
+              context.l10n.onboardingFinishTitle,
+              textAlign: TextAlign.center,
+              style: QType.headline.copyWith(color: context.q.ink),
+            ),
+            const SizedBox(height: QSpace.s3),
+            Text(
+              context.l10n.onboardingFinishBody,
+              textAlign: TextAlign.center,
+              style: QType.body.copyWith(color: context.q.ink2),
+            ),
+          ],
+        ),
+      ),
+    ),
+    actions: _nextButton(
+      label: context.l10n.onboardingBegin,
+      onTap: () => unawaited(_finish()),
     ),
   );
 }

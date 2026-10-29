@@ -164,6 +164,7 @@ Future<void> setupLocator() async {
         locator(),
         lockedSalahOn: _lockedSalahOn,
         now: _wallNow,
+        prefs: SharedPreferencesAsync(),
       ),
     );
 

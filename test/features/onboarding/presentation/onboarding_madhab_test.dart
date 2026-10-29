@@ -100,4 +100,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.method, CalculationMethodId.egyptian);
   });
+
+  testWidgets('two Asr choices; skipping notifications reaches Bismillah', (
+    tester,
+  ) async {
+    await _pumpToLocationStep(tester);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Standard (Shafiʿi, Maliki, Hanbali)'), findsOneWidget);
+    expect(find.text('Maliki'), findsNothing);
+    await tester.tap(find.text('Next').hitTestable()); // madhab
+    await tester.pumpAndSettle();
+    expect(find.text('Suggested for your region'), findsOneWidget);
+    await tester.tap(find.text('Next').hitTestable()); // method
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Maybe later').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Bismillah'), findsOneWidget);
+    expect(find.text('Begin'), findsOneWidget);
+  });
 }

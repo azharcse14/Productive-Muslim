@@ -68,10 +68,14 @@ CountdownTarget resolveCountdownTarget({
 
 /// Visual urgency for the countdown card (design: calm → amber when
 /// jamaat ≤ [jamaatSoon] → urgent in the last [waqtEnding] of the waqt;
-/// Ramadan targets carry their own states).
+/// Ramadan targets carry their own states). Once the target's prayer is
+/// [prayed] there is nothing left to rush: calm. Inside a [forbidden]
+/// (makruh) window the card warns: urgent.
 CountdownUrgency countdownUrgencyFor({
   required DateTime now,
   required CountdownTarget target,
+  bool prayed = false,
+  bool forbidden = false,
   Duration jamaatSoon = const Duration(minutes: 10),
   Duration waqtEnding = const Duration(minutes: 20),
   DateTime Function(DateTime)? instantOf,
@@ -80,6 +84,8 @@ CountdownUrgency countdownUrgencyFor({
   return switch (target.kind) {
     CountdownKind.sahriEnd => CountdownUrgency.sahri,
     CountdownKind.iftar => CountdownUrgency.iftar,
+    _ when prayed => CountdownUrgency.calm,
+    _ when forbidden => CountdownUrgency.urgent,
     CountdownKind.jamaat when remaining <= jamaatSoon => CountdownUrgency.amber,
     CountdownKind.waqtEnd when remaining <= waqtEnding =>
       CountdownUrgency.urgent,

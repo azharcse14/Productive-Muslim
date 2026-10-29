@@ -12,11 +12,13 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_step_button.dart';
+import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
 import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
+import '../../domain/usecases/regional_defaults.dart';
 import '../state/settings_store.dart';
 import '../widgets/option_sheet.dart';
 import '../widgets/setting_labels.dart';
@@ -33,6 +35,36 @@ final class SettingsScreen extends StatefulWidget {
 
 final class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsStore _store = locator<SettingsStore>();
+
+  /// Null until known (or when no scheduler is registered, e.g. tests).
+  final _notifPermission = signal<NotificationPermission?>(null);
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Re-check on return from system settings.
+    _lifecycle = AppLifecycleListener(
+      onResume: () => unawaited(_refreshPermission()),
+    );
+    unawaited(_refreshPermission());
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refreshPermission() async {
+    if (!locator.isRegistered<NotificationScheduler>()) {
+      return;
+    }
+    final status = await locator<NotificationScheduler>().permissionStatus();
+    if (mounted) {
+      _notifPermission.value = status;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +146,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const Divider(),
                     QListRow(
-                      icon: Icons.nightlight_outlined,
+                      icon: Icons.calendar_month_outlined,
                       title: l10n.settingHijriOffset,
                       subtitle: l10n.settingHijriOffsetSub,
                       trailing: _AdjustmentStepper(
@@ -142,6 +174,12 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                 child: QListRow(
                   icon: Icons.notifications_outlined,
                   title: l10n.notifSettingsTitle,
+                  subtitle:
+                      _notifPermission.value == null ||
+                          _notifPermission.value ==
+                              NotificationPermission.granted
+                      ? null
+                      : l10n.notifOffInSystem,
                   trailing: Icon(Icons.chevron_right, color: q.ink3),
                   onTap: () =>
                       context.pushNamed(Routes.notificationSettings.name),
@@ -293,24 +331,27 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     final choice = await showOptionSheet(
       context: context,
       title: l10n.settingMadhab,
-      options: Madhab.values,
-      selected: current,
+      options: asrMadhabChoices,
+      selected: asrMadhabOf(current),
       labelOf: l10n.madhabLabel,
       sublabelOf: (_) => l10n.madhabExplain,
     );
-    if (choice != null) {
+    // Re-picking "Standard" keeps a stored maliki/hanbali as is.
+    if (choice != null && choice != asrMadhabOf(current)) {
       await _store.setMadhab(choice);
     }
   }
 
   Future<void> _pickMethod(CalculationMethodId current) async {
     final l10n = context.l10n;
+    final suggested = suggestedMethodFor(countryCodeOf(_store.location.value));
     final choice = await showOptionSheet(
       context: context,
       title: l10n.settingMethod,
       options: CalculationMethodId.values,
       selected: current,
       labelOf: l10n.methodLabel,
+      sublabelOf: (m) => m == suggested ? l10n.methodSuggested : null,
     );
     if (choice != null) {
       await _store.setMethod(choice);
@@ -401,7 +442,8 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     await showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) => SafeArea(
-        child: Padding(
+        // Scrolls on short screens / large text instead of overflowing.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(QSpace.s5),
           child: SignalBuilder(
             builder: (context) {
@@ -426,6 +468,16 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                               l10n.prayerLabel(prayer),
                               style: QType.titleSm.copyWith(color: q.ink),
                             ),
+                          ),
+                          IconButton(
+                            tooltip: l10n.adjustmentReset(
+                              l10n.prayerLabel(prayer),
+                            ),
+                            icon: const Icon(Icons.restart_alt),
+                            color: q.ink2,
+                            onPressed: params.adjustmentFor(prayer) == 0
+                                ? null
+                                : () => _store.setAdjustment(prayer, 0),
                           ),
                           _AdjustmentStepper(
                             value: params.adjustmentFor(prayer),
@@ -504,8 +556,9 @@ final class _AdjustmentStepper extends StatelessWidget {
             semanticLabel: l10n.a11yDecrease(label),
             onTap: value > min ? () => onChanged(value - 1) : null,
           ),
-          SizedBox(
-            width: format == null ? 56 : 72,
+          // Grows with long values / large text instead of clipping.
+          ConstrainedBox(
+            constraints: BoxConstraints(minWidth: format == null ? 56 : 72),
             child: Text(
               format?.call(value) ?? l10n.minutesShort(value),
               textAlign: TextAlign.center,

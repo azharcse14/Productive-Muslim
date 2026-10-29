@@ -126,6 +126,8 @@ void main() {
       final sahri =
           plan.where((i) => i.kind == NotificationKind.sahriWarning).first;
       expect(sahri.at, DateTime(2026, 3, 12, 3, 10)); // 3:45 − 5 − 30
+      // The text announces sahri end, not the reminder's own time.
+      expect(sahri.eventAt, DateTime(2026, 3, 12, 3, 40));
     });
 
     test('sahri toggle off removes warnings', () {
@@ -196,7 +198,7 @@ void main() {
       final reminders =
           plan.where((i) => i.kind == NotificationKind.jamaat).toList();
       expect(reminders.first.at, DateTime(2026, 3, 12, 13)); // 15 min lead
-      // The body shows the jamaat time, not when the reminder fires.
+      // The text announces the jamaat itself.
       expect(reminders.first.eventAt, DateTime(2026, 3, 12, 13, 15));
       expect(reminders.length, 2); // day 12 + 13
     });

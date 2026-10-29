@@ -66,6 +66,13 @@ final class _LockScreenState extends State<LockScreen> {
         });
       });
     }
+    if (widget.mode == LockScreenMode.setup) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          unawaited(_warnIfNoDeviceLock());
+        }
+      });
+    }
     if (widget.mode != LockScreenMode.setup) {
       _syncCooldownTicker();
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -131,6 +138,36 @@ final class _LockScreenState extends State<LockScreen> {
     );
   }
 
+  /// Without a device screen lock "Forgot PIN?" can't work: say so before
+  /// a PIN is set, and leave unless the user acknowledges it.
+  Future<void> _warnIfNoDeviceLock() async {
+    if (await _store.canUseDeviceLock() || !mounted) {
+      return;
+    }
+    final l10n = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.appLockSetupNoDeviceLockTitle),
+        content: Text(l10n.appLockSetupNoDeviceLockBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.appLockSetupNoDeviceLockAck),
+          ),
+        ],
+      ),
+    );
+    if (!(ok ?? false) && mounted) {
+      Navigator.of(context).pop(false);
+    }
+  }
+
   Future<void> _forgotPin() async {
     final l10n = context.l10n;
     final result = await _store.authenticateForPinReset(
@@ -157,7 +194,9 @@ final class _LockScreenState extends State<LockScreen> {
           ),
         );
       case PinResetAuth.failed:
-        break;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.appLockResetFailed)));
     }
   }
 
@@ -219,9 +258,13 @@ final class _LockScreenState extends State<LockScreen> {
           _verified();
         } else if (mounted) {
           Haptics.heavy();
+          // From the third miss, warn how many tries remain before a wait.
+          final left = _store.attemptsBeforeCooldown;
           setState(() {
             _entered = '';
-            _error = l10n.appLockWrongPin;
+            _error = left > 0 && left <= AppLockStore.freeAttempts - 3
+                ? l10n.appLockAttemptsLeft(left)
+                : l10n.appLockWrongPin;
           });
           _syncCooldownTicker();
         }

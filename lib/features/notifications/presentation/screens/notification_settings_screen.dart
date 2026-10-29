@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -180,6 +181,7 @@ final class _NotificationSettingsScreenState
                           ),
                           Expanded(
                             child: QSegControl(
+                              semanticsPrefix: l10n.prayerLabel(prayer),
                               options: [
                                 l10n.azanModeAzan,
                                 l10n.azanModeBeep,
@@ -345,6 +347,58 @@ final class _NotificationSettingsScreenState
                           ),
                         ),
                       ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.today_outlined,
+                      title: l10n.notifDailyToggle,
+                      subtitle: l10n.notifDailyToggleSub,
+                      trailing: Switch(
+                        value: matrix.dailyReminder,
+                        onChanged: (v) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyReminder: v),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (matrix.dailyReminder) ...[
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 52,
+                          bottom: QSpace.s2,
+                        ),
+                        child: QSegControl(
+                          options: [
+                            l10n.notifDailyKindHadith,
+                            l10n.notifDailyKindDua,
+                          ],
+                          activeIndex:
+                              matrix.dailyReminderKind == DailyContentKind.dua
+                              ? 1
+                              : 0,
+                          onChanged: (i) => unawaited(
+                            _store.setNotifications(
+                              matrix.copyWith(
+                                dailyReminderKind: i == 1
+                                    ? DailyContentKind.dua
+                                    : DailyContentKind.hadith,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      _TimeRow(
+                        label: l10n.notifDailyTimeLabel,
+                        minuteOfDay: matrix.dailyReminderMinute,
+                        formatMinuteOfDay: (m) =>
+                            _formatMinuteOfDay(context, m),
+                        onChanged: (m) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyReminderMinute: m),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -357,13 +411,16 @@ final class _NotificationSettingsScreenState
                 tone: q.surface2,
                 foreground: q.ink2,
               ),
-              const SizedBox(height: QSpace.s2),
-              QBanner(
-                text: l10n.notifBatteryHint,
-                icon: Icons.battery_saver_outlined,
-                tone: q.surface2,
-                foreground: q.ink2,
-              ),
+              // Battery optimization is an Android-only setting.
+              if (defaultTargetPlatform == TargetPlatform.android) ...[
+                const SizedBox(height: QSpace.s2),
+                QBanner(
+                  text: l10n.notifBatteryHint,
+                  icon: Icons.battery_saver_outlined,
+                  tone: q.surface2,
+                  foreground: q.ink2,
+                ),
+              ],
               const SizedBox(height: QSpace.s10),
             ],
           );

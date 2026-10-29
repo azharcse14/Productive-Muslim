@@ -269,7 +269,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                           selected: _filter == c,
                           onTap: () =>
                               setState(() => _filter = _filter == c ? null : c),
-                          onLongPress: () => _showBudgetDialog(
+                          onEditBudget: () => _showBudgetDialog(
                             context,
                             title: l10n.expenseCategoryBudgetTitle(c.name),
                             current: categoryBudgets[c],
@@ -288,10 +288,26 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
                 if (items.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(QSpace.s5),
-                    child: Text(
-                      l10n.expenseEmpty,
-                      textAlign: TextAlign.center,
-                      style: QType.body.copyWith(color: q.ink2),
+                    child: Column(
+                      children: [
+                        Text(
+                          _filter == null
+                              ? l10n.expenseEmpty
+                              : l10n.expenseFilterEmpty(
+                                  l10n.expenseCategory(_filter!.name),
+                                ),
+                          textAlign: TextAlign.center,
+                          style: QType.body.copyWith(color: q.ink2),
+                        ),
+                        if (_filter != null) ...[
+                          const SizedBox(height: QSpace.s3),
+                          QChip(
+                            label: l10n.expenseShowAll,
+                            icon: Icons.filter_alt_off_outlined,
+                            onTap: () => setState(() => _filter = null),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 for (final (i, e) in items.indexed) ...[
@@ -444,7 +460,7 @@ final class _CategoryRow extends StatelessWidget {
     required this.format,
     required this.selected,
     required this.onTap,
-    required this.onLongPress,
+    required this.onEditBudget,
   });
 
   final ExpenseCategory category;
@@ -454,7 +470,9 @@ final class _CategoryRow extends StatelessWidget {
   final String Function(int) format;
   final bool selected;
   final VoidCallback onTap;
-  final VoidCallback onLongPress;
+
+  /// Opens the budget dialog: the pencil button, or a long press.
+  final VoidCallback onEditBudget;
 
   @override
   Widget build(BuildContext context) {
@@ -467,51 +485,83 @@ final class _CategoryRow extends StatelessWidget {
       selected: selected,
       child: InkWell(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPress: onEditBudget,
         borderRadius: BorderRadius.circular(QRadius.sm),
         child: Ink(
           decoration: BoxDecoration(
             color: selected ? q.primarySoft : null,
             borderRadius: BorderRadius.circular(QRadius.sm),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: QSpace.s2,
-            vertical: QSpace.s2,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // The pencil spans both lines, so its 48dp target adds no height.
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(_icons[category], size: 18, color: q.ink2),
-                  const SizedBox(width: QSpace.s2),
-                  Expanded(
-                    child: Text(
-                      l10n.expenseCategory(category.name),
-                      style: QType.body.copyWith(color: q.ink),
-                    ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    QSpace.s2,
+                    QSpace.s2,
+                    0,
+                    QSpace.s2,
                   ),
-                  Text(
-                    b == null
-                        ? format(spent)
-                        : '${format(spent)} / ${format(b)}',
-                    style: QType.label.copyWith(color: over ? q.urgent : q.ink),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(_icons[category], size: 18, color: q.ink2),
+                          const SizedBox(width: QSpace.s2),
+                          Expanded(
+                            child: Text(
+                              l10n.expenseCategory(category.name),
+                              style: QType.body.copyWith(color: q.ink),
+                            ),
+                          ),
+                          // Not color alone: an icon and word mark the overrun too.
+                          if (over) ...[
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              size: 16,
+                              color: q.urgent,
+                            ),
+                            const SizedBox(width: QSpace.s1),
+                            Text(
+                              l10n.expenseCategoryOver,
+                              style: QType.label.copyWith(color: q.urgent),
+                            ),
+                            const SizedBox(width: QSpace.s2),
+                          ],
+                          Text(
+                            b == null
+                                ? format(spent)
+                                : '${format(spent)} / ${format(b)}',
+                            style: QType.label.copyWith(
+                              color: over ? q.urgent : q.ink,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: QSpace.s1),
+                      LinearProgressIndicator(
+                        value: b != null
+                            ? (spent / b).clamp(0, 1).toDouble()
+                            : monthTotal == 0
+                            ? 0
+                            : spent / monthTotal,
+                        color: over
+                            ? q.urgent
+                            : isGoal
+                            ? q.accent
+                            : q.primary,
+                        backgroundColor: q.line,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: QSpace.s1),
-              LinearProgressIndicator(
-                value: b != null
-                    ? (spent / b).clamp(0, 1).toDouble()
-                    : monthTotal == 0
-                    ? 0
-                    : spent / monthTotal,
-                color: over
-                    ? q.urgent
-                    : isGoal
-                    ? q.accent
-                    : q.primary,
-                backgroundColor: q.line,
+              IconButton(
+                tooltip: l10n.expenseCategoryBudgetTitle(category.name),
+                icon: Icon(Icons.edit_outlined, size: 18, color: q.ink2),
+                onPressed: onEditBudget,
               ),
             ],
           ),
@@ -595,7 +645,7 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
         autofocus: true,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
-          hintText: l10n.expenseAmountHint,
+          labelText: l10n.expenseAmountHint,
           errorText: invalid ? l10n.expenseAmountInvalid : null,
         ),
         onChanged: (_) => setState(() {}),
@@ -607,11 +657,13 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
             child: Text(l10n.expenseBudgetClear),
           ),
         TextButton(
-          onPressed: () {
-            final v = ExpenseStore.parseAmount(_controller.text);
-            if (v != null) {
-              _save(v);
-            }
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: switch (ExpenseStore.parseAmount(_controller.text)) {
+            final v? => () => _save(v),
+            null => null,
           },
           child: Text(l10n.expenseSave),
         ),
@@ -791,7 +843,7 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
                 autofocus: widget.existing == null,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: l10n.expenseAmountHint,
+                  labelText: l10n.expenseAmountHint,
                   errorText: _amount.text.trim().isNotEmpty && _parsed == null
                       ? l10n.expenseAmountInvalid
                       : null,
@@ -801,7 +853,7 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
               const SizedBox(height: QSpace.s3),
               TextField(
                 controller: _note,
-                decoration: InputDecoration(hintText: l10n.expenseNoteHint),
+                decoration: InputDecoration(labelText: l10n.expenseNoteHint),
                 onChanged: (_) => setState(() {}),
               ),
               if (_suggestions case final picks when picks.isNotEmpty) ...[

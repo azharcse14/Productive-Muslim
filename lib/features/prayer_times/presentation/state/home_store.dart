@@ -137,6 +137,21 @@ final class HomeStore {
       offsetDays: _settings.settings.value.hijriOffsetDays,
     ),
   );
+
+  /// The Islamic day begins at Maghrib: from then until midnight the Home
+  /// header shows tomorrow's Hijri date (null otherwise). [hijriDate], which
+  /// drives Ramadan mode and the calendar, stays midnight-based.
+  late final hijriAfterMaghrib = computed<HijriDate?>(() {
+    final day = prayerDay.value;
+    if (day == null || now.value.isBefore(day.maghrib)) {
+      return null;
+    }
+    final d = dateKey.value;
+    return HijriDate.fromGregorian(
+      DateTime(d.year, d.month, d.day + 1),
+      offsetDays: _settings.settings.value.hijriOffsetDays,
+    );
+  });
   late final banglaDate = computed(
     () => BanglaDate.fromGregorian(dateKey.value),
   );
@@ -196,18 +211,6 @@ final class HomeStore {
       day: day,
       jamaat: jamaatConfig.value,
       ramadanMode: ramadanMode.value,
-    );
-  });
-
-  late final urgency = computed<CountdownUrgency>(() {
-    final target = countdownTarget.value;
-    if (target == null) {
-      return CountdownUrgency.calm;
-    }
-    return countdownUrgencyFor(
-      now: now.value,
-      target: target,
-      instantOf: _instantOf.value,
     );
   });
 
@@ -288,14 +291,31 @@ final class HomeStore {
 
   /// The special window the clock is currently inside, or null. A value
   /// type, so it only flips at a window boundary (no per-second rebuild).
-  late final activeSpecial = computed<SpecialTime?>(() {
+  late final activeSpecial = computed<SpecialWindow?>(() {
     final n = now.value;
     for (final w in specialWindows.value) {
       if (w.containsAt(n)) {
-        return w.time;
+        return w;
       }
     }
     return null;
+  });
+
+  /// The window to surface on Home: the one running now, else the next to
+  /// start today. Flips only at a window boundary.
+  late final currentOrNextSpecial = computed<SpecialWindow?>(() {
+    if (activeSpecial.value case final active?) {
+      return active;
+    }
+    final n = now.value;
+    SpecialWindow? next;
+    for (final w in specialWindows.value) {
+      if (w.start.isAfter(n) &&
+          (next == null || w.start.isBefore(next.start))) {
+        next = w;
+      }
+    }
+    return next;
   });
 
   /// Per-second values, isolated so only the hero numeral subtree ticks.
@@ -310,16 +330,16 @@ final class HomeStore {
     // ponytail: a city wall time inside the device's spring-forward gap is
     // still shifted an hour at construction; wall times would need their
     // own zone-free type to fix that.
-    final r = target.remainingAt(now.value, _instantOf.value);
+    final r = target.remainingAt(now.value, instantOf.value);
     return r.isNegative ? Duration.zero : r;
   });
 
   late final progress = computed(
-    () => countdownTarget.value?.progressAt(now.value, _instantOf.value) ?? 0.0,
+    () => countdownTarget.value?.progressAt(now.value, instantOf.value) ?? 0.0,
   );
 
   /// Wall time → real instant at the location (null until setup).
-  late final _instantOf = computed<DateTime Function(DateTime)?>(() {
+  late final instantOf = computed<DateTime Function(DateTime)?>(() {
     final loc = location.value;
     return loc == null ? null : (wall) => _clock.utcInstantOf(loc, wall);
   });

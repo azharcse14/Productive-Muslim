@@ -27,9 +27,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabMore => 'More';
 
   @override
-  String get comingSoon => 'Coming soon';
-
-  @override
   String get galleryTitle => 'Widget Gallery';
 
   @override
@@ -76,6 +73,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingAdjustmentsSub => 'Fine-tune each prayer ±minutes';
+
+  @override
+  String adjustmentReset(String prayer) {
+    return 'Reset $prayer to 0';
+  }
 
   @override
   String get settingHighLat => 'High-latitude rule';
@@ -164,6 +166,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get madhabHanbali => 'Hanbali';
 
   @override
+  String get madhabStandard => 'Standard (Shafiʿi, Maliki, Hanbali)';
+
+  @override
   String get madhabExplain => 'Affects Asr time only';
 
   @override
@@ -212,10 +217,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodTehran => 'Tehran (IGUT)';
 
   @override
+  String get methodSuggested => 'Suggested for your region';
+
+  @override
   String get prayerFajr => 'Fajr';
 
   @override
   String get prayerDhuhr => 'Dhuhr';
+
+  @override
+  String get prayerJumuah => 'Jumu\'ah';
 
   @override
   String get prayerAsr => 'Asr';
@@ -265,6 +276,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationCurrent => 'Current location';
 
   @override
+  String locationRegionalTitle(String country) {
+    return 'Use the suggested method for $country?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · Asr: $madhab. You can change these anytime in Settings.';
+  }
+
+  @override
+  String get locationRegionalKeep => 'Keep current';
+
+  @override
+  String get locationRegionalUse => 'Use suggested';
+
+  @override
+  String locationUpdatedTo(String place) {
+    return 'Location updated to $place';
+  }
+
+  @override
   String get searchNoResults => 'No matching city — try a different spelling';
 
   @override
@@ -296,6 +328,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get countdownIftarIn => 'Iftar in';
 
   @override
+  String countdownForbiddenUntil(String time) {
+    return 'Forbidden time until $time';
+  }
+
+  @override
+  String a11yHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String a11yMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String subEndsAt(String time) {
     return 'Ends at $time';
   }
@@ -309,6 +368,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jamaatLabel => 'Jamaat';
 
   @override
+  String get prayerTableTime => 'Time';
+
+  @override
   String get sunriseLabel => 'Sunrise';
 
   @override
@@ -316,6 +378,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sahriEndsLabel => 'Sahri ends';
+
+  @override
+  String get sahriEndsTonightLabel => 'Sahri ends tonight';
 
   @override
   String get iftarLabel => 'Iftar';
@@ -347,6 +412,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get specialNow => 'Now';
 
   @override
+  String get specialNext => 'Next';
+
+  @override
   String get specialTimeForbiddenSunrise => 'After sunrise';
 
   @override
@@ -372,7 +440,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'No salah may be offered in these three moments.';
+      'Avoid voluntary prayers in these windows. A missed fard (e.g. today\'s Asr) may still be prayed.';
 
   @override
   String get naflTimesSubtitle => 'Best times for voluntary (nafl) prayers.';
@@ -535,6 +603,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String hijriFromMaghrib(String date) {
+    return '$date (from Maghrib)';
+  }
+
+  @override
   String banglaMonthName(String month) {
     String _temp0 = intl.Intl.selectLogic(month, {
       'm1': 'Boishakh',
@@ -630,6 +703,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifSettingsTitle => 'Notifications';
 
   @override
+  String get notifOffInSystem => 'Off in system settings';
+
+  @override
   String get notifPermissionDeniedBanner =>
       'Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.';
 
@@ -697,7 +773,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'Daily morning Quran verse reminder (8:00 AM)';
+      'A Quran verse to reflect on, at your time';
 
   @override
   String get notifDailyAyahTitle => 'Ayah of the Day';
@@ -710,7 +786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'Daily evening Hadith reminder (6:00 PM)';
+      'A hadith to read each day, at your time';
 
   @override
   String get notifDailyKindHadith => 'Hadith';
@@ -743,6 +819,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'All scheduled notifications and reminders will appear here.';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'Set your location so prayer alerts and reminders can be scheduled.';
+
+  @override
+  String get notificationsOffSub =>
+      'Notifications are off, so nothing will be delivered. Enable them to get azan and reminders.';
 
   @override
   String get headerDailyAyahHadith => 'Today\'s Ayah & Hadith';
@@ -797,6 +881,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String jamaatPreviewToday(String time) {
+    return '→ $time today';
+  }
+
+  @override
+  String jamaatOutsideWaqt(String prayer, String range) {
+    return 'Outside today\'s $prayer time ($range)';
+  }
+
+  @override
+  String get jumuahJamaatHint => 'Used instead of Dhuhr\'s jamaat on Fridays';
+
+  @override
+  String get jumuahClear => 'Remove Jumu\'ah time';
+
+  @override
   String get pickTime => 'Pick time';
 
   @override
@@ -845,6 +945,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qiblaFinding => 'Finding direction…';
 
   @override
+  String qiblaTurnRight(String degrees) {
+    return 'Turn $degrees° right';
+  }
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'Turn $degrees° left';
+  }
+
+  @override
   String get qiblaNeedsLocation =>
       'Set your location to find the qibla direction';
 
@@ -856,6 +966,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get muhasabaDayComplete => 'Every deed done today — alhamdulillah';
+
+  @override
+  String get muhasabaDayCompletePast =>
+      'Every deed done that day — alhamdulillah';
 
   @override
   String get muhasabaFirstDayBody =>
@@ -886,6 +1000,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTracker => 'Add item';
 
   @override
+  String get reorderTrackers => 'Reorder items';
+
+  @override
+  String get reorderTrackersHint => 'Drag to set the order of your checklist';
+
+  @override
   String get editTracker => 'Edit item';
 
   @override
@@ -893,6 +1013,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackerKindLabel => 'Type';
+
+  @override
+  String get trackerKindLocked =>
+      'The type can\'t be changed after an item is created.';
 
   @override
   String get kindYesNo => 'Yes / No';
@@ -965,6 +1089,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get streakStartToday => 'Start a streak today';
+
+  @override
   String bestStreakLabel(int count) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
@@ -1014,6 +1141,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyRange => 'No entries in this range yet';
 
   @override
+  String heatmapDaysComplete(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$doneString of $totalString days complete';
+  }
+
+  @override
   String minutesValue(int count) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
@@ -1030,6 +1170,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchSurahHint => 'Search surah…';
+
+  @override
+  String get surahSearchNoResults =>
+      'No matching surah — try another name or number';
 
   @override
   String get continueReading => 'Continue reading';
@@ -1072,6 +1216,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextDay => 'Next day';
 
   @override
+  String get chooseDate => 'Choose a date';
+
+  @override
+  String get goToToday => 'Go to today';
+
+  @override
   String get quranLoadError =>
       'Couldn\'t open the Quran text. Please try again.';
 
@@ -1090,6 +1240,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookmarksEmpty =>
       'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.';
+
+  @override
+  String get bookmarkRemoved => 'Bookmark removed';
+
+  @override
+  String get bookmarkUndo => 'Undo';
+
+  @override
+  String get goToAyah => 'Go to ayah';
+
+  @override
+  String goToAyahHint(String max) {
+    return 'Ayah 1–$max';
+  }
+
+  @override
+  String get goToAction => 'Go';
+
+  @override
+  String get nextSurah => 'Next surah';
 
   @override
   String get bookmarkLabel => 'Bookmark';
@@ -1153,6 +1323,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get asmaQuizNext => 'Next';
+
+  @override
+  String get asmaQuizSwitchModeTitle => 'Switch quiz mode?';
+
+  @override
+  String get asmaQuizSwitchModeBody =>
+      'This starts a new quiz; your current progress will be lost.';
+
+  @override
+  String get asmaQuizSwitchMode => 'Switch';
+
+  @override
+  String get asmaQuizCorrect => 'Correct';
+
+  @override
+  String asmaQuizWrongAnswerIs(String answer) {
+    return 'Not quite — the answer is $answer';
+  }
+
+  @override
+  String asmaQuizCorrectOption(String label) {
+    return '$label, correct answer';
+  }
+
+  @override
+  String asmaQuizWrongOption(String label) {
+    return '$label, your answer, incorrect';
+  }
 
   @override
   String get asmaQuizSeeResult => 'See result';
@@ -1235,6 +1433,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingTotal => 'Total';
 
   @override
+  String get fastingNaflTotal => 'Nafl';
+
+  @override
   String get fastingThisMonth => 'This month';
 
   @override
@@ -1242,6 +1443,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fastingFasted => 'Fasted';
+
+  @override
+  String get fastingHeatmapHint => 'Tap a day to log or remove a fast';
+
+  @override
+  String get fastTypeTitle => 'Log this fast as';
+
+  @override
+  String get fastTypeNafl => 'Voluntary (nafl)';
+
+  @override
+  String get fastTypeQaza => 'Make-up (qaza)';
+
+  @override
+  String get fastingQazaTitle => 'Qaza (make-up) fasts';
+
+  @override
+  String fastingQazaMadeUp(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString made up',
+      one: '1 made up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fastingQazaOfOwed(int done, int owed) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat owedNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String owedString = owedNumberFormat.format(owed);
+
+    return '$doneString of $owedString made up';
+  }
+
+  @override
+  String get fastingQazaSetOwed => 'Set number owed';
+
+  @override
+  String get fastingQazaOwedHint => 'Fasts owed (optional)';
 
   @override
   String fastingHeatmapLabel(int count) {
@@ -1333,6 +1584,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String achievementUnlockedToast(String name) {
+    return 'New badge: $name';
+  }
+
+  @override
+  String get achievementsView => 'View';
+
+  @override
+  String get achievementNew => 'New';
+
+  @override
+  String achievementsNewCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString new badges',
+      one: '1 new badge',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String achievementCategory(String key) {
     String _temp0 = intl.Intl.selectLogic(key, {
       'streaks': 'Streaks',
@@ -1417,6 +1694,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String duaRepeatProgress(String count, String target) {
+    return '$count/$target';
+  }
+
+  @override
+  String duaRepeatCounterLabel(String count, String target) {
+    return 'Counted $count of $target. Tap to count, long-press to reset.';
+  }
+
+  @override
   String get referenceLabel => 'Reference';
 
   @override
@@ -1491,6 +1778,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasbihTargetReached => 'Target reached — may Allah accept';
 
   @override
+  String get tasbihDhikr => 'Dhikr';
+
+  @override
+  String tasbihPhrase(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'subhanallah': 'SubhanAllah',
+      'alhamdulillah': 'Alhamdulillah',
+      'allahuakbar': 'Allahu Akbar',
+      'tahlil': 'La ilaha illallah',
+      'astaghfirullah': 'Astaghfirullah',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tasbihAfterSalah => 'After prayer 33·33·34';
+
+  @override
+  String tasbihStepProgress(String count, String target) {
+    return '$count of $target';
+  }
+
+  @override
   String get ramadanTitle => 'Ramadan';
 
   @override
@@ -1522,7 +1833,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get monthTable => 'Ramadan sahri & iftar timetable';
+  String monthTable(String year) {
+    return 'Ramadan $year sahri & iftar timetable';
+  }
+
+  @override
+  String get laylatulQadrOddNights =>
+      'Seek Laylatul Qadr in the odd nights of the last ten';
+
+  @override
+  String oddNightBegins(String night) {
+    return 'Night of $night Ramadan begins at sunset';
+  }
 
   @override
   String get zakatTitle => 'Zakat calculator';
@@ -1580,6 +1902,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String zakatNisabGold(String grams) {
+    return 'Gold nisab ($grams g)';
+  }
+
+  @override
+  String zakatNisabSilver(String grams) {
+    return 'Silver nisab ($grams g)';
+  }
+
+  @override
+  String get zakatRowCash => 'Cash and bank';
+
+  @override
+  String get zakatRowMetals => 'Gold and silver';
+
+  @override
+  String get zakatRowBusiness => 'Business, investments and money owed';
+
+  @override
+  String get zakatRowDebts => 'Debts deducted';
+
+  @override
   String zakatDue(String amount) {
     return 'Zakat due: $amount';
   }
@@ -1589,11 +1933,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your zakatable wealth is below the nisab — no zakat is due.';
 
   @override
+  String get zakatDisclaimer =>
+      'An estimate. Zakat is due only once a full lunar year (hawl) has passed on wealth at or above the nisab, and schools differ on zakat on personal jewellery. Consult a qualified scholar for a binding ruling.';
+
+  @override
   String get fitraInfo =>
       'Sadaqat al-fitr is due per person before Eid prayer — by Hanafi measure, one sa\' (~3.3 kg) of dates, barley or raisins, or half a sa\' (~1.65 kg) of wheat or flour, or its value, per family member.';
 
   @override
   String get calendarTitle => 'Calendar';
+
+  @override
+  String hijriAdjustedBy(String value) {
+    return 'Hijri dates adjusted $value';
+  }
+
+  @override
+  String get hijriAdjustChange => 'Change';
 
   @override
   String islamicDayName(String day) {
@@ -1604,7 +1960,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'israMiraj': 'Isra & Miraj',
       'nisfShaban': 'Mid-Shaban',
       'ramadanStart': 'Ramadan begins',
-      'laylatulQadr': 'Laylatul Qadr',
+      'laylatulQadr': 'Night of the 27th (Laylatul Qadr)',
       'eidAlFitr': 'Eid al-Fitr',
       'arafah': 'Day of Arafah',
       'eidAlAdha': 'Eid al-Adha',
@@ -1709,6 +2065,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockWrongPin => 'Wrong PIN — try again';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong PIN — $countString attempts left before a wait',
+      one: 'Wrong PIN — 1 attempt left before a wait',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'Use fingerprint / face';
 
   @override
@@ -1741,6 +2112,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.';
+
+  @override
+  String get appLockResetFailed =>
+      'Couldn\'t confirm it\'s you. Your PIN is unchanged.';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'No screen lock on this device';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'Without a device screen lock, a forgotten app PIN can\'t be reset. Only clearing the app\'s data removes it — and that erases your saved progress.';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'I understand';
 
   @override
   String get appLockNewPin => 'Set a new 4-digit PIN';
@@ -1895,6 +2280,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fitraBeforeEid => 'Pay before the Eid prayer.';
 
   @override
+  String get fitraHanafiOnly =>
+      'This calculator follows Hanafi measures (half a sa\' for wheat or flour). Other schools prescribe a full sa\' of staple food — please consult a scholar.';
+
+  @override
   String get qazaTitle => 'Qaza prayer calculator';
 
   @override
@@ -1902,6 +2291,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qazaStartDate => 'From date';
+
+  @override
+  String get qazaStartHelper =>
+      'Usually the date you reached puberty (bulugh), when prayer became obligatory.';
 
   @override
   String get qazaEndDate => 'To date';
@@ -1916,6 +2309,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qazaAlreadyMadeUp => 'Already made up (per prayer)';
 
   @override
+  String get qazaExcludePerMonth => 'Days to exclude per month (optional)';
+
+  @override
+  String get qazaExcludeHelper =>
+      'For example, days of menstruation, when no prayer is owed';
+
+  @override
   String get qazaEndBeforeStart => 'The end date is before the start date.';
 
   @override
@@ -1924,6 +2324,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String qazaDays(String count) {
     return 'Period: $count days';
+  }
+
+  @override
+  String qazaExcludedDays(String count) {
+    return 'Excluded: $count days';
   }
 
   @override
@@ -1990,6 +2395,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get faraidEstate => 'Estate value';
 
   @override
+  String get faraidEstateHelper =>
+      'Net of funeral costs, debts and bequests (bequests at most 1/3)';
+
+  @override
   String get faraidSpouse => 'Spouse';
 
   @override
@@ -2028,6 +2437,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String faraidShare(String label, String amount) {
     return '$label: $amount';
+  }
+
+  @override
+  String faraidPerHead(String amount) {
+    return '$amount each';
   }
 
   @override
@@ -2141,8 +2555,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithBooksTitle => 'Hadith collections';
 
   @override
-  String get hadithBooksSubtitle =>
-      'Browse the full books, fetched from an open dataset';
+  String get hadithBooksSubtitle => 'Browse the full books — available offline';
 
   @override
   String get hadithBookAllSahih => 'Every hadith authentic (Sahih)';
@@ -2153,8 +2566,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hadithLoadError =>
-      'Couldn\'t load. Check your connection and try again.';
+  String get hadithLoadError => 'Couldn\'t load this. Please try again.';
 
   @override
   String get hadithRetry => 'Try again';
@@ -2243,6 +2655,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseEmpty => 'No expenses logged.';
 
   @override
+  String expenseFilterEmpty(String category) {
+    return 'No $category entries this month.';
+  }
+
+  @override
+  String get expenseShowAll => 'Show all';
+
+  @override
   String get expenseIsrafReminder =>
       '“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)';
 
@@ -2290,6 +2710,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expenseCategoryOver => 'Over';
+
+  @override
   String expenseVsLastMonth(String dir, String amount) {
     String _temp0 = intl.Intl.selectLogic(dir, {
       'more': '$amount more than last month',
@@ -2314,7 +2737,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'Tap a category to filter; hold to set its budget (sadaqah: a goal)';
+      'Tap a category to filter; tap the pencil or hold to set its budget (sadaqah: a goal)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {
@@ -2654,6 +3077,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithSectionEmpty => 'No hadith in this chapter.';
 
   @override
+  String get hadithGoToNumber => 'Go to hadith number';
+
+  @override
+  String get hadithNumberHint => 'Hadith number';
+
+  @override
+  String get hadithNumberNotFound => 'No hadith with that number in this book';
+
+  @override
   String hadithGradeWord(String word) {
     String _temp0 = intl.Intl.selectLogic(word, {
       'sahih': 'Sahih',
@@ -2713,10 +3145,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get faraidInvalidNumber => 'Enter a valid amount';
 
   @override
-  String get fitraInvalidNumber => 'Enter a valid number';
+  String get fitraPriceInvalid => 'Enter a price above 0';
+
+  @override
+  String get fitraPeopleInvalid => 'Enter at least 1 person';
 
   @override
   String get qazaInvalidNumber => 'Enter a whole number';
+
+  @override
+  String get qazaExcludeInvalid => 'Enter a whole number from 0 to 30';
 
   @override
   String get mosqueRenameProfile => 'Rename mosque';

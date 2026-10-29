@@ -101,6 +101,36 @@ void main() {
       );
     });
 
+    testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 1',
+        (tester) async {
+      JamaatEntry? changed;
+      Widget card(JamaatEntry entry) => MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: PrayerJamaatCard(
+                prayer: Prayer.maghrib,
+                entry: entry,
+                formatTime: (t) => '${t.hour}:${t.minute}',
+                onChanged: (e) => changed = e,
+                onPickTime: () {},
+                preview: '→ 6:55 PM today',
+                warning: 'Outside today',
+              ),
+            ),
+          );
+      await tester.pumpWidget(card(const NoJamaat()));
+      await tester.tap(find.text('Offset'));
+      expect(changed, const OffsetJamaat(Duration(minutes: 5)));
+
+      await tester.pumpWidget(card(const OffsetJamaat(Duration(minutes: 5))));
+      expect(find.text('→ 6:55 PM today'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.add));
+      expect(changed, const OffsetJamaat(Duration(minutes: 6)));
+      expect(find.text('Outside today'), findsOneWidget);
+    });
+
     testWidgets('profile switcher chips change the active profile',
         (tester) async {
       await register(

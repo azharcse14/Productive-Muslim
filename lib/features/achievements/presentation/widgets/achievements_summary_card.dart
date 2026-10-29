@@ -63,6 +63,7 @@ final class _AchievementsSummaryCardState
       builder: (context) {
         final unlocked = store.unlockedCount.value;
         final total = store.totalCount.value;
+        final fresh = store.newlyUnlocked.value.length;
         return InkWell(
           borderRadius: BorderRadius.circular(QRadius.lg),
           onTap: () => context.pushNamed(Routes.achievements.name),
@@ -98,6 +99,12 @@ final class _AchievementsSummaryCardState
                     ],
                   ),
                 ),
+                if (fresh > 0)
+                  Badge(
+                    label: Text(l10n.achievementsNewCount(fresh)),
+                    backgroundColor: q.accent,
+                    textColor: q.onAccent,
+                  ),
                 Icon(Icons.chevron_right, color: q.ink3),
               ],
             ),

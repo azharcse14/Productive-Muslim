@@ -11,7 +11,7 @@ import '../../domain/usecases/ramadan_utils.dart';
 /// sahri-end and iftar wall-clock times at the configured location.
 /// [roza] is the Ramadan day number (1-based), kept per row because a day
 /// whose prayer times fail to compute is left out of the table.
-typedef RamadanRow = (int roza, DateTime day, DateTime sahri, DateTime iftar);
+typedef RamadanRow = (DateTime day, DateTime sahri, DateTime iftar, int roza);
 
 /// Ramadan-screen state over the pure [RamadanUtils] date math. Everything
 /// date-derived is `computed` (guide §4: derive, don't duplicate),
@@ -92,7 +92,7 @@ final class RamadanStore {
         date: day,
       ).valueOrNull;
       if (prayerDay != null) {
-        rows.add((index + 1, day, prayerDay.sahriEnd, prayerDay.iftar));
+        rows.add((day, prayerDay.sahriEnd, prayerDay.iftar, index + 1));
       }
     }
     return rows;

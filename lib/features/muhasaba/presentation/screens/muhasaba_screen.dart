@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -19,7 +21,9 @@ import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
+import '../../../achievements/presentation/state/achievement_store.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -45,10 +49,100 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   late final MuhasabaStore _store = locator<MuhasabaStore>();
 
   int _tab = 0;
-  bool _welcomeDismissed = false;
 
   /// The Today list cascades in once per screen, not on every tab switch.
   bool _cascadePlayed = false;
+
+  final _effects = <EffectCleanup>[];
+
+  /// Badge ids already pending when this screen started watching; only
+  /// ids beyond these get a toast. Null until achievements have loaded.
+  Set<String>? _knownNewBadges;
+
+  @override
+  void initState() {
+    super.initState();
+    var failures = _store.saveFailures.peek();
+    _effects.add(
+      effect(() {
+        final n = _store.saveFailures.value;
+        if (n != failures) {
+          failures = n;
+          untracked(() => _snack(context.l10n.trackerSaveFailed));
+        }
+      }),
+    );
+    final showBadges =
+        locator.isRegistered<AchievementStore>() &&
+        locator.isRegistered<SettingsStore>() &&
+        locator<SettingsStore>().settings.peek().showAchievements;
+    if (showBadges) {
+      final badges = locator<AchievementStore>();
+      _effects
+        // Re-evaluate badges on every check-in, whichever tab is open.
+        ..add(
+          effect(() {
+            _store.stats.value;
+            untracked(() => unawaited(badges.refresh()));
+          }),
+        )
+        ..add(
+          effect(() {
+            final ids = {for (final a in badges.newlyUnlocked.value) a.id};
+            if (!badges.loaded.value) {
+              return;
+            }
+            final known = _knownNewBadges;
+            _knownNewBadges = ids;
+            if (known == null) {
+              return;
+            }
+            final fresh = ids.difference(known);
+            if (fresh.isNotEmpty) {
+              untracked(() => _badgeToast(fresh.first));
+            }
+          }),
+        );
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final cleanup in _effects) {
+      cleanup();
+    }
+    super.dispose();
+  }
+
+  void _snack(String text, {SnackBarAction? action}) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(text),
+          action: action,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  void _badgeToast(String id) {
+    if (!mounted) {
+      return;
+    }
+    final l10n = context.l10n;
+    Haptics.medium();
+    _snack(
+      l10n.achievementUnlockedToast(l10n.achievementName(id)),
+      action: SnackBarAction(
+        label: l10n.achievementsView,
+        onPressed: () => context.pushNamed(Routes.achievements.name),
+      ),
+    );
+  }
 
   String _nameOf(AppLocalizations l10n, TrackerItem item) =>
       item.isDefault ? l10n.trackerName(item.name) : item.name;
@@ -76,6 +170,11 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       appBar: AppBar(
         title: Text(l10n.muhasabaTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.reorderTrackers,
+            icon: const Icon(Icons.swap_vert),
+            onPressed: () => unawaited(_showReorder(context)),
+          ),
           IconButton(
             tooltip: l10n.addTracker,
             icon: const Icon(Icons.add),
@@ -118,9 +217,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
 
   Widget _todayView(BuildContext context) {
     final l10n = context.l10n;
-    if (_store.firstDay.value && !_welcomeDismissed) {
-      return _welcome(context);
-    }
+    final showWelcome = _store.firstDay.value && !_store.welcomeDismissed.value;
     final items = _store.items.value;
     final salah = [
       for (final i in items)
@@ -160,6 +257,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           QSpace.s5,
         ),
         children: staggered(limit: _cascadePlayed ? 0 : 10, [
+          if (showWelcome) _welcome(context),
           _dateSwitcher(context),
           _dayComplete(context, items),
           const SizedBox(height: QSpace.s3),
@@ -256,76 +354,86 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                         ? q.onPrimary
                         : (isLocked ? q.ink3 : q.ink);
 
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          if (isLocked) {
-                            if (_store.lockedSalah.contains(item.id)) {
-                              _showLockedToast(context);
-                            } else {
-                              unawaited(_store.setValue(item.id, 1));
-                            }
-                          } else {
-                            unawaited(
-                              _store.setValue(item.id, completed ? 0 : 1),
-                            );
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(QRadius.md),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: cardWidth,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(QRadius.md),
-                            border: Border.all(color: borderColor, width: 1.2),
-                            boxShadow: [
-                              if (completed)
-                                BoxShadow(
-                                  color: q.primary.withValues(alpha: 0.12),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isLocked
-                                    ? Icons.schedule
-                                    : _waqtIcons[item.id] ??
-                                          Icons.mosque_outlined,
-                                size: 22,
-                                color: completed
-                                    ? q.onPrimary
-                                    : (isLocked ? q.ink3 : q.primary),
+                    void onTap() {
+                      if (isLocked) {
+                        if (_store.lockedSalah.contains(item.id)) {
+                          _showLockedToast(context);
+                        } else {
+                          unawaited(_store.setValue(item.id, 1));
+                        }
+                      } else {
+                        unawaited(_store.setValue(item.id, completed ? 0 : 1));
+                      }
+                    }
+
+                    return Semantics(
+                      button: true,
+                      checked: completed,
+                      label: name,
+                      excludeSemantics: true,
+                      onTap: onTap,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onTap,
+                          borderRadius: BorderRadius.circular(QRadius.md),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: cardWidth,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(QRadius.md),
+                              border: Border.all(
+                                color: borderColor,
+                                width: 1.2,
                               ),
-                              const SizedBox(height: 6),
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  name,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  style: QType.caption.copyWith(
-                                    fontSize: 12,
-                                    color: textColor,
-                                    fontVariations: [
-                                      FontVariation(
-                                        'wght',
-                                        completed ? 700 : 500,
-                                      ),
-                                    ],
+                              boxShadow: [
+                                if (completed)
+                                  BoxShadow(
+                                    color: q.primary.withValues(alpha: 0.12),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  isLocked
+                                      ? Icons.schedule
+                                      : _waqtIcons[item.id] ??
+                                            Icons.mosque_outlined,
+                                  size: 22,
+                                  color: completed
+                                      ? q.onPrimary
+                                      : (isLocked ? q.ink3 : q.primary),
+                                ),
+                                const SizedBox(height: 6),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    name,
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                    style: QType.caption.copyWith(
+                                      fontSize: 12,
+                                      color: textColor,
+                                      fontVariations: [
+                                        FontVariation(
+                                          'wght',
+                                          completed ? 700 : 500,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -379,7 +487,9 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                       const SizedBox(width: QSpace.s3),
                       Expanded(
                         child: Text(
-                          context.l10n.muhasabaDayComplete,
+                          _store.selectedIsToday
+                              ? context.l10n.muhasabaDayComplete
+                              : context.l10n.muhasabaDayCompletePast,
                           style: QType.titleSm.copyWith(color: q.onAccentSoft),
                         ),
                       ),
@@ -391,31 +501,40 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     );
   }
 
+  /// First-run welcome, shown above the checklist until dismissed (the
+  /// dismissal is persisted) or the first deed is logged.
   Widget _welcome(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(QSpace.s8),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: QSpace.s3),
+      child: QCard(
+        tone: q.primarySoft,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.favorite_outline, size: 56, color: q.ink3),
-            const SizedBox(height: QSpace.s5),
-            Text(
-              l10n.muhasabaFirstDayTitle,
-              style: QType.title.copyWith(color: q.ink),
+            Row(
+              children: [
+                Icon(Icons.favorite_outline, size: 22, color: q.onPrimarySoft),
+                const SizedBox(width: QSpace.s2),
+                Expanded(
+                  child: Text(
+                    l10n.muhasabaFirstDayTitle,
+                    style: QType.titleSm.copyWith(color: q.onPrimarySoft),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: QSpace.s2),
             Text(
               l10n.muhasabaFirstDayBody,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: q.ink2),
+              style: QType.body.copyWith(color: q.onPrimarySoft),
             ),
-            const SizedBox(height: QSpace.s6),
+            const SizedBox(height: QSpace.s3),
             QButton(
               label: l10n.muhasabaStart,
-              onPressed: () => setState(() => _welcomeDismissed = true),
+              small: true,
+              onPressed: () => unawaited(_store.dismissWelcome()),
             ),
           ],
         ),
@@ -431,28 +550,74 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       DateFormat.MMMEd(locale.toString()).format(selected),
       locale.languageCode,
     );
+    final l10n = context.l10n;
     return Row(
       children: [
         IconButton(
-          tooltip: context.l10n.previousDay,
+          tooltip: l10n.previousDay,
           icon: const Icon(Icons.chevron_left),
           onPressed: () => _shiftDay(-1),
         ),
         Expanded(
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: QType.titleSm.copyWith(color: q.ink),
+          child: Semantics(
+            button: true,
+            hint: l10n.chooseDate,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(QRadius.md),
+              onTap: () => unawaited(_pickDate(context)),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: QTouch.minTarget),
+                child: Center(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: QType.titleSm.copyWith(color: q.ink),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
+        if (!_store.selectedIsToday)
+          QChip(
+            label: l10n.todayTab,
+            onTap: () => unawaited(_store.selectDate(_todayDate())),
+          ),
         IconButton(
-          tooltip: context.l10n.nextDay,
+          tooltip: l10n.nextDay,
           icon: const Icon(Icons.chevron_right),
           onPressed: _store.canGoForward ? () => _shiftDay(1) : null,
         ),
       ],
     );
   }
+
+  DateTime _todayDate() {
+    final n = DateTime.now();
+    return DateTime(n.year, n.month, n.day);
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    // The store clamps to its own clock; the picker just bars the future.
+    final today = _todayDate();
+    final selected = _store.selectedDate.value;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selected.isAfter(today) ? today : selected,
+      firstDate: DateTime(today.year - 5),
+      lastDate: today,
+      helpText: context.l10n.chooseDate,
+    );
+    if (picked != null) {
+      await _store.selectDate(picked);
+    }
+  }
+
+  Future<void> _showReorder(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => _ReorderSheet(store: _store, nameOf: _nameOf),
+  );
 
   // ---- Dashboard ---------------------------------------------------------
 
@@ -476,7 +641,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         ),
         const SizedBox(height: QSpace.s4),
         if (stats == null)
-          const SizedBox.shrink()
+          for (final h in const [140.0, 64.0, 120.0]) ...[
+            QSkeleton(height: h, radius: QRadius.lg),
+            const SizedBox(height: QSpace.s4),
+          ]
         else if (stats.items.every((i) => i.totalValue == 0) &&
             stats.completion == 0)
           Padding(
@@ -496,16 +664,19 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             const AchievementsSummaryCard(),
             const SizedBox(height: QSpace.s4),
           ],
-          QCard(
-            child: TrendLine(
-              values: [for (final d in stats.days) d.completion],
-              semanticLabel:
-                  '${l10n.overallCompletion}: ${_percent(context, stats.completion)}',
+          // A single day has no trend and no calendar to show.
+          if (stats.days.length >= 2) ...[
+            QCard(
+              child: TrendLine(
+                values: [for (final d in stats.days) d.completion],
+                semanticLabel:
+                    '${l10n.overallCompletion}: ${_percent(context, stats.completion)}',
+              ),
             ),
-          ),
-          const SizedBox(height: QSpace.s4),
-          _heatmapCard(context, stats),
-          const SizedBox(height: QSpace.s4),
+            const SizedBox(height: QSpace.s4),
+            _heatmapCard(context, stats),
+            const SizedBox(height: QSpace.s4),
+          ],
           _itemBarsCard(context, stats),
         ],
       ],
@@ -546,8 +717,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 ),
                 const SizedBox(height: QSpace.s2),
                 QChip(
-                  label: l10n.currentStreakLabel(stats.currentStreak),
-                  active: true,
+                  label: stats.currentStreak == 0
+                      ? l10n.streakStartToday
+                      : l10n.currentStreakLabel(stats.currentStreak),
+                  active: stats.currentStreak > 0,
                   icon: Icons.local_fire_department_outlined,
                 ),
                 const SizedBox(height: QSpace.s2),
@@ -582,6 +755,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       ? 3
       : 4;
 
+  /// Sunday-first padding before the first day (matches [_heatmapWeeks]).
+  static int _leading(List<DayCompletion> days) =>
+      days.isEmpty ? 0 : days.first.date.weekday % 7;
+
   static List<List<int>> _heatmapWeeks(List<DayCompletion> days) {
     if (days.isEmpty) {
       return const [];
@@ -602,6 +779,17 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   Widget _heatmapCard(BuildContext context, PeriodStats stats) {
     final l10n = context.l10n;
     final q = context.q;
+    final locale = Localizations.localeOf(context);
+    final days = stats.days;
+    final leading = _leading(days);
+    DayCompletion? dayAt(int w, int d) {
+      final i = w * 7 + d - leading;
+      return i >= 0 && i < days.length ? days[i] : null;
+    }
+
+    // The range ends today, so the last cell is today's.
+    final todayIndex = leading + days.length - 1;
+    final complete = days.where((d) => d.completion >= 1).length;
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,9 +798,33 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             scrollDirection: Axis.horizontal,
             reverse: true,
             child: QHeatmap(
-              weeks: _heatmapWeeks(stats.days),
-              semanticLabel:
-                  '${l10n.overallCompletion}: ${_percent(context, stats.completion)}',
+              weeks: _heatmapWeeks(days),
+              highlight: (todayIndex ~/ 7, todayIndex % 7),
+              semanticLabel: l10n.heatmapDaysComplete(complete, days.length),
+              cellLabel: (w, d) {
+                final day = dayAt(w, d);
+                if (day == null) {
+                  return '';
+                }
+                return LocaleDigits.localize(
+                  '${DateFormat.MMMEd(locale.toString()).format(day.date)}: '
+                  '${_percent(context, day.completion)}',
+                  locale.languageCode,
+                );
+              },
+              // Jump to that day's checklist.
+              onTap: (w, d) {
+                final day = dayAt(w, d);
+                if (day == null) {
+                  return;
+                }
+                Haptics.selection();
+                setState(() {
+                  _tab = 0;
+                  _cascadePlayed = true;
+                });
+                unawaited(_store.selectDate(day.date));
+              },
             ),
           ),
           const SizedBox(height: QSpace.s3),
@@ -681,6 +893,96 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// "Reorder items": drag the non-salah checklist into a new order (the five
+/// salah stay pinned as their own row).
+final class _ReorderSheet extends StatefulWidget {
+  const _ReorderSheet({required this.store, required this.nameOf});
+
+  final MuhasabaStore store;
+  final String Function(AppLocalizations, TrackerItem) nameOf;
+
+  @override
+  State<_ReorderSheet> createState() => _ReorderSheetState();
+}
+
+final class _ReorderSheetState extends State<_ReorderSheet> {
+  late final List<TrackerItem> _items = [
+    for (final i in widget.store.items.value)
+      if (!i.id.startsWith('salah_')) i,
+  ];
+
+  void _onReorder(int from, int to) {
+    setState(() {
+      final moved = _items.removeAt(from);
+      _items.insert(to, moved);
+    });
+    final salah = [
+      for (final i in widget.store.items.value)
+        if (i.id.startsWith('salah_')) i.id,
+    ];
+    unawaited(widget.store.reorder([...salah, for (final i in _items) i.id]));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.7,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                QSpace.s5,
+                QSpace.s5,
+                QSpace.s5,
+                QSpace.s2,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.reorderTrackers,
+                    style: QType.title.copyWith(color: q.ink),
+                  ),
+                  const SizedBox(height: QSpace.s1),
+                  Text(
+                    l10n.reorderTrackersHint,
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: ReorderableListView(
+                shrinkWrap: true,
+                onReorderItem: _onReorder,
+                children: [
+                  for (final item in _items)
+                    ListTile(
+                      key: ValueKey(item.id),
+                      leading: Icon(
+                        TrackerVisuals.iconOf(item.icon),
+                        color: TrackerVisuals.colorOf(q, item.colorIndex),
+                      ),
+                      title: Text(widget.nameOf(l10n, item)),
+                      trailing: const Icon(Icons.drag_handle),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

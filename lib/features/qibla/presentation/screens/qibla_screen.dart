@@ -62,6 +62,23 @@ final class _QiblaScreenState extends State<QiblaScreen> {
   String _point(BuildContext context, double degrees) =>
       context.l10n.qiblaCompassPoint(CompassMath.cardinal16(degrees));
 
+  /// "Turn 14° right/left" along the shortest arc from [heading] to the
+  /// qibla; just the heading when the bearing is unknown.
+  String _turnText(BuildContext context, double heading, double? bearing) {
+    final l10n = context.l10n;
+    if (bearing == null) {
+      return l10n.qiblaHeading(
+        _digits(context, heading.round().toString()),
+        _point(context, heading),
+      );
+    }
+    final diff = CompassMath.angularDifference(heading, bearing);
+    final degrees = _digits(context, diff.abs().round().toString());
+    return diff >= 0
+        ? l10n.qiblaTurnRight(degrees)
+        : l10n.qiblaTurnLeft(degrees);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -104,7 +121,6 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                           child: SignalBuilder(
                             builder: (context) {
                               final reading = _store.heading.value;
-                              final heading = reading ?? 0;
                               final aligned = _store.aligned.value;
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -114,7 +130,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                   // qibla-bearing line below instead.
                                   ExcludeSemantics(
                                     child: CompassDial(
-                                      heading: heading,
+                                      heading: reading,
                                       bearing: bearing ?? 0,
                                       aligned: aligned,
                                       size: math.min(
@@ -150,16 +166,30 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                             // No sensor event yet: don't pass
                                             // a 0° placeholder off as real.
                                             ? l10n.qiblaFinding
-                                            : l10n.qiblaHeading(
-                                                _digits(
-                                                  context,
-                                                  heading.round().toString(),
-                                                ),
-                                                _point(context, heading),
+                                            : _turnText(
+                                                context,
+                                                reading,
+                                                bearing,
                                               ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),
+                                  if (reading != null) ...[
+                                    const SizedBox(height: QSpace.s2),
+                                    Text(
+                                      l10n.qiblaHeading(
+                                        _digits(
+                                          context,
+                                          reading.round().toString(),
+                                        ),
+                                        _point(context, reading),
+                                      ),
+                                      style: QType.caption.copyWith(
+                                        color: q.ink2,
+                                      ),
+                                    ),
+                                  ],
                                   if (bearing != null) ...[
                                     const SizedBox(height: QSpace.s2),
                                     Text(

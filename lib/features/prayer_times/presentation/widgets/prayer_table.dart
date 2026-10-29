@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -30,6 +31,7 @@ final class PrayerTable extends StatelessWidget {
     this.mosqueName,
     this.mosqueBadge,
     this.onSwitchMosque,
+    this.overnight,
     this.dense = false,
     super.key,
   });
@@ -37,6 +39,10 @@ final class PrayerTable extends StatelessWidget {
   final PrayerDay day;
   final Prayer? activePrayer;
   final JamaatConfig jamaat;
+
+  /// Yesterday's waqt still running after midnight (before Fajr): its row
+  /// shows that window (e.g. last night's Isha → Fajr), not tonight's.
+  final ActiveWaqt? overnight;
 
   /// Active mosque name shown in a header strip; null hides the strip
   /// (e.g. when no profiles exist yet).
@@ -80,6 +86,20 @@ final class PrayerTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final l10n = context.l10n;
+    final jamaatTimes = {
+      for (final prayer in Prayer.values)
+        if (jamaat.timeFor(prayer, day.startOf(prayer)) case final t?)
+          prayer: formatTime(t),
+    };
+    // The jamaat column fits its widest entry (Bangla times run long)
+    // instead of shrinking it; the header label aligns over it.
+    final jamaatWidth = jamaatTimes.isEmpty
+        ? (dense ? 40.0 : 52.0)
+        : [
+            l10n.jamaatLabel,
+            ...jamaatTimes.values,
+          ].map((t) => _textWidth(context, t)).reduce(math.max);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: q.surface,
@@ -103,23 +123,29 @@ final class PrayerTable extends StatelessWidget {
                 badge: mosqueBadge,
                 onTap: onSwitchMosque,
               ),
+            if (jamaatTimes.isNotEmpty)
+              _HeaderRow(dense: dense, jamaatWidth: jamaatWidth),
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
                 prayer: prayer,
-                name: context.l10n.prayerLabel(prayer),
-                range: _range(
-                  formatTime(day.startOf(prayer)),
-                  formatTime(day.endOf(prayer)),
-                ),
-                jamaatTime: switch (jamaat.timeFor(
+                name: l10n.prayerLabelOn(
                   prayer,
-                  day.startOf(prayer),
-                )) {
-                  null => null,
-                  final t => formatTime(t),
-                },
+                  day.dhuhr,
+                  jumuah: jamaat.jumuah != null,
+                ),
+                range: overnight?.prayer == prayer
+                    ? _range(
+                        formatTime(overnight!.start),
+                        formatTime(overnight!.end),
+                      )
+                    : _range(
+                        formatTime(day.startOf(prayer)),
+                        formatTime(day.endOf(prayer)),
+                      ),
+                jamaatTime: jamaatTimes[prayer],
+                jamaatWidth: jamaatWidth,
                 active: prayer == activePrayer,
-                first: i == 0 && mosqueName == null,
+                first: i == 0 && mosqueName == null && jamaatTimes.isEmpty,
                 dense: dense,
                 done: prayed.contains(prayer),
                 locked: locked.contains(prayer),
@@ -131,11 +157,121 @@ final class PrayerTable extends StatelessWidget {
                     : () => onTogglePrayed!(prayer),
                 onTap: onPrayerTap == null ? null : () => onPrayerTap!(prayer),
               ),
+              if (prayer == Prayer.fajr)
+                _SunriseRow(
+                  time: formatTime(day.sunrise),
+                  dense: dense,
+                  jamaatWidth: jamaatWidth,
+                ),
             ],
             if (onSetJamaat != null)
               _SetJamaatButton(dense: dense, onTap: onSetJamaat!),
           ],
         ),
+      ),
+    );
+  }
+}
+
+double _textWidth(BuildContext context, String text) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: _jamaatStyle),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  // +1: a hair of slack so subpixel rounding never clips the widest time.
+  final width = painter.width.ceilToDouble() + 1;
+  painter.dispose();
+  return width;
+}
+
+final _jamaatStyle = QType.num_(
+  QType.caption,
+).copyWith(fontVariations: const [FontVariation('wght', 600)]);
+
+/// Column captions over the times and jamaat, shown once any jamaat is set.
+final class _HeaderRow extends StatelessWidget {
+  const _HeaderRow({required this.dense, required this.jamaatWidth});
+
+  final bool dense;
+  final double jamaatWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    final l10n = context.l10n;
+    final style = QType.caption.copyWith(color: q.ink3);
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        start: dense ? 12 : 16,
+        end: (dense ? 12 : 16) - _HitBox.overhang + _HitBox.size,
+        top: QSpace.s2,
+        bottom: QSpace.s1,
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 18 + 10 + (dense ? 64 : 84)),
+          Expanded(child: Text(l10n.prayerTableTime, style: style)),
+          SizedBox(
+            width: jamaatWidth,
+            child: Text(
+              l10n.jamaatLabel,
+              textAlign: TextAlign.center,
+              style: style,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Sunrise between Fajr and Dhuhr: when Fajr ends. Not a prayer, so no
+/// jamaat and no check.
+final class _SunriseRow extends StatelessWidget {
+  const _SunriseRow({
+    required this.time,
+    required this.dense,
+    required this.jamaatWidth,
+  });
+
+  final String time;
+  final bool dense;
+  final double jamaatWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    return Container(
+      constraints: BoxConstraints(minHeight: dense ? 32 : 40),
+      padding: EdgeInsetsDirectional.only(
+        start: dense ? 12 : 16,
+        end: (dense ? 12 : 16) - _HitBox.overhang + _HitBox.size + jamaatWidth,
+      ),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: q.line)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.wb_sunny_outlined, size: 18, color: q.ink3),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: dense ? 64 : 84,
+            child: Text(
+              context.l10n.sunriseLabel,
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              time,
+              style: QType.num_(
+                QType.caption,
+              ).copyWith(fontSize: dense ? 11.5 : 12.5, color: q.ink3),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -186,6 +322,7 @@ final class _PrayerRow extends StatelessWidget {
     required this.name,
     required this.range,
     required this.jamaatTime,
+    required this.jamaatWidth,
     required this.active,
     required this.first,
     required this.dense,
@@ -200,6 +337,7 @@ final class _PrayerRow extends StatelessWidget {
   final String name;
   final String range;
   final String? jamaatTime;
+  final double jamaatWidth;
 
   /// A waqt-specific glyph standing in for a generic bullet (design §4.3).
   static IconData _iconFor(Prayer prayer) => switch (prayer) {
@@ -225,6 +363,8 @@ final class _PrayerRow extends StatelessWidget {
     final iconColor = active ? (fg ?? q.primary) : q.ink3;
     return Semantics(
       button: onTap != null,
+      // Screen readers hear which row is the current waqt.
+      selected: active,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
@@ -269,22 +409,16 @@ final class _PrayerRow extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: dense ? 40 : 52,
+                width: jamaatWidth,
                 // Jamaat time, or a quiet em-dash placeholder when unset — the
                 // single "Set jamaat" CTA lives at the foot of the table.
-                // Scales down rather than wrapping "12:45 PM" in a narrow cell.
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    jamaatTime ?? '—',
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style: QType.num_(QType.caption).copyWith(
-                      color: jamaatTime == null
-                          ? (fg ?? q.ink3)
-                          : (fg ?? q.ink2),
-                      fontVariations: const [FontVariation('wght', 600)],
-                    ),
+                child: Text(
+                  jamaatTime ?? '—',
+                  maxLines: 1,
+                  softWrap: false,
+                  textAlign: TextAlign.center,
+                  style: _jamaatStyle.copyWith(
+                    color: jamaatTime == null ? (fg ?? q.ink3) : (fg ?? q.ink2),
                   ),
                 ),
               ),

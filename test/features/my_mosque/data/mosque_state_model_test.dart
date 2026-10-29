@@ -31,6 +31,32 @@ void main() {
       expect(MosqueStateModel.fromMap(MosqueStateModel.toMap(state)), state);
     });
 
+    test('Jumu\'ah time round-trips; Dhuhr uses it only on Fridays', () {
+      const profile = MosqueProfile(
+        id: 'home',
+        name: 'Home',
+        entries: {Prayer.dhuhr: FixedJamaat(ClockTime(13, 15))},
+        jumuah: ClockTime(13, 45),
+      );
+      const state = MosqueState(profiles: [profile], activeId: 'home');
+      expect(MosqueStateModel.fromMap(MosqueStateModel.toMap(state)), state);
+      // Older payloads have no 'jumuah' key.
+      final legacy = MosqueStateModel.toMap(state);
+      ((legacy['profiles']! as List).first as Map).remove('jumuah');
+      expect(MosqueStateModel.fromMap(legacy).profiles.first.jumuah, isNull);
+
+      final friday = DateTime(2026, 10, 30, 12, 5);
+      final thursday = DateTime(2026, 10, 29, 12, 5);
+      expect(
+        profile.config.timeFor(Prayer.dhuhr, friday),
+        DateTime(2026, 10, 30, 13, 45),
+      );
+      expect(
+        profile.config.timeFor(Prayer.dhuhr, thursday),
+        DateTime(2026, 10, 29, 13, 15),
+      );
+    });
+
     test('round-trips the auto schedule (mode, rules, default, override)', () {
       final state = MosqueState(
         profiles: const [

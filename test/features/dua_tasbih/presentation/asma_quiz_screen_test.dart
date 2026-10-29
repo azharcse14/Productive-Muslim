@@ -21,23 +21,23 @@ final class _FakeDuaRepository implements DuaRepository {
 
   @override
   Future<Result<List<AsmaName>>> asmaulHusna() async => Result.success([
-        for (var n = 1; n <= 99; n++)
-          AsmaName(
-            number: n,
-            arabic: 'اسم $n',
-            transliteration: 'Name $n',
-            meaningEn: 'Meaning $n',
-            meaningBn: '',
-          ),
-      ]);
+    for (var n = 1; n <= 99; n++)
+      AsmaName(
+        number: n,
+        arabic: 'اسم $n',
+        transliteration: 'Name $n',
+        meaningEn: 'Meaning $n',
+        meaningBn: '',
+      ),
+  ]);
 }
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 void main() {
   setUp(() async {
@@ -82,6 +82,46 @@ void main() {
       // into view so the lazy builder constructs it.
       await tester.scrollUntilVisible(find.text('Next'), 200);
       expect(find.text('Next'), findsOneWidget);
+    });
+
+    testWidgets('switching mode mid-quiz asks first', (tester) async {
+      await tester.pumpWidget(_app(const AsmaQuizScreen()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining(RegExp(r'Meaning \d')).first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Meaning → name'));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch quiz mode?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch quiz mode?'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Next'), 200);
+      expect(find.text('Next'), findsOneWidget); // still answered, same run
+      await tester.drag(find.byType(ListView), const Offset(0, 2000));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Meaning → name'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Switch'));
+      await tester.pumpAndSettle();
+      // Meaning → name options show the transliteration and the Arabic.
+      expect(find.textContaining(RegExp(r'Name \d')), findsWidgets);
+      expect(find.textContaining('اسم'), findsWidgets);
+    });
+
+    testWidgets('answered options announce correct / wrong', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const AsmaQuizScreen()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining(RegExp(r'Meaning \d')).first);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.bySemanticsLabel(RegExp(r', correct answer$')),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
   });
 }

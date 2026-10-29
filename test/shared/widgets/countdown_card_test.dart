@@ -40,8 +40,23 @@ void main() {
         (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
       expect(find.text('ASR ENDS IN'), findsOneWidget);
-      expect(find.bySemanticsLabel('01:24:36'), findsOneWidget);
       expect(find.text('Jamaat at 5:15 pm'), findsOneWidget);
+    });
+
+    testWidgets('reads as one semantics label', (tester) async {
+      await tester.pumpWidget(_wrap(const CountdownCard(
+        state: CountdownState.calm,
+        eyebrow: 'Asr ends in',
+        big: '01:24:36',
+        sub: 'Ends at 5:15 pm',
+        progress: 0.5,
+        semanticLabel: 'Asr ends in 1 hour 24 minutes. Ends at 5:15 pm',
+      )));
+      expect(
+        find.bySemanticsLabel('Asr ends in 1 hour 24 minutes. Ends at 5:15 pm'),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel('01:24:36'), findsNothing);
     });
 
     testWidgets('calm state uses a brand sky gradient ending in surface',

@@ -27,11 +27,16 @@ final class HadithListCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hadith.arabic.isNotEmpty) ...[
-            // Rebuilds when the Quran reader's font size changes.
+            // Rebuilds when the reader text size changes.
             SignalBuilder(
               builder: (context) => Text(
                 hadith.arabic,
                 textDirection: TextDirection.rtl,
+                // Lets screen readers pick an Arabic voice.
+                locale: const Locale('ar'),
+                // Sized by the reader setting, so the system text scale
+                // must not multiply it again.
+                textScaler: TextScaler.noScaling,
                 style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
               ),
             ),
@@ -99,10 +104,7 @@ final class GradeChip extends StatelessWidget {
     ].join(' ');
     final color = isSahihGrade(grade) ? q.ok : q.ink2;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: QSpace.s2,
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: QSpace.s2, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(QRadius.sm),

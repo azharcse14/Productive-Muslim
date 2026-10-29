@@ -27,9 +27,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tabMore => 'আরও';
 
   @override
-  String get comingSoon => 'শীঘ্রই আসছে';
-
-  @override
   String get galleryTitle => 'উইজেট গ্যালারি';
 
   @override
@@ -76,6 +73,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingAdjustmentsSub => 'প্রতিটি ওয়াক্ত ±মিনিট ঠিক করুন';
+
+  @override
+  String adjustmentReset(String prayer) {
+    return '$prayer ০-তে রিসেট করুন';
+  }
 
   @override
   String get settingHighLat => 'উচ্চ-অক্ষাংশ নিয়ম';
@@ -163,6 +165,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get madhabHanbali => 'হাম্বলি';
 
   @override
+  String get madhabStandard => 'স্ট্যান্ডার্ড (শাফেয়ি, মালিকি, হাম্বলি)';
+
+  @override
   String get madhabExplain => 'শুধু আসরের সময়ে প্রভাব ফেলে';
 
   @override
@@ -211,10 +216,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get methodTehran => 'তেহরান (IGUT)';
 
   @override
+  String get methodSuggested => 'আপনার অঞ্চলের জন্য প্রস্তাবিত';
+
+  @override
   String get prayerFajr => 'ফজর';
 
   @override
   String get prayerDhuhr => 'যোহর';
+
+  @override
+  String get prayerJumuah => 'জুমা';
 
   @override
   String get prayerAsr => 'আসর';
@@ -263,6 +274,27 @@ class AppLocalizationsBn extends AppLocalizations {
   String get locationCurrent => 'বর্তমান অবস্থান';
 
   @override
+  String locationRegionalTitle(String country) {
+    return '$country-এর জন্য প্রস্তাবিত পদ্ধতি ব্যবহার করবেন?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · আসর: $madhab। সেটিংসে যেকোনো সময় বদলানো যাবে।';
+  }
+
+  @override
+  String get locationRegionalKeep => 'বর্তমানটি রাখুন';
+
+  @override
+  String get locationRegionalUse => 'প্রস্তাবিতটি নিন';
+
+  @override
+  String locationUpdatedTo(String place) {
+    return 'অবস্থান হালনাগাদ হয়েছে: $place';
+  }
+
+  @override
   String get searchNoResults => 'কোনো শহর মেলেনি — অন্য বানানে চেষ্টা করুন';
 
   @override
@@ -294,6 +326,31 @@ class AppLocalizationsBn extends AppLocalizations {
   String get countdownIftarIn => 'ইফতারের বাকি';
 
   @override
+  String countdownForbiddenUntil(String time) {
+    return 'নিষিদ্ধ সময় $time পর্যন্ত';
+  }
+
+  @override
+  String a11yHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ঘণ্টা',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String a11yMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মিনিট',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String subEndsAt(String time) {
     return '$time এ শেষ';
   }
@@ -307,6 +364,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get jamaatLabel => 'জামাত';
 
   @override
+  String get prayerTableTime => 'সময়';
+
+  @override
   String get sunriseLabel => 'সূর্যোদয়';
 
   @override
@@ -314,6 +374,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sahriEndsLabel => 'সাহরি শেষ';
+
+  @override
+  String get sahriEndsTonightLabel => 'আজ রাতে সাহরি শেষ';
 
   @override
   String get iftarLabel => 'ইফতার';
@@ -339,10 +402,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get forbiddenTimesTitle => 'নিষিদ্ধ ওয়াক্ত';
 
   @override
-  String get naflTimesTitle => 'নফল সালাত';
+  String get naflTimesTitle => 'নফল নামাজ';
 
   @override
   String get specialNow => 'এখন';
+
+  @override
+  String get specialNext => 'পরবর্তী';
 
   @override
   String get specialTimeForbiddenSunrise => 'সূর্যোদয়ের পর';
@@ -370,10 +436,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'এই তিন সময়ে কোনো সালাত আদায় করা যায় না।';
+      'এই সময়গুলোতে নফল নামাজ এড়িয়ে চলুন। ছুটে যাওয়া ফরজ (যেমন আজকের আসর) তখনও পড়া যায়।';
 
   @override
-  String get naflTimesSubtitle => 'নফল সালাত আদায়ের উত্তম সময়।';
+  String get naflTimesSubtitle => 'নফল নামাজ আদায়ের উত্তম সময়।';
 
   @override
   String get specialTimesLearnMore => 'বিস্তারিত দেখতে চাপুন';
@@ -383,23 +449,23 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get forbiddenTimesIntro =>
-      'দিনে তিনটি সময় আছে যখন যেকোনো সালাত আদায় করা নিষিদ্ধ (মাকরূহ তাহরীমি)। রাসূলুল্লাহ ﷺ সূর্যোদয়, ঠিক দ্বিপ্রহরে এবং সূর্যাস্তের সময় সালাত আদায় করতে নিষেধ করেছেন — যে সময়ে কাফেররা সূর্যের পূজা করত। এই সময়ে ছুটে যাওয়া ফরজের কাযা: হানাফি মাযহাবে সহিহ নয় (তবে সেদিনের নিজের আসর সূর্যাস্তের আগে আদায় করা যায়); অধিকাংশ আলেম (শাফেয়ি, মালেকি, হাম্বলি) জায়েজ বলেন।';
+      'দিনে তিনটি সময় আছে যখন যেকোনো নামাজ আদায় করা নিষিদ্ধ (মাকরূহ তাহরীমি)। রাসূলুল্লাহ ﷺ সূর্যোদয়, ঠিক দ্বিপ্রহরে এবং সূর্যাস্তের সময় নামাজ আদায় করতে নিষেধ করেছেন — যে সময়ে কাফেররা সূর্যের পূজা করত। এই সময়ে ছুটে যাওয়া ফরজের কাযা: হানাফি মাযহাবে সহিহ নয় (তবে সেদিনের নিজের আসর সূর্যাস্তের আগে আদায় করা যায়); অধিকাংশ আলেম (শাফেয়ি, মালেকি, হাম্বলি) জায়েজ বলেন।';
 
   @override
   String get naflTimesIntro =>
-      'ফরজ সালাত ছাড়াও কিছু নফল (ঐচ্ছিক) সালাত রয়েছে যেগুলোর নির্দিষ্ট উত্তম সময় আছে — এগুলো আল্লাহর নৈকট্য লাভ ও ফরজের ঘাটতি পূরণের মাধ্যম।';
+      'ফরজ নামাজ ছাড়াও কিছু নফল (ঐচ্ছিক) নামাজ রয়েছে যেগুলোর নির্দিষ্ট উত্তম সময় আছে — এগুলো আল্লাহর নৈকট্য লাভ ও ফরজের ঘাটতি পূরণের মাধ্যম।';
 
   @override
   String get specialDetailForbiddenSunrise =>
-      'সূর্যোদয় থেকে শুরু করে সূর্য দিগন্তের উপরে পুরোপুরি উঠে যাওয়া পর্যন্ত (প্রায় ১৫ মিনিট)। রাসূলুল্লাহ ﷺ বলেছেন সূর্য শয়তানের দুই শিংয়ের মাঝ দিয়ে উদিত হয়, তাই তা পুরোপুরি উঠার আগ পর্যন্ত সালাত স্থগিত থাকে।';
+      'সূর্যোদয় থেকে শুরু করে সূর্য দিগন্তের উপরে পুরোপুরি উঠে যাওয়া পর্যন্ত (প্রায় ১৫ মিনিট)। রাসূলুল্লাহ ﷺ বলেছেন সূর্য শয়তানের দুই শিংয়ের মাঝ দিয়ে উদিত হয়, তাই তা পুরোপুরি উঠার আগ পর্যন্ত নামাজ স্থগিত থাকে।';
 
   @override
   String get specialDetailForbiddenZawal =>
-      'যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত কোনো সালাত আদায় হয় না।';
+      'যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত কোনো নামাজ আদায় হয় না।';
 
   @override
   String get specialDetailForbiddenSunset =>
-      'সূর্য যখন হলদে হয়ে অস্ত যেতে শুরু করে তখন থেকে পুরোপুরি অস্ত (মাগরিব) যাওয়া পর্যন্ত। সূর্যোদয়ের মতোই অস্ত যাওয়ার সময় সালাত স্থগিত থাকে।';
+      'সূর্য যখন হলদে হয়ে অস্ত যেতে শুরু করে তখন থেকে পুরোপুরি অস্ত (মাগরিব) যাওয়া পর্যন্ত। সূর্যোদয়ের মতোই অস্ত যাওয়ার সময় নামাজ স্থগিত থাকে।';
 
   @override
   String get specialDetailIshraq =>
@@ -415,11 +481,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialDetailAwwabin =>
-      'মাগরিব ও এশার মাঝে আদায় করা নফল রাকাত, প্রচলিতভাবে আওয়াবিন নামে পরিচিত। সহিহ হাদিসে রাসূলুল্লাহ ﷺ চাশত (দুহা)-কে \"সালাতুল আওয়াবিন\" বলেছেন (মুসলিম); মাগরিব-এশার মাঝের সালাতকে এ নাম দেওয়ার বর্ণনাগুলো দুর্বল।';
+      'মাগরিব ও এশার মাঝে আদায় করা নফল রাকাত, প্রচলিতভাবে আওয়াবিন নামে পরিচিত। সহিহ হাদিসে রাসূলুল্লাহ ﷺ চাশত (দুহা)-কে \"সালাতুল আওয়াবিন\" বলেছেন (মুসলিম); মাগরিব-এশার মাঝের নামাজকে এ নাম দেওয়ার বর্ণনাগুলো দুর্বল।';
 
   @override
   String get specialDetailTahajjud =>
-      'রাতের শেষ তৃতীয়াংশে আদায় করা সালাত, সর্বোত্তম নফল সালাত। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
+      'রাতের শেষ তৃতীয়াংশে আদায় করা নামাজ, সর্বোত্তম নফল নামাজ। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
 
   @override
   String get setJamaat => 'জামাতের সময় সেট করুন';
@@ -534,6 +600,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String hijriFromMaghrib(String date) {
+    return '$date (মাগরিব থেকে)';
+  }
+
+  @override
   String banglaMonthName(String month) {
     String _temp0 = intl.Intl.selectLogic(month, {
       'm1': 'বৈশাখ',
@@ -629,6 +700,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifSettingsTitle => 'নোটিফিকেশন';
 
   @override
+  String get notifOffInSystem => 'সিস্টেম সেটিংসে বন্ধ';
+
+  @override
   String get notifPermissionDeniedBanner =>
       'সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। প্রোডাক্টিভ মুসলিম পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
@@ -697,7 +771,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'প্রতিদিন সকালে একটি আয়াতের রিমাইন্ডার (সকাল ৮:০০)';
+      'আপনার বেছে নেওয়া সময়ে চিন্তা করার মতো একটি আয়াত';
 
   @override
   String get notifDailyAyahTitle => 'আজকের আয়াত';
@@ -710,7 +784,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'প্রতিদিন সন্ধ্যায় একটি হাদিসের রিমাইন্ডার (সন্ধ্যা ৬:০০)';
+      'আপনার বেছে নেওয়া সময়ে প্রতিদিন একটি হাদিস';
 
   @override
   String get notifDailyKindHadith => 'হাদিস';
@@ -742,6 +816,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'আজকের সকল নোটিফিকেশন ও রিমাইন্ডার এখানে দেখতে পাবেন।';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'নামাজের অ্যালার্ট ও রিমাইন্ডার নির্ধারণ করতে আপনার লোকেশন সেট করুন।';
+
+  @override
+  String get notificationsOffSub =>
+      'নোটিফিকেশন বন্ধ আছে, তাই কিছুই পৌঁছাবে না। আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
   @override
   String get headerDailyAyahHadith => 'আজকের আয়াত ও হাদিস';
@@ -776,7 +858,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get jamaatModeNone => 'নেই';
 
   @override
-  String get jamaatModeOffset => 'অফসেট';
+  String get jamaatModeOffset => 'ওয়াক্তের পরে';
 
   @override
   String get jamaatModeFixed => 'নির্দিষ্ট';
@@ -794,6 +876,23 @@ class AppLocalizationsBn extends AppLocalizations {
   String fixedAtTime(String time) {
     return 'জামাত $time এ';
   }
+
+  @override
+  String jamaatPreviewToday(String time) {
+    return '→ আজ $time';
+  }
+
+  @override
+  String jamaatOutsideWaqt(String prayer, String range) {
+    return 'আজকের $prayer ওয়াক্তের ($range) বাইরে';
+  }
+
+  @override
+  String get jumuahJamaatHint =>
+      'শুক্রবারে যোহরের জামাতের বদলে এটি ব্যবহার হবে';
+
+  @override
+  String get jumuahClear => 'জুমার সময় মুছুন';
 
   @override
   String get pickTime => 'সময় বাছুন';
@@ -842,6 +941,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaFinding => 'দিক খোঁজা হচ্ছে…';
 
   @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° ডানে ঘুরুন';
+  }
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° বাঁয়ে ঘুরুন';
+  }
+
+  @override
   String get qiblaNeedsLocation => 'কিবলার দিক পেতে আগে অবস্থান সেট করুন';
 
   @override
@@ -852,6 +961,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get muhasabaDayComplete => 'আজকের সব আমল পূর্ণ — আলহামদুলিল্লাহ';
+
+  @override
+  String get muhasabaDayCompletePast =>
+      'সেদিনের সব আমল সম্পন্ন — আলহামদুলিল্লাহ';
 
   @override
   String get muhasabaFirstDayBody =>
@@ -882,6 +995,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addTracker => 'আইটেম যোগ করুন';
 
   @override
+  String get reorderTrackers => 'আইটেমের ক্রম বদলান';
+
+  @override
+  String get reorderTrackersHint => 'চেকলিস্টের ক্রম ঠিক করতে টেনে সরান';
+
+  @override
   String get editTracker => 'আইটেম সম্পাদনা';
 
   @override
@@ -889,6 +1008,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get trackerKindLabel => 'ধরন';
+
+  @override
+  String get trackerKindLocked => 'আইটেম তৈরির পর ধরন বদলানো যায় না।';
 
   @override
   String get kindYesNo => 'হ্যাঁ / না';
@@ -961,6 +1083,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get streakStartToday => 'আজ থেকে ধারা শুরু করুন';
+
+  @override
   String bestStreakLabel(int count) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
@@ -1010,6 +1135,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get emptyRange => 'এই সময়ে এখনো কোনো এন্ট্রি নেই';
 
   @override
+  String heatmapDaysComplete(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$totalString দিনের মধ্যে $doneString দিন সম্পূর্ণ';
+  }
+
+  @override
   String minutesValue(int count) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
@@ -1026,6 +1164,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get searchSurahHint => 'সূরা খুঁজুন…';
+
+  @override
+  String get surahSearchNoResults =>
+      'কোনো সূরা মেলেনি — অন্য নাম বা নম্বর দিয়ে চেষ্টা করুন';
 
   @override
   String get continueReading => 'পড়া চালিয়ে যান';
@@ -1068,6 +1210,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get nextDay => 'পরের দিন';
 
   @override
+  String get chooseDate => 'তারিখ বেছে নিন';
+
+  @override
+  String get goToToday => 'আজকের দিনে যান';
+
+  @override
   String get quranLoadError => 'কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।';
 
   @override
@@ -1085,6 +1233,26 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get bookmarksEmpty =>
       'এখনো কোনো বুকমার্ক নেই। যেকোনো আয়াতের বুকমার্ক আইকনে চাপ দিলে এখানে জমা হবে।';
+
+  @override
+  String get bookmarkRemoved => 'বুকমার্ক সরানো হয়েছে';
+
+  @override
+  String get bookmarkUndo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get goToAyah => 'আয়াতে যান';
+
+  @override
+  String goToAyahHint(String max) {
+    return 'আয়াত ১–$max';
+  }
+
+  @override
+  String get goToAction => 'যান';
+
+  @override
+  String get nextSurah => 'পরের সূরা';
 
   @override
   String get bookmarkLabel => 'বুকমার্ক';
@@ -1147,6 +1315,34 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get asmaQuizNext => 'পরবর্তী';
+
+  @override
+  String get asmaQuizSwitchModeTitle => 'কুইজের মোড বদলাবেন?';
+
+  @override
+  String get asmaQuizSwitchModeBody =>
+      'নতুন কুইজ শুরু হবে; এখনকার অগ্রগতি মুছে যাবে।';
+
+  @override
+  String get asmaQuizSwitchMode => 'বদলান';
+
+  @override
+  String get asmaQuizCorrect => 'সঠিক';
+
+  @override
+  String asmaQuizWrongAnswerIs(String answer) {
+    return 'হয়নি — সঠিক উত্তর $answer';
+  }
+
+  @override
+  String asmaQuizCorrectOption(String label) {
+    return '$label, সঠিক উত্তর';
+  }
+
+  @override
+  String asmaQuizWrongOption(String label) {
+    return '$label, আপনার উত্তর, ভুল';
+  }
 
   @override
   String get asmaQuizSeeResult => 'ফলাফল দেখুন';
@@ -1229,6 +1425,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fastingTotal => 'মোট';
 
   @override
+  String get fastingNaflTotal => 'নফল';
+
+  @override
   String get fastingThisMonth => 'এই মাসে';
 
   @override
@@ -1236,6 +1435,55 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get fastingFasted => 'রোজা রাখা হয়েছে';
+
+  @override
+  String get fastingHeatmapHint => 'রোজা যোগ বা বাদ দিতে দিনে ট্যাপ করুন';
+
+  @override
+  String get fastTypeTitle => 'রোজাটি যুক্ত করুন';
+
+  @override
+  String get fastTypeNafl => 'নফল রোজা';
+
+  @override
+  String get fastTypeQaza => 'কাজা রোজা';
+
+  @override
+  String get fastingQazaTitle => 'কাজা রোজা';
+
+  @override
+  String fastingQazaMadeUp(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countStringটি আদায় হয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fastingQazaOfOwed(int done, int owed) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat owedNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String owedString = owedNumberFormat.format(owed);
+
+    return '$owedStringটির মধ্যে $doneStringটি আদায় হয়েছে';
+  }
+
+  @override
+  String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
+
+  @override
+  String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
 
   @override
   String fastingHeatmapLabel(int count) {
@@ -1301,7 +1549,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String achievementHow(String kind, String count) {
     String _temp0 = intl.Intl.selectLogic(kind, {
       'streak': 'মুহাসাবায় পরপর $count দিন অন্তত একটি আমল লিখুন।',
-      'salah': '$countটি ভিন্ন দিনে সালাত চিহ্নিত করুন।',
+      'salah': '$countটি ভিন্ন দিনে নামাজ চিহ্নিত করুন।',
       'dhikr': 'তাসবিহ দিয়ে $countটি যিকর গুনে সংরক্ষণ করুন।',
       'quranStart': 'কুরআন খুলে পড়া শুরু করুন।',
       'quran': '$count দিন কুরআন পড়া সম্পন্ন করুন।',
@@ -1328,10 +1576,35 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String achievementUnlockedToast(String name) {
+    return 'নতুন ব্যাজ: $name';
+  }
+
+  @override
+  String get achievementsView => 'দেখুন';
+
+  @override
+  String get achievementNew => 'নতুন';
+
+  @override
+  String achievementsNewCount(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countStringটি নতুন ব্যাজ',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String achievementCategory(String key) {
     String _temp0 = intl.Intl.selectLogic(key, {
       'streaks': 'ধারাবাহিকতা',
-      'salah': 'সালাত',
+      'salah': 'নামাজ',
       'dhikr': 'যিকর',
       'quran': 'কুরআন',
       'fasting': 'রোজা',
@@ -1347,9 +1620,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'streak_7': 'এক সপ্তাহের ধারা',
       'streak_30': 'এক মাসের ইবাদত',
       'streak_100': 'একশো দিন',
-      'salah_10': 'দশ দিন সালাত',
-      'salah_50': 'পঞ্চাশ দিন সালাত',
-      'salah_200': 'দুইশো দিন সালাত',
+      'salah_10': 'দশ দিন নামাজ',
+      'salah_50': 'পঞ্চাশ দিন নামাজ',
+      'salah_200': 'দুইশো দিন নামাজ',
       'dhikr_100': 'প্রথম একশো যিকর',
       'dhikr_1000': 'এক হাজার যিকর',
       'dhikr_10000': 'দশ হাজার যিকর',
@@ -1409,6 +1682,16 @@ class AppLocalizationsBn extends AppLocalizations {
     final String countString = countNumberFormat.format(count);
 
     return '$countString বার পড়ুন';
+  }
+
+  @override
+  String duaRepeatProgress(String count, String target) {
+    return '$count/$target';
+  }
+
+  @override
+  String duaRepeatCounterLabel(String count, String target) {
+    return '$target বারের মধ্যে $count বার গোনা হয়েছে। গুনতে চাপ দিন, শূন্য করতে চেপে ধরে রাখুন।';
   }
 
   @override
@@ -1486,6 +1769,30 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tasbihTargetReached => 'লক্ষ্য পূর্ণ — আল্লাহ কবুল করুন';
 
   @override
+  String get tasbihDhikr => 'জিকির';
+
+  @override
+  String tasbihPhrase(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'subhanallah': 'সুবহানাল্লাহ',
+      'alhamdulillah': 'আলহামদুলিল্লাহ',
+      'allahuakbar': 'আল্লাহু আকবার',
+      'tahlil': 'লা ইলাহা ইল্লাল্লাহ',
+      'astaghfirullah': 'আস্তাগফিরুল্লাহ',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tasbihAfterSalah => 'নামাজের পর ৩৩·৩৩·৩৪';
+
+  @override
+  String tasbihStepProgress(String count, String target) {
+    return '$target-এর মধ্যে $count';
+  }
+
+  @override
   String get ramadanTitle => 'রমজান';
 
   @override
@@ -1498,7 +1805,7 @@ class AppLocalizationsBn extends AppLocalizations {
         intl.NumberFormat.decimalPattern(localeName);
     final String totalString = totalNumberFormat.format(total);
 
-    return '$totalString দিনের $dayStringতম রোজা';
+    return 'রোজা $dayString/$totalString';
   }
 
   @override
@@ -1517,7 +1824,18 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get monthTable => 'রমজানের সাহরি ও ইফতারের সময়সূচি';
+  String monthTable(String year) {
+    return 'রমজান $year — সাহরি ও ইফতারের সময়সূচি';
+  }
+
+  @override
+  String get laylatulQadrOddNights =>
+      'শেষ দশকের বেজোড় রাতগুলোতে লাইলাতুল কদর তালাশ করুন';
+
+  @override
+  String oddNightBegins(String night) {
+    return 'সূর্যাস্তে $night রমজানের রাত শুরু';
+  }
 
   @override
   String get zakatTitle => 'যাকাত ক্যালকুলেটর';
@@ -1574,6 +1892,28 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String zakatNisabGold(String grams) {
+    return 'স্বর্ণের নিসাব ($grams গ্রাম)';
+  }
+
+  @override
+  String zakatNisabSilver(String grams) {
+    return 'রুপার নিসাব ($grams গ্রাম)';
+  }
+
+  @override
+  String get zakatRowCash => 'নগদ ও ব্যাংক';
+
+  @override
+  String get zakatRowMetals => 'স্বর্ণ ও রুপা';
+
+  @override
+  String get zakatRowBusiness => 'ব্যবসা, বিনিয়োগ ও পাওনা';
+
+  @override
+  String get zakatRowDebts => 'বাদ দেওয়া ঋণ';
+
+  @override
   String zakatDue(String amount) {
     return 'প্রদেয় যাকাত: $amount';
   }
@@ -1583,11 +1923,23 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার যাকাতযোগ্য সম্পদ নিসাবের নিচে — যাকাত ফরজ হয়নি।';
 
   @override
+  String get zakatDisclaimer =>
+      'এটি একটি অনুমান। নিসাব পরিমাণ সম্পদের ওপর পূর্ণ এক চান্দ্র বছর (হাওল) অতিবাহিত হলেই যাকাত ফরজ হয়, আর ব্যবহৃত অলংকারের যাকাত নিয়ে মাযহাবগুলোর মধ্যে মতভেদ আছে। চূড়ান্ত সিদ্ধান্তের জন্য একজন যোগ্য আলেমের পরামর্শ নিন।';
+
+  @override
   String get fitraInfo =>
       'সদাকাতুল ফিতর ঈদের নামাজের আগে জনপ্রতি আদায় করতে হয় — হানাফি পরিমাপে খেজুর, যব বা কিশমিশ হলে এক সা\' (~৩.৩ কেজি), গম বা আটা হলে অর্ধ সা\' (~১.৬৫ কেজি), বা তার মূল্য, পরিবারের প্রত্যেকের জন্য।';
 
   @override
   String get calendarTitle => 'ক্যালেন্ডার';
+
+  @override
+  String hijriAdjustedBy(String value) {
+    return 'হিজরি তারিখ $value সমন্বয় করা হয়েছে';
+  }
+
+  @override
+  String get hijriAdjustChange => 'বদলান';
 
   @override
   String islamicDayName(String day) {
@@ -1598,7 +1950,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'israMiraj': 'ইসরা ও মিরাজ',
       'nisfShaban': 'শবে বরাত',
       'ramadanStart': 'রমজান শুরু',
-      'laylatulQadr': 'লাইলাতুল কদর',
+      'laylatulQadr': '২৭ রমজানের রাত (লাইলাতুল কদর)',
       'eidAlFitr': 'ঈদুল ফিতর',
       'arafah': 'আরাফার দিন',
       'eidAlAdha': 'ঈদুল আজহা',
@@ -1702,6 +2054,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appLockWrongPin => 'ভুল পিন — আবার চেষ্টা করুন';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ভুল পিন — অপেক্ষার আগে আর $countStringবার চেষ্টা করা যাবে',
+      one: 'ভুল পিন — অপেক্ষার আগে আর ১বার চেষ্টা করা যাবে',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন';
 
   @override
@@ -1735,6 +2102,20 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'আপনার ডিভাইসে কোনো স্ক্রিন লক নেই, তাই আপনাকে যাচাই করা যাচ্ছে না। ডিভাইসের সেটিংসে স্ক্রিন লক চালু করে আবার চেষ্টা করুন। অ্যাপের ডেটা মুছে ফেললেও পিন সরে যায়, তবে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockResetFailed =>
+      'আপনাকে যাচাই করা যায়নি। পিন আগের মতোই আছে।';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'এই ডিভাইসে কোনো স্ক্রিন লক নেই';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'ডিভাইসে স্ক্রিন লক না থাকলে অ্যাপের পিন ভুলে গেলে তা রিসেট করা যাবে না। কেবল অ্যাপের ডেটা মুছলেই পিন সরে যায় — আর তাতে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'বুঝেছি';
 
   @override
   String get appLockNewPin => 'নতুন ৪-সংখ্যার পিন দিন';
@@ -1889,6 +2270,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fitraBeforeEid => 'ঈদের নামাজের আগে আদায় করুন।';
 
   @override
+  String get fitraHanafiOnly =>
+      'এই হিসাব হানাফি পরিমাপ অনুযায়ী (গম বা আটায় অর্ধ সা\')। অন্যান্য মাযহাবে প্রধান খাদ্যের পূর্ণ এক সা\' নির্ধারিত — একজন আলেমের পরামর্শ নিন।';
+
+  @override
   String get qazaTitle => 'কাযা নামাজ ক্যালকুলেটর';
 
   @override
@@ -1897,6 +2282,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qazaStartDate => 'শুরুর তারিখ';
+
+  @override
+  String get qazaStartHelper =>
+      'সাধারণত যেদিন বালেগ হয়েছেন (বুলুগ), অর্থাৎ যখন থেকে নামাজ ফরজ হয়েছে।';
 
   @override
   String get qazaEndDate => 'শেষের তারিখ';
@@ -1911,6 +2300,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qazaAlreadyMadeUp => 'ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)';
 
   @override
+  String get qazaExcludePerMonth => 'প্রতি মাসে বাদ দেওয়ার দিন (ঐচ্ছিক)';
+
+  @override
+  String get qazaExcludeHelper =>
+      'যেমন হায়েজের দিনগুলো, যখন নামাজ ফরজ থাকে না';
+
+  @override
   String get qazaEndBeforeStart => 'শেষের তারিখ শুরুর তারিখের আগে পড়েছে।';
 
   @override
@@ -1919,6 +2315,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String qazaDays(String count) {
     return 'সময়কাল: $count দিন';
+  }
+
+  @override
+  String qazaExcludedDays(String count) {
+    return 'বাদ দেওয়া: $count দিন';
   }
 
   @override
@@ -1985,6 +2386,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get faraidEstate => 'সম্পত্তির পরিমাণ';
 
   @override
+  String get faraidEstateHelper =>
+      'দাফন-কাফনের খরচ, ঋণ ও অসিয়ত (সর্বোচ্চ ১/৩) বাদ দেওয়ার পর';
+
+  @override
   String get faraidSpouse => 'স্বামী/স্ত্রী';
 
   @override
@@ -2023,6 +2428,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String faraidShare(String label, String amount) {
     return '$label: $amount';
+  }
+
+  @override
+  String faraidPerHead(String amount) {
+    return 'জনপ্রতি $amount';
   }
 
   @override
@@ -2137,7 +2547,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithBooksTitle => 'হাদিস সংকলন';
 
   @override
-  String get hadithBooksSubtitle => 'ওপেন ডেটাসেট থেকে পূর্ণ কিতাব ব্রাউজ করুন';
+  String get hadithBooksSubtitle => 'পূর্ণ কিতাবগুলো পড়ুন — ইন্টারনেট ছাড়াই';
 
   @override
   String get hadithBookAllSahih => 'প্রতিটি হাদিস সহিহ';
@@ -2148,8 +2558,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get hadithLoadError =>
-      'লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।';
+  String get hadithLoadError => 'লোড করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get hadithRetry => 'আবার চেষ্টা করুন';
@@ -2239,6 +2648,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseEmpty => 'কোনো খরচ লেখা হয়নি।';
 
   @override
+  String expenseFilterEmpty(String category) {
+    return 'এই মাসে $category খাতে কোনো খরচ নেই।';
+  }
+
+  @override
+  String get expenseShowAll => 'সব দেখুন';
+
+  @override
   String get expenseIsrafReminder =>
       '“আর যারা ব্যয় করে, তারা অপচয় করে না, কৃপণতাও করে না; বরং তারা এর মাঝে মধ্যপন্থা অবলম্বন করে।” (আল-ফুরকান ২৫:৬৭)';
 
@@ -2286,6 +2703,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get expenseCategoryOver => 'বেশি';
+
+  @override
   String expenseVsLastMonth(String dir, String amount) {
     String _temp0 = intl.Intl.selectLogic(dir, {
       'more': 'গত মাসের চেয়ে $amount বেশি',
@@ -2310,7 +2730,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'ক্যাটাগরিতে চাপলে শুধু সেই খরচ দেখাবে; বাজেট দিতে চেপে ধরুন (সাদাকাহ: লক্ষ্য)';
+      'ক্যাটাগরিতে চাপলে শুধু সেই খরচ দেখাবে; বাজেট দিতে পেনসিল আইকনে চাপুন বা চেপে ধরুন (সাদাকাহ: লক্ষ্য)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {
@@ -2563,22 +2983,22 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String qiblaCompassPoint(String point) {
     String _temp0 = intl.Intl.selectLogic(point, {
-      'N': 'উ',
-      'NNE': 'উউপূ',
-      'NE': 'উপূ',
-      'ENE': 'পূউপূ',
-      'E': 'পূ',
-      'ESE': 'পূদপূ',
-      'SE': 'দপূ',
-      'SSE': 'দদপূ',
-      'S': 'দ',
-      'SSW': 'দদপ',
-      'SW': 'দপ',
-      'WSW': 'পদপ',
-      'W': 'প',
-      'WNW': 'পউপ',
-      'NW': 'উপ',
-      'NNW': 'উউপ',
+      'N': 'উত্তর',
+      'NNE': 'উত্তর-উত্তরপূর্ব',
+      'NE': 'উত্তর-পূর্ব',
+      'ENE': 'পূর্ব-উত্তরপূর্ব',
+      'E': 'পূর্ব',
+      'ESE': 'পূর্ব-দক্ষিণপূর্ব',
+      'SE': 'দক্ষিণ-পূর্ব',
+      'SSE': 'দক্ষিণ-দক্ষিণপূর্ব',
+      'S': 'দক্ষিণ',
+      'SSW': 'দক্ষিণ-দক্ষিণপশ্চিম',
+      'SW': 'দক্ষিণ-পশ্চিম',
+      'WSW': 'পশ্চিম-দক্ষিণপশ্চিম',
+      'W': 'পশ্চিম',
+      'WNW': 'পশ্চিম-উত্তরপশ্চিম',
+      'NW': 'উত্তর-পশ্চিম',
+      'NNW': 'উত্তর-উত্তরপশ্চিম',
       'other': '$point',
     });
     return '$_temp0';
@@ -2642,6 +3062,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithSectionEmpty => 'এই অধ্যায়ে কোনো হাদিস নেই।';
 
   @override
+  String get hadithGoToNumber => 'হাদিস নম্বরে যান';
+
+  @override
+  String get hadithNumberHint => 'হাদিস নম্বর';
+
+  @override
+  String get hadithNumberNotFound => 'এই কিতাবে এই নম্বরের কোনো হাদিস নেই';
+
+  @override
   String hadithGradeWord(String word) {
     String _temp0 = intl.Intl.selectLogic(word, {
       'sahih': 'সহিহ',
@@ -2701,10 +3130,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get faraidInvalidNumber => 'সঠিক পরিমাণ লিখুন';
 
   @override
-  String get fitraInvalidNumber => 'সঠিক সংখ্যা লিখুন';
+  String get fitraPriceInvalid => '০-এর বেশি দাম লিখুন';
+
+  @override
+  String get fitraPeopleInvalid => 'কমপক্ষে ১ জন লিখুন';
 
   @override
   String get qazaInvalidNumber => 'একটি পূর্ণসংখ্যা লিখুন';
+
+  @override
+  String get qazaExcludeInvalid => '০ থেকে ৩০-এর মধ্যে একটি পূর্ণসংখ্যা লিখুন';
 
   @override
   String get mosqueRenameProfile => 'মসজিদের নাম বদলান';

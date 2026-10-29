@@ -223,11 +223,40 @@ void main() {
       expect(r.totalMissed, 26 * 6);
     });
 
-    test('dailyPrayers constant lists the five obligatory prayers', () {
-      expect(
-        QazaCalculator.dailyPrayers,
-        ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'],
+    test('excluded days per month are pro-rated and subtracted', () {
+      final r = QazaCalculator.calculate(
+        QazaInput(
+          startDate: DateTime(2025, 1, 1),
+          endDate: DateTime(2025, 12, 31), // 365 days
+          excludedDaysPerMonth: 7,
+          alreadyMadeUpPerPrayer: 10,
+        ),
       );
+      expect(r.days, 365);
+      expect(r.excludedDays, 84); // 365 * 7 / 30.4375 ≈ 83.9
+      expect(r.perPrayer, 365 - 84 - 10);
+    });
+
+    test('excluded days never exceed the period', () {
+      final r = QazaCalculator.calculate(
+        QazaInput(
+          startDate: DateTime(2026, 6, 1),
+          endDate: DateTime(2026, 6, 3),
+          excludedDaysPerMonth: 99,
+        ),
+      );
+      expect(r.excludedDays, 3);
+      expect(r.perPrayer, 0);
+    });
+
+    test('dailyPrayers constant lists the five obligatory prayers', () {
+      expect(QazaCalculator.dailyPrayers, [
+        'fajr',
+        'dhuhr',
+        'asr',
+        'maghrib',
+        'isha',
+      ]);
     });
   });
 }

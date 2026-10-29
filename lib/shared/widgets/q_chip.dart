@@ -66,9 +66,13 @@ final class QChip extends StatelessWidget {
                       Icon(icon, size: 15, color: fg),
                       const SizedBox(width: 6),
                     ],
-                    Text(
-                      label,
-                      style: QType.label.copyWith(fontSize: 13.5, color: fg),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: QType.label.copyWith(fontSize: 13.5, color: fg),
+                      ),
                     ),
                   ],
                 ),

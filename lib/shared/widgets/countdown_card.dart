@@ -33,6 +33,7 @@ final class CountdownCard extends StatelessWidget {
     this.corner,
     this.skyPhase = SkyPhase.day,
     this.compact = false,
+    this.semanticLabel,
     super.key,
   });
 
@@ -64,6 +65,11 @@ final class CountdownCard extends StatelessWidget {
 
   /// Small-screen variant (360×640): 36px numeral.
   final bool compact;
+
+  /// One spoken label for the eyebrow, numeral and caption (e.g. "Asr ends
+  /// in 1 hour 24 minutes"), instead of an uppercased overline and a
+  /// digit-by-digit clock. Defaults to the visible text.
+  final String? semanticLabel;
 
   ({Color bg, Color fg, Color sub, Color bar, Color ring}) _colors(
     ProductiveMuslimColors q,
@@ -169,88 +175,86 @@ final class CountdownCard extends StatelessWidget {
                   end: compact ? 12 : 16,
                   child: corner!(c.fg),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      eyebrow.toUpperCase(),
-                      style: QType.overline.copyWith(
-                        color: c.sub.withValues(alpha: 0.85),
+              Semantics(
+                container: true,
+                label: semanticLabel ?? '$eyebrow $big. $sub',
+                excludeSemantics: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        eyebrow.toUpperCase(),
+                        style: QType.overline.copyWith(color: c.sub),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: compact ? 5 : 8,
-                        bottom: compact ? 4 : 6,
-                      ),
-                      // Shrinks rather than wrapping mid-digits at large text
-                      // sizes on narrow phones.
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerStart,
-                        child: _RollingText(
-                          big,
-                          style: QType.countdown.copyWith(
-                            fontSize: numeralSize,
-                            color: c.fg,
-                          ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: compact ? 5 : 8,
+                          bottom: compact ? 4 : 6,
                         ),
-                      ),
-                    ),
-                    Text(
-                      sub,
-                      style: QType.caption.copyWith(
-                        fontSize: 12.5,
-                        color: c.sub.withValues(alpha: 0.85),
-                      ),
-                    ),
-                    SizedBox(height: compact ? 10 : 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: SizedBox(
-                        height: 5,
-                        width: double.infinity,
-                        child: ColoredBox(
-                          color: c.fg.withValues(alpha: 0.14),
-                          child: FractionallySizedBox(
-                            alignment: AlignmentDirectional.centerStart,
-                            widthFactor: progress.clamp(0, 1),
-                            child: ColoredBox(color: c.bar),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (footer.isNotEmpty) ...[
-                      SizedBox(height: compact ? 8 : 12),
-                      Wrap(
-                        spacing: QSpace.s4,
-                        runSpacing: QSpace.s1,
-                        children: [
-                          for (final item in footer)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  item.icon,
-                                  size: 14,
-                                  color: c.sub.withValues(alpha: 0.85),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  item.text,
-                                  style: QType.num_(QType.caption).copyWith(
-                                    fontSize: 12,
-                                    color: c.sub.withValues(alpha: 0.85),
-                                  ),
-                                ),
-                              ],
+                        // Shrinks rather than wrapping mid-digits at large text
+                        // sizes on narrow phones.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _RollingText(
+                            big,
+                            style: QType.countdown.copyWith(
+                              fontSize: numeralSize,
+                              color: c.fg,
                             ),
-                        ],
+                          ),
+                        ),
                       ),
+                      Text(
+                        sub,
+                        style: QType.caption.copyWith(
+                          fontSize: 12.5,
+                          color: c.sub,
+                        ),
+                      ),
+                      SizedBox(height: compact ? 10 : 16),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: SizedBox(
+                          height: 5,
+                          width: double.infinity,
+                          child: ColoredBox(
+                            color: c.fg.withValues(alpha: 0.14),
+                            child: FractionallySizedBox(
+                              alignment: AlignmentDirectional.centerStart,
+                              widthFactor: progress.clamp(0, 1),
+                              child: ColoredBox(color: c.bar),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (footer.isNotEmpty) ...[
+                        SizedBox(height: compact ? 8 : 12),
+                        Wrap(
+                          spacing: QSpace.s4,
+                          runSpacing: QSpace.s1,
+                          children: [
+                            for (final item in footer)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(item.icon, size: 14, color: c.sub),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    item.text,
+                                    style: QType.num_(
+                                      QType.caption,
+                                    ).copyWith(fontSize: 12, color: c.sub),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ],

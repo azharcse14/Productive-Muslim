@@ -20,7 +20,9 @@ enum IslamicDay {
   /// 1 Ramadan.
   ramadanStart,
 
-  /// 27 Ramadan (the most commonly observed night).
+  /// The night of 27 Ramadan (the most commonly observed). An Islamic night
+  /// begins at sunset, so it is marked on 26 Ramadan — the day whose
+  /// evening it starts.
   laylatulQadr,
 
   /// 1 Shawwal.
@@ -60,11 +62,19 @@ abstract final class IslamicDates {
     IslamicDate(IslamicDay.israMiraj, 7, 27),
     IslamicDate(IslamicDay.nisfShaban, 8, 15),
     IslamicDate(IslamicDay.ramadanStart, 9, 1),
-    IslamicDate(IslamicDay.laylatulQadr, 9, 27),
+    IslamicDate(IslamicDay.laylatulQadr, 9, 26),
     IslamicDate(IslamicDay.eidAlFitr, 10, 1),
     IslamicDate(IslamicDay.arafah, 12, 9),
     IslamicDate(IslamicDay.eidAlAdha, 12, 10),
   ];
+
+  /// Whether the evening of [d] begins one of the odd nights of Ramadan's
+  /// last ten (21, 23, 25, 27, 29) — i.e. [d] is 20, 22, … 28 Ramadan.
+  static bool isOddNightEve(HijriDate d) =>
+      d.month == HijriDate.ramadanMonth &&
+      d.day >= 20 &&
+      d.day <= 28 &&
+      d.day.isEven;
 
   /// The event falling on [d], or null when [d] is an ordinary day.
   static IslamicDay? of(HijriDate d) {

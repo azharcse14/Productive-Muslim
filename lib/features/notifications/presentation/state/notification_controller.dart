@@ -72,6 +72,12 @@ final class NotificationController {
   /// reminder, excluding the keep-alive nudge; null when nothing is planned.
   ReadonlySignal<DateTime?> get scheduledUntil => _scheduledUntil;
 
+  final _plan = signal<NotificationPlan>(const []);
+
+  /// The last successfully scheduled plan (location wall clock), so the
+  /// in-app inbox shows exactly what the OS will deliver.
+  ReadonlySignal<NotificationPlan> get plan => _plan;
+
   Future<void> start() async {
     if (_started) {
       return;
@@ -172,6 +178,7 @@ final class NotificationController {
         case Success(value: final plan):
           _lastRunAt = _now();
           _lastGrants = grants;
+          _plan.value = plan;
           _scheduledUntil.value = plan
               .where((i) => i.kind != NotificationKind.keepAlive)
               .lastOrNull

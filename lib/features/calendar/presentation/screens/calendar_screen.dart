@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/bangla_date.dart';
@@ -114,8 +116,35 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       _month.month,
       offsetDays: _offset,
     );
+    final today = _today;
+    final onCurrentMonth =
+        _month.year == today.year && _month.month == today.month;
+    final hasOddNights =
+        [
+          for (
+            var d = 1;
+            d <= DateTime(_month.year, _month.month + 1, 0).day;
+            d++
+          )
+            DateTime(_month.year, _month.month, d),
+        ].any(
+          (d) => IslamicDates.isOddNightEve(
+            HijriDate.fromGregorian(d, offsetDays: _offset),
+          ),
+        );
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.calendarTitle)),
+      appBar: AppBar(
+        title: Text(l10n.calendarTitle),
+        actions: [
+          if (!onCurrentMonth)
+            TextButton.icon(
+              icon: const Icon(Icons.today_outlined),
+              label: Text(l10n.todayTab),
+              onPressed: () =>
+                  setState(() => _month = DateTime(today.year, today.month)),
+            ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
@@ -143,6 +172,26 @@ final class _CalendarScreenState extends State<CalendarScreen> {
                         textAlign: TextAlign.center,
                         style: QType.caption.copyWith(color: q.ink2),
                       ),
+                      if (_offset != 0)
+                        // Tapping jumps to the setting that shifts it.
+                        InkWell(
+                          borderRadius: BorderRadius.circular(QRadius.sm),
+                          onTap: () => context.goNamed(Routes.settings.name),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: QSpace.s1,
+                            ),
+                            child: Text(
+                              _digits(
+                                context,
+                                '${l10n.hijriAdjustedBy(l10n.hijriOffsetValue(_offset.abs(), _offset > 0 ? '+' : '−'))}'
+                                ' · ${l10n.hijriAdjustChange}',
+                              ),
+                              textAlign: TextAlign.center,
+                              style: QType.caption.copyWith(color: q.primary),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -195,6 +244,19 @@ final class _CalendarScreenState extends State<CalendarScreen> {
                 ),
             ] else
               const SizedBox.shrink(),
+            if (hasOddNights)
+              Row(
+                children: [
+                  const _OddNightRing(),
+                  const SizedBox(width: QSpace.s3),
+                  Expanded(
+                    child: Text(
+                      l10n.laylatulQadrOddNights,
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -275,11 +337,14 @@ final class _DayCell extends StatelessWidget {
     final hijri = HijriDate.fromGregorian(date, offsetDays: offsetDays);
     final event = IslamicDates.of(hijri);
     final hasEvent = event != null;
+    final oddNightEve = IslamicDates.isOddNightEve(hijri);
     final label = LocaleDigits.localize(
       [
         DateFormat.yMMMMEEEEd(locale.toString()).format(date),
         '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}',
         if (event != null) l10n.islamicDayName(event.name),
+        if (oddNightEve && event == null)
+          l10n.oddNightBegins('${hijri.day + 1}'),
       ].join(', '),
       language,
     );
@@ -309,14 +374,20 @@ final class _DayCell extends StatelessWidget {
                 LocaleDigits.localize('${hijri.day}', language),
                 style: QType.caption.copyWith(color: q.ink3),
               ),
-              Container(
-                width: 5,
-                height: 5,
-                margin: const EdgeInsets.only(top: 2),
-                decoration: BoxDecoration(
-                  color: hasEvent ? q.accent : Colors.transparent,
-                  shape: BoxShape.circle,
-                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: hasEvent
+                    ? Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: q.accent,
+                          shape: BoxShape.circle,
+                        ),
+                      )
+                    : oddNightEve
+                    ? const _OddNightRing()
+                    : const SizedBox(height: 7),
               ),
             ],
           ),
@@ -356,6 +427,7 @@ final class _DaySheet extends StatelessWidget {
     final hijri = HijriDate.fromGregorian(day, offsetDays: offsetDays);
     final bangla = BanglaDate.fromGregorian(day);
     final event = IslamicDates.of(hijri);
+    final oddNightEve = IslamicDates.isOddNightEve(hijri);
     final localPrayerDay = prayerDay;
     return SafeArea(
       child: Padding(
@@ -414,6 +486,21 @@ final class _DaySheet extends StatelessWidget {
                 ],
               ),
             ],
+            if (oddNightEve && event == null) ...[
+              const SizedBox(height: QSpace.s3),
+              Row(
+                children: [
+                  const _OddNightRing(),
+                  const SizedBox(width: QSpace.s2),
+                  Expanded(
+                    child: Text(
+                      _digits(context, l10n.oddNightBegins('${hijri.day + 1}')),
+                      style: QType.body.copyWith(color: q.ink2),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (localPrayerDay != null) ...[
               const SizedBox(height: QSpace.s4),
               for (final prayer in Prayer.values)
@@ -440,4 +527,20 @@ final class _DaySheet extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Hollow accent ring marking a day whose evening begins an odd night of
+/// Ramadan's last ten (distinct from the solid event dot).
+final class _OddNightRing extends StatelessWidget {
+  const _OddNightRing();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 7,
+    height: 7,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(color: context.q.accent, width: 1.5),
+    ),
+  );
 }

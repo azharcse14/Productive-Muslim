@@ -80,7 +80,9 @@ final class QiblaMiniChip extends StatelessWidget {
         ..add(const SizedBox(width: 5))
         ..add(
           Text(
-            context.l10n.qiblaChipLabel,
+            hasLocation
+                ? context.l10n.qiblaChipLabel
+                : context.l10n.qiblaChipNeedsLocation,
             style: QType.caption.copyWith(color: fg),
           ),
         );

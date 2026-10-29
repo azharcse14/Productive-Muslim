@@ -37,13 +37,14 @@ final class RuqyahCard extends StatelessWidget {
                 ),
               ),
               QCopyButton(
-                text: '${item.arabic}\n${item.translationFor(languageCode)}'
+                text:
+                    '${item.arabic}\n${item.translationFor(languageCode)}'
                     '${item.reference.isEmpty ? '' : '\n— ${item.reference}'}',
               ),
             ],
           ),
           const SizedBox(height: QSpace.s2),
-          // Rebuilds when the Quran reader's font size changes.
+          // Rebuilds when the reader text size changes.
           SignalBuilder(
             builder: (context) => Text(
               item.arabic,
@@ -51,6 +52,9 @@ final class RuqyahCard extends StatelessWidget {
               // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
               // transliteration instead so screen-reader users hear the words.
               semanticsLabel: item.transliteration,
+              // Sized by the reader setting, so the system text scale must
+              // not multiply it again.
+              textScaler: TextScaler.noScaling,
               style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
             ),
           ),

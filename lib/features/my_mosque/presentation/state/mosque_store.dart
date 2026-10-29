@@ -138,6 +138,12 @@ final class MosqueStore {
         (p) => p.copyWith(entries: {...p.entries, prayer: entry}),
       );
 
+  /// Sets (or with null clears) the profile's Friday Jumu'ah time.
+  Future<void> setJumuah(String id, ClockTime? time) => _mapProfile(
+    id,
+    (p) => p.copyWith(jumuah: time, clearJumuah: time == null),
+  );
+
   Future<void> deleteProfile(String id) => _update((current) {
     final remaining = current.profiles.where((p) => p.id != id).toList();
     final override = current.activeOverride;

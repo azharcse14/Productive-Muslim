@@ -18,6 +18,15 @@ class TrackerItems extends Table {
   BoolColumn get archived => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer()();
 
+  /// yyyymmdd of the first day the item counts toward daily completion
+  /// (creation day, lowered if entries are back-filled earlier). Null =
+  /// counts on every day.
+  IntColumn get createdOn => integer().nullable()();
+
+  /// yyyymmdd of the day it was archived (it stops counting from that day
+  /// on); null while active.
+  IntColumn get archivedOn => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -52,16 +61,35 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// `dart run drift_dev schema dump lib/features/muhasaba/data/database/muhasaba_database.dart drift_schemas/muhasaba/`
   /// `dart run drift_dev schema generate drift_schemas/muhasaba/ test/features/muhasaba/data/generated/`
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // Add one step per version here (e.g. `if (from < 2) ...`) and a
-      // case in muhasaba_migration_test.dart. Until then nothing to do —
-      // fail loudly rather than open a mismatched schema.
-      throw StateError('No muhasaba migration from v$from to v$to');
+      // One step per version, each with a case in
+      // muhasaba_migration_test.dart.
+      if (from < 2) {
+        await m.addColumn(trackerItems, trackerItems.createdOn);
+        await m.addColumn(trackerItems, trackerItems.archivedOn);
+        // Conservative backfill (keeps past % as close to before as
+        // possible): custom items start at their first entry, every
+        // other item at the earliest entry overall (≈ install day);
+        // already-archived items stop counting from today.
+        final now = DateTime.now();
+        final today = now.year * 10000 + now.month * 100 + now.day;
+        await customStatement(
+          'UPDATE tracker_items SET created_on = COALESCE( '
+          '(SELECT MIN(e.date) FROM daily_entries e '
+          'WHERE e.item_id = tracker_items.id AND tracker_items.is_default = 0), '
+          '(SELECT MIN(date) FROM daily_entries), ?)',
+          [today],
+        );
+        await customStatement(
+          'UPDATE tracker_items SET archived_on = ? WHERE archived = 1',
+          [today],
+        );
+      }
     },
   );
 }

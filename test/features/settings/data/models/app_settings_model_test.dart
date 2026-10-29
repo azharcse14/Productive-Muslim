@@ -139,21 +139,6 @@ void main() {
       expect(params.adjustmentFor(Prayer.asr), 7);
     });
 
-    test('a legacy daily reminder carries into the hadith reminder', () {
-      final n = AppSettingsModel.fromMap(const {
-        'notifications': {'dailyReminder': true, 'dailyReminderMinute': 600},
-      }).notifications;
-      expect(n.dailyReminder, isFalse);
-      expect(n.dailyHadithReminder, isTrue);
-      expect(n.dailyHadithMinute, 600);
-      // A saved hadith setting wins over the legacy one.
-      final saved = AppSettingsModel.fromMap(const {
-        'notifications': {'dailyReminder': true, 'dailyHadithReminder': false},
-      }).notifications;
-      expect(saved.dailyHadithReminder, isFalse);
-      expect(saved.dailyHadithMinute, const NotificationMatrix().dailyHadithMinute);
-    });
-
     test('showAchievements defaults to off', () {
       expect(AppSettingsModel.fromMap(const {}).showAchievements, isFalse);
     });

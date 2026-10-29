@@ -12,10 +12,15 @@ final class QSegControl extends StatelessWidget {
     required this.options,
     required this.activeIndex,
     required this.onChanged,
+    this.semanticsPrefix,
     super.key,
   });
 
   final List<String> options;
+
+  /// Spoken before each option (e.g. "Fajr" → "Fajr: Azan") when several
+  /// controls on one screen share the same options; visuals unchanged.
+  final String? semanticsPrefix;
   final int activeIndex;
   final ValueChanged<int> onChanged;
 
@@ -42,7 +47,9 @@ final class QSegControl extends StatelessWidget {
               child: Semantics(
                 button: true,
                 selected: i == activeIndex,
-                label: option,
+                label: semanticsPrefix == null
+                    ? option
+                    : '$semanticsPrefix: $option',
                 onTap: () => _select(i),
                 child: ExcludeSemantics(
                   child: GestureDetector(

@@ -55,9 +55,28 @@ void main() {
       expect(find.text('Logged for today'), findsOneWidget);
     });
 
+    testWidgets('tapping a past heatmap day logs it as qaza', (tester) async {
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+      // Jun 10 2026 (a Wednesday, not recommended) via its cell label.
+      await tester.tap(find.bySemanticsLabel(RegExp(r'^Wed, Jun 10')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Make-up (qaza)'));
+      await tester.pumpAndSettle();
+      final store = GetIt.I<FastingStore>();
+      expect(store.isLogged(DateTime(2026, 6, 10)), isTrue);
+      expect(store.isQaza(DateTime(2026, 6, 10)), isTrue);
+    });
+
     testWidgets('renders the upcoming list', (tester) async {
       await tester.pumpWidget(_app(const FastingScreen()));
       await tester.pumpAndSettle();
+      // The log card grew (heatmap hint), so scroll the list down to it.
+      await tester.scrollUntilVisible(
+        find.text('Upcoming recommended fasts'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Upcoming recommended fasts'), findsOneWidget);
     });
 

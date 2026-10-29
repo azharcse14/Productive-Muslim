@@ -8,6 +8,7 @@ final class MosqueProfile {
     required this.id,
     required this.name,
     this.entries = const {},
+    this.jumuah,
   });
 
   /// New profiles default Maghrib to offset +5 minutes (design §4.9).
@@ -25,20 +26,30 @@ final class MosqueProfile {
   /// Per-prayer jamaat settings; missing key = unset.
   final Map<Prayer, JamaatEntry> entries;
 
-  JamaatConfig get config => JamaatConfig(entries);
+  /// Optional Friday Jumu'ah jamaat time (null = use Dhuhr's entry).
+  final ClockTime? jumuah;
 
-  MosqueProfile copyWith({String? name, Map<Prayer, JamaatEntry>? entries}) =>
-      MosqueProfile(
-        id: id,
-        name: name ?? this.name,
-        entries: entries ?? this.entries,
-      );
+  JamaatConfig get config => JamaatConfig(entries, jumuah);
+
+  /// [clearJumuah] drops the Jumu'ah time ([jumuah] null means "keep").
+  MosqueProfile copyWith({
+    String? name,
+    Map<Prayer, JamaatEntry>? entries,
+    ClockTime? jumuah,
+    bool clearJumuah = false,
+  }) => MosqueProfile(
+    id: id,
+    name: name ?? this.name,
+    entries: entries ?? this.entries,
+    jumuah: clearJumuah ? null : jumuah ?? this.jumuah,
+  );
 
   @override
   bool operator ==(Object other) {
     if (other is! MosqueProfile ||
         other.id != id ||
         other.name != name ||
+        other.jumuah != jumuah ||
         other.entries.length != entries.length) {
       return false;
     }
@@ -52,10 +63,11 @@ final class MosqueProfile {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        name,
-        Object.hashAllUnordered(
-          entries.entries.map((e) => Object.hash(e.key, e.value)),
-        ),
-      );
+    id,
+    name,
+    jumuah,
+    Object.hashAllUnordered(
+      entries.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+  );
 }

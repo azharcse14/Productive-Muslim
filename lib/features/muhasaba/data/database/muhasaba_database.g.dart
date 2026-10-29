@@ -107,6 +107,28 @@ class $TrackerItemsTable extends TrackerItems
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _createdOnMeta = const VerificationMeta(
+    'createdOn',
+  );
+  @override
+  late final GeneratedColumn<int> createdOn = GeneratedColumn<int>(
+    'created_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archivedOnMeta = const VerificationMeta(
+    'archivedOn',
+  );
+  @override
+  late final GeneratedColumn<int> archivedOn = GeneratedColumn<int>(
+    'archived_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -118,6 +140,8 @@ class $TrackerItemsTable extends TrackerItems
     isDefault,
     archived,
     sortOrder,
+    createdOn,
+    archivedOn,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -199,6 +223,18 @@ class $TrackerItemsTable extends TrackerItems
     } else if (isInserting) {
       context.missing(_sortOrderMeta);
     }
+    if (data.containsKey('created_on')) {
+      context.handle(
+        _createdOnMeta,
+        createdOn.isAcceptableOrUnknown(data['created_on']!, _createdOnMeta),
+      );
+    }
+    if (data.containsKey('archived_on')) {
+      context.handle(
+        _archivedOnMeta,
+        archivedOn.isAcceptableOrUnknown(data['archived_on']!, _archivedOnMeta),
+      );
+    }
     return context;
   }
 
@@ -244,6 +280,14 @@ class $TrackerItemsTable extends TrackerItems
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      createdOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_on'],
+      ),
+      archivedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}archived_on'],
+      ),
     );
   }
 
@@ -265,6 +309,15 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
   final bool isDefault;
   final bool archived;
   final int sortOrder;
+
+  /// yyyymmdd of the first day the item counts toward daily completion
+  /// (creation day, lowered if entries are back-filled earlier). Null =
+  /// counts on every day.
+  final int? createdOn;
+
+  /// yyyymmdd of the day it was archived (it stops counting from that day
+  /// on); null while active.
+  final int? archivedOn;
   const TrackerItemRow({
     required this.id,
     required this.name,
@@ -275,6 +328,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
     required this.isDefault,
     required this.archived,
     required this.sortOrder,
+    this.createdOn,
+    this.archivedOn,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -290,6 +345,12 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
     map['is_default'] = Variable<bool>(isDefault);
     map['archived'] = Variable<bool>(archived);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || createdOn != null) {
+      map['created_on'] = Variable<int>(createdOn);
+    }
+    if (!nullToAbsent || archivedOn != null) {
+      map['archived_on'] = Variable<int>(archivedOn);
+    }
     return map;
   }
 
@@ -306,6 +367,12 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
       isDefault: Value(isDefault),
       archived: Value(archived),
       sortOrder: Value(sortOrder),
+      createdOn: createdOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdOn),
+      archivedOn: archivedOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedOn),
     );
   }
 
@@ -324,6 +391,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       archived: serializer.fromJson<bool>(json['archived']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdOn: serializer.fromJson<int?>(json['createdOn']),
+      archivedOn: serializer.fromJson<int?>(json['archivedOn']),
     );
   }
   @override
@@ -339,6 +408,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
       'isDefault': serializer.toJson<bool>(isDefault),
       'archived': serializer.toJson<bool>(archived),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdOn': serializer.toJson<int?>(createdOn),
+      'archivedOn': serializer.toJson<int?>(archivedOn),
     };
   }
 
@@ -352,6 +423,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
     bool? isDefault,
     bool? archived,
     int? sortOrder,
+    Value<int?> createdOn = const Value.absent(),
+    Value<int?> archivedOn = const Value.absent(),
   }) => TrackerItemRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -362,6 +435,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
     isDefault: isDefault ?? this.isDefault,
     archived: archived ?? this.archived,
     sortOrder: sortOrder ?? this.sortOrder,
+    createdOn: createdOn.present ? createdOn.value : this.createdOn,
+    archivedOn: archivedOn.present ? archivedOn.value : this.archivedOn,
   );
   TrackerItemRow copyWithCompanion(TrackerItemsCompanion data) {
     return TrackerItemRow(
@@ -378,6 +453,10 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       archived: data.archived.present ? data.archived.value : this.archived,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdOn: data.createdOn.present ? data.createdOn.value : this.createdOn,
+      archivedOn: data.archivedOn.present
+          ? data.archivedOn.value
+          : this.archivedOn,
     );
   }
 
@@ -392,7 +471,9 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
           ..write('colorIndex: $colorIndex, ')
           ..write('isDefault: $isDefault, ')
           ..write('archived: $archived, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdOn: $createdOn, ')
+          ..write('archivedOn: $archivedOn')
           ..write(')'))
         .toString();
   }
@@ -408,6 +489,8 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
     isDefault,
     archived,
     sortOrder,
+    createdOn,
+    archivedOn,
   );
   @override
   bool operator ==(Object other) =>
@@ -421,7 +504,9 @@ class TrackerItemRow extends DataClass implements Insertable<TrackerItemRow> {
           other.colorIndex == this.colorIndex &&
           other.isDefault == this.isDefault &&
           other.archived == this.archived &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.createdOn == this.createdOn &&
+          other.archivedOn == this.archivedOn);
 }
 
 class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
@@ -434,6 +519,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
   final Value<bool> isDefault;
   final Value<bool> archived;
   final Value<int> sortOrder;
+  final Value<int?> createdOn;
+  final Value<int?> archivedOn;
   final Value<int> rowid;
   const TrackerItemsCompanion({
     this.id = const Value.absent(),
@@ -445,6 +532,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
     this.isDefault = const Value.absent(),
     this.archived = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.createdOn = const Value.absent(),
+    this.archivedOn = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TrackerItemsCompanion.insert({
@@ -457,6 +546,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
     required bool isDefault,
     this.archived = const Value.absent(),
     required int sortOrder,
+    this.createdOn = const Value.absent(),
+    this.archivedOn = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -475,6 +566,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
     Expression<bool>? isDefault,
     Expression<bool>? archived,
     Expression<int>? sortOrder,
+    Expression<int>? createdOn,
+    Expression<int>? archivedOn,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -487,6 +580,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
       if (isDefault != null) 'is_default': isDefault,
       if (archived != null) 'archived': archived,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdOn != null) 'created_on': createdOn,
+      if (archivedOn != null) 'archived_on': archivedOn,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -501,6 +596,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
     Value<bool>? isDefault,
     Value<bool>? archived,
     Value<int>? sortOrder,
+    Value<int?>? createdOn,
+    Value<int?>? archivedOn,
     Value<int>? rowid,
   }) {
     return TrackerItemsCompanion(
@@ -513,6 +610,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
       isDefault: isDefault ?? this.isDefault,
       archived: archived ?? this.archived,
       sortOrder: sortOrder ?? this.sortOrder,
+      createdOn: createdOn ?? this.createdOn,
+      archivedOn: archivedOn ?? this.archivedOn,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -547,6 +646,12 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (createdOn.present) {
+      map['created_on'] = Variable<int>(createdOn.value);
+    }
+    if (archivedOn.present) {
+      map['archived_on'] = Variable<int>(archivedOn.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -565,6 +670,8 @@ class TrackerItemsCompanion extends UpdateCompanion<TrackerItemRow> {
           ..write('isDefault: $isDefault, ')
           ..write('archived: $archived, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('createdOn: $createdOn, ')
+          ..write('archivedOn: $archivedOn, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -864,6 +971,8 @@ typedef $$TrackerItemsTableCreateCompanionBuilder =
       required bool isDefault,
       Value<bool> archived,
       required int sortOrder,
+      Value<int?> createdOn,
+      Value<int?> archivedOn,
       Value<int> rowid,
     });
 typedef $$TrackerItemsTableUpdateCompanionBuilder =
@@ -877,6 +986,8 @@ typedef $$TrackerItemsTableUpdateCompanionBuilder =
       Value<bool> isDefault,
       Value<bool> archived,
       Value<int> sortOrder,
+      Value<int?> createdOn,
+      Value<int?> archivedOn,
       Value<int> rowid,
     });
 
@@ -959,6 +1070,16 @@ class $$TrackerItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get createdOn => $composableBuilder(
+    column: $table.createdOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get archivedOn => $composableBuilder(
+    column: $table.archivedOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> dailyEntriesRefs(
     Expression<bool> Function($$DailyEntriesTableFilterComposer f) f,
   ) {
@@ -1038,6 +1159,16 @@ class $$TrackerItemsTableOrderingComposer
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get createdOn => $composableBuilder(
+    column: $table.createdOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get archivedOn => $composableBuilder(
+    column: $table.archivedOn,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TrackerItemsTableAnnotationComposer
@@ -1079,6 +1210,14 @@ class $$TrackerItemsTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<int> get createdOn =>
+      $composableBuilder(column: $table.createdOn, builder: (column) => column);
+
+  GeneratedColumn<int> get archivedOn => $composableBuilder(
+    column: $table.archivedOn,
+    builder: (column) => column,
+  );
 
   Expression<T> dailyEntriesRefs<T extends Object>(
     Expression<T> Function($$DailyEntriesTableAnnotationComposer a) f,
@@ -1145,6 +1284,8 @@ class $$TrackerItemsTableTableManager
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> archived = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<int?> createdOn = const Value.absent(),
+                Value<int?> archivedOn = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackerItemsCompanion(
                 id: id,
@@ -1156,6 +1297,8 @@ class $$TrackerItemsTableTableManager
                 isDefault: isDefault,
                 archived: archived,
                 sortOrder: sortOrder,
+                createdOn: createdOn,
+                archivedOn: archivedOn,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1169,6 +1312,8 @@ class $$TrackerItemsTableTableManager
                 required bool isDefault,
                 Value<bool> archived = const Value.absent(),
                 required int sortOrder,
+                Value<int?> createdOn = const Value.absent(),
+                Value<int?> archivedOn = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackerItemsCompanion.insert(
                 id: id,
@@ -1180,6 +1325,8 @@ class $$TrackerItemsTableTableManager
                 isDefault: isDefault,
                 archived: archived,
                 sortOrder: sortOrder,
+                createdOn: createdOn,
+                archivedOn: archivedOn,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

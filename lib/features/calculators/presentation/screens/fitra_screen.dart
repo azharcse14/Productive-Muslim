@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -8,6 +9,8 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/fitra_calculator.dart';
 
 /// Sadaqatul Fitr (Fitra) calculator: pick a staple, enter the local price
@@ -23,10 +26,14 @@ final class _FitraScreenState extends State<FitraScreen> {
   final _price = TextEditingController();
   late final _people = TextEditingController(text: context.digits('1'));
 
+  /// The weights below follow Hanafi measures; other schools get a notice.
+  late final bool _hanafi =
+      locator<SettingsStore>().prayerParams.value.madhab == Madhab.hanafi;
+
   FitraStaple _staple = FitraStaple.wheat;
   FitraResult? _result;
 
-  /// Fields whose non-empty text didn't parse; shown as field errors.
+  /// Fields that are empty, unparseable or out of range; shown as errors.
   Set<TextEditingController> _invalid = {};
 
   @override
@@ -51,8 +58,8 @@ final class _FitraScreenState extends State<FitraScreen> {
     final people = int.tryParse(peopleText);
     setState(() {
       _invalid = {
-        if (priceText.isNotEmpty && (price == null || !price.isFinite)) _price,
-        if (peopleText.isNotEmpty && people == null) _people,
+        if (price == null || !price.isFinite || price <= 0) _price,
+        if (people == null || people < 1) _people,
       };
       if (_invalid.isNotEmpty) {
         _result = null;
@@ -61,8 +68,8 @@ final class _FitraScreenState extends State<FitraScreen> {
       _result = FitraCalculator.calculate(
         FitraInput(
           staple: _staple,
-          pricePerKg: price ?? 0,
-          numberOfPeople: people ?? 0,
+          pricePerKg: price!,
+          numberOfPeople: people!,
         ),
       );
     });
@@ -71,7 +78,9 @@ final class _FitraScreenState extends State<FitraScreen> {
   String _formatAmount(BuildContext context, double amount) {
     final locale = Localizations.localeOf(context);
     return LocaleDigits.localize(
-      NumberFormat.decimalPattern(locale.toString()).format(amount),
+      (NumberFormat.decimalPattern(
+        locale.toString(),
+      )..maximumFractionDigits = 2).format(amount),
       locale.languageCode,
     );
   }
@@ -103,12 +112,20 @@ final class _FitraScreenState extends State<FitraScreen> {
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
-            Text(
-              l10n.fitraSubtitle,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
+            Text(l10n.fitraSubtitle, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s4),
             QBanner(text: l10n.fitraBeforeEid),
+            const SizedBox(height: QSpace.s3),
+            QBanner(text: l10n.fitraInfo, icon: Icons.rice_bowl_outlined),
+            if (!_hanafi) ...[
+              const SizedBox(height: QSpace.s3),
+              QBanner(
+                text: l10n.fitraHanafiOnly,
+                icon: Icons.warning_amber_rounded,
+                tone: q.warnSoft,
+                foreground: q.ink,
+              ),
+            ],
             const SizedBox(height: QSpace.s4),
             DropdownButtonFormField<FitraStaple>(
               initialValue: _staple,
@@ -136,7 +153,7 @@ final class _FitraScreenState extends State<FitraScreen> {
               decoration: InputDecoration(
                 labelText: l10n.fitraPricePerKg,
                 errorText: _invalid.contains(_price)
-                    ? l10n.fitraInvalidNumber
+                    ? l10n.fitraPriceInvalid
                     : null,
               ),
             ),
@@ -149,7 +166,7 @@ final class _FitraScreenState extends State<FitraScreen> {
               decoration: InputDecoration(
                 labelText: l10n.fitraPeople,
                 errorText: _invalid.contains(_people)
-                    ? l10n.fitraInvalidNumber
+                    ? l10n.fitraPeopleInvalid
                     : null,
               ),
             ),

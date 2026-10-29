@@ -66,23 +66,23 @@ final class _FakeDuaRepository implements DuaRepository {
 
   @override
   Future<Result<List<AsmaName>>> asmaulHusna() async => Result.success([
-        for (var n = 1; n <= 99; n++)
-          AsmaName(
-            number: n,
-            arabic: 'اسم $n',
-            transliteration: 'Name $n',
-            meaningEn: 'Meaning $n',
-            meaningBn: '',
-          ),
-      ]);
+    for (var n = 1; n <= 99; n++)
+      AsmaName(
+        number: n,
+        arabic: 'اسم $n',
+        transliteration: 'Name $n',
+        meaningEn: 'Meaning $n',
+        meaningBn: '',
+      ),
+  ]);
 }
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 void main() {
   setUp(() async {
@@ -107,8 +107,9 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('DuaScreen', () {
-    testWidgets('renders feature cards and the categories grid',
-        (tester) async {
+    testWidgets('renders feature cards and the categories grid', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const DuaScreen()));
       await tester.pump();
 
@@ -134,8 +135,9 @@ void main() {
   });
 
   group('DuaCategoryScreen', () {
-    testWidgets('shows arabic, translation, reference and repeat chip',
-        (tester) async {
+    testWidgets('shows arabic, translation, reference and repeat chip', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(const DuaCategoryScreen(category: _morningCategory)),
       );
@@ -150,7 +152,69 @@ void main() {
     });
   });
 
+  group('DuaCard repeat counter', () {
+    testWidgets('taps count up to the target; long-press resets', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(const DuaCategoryScreen(category: _morningCategory)),
+      );
+      await tester.tap(find.text('Repeat 3×'));
+      await tester.pump();
+      expect(find.text('1/3'), findsOneWidget);
+
+      for (final label in ['1/3', '2/3', '3/3']) {
+        await tester.tap(find.text(label));
+        await tester.pump();
+      }
+      expect(find.text('3/3'), findsOneWidget); // stops at the target
+
+      await tester.longPress(find.text('3/3'));
+      await tester.pump();
+      expect(find.text('Repeat 3×'), findsOneWidget);
+    });
+  });
+
   group('TasbihScreen', () {
+    testWidgets('after-prayer preset advances the phrase at 33 and 66', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+
+      await tester.tap(find.text('After prayer 33·33·34'));
+      await tester.pump();
+      expect(GetIt.I<TasbihStore>().target.value, 100);
+      expect(find.text('SubhanAllah'), findsOneWidget);
+
+      for (var i = 0; i < 33; i++) {
+        await tester.tap(find.byType(QProgressRing));
+      }
+      await tester.pump();
+      expect(find.text('Alhamdulillah'), findsOneWidget);
+      expect(find.text('0 of 33'), findsOneWidget);
+
+      for (var i = 0; i < 33; i++) {
+        await tester.tap(find.byType(QProgressRing));
+      }
+      await tester.pump();
+      expect(find.text('Allahu Akbar'), findsOneWidget);
+      expect(find.text('0 of 34'), findsOneWidget);
+
+      // A plain target leaves the preset; the phrase choice persists.
+      await tester.tap(find.text('33'));
+      await tester.pump();
+      await tester.ensureVisible(find.text('Astaghfirullah'));
+      await tester.tap(find.text('Astaghfirullah'));
+      await tester.pump();
+      expect(
+        await SharedPreferencesAsync().getString('tasbih_phrase'),
+        'astaghfirullah',
+      );
+    });
+
     testWidgets('tap increments the displayed count', (tester) async {
       await tester.pumpWidget(_app(const TasbihScreen()));
       await tester.pump();

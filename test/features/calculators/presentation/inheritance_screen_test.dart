@@ -5,11 +5,11 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/inheritance_screen.dart';
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const InheritanceScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const InheritanceScreen(),
+);
 
 /// The form is long; give tests a tall viewport so every field and the
 /// Calculate button are laid out (off-screen ListView children aren't built).
@@ -35,8 +35,9 @@ void main() {
       );
     });
 
-    testWidgets('wife + son + daughter produces a result breakdown',
-        (tester) async {
+    testWidgets('wife + son + daughter produces a result breakdown', (
+      tester,
+    ) async {
       _useTallSurface(tester);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -49,7 +50,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Bump sons +1 and daughters +1 via the add steppers.
-      final adds = find.byIcon(Icons.add_circle_outline);
+      final adds = find.byIcon(Icons.add);
       // Order of steppers: [wives shown], sons, daughters, brothers, sisters.
       // After selecting Wife, the wife stepper appears first.
       // Sons stepper add is the 2nd add icon, daughters the 3rd.
@@ -88,8 +89,9 @@ void main() {
       expect(find.textContaining('Unallocated'), findsNothing);
     });
 
-    testWidgets('out-of-scope relatives show a banner, no distribution',
-        (tester) async {
+    testWidgets('out-of-scope relatives show a banner, no distribution', (
+      tester,
+    ) async {
       _useTallSurface(tester);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -122,6 +124,24 @@ void main() {
       await tester.tap(find.text('Calculate'));
       await tester.pumpAndSettle();
       expect(find.text('Enter a valid amount'), findsOneWidget);
+    });
+
+    testWidgets('a group of heirs also shows the per-head amount', (
+      tester,
+    ) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '300000');
+      // No spouse: the first add stepper is sons.
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pump();
+      await tester.tap(find.text('Calculate'));
+      await tester.pumpAndSettle();
+      expect(find.text('300,000'), findsOneWidget);
+      expect(find.text('150,000 each'), findsOneWidget);
     });
   });
 }

@@ -41,9 +41,9 @@ final class _FastingScreenState extends State<FastingScreen> {
     }
   }
 
-  Future<void> _toggle(DateTime date) async {
+  Future<void> _toggle(DateTime date, {bool asQaza = false}) async {
     try {
-      await _store.toggle(date);
+      await _store.toggle(date, asQaza: asQaza);
     } on Object {
       // The store already put the log back; say why the tick vanished.
       if (mounted) {
@@ -51,6 +51,56 @@ final class _FastingScreenState extends State<FastingScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text(context.l10n.fastingSaveFailed)));
       }
+    }
+  }
+
+  /// Logs/un-logs [date], asking nafl vs qaza for a new non-Ramadan fast
+  /// that isn't a recommended (sunnah) day.
+  Future<void> _log(DateTime date, {bool ask = true}) async {
+    if (_store.isLogged(date) ||
+        !ask ||
+        _store.isRamadan(date) ||
+        !_store.canLog(date)) {
+      return _toggle(date);
+    }
+    final asQaza = await _chooseType(context);
+    if (asQaza != null) {
+      await _toggle(date, asQaza: asQaza);
+    }
+  }
+
+  Future<void> _setOwed(BuildContext context) async {
+    final l10n = context.l10n;
+    final controller = TextEditingController(
+      text: _store.qazaOwed.value?.toString() ?? '',
+    );
+    final owed = await showDialog<int?>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.fastingQazaSetOwed),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(hintText: l10n.fastingQazaOwedHint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(
+              int.tryParse(LocaleDigits.toAscii(controller.text.trim())) ?? 0,
+            ),
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (owed != null) {
+      await _store.setQazaOwed(owed);
     }
   }
 
@@ -64,6 +114,8 @@ final class _FastingScreenState extends State<FastingScreen> {
           builder: (context) {
             // Touch the signals so the builder re-runs on change.
             _store.logged.value;
+            _store.qaza.value;
+            _store.qazaOwed.value;
             // Home's day signal flips at midnight, so "today" follows it.
             if (locator.isRegistered<HomeStore>()) {
               locator<HomeStore>().dateKey.value;
@@ -86,10 +138,25 @@ final class _FastingScreenState extends State<FastingScreen> {
                   forbidden: _store.isForbidden(today),
                   ramadan: _store.isRamadan(today),
                   logged: _store.isLogged(today),
-                  onToggle: () => _toggle(today),
+                  // A recommended day is the sunnah fast; otherwise ask.
+                  onToggle: () => _log(today, ask: todays.isEmpty),
                 ),
                 const SizedBox(height: QSpace.s4),
-                _StatsCard(stats: stats, weeks: _store.monthHeatmap()),
+                _StatsCard(
+                  stats: stats,
+                  weeks: _store.monthHeatmap(),
+                  today: today,
+                  dateAt: _store.heatmapDate,
+                  isLogged: _store.isLogged,
+                  // Past/today days toggle; future & forbidden ones can't
+                  // be logged (removing stays allowed).
+                  onDayTap: (date) {
+                    if (_store.isLogged(date) || _store.canLog(date)) {
+                      Haptics.selection();
+                      unawaited(_log(date));
+                    }
+                  },
+                ),
                 const SizedBox(height: QSpace.s4),
                 _UpcomingCard(
                   upcoming: upcoming,
@@ -101,6 +168,12 @@ final class _FastingScreenState extends State<FastingScreen> {
                     Haptics.selection();
                     unawaited(_toggle(date));
                   },
+                ),
+                const SizedBox(height: QSpace.s4),
+                _QazaCard(
+                  done: _store.qaza.value.length,
+                  owed: _store.qazaOwed.value,
+                  onSetOwed: () => unawaited(_setOwed(context)),
                 ),
               ],
             );
@@ -223,12 +296,128 @@ final class _TodayCard extends StatelessWidget {
   }
 }
 
-/// Personal log stats + a month heatmap (no-shame framing).
+/// Nafl or qaza? Null when dismissed.
+Future<bool?> _chooseType(BuildContext context) {
+  final l10n = context.l10n;
+  return showModalBottomSheet<bool>(
+    context: context,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              QSpace.s5,
+              QSpace.s5,
+              QSpace.s5,
+              QSpace.s2,
+            ),
+            child: Text(
+              l10n.fastTypeTitle,
+              style: QType.title.copyWith(color: sheetContext.q.ink),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.wb_twilight_outlined),
+            title: Text(l10n.fastTypeNafl),
+            onTap: () => Navigator.of(sheetContext).pop(false),
+          ),
+          ListTile(
+            leading: const Icon(Icons.replay_outlined),
+            title: Text(l10n.fastTypeQaza),
+            onTap: () => Navigator.of(sheetContext).pop(true),
+          ),
+          const SizedBox(height: QSpace.s3),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Qaza (make-up) counter: how many are made up, of an optional owed total.
+final class _QazaCard extends StatelessWidget {
+  const _QazaCard({
+    required this.done,
+    required this.owed,
+    required this.onSetOwed,
+  });
+
+  final int done;
+  final int? owed;
+  final VoidCallback onSetOwed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    final code = Localizations.localeOf(context).languageCode;
+    final owed = this.owed;
+    return QCard(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.fastingQazaTitle,
+                  style: QType.titleSm.copyWith(color: q.ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  LocaleDigits.localize(
+                    owed == null
+                        ? l10n.fastingQazaMadeUp(done)
+                        : l10n.fastingQazaOfOwed(done, owed),
+                    code,
+                  ),
+                  style: QType.caption.copyWith(color: q.ink2),
+                ),
+                if (owed != null) ...[
+                  const SizedBox(height: QSpace.s2),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(QRadius.full),
+                    child: LinearProgressIndicator(
+                      value: (done / owed).clamp(0.0, 1.0),
+                      minHeight: 6,
+                      color: q.primary,
+                      backgroundColor: q.surface2,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: QSpace.s3),
+          TextButton(
+            onPressed: onSetOwed,
+            child: Text(l10n.fastingQazaSetOwed),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Personal log stats + a month heatmap (no-shame framing). Heatmap days
+/// are tappable to log or remove a fast.
 final class _StatsCard extends StatelessWidget {
-  const _StatsCard({required this.stats, required this.weeks});
+  const _StatsCard({
+    required this.stats,
+    required this.weeks,
+    required this.today,
+    required this.dateAt,
+    required this.isLogged,
+    required this.onDayTap,
+  });
 
   final FastingStats stats;
   final List<List<int>> weeks;
+  final DateTime today;
+  final DateTime? Function(int week, int day) dateAt;
+  final bool Function(DateTime) isLogged;
+  final ValueChanged<DateTime> onDayTap;
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +425,9 @@ final class _StatsCard extends StatelessWidget {
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
     String n(int v) => LocaleDigits.localize('$v', code);
+    // Same Sunday-first padding as monthHeatmap.
+    final todayCell =
+        today.day - 1 + DateTime(today.year, today.month).weekday % 7;
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +440,10 @@ final class _StatsCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _Stat(value: n(stats.total), label: l10n.fastingTotal),
+                child: _Stat(
+                  value: n(stats.total),
+                  label: l10n.fastingNaflTotal,
+                ),
               ),
               Expanded(
                 child: _Stat(
@@ -270,7 +465,29 @@ final class _StatsCard extends StatelessWidget {
             child: QHeatmap(
               weeks: weeks,
               semanticLabel: l10n.fastingHeatmapLabel(stats.thisMonth),
+              highlight: (todayCell ~/ 7, todayCell % 7),
+              cellLabel: (w, d) {
+                final date = dateAt(w, d);
+                if (date == null) {
+                  return '';
+                }
+                return LocaleDigits.localize(
+                  '${DateFormat.MMMEd(code).format(date)}: '
+                  '${isLogged(date) ? l10n.fastingFasted : l10n.notYet}',
+                  code,
+                );
+              },
+              onTap: (w, d) {
+                if (dateAt(w, d) case final date?) {
+                  onDayTap(date);
+                }
+              },
             ),
+          ),
+          const SizedBox(height: QSpace.s2),
+          Text(
+            l10n.fastingHeatmapHint,
+            style: QType.caption.copyWith(color: q.ink3),
           ),
           const SizedBox(height: QSpace.s3),
           Row(

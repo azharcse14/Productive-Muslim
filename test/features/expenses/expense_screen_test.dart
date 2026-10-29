@@ -81,6 +81,7 @@ void main() {
     await tester.tap(find.byTooltip('Monthly budget'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '5000');
+    await tester.pump();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -303,7 +304,8 @@ void main() {
       SystemChannels.platform,
       (call) async => call.method == 'Clipboard.getData'
           ? {
-              'text': 'date,category,amount,note\n'
+              'text':
+                  'date,category,amount,note\n'
                   '2026-10-01T10:00:00.000,need,5,"x"',
             }
           : null,
@@ -324,6 +326,45 @@ void main() {
       findsOneWidget,
     );
     expect(store.entries.value, isEmpty);
+  });
+
+  testWidgets('a filter with no entries offers Show all', (tester) async {
+    tester.view
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Family').first);
+    await tester.pumpAndSettle();
+    expect(find.text('No Family entries this month.'), findsOneWidget);
+    expect(find.text('tea'), findsNothing);
+
+    await tester.ensureVisible(find.widgetWithText(QChip, 'Show all'));
+    await tester.tap(find.widgetWithText(QChip, 'Show all'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('tea'));
+    expect(find.text('tea'), findsOneWidget);
+  });
+
+  testWidgets('category pencil opens its budget dialog; Save waits for input', (
+    tester,
+  ) async {
+    register();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Wants budget'));
+    await tester.pumpAndSettle();
+    final save = find.widgetWithText(TextButton, 'Save');
+    expect(tester.widget<TextButton>(save).onPressed, isNull);
+    await tester.enterText(find.byType(TextField), '900');
+    await tester.pump();
+    expect(tester.widget<TextButton>(save).onPressed, isNotNull);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(store.categoryBudgets.value[ExpenseCategory.want], isNull);
   });
 }
 

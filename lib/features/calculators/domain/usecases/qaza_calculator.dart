@@ -16,6 +16,7 @@ final class QazaInput {
     required this.endDate,
     this.includeWitr = false,
     this.alreadyMadeUpPerPrayer = 0,
+    this.excludedDaysPerMonth = 0,
   });
 
   /// First day of the missed period (date-only; inclusive).
@@ -31,6 +32,10 @@ final class QazaInput {
   /// Prayers of each kind the user has *already* made up. Subtracted from
   /// the per-prayer count; clamped so it can never push a count negative.
   final int alreadyMadeUpPerPrayer;
+
+  /// Days per month with no prayer owed (e.g. menstruation), clamped to
+  /// 0..30 and pro-rated over the period by the average month length.
+  final int excludedDaysPerMonth;
 }
 
 /// Outcome of [QazaCalculator.calculate].
@@ -41,11 +46,15 @@ final class QazaResult {
     required this.witr,
     required this.totalMissed,
     required this.breakdown,
+    this.excludedDays = 0,
   });
 
   /// Whole days in the period, inclusive of both endpoints (0 when the
   /// range is inverted).
   final int days;
+
+  /// Days dropped from [days] via [QazaInput.excludedDaysPerMonth].
+  final int excludedDays;
 
   /// Outstanding count for each of the five daily prayers, after
   /// subtracting [QazaInput.alreadyMadeUpPerPrayer] (floored at 0).
@@ -95,8 +104,10 @@ abstract final class QazaCalculator {
     }
 
     final days = end.difference(start).inDays + 1;
+    final perMonth = input.excludedDaysPerMonth.clamp(0, 30);
+    final excludedDays = math.min(days, (days * perMonth / _avgMonth).round());
     final madeUp = math.max(0, input.alreadyMadeUpPerPrayer);
-    final perPrayer = math.max(0, days - madeUp);
+    final perPrayer = math.max(0, days - excludedDays - madeUp);
     final witr = input.includeWitr ? perPrayer : 0;
     final totalMissed = perPrayer * 5 + witr;
 
@@ -109,6 +120,7 @@ abstract final class QazaCalculator {
 
     return QazaResult(
       days: days,
+      excludedDays: excludedDays,
       perPrayer: perPrayer,
       witr: witr,
       totalMissed: totalMissed,
@@ -116,8 +128,10 @@ abstract final class QazaCalculator {
     );
   }
 
+  /// Average Gregorian month length in days (365.25 / 12).
+  static const double _avgMonth = 30.4375;
+
   /// Strips the time component, keeping only year/month/day. UTC so the
   /// day difference is not shortened by a DST hour.
-  static DateTime _dateOnly(DateTime d) =>
-      DateTime.utc(d.year, d.month, d.day);
+  static DateTime _dateOnly(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 }

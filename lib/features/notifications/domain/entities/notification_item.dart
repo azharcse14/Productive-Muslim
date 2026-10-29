@@ -66,8 +66,8 @@ final class NotificationItem {
   /// from [at]'s date when isha falls after midnight (high latitudes).
   final DateTime? prayerDay;
 
-  /// Jamaat/sahri only: the event the reminder leads up to; [at] is that
-  /// minus the lead. The body shows this time, not when it fires.
+  /// Jamaat/sahri reminders: the moment the text announces (the jamaat,
+  /// sahri end), which [at] precedes by the lead time. Null = [at].
   final DateTime? eventAt;
 
   /// Matrix mode [AzanMode.silent]: show without sound.
@@ -104,11 +104,11 @@ final class NotificationItem {
       other is NotificationItem &&
       other.kind == kind &&
       other.at == at &&
-      other.eventAt == eventAt &&
       other.prayer == prayer &&
+      other.eventAt == eventAt &&
       other.silent == silent &&
       other.beepOnly == beepOnly;
 
   @override
-  int get hashCode => Object.hash(kind, at, eventAt, prayer, silent, beepOnly);
+  int get hashCode => Object.hash(kind, at, prayer, eventAt, silent, beepOnly);
 }

@@ -81,8 +81,8 @@ void main() {
       final rows = store.monthRows.value;
       expect(rows.length, RamadanUtils.ramadanLength(1447));
       for (final (i, row) in rows.indexed) {
-        expect(row.$1, i + 1);
-        expect(row.$3.isBefore(row.$4), isTrue);
+        expect(row.$4, i + 1);
+        expect(row.$2.isBefore(row.$3), isTrue);
       }
     });
 
@@ -141,7 +141,7 @@ void main() {
 
     test('month table follows the offset', () async {
       final store = await make(hijriOffset: -1);
-      expect(store.monthRows.value.first.$2, DateTime(2026, 2, 19));
+      expect(store.monthRows.value.first.$1, DateTime(2026, 2, 19));
     });
   });
 }

@@ -10,6 +10,7 @@ import 'package:productive_muslim/features/notifications/domain/entities/notific
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
 import 'package:productive_muslim/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:productive_muslim/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:productive_muslim/features/notifications/presentation/state/notification_controller.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -20,6 +21,7 @@ import 'package:productive_muslim/features/settings/domain/entities/location_con
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
@@ -49,7 +51,6 @@ final class _FakeScheduler implements NotificationScheduler {
   /// What the OS prompt answers ([requestPermission]).
   final NotificationPermission promptResult;
   int prompts = 0;
-
 
   NotificationPermission permission;
   bool exactAlarms;
@@ -85,8 +86,7 @@ final class _FakeScheduler implements NotificationScheduler {
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,
-  ) async =>
-      const Result.success(null);
+  ) async => const Result.success(null);
 
   @override
   Future<void> cancelAll() async {}
@@ -129,15 +129,26 @@ Future<void> _register(
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
     ..registerSingleton<NotificationScheduler>(scheduler)
-    ..registerSingleton<NotificationController>(_controller);
+    ..registerSingleton<NotificationController>(_controller)
+    ..registerSingleton<ZonedClock>(TimezoneClock());
 }
 
-Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const NotificationSettingsScreen(),
-    );
+Widget _app({Widget home = const NotificationSettingsScreen()}) => MaterialApp(
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
+
+const _dhaka = ManualCityLocation(
+  City(
+    name: 'Dhaka',
+    countryCode: 'BD',
+    latitude: 23.7104,
+    longitude: 90.4074,
+    timezone: 'Asia/Dhaka',
+  ),
+);
 
 void main() {
   setUpAll(TimezoneClock.initialize);
@@ -147,8 +158,9 @@ void main() {
   });
 
   group('NotificationSettingsScreen', () {
-    testWidgets('renders the per-prayer matrix for all 5 prayers',
-        (tester) async {
+    testWidgets('renders the per-prayer matrix for all 5 prayers', (
+      tester,
+    ) async {
       await _register(_FakeScheduler());
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -166,14 +178,12 @@ void main() {
       // Fajr row → tap its "Silent" segment.
       await tester.tap(find.text('Silent').first);
       await tester.pump();
-      expect(
-        _repo.stored.notifications.modeFor(Prayer.fajr),
-        AzanMode.silent,
-      );
+      expect(_repo.stored.notifications.modeFor(Prayer.fajr), AzanMode.silent);
     });
 
-    testWidgets('toggling jamaat reminder persists and reveals lead row',
-        (tester) async {
+    testWidgets('toggling jamaat reminder persists and reveals lead row', (
+      tester,
+    ) async {
       await _register(_FakeScheduler());
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -193,8 +203,9 @@ void main() {
       expect(find.text('Lead time'), findsNWidgets(2)); // sahri + jamaat
     });
 
-    testWidgets('iOS: Shortcuts guide opens and launches Shortcuts',
-        (tester) async {
+    testWidgets('iOS: Shortcuts guide opens and launches Shortcuts', (
+      tester,
+    ) async {
       final launcher = _FakeLauncher(accept: false);
       await _register(_FakeScheduler());
       GetIt.I.registerSingleton<ExternalLauncher>(launcher);
@@ -227,8 +238,9 @@ void main() {
       );
     }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
-    testWidgets('denied permission shows education banner and CTA',
-        (tester) async {
+    testWidgets('denied permission shows education banner and CTA', (
+      tester,
+    ) async {
       await _register(
         _FakeScheduler(permission: NotificationPermission.denied),
       );
@@ -241,10 +253,12 @@ void main() {
       expect(find.text('Enable notifications'), findsOneWidget);
     });
 
-    testWidgets('previously denied still tries the OS prompt first',
-        (tester) async {
-      final scheduler =
-          _FakeScheduler(permission: NotificationPermission.denied);
+    testWidgets('previously denied still tries the OS prompt first', (
+      tester,
+    ) async {
+      final scheduler = _FakeScheduler(
+        permission: NotificationPermission.denied,
+      );
       await _register(scheduler);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -255,8 +269,9 @@ void main() {
       expect(find.text('Enable notifications'), findsNothing);
     });
 
-    testWidgets('truly denied falls through to system settings',
-        (tester) async {
+    testWidgets('truly denied falls through to system settings', (
+      tester,
+    ) async {
       final scheduler = _FakeScheduler(
         permission: NotificationPermission.denied,
         promptResult: NotificationPermission.denied,
@@ -269,8 +284,9 @@ void main() {
       expect(scheduler.settingsOpened, isTrue);
     });
 
-    testWidgets('declining a real first prompt stays on the screen',
-        (tester) async {
+    testWidgets('declining a real first prompt stays on the screen', (
+      tester,
+    ) async {
       final scheduler = _FakeScheduler(
         permission: NotificationPermission.notRequested,
         promptResult: NotificationPermission.denied,
@@ -284,8 +300,9 @@ void main() {
       expect(scheduler.settingsOpened, isFalse);
     });
 
-    testWidgets('missing exact-alarm permission shows guidance',
-        (tester) async {
+    testWidgets('missing exact-alarm permission shows guidance', (
+      tester,
+    ) async {
       final scheduler = _FakeScheduler(exactAlarms: false);
       await _register(scheduler);
       await tester.pumpWidget(_app());
@@ -295,7 +312,7 @@ void main() {
       await tester.pump();
       expect(scheduler.exactRequested, isTrue);
     });
-  
+
     testWidgets('nothing scheduled says so', (tester) async {
       await _register(_FakeScheduler());
       await tester.pumpWidget(_app());
@@ -310,8 +327,7 @@ void main() {
       );
     });
 
-    testWidgets('shows how far ahead reminders are scheduled',
-        (tester) async {
+    testWidgets('shows how far ahead reminders are scheduled', (tester) async {
       await _register(
         _FakeScheduler(),
         settings: const AppSettings(
@@ -332,6 +348,69 @@ void main() {
       final until = find.textContaining('Reminders scheduled until ');
       await tester.scrollUntilVisible(until, 200);
       expect(until, findsOneWidget);
+    });
+
+    testWidgets('per-prayer segments name the prayer for screen readers', (
+      tester,
+    ) async {
+      await _register(_FakeScheduler());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.bySemanticsLabel('Fajr: Azan'), findsOneWidget);
+      expect(find.bySemanticsLabel('Isha: Off'), findsOneWidget);
+    });
+
+    testWidgets('hadith/dua of the day has its own switch', (tester) async {
+      await _register(_FakeScheduler());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final title = find.text('Daily reminder');
+      await tester.scrollUntilVisible(title, 200);
+      final toggle = find.descendant(
+        of: find.ancestor(of: title, matching: find.byType(Row)),
+        matching: find.byType(Switch),
+      );
+      await tester.ensureVisible(toggle.first);
+      await tester.pumpAndSettle();
+      await tester.tap(toggle.first);
+      await tester.pump();
+      expect(_repo.stored.notifications.dailyReminder, isTrue);
+    });
+  });
+
+  group('NotificationsScreen', () {
+    testWidgets('lists the real plan: an Off prayer is absent', (tester) async {
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(
+          location: _dhaka,
+          notifications: NotificationMatrix(
+            prayerModes: {Prayer.fajr: AzanMode.off},
+          ),
+        ),
+      );
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      expect(find.text("It's time for Dhuhr."), findsOneWidget);
+      expect(find.text("It's time for Fajr."), findsNothing);
+    });
+
+    testWidgets('denied permission offers to enable', (tester) async {
+      await _register(
+        _FakeScheduler(permission: NotificationPermission.denied),
+        settings: const AppSettings(location: _dhaka),
+      );
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      expect(find.text('Enable notifications'), findsOneWidget);
+    });
+
+    testWidgets('no location offers to set one', (tester) async {
+      await _register(_FakeScheduler());
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      expect(find.text('Set location'), findsOneWidget);
     });
   });
 }

@@ -53,6 +53,16 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   }
 
   @override
+  Future<Result<void>> reorder(List<String> ids) async {
+    for (final (i, id) in ids.indexed) {
+      if (items_[id] case final item?) {
+        items_[id] = item.copyWith(sortOrder: i);
+      }
+    }
+    return const Result.success(null);
+  }
+
+  @override
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     if (failItemWrites) {
       return const Result.failure(UnexpectedFailure('save failed'));
