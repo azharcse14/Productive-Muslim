@@ -85,6 +85,11 @@ final class _DuaScreenState extends State<DuaScreen> {
             icon: const Icon(Icons.search),
             tooltip: l10n.duaSearchTitle,
             onPressed: () {
+              // Searching "sleep" also finds that category's duas.
+              final categoryOf = {
+                for (final c in _store.categories.value)
+                  for (final d in c.duas) d.id: l10n.duaCategoryName(c.id),
+              };
               unawaited(
                 showSearch<void>(
                   context: context,
@@ -97,6 +102,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                       d.translationEn,
                       d.translationBn,
                       d.reference,
+                      categoryOf[d.id] ?? '',
                     ],
                     itemBuilder: (_, d) => DuaCard(dua: d),
                     emptyText: l10n.duaNoResults,
