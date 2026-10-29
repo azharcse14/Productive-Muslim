@@ -26,3 +26,33 @@ jobs:
       - run: flutter analyze
 
       - run: flutter test
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.0
+          channel: stable
+          cache: true
+
+      # android/gradle.properties asks for -Xmx8G; the runner can't spare it.
+      # User-home properties override the project's.
+      - run: mkdir -p ~/.gradle && echo "org.gradle.jvmargs=-Xmx4g" >> ~/.gradle/gradle.properties
+
+      - run: flutter pub get
+
+      - run: flutter build apk --debug
+
+      # No key.properties in CI → debug-signed, but R8 still runs.
+      - run: flutter build apk --release
+
+      - run: ./gradlew :app:testDebugUnitTest
+        working-directory: android
