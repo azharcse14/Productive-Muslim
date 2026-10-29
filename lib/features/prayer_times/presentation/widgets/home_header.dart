@@ -49,43 +49,52 @@ final class HomeHeader extends StatelessWidget {
             ),
           Row(
             children: [
-              Flexible(
-                child: Semantics(
-                  button: true,
-                  child: InkWell(
-                    onTap: onLocationTap,
-                    borderRadius: BorderRadius.circular(99),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        4,
-                        8,
-                        10,
-                        8,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.place_outlined,
-                              size: 17, color: q.primary),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              locationName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: QType.titleSm.copyWith(
-                                fontSize: 15.5,
-                                color: q.ink,
-                                fontVariations: const [
-                                  FontVariation('wght', 700),
-                                ],
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Semantics(
+                    button: true,
+                    child: InkWell(
+                      onTap: onLocationTap,
+                      borderRadius: BorderRadius.circular(99),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          4,
+                          8,
+                          10,
+                          8,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.place_outlined,
+                              size: 17,
+                              color: q.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                locationName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: QType.titleSm.copyWith(
+                                  fontSize: 15.5,
+                                  color: q.ink,
+                                  fontVariations: const [
+                                    FontVariation('wght', 700),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(Icons.keyboard_arrow_down,
-                              size: 15, color: q.ink3),
-                        ],
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 15,
+                              color: q.ink3,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -119,8 +128,10 @@ final class HomeHeader extends StatelessWidget {
                   if (i > 0)
                     Opacity(
                       opacity: 0.5,
-                      child:
-                          Text('·', style: QType.caption.copyWith(color: q.ink2)),
+                      child: Text(
+                        '·',
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
                     ),
                   Text(d, style: QType.caption.copyWith(color: q.ink2)),
                 ],
