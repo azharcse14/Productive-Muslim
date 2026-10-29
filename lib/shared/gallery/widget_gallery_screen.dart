@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router/routes.dart';
 import '../../core/theme/productive_muslim_tokens.dart';
 import '../extensions/context_ext.dart';
 import '../painters/qalb_mark.dart';
@@ -26,12 +28,36 @@ final class WidgetGalleryScreen extends StatefulWidget {
 
 final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
   int _segIndex = 0;
+  final _activeChips = {'Active'};
+
+  /// Set by the first interaction; reveals the bottom Save bar.
+  bool _dirty = false;
+
+  void _tapped(String what) => setState(() => _dirty = true);
+
+  void _toggleChip(String label) => setState(() {
+    _dirty = true;
+    _activeChips.contains(label)
+        ? _activeChips.remove(label)
+        : _activeChips.add(label);
+  });
 
   @override
   Widget build(BuildContext context) {
     final q = context.q;
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.galleryTitle)),
+      bottomNavigationBar: _dirty
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(QSpace.s5),
+                child: QButton(
+                  label: context.l10n.save,
+                  onPressed: () => context.goNamed(Routes.home.name),
+                ),
+              ),
+            )
+          : null,
       body: ListView(
         padding: const EdgeInsets.all(QSpace.s5),
         children: [
@@ -65,33 +91,33 @@ final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
             spacing: QSpace.s3,
             runSpacing: QSpace.s3,
             children: [
-              QButton(label: 'Primary', onPressed: () {}),
+              QButton(label: 'Primary', onPressed: () => _tapped('Primary')),
               QButton(
                 label: 'Tonal',
                 kind: QButtonKind.tonal,
-                onPressed: () {},
+                onPressed: () => _tapped('Tonal'),
               ),
               QButton(
                 label: 'Outline',
                 kind: QButtonKind.outline,
-                onPressed: () {},
+                onPressed: () => _tapped('Outline'),
               ),
               QButton(
                 label: 'Ghost',
                 kind: QButtonKind.ghost,
-                onPressed: () {},
+                onPressed: () => _tapped('Ghost'),
               ),
               QButton(
                 label: 'Accent',
                 kind: QButtonKind.accent,
-                onPressed: () {},
+                onPressed: () => _tapped('Accent'),
               ),
               const QButton(label: 'Disabled', onPressed: null),
               QButton(
                 label: 'Small',
                 small: true,
                 icon: Icons.add,
-                onPressed: () {},
+                onPressed: () => _tapped('Small'),
               ),
             ],
           ),
@@ -99,16 +125,27 @@ final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
           Wrap(
             spacing: QSpace.s2,
             children: [
-              QChip(label: 'Active', active: true, onTap: () {}),
-              QChip(label: 'Inactive', onTap: () {}),
-              QChip(label: 'With icon', icon: Icons.star_outline, onTap: () {}),
+              for (final (label, icon) in const [
+                ('Active', null),
+                ('Inactive', null),
+                ('With icon', Icons.star_outline),
+              ])
+                QChip(
+                  label: label,
+                  icon: icon,
+                  active: _activeChips.contains(label),
+                  onTap: () => _toggleChip(label),
+                ),
             ],
           ),
           const SizedBox(height: QSpace.s3),
           QSegControl(
             options: const ['Today', 'Week', 'Month', 'Year'],
             activeIndex: _segIndex,
-            onChanged: (i) => setState(() => _segIndex = i),
+            onChanged: (i) => setState(() {
+              _segIndex = i;
+              _dirty = true;
+            }),
           ),
           _section('Progress ring & heatmap'),
           Row(
@@ -138,12 +175,13 @@ final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
                   subtitle: 'Supporting caption',
                   icon: Icons.notifications_outlined,
                   trailing: Icon(Icons.chevron_right, color: q.ink3),
-                  onTap: () {},
+                  onTap: () => _tapped('List row'),
                 ),
                 const Divider(),
                 const SizedBox(height: QSpace.s3),
                 const QBanner(
-                  text: 'Inline banner with an informational message that '
+                  text:
+                      'Inline banner with an informational message that '
                       'wraps across lines without truncation.',
                 ),
                 const SizedBox(height: QSpace.s3),
@@ -160,10 +198,7 @@ final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
   }
 
   Widget _section(String title) => Padding(
-        padding: const EdgeInsets.only(top: QSpace.s6, bottom: QSpace.s3),
-        child: Text(
-          title.toUpperCase(),
-          style: context.text.labelSmall,
-        ),
-      );
+    padding: const EdgeInsets.only(top: QSpace.s6, bottom: QSpace.s3),
+    child: Text(title.toUpperCase(), style: context.text.labelSmall),
+  );
 }
