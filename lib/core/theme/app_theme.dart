@@ -91,6 +91,45 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(QRadius.lg),
         ),
       ),
+      // Filled, rounded fields on the token palette (matches the Quran
+      // search field); errors use the urgent tone.
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: q.surface,
+        labelStyle: QType.body.copyWith(color: q.ink2),
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
+          (states) => QType.label.copyWith(
+            color: states.contains(WidgetState.error)
+                ? q.urgent
+                : states.contains(WidgetState.focused)
+                ? q.primary
+                : q.ink2,
+          ),
+        ),
+        hintStyle: QType.body.copyWith(color: q.ink3),
+        helperStyle: QType.caption.copyWith(color: q.ink2),
+        errorStyle: QType.caption.copyWith(color: q.urgent),
+        prefixIconColor: q.ink2,
+        suffixIconColor: q.ink2,
+        border: _field(q.line, 1.5),
+        enabledBorder: _field(q.line, 1.5),
+        focusedBorder: _field(q.primary, 2),
+        errorBorder: _field(q.urgent, 1.5),
+        focusedErrorBorder: _field(q.urgent, 2),
+        disabledBorder: _field(q.line, 1),
+      ),
+      // Inverse bar: ink fill with page-colored text in both themes.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: q.ink,
+        contentTextStyle: QType.body.copyWith(color: q.bg),
+        actionTextColor: q.primarySoft,
+        closeIconColor: q.bg,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(QRadius.md),
+        ),
+      ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) =>
@@ -107,4 +146,10 @@ abstract final class AppTheme {
       ),
     );
   }
+
+  static OutlineInputBorder _field(Color color, double width) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(QRadius.md),
+        borderSide: BorderSide(color: color, width: width),
+      );
 }
