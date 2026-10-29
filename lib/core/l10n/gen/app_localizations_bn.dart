@@ -842,6 +842,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaFinding => 'দিক খোঁজা হচ্ছে…';
 
   @override
+  String qiblaTurnRight(String degrees) {
+    return '$degrees° ডানে ঘুরুন';
+  }
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return '$degrees° বাঁয়ে ঘুরুন';
+  }
+
+  @override
   String get qiblaNeedsLocation => 'কিবলার দিক পেতে আগে অবস্থান সেট করুন';
 
   @override
@@ -2545,22 +2555,22 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String qiblaCompassPoint(String point) {
     String _temp0 = intl.Intl.selectLogic(point, {
-      'N': 'উ',
-      'NNE': 'উউপূ',
-      'NE': 'উপূ',
-      'ENE': 'পূউপূ',
-      'E': 'পূ',
-      'ESE': 'পূদপূ',
-      'SE': 'দপূ',
-      'SSE': 'দদপূ',
-      'S': 'দ',
-      'SSW': 'দদপ',
-      'SW': 'দপ',
-      'WSW': 'পদপ',
-      'W': 'প',
-      'WNW': 'পউপ',
-      'NW': 'উপ',
-      'NNW': 'উউপ',
+      'N': 'উত্তর',
+      'NNE': 'উত্তর-উত্তরপূর্ব',
+      'NE': 'উত্তর-পূর্ব',
+      'ENE': 'পূর্ব-উত্তরপূর্ব',
+      'E': 'পূর্ব',
+      'ESE': 'পূর্ব-দক্ষিণপূর্ব',
+      'SE': 'দক্ষিণ-পূর্ব',
+      'SSE': 'দক্ষিণ-দক্ষিণপূর্ব',
+      'S': 'দক্ষিণ',
+      'SSW': 'দক্ষিণ-দক্ষিণপশ্চিম',
+      'SW': 'দক্ষিণ-পশ্চিম',
+      'WSW': 'পশ্চিম-দক্ষিণপশ্চিম',
+      'W': 'পশ্চিম',
+      'WNW': 'পশ্চিম-উত্তরপশ্চিম',
+      'NW': 'উত্তর-পশ্চিম',
+      'NNW': 'উত্তর-উত্তরপশ্চিম',
       'other': '$point',
     });
     return '$_temp0';

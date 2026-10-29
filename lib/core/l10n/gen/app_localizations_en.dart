@@ -845,6 +845,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qiblaFinding => 'Finding direction…';
 
   @override
+  String qiblaTurnRight(String degrees) {
+    return 'Turn $degrees° right';
+  }
+
+  @override
+  String qiblaTurnLeft(String degrees) {
+    return 'Turn $degrees° left';
+  }
+
+  @override
   String get qiblaNeedsLocation =>
       'Set your location to find the qibla direction';
 

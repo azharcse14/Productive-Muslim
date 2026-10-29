@@ -21,8 +21,9 @@ final class CompassDial extends StatelessWidget {
     super.key,
   });
 
-  /// Smoothed true heading (declination-corrected), degrees.
-  final double heading;
+  /// Smoothed true heading (declination-corrected), degrees; null before
+  /// the first sensor reading (the needle is hidden then).
+  final double? heading;
 
   /// Qibla bearing from north, degrees.
   final double bearing;
@@ -46,7 +47,7 @@ final class CompassDial extends StatelessWidget {
             // they stay world-fixed. Painted once and cached; each sensor
             // event only re-composites the rotation.
             Transform.rotate(
-              angle: _rad(-heading),
+              angle: _rad(-(heading ?? 0)),
               child: RepaintBoundary(
                 child: CustomPaint(
                   size: Size.square(size),
@@ -158,7 +159,7 @@ final class _DialPainter extends CustomPainter {
   });
 
   final ProductiveMuslimColors colors;
-  final double heading;
+  final double? heading;
   final double bearing;
   final bool aligned;
 
@@ -167,7 +168,7 @@ final class _DialPainter extends CustomPainter {
     _fitDesign(canvas, size);
     const center = Offset(150, 150);
 
-    // Fixed alignment arc at 12 o'clock.
+    // Fixed alignment arc at 12 o'clock, as wide as the ±3° tolerance.
     final arcPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
@@ -175,13 +176,30 @@ final class _DialPainter extends CustomPainter {
       ..color = aligned ? colors.accent : colors.line;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: 135),
-      _rad(-90 - 7.6),
-      _rad(15.2),
+      _rad(-90 - 3),
+      _rad(6),
       false,
       arcPaint,
     );
 
-    // Needle points at the qibla relative to the device's current heading.
+    // Needle points at the qibla relative to the device's current heading;
+    // hidden until there is a heading, so a 0° placeholder never points.
+    if (heading case final heading?) {
+      _paintNeedle(canvas, center, heading);
+    }
+
+    // Center medallion (the qalb mark widget sits on top).
+    canvas.drawCircle(center, 42, Paint()..color = colors.surface);
+    canvas.drawCircle(
+      center,
+      42,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..color = colors.line,
+    );
+  }
+
+  void _paintNeedle(Canvas canvas, Offset center, double heading) {
     canvas
       ..save()
       ..translate(center.dx, center.dy)
@@ -207,16 +225,6 @@ final class _DialPainter extends CustomPainter {
           ..color = colors.line,
       )
       ..restore();
-
-    // Center medallion (the qalb mark widget sits on top).
-    canvas.drawCircle(center, 42, Paint()..color = colors.surface);
-    canvas.drawCircle(
-      center,
-      42,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..color = colors.line,
-    );
   }
 
   @override

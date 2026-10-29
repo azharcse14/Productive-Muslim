@@ -1496,6 +1496,18 @@ abstract class AppLocalizations {
   /// **'Finding direction…'**
   String get qiblaFinding;
 
+  /// No description provided for @qiblaTurnRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {degrees}° right'**
+  String qiblaTurnRight(String degrees);
+
+  /// No description provided for @qiblaTurnLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {degrees}° left'**
+  String qiblaTurnLeft(String degrees);
+
   /// No description provided for @qiblaNeedsLocation.
   ///
   /// In en, this message translates to:

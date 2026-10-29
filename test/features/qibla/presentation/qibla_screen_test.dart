@@ -65,7 +65,7 @@ Future<void> _register({
   await settings.load();
   GetIt.I
     ..registerSingleton<SettingsStore>(settings)
-    ..registerFactory<QiblaStore>(
+    ..registerLazySingleton<QiblaStore>(
       () => QiblaStore(
         sensors: sensors ?? _NeverSensors(),
         settings: settings,
@@ -101,6 +101,22 @@ void main() {
       await tester.pump();
       expect(find.byType(CompassDial), findsOneWidget);
       expect(find.textContaining('km to the Kaaba'), findsOneWidget);
+    });
+
+    testWidgets('turn instruction leads, device heading is secondary',
+        (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text('Finding direction…'), findsOneWidget);
+      final store = GetIt.I<QiblaStore>();
+      final bearing = store.bearing.value!;
+      store.heading.value = (bearing + 14) % 360;
+      await tester.pump();
+      expect(find.text('Turn 14° left'), findsOneWidget);
+      store.heading.value = (bearing - 20) % 360;
+      await tester.pump();
+      expect(find.text('Turn 20° right'), findsOneWidget);
     });
 
     testWidgets('sensor failure falls back to the verbal bearing',

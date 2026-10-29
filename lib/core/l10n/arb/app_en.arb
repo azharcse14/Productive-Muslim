@@ -373,6 +373,22 @@
     }
   },
   "qiblaFinding": "Finding direction…",
+  "qiblaTurnRight": "Turn {degrees}° right",
+  "@qiblaTurnRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaTurnLeft": "Turn {degrees}° left",
+  "@qiblaTurnLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
   "qiblaNeedsLocation": "Set your location to find the qibla direction",
   "muhasabaTitle": "Muhasaba",
   "muhasabaFirstDayTitle": "Your daily muhasaba",
