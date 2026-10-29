@@ -350,12 +350,6 @@ abstract class AppLocalizations {
   /// **'Credits & attributions'**
   String get settingCredits;
 
-  /// No description provided for @creditsBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.'**
-  String get creditsBody;
-
   /// No description provided for @madhabHanafi.
   ///
   /// In en, this message translates to:
@@ -1964,12 +1958,6 @@ abstract class AppLocalizations {
   /// **'Reading settings'**
   String get readerSettings;
 
-  /// No description provided for @copyAyah.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy ayah'**
-  String get copyAyah;
-
   /// No description provided for @previousDay.
   ///
   /// In en, this message translates to:
@@ -2011,12 +1999,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied'**
   String get copiedLabel;
-
-  /// No description provided for @ayahCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Ayah copied'**
-  String get ayahCopied;
 
   /// No description provided for @bookmarksTitle.
   ///

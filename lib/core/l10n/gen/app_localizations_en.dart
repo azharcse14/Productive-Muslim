@@ -150,10 +150,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingCredits => 'Credits & attributions';
 
   @override
-  String get creditsBody =>
-      'Prayer times are computed on-device. City database © GeoNames (CC BY 4.0). Fonts: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © King Fahd Glorious Quran Printing Complex.';
-
-  @override
   String get madhabHanafi => 'Hanafi';
 
   @override
@@ -1211,9 +1207,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerSettings => 'Reading settings';
 
   @override
-  String get copyAyah => 'Copy ayah';
-
-  @override
   String get previousDay => 'Previous day';
 
   @override
@@ -1234,9 +1227,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copiedLabel => 'Copied';
-
-  @override
-  String get ayahCopied => 'Ayah copied';
 
   @override
   String get bookmarksTitle => 'Bookmarks';

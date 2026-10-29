@@ -149,10 +149,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
 
   @override
-  String get creditsBody =>
-      'নামাজের সময় ডিভাইসেই হিসাব করা হয়। শহরের ডেটাবেস © GeoNames (CC BY 4.0)। ফন্ট: Schibsted Grotesk, Noto Sans Bengali, IBM Plex Sans Arabic (OFL), KFGQPC Uthmanic Script HAFS © কিং ফাহদ গ্লোরিয়াস কুরআন প্রিন্টিং কমপ্লেক্স।';
-
-  @override
   String get madhabHanafi => 'হানাফি';
 
   @override
@@ -1205,9 +1201,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get readerSettings => 'পড়ার সেটিংস';
 
   @override
-  String get copyAyah => 'আয়াত কপি করুন';
-
-  @override
   String get previousDay => 'আগের দিন';
 
   @override
@@ -1227,9 +1220,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get copiedLabel => 'কপি হয়েছে';
-
-  @override
-  String get ayahCopied => 'আয়াত কপি হয়েছে';
 
   @override
   String get bookmarksTitle => 'বুকমার্ক';
