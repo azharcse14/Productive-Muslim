@@ -633,8 +633,7 @@
           "en": "All praise is for Allah who gave us life after causing us to die, and to Him is the resurrection.",
           "bn": "সকল প্রশংসা আল্লাহর, যিনি আমাদের মৃত্যুর (ঘুমের) পর জীবিত করলেন, আর তাঁরই কাছে পুনরুত্থান।",
           "ref": "Bukhari 11/113; Muslim 4/2083",
-          "repeat": 1,
-          "trBn": "আলহামদু লিল্লা-হিল্লাযী আহ্ইয়া-না- বা‘দা মা- আমা-তানা- ওয়া ইলাইহিন্ নুশূর"
+          "repeat": 1
         },
         {
           "id": "wk_la_ilaha_night",
@@ -643,8 +642,7 @@
           "en": "There is no god but Allah alone, without partner. To Him belongs the dominion and to Him is all praise, and He is able to do all things. Glory is to Allah, all praise is to Allah, there is no god but Allah, Allah is the Greatest, and there is no power nor might except by Allah, the Most High, the Magnificent. My Lord, forgive me. (Upon waking during the night.)",
           "bn": "আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই, তিনি একক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁরই এবং প্রশংসাও তাঁরই, আর তিনি সবকিছুর উপর ক্ষমতাবান। আল্লাহ পবিত্র, সকল প্রশংসা আল্লাহর, আল্লাহ ছাড়া কোনো উপাস্য নেই, আল্লাহ সবচেয়ে বড়, আর সর্বোচ্চ মহান আল্লাহর সাহায্য ছাড়া কোনো উপায় ও শক্তি নেই। হে আমার রব! আমাকে ক্ষমা করুন। (রাতে ঘুম থেকে জেগে পড়ার দোয়া)",
           "ref": "Bukhari 3/39",
-          "repeat": 1,
-          "trBn": "লা- ইলা-হা ইল্লাল্লা-হু ওয়াহ্‌দাহূ লা- শারীকা লাহূ, লাহুল মুলকু, ওয়ালাহুল হামদু, ওয়াহুয়া ‘আলা কুল্লি শাই’ইন্ ক্বাদীর। সুবহা-নাল্লাহি, ওয়ালহামদু লিল্লা-হি, ওয়ালা- ইলা-হা ইল্লাল্লা-হু, ওয়াল্লা-হু আকবার, ওয়ালা- ‘হাওলা ওয়ালা- ক্বুওয়্যাতা ইল্লা- বিল্লা-হিল ‘আলিয়্যিল ‘আযীম, রাব্বিগফির লী"
+          "repeat": 1
         },
         {
           "id": "wk_afani_fi_jasadi",
@@ -653,8 +651,7 @@
           "en": "All praise is for Allah who gave my body health, returned my soul to me, and permitted me to remember Him.",
           "bn": "সকল প্রশংসা আল্লাহর, যিনি আমার দেহ সুস্থ রেখেছেন, আমার রূহ আমাকে ফিরিয়ে দিয়েছেন এবং আমাকে তাঁর যিকির করার অনুমতি দিয়েছেন।",
           "ref": "Tirmidhi 5/473",
-          "repeat": 1,
-          "trBn": "আল্‌হামদু লিল্লা-হিল্লাযী ‘আ-ফা-নী ফী জাসাদী, ওয়ারদ্দা ‘আলাইয়্যা রূহী ওয়া আযিনা লী বিযিক্‌রিহ"
+          "repeat": 1
         },
         {
           "id": "wk_aal_imran_ayat",
@@ -663,8 +660,7 @@
           "en": "Indeed, in the creation of the heavens and the earth and the alternation of the night and the day are signs for people of understanding. (Recited upon waking, from the last verses of Surah Aal-Imran.)",
           "bn": "নিশ্চয়ই আসমানসমূহ ও জমিনের সৃষ্টিতে এবং রাত-দিনের পরিবর্তনে জ্ঞানীদের জন্য নিদর্শন রয়েছে। (ঘুম থেকে উঠে সূরা আলে-ইমরানের শেষ আয়াতসমূহ থেকে পাঠ করা হয়)",
           "ref": "Aal-Imran 3:190; Bukhari 8/237",
-          "repeat": 1,
-          "trBn": "ইন্না ফী খালক্বিস সামা-ওয়া-তি ওয়াল আরদ্বি ওয়াখতিলা-ফিল লাইলি ওয়ান নাহা-রি লাআ-য়া-তিল লিউলিল আলবা-ব"
+          "repeat": 1
         },
         {
           "id": "tahlil_layl",
@@ -675,8 +671,7 @@
           "ref": "Nasa'i (al-Kubra), Hakim — said on waking and turning during the night",
           "repeat": 1,
           "titleEn": "On turning over at night",
-          "titleBn": "রাতে পাশ ফেরার সময়",
-          "trBn": "লা- ইলা-হা ইল্লাল্লা-হুল ওয়া-হিদুল ক্বাহ্‌হা-র রব্বুস্ সামা-ওয়া-তি ওয়াল-আরদ্ব, ওয়ামা- বাইনাহুমাল-‘আযীযুল গাফ্‌ফা-র"
+          "titleBn": "রাতে পাশ ফেরার সময়"
         }
       ]
     },
@@ -691,8 +686,7 @@
           "en": "In the name of Allah. (Said before eating.)",
           "bn": "আল্লাহর নামে (শুরু করছি)। (খাওয়ার শুরুতে বলতে হয়)",
           "ref": "Abu Dawud 3/347; Tirmidhi 4/288",
-          "repeat": 1,
-          "trBn": "বিসমিল্লা-হ"
+          "repeat": 1
         },
         {
           "id": "fd_bismillah_forgot",
@@ -701,8 +695,7 @@
           "en": "In the name of Allah, at its beginning and at its end. (Said if one forgets to mention Allah's name before eating.)",
           "bn": "আল্লাহর নামে — এর শুরুতে ও শেষে। (খাওয়ার শুরুতে বিসমিল্লাহ বলতে ভুলে গেলে বলতে হয়)",
           "ref": "Abu Dawud 3/347; Tirmidhi 4/288",
-          "repeat": 1,
-          "trBn": "বিসমিল্লা-হি ফী আউওয়ালিহী ওয়া আ-খিরিহ"
+          "repeat": 1
         },
         {
           "id": "fd_atamani_hadha",
@@ -711,8 +704,7 @@
           "en": "All praise is for Allah who fed me this and provided it for me without any might or power on my part.",
           "bn": "সকল প্রশংসা আল্লাহর, যিনি আমাকে এই খাবার খাওয়ালেন এবং আমার কোনো শক্তি-সামর্থ্য ছাড়াই তা আমাকে রিযিক হিসেবে দিলেন।",
           "ref": "Abu Dawud 4/318; Tirmidhi 5/508",
-          "repeat": 1,
-          "trBn": "আল'হামদু লিল্লা-হিল্লাযী আত্ব‘আমানী হা-যা- ওয়া রাঝাক্বানীহি মিন গাইরি 'হাওলিম মিন্নী ওয়ালা- ক্বুওয়্যাহ"
+          "repeat": 1
         },
         {
           "id": "fd_hamdan_kathiran",
@@ -721,8 +713,7 @@
           "en": "All praise is for Allah — abundant, pure and blessed praise — a praise that is never enough, never abandoned, and never dispensed with, our Lord.",
           "bn": "সকল প্রশংসা আল্লাহর — অজস্র, পবিত্র ও বরকতময় প্রশংসা — যা কখনো যথেষ্ট নয়, যা পরিত্যাগ করা যায় না এবং যা থেকে অমুখাপেক্ষী হওয়া যায় না, হে আমাদের রব।",
           "ref": "Bukhari 6/214",
-          "repeat": 1,
-          "trBn": "আল'হামদু লিল্লা-হি 'হামদান কাছীরান ত্বাইয়্যিবান মুবা-রাকান ফীহি, গাইরা মাকফিয়্যিন ওয়ালা- মুওয়াদ্দা‘ইন ওয়ালা- মুসতাগনান ‘আনহু রাব্বানা-"
+          "repeat": 1
         },
         {
           "id": "fd_dua_for_host",
@@ -731,8 +722,7 @@
           "en": "O Allah, bless them in what You have provided for them, forgive them, and have mercy on them. (Supplication for the host.)",
           "bn": "হে আল্লাহ! আপনি তাদের যে রিযিক দিয়েছেন তাতে বরকত দিন, তাদের ক্ষমা করুন এবং তাদের প্রতি রহম করুন। (মেহমানদারের জন্য দোয়া)",
           "ref": "Muslim 3/1615",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা বা-রিক লাহুম ফীমা- রাঝাক্বতাহুম, ওয়াগফির লাহুম ওয়ার'হামহুম"
+          "repeat": 1
         },
         {
           "id": "fd_iftar",
@@ -741,8 +731,7 @@
           "en": "The thirst is gone, the veins are moistened, and the reward is confirmed, if Allah wills. (Said upon breaking the fast.)",
           "bn": "তৃষ্ণা দূর হয়েছে, শিরাগুলো সিক্ত হয়েছে এবং আল্লাহ চাইলে সওয়াব নিশ্চিত হয়েছে। (ইফতারের সময় বলতে হয়)",
           "ref": "Abu Dawud 2/306",
-          "repeat": 1,
-          "trBn": "যাহাবায যামা’উ ওয়াবতাল্লাতিল ‘উরূক্বু ওয়া ছাবাতাল আজরু ইন শা-আল্লা-হ"
+          "repeat": 1
         },
         {
           "id": "bismillah_food",
@@ -753,8 +742,7 @@
           "ref": "Bukhari 5376; Abu Dawud 3767, Tirmidhi 1858 for the forgotten case",
           "repeat": 1,
           "titleEn": "Beginning and forgetting Bismillah",
-          "titleBn": "খাবারের শুরুতে ও ভুলে গেলে",
-          "trBn": "বিসমিল্লা-হ — ফাইন নাসিয়া: বিসমিল্লা-হি আউওয়ালাহূ ওয়া আ-খিরাহ"
+          "titleBn": "খাবারের শুরুতে ও ভুলে গেলে"
         }
       ]
     },
@@ -831,8 +819,7 @@
           "ref": "Abu Dawud 5095, Tirmidhi 3426 — you are guided, sufficed and protected; Shaytan withdraws",
           "repeat": 1,
           "titleEn": "On leaving the home",
-          "titleBn": "ঘর থেকে বের হওয়ার সময়",
-          "trBn": "বিসমিল্লা-হি, তাওয়াক্কালতু ‘আলাল্লা-হি, লা- 'হাওলা ওয়ালা-ক্বুওয়্যাতা ইল্লা- বিল্লাহ।"
+          "titleBn": "ঘর থেকে বের হওয়ার সময়"
         }
       ]
     },
@@ -847,8 +834,7 @@
           "en": "In the name of Allah, all praise is for Allah. Glory is to Him who subjected this to us, and we could never have done so by ourselves, and indeed to our Lord we shall return.",
           "bn": "আল্লাহর নামে, সকল প্রশংসা আল্লাহর। পবিত্র ও মহান তিনি, যিনি এটিকে আমাদের বশীভূত করে দিয়েছেন, অথচ আমরা একে বশ করতে সক্ষম ছিলাম না। আর নিশ্চয়ই আমরা আমাদের রবের কাছেই প্রত্যাবর্তনকারী।",
           "ref": "Az-Zukhruf 43:13-14; Abu Dawud 3/34; Tirmidhi 5/501",
-          "repeat": 1,
-          "trBn": "বিসমিল্লা-হ, আল'হামদু লিল্লা-হ, সুব'হা-নাল্লাযী সাখখারা লানা- হা-যা- ওয়ামা- কুন্না- লাহূ মুক্বরিনীন, ওয়া ইন্না- ইলা- রাব্বিনা- লামুনক্বালিবূন"
+          "repeat": 1
         },
         {
           "id": "tv_safar",
@@ -857,8 +843,7 @@
           "en": "O Allah, we ask You in this journey of ours for righteousness and piety, and for deeds that please You. O Allah, make this journey easy for us and fold up its distance. O Allah, You are the Companion on the journey and the Guardian of the family. O Allah, I seek refuge in You from the hardship of travel, from a distressing sight, and from an ill return in wealth and family.",
           "bn": "হে আল্লাহ! আমরা আমাদের এই সফরে আপনার কাছে নেকি ও তাকওয়া এবং এমন আমল চাই যাতে আপনি সন্তুষ্ট হন। হে আল্লাহ! আমাদের এই সফর সহজ করে দিন এবং এর দূরত্ব সংকুচিত করে দিন। হে আল্লাহ! আপনিই সফরের সঙ্গী এবং পরিবারের অভিভাবক। হে আল্লাহ! আমি আপনার আশ্রয় চাই সফরের কষ্ট থেকে, কষ্টদায়ক দৃশ্য থেকে এবং সম্পদ ও পরিবারে মন্দ প্রত্যাবর্তন থেকে।",
           "ref": "Muslim 2/978",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা ইন্না- নাসআলুকা ফী সাফারিনা- হা-যাল বিররা ওয়াত তাক্বওয়া-, ওয়া মিনাল ‘আমালি মা- তারদ্বা-। আল্লা-হুম্মা হাউয়িন ‘আলাইনা- সাফারানা- হা-যা- ওয়াত্বউই ‘আন্না- বু‘দাহ। আল্লা-হুম্মা আনতাস সা-'হিবু ফিস সাফারি ওয়াল খালীফাতু ফিল আহল। আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিন ওয়া‘ছা-ইস সাফারি, ওয়া কা-আবাতিল মানযারি, ওয়া সূইল মুনক্বালাবি ফিল মা-লি ওয়াল আহল"
+          "repeat": 1
         },
         {
           "id": "tv_stopping_place",
@@ -867,8 +852,7 @@
           "en": "I seek refuge in the perfect words of Allah from the evil of what He has created. (Said when stopping at a place during a journey.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে তাঁর সৃষ্টির অনিষ্ট থেকে আশ্রয় চাই। (সফরে কোথাও অবতরণ করলে বলতে হয়)",
           "ref": "Muslim 4/2080",
-          "repeat": 1,
-          "trBn": "আ’ঊযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি, মিন শার্‌রি মা-খালাক্ব"
+          "repeat": 1
         },
         {
           "id": "tv_returning",
@@ -877,8 +861,7 @@
           "en": "We return, repentant, worshipping, and praising our Lord. (Said when returning from a journey.)",
           "bn": "আমরা প্রত্যাবর্তনকারী, তাওবাকারী, ইবাদতকারী এবং আমাদের রবের প্রশংসাকারী। (সফর থেকে ফেরার সময় বলতে হয়)",
           "ref": "Bukhari 7/163; Muslim 2/980",
-          "repeat": 1,
-          "trBn": "আ-য়িবূনা তা-য়িবূনা ‘আ-বিদূনা লিরাব্বিনা- 'হা-মিদূন"
+          "repeat": 1
         },
         {
           "id": "dua_safar",
@@ -889,8 +872,7 @@
           "ref": "Qur'an 43:13-14 — Muslim 1342: recited when setting out on a journey",
           "repeat": 1,
           "titleEn": "The supplication of travel",
-          "titleBn": "সফরের দোয়া",
-          "trBn": "সুব'হা-নাল্লাযী সাখখারা লানা- হা-যা- ওয়ামা- কুন্না- লাহূ মুক্বরিনীন, ওয়া ইন্না- ইলা- রাব্বিনা- লামুনক্বালিবূন"
+          "titleBn": "সফরের দোয়া"
         }
       ]
     },
@@ -905,8 +887,7 @@
           "en": "O Allah, open for me the doors of Your mercy. (Said when entering the mosque.)",
           "bn": "হে আল্লাহ! আমার জন্য আপনার রহমতের দরজাসমূহ খুলে দিন। (মসজিদে প্রবেশের সময় বলতে হয়)",
           "ref": "Muslim 1/494",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মাফতা'হ লী আবওয়া-বা রা'হমাতিক"
+          "repeat": 1
         },
         {
           "id": "sa_leaving_mosque",
@@ -915,8 +896,7 @@
           "en": "O Allah, I ask You of Your bounty. (Said when leaving the mosque.)",
           "bn": "হে আল্লাহ! আমি আপনার অনুগ্রহ প্রার্থনা করছি। (মসজিদ থেকে বের হওয়ার সময় বলতে হয়)",
           "ref": "Muslim 1/494",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা ইন্নী আসআলুকা মিন ফাদ্বলিক"
+          "repeat": 1
         },
         {
           "id": "sa_after_adhan",
@@ -925,8 +905,7 @@
           "en": "O Allah, Lord of this perfect call and the established prayer, grant Muhammad the means of nearness (al-wasilah) and excellence, and raise him to the praised station that You have promised him. (Said after the adhan.)",
           "bn": "হে আল্লাহ! এই পরিপূর্ণ আহ্বান ও প্রতিষ্ঠিত সালাতের রব! মুহাম্মাদ সাল্লাল্লাহু আলাইহি ওয়াসাল্লামকে ওসিলা ও ফযিলত দান করুন এবং তাঁকে সেই প্রশংসিত স্থানে পৌঁছে দিন যার প্রতিশ্রুতি আপনি তাঁকে দিয়েছেন। (আযানের পরে বলতে হয়)",
           "ref": "Bukhari 1/152",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা রাব্বা হা-যিহিদ দা‘ওয়াতিত তা-ম্মাতি, ওয়াস সালা-তিল ক্বা-য়িমাতি, আ-তি মু'হাম্মাদানিল ওয়াসীলাতা ওয়াল ফাদ্বীলাতা, ওয়াব‘আছহু মাক্বা-মাম মা'হমূদানিল্লাযী ওয়া‘আদতাহ"
+          "repeat": 1
         },
         {
           "id": "sa_istiftah",
@@ -935,8 +914,7 @@
           "en": "Glory is to You, O Allah, and praise is to You. Blessed is Your name, exalted is Your majesty, and there is no god other than You. (Opening supplication of the prayer.)",
           "bn": "হে আল্লাহ! আপনি পবিত্র, আপনার প্রশংসাসহ। আপনার নাম বরকতময়, আপনার মর্যাদা সুউচ্চ এবং আপনি ছাড়া কোনো সত্য উপাস্য নেই। (সালাতের শুরুর দোয়া)",
           "ref": "Abu Dawud 775; Tirmidhi 243",
-          "repeat": 1,
-          "trBn": "সুব'হা-নাকাল্লা-হুম্মা ওয়া বি'হামদিকা, ওয়া তাবা-রাকাসমুকা, ওয়া তা‘আ-লা- জাদ্দুকা, ওয়া লা- ইলা-হা গাইরুক"
+          "repeat": 1
         },
         {
           "id": "sa_after_salam",
@@ -945,8 +923,7 @@
           "en": "I seek Allah's forgiveness (three times). O Allah, You are Peace and from You is peace. Blessed are You, O Possessor of Majesty and Honor. (Said after concluding the prayer.)",
           "bn": "আমি আল্লাহর কাছে ক্ষমা চাই (তিনবার)। হে আল্লাহ! আপনিই শান্তি এবং আপনার কাছ থেকেই শান্তি। আপনি বরকতময়, হে মহিমা ও মর্যাদার অধিকারী। (সালাম ফিরানোর পরে বলতে হয়)",
           "ref": "Muslim 1/414",
-          "repeat": 1,
-          "trBn": "আস্তাগফিরুল্লা-হ, আস্তাগফিরুল্লা-হ, আস্তাগফিরুল্লা-হ। আল্লা-হুম্মা আনতাস সালা-মু ওয়া মিনকাস সালা-মু, তাবা-রাকতা ইয়া- যাল জালা-লি ওয়াল ইকরা-ম"
+          "repeat": 1
         },
         {
           "id": "sa_tasbih_after_salah",
@@ -955,8 +932,7 @@
           "en": "Glory is to Allah (33 times), all praise is to Allah (33 times), and Allah is the Greatest (33 times) — recited after each obligatory prayer.",
           "bn": "প্রত্যেক ফরয সালাতের পরে: সুবহানাল্লাহ (৩৩ বার), আলহামদুলিল্লাহ (৩৩ বার) এবং আল্লাহু আকবার (৩৩ বার)।",
           "ref": "Muslim 1/418",
-          "repeat": 33,
-          "trBn": "সুব'হা-নাল্লা-হ (৩৩), ওয়াল'হামদু লিল্লা-হ (৩৩), ওয়াল্লা-হু আকবার (৩৩)"
+          "repeat": 33
         },
         {
           "id": "audhu_ma'tham_maghram",
@@ -967,8 +943,7 @@
           "ref": "Bukhari 832, Muslim 589 — recited in the prayer before the salam",
           "repeat": 1,
           "titleEn": "From sin and debt",
-          "titleBn": "পাপ ও ঋণ থেকে",
-          "trBn": "আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিনাল মা’ছামি ওয়াল মাগরাম"
+          "titleBn": "পাপ ও ঋণ থেকে"
         }
       ]
     },
@@ -983,8 +958,7 @@
           "en": "There is no god but Allah, the Magnificent, the Forbearing. There is no god but Allah, Lord of the Magnificent Throne. There is no god but Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne.",
           "bn": "আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই — তিনি সুমহান, মহাসহিষ্ণু। আল্লাহ ছাড়া কোনো উপাস্য নেই — তিনি মহান আরশের রব। আল্লাহ ছাড়া কোনো উপাস্য নেই — তিনি আসমানসমূহের রব, জমিনের রব এবং সম্মানিত আরশের রব।",
           "ref": "Bukhari 8/154; Muslim 4/2092",
-          "repeat": 1,
-          "trBn": "লা- ইলা-হা ইল্লাল্লা-হুল ‘আযীমুল 'হালীম, লা- ইলা-হা ইল্লাল্লা-হু রাব্বুল ‘আরশিল ‘আযীম, লা- ইলা-হা ইল্লাল্লা-হু রাব্বুস সামা-ওয়া-তি ওয়া রাব্বুল আরদ্বি ওয়া রাব্বুল ‘আরশিল কারীম"
+          "repeat": 1
         },
         {
           "id": "ds_dua_yunus",
@@ -993,8 +967,7 @@
           "en": "There is no god but You; glory is to You. Indeed, I have been among the wrongdoers. (The supplication of Prophet Yunus.)",
           "bn": "আপনি ছাড়া কোনো সত্য উপাস্য নেই; আপনি পবিত্র, মহান। নিশ্চয়ই আমি জালিমদের অন্তর্ভুক্ত ছিলাম। (ইউনুস আলাইহিস সালামের দোয়া)",
           "ref": "Al-Anbiya 21:87; Tirmidhi 5/529",
-          "repeat": 1,
-          "trBn": "লা- ইলা-হা ইল্লা- আনতা সুব'হা-নাকা ইন্নী কুনতু মিনায যা-লিমীন"
+          "repeat": 1
         },
         {
           "id": "ds_rahmataka_arju",
@@ -1003,8 +976,7 @@
           "en": "O Allah, it is Your mercy that I hope for, so do not leave me to myself even for the blink of an eye, and rectify all my affairs. There is no god but You.",
           "bn": "হে আল্লাহ! আমি আপনার রহমতেরই আশা করি। অতএব এক পলকের জন্যও আমাকে আমার নিজের কাছে সোপর্দ করবেন না এবং আমার সকল বিষয় সংশোধন করে দিন। আপনি ছাড়া কোনো সত্য উপাস্য নেই।",
           "ref": "Abu Dawud 4/324",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা রা'হমাতাকা আরজূ ফালা- তাকিলনী ইলা- নাফসী ত্বারফাতা ‘আইন, ওয়া আসলি'হ লী শা’নী কুল্লাহূ, লা- ইলা-হা ইল্লা- আনতা"
+          "repeat": 1
         },
         {
           "id": "ds_hasbunallah",
@@ -1013,8 +985,7 @@
           "en": "Allah is sufficient for us, and He is the best Disposer of affairs.",
           "bn": "আল্লাহই আমাদের জন্য যথেষ্ট এবং তিনি কতই না উত্তম কর্মবিধায়ক।",
           "ref": "Aal-Imran 3:173; Bukhari 5/172",
-          "repeat": 1,
-          "trBn": "'হাসবুনাল্লা-হু ওয়া নি‘মাল ওয়াকীল"
+          "repeat": 1
         },
         {
           "id": "ds_hamm_hazan",
@@ -1023,8 +994,7 @@
           "en": "O Allah, I seek refuge in You from worry and grief, from incapacity and laziness, from miserliness and cowardice, and from the burden of debt and the oppression of men.",
           "bn": "হে আল্লাহ! আমি আপনার আশ্রয় চাই দুশ্চিন্তা ও দুঃখ থেকে, অক্ষমতা ও অলসতা থেকে, কৃপণতা ও কাপুরুষতা থেকে এবং ঋণের বোঝা ও মানুষের প্রাধান্য থেকে।",
           "ref": "Bukhari 7/158",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিনাল হাম্মি ওয়াল 'হাঝানি, ওয়াল ‘আজঝি ওয়াল কাসালি, ওয়াল বুখলি ওয়াল জুবনি, ওয়া দ্বালা‘ইদ দাইনি ওয়া গালাবাতির রিজা-ল"
+          "repeat": 1
         },
         {
           "id": "ds_inni_abduka",
@@ -1033,8 +1003,7 @@
           "en": "O Allah, I am Your servant, son of Your servant, son of Your maidservant. My forelock is in Your hand, Your command over me is forever executed, and Your decree over me is just. I ask You by every name belonging to You — which You named Yourself with, revealed in Your Book, taught to any of Your creation, or kept with Yourself in the knowledge of the unseen — that You make the Quran the spring of my heart, the light of my chest, the banisher of my sadness, and the reliever of my distress.",
           "bn": "হে আল্লাহ! আমি আপনার বান্দা, আপনার বান্দার পুত্র, আপনার বান্দির পুত্র। আমার ললাট আপনার হাতে, আমার উপর আপনার হুকুম কার্যকর, আমার ব্যাপারে আপনার ফয়সালা ন্যায়সঙ্গত। আমি আপনার প্রতিটি নামের ওসিলায় প্রার্থনা করছি — যে নামে আপনি নিজেকে নামকরণ করেছেন, বা আপনার কিতাবে নাযিল করেছেন, বা আপনার সৃষ্টির কাউকে শিখিয়েছেন, বা গায়েবের জ্ঞানে নিজের কাছে সংরক্ষিত রেখেছেন — আপনি কুরআনকে আমার হৃদয়ের প্রশান্তি, আমার বক্ষের আলো, আমার দুঃখ দূরকারী এবং আমার দুশ্চিন্তা বিদূরণকারী বানিয়ে দিন।",
           "ref": "Ahmad 1/391",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা ইন্নী ‘আবদুকা, ইবনু ‘আবদিকা, ইবনু আমাতিকা, না-সিয়াতী বিইয়াদিকা, মা-দ্বিন ফিইয়্যা 'হুকমুকা, ‘আদলুন ফিইয়্যা ক্বাদ্বা-উকা, আসআলুকা বিকুল্লি ইসমিন হুওয়া লাকা, সাম্মাইতা বিহী নাফসাকা, আও আনঝালতাহূ ফী কিতা-বিকা, আও ‘আল্লামতাহূ আ'হাদাম মিন খালক্বিকা, আওয়িসতা’ছারতা বিহী ফী ‘ইলমিল গাইবি ‘ইনদাকা, আন তাজ‘আলাল ক্বুরআ-না রাবী‘আ ক্বালবী, ওয়া নূরা সাদরী, ওয়া জালা-আ 'হুঝনী, ওয়া যাহা-বা হাম্মী"
+          "repeat": 1
         },
         {
           "id": "allahumma_ikfini",
@@ -1045,8 +1014,7 @@
           "ref": "Tirmidhi 3563 — it settles even a mountain of debt",
           "repeat": 1,
           "titleEn": "For lawful provision and independence",
-          "titleBn": "হালাল রিযিক ও স্বনির্ভরতার জন্য",
-          "trBn": "আল্লা-হুম্মাকফিনী বি'হালা-লিকা ‘আন 'হারা-মিকা, ওয়া আগনিনী বিফাদ্বলিকা ‘আম্মান সিওয়া-ক"
+          "titleBn": "হালাল রিযিক ও স্বনির্ভরতার জন্য"
         }
       ]
     },
@@ -1061,8 +1029,7 @@
           "en": "In the name of Allah. (Said before performing wudu.)",
           "bn": "আল্লাহর নামে (শুরু করছি)। (অজু শুরু করার আগে বলতে হয়)",
           "ref": "Abu Dawud 101; Ibn Majah 399",
-          "repeat": 1,
-          "trBn": "বিসমিল্লা-হ"
+          "repeat": 1
         },
         {
           "id": "wd_shahada_after",
@@ -1071,8 +1038,7 @@
           "en": "I bear witness that there is no god but Allah alone, without partner, and I bear witness that Muhammad is His servant and Messenger. (Said after completing wudu.)",
           "bn": "আমি সাক্ষ্য দিচ্ছি যে, আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই, তিনি একক, তাঁর কোনো শরিক নেই; আর আমি সাক্ষ্য দিচ্ছি যে, মুহাম্মাদ সাল্লাল্লাহু আলাইহি ওয়াসাল্লাম তাঁর বান্দা ও রাসূল। (অজু শেষ করার পর বলতে হয়)",
           "ref": "Muslim 1/209",
-          "repeat": 1,
-          "trBn": "আশহাদু আল লা- ইলা-হা ইল্লাল্লা-হু ওয়া'হদাহূ লা- শারীকা লাহূ, ওয়া আশহাদু আন্না মু'হাম্মাদান ‘আবদুহূ ওয়া রাসূলুহ"
+          "repeat": 1
         },
         {
           "id": "wd_tawwabin_after",
@@ -1081,8 +1047,7 @@
           "en": "O Allah, make me among those who turn to You in repentance, and make me among those who purify themselves. (Said after wudu.)",
           "bn": "হে আল্লাহ! আমাকে তাওবাকারীদের অন্তর্ভুক্ত করুন এবং আমাকে পবিত্রতা অর্জনকারীদের অন্তর্ভুক্ত করুন। (অজুর পর বলতে হয়)",
           "ref": "Tirmidhi 55",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মাজ‘আলনী মিনাত তাউওয়া-বীনা ওয়াজ‘আলনী মিনাল মুতাত্বাহহিরীন"
+          "repeat": 1
         }
       ]
     },
@@ -1183,8 +1148,7 @@
           "en": "O Allah, may it be a beneficial rain. (Said when it rains.)",
           "bn": "হে আল্লাহ! একে কল্যাণকর বৃষ্টি বানিয়ে দিন। (বৃষ্টি হলে বলতে হয়)",
           "ref": "Bukhari 2/518",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা সাইয়্যিবান না-ফি‘আ"
+          "repeat": 1
         },
         {
           "id": "we_after_rain",
@@ -1193,8 +1157,7 @@
           "en": "We have been given rain by the grace and mercy of Allah. (Said after rainfall.)",
           "bn": "আল্লাহর অনুগ্রহ ও রহমতে আমাদের ওপর বৃষ্টি বর্ষিত হয়েছে। (বৃষ্টির পর বলতে হয়)",
           "ref": "Bukhari 1/205; Muslim 1/83",
-          "repeat": 1,
-          "trBn": "মুত্বিরনা- বিফাদ্বলিল্লা-হি ওয়া রা'হমাতিহ"
+          "repeat": 1
         },
         {
           "id": "we_wind",
@@ -1203,8 +1166,7 @@
           "en": "O Allah, I ask You for its good, and I seek refuge in You from its evil. (Said when the wind blows strongly.)",
           "bn": "হে আল্লাহ! আমি আপনার কাছে এর কল্যাণ প্রার্থনা করছি এবং এর অনিষ্ট থেকে আপনার আশ্রয় চাই। (প্রবল বাতাস বইলে বলতে হয়)",
           "ref": "Abu Dawud 4/326; Ibn Majah 2/1228",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা ইন্নী আসআলুকা খাইরাহা-, ওয়া আ‘উযু বিকা মিন শাররিহা-"
+          "repeat": 1
         },
         {
           "id": "we_thunder",
@@ -1213,8 +1175,7 @@
           "en": "Glory is to Him whom the thunder glorifies with His praise, and so do the angels out of awe of Him. (Said upon hearing thunder.)",
           "bn": "পবিত্র সেই সত্তা, যাঁর প্রশংসাসহ বজ্র তাসবিহ পাঠ করে এবং ফেরেশতাগণও তাঁর ভয়ে (তাসবিহ পাঠ করে)। (বজ্রধ্বনি শুনলে বলতে হয়)",
           "ref": "Muwatta Malik 2/992",
-          "repeat": 1,
-          "trBn": "সুব'হা-নাল্লাযী ইউসাব্বি'হুর রা‘দু বি'হামদিহী ওয়াল মালা-ইকাতু মিন খীফাতিহ"
+          "repeat": 1
         }
       ]
     },
@@ -1229,8 +1190,7 @@
           "en": "I seek the forgiveness of Allah and turn to Him in repentance.",
           "bn": "আমি আল্লাহর কাছে ক্ষমা চাই এবং তাঁরই কাছে তাওবা করি।",
           "ref": "Bukhari 11/101; Muslim 4/2075",
-          "repeat": 100,
-          "trBn": "আস্তাগফিরুল্লাহা ওয়া আতূবু ইলাইহি"
+          "repeat": 100
         },
         {
           "id": "is_astaghfirullah_la_ilaha",
@@ -1239,8 +1199,7 @@
           "en": "I seek the forgiveness of Allah, besides whom there is no god, the Ever-Living, the Sustainer of all, and I turn to Him in repentance.",
           "bn": "আমি সেই আল্লাহর কাছে ক্ষমা চাই, যিনি ছাড়া কোনো সত্য উপাস্য নেই, যিনি চিরঞ্জীব, সবকিছুর ধারক; আর আমি তাঁরই কাছে তাওবা করি।",
           "ref": "Abu Dawud 2/85; Tirmidhi 5/569",
-          "repeat": 3,
-          "trBn": "আস্তাগফিরুল্লা-হাল্লাযী লা- ইলা-হা ইল্লা- হুওয়াল 'হাইয়্যাল ক্বাইয়্যূমা ওয়া আতূবু ইলাইহ"
+          "repeat": 3
         },
         {
           "id": "is_rabbighfir_li",
@@ -1249,8 +1208,7 @@
           "en": "My Lord, forgive me and accept my repentance; indeed, You are the Ever-Relenting, the Most Merciful.",
           "bn": "হে আমার রব! আমাকে ক্ষমা করুন এবং আমার তাওবা কবুল করুন; নিশ্চয়ই আপনি অধিক তাওবা কবুলকারী, পরম দয়ালু।",
           "ref": "Abu Dawud 2/85; Tirmidhi 5/494",
-          "repeat": 3,
-          "trBn": "রাব্বিগফির লী ওয়া তুব ‘আলাইয়্যা ইন্নাকা আনতাত তাউওয়া-বুর রা'হীম"
+          "repeat": 3
         },
         {
           "id": "rabbana_zalamna",
@@ -1261,8 +1219,7 @@
           "ref": "Qur'an 7:23",
           "repeat": 1,
           "titleEn": "The confession of Adam (AS)",
-          "titleBn": "আদম (আঃ)-এর স্বীকারোক্তি",
-          "trBn": "রাব্বানা- যালামনা- আনফুসানা- ওয়া ইল লাম তাগফির লানা- ওয়া তার'হামনা- লানাকূনান্না মিনাল খা-সিরীন"
+          "titleBn": "আদম (আঃ)-এর স্বীকারোক্তি"
         }
       ]
     },
@@ -1277,8 +1234,7 @@
           "en": "O Allah, help me to remember You, to give thanks to You, and to worship You in the best manner.",
           "bn": "হে আল্লাহ! আপনার যিকির, আপনার শুকরিয়া এবং আপনার উত্তম ইবাদতে আমাকে সাহায্য করুন।",
           "ref": "Abu Dawud 2/86; Nasa'i 3/53",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা আ‘ইন্নী ‘আলা- যিকরিকা, ওয়া শুকরিকা, ওয়া 'হুসনি ‘ইবা-দাতিক"
+          "repeat": 1
         },
         {
           "id": "gr_anta_rabbi",
@@ -1287,8 +1243,7 @@
           "en": "O Allah, whatever blessing has come to me or to any of Your creation this morning is from You alone, without partner; so to You is all praise and to You is all thanks. (Said in the morning.)",
           "bn": "হে আল্লাহ! সকালে আমার কাছে বা আপনার কোনো সৃষ্টির কাছে যে নিয়ামত এসেছে তা কেবল আপনারই কাছ থেকে, আপনি একক, আপনার কোনো শরিক নেই; অতএব সকল প্রশংসা আপনার এবং সকল শুকরিয়া আপনার। (সকালে বলতে হয়)",
           "ref": "Abu Dawud 4/318",
-          "repeat": 1,
-          "trBn": "আল্লা-হুম্মা মা- আসবা'হা বী- মিন নি‘মাতিন আউ বিআ'হাদিন মিন খালক্বিকা ফামিনকা ওয়া'হদাকা লা- শারীকা লাকা, ফালাকাল 'হামদু ওয়ালাকাশ শুকরু"
+          "repeat": 1
         }
       ]
     },
@@ -1303,8 +1258,7 @@
           "en": "Recite Surah al-Ikhlas, Surah al-Falaq and Surah an-Nas, three times each, morning and evening for protection.",
           "bn": "সকাল-সন্ধ্যায় হেফাজতের জন্য সূরা আল-ইখলাস, সূরা আল-ফালাক ও সূরা আন-নাস তিনবার করে পাঠ করুন।",
           "ref": "Abu Dawud 4/322; Tirmidhi 5/567",
-          "repeat": 3,
-          "trBn": "ক্বুল হুওয়াল্লা-হু আহাদ ... ক্বুল আ‘উযু বিরাব্বিল ফালাক্ব ... ক্বুল আ‘উযু বিরাব্বিন না-স"
+          "repeat": 3
         },
         {
           "id": "pr_kalimatillah",
@@ -1313,8 +1267,7 @@
           "en": "I seek refuge in the perfect words of Allah from the evil of what He has created. (Recited three times in the evening for protection.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে তাঁর সৃষ্টির অনিষ্ট থেকে আশ্রয় চাই। (সন্ধ্যায় হেফাজতের জন্য তিনবার পাঠ করা হয়)",
           "ref": "Muslim 4/2081",
-          "repeat": 3,
-          "trBn": "আ’ঊযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি, মিন শার্‌রি মা-খালাক্ব"
+          "repeat": 3
         },
         {
           "id": "pr_audhu_bikalimat_children",
@@ -1323,8 +1276,7 @@
           "en": "I seek refuge in the perfect words of Allah from every devil and every poisonous creature, and from every evil eye. (Said for protection.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে আশ্রয় চাই প্রত্যেক শয়তান ও বিষাক্ত প্রাণী থেকে এবং প্রত্যেক বদনজর থেকে। (হেফাজতের জন্য বলতে হয়)",
           "ref": "Bukhari 4/119",
-          "repeat": 1,
-          "trBn": "আ‘উযু বিকালিমা-তিল্লা-হিত তা-ম্মাতি মিন কুল্লি শাইত্বা-নিওঁ ওয়া হা-ম্মাহ, ওয়া মিন কুল্লি ‘আইনিন লা-ম্মাহ"
+          "repeat": 1
         }
       ]
     },
@@ -1339,8 +1291,7 @@
           "en": "All praise is for Allah. (Said by the one who sneezes.)",
           "bn": "সকল প্রশংসা আল্লাহর। (হাঁচিদাতা বলবে)",
           "ref": "Bukhari 7/125",
-          "repeat": 1,
-          "trBn": "আল'হামদু লিল্লা-হ"
+          "repeat": 1
         },
         {
           "id": "sn_yarhamukallah",
@@ -1349,8 +1300,7 @@
           "en": "May Allah have mercy on you. (Said in reply to one who praises Allah after sneezing.)",
           "bn": "আল্লাহ আপনার প্রতি রহম করুন। (হাঁচিদাতা আলহামদুলিল্লাহ বললে শ্রোতা বলবে)",
           "ref": "Bukhari 7/125",
-          "repeat": 1,
-          "trBn": "ইয়ার'হামুকাল্লা-হ"
+          "repeat": 1
         },
         {
           "id": "sn_yahdikumullah",
@@ -1359,8 +1309,7 @@
           "en": "May Allah guide you and rectify your condition. (Said by the one who sneezed in reply to 'Yarhamukallah'.)",
           "bn": "আল্লাহ আপনাদের হিদায়াত দিন এবং আপনাদের অবস্থা সংশোধন করে দিন। (ইয়ারহামুকাল্লাহ শোনার পর হাঁচিদাতা জবাবে বলবে)",
           "ref": "Bukhari 7/125",
-          "repeat": 1,
-          "trBn": "ইয়াহদীকুমুল্লা-হু ওয়া ইউসলি'হু বা-লাকুম"
+          "repeat": 1
         }
       ]
     },
@@ -1375,8 +1324,7 @@
           "en": "There is no god but Allah alone, without partner. To Him belongs the dominion and to Him is all praise. He gives life and causes death, and He is Living and never dies. In His hand is all good, and He is able to do all things. (Said when entering the marketplace.)",
           "bn": "আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই, তিনি একক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁরই এবং প্রশংসাও তাঁরই। তিনি জীবন দান করেন ও মৃত্যু ঘটান, তিনি চিরঞ্জীব, কখনো মৃত্যুবরণ করেন না। সকল কল্যাণ তাঁরই হাতে এবং তিনি সবকিছুর উপর ক্ষমতাবান। (বাজারে প্রবেশের সময় বলতে হয়)",
           "ref": "Tirmidhi 5/491; Ibn Majah 2/21",
-          "repeat": 1,
-          "trBn": "লা- ইলা-হা ইল্লাল্লা-হু, ওয়া‘হদাহু লা- শারীকা লাহু, লাহুল মুলকু, ওয়া লাহুল ‘হামদু, ইউ‘হয়ী ওয়া ইউমীতু ওয়া হুআ হাইয়ুন লা ইয়ামুতু, বিইয়াদিহিল খাইরু ওয়া হুআ ‘আলা- কুল্লি শাইয়িন ক্বাদীর"
+          "repeat": 1
         },
         {
           "id": "mk_la_hawla",
@@ -1385,8 +1333,7 @@
           "en": "There is no power nor might except by Allah.",
           "bn": "আল্লাহর সাহায্য ছাড়া কোনো উপায় ও শক্তি নেই।",
           "ref": "Bukhari 11/213; Muslim 4/2076",
-          "repeat": 1,
-          "trBn": "লা- 'হাওলা ওয়ালা- ক্বুওয়্যাতা ইল্লা- বিল্লা-হ"
+          "repeat": 1
         }
       ]
     },
@@ -1475,8 +1422,7 @@
           "ref": "Qur'an 3:8",
           "repeat": 1,
           "titleEn": "Keep our hearts from deviating",
-          "titleBn": "আমাদের অন্তর বিচ্যুত করবেন না",
-          "trBn": "রাব্বানা- লা- তুঝিগ ক্বুলূবানা- বা‘দা ইয হাদাইতানা- ওয়া হাব লানা- মিল লাদুনকা রা'হমাহ, ইন্নাকা আনতাল ওয়াহহা-ব"
+          "titleBn": "আমাদের অন্তর বিচ্যুত করবেন না"
         },
         {
           "id": "ya_muqallibal_qulub",
@@ -1487,8 +1433,7 @@
           "ref": "Tirmidhi 2140 — the Prophet ﷺ's frequent supplication",
           "repeat": 3,
           "titleEn": "O Turner of hearts",
-          "titleBn": "হে অন্তর পরিবর্তনকারী",
-          "trBn": "ইয়া- মুক্বাল্লিবাল ক্বুলূবি ছাব্বিত ক্বালবী ‘আলা- দীনিক"
+          "titleBn": "হে অন্তর পরিবর্তনকারী"
         },
         {
           "id": "rabbi_zidni_ilma",
@@ -1499,8 +1444,7 @@
           "ref": "Qur'an 20:114",
           "repeat": 1,
           "titleEn": "Increase me in knowledge",
-          "titleBn": "আমার জ্ঞান বাড়িয়ে দিন",
-          "trBn": "রাব্বি ঝিদনী ‘ইলমা-"
+          "titleBn": "আমার জ্ঞান বাড়িয়ে দিন"
         }
       ]
     },
@@ -1517,8 +1461,7 @@
           "ref": "Qur'an 17:24",
           "repeat": 1,
           "titleEn": "Mercy for one's parents",
-          "titleBn": "পিতামাতার প্রতি রহমত",
-          "trBn": "রাব্বির'হামহুমা- কামা- রাব্বাইয়া-নী সাগীরা-"
+          "titleBn": "পিতামাতার প্রতি রহমত"
         },
         {
           "id": "rabbanaghfir_walidayya",
@@ -1529,8 +1472,7 @@
           "ref": "Qur'an 14:41",
           "repeat": 1,
           "titleEn": "Forgiveness for parents and believers",
-          "titleBn": "পিতামাতা ও মুমিনদের জন্য ক্ষমা",
-          "trBn": "রাব্বানাগফির লী ওয়ালিওয়া-লিদাইয়্যা ওয়ালিল মু’মিনীনা ইয়াওমা ইয়াক্বূমুল 'হিসা-ব"
+          "titleBn": "পিতামাতা ও মুমিনদের জন্য ক্ষমা"
         },
         {
           "id": "barakallahu_laka",
@@ -1541,8 +1483,7 @@
           "ref": "Abu Dawud 2130, Tirmidhi 1091 — said to congratulate the married",
           "repeat": 1,
           "titleEn": "Blessing the newly married",
-          "titleBn": "নবদম্পতির জন্য বরকতের দোয়া",
-          "trBn": "বা-রাকাল্লা-হু লাকা ওয়া বা-রাকা ‘আলাইকা ওয়া জামা‘আ বাইনাকুমা- ফী খাইর"
+          "titleBn": "নবদম্পতির জন্য বরকতের দোয়া"
         },
         {
           "id": "jannibnash_shaytan",
@@ -1553,8 +1494,7 @@
           "ref": "Bukhari 141, Muslim 1434 — said by spouses before intimacy",
           "repeat": 1,
           "titleEn": "Keeping Shaytan from offspring",
-          "titleBn": "শয়তানকে সন্তান থেকে দূরে রাখা",
-          "trBn": "বিসমিল্লা-হ, আল্লা-হুম্মা জান্নিবনাশ শাইত্বা-না ওয়া জান্নিবিশ শাইত্বা-না মা- রাঝাক্বতানা-"
+          "titleBn": "শয়তানকে সন্তান থেকে দূরে রাখা"
         }
       ]
     }
