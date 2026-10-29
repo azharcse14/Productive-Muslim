@@ -57,6 +57,27 @@ warning) — fine for `flutter run --release`, never for the Play Store.
 Release builds run R8 (minify + shrinkResources); keep rules live in
 `android/app/proguard-rules.pro` and `android/app/src/main/res/raw/keep.xml`.
 
+**Play fallback — build without app blocking.** Jamaat focus's "Lock the phone"
+and nafs lock run on an AccessibilityService (`JamaatFocusService`), which needs
+a Play Accessibility API declaration. To ship DND-only jamaat focus instead,
+set the Gradle property `focusBlocking` to `false` (default `true`):
+
+```sh
+ORG_GRADLE_PROJECT_focusBlocking=false flutter build appbundle
+```
+
+The merged manifest then has no `JamaatFocusService` (an AGP Variant API
+transform in `android/app/build.gradle.kts`; the build fails if the service
+can't be found, so a rename can't ship it by accident). The app detects this
+at runtime and hides "Lock the phone", nafs lock and the accessibility
+disclosure; stored settings are kept and treated as off.
+
+**Ship without Bengali full-book hadith.** Rebuild the hadith DB with
+`dart run tool/hadith_db_build.dart --no-bengali` (bump its `_userVersion`
+and `HadithDatabase.bundledVersion` together) and build the app with
+`--dart-define=BENGALI_HADITH=false`. Bengali readers then get Arabic +
+English, and the hadithbangla source is never read or requested.
+
 ## Architecture
 
 Clean Architecture, feature-first. Top-level layout under `lib/`:

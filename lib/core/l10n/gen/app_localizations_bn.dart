@@ -149,6 +149,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
 
   @override
+  String get creditsQuranText => 'কুরআনের মূল পাঠ: Tanzil Project';
+
+  @override
+  String get creditsQuranTextLink => 'tanzil.net — খুলতে ট্যাপ করুন';
+
+  @override
   String get madhabHanafi => 'হানাফি';
 
   @override
@@ -2573,7 +2579,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)';
 
   @override
-  String get hadithSourceNoteBn => 'বাংলা সূত্র: hadithbangla (ওপেন সোর্স)';
+  String get hadithSourceNoteBn => 'বাংলা সূত্র: hadithbangla প্রজেক্ট';
 
   @override
   String get hadithEnglishOnly => 'শুধু ইংরেজি';
@@ -2826,6 +2832,13 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get focusToggleSub =>
       'জামাতের সময় ফোন সাইলেন্ট হবে ও অন্য অ্যাপ বন্ধ থাকবে। আমার মসজিদে জামাতের সময় লাগবে';
+
+  @override
+  String get focusToggleSilentOnly => 'জামাতের সময় সাইলেন্ট';
+
+  @override
+  String get focusToggleSubSilentOnly =>
+      'জামাতের সময় ফোন সাইলেন্ট থাকবে। আমার মসজিদে জামাতের সময় লাগবে';
 
   @override
   String get focusToggleSubIos =>

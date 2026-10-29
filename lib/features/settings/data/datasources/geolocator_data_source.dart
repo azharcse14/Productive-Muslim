@@ -16,8 +16,7 @@ final class GeolocatorDataSource implements DeviceLocationSource {
   Future<bool> isServiceEnabled() => Geolocator.isLocationServiceEnabled();
 
   @override
-  Future<LocationPermission> checkPermission() =>
-      Geolocator.checkPermission();
+  Future<LocationPermission> checkPermission() => Geolocator.checkPermission();
 
   @override
   Future<LocationPermission> requestPermission() =>
@@ -25,10 +24,10 @@ final class GeolocatorDataSource implements DeviceLocationSource {
 
   @override
   Future<Position> currentPosition() => Geolocator.getCurrentPosition(
-        // Indoors with no fix the call otherwise never completes.
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          timeLimit: Duration(seconds: 20),
-        ),
-      );
+    // Indoors with no fix the call otherwise never completes.
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.medium,
+      timeLimit: Duration(seconds: 20),
+    ),
+  );
 }

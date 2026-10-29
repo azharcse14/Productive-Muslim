@@ -350,6 +350,18 @@ abstract class AppLocalizations {
   /// **'Credits & attributions'**
   String get settingCredits;
 
+  /// No description provided for @creditsQuranText.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran text: Tanzil Project'**
+  String get creditsQuranText;
+
+  /// No description provided for @creditsQuranTextLink.
+  ///
+  /// In en, this message translates to:
+  /// **'tanzil.net — tap to open'**
+  String get creditsQuranTextLink;
+
   /// No description provided for @madhabHanafi.
   ///
   /// In en, this message translates to:
@@ -3809,7 +3821,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithSourceNoteBn.
   ///
   /// In en, this message translates to:
-  /// **'Bengali source: hadithbangla (open source)'**
+  /// **'Bengali source: hadithbangla project'**
   String get hadithSourceNoteBn;
 
   /// No description provided for @hadithEnglishOnly.
@@ -4195,6 +4207,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque'**
   String get focusToggleSub;
+
+  /// No description provided for @focusToggleSilentOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent at jamaat'**
+  String get focusToggleSilentOnly;
+
+  /// No description provided for @focusToggleSubSilentOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Silences the phone around jamaat. Needs jamaat times in My Mosque'**
+  String get focusToggleSubSilentOnly;
 
   /// No description provided for @focusToggleSubIos.
   ///

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
@@ -430,6 +431,86 @@ void main() {
       await tester.pumpWidget(_app(home: const NotificationsScreen()));
       await tester.pump();
       expect(find.text('Set location'), findsOneWidget);
+    });
+  });
+
+  group('Jamaat focus without the blocking service (Android)', () {
+    const focus = MethodChannel('com.productivemuslim.app/focus');
+
+    /// Native side of a build with or without `focusBlocking`.
+    void mockNative(WidgetTester tester, {required bool blocking}) {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        focus,
+        (call) async => switch (call.method) {
+          'isBlockingAvailable' => blocking,
+          'status' => <String, Object?>{'active': false},
+          'hasDndAccess' || 'hasBlockAccess' => true,
+          _ => null,
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          focus,
+          null,
+        ),
+      );
+    }
+
+    // Everything on, including the lock and nafs lock the build can't serve.
+    const settings = AppSettings(
+      notifications: NotificationMatrix(jamaatFocus: true, nafsLock: true),
+    );
+
+    Future<void> pumpTall(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 6000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('with the service: lock and nafs lock are offered', (
+      tester,
+    ) async {
+      mockNative(tester, blocking: true);
+      await _register(_FakeScheduler(), settings: settings);
+      await pumpTall(tester);
+      expect(find.text('Silent & lock at jamaat'), findsOneWidget);
+      expect(find.text('Lock the phone'), findsOneWidget);
+      expect(find.text('Shake to lock'), findsOneWidget);
+    });
+
+    testWidgets('without it: lock, nafs lock and disclosure are hidden', (
+      tester,
+    ) async {
+      mockNative(tester, blocking: false);
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(
+          notifications: NotificationMatrix(nafsLock: true),
+        ),
+      );
+      await pumpTall(tester);
+      expect(find.text('Lock the phone'), findsNothing);
+      expect(find.text('NAFS LOCK'), findsNothing);
+      expect(find.text('Shake to lock'), findsNothing);
+      expect(find.text('Accessibility access'), findsNothing);
+
+      // DND-only focus still works: the switch turns it on and persists...
+      final toggle = find.descendant(
+        of: find.ancestor(
+          of: find.text('Silent at jamaat'),
+          matching: find.byType(Row),
+        ),
+        matching: find.byType(Switch),
+      );
+      await tester.tap(toggle.first);
+      await tester.pumpAndSettle();
+      expect(_repo.stored.notifications.jamaatFocus, isTrue);
+      expect(find.text('Strict mode'), findsOneWidget);
+      // ...and the stored lock settings are left as the user set them.
+      expect(_repo.stored.notifications.jamaatFocusBlock, isTrue);
+      expect(_repo.stored.notifications.nafsLock, isTrue);
     });
   });
 }

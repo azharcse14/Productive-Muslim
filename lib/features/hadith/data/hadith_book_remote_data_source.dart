@@ -9,7 +9,7 @@ import 'hadith_section_assembler.dart';
 typedef HttpGet = Future<String> Function(Uri url);
 
 /// Fetches hadith section text from two open sources:
-///  - English (and Arabic): fawazahmed0/hadith-api (CC0, jsDelivr CDN).
+///  - English (and Arabic): fawazahmed0/hadith-api (Unlicense, jsDelivr CDN).
 ///  - Bengali: the hadithbangla repo (per-chapter Bangla translation + grade +
 ///    narrator) — a far better Bangla experience than fawazahmed0's `ben-*`.
 /// One section = one chapter of a book.

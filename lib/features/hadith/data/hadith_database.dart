@@ -81,6 +81,15 @@ final class HadithDatabase extends GeneratedDatabase {
     return rows.isEmpty ? null : rows.first.read<Uint8List>('data');
   }
 
+  /// False for a snapshot built with `--no-bengali` (no hadithbangla text).
+  Future<bool> hasBanglaSections() async {
+    final rows = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' "
+      "AND name = 'hadith_bn_section'",
+    ).get();
+    return rows.isNotEmpty;
+  }
+
   /// The gzip blob of one hadithbangla [section] of [bookId], or null.
   Future<Uint8List?> banglaBlob(String bookId, int section) async {
     final rows = await customSelect(

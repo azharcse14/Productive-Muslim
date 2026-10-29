@@ -7,6 +7,5 @@ final class SaveSettings {
 
   final SettingsRepository _repository;
 
-  Future<Result<void>> call(AppSettings settings) =>
-      _repository.save(settings);
+  Future<Result<void>> call(AppSettings settings) => _repository.save(settings);
 }

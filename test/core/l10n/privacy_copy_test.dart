@@ -31,9 +31,6 @@ void main() {
     ).firstMatch(plist)![1]!;
     expect(usage, contains('Maps'));
     final en = File('lib/core/l10n/arb/app_en.arb').readAsStringSync();
-    expect(
-      RegExp('"locationPrimingBody": "[^"]*Maps').hasMatch(en),
-      isTrue,
-    );
+    expect(RegExp('"locationPrimingBody": "[^"]*Maps').hasMatch(en), isTrue);
   });
 }

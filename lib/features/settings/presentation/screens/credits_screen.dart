@@ -1,10 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../../../../core/di/locator.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../nearby_mosques/domain/external_launcher.dart';
+
+/// Tanzil's terms ask apps to name the source and link to tanzil.net.
+final _tanzilUrl = Uri.parse('https://tanzil.net');
 
 /// Sources & licenses of bundled content (see docs/DEPENDENCIES.md and the
 /// tool/ build scripts). Source names are proper nouns, so they stay as
@@ -21,6 +29,21 @@ final class CreditsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(QSpace.s5, 0, QSpace.s5, QSpace.s5),
         children: [
+          const SizedBox(height: QSpace.s4),
+          QCard(
+            padding: const EdgeInsets.symmetric(
+              horizontal: QSpace.s4,
+              vertical: QSpace.s1,
+            ),
+            child: QListRow(
+              icon: Icons.menu_book_outlined,
+              title: l10n.creditsQuranText,
+              subtitle: l10n.creditsQuranTextLink,
+              trailing: Icon(Icons.open_in_new, color: q.ink3),
+              onTap: () =>
+                  unawaited(locator<ExternalLauncher>().launch(_tanzilUrl)),
+            ),
+          ),
           _Group(l10n.quranTitle, [
             (
               l10n.creditsArabicText,
@@ -35,8 +58,11 @@ final class CreditsScreen extends StatelessWidget {
             (l10n.creditsBnTranslation, 'Muhiuddin Khan · Tanzil.net'),
           ]),
           _Group(l10n.hadithTitle, [
-            (l10n.creditsHadithText, 'fawazahmed0/hadith-api (CC0)'),
+            (l10n.creditsHadithText, 'fawazahmed0/hadith-api (Unlicense)'),
             (l10n.creditsBnTranslation, 'azharcse14/hadithbangla'),
+          ]),
+          _Group(l10n.duaTitle, const [
+            ('Hisnul Muslim', 'aminurdev/dua-ruqya-server'),
           ]),
           _Group(l10n.creditsGroupPlaces, [
             (l10n.creditsPrayerCalc, l10n.creditsPrayerCalcValue),

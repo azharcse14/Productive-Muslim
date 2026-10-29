@@ -45,9 +45,7 @@ final class CityRepositoryImpl implements CityRepository {
           contains.add(city);
         }
       }
-      return Result.success(
-        [...prefix, ...contains].take(limit).toList(),
-      );
+      return Result.success([...prefix, ...contains].take(limit).toList());
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('City search failed', e));
     }

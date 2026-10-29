@@ -56,6 +56,7 @@ class MainActivity : FlutterFragmentActivity() {
                 }
                 "hasDndAccess" -> result.success(JamaatFocus.hasDndAccess(this))
                 "hasBlockAccess" -> result.success(JamaatFocus.hasBlockAccess(this))
+                "isBlockingAvailable" -> result.success(JamaatFocus.blockingAvailable(this))
                 "requestDndAccess" -> {
                     openSettings(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                     result.success(null)

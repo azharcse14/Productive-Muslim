@@ -35,15 +35,15 @@ final class CityAssetDataSource {
   }
 
   static List<City> _parse(String raw) => [
-        for (final entry
-            in (jsonDecode(raw) as List<dynamic>).cast<List<dynamic>>())
-          City(
-            name: entry[0] as String,
-            countryCode: entry[1] as String,
-            latitude: (entry[2] as num).toDouble(),
-            longitude: (entry[3] as num).toDouble(),
-            timezone: entry[4] as String,
-            nameBn: entry.length > 5 ? entry[5] as String : null,
-          ),
-      ];
+    for (final entry
+        in (jsonDecode(raw) as List<dynamic>).cast<List<dynamic>>())
+      City(
+        name: entry[0] as String,
+        countryCode: entry[1] as String,
+        latitude: (entry[2] as num).toDouble(),
+        longitude: (entry[3] as num).toDouble(),
+        timezone: entry[4] as String,
+        nameBn: entry.length > 5 ? entry[5] as String : null,
+      ),
+  ];
 }

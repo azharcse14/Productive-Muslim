@@ -77,6 +77,26 @@ final class HadithBook {
         _ => author,
       };
 
+  /// This book without the hadithbangla Bengali source: Bengali readers get
+  /// Arabic + English (marked "English only"). Books whose Bengali comes from
+  /// fawazahmed0 (no [bnFolder]) are returned unchanged.
+  HadithBook withoutBanglaSource() => bnFolder.isEmpty
+      ? this
+      : HadithBook(
+          id: id,
+          en: en,
+          bn: bn,
+          author: author,
+          kind: kind,
+          authorBn: authorBn,
+          total: total,
+          editionAr: editionAr,
+          editionEn: editionEn,
+          editionBn: editionEn,
+          sections: sections,
+          bnAvailable: false,
+        );
+
   /// Edition key for the reader's translation language.
   String translationEdition(String languageCode) =>
       languageCode == 'bn' ? editionBn : editionEn;

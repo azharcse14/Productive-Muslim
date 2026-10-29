@@ -36,10 +36,10 @@ final class PrayerParams {
     this.adjustments = const {},
     int sahriSafetyMinutes = 0,
   }) : sahriSafetyMinutes = sahriSafetyMinutes < 0
-            ? 0
-            : (sahriSafetyMinutes > maxSahriSafety
-                ? maxSahriSafety
-                : sahriSafetyMinutes);
+           ? 0
+           : (sahriSafetyMinutes > maxSahriSafety
+                 ? maxSahriSafety
+                 : sahriSafetyMinutes);
 
   /// Upper bound for [sahriSafetyMinutes].
   static const maxSahriSafety = 10;
@@ -96,12 +96,12 @@ final class PrayerParams {
 
   @override
   int get hashCode => Object.hash(
-        method,
-        madhab,
-        highLatitudeRule,
-        sahriSafetyMinutes,
-        Object.hashAllUnordered(
-          adjustments.entries.map((e) => Object.hash(e.key, e.value)),
-        ),
-      );
+    method,
+    madhab,
+    highLatitudeRule,
+    sahriSafetyMinutes,
+    Object.hashAllUnordered(
+      adjustments.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+  );
 }

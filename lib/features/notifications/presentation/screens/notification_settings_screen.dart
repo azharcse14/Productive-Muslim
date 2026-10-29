@@ -694,6 +694,9 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
   ));
   final _canSilence = signal(true);
   final _canBlock = signal(true);
+
+  /// False in a `focusBlocking=false` build: no lock / nafs lock UI at all.
+  final _blockingAvailable = signal(true);
   late final AppLifecycleListener _lifecycle;
   Timer? _poll;
 
@@ -724,6 +727,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       return;
     }
     try {
+      _blockingAvailable.value = await _bridge.isBlockingAvailable();
       _status.value = await _bridge.status(
         toWall: (instant) => switch (widget.store.location.value) {
           final location? => locator<ZonedClock>().instantAt(location, instant),
@@ -783,6 +787,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       builder: (context) {
         final m = _matrix;
         final status = _status.value;
+        final canLock = _android && _blockingAvailable.value;
         // Strict session running: everything frozen until it ends.
         final locked = status.active && status.strict;
         final void Function(NotificationMatrix)? set = locked ? null : _set;
@@ -847,10 +852,14 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                 children: [
                   QListRow(
                     icon: Icons.do_not_disturb_on_outlined,
-                    title: l10n.focusToggle,
-                    subtitle: _android
+                    title: !_android || canLock
+                        ? l10n.focusToggle
+                        : l10n.focusToggleSilentOnly,
+                    subtitle: !_android
+                        ? l10n.focusToggleSubIos
+                        : canLock
                         ? l10n.focusToggleSub
-                        : l10n.focusToggleSubIos,
+                        : l10n.focusToggleSubSilentOnly,
                     trailing: Switch(
                       value: m.jamaatFocus,
                       onChanged: set == null
@@ -930,7 +939,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                         ],
                       ),
                     ),
-                    if (_android) ...[
+                    if (canLock) ...[
                       const Divider(),
                       QListRow(
                         icon: Icons.phonelink_lock_outlined,
@@ -945,6 +954,8 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                       ),
                       if (m.jamaatFocusBlock && !_canBlock.value)
                         permission(l10n.focusPermBlock, _requestBlock),
+                    ],
+                    if (_android) ...[
                       const Divider(),
                       QListRow(
                         icon: Icons.lock_outline,
@@ -964,7 +975,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
             ),
             // Nafs lock: shake detection needs the Android accessibility
             // service; iOS gives apps no way to lock the phone.
-            if (_android) ...[
+            if (canLock) ...[
               const SizedBox(height: QSpace.s5),
               Text(
                 l10n.nafsHeader.toUpperCase(),

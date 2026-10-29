@@ -150,6 +150,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingCredits => 'Credits & attributions';
 
   @override
+  String get creditsQuranText => 'Quran text: Tanzil Project';
+
+  @override
+  String get creditsQuranTextLink => 'tanzil.net — tap to open';
+
+  @override
   String get madhabHanafi => 'Hanafi';
 
   @override
@@ -2581,7 +2587,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Source: fawazahmed0/hadith-api (public domain)';
 
   @override
-  String get hadithSourceNoteBn => 'Bengali source: hadithbangla (open source)';
+  String get hadithSourceNoteBn => 'Bengali source: hadithbangla project';
 
   @override
   String get hadithEnglishOnly => 'English only';
@@ -2836,6 +2842,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get focusToggleSub =>
       'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque';
+
+  @override
+  String get focusToggleSilentOnly => 'Silent at jamaat';
+
+  @override
+  String get focusToggleSubSilentOnly =>
+      'Silences the phone around jamaat. Needs jamaat times in My Mosque';
 
   @override
   String get focusToggleSubIos =>

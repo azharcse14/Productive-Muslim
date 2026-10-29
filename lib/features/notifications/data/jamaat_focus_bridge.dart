@@ -18,7 +18,9 @@ final class JamaatFocusBridge {
 
   /// Replaces the planned sessions. [toUtc] converts the location wall
   /// clock to an instant. With [enabled] false a running non-strict
-  /// session ends; a strict one always runs out its time.
+  /// session ends; a strict one always runs out its time. In a build without
+  /// the blocking service, [block] and [nafs] are sent as off (the stored
+  /// settings are left alone).
   Future<void> schedule({
     required List<FocusWindow> windows,
     required bool enabled,
@@ -28,27 +30,33 @@ final class JamaatFocusBridge {
     required Duration nafsDuration,
     required NotificationTexts texts,
     required DateTime Function(DateTime wall) toUtc,
-  }) => _channel.invokeMethod<void>('schedule', {
-    'enabled': enabled,
-    'block': block,
-    'strict': strict,
-    'nafs': nafs,
-    'nafsMinutes': nafsDuration.inMinutes,
-    'windows': [
-      for (final w in windows)
-        [
-          toUtc(w.start).millisecondsSinceEpoch,
-          if (w.end case final end?) toUtc(end).millisecondsSinceEpoch else -1,
-        ],
-    ],
-    'title': texts.channelFocusName,
-    'body': texts.focusLockBody,
-    'bodyUntil': texts.focusLockBodyUntil,
-    'endAction': texts.focusEndAction,
-    'channelName': texts.channelFocusName,
-    'nafs.title': texts.nafsLockTitle,
-    'nafs.bodyUntil': texts.nafsLockBodyUntil,
-  });
+  }) async {
+    final canBlock = await isBlockingAvailable();
+    await _channel.invokeMethod<void>('schedule', {
+      'enabled': enabled,
+      'block': block && canBlock,
+      'strict': strict,
+      'nafs': nafs && canBlock,
+      'nafsMinutes': nafsDuration.inMinutes,
+      'windows': [
+        for (final w in windows)
+          [
+            toUtc(w.start).millisecondsSinceEpoch,
+            if (w.end case final end?)
+              toUtc(end).millisecondsSinceEpoch
+            else
+              -1,
+          ],
+      ],
+      'title': texts.channelFocusName,
+      'body': texts.focusLockBody,
+      'bodyUntil': texts.focusLockBodyUntil,
+      'endAction': texts.focusEndAction,
+      'channelName': texts.channelFocusName,
+      'nafs.title': texts.nafsLockTitle,
+      'nafs.bodyUntil': texts.nafsLockBodyUntil,
+    });
+  }
 
   /// [toWall] converts the native end instant to the location wall clock
   /// (the clock the app shows), mirroring [schedule]'s `toUtc`.
@@ -76,6 +84,19 @@ final class JamaatFocusBridge {
 
   Future<void> requestSilencePermission() =>
       _channel.invokeMethod<void>('requestDndAccess');
+
+  /// False in a build made with `focusBlocking=false`: the app-blocking
+  /// service isn't in the manifest, so lock-the-phone and nafs lock can't
+  /// work. Unknown (no native answer) counts as available.
+  Future<bool> isBlockingAvailable() async {
+    try {
+      return await _channel.invokeMethod<bool>('isBlockingAvailable') ?? true;
+    } on PlatformException {
+      return true;
+    } on MissingPluginException {
+      return true;
+    }
+  }
 
   /// Accessibility service — needed to block other apps.
   Future<bool> hasBlockPermission() async =>

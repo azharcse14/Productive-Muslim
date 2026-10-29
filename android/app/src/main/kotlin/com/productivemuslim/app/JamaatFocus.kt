@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -102,8 +103,26 @@ object JamaatFocus {
 
     fun nafsEnabled(c: Context) = prefs(c).getBoolean("nafs", false)
 
+    // The manifest can't change at runtime: look it up once.
+    private var serviceDeclared: Boolean? = null
+
+    /** False when the build stripped [JamaatFocusService] (`focusBlocking=false`). */
+    fun blockingAvailable(c: Context): Boolean = serviceDeclared ?: try {
+        val me = ComponentName(c, JamaatFocusService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            c.packageManager.getServiceInfo(me, PackageManager.ComponentInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            c.packageManager.getServiceInfo(me, 0)
+        }
+        true
+    } catch (e: PackageManager.NameNotFoundException) {
+        false
+    }.also { serviceDeclared = it }
+
     fun blocking(c: Context) =
-        (isNafs(c) || prefs(c).getBoolean("block", false)) && hasBlockAccess(c)
+        (isNafs(c) || prefs(c).getBoolean("block", false)) && hasBlockAccess(c) &&
+            blockingAvailable(c)
 
     /** Replaces the plan (from Dart) and re-evaluates now. */
     fun schedule(c: Context, args: Map<*, *>) {
@@ -204,7 +223,7 @@ object JamaatFocus {
 
     /** Shakes counted: a strict, app-blocking session from now. No-op mid-session. */
     fun lockNafs(c: Context) {
-        if (isActive(c) || !nafsEnabled(c)) return
+        if (isActive(c) || !nafsEnabled(c) || !blockingAvailable(c)) return
         val minutes = prefs(c).getInt("nafsMinutes", 5).coerceAtLeast(1)
         prefs(c).edit()
             .putLong(ACTIVE_UNTIL, System.currentTimeMillis() + minutes * 60_000L)
