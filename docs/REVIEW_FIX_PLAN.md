@@ -8,6 +8,45 @@
 The binding rules in `docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md` still apply. Where this
 plan is more specific, this plan wins.
 
+## Status — 2026-10-29 (all done items merged into `master`)
+
+| Item | Status |
+|---|---|
+| 1.1 credits, 1.2 ledger, 1.3 `--no-bengali` switch, 1.4 `focusBlocking` | ✅ done |
+| 1.2 worklog backfill (2026-10-27 → 29, added in this plan revision) | ⏳ not started |
+| 2.1–2.4 Jamaat Focus native | ✅ done |
+| 3 CI android job | ✅ done — never run on GitHub yet (branch not pushed) |
+| 4.1–4.4 | ✅ done |
+| 4.5 end-to-end flow test (added in this plan revision) | ⏳ not started |
+| 5.1 architecture ratchet (baseline 96 → 92) | ✅ done |
+| 5.2 onboarding `AppLockStore`, qibla `QiblaStore`, notifications → `JamaatFocusControl` | ✅ done |
+| 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ⏳ not started |
+| 5.2 `prayer_widget_service.dart` off presentation (do together with the item above) | ⏳ not started |
+| 5.2 `arabicBodySize()` → injected reading preferences | ⏳ not started |
+| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ⏳ not written |
+| Owner decisions 1–5 | ⏳ unanswered |
+
+Findings that change this plan:
+- `md-rifatkhan/hadithbangla` is gone (404); the snapshot is `azharcse14/hadithbangla`
+  (fork of `mohacelhosen/hadithbangla`) — no license on any of them.
+- `aminurdev/dua-ruqya-server` (90 `hm_*` duas) has no license → `NO LICENSE` in the ledger.
+- Tanzil translations are non-commercial only; Pickthall and Muhiuddin Khan are `UNVERIFIED`.
+- `hadith_books.json` still carries 330 hadithbangla Bengali chapter titles; the 1.3 switch
+  doesn't strip them — owner to decide.
+- Widget QA: with 7 days pushed, the stale state needs clock **+8 days**, not +3.
+- Alarm allowlist allows every `ACTION_SHOW_ALARMS` handler (not only a default); needs a
+  `<queries>` manifest entry on Android 11+.
+- Cross-feature imports are 77, not ~40; data→presentation was 5 (incl. `local_auth_biometric`).
+- `NotificationKind.index` / `Prayer.index` build notification ids — owner to confirm that's acceptable.
+- `dart format` over `lib/` + `test/` reformats ~60 untouched files (formatter version drift).
+- A fresh worktree needs `flutter pub get` before `flutter gen-l10n`, or the l10n gate fails.
+
+Manual QA outstanding: API 36 back gesture keeps the cover; alarm not covered; Bengali
+TalkBack "ফোন"; `focusBlocking=false` build on device; widget +8 days stale state; iOS widget
+target (never added to the Xcode project — `ios/ProductiveMuslimWidget/SETUP.md`).
+
+---
+
 ## Ground rules
 
 1. **Gates before every commit** — all must pass:
@@ -63,7 +102,7 @@ Tanzil's terms ask apps to name the Tanzil Project and link to tanzil.net.
 credits name Pickthall, Muhiuddin Khan and GeoNames; no ARB string calls hadithbangla
 open source (`open source` / `ওপেন সোর্স`).
 
-### 1.2 Content and license ledger
+### 1.2 Content and license ledger; worklog backfill
 
 **Problem.** "Fonts & Data Licenses" in `docs/DEPENDENCIES.md` is stale: the dua row says
 43 duas / 8 categories (PROGRESS says 127 / 18); `ruqyah.json`, `hadith.json` and
@@ -78,6 +117,10 @@ status (`OK` / `UNVERIFIED — owner to confirm` / `NO LICENSE — permission ne
   azharcse14/hadithbangla carries the same README).
 - Muhiuddin Khan translation: `UNVERIFIED`.
 - fawazahmed0/hadith-api: the repo's LICENSE is the Unlicense (the ledger says CC0 — correct it).
+- Backfill `docs/PRODUCTIVE_MUSLIM_PROGRESS.md`: its worklog has no rows after 2026-10-26,
+  while 82 non-merge commits landed 2026-10-27 → 2026-10-29 (health tracker, content
+  verification, review fixes …). Summarise them from `git log --since=2026-10-27 --no-merges`
+  — one row per branch/theme, not per commit.
 
 **Done when.** New `test/docs/content_ledger_test.dart`: every file in `assets/data/` is
 named in `docs/DEPENDENCIES.md`. No row is `OK` without a cited source.
@@ -284,6 +327,19 @@ the widget shows the open-app state.
 
 `lib/features/calculators/domain/usecases/fitra_calculator.dart`: the header comment says
 ≈ 3.0 kg / ≈ 1.5 kg, but the values are 3.30 / 1.65 kg. Fix the comment only.
+
+### 4.5 One end-to-end flow test (no device needed)
+
+**Problem.** `integration_test/ui_audit_test.dart` is a manual screenshot audit
+(`flutter drive`); nothing checks that the main flow works end to end.
+
+**Do.** Read `test/widget_test.dart` and `test/core/router/app_router_test.dart` first and
+extend them rather than duplicate. Using the fakes in `test/helpers/`, one test walks: fresh
+install → complete onboarding with a manual city → Home shows the countdown → the fake
+notification scheduler received a non-empty plan.
+
+**Done when.** It runs under plain `flutter test` (so CI runs it) and fails if any step of
+that flow breaks.
 
 ---
 
