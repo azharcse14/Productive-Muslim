@@ -64,8 +64,9 @@ String _foldArabic(String input, {bool daggerAsAlef = false}) {
     }
     final folded = switch (rune) {
       0x0622 || 0x0623 || 0x0625 || 0x0671 || 0x0670 => 0x0627, // alef → ا
-      0x0649 => 0x064A, // alef maksura → ya
+      0x0649 || 0x06CC => 0x064A, // alef maksura, Persian yeh → ya
       0x0629 => 0x0647, // ta marbuta → ha
+      0x06A9 => 0x0643, // Persian keheh → kaf
       _ => rune,
     };
     if (folded == 0x0627 && previous == 0x0627) {

@@ -1,5 +1,6 @@
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../domain/entities/hadith.dart';
 import '../../domain/repositories/hadith_repository.dart';
 
@@ -44,10 +45,7 @@ final class HadithStore {
     if (list.isEmpty) {
       return null;
     }
-    // UTC on both sides: a DST shift would otherwise drop a day (23h).
-    final dayOfYear = DateTime.utc(date.year, date.month, date.day)
-        .difference(DateTime.utc(date.year))
-        .inDays;
-    return list[dayOfYear % list.length];
+    // Days since epoch, so the rotation doesn't restart every January 1st.
+    return list[dailySeed(date) % list.length];
   }
 }

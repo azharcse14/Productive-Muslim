@@ -12,10 +12,7 @@ void main() {
       expect(foldForSearch('য়'), 'য়');
       expect(foldForSearch('ড়'), 'ড়');
       expect(foldForSearch('ঢ়'), 'ঢ়');
-      expect(
-        foldForSearch('আয়াত'),
-        foldForSearch('আয়াত'),
-      );
+      expect(foldForSearch('আয়াত'), foldForSearch('আয়াত'));
     });
 
     test('drops ZWNJ / ZWJ', () {
@@ -25,7 +22,7 @@ void main() {
 
     test('drops Arabic harakat, so plain typed Arabic matches', () {
       expect(foldForSearch('بِسْمِ اللَّهِ'), 'بسم الله');
-      expect(foldForSearch('رَحْمَةً'), 'رحمة');
+      expect(foldForSearch('رَحْمَةً'), 'رحمه');
     });
 
     test('drops Quranic marks, superscript alef and tatweel', () {
@@ -39,10 +36,20 @@ void main() {
       expect(foldForSearch('إِنَّا'), foldForSearch('انا'));
     });
 
+    test('unifies ya / ta marbuta / Persian letter forms', () {
+      expect(foldForSearch('موسى'), foldForSearch('موسي'));
+      expect(foldForSearch('رحمة'), foldForSearch('رحمه'));
+      expect(foldForSearch('کتاب'), foldForSearch('كتاب'));
+      expect(foldForSearch('علی'), foldForSearch('علي'));
+    });
+
     test('leaves already-folded text unchanged', () {
       const plain = 'সুবহানাল্লাহ subhanallah سبحان';
       expect(foldForSearch(plain), plain);
-      expect(foldForSearch(foldForSearch('ٱلْحَمْدُ')), foldForSearch('ٱلْحَمْدُ'));
+      expect(
+        foldForSearch(foldForSearch('ٱلْحَمْدُ')),
+        foldForSearch('ٱلْحَمْدُ'),
+      );
     });
   });
 }

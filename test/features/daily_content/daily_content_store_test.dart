@@ -7,25 +7,30 @@ import 'package:productive_muslim/features/dua_tasbih/domain/repositories/dua_re
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 
 Dua _dua(String id) => Dua(
-      id: id,
-      arabic: 'ar',
-      transliteration: 'tr',
-      translationEn: 'en',
-      translationBn: 'bn',
-      reference: 'ref',
-      repeat: 1,
-    );
+  id: id,
+  arabic: 'ar',
+  transliteration: 'tr',
+  translationEn: 'en',
+  translationBn: 'bn',
+  reference: 'ref',
+  repeat: 1,
+);
 
 /// Two categories, five duas total — enough for the pick to rotate.
 final class _FakeDuaRepository implements DuaRepository {
-  _FakeDuaRepository({this.empty = false});
+  _FakeDuaRepository({this.empty = false, this.failFirst = false});
 
   final bool empty;
+  bool failFirst;
   int calls = 0;
 
   @override
   Future<Result<List<DuaCategory>>> categories() async {
     calls++;
+    if (failFirst) {
+      failFirst = false;
+      return const Result.failure(UnexpectedFailure('boom'));
+    }
     if (empty) {
       return const Result.success([]);
     }
@@ -98,9 +103,31 @@ void main() {
       expect(repo.calls, 1);
     });
 
+    test('concurrent loads share one decode', () async {
+      final repo = _FakeDuaRepository();
+      final dua = DuaStore(repo);
+      await Future.wait([
+        dua.load(),
+        DailyContentStore(dua).load(DateTime(2026, 6, 14)),
+      ]);
+      expect(repo.calls, 1);
+    });
+
+    test('a failed load is retried on the next call', () async {
+      final repo = _FakeDuaRepository(failFirst: true);
+      final store = DailyContentStore(DuaStore(repo));
+      await store.load(DateTime(2026, 6, 14));
+      expect(store.duaOfDay.value, isNull);
+
+      await store.load(DateTime(2026, 6, 14));
+      expect(store.duaOfDay.value, isNotNull);
+      expect(repo.calls, 2);
+    });
+
     test('empty collection yields no dua of the day', () async {
-      final store =
-          DailyContentStore(DuaStore(_FakeDuaRepository(empty: true)));
+      final store = DailyContentStore(
+        DuaStore(_FakeDuaRepository(empty: true)),
+      );
       await store.load(DateTime(2026, 6, 14));
       expect(store.duaOfDay.value, isNull);
     });

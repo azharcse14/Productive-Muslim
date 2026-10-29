@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:ui' show Locale;
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../../core/utils/result.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../my_mosque/domain/usecases/resolve_active_mosque.dart';
@@ -18,7 +20,7 @@ import '../../domain/repositories/notification_scheduler.dart';
 import '../../domain/usecases/reschedule_notifications.dart';
 
 /// App-scoped: reschedules the plan on app open, on resume once the plan
-/// is stale (or the exact-alarm grant changed), and whenever location / prayer params / matrix / locale
+/// is stale (or a notification / exact-alarm grant changed), and whenever location / prayer params / matrix / locale
 /// change (guide §5).
 final class NotificationController {
   NotificationController({
@@ -40,11 +42,18 @@ final class NotificationController {
   final DateTime Function() _now;
 
   /// A resume within this long of the last successful run, with the same
-  /// exact-alarm grant, keeps that plan: it spans 7 days, and rebuilding it
-  /// is ~100 platform calls. Plan-input changes reschedule via the effect.
+  /// grants, keeps that plan: it spans 7 days, and rebuilding it is ~100
+  /// platform calls. Plan-input changes reschedule via the effect.
   static const _freshFor = Duration(hours: 12);
   DateTime? _lastRunAt;
-  bool? _lastExact;
+  (bool, NotificationPermission)? _lastGrants;
+
+  /// Exact-alarm + notification grant. iOS drops requests added before
+  /// the grant (onboarding schedules first), so a new grant reschedules.
+  Future<(bool, NotificationPermission)> _grants() async => (
+    await _scheduler.canScheduleExactAlarms(),
+    await _scheduler.permissionStatus(),
+  );
 
   late final _matrix = computed(() => _settings.settings.value.notifications);
 
@@ -71,10 +80,7 @@ final class NotificationController {
     // Init + first run count as in flight, so a change landing meanwhile
     // (picked up by the effect below) queues behind them instead of being
     // lost or racing the plugin init.
-    final boot = _inFlight = () async {
-      await _scheduler.initialize(_texts());
-      await _run();
-    }();
+    final boot = _inFlight = _run();
     var first = true;
     _stopEffect = effect(() {
       // Subscribe to everything the plan depends on — narrow computeds,
@@ -107,10 +113,11 @@ final class NotificationController {
     final last = _lastRunAt;
     if (last != null) {
       final age = _now().difference(last);
-      // Coming back from the exact-alarm settings page must reschedule.
+      // Coming back from a permission prompt / settings page with a
+      // changed grant must reschedule.
       if (!age.isNegative &&
           age < _freshFor &&
-          await _scheduler.canScheduleExactAlarms() == _lastExact) {
+          await _grants() == _lastGrants) {
         return;
       }
     }
@@ -144,25 +151,36 @@ final class NotificationController {
     }
   }
 
+  /// Never throws (start() runs unawaited). A failed plugin init skips
+  /// scheduling; the next run retries it. Re-initializing also re-localizes
+  /// the iOS action after a locale change.
   Future<void> _run() async {
-    final exact = await _scheduler.canScheduleExactAlarms();
-    // Resolved per prayer, so time-based mosque rules apply across the
-    // whole window.
-    final result = await _reschedule(
-      settings: _settings.settings.value,
-      texts: _texts(),
-      jamaatAt: (at) =>
-          resolveActiveMosque(_mosque.state.value, at).profile?.config ??
-          JamaatConfig.none,
-    );
-    final plan = result.valueOrNull;
-    if (plan != null) {
-      _lastRunAt = _now();
-      _lastExact = exact;
-      _scheduledUntil.value = plan
-          .where((i) => i.kind != NotificationKind.keepAlive)
-          .lastOrNull
-          ?.at;
+    try {
+      final texts = _texts();
+      await _scheduler.initialize(texts);
+      final grants = await _grants();
+      // Resolved per prayer, so time-based mosque rules apply across the
+      // whole window.
+      final result = await _reschedule(
+        settings: _settings.settings.value,
+        texts: texts,
+        jamaatAt: (at) =>
+            resolveActiveMosque(_mosque.state.value, at).profile?.config ??
+            JamaatConfig.none,
+      );
+      switch (result) {
+        case Success(value: final plan):
+          _lastRunAt = _now();
+          _lastGrants = grants;
+          _scheduledUntil.value = plan
+              .where((i) => i.kind != NotificationKind.keepAlive)
+              .lastOrNull
+              ?.at;
+        case FailureResult(:final failure):
+          debugPrint('Notification reschedule failed: ${failure.message}');
+      }
+    } on Object catch (e) {
+      debugPrint('Notification reschedule failed: $e');
     }
   }
 

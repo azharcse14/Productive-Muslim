@@ -19,6 +19,7 @@ import 'package:productive_muslim/features/settings/presentation/state/settings_
 import 'package:productive_muslim/main.dart';
 
 import 'helpers/content_fakes.dart';
+import 'helpers/home_store_fakes.dart';
 import 'helpers/lock_fakes.dart';
 import 'helpers/mosque_fakes.dart';
 import 'helpers/muhasaba_fakes.dart';
@@ -39,7 +40,7 @@ final class _InMemoryRepo implements SettingsRepository {
 void main() {
   tearDown(() => GetIt.I.reset());
 
-  testWidgets('app boots to the shell with bottom navigation', (tester) async {
+  testHomeWidgets('app boots to the shell with bottom navigation', (tester) async {
     TimezoneClock.initialize();
     final settings =
         SettingsStore(GetSettings(_InMemoryRepo()), SaveSettings(_InMemoryRepo()));
@@ -59,7 +60,7 @@ void main() {
       ..registerSingleton<QuranStore>(quranStore)
       ..registerSingleton<DuaStore>(duaStore)
       ..registerSingleton<TasbihStore>(tasbihStore)
-      ..registerFactory<HomeStore>(
+      ..registerLazySingleton<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
           clock: clock,

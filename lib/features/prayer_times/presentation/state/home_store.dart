@@ -46,9 +46,11 @@ final class HomeStore {
     _overrideWatcher = effect(() {
       final auto = _autoMosqueId.value; // memoized — fires only on a boundary
       final day = dateKey.value;
-      final override = _mosque.state.value.activeOverride;
+      final state = _mosque.state.value;
+      final override = state.activeOverride;
       if (override != null &&
-          (override.baselineAutoId != auto || !override.liveAt(day))) {
+          (override.baselineAutoId != auto ||
+              !override.liveAt(day, state.rules))) {
         unawaited(_mosque.clearOverride());
       }
     });
@@ -202,7 +204,11 @@ final class HomeStore {
     if (target == null) {
       return CountdownUrgency.calm;
     }
-    return countdownUrgencyFor(now: now.value, target: target);
+    return countdownUrgencyFor(
+      now: now.value,
+      target: target,
+      instantOf: _instantOf.value,
+    );
   });
 
   /// Changes once per waqt — the table's highlight dependency.
@@ -304,18 +310,19 @@ final class HomeStore {
     // ponytail: a city wall time inside the device's spring-forward gap is
     // still shifted an hour at construction; wall times would need their
     // own zone-free type to fix that.
-    final loc = location.value;
-    final r = loc == null
-        ? target.remainingAt(now.value)
-        : _clock
-              .utcInstantOf(loc, target.at)
-              .difference(_clock.utcInstantOf(loc, now.value));
+    final r = target.remainingAt(now.value, _instantOf.value);
     return r.isNegative ? Duration.zero : r;
   });
 
   late final progress = computed(
-    () => countdownTarget.value?.progressAt(now.value) ?? 0.0,
+    () => countdownTarget.value?.progressAt(now.value, _instantOf.value) ?? 0.0,
   );
+
+  /// Wall time → real instant at the location (null until setup).
+  late final _instantOf = computed<DateTime Function(DateTime)?>(() {
+    final loc = location.value;
+    return loc == null ? null : (wall) => _clock.utcInstantOf(loc, wall);
+  });
 
   /// Stops the tick outright (Home itself gone); [resume] restarts it.
   void stop() {

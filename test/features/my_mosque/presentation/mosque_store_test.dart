@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/repositories/mosque_repository.dart';
 import 'package:productive_muslim/features/my_mosque/domain/usecases/get_mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/domain/usecases/save_mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
@@ -30,6 +32,28 @@ void main() {
       await store.addProfile('Office');
       expect(repo.saves, 1);
       expect(repo.stored.profiles.map((p) => p.name), ['Home', 'Office']);
+    });
+
+    test('a failed save rolls the change back and is counted', () async {
+      final repo = _FailingSaveRepository();
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      await store.load();
+      await store.addProfile('Work');
+      expect(store.state.value.profiles, isEmpty);
+      expect(store.saveFailures.value, 1);
+    });
+
+    test('a failed clearOverride is not rolled back', () async {
+      // HomeStore's watcher clears stale overrides; restoring one on a failed
+      // save would re-fire the watcher in a loop.
+      final repo = _FailingSaveRepository(
+        const MosqueState().withOverride(const MosqueOverride(mosqueId: 'a')),
+      );
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      await store.load();
+      await store.clearOverride();
+      expect(store.state.value.activeOverride, isNull);
+      expect(store.saveFailures.value, 1);
     });
 
     test('load pulls persisted state', () async {
@@ -200,4 +224,17 @@ void main() {
       expect(renamed.entries[Prayer.maghrib], isA<OffsetJamaat>());
     });
   });
+}
+
+final class _FailingSaveRepository implements MosqueRepository {
+  _FailingSaveRepository([this.initial = const MosqueState()]);
+
+  final MosqueState initial;
+
+  @override
+  Future<Result<MosqueState>> load() async => Result.success(initial);
+
+  @override
+  Future<Result<void>> save(MosqueState state) async =>
+      const Result.failure(UnexpectedFailure('disk full'));
 }

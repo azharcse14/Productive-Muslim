@@ -119,7 +119,7 @@ Future<void> setupLocator() async {
     )
     ..registerLazySingleton<CityRepository>(() => CityRepositoryImpl(locator()))
     ..registerLazySingleton<LocationRepository>(
-      () => LocationRepositoryImpl(locator()),
+      () => LocationRepositoryImpl(locator(), cities: locator()),
     )
     ..registerLazySingleton(() => GetSettings(locator()))
     ..registerLazySingleton(() => SaveSettings(locator()))
@@ -136,9 +136,12 @@ Future<void> setupLocator() async {
           ? AppLockDataSource(
               SharedPreferencesAsync(
                 options: const SharedPreferencesAsyncAndroidOptions(
-                  backend: SharedPreferencesAndroidBackendLibrary.SharedPreferences,
+                  backend:
+                      SharedPreferencesAndroidBackendLibrary.SharedPreferences,
                   originalSharedPreferencesOptions:
-                      AndroidSharedPreferencesStoreOptions(fileName: 'app_lock'),
+                      AndroidSharedPreferencesStoreOptions(
+                        fileName: 'app_lock',
+                      ),
                 ),
               ),
               legacy: SharedPreferencesAsync(),
@@ -351,15 +354,32 @@ Future<void> setupLocator() async {
   // Started now so the copy overlaps the loads; ignore() only keeps a
   // failure from surfacing as unhandled before it is awaited below.
   final quranReady = locator.isReady<QuranDatabase>()..ignore();
+  // Each failure is non-fatal: an uncaught one here would leave the app on
+  // the native splash forever. The store keeps its defaults.
+  Future<void> load(String name, Future<void> Function() run) =>
+      run().catchError((Object e) {
+        debugPrint('$name unavailable: $e');
+      });
+  final lock = locator<AppLockStore>();
   await Future.wait([
-    locator<MosqueStore>().load(),
-    locator<MuhasabaStore>().load(),
-    locator<AppLockStore>().load(),
-    locator<DuaFavoritesStore>().load(),
-    locator<FastingStore>().load(),
-    locator<TasbihStore>().load(),
+    load('Mosques', locator<MosqueStore>().load),
+    load('Muhasaba', locator<MuhasabaStore>().load),
+    load('App lock', () async {
+      try {
+        await lock.load();
+      } on Object {
+        // Fail closed, as the data source does for unreadable state: no
+        // PIN verifies, so "Forgot PIN?" (device lock) is the way in.
+        lock.enabled.value = true;
+        lock.locked.value = true;
+        rethrow;
+      }
+    }),
+    load('Dua favorites', locator<DuaFavoritesStore>().load),
+    load('Fasting', locator<FastingStore>().load),
+    load('Tasbih', locator<TasbihStore>().load),
   ]);
-  locator<AppLockStore>().watchLifecycle();
+  lock.watchLifecycle();
   // Home resolves QuranStore on its first build, so the DB must be ready.
   var quranOpened = true;
   try {
@@ -435,6 +455,8 @@ void _startWidgetUpdates() {
     settings.location.value;
     settings.prayerParams.value;
     settings.locale.value;
+    // Umm al-Qura shifts Isha in Ramadan, and the offset moves Ramadan.
+    settings.hijriOffsetDays.value;
     untracked(() => unawaited(widget.update()));
   });
   // Times moved on while backgrounded (Dart timers don't fire then).

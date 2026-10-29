@@ -19,6 +19,23 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   final failIds = <int>{};
   int cancelAllCalls = 0;
   int cancelPendingCalls = 0;
+  int initCalls = 0;
+  NotificationAppLaunchDetails? launch;
+
+  @override
+  Future<bool?> initialize({
+    required InitializationSettings settings,
+    DidReceiveNotificationResponseCallback? onDidReceiveNotificationResponse,
+    DidReceiveBackgroundNotificationResponseCallback?
+    onDidReceiveBackgroundNotificationResponse,
+  }) async {
+    initCalls++;
+    return true;
+  }
+
+  @override
+  Future<NotificationAppLaunchDetails?>
+  getNotificationAppLaunchDetails() async => launch;
 
   @override
   Future<void> cancelAll() async => cancelAllCalls++;
@@ -65,8 +82,8 @@ final class _AndroidPlugin implements FlutterLocalNotificationsPlugin {
 
   @override
   T? resolvePlatformSpecificImplementation<
-          T extends FlutterLocalNotificationsPlatform>() =>
-      android is T ? android as T : null;
+    T extends FlutterLocalNotificationsPlatform
+  >() => android is T ? android as T : null;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -121,23 +138,25 @@ void main() {
     );
   });
 
-  test('off before the first prompt is notRequested, after it denied',
-      () async {
-    SharedPreferencesAsyncPlatform.instance =
-        InMemorySharedPreferencesAsync.empty();
-    final android = LocalNotificationsScheduler(
-      clock: TimezoneClock(),
-      currentLocation: () => _dhaka,
-      formatTime: (_) => '',
-      plugin: _AndroidPlugin(),
-    );
-    expect(
-      await android.permissionStatus(),
-      NotificationPermission.notRequested,
-    );
-    await android.requestPermission();
-    expect(await android.permissionStatus(), NotificationPermission.denied);
-  });
+  test(
+    'off before the first prompt is notRequested, after it denied',
+    () async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+      final android = LocalNotificationsScheduler(
+        clock: TimezoneClock(),
+        currentLocation: () => _dhaka,
+        formatTime: (_) => '',
+        plugin: _AndroidPlugin(),
+      );
+      expect(
+        await android.permissionStatus(),
+        NotificationPermission.notRequested,
+      );
+      await android.requestPermission();
+      expect(await android.permissionStatus(), NotificationPermission.denied);
+    },
+  );
 
   // Well in the future at any test run time.
   final at = DateTime.now().add(const Duration(days: 1));
@@ -155,15 +174,82 @@ void main() {
   });
 
   test(
-    'one failing item still schedules the rest and reports failure',
+    'one failing item still schedules the rest; only all-failed fails',
     () async {
       final items = [azan(Prayer.fajr), azan(Prayer.dhuhr), azan(Prayer.asr)];
       plugin.failIds.add(items[1].id);
       final result = await scheduler.reschedule(items, _texts);
-      expect(result, isA<FailureResult<void>>());
+      expect(result, isA<Success<void>>(), reason: 'partial success');
       expect(plugin.scheduled.keys, {items[0].id, items[2].id});
+
+      plugin.failIds.addAll(items.map((i) => i.id));
+      expect(
+        await scheduler.reschedule(items, _texts),
+        isA<FailureResult<void>>(),
+      );
     },
   );
+
+  test('a cold-start tap replays once, not again on app recreation', () async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final taps = <String?>[];
+    Future<void> coldStart() async {
+      final p = _FakePlugin()
+        ..launch = const NotificationAppLaunchDetails(
+          true,
+          notificationResponse: NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotification,
+            id: 7,
+            payload: '/muhasaba',
+          ),
+        );
+      await LocalNotificationsScheduler(
+        clock: TimezoneClock(),
+        currentLocation: () => _dhaka,
+        formatTime: (_) => '',
+        plugin: p,
+        onTap: (payload, _) => taps.add(payload),
+      ).initialize(_texts);
+    }
+
+    await coldStart();
+    await coldStart(); // recreated from recents: same launch intent
+    expect(taps, ['/muhasaba']);
+  });
+
+  test('re-initializes only when the action title changes', () async {
+    await scheduler.initialize(_texts);
+    await scheduler.initialize(_texts);
+    expect(plugin.initCalls, 1);
+    await scheduler.initialize(
+      const NotificationTexts(
+        azanTitle: '',
+        azanBody: '',
+        jamaatTitle: '',
+        jamaatBody: '',
+        sahriTitle: '',
+        sahriBody: '',
+        iftarTitle: '',
+        iftarBody: '',
+        muhasabaTitle: '',
+        muhasabaBody: '',
+        dailyReminderTitle: '',
+        dailyReminderBody: '',
+        dailyReminderRoute: '/hadith',
+        keepAliveTitle: '',
+        keepAliveBody: '',
+        markAsPrayedAction: 'নামাজ পড়েছি',
+        channelAzanName: '',
+        channelRemindersName: '',
+        channelSilentName: '',
+        channelBeepName: '',
+        prayerNames: {},
+      ),
+    );
+    expect(plugin.initCalls, 2);
+  });
 
   test('beep and azan use different channels and urgency', () async {
     final full = azan(Prayer.fajr);

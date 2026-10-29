@@ -58,7 +58,11 @@ final class HadithSectionsScreen extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        LocaleDigits.localize('${index + 1}', languageCode),
+                        // The book's own number: Ibn Majah starts at 0.
+                        LocaleDigits.localize(
+                          '${section.number}',
+                          languageCode,
+                        ),
                         style: QType.titleSm.copyWith(color: q.ink3),
                       ),
                     ),

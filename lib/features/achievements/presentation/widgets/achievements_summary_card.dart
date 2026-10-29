@@ -35,7 +35,14 @@ final class _AchievementsSummaryCardState
     final muhasaba = locator<MuhasabaStore>();
     _refreshOnLog = effect(() {
       muhasaba.stats.value; // the only tracked dependency
-      untracked(() => unawaited(store.refresh()));
+      untracked(
+        () => unawaited(
+          // Best-effort: badges keep their last state until the next log.
+          store.refresh().catchError(
+            (Object e) => debugPrint('Achievements refresh failed: $e'),
+          ),
+        ),
+      );
     });
   }
 

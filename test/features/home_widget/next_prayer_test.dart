@@ -43,4 +43,23 @@ void main() {
     expect(next.at, day.fajrTomorrow);
     expect(next.tomorrow, isTrue);
   });
+
+  test('before an after-midnight isha (high latitude) → next is that isha', () {
+    final late = PrayerDay(
+      fajr: DateTime(2026, 6, 14, 2, 30),
+      sunrise: day.sunrise,
+      dhuhr: day.dhuhr,
+      asr: day.asr,
+      maghrib: day.maghrib,
+      isha: day.isha,
+      fajrTomorrow: day.fajrTomorrow,
+      ishaYesterday: DateTime(2026, 6, 14, 0, 40),
+    );
+    final next = resolveNextPrayer(late, DateTime(2026, 6, 14, 0, 10));
+    expect(next.prayer, Prayer.isha);
+    expect(next.at, late.ishaYesterday);
+    expect(next.tomorrow, isFalse);
+    expect(resolveNextPrayer(late, DateTime(2026, 6, 14, 1)).prayer,
+        Prayer.fajr);
+  });
 }

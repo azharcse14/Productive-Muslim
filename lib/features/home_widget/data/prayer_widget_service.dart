@@ -95,8 +95,14 @@ final class PrayerWidgetService {
         final at = next.isAfter(now) && next.isBefore(midnight)
             ? next
             : midnight;
+        // Real instants: wall times across a DST shift aren't 1:1.
+        final wait = location == null
+            ? at.difference(now)
+            : _clock
+                  .utcInstantOf(location, at)
+                  .difference(_clock.utcInstantOf(location, now));
         _boundary = Timer(
-          at.difference(now) + const Duration(seconds: 1),
+          wait + const Duration(seconds: 1),
           () => unawaited(update()),
         );
       }

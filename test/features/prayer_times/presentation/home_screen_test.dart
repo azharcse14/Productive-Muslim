@@ -41,6 +41,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/content_fakes.dart';
+import '../../../helpers/home_store_fakes.dart';
 import '../../../helpers/mosque_fakes.dart';
 import '../../../helpers/muhasaba_fakes.dart';
 
@@ -123,7 +124,7 @@ Future<void> _register({
     ..registerSingleton<QuranStore>(quranStore)
     ..registerSingleton<DuaStore>(duaStore)
     ..registerSingleton<TasbihStore>(tasbihStore)
-    ..registerFactory<HomeStore>(
+    ..registerLazySingleton<HomeStore>(
       () => HomeStore(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(_clock)),
         clock: _clock,
@@ -170,7 +171,7 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('HomeScreen', () {
-    testWidgets('without a location shows the setup empty state', (
+    testHomeWidgets('without a location shows the setup empty state', (
       tester,
     ) async {
       await _register(withLocation: false);
@@ -180,7 +181,7 @@ void main() {
       expect(find.text('Set location'), findsOneWidget);
     });
 
-    testWidgets('with a location renders header, table and meal row', (
+    testHomeWidgets('with a location renders header, table and meal row', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -208,7 +209,7 @@ void main() {
       expect(find.text('Iftar'), findsOneWidget);
     });
 
-    testWidgets('shows the forbidden and nafl times card', (tester) async {
+    testHomeWidgets('shows the forbidden and nafl times card', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -225,7 +226,7 @@ void main() {
       expect(find.text('Tahajjud'), findsOneWidget);
     });
 
-    testWidgets('shows the minimal muhasaba track card', (tester) async {
+    testHomeWidgets('shows the minimal muhasaba track card', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -242,7 +243,7 @@ void main() {
       expect(find.text('0/10 done'), findsOneWidget);
     });
 
-    testWidgets('hidden home cards are not built', (tester) async {
+    testHomeWidgets('hidden home cards are not built', (tester) async {
       await _register(withLocation: true);
       await GetIt.I<SettingsStore>().setHomeCardVisible(
         HomeCard.specialTimes,
@@ -260,7 +261,7 @@ void main() {
       expect(find.text('Sahri ends', skipOffstage: false), findsOneWidget);
     });
 
-    testWidgets('countdown numeral ticks with the clock', (tester) async {
+    testHomeWidgets('countdown numeral ticks with the clock', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -279,7 +280,7 @@ void main() {
       expect(after, isNot(before));
     });
 
-    testWidgets('countdown shows fajr ending at sunrise (calm waqt-end)', (
+    testHomeWidgets('countdown shows fajr ending at sunrise (calm waqt-end)', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -288,7 +289,7 @@ void main() {
       expect(find.text('FAJR ENDS IN'), findsOneWidget);
     });
 
-    testWidgets('hijri date appears in the header line', (tester) async {
+    testHomeWidgets('hijri date appears in the header line', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -296,7 +297,7 @@ void main() {
       expect(find.textContaining('Dhul-Hijjah'), findsOneWidget);
     });
 
-    testWidgets('prayer check writes a salah entry to muhasaba', (
+    testHomeWidgets('prayer check writes a salah entry to muhasaba', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -350,7 +351,7 @@ void main() {
       );
     });
 
-    testWidgets('ticks show today even while muhasaba back-fills a past day', (
+    testHomeWidgets('ticks show today even while muhasaba back-fills a past day', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -371,7 +372,7 @@ void main() {
       expect(muhasaba.selectedDate.value, DateTime(2026, 6, 10));
     });
 
-    testWidgets('before fajr, isha is checkable and files yesterday', (
+    testHomeWidgets('before fajr, isha is checkable and files yesterday', (
       tester,
     ) async {
       await _register(withLocation: true, now: DateTime(2026, 6, 12, 1, 30));
@@ -389,7 +390,7 @@ void main() {
       expect(table().prayed, {Prayer.isha});
     });
 
-    testWidgets(
+    testHomeWidgets(
       'configured jamaat shows in the table and drives a jamaat countdown',
       (tester) async {
         await _register(withLocation: true);
@@ -413,7 +414,7 @@ void main() {
       },
     );
 
-    testWidgets('auto schedule shows the scheduled mosque with an Auto badge', (
+    testHomeWidgets('auto schedule shows the scheduled mosque with an Auto badge', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -437,7 +438,7 @@ void main() {
       expect(find.text('Auto'), findsOneWidget);
     });
 
-    testWidgets('qibla is not a quick action (header + countdown chip only)', (
+    testHomeWidgets('qibla is not a quick action (header + countdown chip only)', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -448,7 +449,7 @@ void main() {
       expect(row.actions.map((a) => a.label), isNot(contains('Qibla')));
     });
 
-    testWidgets('outside Ramadan, sahri & iftar sits right under the table', (
+    testHomeWidgets('outside Ramadan, sahri & iftar sits right under the table', (
       tester,
     ) async {
       _tall(tester);
@@ -462,7 +463,7 @@ void main() {
       expect(meal.bottom, lessThan(muhasaba.top));
     });
 
-    testWidgets('in Ramadan, sahri & iftar sits right under the countdown', (
+    testHomeWidgets('in Ramadan, sahri & iftar sits right under the countdown', (
       tester,
     ) async {
       _tall(tester);
@@ -477,7 +478,7 @@ void main() {
       expect(meal.bottom, lessThan(actions.top));
     });
 
-    testWidgets('hadith of the day opens that hadith', (tester) async {
+    testHomeWidgets('hadith of the day opens that hadith', (tester) async {
       _tall(tester);
       final hadith = HadithStore(_OneHadithRepo());
       await _register(withLocation: true, hadith: hadith);

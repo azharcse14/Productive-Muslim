@@ -29,7 +29,7 @@ void main() {
       'lib/features/notifications/data/local_notifications_scheduler.dart',
     ).readAsStringSync();
     final icon = RegExp(
-      r"AndroidInitializationSettings\('@([^']+)'\)",
+      r"AndroidInitializationSettings\(\s*'@([^']+)',?\s*\)",
     ).firstMatch(scheduler)![1]!;
     final keep = File(
       'android/app/src/main/res/raw/keep.xml',

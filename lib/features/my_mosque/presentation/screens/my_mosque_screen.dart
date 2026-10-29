@@ -34,6 +34,27 @@ final class MyMosqueScreen extends StatefulWidget {
 
 final class _MyMosqueScreenState extends State<MyMosqueScreen> {
   final MosqueStore _store = locator<MosqueStore>();
+  late final void Function() _unwatchSaves;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tell the user when a change couldn't be saved (it was rolled back).
+    final seen = _store.saveFailures.value;
+    _unwatchSaves = _store.saveFailures.subscribe((n) {
+      if (n != seen && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.expenseSaveFailed)));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _unwatchSaves();
+    super.dispose();
+  }
 
   String _formatTime(BuildContext context, ClockTime time) {
     final locale = Localizations.localeOf(context);

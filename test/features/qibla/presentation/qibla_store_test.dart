@@ -238,5 +238,19 @@ void main() {
       expect(haptics.length, 1, reason: 'edge-triggered, not per sample');
       store.dispose();
     });
+
+    test('never aligned while calibration is needed', () async {
+      final (store, sensors, _) = await _make();
+      final bearing = store.bearing.value! - store.declination.value;
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.aligned.value, isTrue);
+      sensors.emitWeakField();
+      await Future<void>.delayed(Duration.zero);
+      expect(store.aligned.value, isFalse);
+      store.dispose();
+    });
   });
 }

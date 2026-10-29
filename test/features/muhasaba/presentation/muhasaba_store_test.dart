@@ -289,6 +289,32 @@ void main() {
       expect(repo.entries_.containsKey(('salah_fajr', 20260613)), isFalse);
     });
 
+    test(
+      'rolls over even after a tick refreshed stats past midnight',
+      () async {
+        var clock = DateTime(2026, 6, 12, 23, 50);
+        final (store, repo) = await makeMuhasabaStore(now: () => clock);
+        clock = DateTime(2026, 6, 13, 0, 10);
+        // A notification tick (refreshStats) before the resume hook runs.
+        await store.markDoneOn('salah_isha', DateTime(2026, 6, 12));
+        await store.rollOverIfNewDay();
+        expect(store.selectedDate.value, DateTime(2026, 6, 13));
+        await store.setValue('quran', 3);
+        expect(repo.entries_[('quran', 20260613)], 3);
+      },
+    );
+
+    test('a tick made while its day is loading survives the load', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      // The read starts before the write, so it doesn't see it.
+      final loading = store.selectDate(DateTime(2026, 6, 10));
+      final saving = store.setValue('quran', 5);
+      await loading;
+      await saving;
+      expect(store.valueOf('quran'), 5);
+      expect(repo.entries_[('quran', 20260610)], 5);
+    });
+
     test('roll-over keeps a back-filled date', () async {
       var clock = DateTime(2026, 6, 12, 23, 50);
       final (store, _) = await makeMuhasabaStore(now: () => clock);

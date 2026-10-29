@@ -41,17 +41,27 @@ final class FastingStore {
     return DateTime(n.year, n.month, n.day);
   }
 
-  /// Restores the persisted log.
-  Future<void> load() async {
-    final stored = await _prefs.getStringList(_key);
-    if (stored != null) {
-      logged.value = {
-        for (final s in stored)
-          if (int.tryParse(s) case final v?) v,
-      };
+  Future<void>? _loading;
+
+  /// Restores the persisted log, once per store; [toggle] awaits it first,
+  /// so a write never replaces the stored history with an empty log. A
+  /// failed load is forgotten, so the next call (or toggle) retries it
+  /// (mirrors ExpenseStore).
+  Future<void> load() => _loading ??= () async {
+    try {
+      final stored = await _prefs.getStringList(_key);
+      if (stored != null) {
+        logged.value = {
+          for (final s in stored)
+            if (int.tryParse(s) case final v?) v,
+        };
+      }
+      loaded.value = true;
+    } on Object {
+      _loading = null;
+      rethrow;
     }
-    loaded.value = true;
-  }
+  }();
 
   /// Whether [date] is logged as fasted.
   bool isLogged(DateTime date) =>
@@ -76,6 +86,7 @@ final class FastingStore {
   /// then persisting. Adding is a no-op unless [canLog]; removing is always
   /// allowed.
   Future<void> toggle(DateTime date) async {
+    await load();
     final stamp = _stamp(DateTime(date.year, date.month, date.day));
     final next = Set<int>.from(logged.value);
     if (!next.remove(stamp)) {

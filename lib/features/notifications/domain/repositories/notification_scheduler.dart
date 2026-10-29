@@ -8,7 +8,9 @@ enum NotificationPermission { granted, denied, notRequested }
 /// All scheduling goes through this single interface (guide §5).
 /// The data layer owns the plugin; domain/presentation never touch it.
 abstract interface class NotificationScheduler {
-  /// One-time plugin setup ([texts] localizes action buttons/categories).
+  /// Plugin setup ([texts] localizes action buttons/categories). Safe to
+  /// call before every schedule: a no-op unless [texts] changed or the
+  /// last attempt failed.
   Future<void> initialize(NotificationTexts texts);
 
   Future<NotificationPermission> permissionStatus();

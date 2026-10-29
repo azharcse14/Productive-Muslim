@@ -50,14 +50,20 @@ final class JamaatFocusBridge {
     'nafs.bodyUntil': texts.nafsLockBodyUntil,
   });
 
-  Future<FocusStatus> status() async {
+  /// [toWall] converts the native end instant to the location wall clock
+  /// (the clock the app shows), mirroring [schedule]'s `toUtc`.
+  Future<FocusStatus> status({
+    required DateTime Function(DateTime instant) toWall,
+  }) async {
     final map = await _channel.invokeMapMethod<String, Object?>('status');
     final until = map?['until'] as int? ?? -1;
     return (
       active: map?['active'] == true,
       strict: map?['strict'] == true,
       nafs: map?['nafs'] == true,
-      until: until > 0 ? DateTime.fromMillisecondsSinceEpoch(until) : null,
+      until: until > 0
+          ? toWall(DateTime.fromMillisecondsSinceEpoch(until, isUtc: true))
+          : null,
     );
   }
 

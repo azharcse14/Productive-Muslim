@@ -74,13 +74,13 @@ CountdownUrgency countdownUrgencyFor({
   required CountdownTarget target,
   Duration jamaatSoon = const Duration(minutes: 10),
   Duration waqtEnding = const Duration(minutes: 20),
+  DateTime Function(DateTime)? instantOf,
 }) {
-  final remaining = target.remainingAt(now);
+  final remaining = target.remainingAt(now, instantOf);
   return switch (target.kind) {
     CountdownKind.sahriEnd => CountdownUrgency.sahri,
     CountdownKind.iftar => CountdownUrgency.iftar,
-    CountdownKind.jamaat when remaining <= jamaatSoon =>
-      CountdownUrgency.amber,
+    CountdownKind.jamaat when remaining <= jamaatSoon => CountdownUrgency.amber,
     CountdownKind.waqtEnd when remaining <= waqtEnding =>
       CountdownUrgency.urgent,
     _ => CountdownUrgency.calm,

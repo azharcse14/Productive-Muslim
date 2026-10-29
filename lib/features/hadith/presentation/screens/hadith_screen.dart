@@ -71,20 +71,31 @@ final class _HadithScreenState extends State<HadithScreen> {
       appBar: AppBar(
         title: Text(l10n.hadithTitle),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: l10n.hadithSearchHint,
-            onPressed: () => unawaited(
-              showSearch<void>(
-                context: context,
-                delegate: QSearchDelegate<Hadith>(
-                  items: _store.items.value,
-                  fields: (h) => [h.arabic, h.en, h.bn, h.narrator, h.reference],
-                  itemBuilder: (_, h) => HadithListCard(hadith: h),
-                  emptyText: l10n.hadithNoResults,
-                  hint: l10n.hadithSearchHint,
-                ),
-              ),
+          // Disabled until loaded: the delegate snapshots the list.
+          SignalBuilder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.hadithSearchHint,
+              onPressed: !_store.loaded.value
+                  ? null
+                  : () => unawaited(
+                      showSearch<void>(
+                        context: context,
+                        delegate: QSearchDelegate<Hadith>(
+                          items: _store.items.value,
+                          fields: (h) => [
+                            h.arabic,
+                            h.en,
+                            h.bn,
+                            h.narrator,
+                            h.reference,
+                          ],
+                          itemBuilder: (_, h) => HadithListCard(hadith: h),
+                          emptyText: l10n.hadithNoResults,
+                          hint: l10n.hadithSearchHint,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ],

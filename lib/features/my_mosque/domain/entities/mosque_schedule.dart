@@ -30,19 +30,28 @@ final class MosqueRule {
   /// An overnight window (e.g. Fri 20:00–02:00) belongs to the day it
   /// starts on, so Saturday 00:30 still matches a Friday rule.
   bool matches(DateTime now) {
-    bool on(int weekday) => days.isEmpty || days.contains(weekday);
     if (allDay) {
-      return on(now.weekday);
+      return _on(now.weekday);
     }
     final mins = now.hour * 60 + now.minute;
     final s = start.hour * 60 + start.minute;
     final e = end.hour * 60 + end.minute;
     if (s <= e) {
-      return on(now.weekday) && mins >= s && mins < e;
+      return _on(now.weekday) && mins >= s && mins < e;
     }
-    final yesterday = now.weekday == DateTime.monday ? 7 : now.weekday - 1;
-    return (mins >= s && on(now.weekday)) || (mins < e && on(yesterday));
+    return (mins >= s && _on(now.weekday)) || spillsOver(now);
   }
+
+  /// Whether [now] is in the after-midnight tail of an overnight window
+  /// that started the day before (Sat 00:30 for a Fri 20:00–02:00 rule).
+  bool spillsOver(DateTime now) {
+    final s = start.hour * 60 + start.minute;
+    final e = end.hour * 60 + end.minute;
+    final yesterday = now.weekday == DateTime.monday ? 7 : now.weekday - 1;
+    return s > e && now.hour * 60 + now.minute < e && _on(yesterday);
+  }
+
+  bool _on(int weekday) => days.isEmpty || days.contains(weekday);
 
   MosqueRule copyWith({
     String? mosqueId,
@@ -90,12 +99,20 @@ final class MosqueOverride {
   /// field existed — of unknown age, so treated as expired.
   final DateTime? setOn;
 
-  /// Whether the override is still within its day at [now].
-  bool liveAt(DateTime now) =>
-      setOn != null &&
-      setOn!.year == now.year &&
-      setOn!.month == now.month &&
-      setOn!.day == now.day;
+  /// Whether the override is still within its day at [now]. Like an
+  /// overnight rule, that day runs on past midnight while one of [rules]
+  /// spills over from it, so a Fri 23:30 override survives Sat 00:30.
+  bool liveAt(DateTime now, [List<MosqueRule> rules = const []]) {
+    final day = setOn;
+    if (day == null) {
+      return false;
+    }
+    bool isOn(DateTime d) =>
+        day.year == d.year && day.month == d.month && day.day == d.day;
+    return isOn(now) ||
+        (isOn(DateTime(now.year, now.month, now.day - 1)) &&
+            rules.any((r) => r.spillsOver(now)));
+  }
 
   @override
   bool operator ==(Object other) =>

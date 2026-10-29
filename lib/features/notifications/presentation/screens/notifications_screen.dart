@@ -26,8 +26,9 @@ final class NotificationsScreen extends StatefulWidget {
 }
 
 final class _NotificationsScreenState extends State<NotificationsScreen> {
-  late final HomeStore? _homeStore =
-      locator.isRegistered<HomeStore>() ? locator<HomeStore>() : null;
+  late final HomeStore? _homeStore = locator.isRegistered<HomeStore>()
+      ? locator<HomeStore>()
+      : null;
   late final SettingsStore _settings = locator<SettingsStore>();
 
   String _formatTime(BuildContext context, DateTime time) {
@@ -95,10 +96,7 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
               _NotificationViewItem(
                 icon: Icons.wb_twilight_outlined,
-                title: l10n.notifAzanTitle(
-                  asrName,
-                  _formatTime(context, asr),
-                ),
+                title: l10n.notifAzanTitle(asrName, _formatTime(context, asr)),
                 subtitle: l10n.notifAzanBody(asrName),
                 time: _formatTime(context, asr),
                 route: '/home',
@@ -213,7 +211,7 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
           return ListView.separated(
             padding: const EdgeInsets.all(QSpace.s5),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: QSpace.s3),
+            separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
             itemBuilder: (context, index) {
               final item = items[index];
               return QCard(

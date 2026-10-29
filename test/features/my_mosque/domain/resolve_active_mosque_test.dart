@@ -209,6 +209,35 @@ void main() {
       expect(r.isOverride, isFalse);
     });
 
+    test('an override set in an overnight window outlives midnight', () {
+      // Fri 2026-06-19 20:00–02:00 → 'a'; overridden to 'b' at 23:30.
+      final state = MosqueState(
+        profiles: const [_a, _b],
+        mode: ScheduleMode.auto,
+        rules: const [
+          MosqueRule(
+            mosqueId: 'a',
+            days: {DateTime.friday},
+            start: ClockTime(20, 0),
+            end: ClockTime(2, 0),
+          ),
+        ],
+        activeOverride: MosqueOverride(
+          mosqueId: 'b',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 6, 19),
+        ),
+      );
+      expect(
+        resolveActiveMosque(state, DateTime(2026, 6, 20, 0, 30)).profile,
+        _b,
+      );
+      expect(
+        state.activeOverride!.liveAt(DateTime(2026, 6, 20, 2, 30), state.rules),
+        isFalse,
+      );
+    });
+
     test('a legacy override without a set day is treated as expired', () {
       const state = MosqueState(
         profiles: [_a, _b],

@@ -24,6 +24,10 @@ final class MosqueStore {
   late final mode = computed(() => state.value.mode);
   late final rules = computed(() => state.value.rules);
 
+  /// Bumped per save that failed (and was rolled back), so a screen can
+  /// say so — many writes are fire-and-forget (Home's switcher, effects).
+  late final saveFailures = signal(0);
+
   var _idCounter = 0;
 
   /// Storage couldn't be read: [state] holds defaults, not the user's data,
@@ -120,7 +124,10 @@ final class MosqueStore {
     ),
   );
 
-  Future<void> clearOverride() => _update((s) => s.withOverride(null));
+  /// Not rolled back on a failed save: HomeStore's watcher calls this for a
+  /// stale override, and restoring it would re-trigger the watcher forever.
+  Future<void> clearOverride() =>
+      _update((s) => s.withOverride(null), rollback: false);
 
   Future<void> renameProfile(String id, String name) =>
       _mapProfile(id, (p) => p.copyWith(name: name));
@@ -164,7 +171,10 @@ final class MosqueStore {
 
   /// Applies [change] and saves. A function, not a value, so a change made
   /// while storage was unreadable replays onto the real state once it loads.
-  Future<void> _update(MosqueState Function(MosqueState) change) async {
+  Future<void> _update(
+    MosqueState Function(MosqueState) change, {
+    bool rollback = true,
+  }) async {
     if (_readFailed) {
       await load();
       if (_readFailed) {
@@ -174,8 +184,16 @@ final class MosqueStore {
         return;
       }
     }
-    final next = change(state.value);
+    final previous = state.value;
+    final next = change(previous);
     state.value = next;
-    await _save(next);
+    if (!(await _save(next)).isSuccess) {
+      // Not saved: don't show what storage doesn't have — unless a later
+      // change has already moved the state on.
+      if (rollback && identical(state.value, next)) {
+        state.value = previous;
+      }
+      saveFailures.value++;
+    }
   }
 }

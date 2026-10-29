@@ -21,9 +21,9 @@ final class DailyContentStore {
   final date = signal<DateTime>(DateTime(1970));
 
   /// Flattened dua pool across all categories, first-seen order.
-  late final _allDuas = computed<List<Dua>>(() => [
-        for (final category in _dua.categories.value) ...category.duas,
-      ]);
+  late final _allDuas = computed<List<Dua>>(
+    () => [for (final category in _dua.categories.value) ...category.duas],
+  );
 
   late final _selection = computed<DailyContentSelection>(
     () => pickDailyContent(
@@ -40,9 +40,10 @@ final class DailyContentStore {
     return (i == null || i >= list.length) ? null : list[i];
   });
 
-  /// Ensures the dua collection is loaded, then points the store at [date].
+  /// Ensures the dua collection is loaded (retrying a failed load), then
+  /// points the store at [date].
   Future<void> load(DateTime forDate) async {
-    if (!_dua.loaded.value) {
+    if (!_dua.loaded.value || _dua.failed.value) {
       await _dua.load();
     }
     date.value = DateTime(forDate.year, forDate.month, forDate.day);

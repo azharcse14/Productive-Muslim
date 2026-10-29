@@ -148,7 +148,16 @@ final class AppLockStore {
     enabled.value = state.enabled;
     biometricEnabled.value = state.biometric;
     locked.value = state.enabled;
-    final throttle = await _source.readThrottle();
+    final ({int failedAttempts, DateTime? lockedUntil}) throttle;
+    try {
+      throttle = await _source.readThrottle();
+    } on Object {
+      // The lock state read fine; an unreadable cooldown must not lock out
+      // a user who has no PIN. Start the count fresh.
+      _failedAttempts = 0;
+      _startCooldown(null);
+      return;
+    }
     _failedAttempts = throttle.failedAttempts;
     // Resume the persisted cooldown, clamped to the longest this attempt
     // count can earn — a clock set backwards can't stretch it.
