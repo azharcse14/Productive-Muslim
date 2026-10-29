@@ -117,7 +117,7 @@ void main() {
       final s = store();
       // June 2026 starts on a Monday: one Sunday pad cell.
       expect(s.heatmapDate(0, 0), isNull);
-      expect(s.heatmapDate(0, 1), DateTime(2026, 6, 1));
+      expect(s.heatmapDate(0, 1), DateTime(2026, 6));
       expect(s.heatmapDate(4, 2), DateTime(2026, 6, 30));
       expect(s.heatmapDate(4, 3), isNull);
     });
