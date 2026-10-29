@@ -590,6 +590,30 @@ abstract class AppLocalizations {
   /// **'Current location'**
   String get locationCurrent;
 
+  /// No description provided for @locationRegionalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the suggested method for {country}?'**
+  String locationRegionalTitle(String country);
+
+  /// No description provided for @locationRegionalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · Asr: {madhab}. You can change these anytime in Settings.'**
+  String locationRegionalBody(String method, String madhab);
+
+  /// No description provided for @locationRegionalKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current'**
+  String get locationRegionalKeep;
+
+  /// No description provided for @locationRegionalUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use suggested'**
+  String get locationRegionalUse;
+
   /// No description provided for @searchNoResults.
   ///
   /// In en, this message translates to:

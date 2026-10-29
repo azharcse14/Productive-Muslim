@@ -276,6 +276,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationCurrent => 'Current location';
 
   @override
+  String locationRegionalTitle(String country) {
+    return 'Use the suggested method for $country?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · Asr: $madhab. You can change these anytime in Settings.';
+  }
+
+  @override
+  String get locationRegionalKeep => 'Keep current';
+
+  @override
+  String get locationRegionalUse => 'Use suggested';
+
+  @override
   String get searchNoResults => 'No matching city — try a different spelling';
 
   @override

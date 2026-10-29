@@ -274,6 +274,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get locationCurrent => 'বর্তমান অবস্থান';
 
   @override
+  String locationRegionalTitle(String country) {
+    return '$country-এর জন্য প্রস্তাবিত পদ্ধতি ব্যবহার করবেন?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · আসর: $madhab। সেটিংসে যেকোনো সময় বদলানো যাবে।';
+  }
+
+  @override
+  String get locationRegionalKeep => 'বর্তমানটি রাখুন';
+
+  @override
+  String get locationRegionalUse => 'প্রস্তাবিতটি নিন';
+
+  @override
   String get searchNoResults => 'কোনো শহর মেলেনি — অন্য বানানে চেষ্টা করুন';
 
   @override

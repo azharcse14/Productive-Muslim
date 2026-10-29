@@ -108,6 +108,12 @@
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
   "locationServiceOff": "Location services are turned off. Pick your city below, or enable location and try again.",
   "locationCurrent": "Current location",
+  "locationRegionalTitle": "Use the suggested method for {country}?",
+  "@locationRegionalTitle": { "placeholders": { "country": { "type": "String" } } },
+  "locationRegionalBody": "{method} · Asr: {madhab}. You can change these anytime in Settings.",
+  "@locationRegionalBody": { "placeholders": { "method": { "type": "String" }, "madhab": { "type": "String" } } },
+  "locationRegionalKeep": "Keep current",
+  "locationRegionalUse": "Use suggested",
   "searchNoResults": "No matching city — try a different spelling",
   "minutesShort": "{count} min",
   "@minutesShort": {

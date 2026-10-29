@@ -17,8 +17,10 @@ import '../../domain/entities/city.dart';
 import '../../domain/entities/location_config.dart';
 import '../../domain/repositories/location_repository.dart';
 import '../../domain/usecases/get_current_location.dart';
+import '../../domain/usecases/regional_defaults.dart';
 import '../../domain/usecases/search_cities.dart';
 import '../state/settings_store.dart';
+import '../widgets/setting_labels.dart';
 
 /// Two location paths side by side (design §4.2): GPS with priming text,
 /// and a searchable manual city list. Every GPS failure routes to the
@@ -112,19 +114,70 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _gpsBusy.value = false;
     switch (result) {
       case Success<GpsLocation>(:final value):
-        await _store.setLocation(value);
-        if (mounted) {
-          context.pop();
-        }
+        await _apply(value);
       case FailureResult<GpsLocation>(:final failure):
         _gpsFailure.value = failure;
     }
   }
 
-  Future<void> _selectCity(City city) async {
-    await _store.setLocation(ManualCityLocation(city));
+  Future<void> _selectCity(City city) => _apply(ManualCityLocation(city));
+
+  /// Saves [location] and closes. A later move to another country (not
+  /// during first setup, whose own steps pre-select these) offers that
+  /// region's method and Asr madhab.
+  Future<void> _apply(LocationConfig location) async {
+    final from = countryCodeOf(_store.location.value);
+    await _store.setLocation(location);
+    final to = countryCodeOf(location);
+    if (mounted &&
+        _store.settings.value.setupComplete &&
+        to.isNotEmpty &&
+        to != from) {
+      await _offerRegionalDefaults(to);
+    }
     if (mounted) {
       context.pop();
+    }
+  }
+
+  Future<void> _offerRegionalDefaults(String country) async {
+    final params = _store.prayerParams.value;
+    final method = suggestedMethodFor(country);
+    final madhab = defaultMadhabFor(country);
+    if (method == params.method &&
+        asrMadhabOf(madhab) == asrMadhabOf(params.madhab)) {
+      return;
+    }
+    final l10n = context.l10n;
+    final use = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          l10n.locationRegionalTitle('${_flag(country)} $country'.trim()),
+        ),
+        content: Text(
+          l10n.locationRegionalBody(
+            l10n.methodLabel(method),
+            l10n.madhabLabel(madhab),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.locationRegionalKeep),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.locationRegionalUse),
+          ),
+        ],
+      ),
+    );
+    if (use ?? false) {
+      await _store.setMethod(method);
+      if (asrMadhabOf(madhab) != asrMadhabOf(params.madhab)) {
+        await _store.setMadhab(madhab);
+      }
     }
   }
 
@@ -134,146 +187,159 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
     final q = context.q;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.locationTitle)),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
+      // Header scrolls with the results, so the keyboard, Bengali or large
+      // text never overflow it.
+      body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        slivers: [
+          SliverPadding(
             padding: const EdgeInsets.fromLTRB(
               QSpace.s5,
               QSpace.s2,
               QSpace.s5,
-              0,
+              QSpace.s2,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SignalBuilder(
-                  builder: (context) => QCard(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: QSpace.s4,
-                      vertical: QSpace.s2,
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SignalBuilder(
+                    builder: (context) => QCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: QSpace.s4,
+                        vertical: QSpace.s2,
+                      ),
+                      child: QListRow(
+                        icon: Icons.my_location_outlined,
+                        title: l10n.locationUseGps,
+                        subtitle: l10n.locationUseGpsSub,
+                        trailing: _gpsBusy.value
+                            ? const SizedBox.square(
+                                dimension: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                ),
+                              )
+                            : Icon(Icons.chevron_right, color: q.ink3),
+                        onTap: _gpsBusy.value
+                            ? null
+                            : () => unawaited(_useGps()),
+                      ),
                     ),
-                    child: QListRow(
-                      icon: Icons.my_location_outlined,
-                      title: l10n.locationUseGps,
-                      subtitle: l10n.locationUseGpsSub,
-                      trailing: _gpsBusy.value
-                          ? const SizedBox.square(
-                              dimension: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
+                  ),
+                  const SizedBox(height: QSpace.s3),
+                  Text(
+                    l10n.locationPrimingBody,
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+                  SignalBuilder(
+                    builder: (context) {
+                      final failure = _gpsFailure.value;
+                      if (failure == null) {
+                        return const SizedBox.shrink();
+                      }
+                      // Settings fixes services-off and "don't ask again";
+                      // a plain denial or a missed fix just needs another try.
+                      final needsSettings =
+                          failure is LocationServiceDisabled ||
+                          failure is LocationPermissionDeniedForever;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: QSpace.s3),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            QBanner(
+                              text: switch (failure) {
+                                LocationServiceDisabled() =>
+                                  l10n.locationServiceOff,
+                                LocationPermissionDeniedForever() =>
+                                  l10n.locationDeniedForever,
+                                LocationPermissionDenied() =>
+                                  l10n.locationDeniedFallback,
+                                _ => l10n.locationUnavailable,
+                              },
+                              icon: Icons.explore_outlined,
+                            ),
+                            TextButton(
+                              onPressed: needsSettings
+                                  ? () => unawaited(
+                                      _getLocation.openSettings(
+                                        locationService:
+                                            failure is LocationServiceDisabled,
+                                      ),
+                                    )
+                                  : () => unawaited(_useGps()),
+                              child: Text(
+                                needsSettings
+                                    ? l10n.openSystemSettings
+                                    : l10n.locationRetry,
                               ),
-                            )
-                          : Icon(Icons.chevron_right, color: q.ink3),
-                      onTap: _gpsBusy.value
-                          ? null
-                          : () => unawaited(_useGps()),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: QSpace.s5),
+                  TextField(
+                    onChanged: _onQueryChanged,
+                    decoration: InputDecoration(
+                      hintText: l10n.locationSearchHint,
+                      prefixIcon: const Icon(Icons.search),
                     ),
                   ),
-                ),
-                const SizedBox(height: QSpace.s3),
-                Text(
-                  l10n.locationPrimingBody,
-                  style: QType.caption.copyWith(color: q.ink2),
-                ),
-                SignalBuilder(builder: (context) {
-                  final failure = _gpsFailure.value;
-                  if (failure == null) {
-                    return const SizedBox.shrink();
-                  }
-                  // Settings fixes services-off and "don't ask again";
-                  // a plain denial or a missed fix just needs another try.
-                  final needsSettings =
-                      failure is LocationServiceDisabled ||
-                      failure is LocationPermissionDeniedForever;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: QSpace.s3),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        QBanner(
-                          text: switch (failure) {
-                            LocationServiceDisabled() => l10n.locationServiceOff,
-                            LocationPermissionDeniedForever() =>
-                              l10n.locationDeniedForever,
-                            LocationPermissionDenied() =>
-                              l10n.locationDeniedFallback,
-                            _ => l10n.locationUnavailable,
-                          },
-                          icon: Icons.explore_outlined,
-                        ),
-                        TextButton(
-                          onPressed: needsSettings
-                              ? () => unawaited(
-                                  _getLocation.openSettings(
-                                    locationService:
-                                        failure is LocationServiceDisabled,
-                                  ),
-                                )
-                              : () => unawaited(_useGps()),
-                          child: Text(
-                            needsSettings
-                                ? l10n.openSystemSettings
-                                : l10n.locationRetry,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: QSpace.s5),
-                TextField(
-                  onChanged: _onQueryChanged,
-                  decoration: InputDecoration(
-                    hintText: l10n.locationSearchHint,
-                    prefixIcon: const Icon(Icons.search),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: QSpace.s2),
-          Expanded(
-            child: SignalBuilder(builder: (context) {
+          SignalBuilder(
+            builder: (context) {
               if (_searching.value) {
-                return ListView(
+                return SliverPadding(
                   padding: const EdgeInsets.all(QSpace.s5),
-                  children: [
-                    for (var i = 0; i < 8; i++) ...[
-                      const QSkeleton(height: 44, radius: QRadius.sm),
-                      const SizedBox(height: QSpace.s2),
+                  sliver: SliverList.list(
+                    children: [
+                      for (var i = 0; i < 8; i++) ...[
+                        const QSkeleton(height: 44, radius: QRadius.sm),
+                        const SizedBox(height: QSpace.s2),
+                      ],
                     ],
-                  ],
+                  ),
                 );
               }
               final cities = _results.value;
               if (cities.isEmpty) {
-                return Center(
-                  child: Text(
-                    _searchFailed.value
-                        ? l10n.locationSearchError
-                        : l10n.searchNoResults,
-                    style: QType.body.copyWith(color: q.ink2),
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      _searchFailed.value
+                          ? l10n.locationSearchError
+                          : l10n.searchNoResults,
+                      style: QType.body.copyWith(color: q.ink2),
+                    ),
                   ),
                 );
               }
-              return ListView.builder(
+              return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
-                itemCount: cities.length,
-                itemBuilder: (context, index) {
-                  final city = cities[index];
-                  // Flag + country code reads better than a raw IANA zone.
-                  return QListRow(
-                    title: city.name,
-                    subtitle: [
-                      '${_flag(city.countryCode)} ${city.countryCode}',
-                      ?city.nameBn,
-                    ].join(' · '),
-                    onTap: () => unawaited(_selectCity(city)),
-                  );
-                },
+                sliver: SliverList.builder(
+                  itemCount: cities.length,
+                  itemBuilder: (context, index) {
+                    final city = cities[index];
+                    // Flag + country code reads better than a raw IANA zone.
+                    return QListRow(
+                      title: city.name,
+                      subtitle: [
+                        '${_flag(city.countryCode)} ${city.countryCode}',
+                        ?city.nameBn,
+                      ].join(' · '),
+                      onTap: () => unawaited(_selectCity(city)),
+                    );
+                  },
+                ),
               );
-            }),
+            },
           ),
         ],
       ),
