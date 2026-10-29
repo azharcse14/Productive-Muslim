@@ -218,6 +218,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prayerDhuhr => 'Dhuhr';
 
   @override
+  String get prayerJumuah => 'Jumu\'ah';
+
+  @override
   String get prayerAsr => 'Asr';
 
   @override
@@ -265,6 +268,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationCurrent => 'Current location';
 
   @override
+  String locationUpdatedTo(String place) {
+    return 'Location updated to $place';
+  }
+
+  @override
   String get searchNoResults => 'No matching city — try a different spelling';
 
   @override
@@ -296,6 +304,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get countdownIftarIn => 'Iftar in';
 
   @override
+  String countdownForbiddenUntil(String time) {
+    return 'Forbidden time until $time';
+  }
+
+  @override
+  String a11yHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String a11yMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String subEndsAt(String time) {
     return 'Ends at $time';
   }
@@ -309,6 +344,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jamaatLabel => 'Jamaat';
 
   @override
+  String get prayerTableTime => 'Time';
+
+  @override
   String get sunriseLabel => 'Sunrise';
 
   @override
@@ -316,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sahriEndsLabel => 'Sahri ends';
+
+  @override
+  String get sahriEndsTonightLabel => 'Sahri ends tonight';
 
   @override
   String get iftarLabel => 'Iftar';
@@ -347,6 +388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get specialNow => 'Now';
 
   @override
+  String get specialNext => 'Next';
+
+  @override
   String get specialTimeForbiddenSunrise => 'After sunrise';
 
   @override
@@ -372,7 +416,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'No salah may be offered in these three moments.';
+      'Avoid voluntary prayers in these windows. A missed fard (e.g. today\'s Asr) may still be prayed.';
 
   @override
   String get naflTimesSubtitle => 'Best times for voluntary (nafl) prayers.';
@@ -532,6 +576,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'other': '—',
     });
     return '$_temp0';
+  }
+
+  @override
+  String hijriFromMaghrib(String date) {
+    return '$date (from Maghrib)';
   }
 
   @override
@@ -795,6 +844,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String fixedAtTime(String time) {
     return 'Jamaat at $time';
   }
+
+  @override
+  String jamaatPreviewToday(String time) {
+    return '→ $time today';
+  }
+
+  @override
+  String jamaatOutsideWaqt(String prayer, String range) {
+    return 'Outside today\'s $prayer time ($range)';
+  }
+
+  @override
+  String get jumuahJamaatHint => 'Used instead of Dhuhr\'s jamaat on Fridays';
+
+  @override
+  String get jumuahClear => 'Remove Jumu\'ah time';
 
   @override
   String get pickTime => 'Pick time';

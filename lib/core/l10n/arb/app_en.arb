@@ -90,6 +90,7 @@
   "methodTehran": "Tehran (IGUT)",
   "prayerFajr": "Fajr",
   "prayerDhuhr": "Dhuhr",
+  "prayerJumuah": "Jumu'ah",
   "prayerAsr": "Asr",
   "prayerMaghrib": "Maghrib",
   "prayerIsha": "Isha",
@@ -104,6 +105,14 @@
   "locationDeniedFallback": "No problem — pick your city below and everything works the same.",
   "locationServiceOff": "Location services are turned off. Pick your city below, or enable location and try again.",
   "locationCurrent": "Current location",
+  "locationUpdatedTo": "Location updated to {place}",
+  "@locationUpdatedTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
   "searchNoResults": "No matching city — try a different spelling",
   "minutesShort": "{count} min",
   "@minutesShort": {
@@ -133,6 +142,30 @@
   },
   "countdownSahriEnds": "Sahri ends in",
   "countdownIftarIn": "Iftar in",
+  "countdownForbiddenUntil": "Forbidden time until {time}",
+  "@countdownForbiddenUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "@a11yHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "a11yMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@a11yMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "subEndsAt": "Ends at {time}",
   "@subEndsAt": {
     "description": "Caption under the countdown when counting down to a waqt's end, e.g. 'Ends at 4:46 AM'",
@@ -155,9 +188,11 @@
     }
   },
   "jamaatLabel": "Jamaat",
+  "prayerTableTime": "Time",
   "sunriseLabel": "Sunrise",
   "sunsetLabel": "Sunset",
   "sahriEndsLabel": "Sahri ends",
+  "sahriEndsTonightLabel": "Sahri ends tonight",
   "iftarLabel": "Iftar",
   "greetingMorning": "Good morning",
   "greetingAfternoon": "Good afternoon",
@@ -172,6 +207,7 @@
   "forbiddenTimesTitle": "Forbidden times",
   "naflTimesTitle": "Nafl times",
   "specialNow": "Now",
+  "specialNext": "Next",
   "specialTimeForbiddenSunrise": "After sunrise",
   "specialTimeForbiddenZawal": "Midday (zawal)",
   "specialTimeForbiddenSunset": "Before sunset",
@@ -180,7 +216,7 @@
   "specialTimeSalatZawal": "Salat al-Zawal",
   "specialTimeAwwabin": "Awwabin",
   "specialTimeTahajjud": "Tahajjud",
-  "forbiddenTimesSubtitle": "No salah may be offered in these three moments.",
+  "forbiddenTimesSubtitle": "Avoid voluntary prayers in these windows. A missed fard (e.g. today's Asr) may still be prayed.",
   "naflTimesSubtitle": "Best times for voluntary (nafl) prayers.",
   "specialTimesLearnMore": "Tap for details",
   "specialTimesPageTitle": "Forbidden & nafl times",
@@ -228,6 +264,14 @@
   "@hijriMonthName": {
     "placeholders": {
       "month": {
+        "type": "String"
+      }
+    }
+  },
+  "hijriFromMaghrib": "{date} (from Maghrib)",
+  "@hijriFromMaghrib": {
+    "placeholders": {
+      "date": {
         "type": "String"
       }
     }
@@ -333,6 +377,27 @@
       }
     }
   },
+  "jamaatPreviewToday": "→ {time} today",
+  "@jamaatPreviewToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jamaatOutsideWaqt": "Outside today's {prayer} time ({range})",
+  "@jamaatOutsideWaqt": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "jumuahJamaatHint": "Used instead of Dhuhr's jamaat on Fridays",
+  "jumuahClear": "Remove Jumu'ah time",
   "pickTime": "Pick time",
   "jamaatReminderHint": "Jamaat reminders are configured under Notifications.",
   "cancel": "Cancel",

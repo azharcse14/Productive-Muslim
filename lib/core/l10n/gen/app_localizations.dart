@@ -488,6 +488,12 @@ abstract class AppLocalizations {
   /// **'Dhuhr'**
   String get prayerDhuhr;
 
+  /// No description provided for @prayerJumuah.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu\'ah'**
+  String get prayerJumuah;
+
   /// No description provided for @prayerAsr.
   ///
   /// In en, this message translates to:
@@ -572,6 +578,12 @@ abstract class AppLocalizations {
   /// **'Current location'**
   String get locationCurrent;
 
+  /// No description provided for @locationUpdatedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Location updated to {place}'**
+  String locationUpdatedTo(String place);
+
   /// No description provided for @searchNoResults.
   ///
   /// In en, this message translates to:
@@ -614,6 +626,24 @@ abstract class AppLocalizations {
   /// **'Iftar in'**
   String get countdownIftarIn;
 
+  /// No description provided for @countdownForbiddenUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Forbidden time until {time}'**
+  String countdownForbiddenUntil(String time);
+
+  /// No description provided for @a11yHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
+  String a11yHours(int count);
+
+  /// No description provided for @a11yMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String a11yMinutes(int count);
+
   /// Caption under the countdown when counting down to a waqt's end, e.g. 'Ends at 4:46 AM'
   ///
   /// In en, this message translates to:
@@ -632,6 +662,12 @@ abstract class AppLocalizations {
   /// **'Jamaat'**
   String get jamaatLabel;
 
+  /// No description provided for @prayerTableTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get prayerTableTime;
+
   /// No description provided for @sunriseLabel.
   ///
   /// In en, this message translates to:
@@ -649,6 +685,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sahri ends'**
   String get sahriEndsLabel;
+
+  /// No description provided for @sahriEndsTonightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends tonight'**
+  String get sahriEndsTonightLabel;
 
   /// No description provided for @iftarLabel.
   ///
@@ -704,6 +746,12 @@ abstract class AppLocalizations {
   /// **'Now'**
   String get specialNow;
 
+  /// No description provided for @specialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get specialNext;
+
   /// No description provided for @specialTimeForbiddenSunrise.
   ///
   /// In en, this message translates to:
@@ -755,7 +803,7 @@ abstract class AppLocalizations {
   /// No description provided for @forbiddenTimesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'No salah may be offered in these three moments.'**
+  /// **'Avoid voluntary prayers in these windows. A missed fard (e.g. today\'s Asr) may still be prayed.'**
   String get forbiddenTimesSubtitle;
 
   /// No description provided for @naflTimesSubtitle.
@@ -991,6 +1039,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}'**
   String hijriMonthName(String month);
+
+  /// No description provided for @hijriFromMaghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} (from Maghrib)'**
+  String hijriFromMaghrib(String date);
 
   /// No description provided for @banglaMonthName.
   ///
@@ -1417,6 +1471,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Jamaat at {time}'**
   String fixedAtTime(String time);
+
+  /// No description provided for @jamaatPreviewToday.
+  ///
+  /// In en, this message translates to:
+  /// **'→ {time} today'**
+  String jamaatPreviewToday(String time);
+
+  /// No description provided for @jamaatOutsideWaqt.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside today\'s {prayer} time ({range})'**
+  String jamaatOutsideWaqt(String prayer, String range);
+
+  /// No description provided for @jumuahJamaatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used instead of Dhuhr\'s jamaat on Fridays'**
+  String get jumuahJamaatHint;
+
+  /// No description provided for @jumuahClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Jumu\'ah time'**
+  String get jumuahClear;
 
   /// No description provided for @pickTime.
   ///

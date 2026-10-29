@@ -217,6 +217,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get prayerDhuhr => 'যোহর';
 
   @override
+  String get prayerJumuah => 'জুমা';
+
+  @override
   String get prayerAsr => 'আসর';
 
   @override
@@ -263,6 +266,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get locationCurrent => 'বর্তমান অবস্থান';
 
   @override
+  String locationUpdatedTo(String place) {
+    return 'অবস্থান হালনাগাদ হয়েছে: $place';
+  }
+
+  @override
   String get searchNoResults => 'কোনো শহর মেলেনি — অন্য বানানে চেষ্টা করুন';
 
   @override
@@ -294,6 +302,31 @@ class AppLocalizationsBn extends AppLocalizations {
   String get countdownIftarIn => 'ইফতারের বাকি';
 
   @override
+  String countdownForbiddenUntil(String time) {
+    return 'নিষিদ্ধ সময় $time পর্যন্ত';
+  }
+
+  @override
+  String a11yHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ঘণ্টা',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String a11yMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মিনিট',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String subEndsAt(String time) {
     return '$time এ শেষ';
   }
@@ -307,6 +340,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get jamaatLabel => 'জামাত';
 
   @override
+  String get prayerTableTime => 'সময়';
+
+  @override
   String get sunriseLabel => 'সূর্যোদয়';
 
   @override
@@ -314,6 +350,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sahriEndsLabel => 'সাহরি শেষ';
+
+  @override
+  String get sahriEndsTonightLabel => 'আজ রাতে সাহরি শেষ';
 
   @override
   String get iftarLabel => 'ইফতার';
@@ -345,6 +384,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get specialNow => 'এখন';
 
   @override
+  String get specialNext => 'পরবর্তী';
+
+  @override
   String get specialTimeForbiddenSunrise => 'সূর্যোদয়ের পর';
 
   @override
@@ -370,7 +412,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'এই তিন সময়ে কোনো সালাত আদায় করা যায় না।';
+      'এই সময়গুলোতে নফল নামাজ এড়িয়ে চলুন। ছুটে যাওয়া ফরজ (যেমন আজকের আসর) তখনও পড়া যায়।';
 
   @override
   String get naflTimesSubtitle => 'নফল সালাত আদায়ের উত্তম সময়।';
@@ -531,6 +573,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'other': '—',
     });
     return '$_temp0';
+  }
+
+  @override
+  String hijriFromMaghrib(String date) {
+    return '$date (মাগরিব থেকে)';
   }
 
   @override
@@ -776,7 +823,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get jamaatModeNone => 'নেই';
 
   @override
-  String get jamaatModeOffset => 'অফসেট';
+  String get jamaatModeOffset => 'ওয়াক্তের পরে';
 
   @override
   String get jamaatModeFixed => 'নির্দিষ্ট';
@@ -794,6 +841,23 @@ class AppLocalizationsBn extends AppLocalizations {
   String fixedAtTime(String time) {
     return 'জামাত $time এ';
   }
+
+  @override
+  String jamaatPreviewToday(String time) {
+    return '→ আজ $time';
+  }
+
+  @override
+  String jamaatOutsideWaqt(String prayer, String range) {
+    return 'আজকের $prayer ওয়াক্তের ($range) বাইরে';
+  }
+
+  @override
+  String get jumuahJamaatHint =>
+      'শুক্রবারে যোহরের জামাতের বদলে এটি ব্যবহার হবে';
+
+  @override
+  String get jumuahClear => 'জুমার সময় মুছুন';
 
   @override
   String get pickTime => 'সময় বাছুন';

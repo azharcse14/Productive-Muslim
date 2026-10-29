@@ -55,4 +55,10 @@ extension SettingLabels on AppLocalizations {
     Prayer.maghrib => prayerMaghrib,
     Prayer.isha => prayerIsha,
   };
+
+  /// [prayerLabel], except Dhuhr reads "Jumu'ah" on a Friday [date].
+  String prayerLabelOn(Prayer p, DateTime date) =>
+      p == Prayer.dhuhr && date.weekday == DateTime.friday
+      ? prayerJumuah
+      : prayerLabel(p);
 }
