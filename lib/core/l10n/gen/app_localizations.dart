@@ -4945,6 +4945,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Minutes after waqt starts (1–60)'**
   String get jamaatOffsetHint;
+
+  /// No description provided for @notifPermissionNotAskedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications aren\'t on yet, so nothing below will be delivered until you enable them.'**
+  String get notifPermissionNotAskedBanner;
+
+  /// No description provided for @notifGroupDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders'**
+  String get notifGroupDaily;
+
+  /// No description provided for @notifGroupDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery & status'**
+  String get notifGroupDelivery;
+
+  /// No description provided for @focusPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jamaat focus & nafs lock'**
+  String get focusPageTitle;
+
+  /// No description provided for @focusPageRowSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay undisturbed around jamaat'**
+  String get focusPageRowSub;
+
+  /// No description provided for @notificationsNoLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not set'**
+  String get notificationsNoLocationTitle;
+
+  /// No description provided for @notificationsOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off'**
+  String get notificationsOffTitle;
 }
 
 class _AppLocalizationsDelegate

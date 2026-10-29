@@ -3328,4 +3328,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jamaatOffsetHint => 'Minutes after waqt starts (1–60)';
+
+  @override
+  String get notifPermissionNotAskedBanner =>
+      'Notifications aren\'t on yet, so nothing below will be delivered until you enable them.';
+
+  @override
+  String get notifGroupDaily => 'Daily reminders';
+
+  @override
+  String get notifGroupDelivery => 'Delivery & status';
+
+  @override
+  String get focusPageTitle => 'Jamaat focus & nafs lock';
+
+  @override
+  String get focusPageRowSub => 'Stay undisturbed around jamaat';
+
+  @override
+  String get notificationsNoLocationTitle => 'Location not set';
+
+  @override
+  String get notificationsOffTitle => 'Notifications are off';
 }

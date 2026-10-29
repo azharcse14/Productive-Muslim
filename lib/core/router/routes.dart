@@ -15,6 +15,12 @@ abstract final class Routes {
     path: '/notifications/settings',
   );
 
+  /// Jamaat focus + nafs lock (linked from notification settings).
+  static const notificationFocus = (
+    name: 'notificationFocus',
+    path: '/notifications/focus',
+  );
+
   /// Top-level (outside the shell) so Home and Settings can both open it
   /// full-screen without switching tabs.
   static const locationPicker = (name: 'locationPicker', path: '/location');

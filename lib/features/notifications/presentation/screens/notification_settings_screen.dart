@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -27,10 +29,11 @@ import '../../data/jamaat_focus_bridge.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../state/notification_controller.dart';
 
-/// Notification matrix (design §12/§15): per-prayer azan/beep/silent/off,
-/// sahri & iftar alerts, jamaat reminder + lead, evening muhasaba nudge.
-/// Includes permission-denied education and Android exact-alarm guidance —
-/// denial never breaks the app.
+/// Notification matrix (design §12/§15), in headed groups: per-prayer
+/// azan/beep/silent/off, Ramadan (sahri & iftar), jamaat reminder + lead,
+/// daily reminders, delivery status. Jamaat focus / nafs lock live on their
+/// own page ([JamaatFocusSettingsScreen]). Includes permission education
+/// and Android exact-alarm guidance — denial never breaks the app.
 final class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
@@ -45,7 +48,8 @@ final class _NotificationSettingsScreenState
   final NotificationScheduler _scheduler = locator<NotificationScheduler>();
   final NotificationController _controller = locator<NotificationController>();
 
-  final _permission = signal(NotificationPermission.notRequested);
+  /// Null until checked, so the "Enable" CTA doesn't flash on first frame.
+  final _permission = signal<NotificationPermission?>(null);
   final _exactAlarms = signal(true);
 
   late final AppLifecycleListener _lifecycle;
@@ -89,6 +93,8 @@ final class _NotificationSettingsScreenState
 
   NotificationMatrix get _matrix => _store.settings.value.notifications;
 
+  static final _android = defaultTargetPlatform == TargetPlatform.android;
+
   String _formatMinuteOfDay(BuildContext context, int minuteOfDay) {
     final locale = Localizations.localeOf(context);
     final dt = DateTime(2000, 1, 1, minuteOfDay ~/ 60, minuteOfDay % 60);
@@ -123,16 +129,18 @@ final class _NotificationSettingsScreenState
           return ListView(
             padding: const EdgeInsets.all(QSpace.s5),
             children: [
-              if (_permission.value == NotificationPermission.denied) ...[
+              if (_permission.value case final p?
+                  when p != NotificationPermission.granted) ...[
+                // Settings below still save; they just can't be delivered.
                 QBanner(
-                  text: l10n.notifPermissionDeniedBanner,
+                  text: p == NotificationPermission.denied
+                      ? l10n.notifPermissionDeniedBanner
+                      : l10n.notifPermissionNotAskedBanner,
                   icon: Icons.notifications_off_outlined,
                   tone: q.warnSoft,
                   foreground: q.warn,
                 ),
                 const SizedBox(height: QSpace.s3),
-              ],
-              if (_permission.value != NotificationPermission.granted) ...[
                 QButton(
                   label: l10n.notifEnableCta,
                   kind: QButtonKind.tonal,
@@ -170,33 +178,32 @@ final class _NotificationSettingsScreenState
                 child: Column(
                   children: [
                     for (final prayer in Prayer.values) ...[
-                      Row(
+                      // Name on its own line: a fixed-width label beside a
+                      // 4-segment control clipped at large text scales.
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            width: 76,
-                            child: Text(
-                              l10n.prayerLabel(prayer),
-                              style: QType.titleSm.copyWith(color: q.ink),
-                            ),
+                          Text(
+                            l10n.prayerLabel(prayer),
+                            style: QType.titleSm.copyWith(color: q.ink),
                           ),
-                          Expanded(
-                            child: QSegControl(
-                              semanticsPrefix: l10n.prayerLabel(prayer),
-                              options: [
-                                l10n.azanModeAzan,
-                                l10n.azanModeBeep,
-                                l10n.azanModeSilent,
-                                l10n.azanModeOff,
-                              ],
-                              activeIndex: matrix.modeFor(prayer).index,
-                              onChanged: (i) => unawaited(
-                                _store.setNotifications(
-                                  matrix.copyWith(
-                                    prayerModes: {
-                                      ...matrix.prayerModes,
-                                      prayer: AzanMode.values[i],
-                                    },
-                                  ),
+                          const SizedBox(height: QSpace.s2),
+                          QSegControl(
+                            semanticsPrefix: l10n.prayerLabel(prayer),
+                            options: [
+                              l10n.azanModeAzan,
+                              l10n.azanModeBeep,
+                              l10n.azanModeSilent,
+                              l10n.azanModeOff,
+                            ],
+                            activeIndex: matrix.modeFor(prayer).index,
+                            onChanged: (i) => unawaited(
+                              _store.setNotifications(
+                                matrix.copyWith(
+                                  prayerModes: {
+                                    ...matrix.prayerModes,
+                                    prayer: AzanMode.values[i],
+                                  },
                                 ),
                               ),
                             ),
@@ -212,7 +219,7 @@ final class _NotificationSettingsScreenState
                   ],
                 ),
               ),
-              const SizedBox(height: QSpace.s5),
+              _GroupHeader(l10n.ramadanTitle),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -236,6 +243,7 @@ final class _NotificationSettingsScreenState
                     if (matrix.sahriAlert)
                       _LeadRow(
                         label: l10n.leadTimeLabel,
+                        semanticsName: l10n.notifSahriToggle,
                         minutes: matrix.sahriLead.inMinutes,
                         onChanged: (m) => unawaited(
                           _store.setNotifications(
@@ -257,7 +265,17 @@ final class _NotificationSettingsScreenState
                         ),
                       ),
                     ),
-                    const Divider(),
+                  ],
+                ),
+              ),
+              _GroupHeader(l10n.jamaatLabel),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
                     QListRow(
                       icon: Icons.groups_outlined,
                       title: l10n.notifJamaatToggle,
@@ -274,6 +292,7 @@ final class _NotificationSettingsScreenState
                     if (matrix.jamaatReminder)
                       _LeadRow(
                         label: l10n.leadTimeLabel,
+                        semanticsName: l10n.notifJamaatToggle,
                         minutes: matrix.jamaatLead.inMinutes,
                         onChanged: (m) => unawaited(
                           _store.setNotifications(
@@ -282,6 +301,26 @@ final class _NotificationSettingsScreenState
                         ),
                       ),
                     const Divider(),
+                    QListRow(
+                      icon: Icons.do_not_disturb_on_outlined,
+                      title: _android ? l10n.focusPageTitle : l10n.focusHeader,
+                      subtitle: l10n.focusPageRowSub,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => unawaited(
+                        context.pushNamed(Routes.notificationFocus.name),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _GroupHeader(l10n.notifGroupDaily),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: Column(
+                  children: [
                     QListRow(
                       icon: Icons.favorite_outline,
                       title: l10n.notifMuhasabaToggle,
@@ -312,6 +351,7 @@ final class _NotificationSettingsScreenState
                     if (matrix.dailyAyahReminder)
                       _TimeRow(
                         label: l10n.notifDailyTimeLabel,
+                        semanticsName: l10n.notifDailyAyahToggle,
                         minuteOfDay: matrix.dailyAyahMinute,
                         formatMinuteOfDay: (m) =>
                             _formatMinuteOfDay(context, m),
@@ -338,6 +378,7 @@ final class _NotificationSettingsScreenState
                     if (matrix.dailyHadithReminder)
                       _TimeRow(
                         label: l10n.notifDailyTimeLabel,
+                        semanticsName: l10n.notifDailyHadithToggle,
                         minuteOfDay: matrix.dailyHadithMinute,
                         formatMinuteOfDay: (m) =>
                             _formatMinuteOfDay(context, m),
@@ -389,6 +430,7 @@ final class _NotificationSettingsScreenState
                       ),
                       _TimeRow(
                         label: l10n.notifDailyTimeLabel,
+                        semanticsName: l10n.notifDailyToggle,
                         minuteOfDay: matrix.dailyReminderMinute,
                         formatMinuteOfDay: (m) =>
                             _formatMinuteOfDay(context, m),
@@ -402,9 +444,7 @@ final class _NotificationSettingsScreenState
                   ],
                 ),
               ),
-              const SizedBox(height: QSpace.s5),
-              _JamaatFocusCard(store: _store),
-              const SizedBox(height: QSpace.s4),
+              _GroupHeader(l10n.notifGroupDelivery),
               QBanner(
                 text: _scheduledUntilText(context),
                 icon: Icons.event_available_outlined,
@@ -430,6 +470,49 @@ final class _NotificationSettingsScreenState
   }
 }
 
+final class _GroupHeader extends StatelessWidget {
+  const _GroupHeader(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsetsDirectional.only(
+      top: QSpace.s5,
+      bottom: QSpace.s3,
+      start: QSpace.s1,
+    ),
+    child: Text(title.toUpperCase(), style: context.text.labelSmall),
+  );
+}
+
+/// Jamaat focus + nafs lock, split off the main notification settings so
+/// the alert matrix stays scannable.
+final class JamaatFocusSettingsScreen extends StatelessWidget {
+  const JamaatFocusSettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          defaultTargetPlatform == TargetPlatform.android
+              ? l10n.focusPageTitle
+              : l10n.focusHeader,
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(QSpace.s5),
+        children: [
+          _JamaatFocusCard(store: locator<SettingsStore>()),
+          const SizedBox(height: QSpace.s10),
+        ],
+      ),
+    );
+  }
+}
+
 final class _LeadRow extends StatelessWidget {
   const _LeadRow({
     required this.label,
@@ -438,9 +521,14 @@ final class _LeadRow extends StatelessWidget {
     this.min = 5,
     this.max = 60,
     this.zeroLabel,
+    this.semanticsName,
   });
 
   final String label;
+
+  /// What this lead is for (e.g. "Sahri warning"), so screen readers can
+  /// tell several "Lead time" rows apart.
+  final String? semanticsName;
   final int minutes;
   final ValueChanged<int>? onChanged;
   final int min;
@@ -452,18 +540,23 @@ final class _LeadRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final a11y = semanticsName == null ? label : '$semanticsName $label';
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 52, bottom: QSpace.s2),
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
+            child: Text(
+              label,
+              semanticsLabel: a11y,
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
           ),
           QStepButton(
             fill: context.q.surface2,
             size: 32,
             icon: Icons.remove,
-            semanticLabel: context.l10n.a11yDecrease(label),
+            semanticLabel: context.l10n.a11yDecrease(a11y),
             onTap: onChanged != null && minutes > min
                 ? () => onChanged!(minutes - 5)
                 : null,
@@ -482,7 +575,7 @@ final class _LeadRow extends StatelessWidget {
             fill: context.q.surface2,
             size: 32,
             icon: Icons.add,
-            semanticLabel: context.l10n.a11yIncrease(label),
+            semanticLabel: context.l10n.a11yIncrease(a11y),
             onTap: onChanged != null && minutes < max
                 ? () => onChanged!(minutes + 5)
                 : null,
@@ -501,9 +594,13 @@ final class _TimeRow extends StatelessWidget {
     required this.minuteOfDay,
     required this.formatMinuteOfDay,
     required this.onChanged,
+    this.semanticsName,
   });
 
   final String label;
+
+  /// See [_LeadRow.semanticsName].
+  final String? semanticsName;
   final int minuteOfDay;
   final String Function(int) formatMinuteOfDay;
   final ValueChanged<int> onChanged;
@@ -513,19 +610,24 @@ final class _TimeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    final a11y = semanticsName == null ? label : '$semanticsName $label';
     int wrap(int m) => (m + 24 * 60) % (24 * 60);
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 52, bottom: QSpace.s2),
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: QType.caption.copyWith(color: q.ink2)),
+            child: Text(
+              label,
+              semanticsLabel: a11y,
+              style: QType.caption.copyWith(color: q.ink2),
+            ),
           ),
           QStepButton(
             fill: context.q.surface2,
             size: 32,
             icon: Icons.remove,
-            semanticLabel: context.l10n.a11yDecrease(label),
+            semanticLabel: context.l10n.a11yDecrease(a11y),
             onTap: () => onChanged(wrap(minuteOfDay - _step)),
           ),
           // ±15 nudges; tapping the time jumps anywhere via the picker.
@@ -559,7 +661,7 @@ final class _TimeRow extends StatelessWidget {
             fill: context.q.surface2,
             size: 32,
             icon: Icons.add,
-            semanticLabel: context.l10n.a11yIncrease(label),
+            semanticLabel: context.l10n.a11yIncrease(a11y),
             onTap: () => onChanged(wrap(minuteOfDay + _step)),
           ),
         ],

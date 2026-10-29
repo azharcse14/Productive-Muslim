@@ -937,5 +937,12 @@
   "saveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
   "undo": "ফিরিয়ে আনুন",
   "mosqueLoadError": "আপনার মসজিদগুলো লোড করা যায়নি। আবার চেষ্টা করুন।",
-  "jamaatOffsetHint": "ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)"
+  "jamaatOffsetHint": "ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)",
+  "notifPermissionNotAskedBanner": "নোটিফিকেশন এখনো চালু হয়নি, তাই চালু না করা পর্যন্ত নিচের কোনোটিই পৌঁছাবে না।",
+  "notifGroupDaily": "দৈনিক রিমাইন্ডার",
+  "notifGroupDelivery": "ডেলিভারি ও অবস্থা",
+  "focusPageTitle": "জামাত ফোকাস ও নফস লক",
+  "focusPageRowSub": "জামাতের সময় নিরবচ্ছিন্ন থাকুন",
+  "notificationsNoLocationTitle": "লোকেশন সেট করা নেই",
+  "notificationsOffTitle": "নোটিফিকেশন বন্ধ আছে"
 }

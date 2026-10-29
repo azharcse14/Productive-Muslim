@@ -3310,4 +3310,26 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get jamaatOffsetHint => 'ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)';
+
+  @override
+  String get notifPermissionNotAskedBanner =>
+      'নোটিফিকেশন এখনো চালু হয়নি, তাই চালু না করা পর্যন্ত নিচের কোনোটিই পৌঁছাবে না।';
+
+  @override
+  String get notifGroupDaily => 'দৈনিক রিমাইন্ডার';
+
+  @override
+  String get notifGroupDelivery => 'ডেলিভারি ও অবস্থা';
+
+  @override
+  String get focusPageTitle => 'জামাত ফোকাস ও নফস লক';
+
+  @override
+  String get focusPageRowSub => 'জামাতের সময় নিরবচ্ছিন্ন থাকুন';
+
+  @override
+  String get notificationsNoLocationTitle => 'লোকেশন সেট করা নেই';
+
+  @override
+  String get notificationsOffTitle => 'নোটিফিকেশন বন্ধ আছে';
 }

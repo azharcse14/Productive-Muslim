@@ -234,6 +234,11 @@ GoRouter buildRouter() {
         ],
       ),
       GoRoute(
+        name: Routes.notificationFocus.name,
+        path: Routes.notificationFocus.path,
+        builder: (context, state) => const JamaatFocusSettingsScreen(),
+      ),
+      GoRoute(
         name: Routes.locationPicker.name,
         path: Routes.locationPicker.path,
         builder: (context, state) => const LocationPickerScreen(),
