@@ -7,6 +7,7 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
+import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../state/hadith_store.dart';
 import '../widgets/hadith_list_card.dart';
 
@@ -46,6 +47,7 @@ final class _HadithDetailScreenState extends State<HadithDetailScreen> {
                   ? l10n.hadithTitle
                   : l10n.hadithTopicName(hadith.topic),
             ),
+            actions: const [ReaderSettingsAction()],
           ),
           body: SafeArea(
             child: switch ((hadith, _store.loaded.value)) {

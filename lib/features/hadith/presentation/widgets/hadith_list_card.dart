@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -26,10 +27,18 @@ final class HadithListCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hadith.arabic.isNotEmpty) ...[
-            Text(
-              hadith.arabic,
-              textDirection: TextDirection.rtl,
-              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+            // Rebuilds when the reader text size changes.
+            SignalBuilder(
+              builder: (context) => Text(
+                hadith.arabic,
+                textDirection: TextDirection.rtl,
+                // Lets screen readers pick an Arabic voice.
+                locale: const Locale('ar'),
+                // Sized by the reader setting, so the system text scale
+                // must not multiply it again.
+                textScaler: TextScaler.noScaling,
+                style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+              ),
             ),
             const SizedBox(height: QSpace.s3),
           ],
@@ -93,14 +102,12 @@ final class GradeChip extends StatelessWidget {
           final localized => localized,
         },
     ].join(' ');
-    final isSahih = grade.toLowerCase().contains('sahih') ||
+    final isSahih =
+        grade.toLowerCase().contains('sahih') ||
         grade.toLowerCase().contains('সহিহ');
     final color = isSahih ? q.ok : q.ink2;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: QSpace.s2,
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: QSpace.s2, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(QRadius.sm),
