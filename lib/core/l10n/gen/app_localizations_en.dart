@@ -2843,6 +2843,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque';
 
   @override
+  String get focusToggleSilentOnly => 'Silent at jamaat';
+
+  @override
+  String get focusToggleSubSilentOnly =>
+      'Silences the phone around jamaat. Needs jamaat times in My Mosque';
+
+  @override
   String get focusToggleSubIos =>
       'iPhone doesn\'t let apps silence or lock the phone, so you\'ll get a reminder to switch to silent. Needs jamaat times in My Mosque';
 

@@ -2833,6 +2833,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'জামাতের সময় ফোন সাইলেন্ট হবে ও অন্য অ্যাপ বন্ধ থাকবে। আমার মসজিদে জামাতের সময় লাগবে';
 
   @override
+  String get focusToggleSilentOnly => 'জামাতের সময় সাইলেন্ট';
+
+  @override
+  String get focusToggleSubSilentOnly =>
+      'জামাতের সময় ফোন সাইলেন্ট থাকবে। আমার মসজিদে জামাতের সময় লাগবে';
+
+  @override
   String get focusToggleSubIos =>
       'আইফোনে কোনো অ্যাপ ফোন সাইলেন্ট বা লক করতে পারে না, তাই সাইলেন্ট করার রিমাইন্ডার পাবেন। আমার মসজিদে জামাতের সময় লাগবে';
 

@@ -1,4 +1,10 @@
+import com.android.build.api.artifact.SingleArtifact
 import java.util.Properties
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import org.w3c.dom.Element
 
 plugins {
     id("com.android.application")
@@ -62,6 +68,53 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+    }
+}
+
+// Play fallback (README "Android release signing"):
+// `ORG_GRADLE_PROJECT_focusBlocking=false flutter build appbundle` removes the
+// app-blocking AccessibilityService from the merged manifest, leaving DND-only
+// jamaat focus. The app asks the platform whether the service exists
+// (JamaatFocus.blockingAvailable) and hides the lock / nafs-lock settings.
+val focusBlocking = (findProperty("focusBlocking") as String?)?.toBoolean() ?: true
+
+abstract class StripFocusServiceTask : DefaultTask() {
+    @get:InputFile
+    abstract val mergedManifest: RegularFileProperty
+
+    @get:OutputFile
+    abstract val updatedManifest: RegularFileProperty
+
+    @TaskAction
+    fun strip() {
+        val androidNs = "http://schemas.android.com/apk/res/android"
+        val doc = DocumentBuilderFactory.newInstance()
+            .apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+            .parse(mergedManifest.get().asFile)
+        val services = doc.getElementsByTagName("service")
+        val focus = (0 until services.length).map { services.item(it) as Element }
+            .filter { it.getAttributeNS(androidNs, "name").endsWith(".JamaatFocusService") }
+        // A rename must fail the build, not silently ship the service.
+        check(focus.size == 1) { "JamaatFocusService not found in the merged manifest" }
+        focus.forEach { it.parentNode.removeChild(it) }
+        TransformerFactory.newInstance().newTransformer()
+            .transform(DOMSource(doc), StreamResult(updatedManifest.get().asFile))
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        if (!focusBlocking) {
+            val name = variant.name.replaceFirstChar { it.uppercase() }
+            val strip = tasks.register<StripFocusServiceTask>("strip${name}FocusService")
+            variant.artifacts.use(strip)
+                .wiredWithFiles(
+                    StripFocusServiceTask::mergedManifest,
+                    StripFocusServiceTask::updatedManifest,
+                )
+                .toTransform(SingleArtifact.MERGED_MANIFEST)
         }
     }
 }

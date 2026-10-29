@@ -1342,6 +1342,8 @@
   "focusHeader": "Jamaat focus",
   "focusToggle": "Silent & lock at jamaat",
   "focusToggleSub": "Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque",
+  "focusToggleSilentOnly": "Silent at jamaat",
+  "focusToggleSubSilentOnly": "Silences the phone around jamaat. Needs jamaat times in My Mosque",
   "focusToggleSubIos": "iPhone doesn't let apps silence or lock the phone, so you'll get a reminder to switch to silent. Needs jamaat times in My Mosque",
   "focusLeadLabel": "Starts before jamaat",
   "focusDurationLabel": "Unlocks after",

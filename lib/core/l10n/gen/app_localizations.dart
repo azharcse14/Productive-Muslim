@@ -4208,6 +4208,18 @@ abstract class AppLocalizations {
   /// **'Silences the phone and blocks other apps around jamaat. Needs jamaat times in My Mosque'**
   String get focusToggleSub;
 
+  /// No description provided for @focusToggleSilentOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent at jamaat'**
+  String get focusToggleSilentOnly;
+
+  /// No description provided for @focusToggleSubSilentOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Silences the phone around jamaat. Needs jamaat times in My Mosque'**
+  String get focusToggleSubSilentOnly;
+
   /// No description provided for @focusToggleSubIos.
   ///
   /// In en, this message translates to:
