@@ -4,21 +4,26 @@ import 'package:flutter/services.dart';
 import '../../core/utils/locale_digits.dart';
 import '../extensions/context_ext.dart';
 
-/// Asks for a whole number in 1..[max] (localized digits accepted); null on
-/// cancel. An out-of-range entry shows [hint] as the error.
+/// Asks for a whole number in [min]..[max] (localized digits accepted); null
+/// on cancel. An out-of-range entry shows [hint] as the error. [initial]
+/// prefills the field.
 Future<int?> showNumberDialog(
   BuildContext context, {
   required String title,
   required String hint,
   required String actionLabel,
+  int min = 1,
   int max = 99999,
+  int? initial,
 }) => showDialog<int>(
   context: context,
   builder: (_) => _NumberDialog(
     title: title,
     hint: hint,
     actionLabel: actionLabel,
+    min: min,
     max: max,
+    initial: initial,
   ),
 );
 
@@ -27,20 +32,31 @@ final class _NumberDialog extends StatefulWidget {
     required this.title,
     required this.hint,
     required this.actionLabel,
+    required this.min,
     required this.max,
+    this.initial,
   });
 
   final String title;
   final String hint;
   final String actionLabel;
+  final int min;
   final int max;
+  final int? initial;
 
   @override
   State<_NumberDialog> createState() => _NumberDialogState();
 }
 
 final class _NumberDialogState extends State<_NumberDialog> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initial == null
+        ? ''
+        : LocaleDigits.localize(
+            '${widget.initial}',
+            Localizations.localeOf(context).languageCode,
+          ),
+  );
   bool _invalid = false;
 
   @override
@@ -51,7 +67,7 @@ final class _NumberDialogState extends State<_NumberDialog> {
 
   void _submit() {
     final value = int.tryParse(LocaleDigits.toAscii(_controller.text));
-    if (value == null || value < 1 || value > widget.max) {
+    if (value == null || value < widget.min || value > widget.max) {
       setState(() => _invalid = true);
       return;
     }

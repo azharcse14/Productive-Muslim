@@ -6,7 +6,8 @@ import '../extensions/context_ext.dart';
 import 'q_pressable.dart';
 
 /// Standard list row: tonal icon tile, title + optional subtitle, trailing
-/// widget. Minimum height 56 (touch-target safe).
+/// widget. Minimum height 56 (touch-target safe). [selected] marks a chosen
+/// option for screen readers (pair it with a visible check).
 final class QListRow extends StatelessWidget {
   const QListRow({
     required this.title,
@@ -15,6 +16,7 @@ final class QListRow extends StatelessWidget {
     this.iconTone,
     this.trailing,
     this.onTap,
+    this.selected,
     super.key,
   });
 
@@ -24,6 +26,7 @@ final class QListRow extends StatelessWidget {
   final Color? iconTone;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final bool? selected;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +74,15 @@ final class QListRow extends StatelessWidget {
       ),
     );
     if (onTap == null) {
-      return MergeSemantics(child: row);
+      return MergeSemantics(
+        child: Semantics(selected: selected, child: row),
+      );
     }
     return MergeSemantics(
       child: Semantics(
         button: true,
+        selected: selected,
+        inMutuallyExclusiveGroup: selected != null,
         child: QPressable(
           onTap: onTap!,
           borderRadius: BorderRadius.circular(QRadius.md),

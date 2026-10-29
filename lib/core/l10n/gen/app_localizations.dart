@@ -4921,6 +4921,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sahih al-Bukhari 6412'**
   String get healthTipBlessingRef;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Please try again.'**
+  String get saveFailed;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
 }
 
 class _AppLocalizationsDelegate

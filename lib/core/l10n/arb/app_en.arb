@@ -523,7 +523,6 @@
     }
   },
   "salahLockedToast": "This prayer's time hasn't started yet",
-  "trackerSaveFailed": "Couldn't save. Please try again.",
   "a11yMarkPrayed": "Mark {prayer} as prayed",
   "@a11yMarkPrayed": { "placeholders": { "prayer": { "type": "String" } } },
   "a11yPrayerLocked": "{prayer}: its time hasn't started yet",
@@ -1535,5 +1534,7 @@
   "healthTipBlessingBody": "“There are two blessings in which many people are at a loss: health and free time.”",
   "healthTipBlessingRef": "Sahih al-Bukhari 6412",
   "@healthKg": {"placeholders": {"kg": {"type": "String"}}},
-  "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}}
+  "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}},
+  "saveFailed": "Couldn't save. Please try again.",
+  "undo": "Undo"
 }

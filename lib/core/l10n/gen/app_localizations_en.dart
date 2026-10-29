@@ -3315,4 +3315,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get healthTipBlessingRef => 'Sahih al-Bukhari 6412';
+
+  @override
+  String get saveFailed => 'Couldn\'t save. Please try again.';
+
+  @override
+  String get undo => 'Undo';
 }

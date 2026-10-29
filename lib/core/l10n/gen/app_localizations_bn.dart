@@ -3297,4 +3297,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get healthTipBlessingRef => 'সহিহ বুখারি ৬৪১২';
+
+  @override
+  String get saveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get undo => 'ফিরিয়ে আনুন';
 }
