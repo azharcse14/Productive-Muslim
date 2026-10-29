@@ -32,6 +32,9 @@ final class HadithBookBundledDataSource {
   static const _cacheSize = 4;
   final Map<String, List<BookHadith>> _cache = {};
 
+  /// Whether the snapshot carries the hadithbangla Bengali text.
+  Future<bool> hasBangla() async => (await _open).hasBanglaSections();
+
   Future<List<BookHadith>> fetchSection(
     HadithBook book,
     HadithSection section,

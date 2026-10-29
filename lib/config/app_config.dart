@@ -29,6 +29,16 @@ abstract final class AppConfig {
   /// Qibla alignment tolerance in degrees (design: ±3°).
   static const qiblaAlignmentToleranceDeg = 3.0;
 
+  /// Bengali full-book hadith (the hadithbangla text in hadith.db). Build
+  /// with `--dart-define=BENGALI_HADITH=false` to ship without it: no code
+  /// path then reads the Bengali sections or requests the hadithbangla URL.
+  /// A hadith.db built with `tool/hadith_db_build.dart --no-bengali` has the
+  /// same effect on its own.
+  static const bengaliHadith = bool.fromEnvironment(
+    'BENGALI_HADITH',
+    defaultValue: true,
+  );
+
   /// Quran reader font scale bounds (design: 22–44px in steps of 2).
   static const quranFontSizeMin = 22.0;
   static const quranFontSizeMax = 44.0;

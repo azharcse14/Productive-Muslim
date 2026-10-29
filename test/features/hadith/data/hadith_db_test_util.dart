@@ -7,14 +7,18 @@ import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.
 
 /// An in-memory [HadithDatabase] with the bundled schema created but no rows.
 /// Mirrors tool/hadith_db_build.dart so tests exercise the real queries +
-/// blob codec without touching the committed asset.
-Future<HadithDatabase> openTestHadithDb() async {
+/// blob codec without touching the committed asset. [withBangla] false mirrors
+/// a `--no-bengali` build (no `hadith_bn_section` table).
+Future<HadithDatabase> openTestHadithDb({bool withBangla = true}) async {
   final db = HadithDatabase(NativeDatabase.memory());
   await db.customStatement(
     'CREATE TABLE hadith_section '
     '(edition TEXT NOT NULL, section INTEGER NOT NULL, data BLOB NOT NULL, '
     'PRIMARY KEY(edition, section))',
   );
+  if (!withBangla) {
+    return db;
+  }
   await db.customStatement(
     'CREATE TABLE hadith_bn_section '
     '(book_id TEXT NOT NULL, section INTEGER NOT NULL, data BLOB NOT NULL, '

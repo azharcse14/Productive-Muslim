@@ -20,8 +20,15 @@
 // fawazahmed0 sections in `hadith_section`, hadithbangla chapters in
 // `hadith_bn_section`.
 //
-// Usage:  dart run tool/hadith_db_build.dart
-// Output: assets/data/hadith.db — SQLite, PRAGMA user_version = 1.
+// Usage:  dart run tool/hadith_db_build.dart [--no-bengali]
+// Output: assets/data/hadith.db — SQLite, PRAGMA user_version = [_userVersion].
+//
+// --no-bengali omits the hadithbangla text (no `hadith_bn_section` table) so
+// a release can ship without it. Such a build must bump [_userVersion] here
+// and `HadithDatabase.bundledVersion` together (so installed copies holding
+// the Bengali text get replaced), and the app should also be built with
+// `--dart-define=BENGALI_HADITH=false`. The app treats a DB without the
+// table as "no Bengali full-book hadith" and shows Arabic + English.
 //
 // Catalog of books/sections is read from assets/data/hadith_books.json so this
 // stays in lock-step with the in-app navigation metadata.
@@ -52,7 +59,8 @@ const _attributionLines = [
       'snapshotted via raw.githubusercontent.com',
 ];
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  final bengali = !args.contains('--no-bengali');
   final catalog = jsonDecode(await File(_catalogPath).readAsString());
   final books = (catalog as Map)['books'] as List;
 
@@ -63,15 +71,17 @@ Future<void> main() async {
   var faHadith = 0;
   var bnHadith = 0;
   try {
-    _createSchema(db);
+    _createSchema(db, bengali: bengali);
     final faStmt = db.prepare(
       'INSERT OR REPLACE INTO hadith_section(edition, section, data) '
       'VALUES (?, ?, ?)',
     );
-    final bnStmt = db.prepare(
-      'INSERT OR REPLACE INTO hadith_bn_section(book_id, section, data) '
-      'VALUES (?, ?, ?)',
-    );
+    final bnStmt = bengali
+        ? db.prepare(
+            'INSERT OR REPLACE INTO hadith_bn_section(book_id, section, data) '
+            'VALUES (?, ?, ?)',
+          )
+        : null;
     try {
       for (final raw in books) {
         final book = raw as Map;
@@ -110,7 +120,7 @@ Future<void> main() async {
         }
 
         // hadithbangla: one Bangla chapter file per bn section.
-        if (bnFolder.isNotEmpty) {
+        if (bnStmt != null && bnFolder.isNotEmpty) {
           for (final s in bnSections) {
             final n = (s as Map)['n'] as int;
             final body = await _get(http, '$_bnBase/$bnFolder/Chapter/$n.json',
@@ -130,7 +140,7 @@ Future<void> main() async {
       }
     } finally {
       faStmt.close();
-      bnStmt.close();
+      bnStmt?.close();
     }
 
     db.execute('PRAGMA user_version = $_userVersion');
@@ -149,20 +159,25 @@ Future<void> main() async {
         '(${(out.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB)')
     ..writeln('Attribution (surface in the credits screen):');
   for (final line in _attributionLines) {
+    if (!bengali && line.contains('hadithbangla')) {
+      continue;
+    }
     stdout.writeln('  - $line');
   }
 }
 
-void _createSchema(Database db) {
-  db
-    ..execute('''
+void _createSchema(Database db, {required bool bengali}) {
+  db.execute('''
       CREATE TABLE hadith_section(
         edition TEXT NOT NULL,
         section INTEGER NOT NULL,
         data    BLOB NOT NULL,
         PRIMARY KEY(edition, section)
-      )''')
-    ..execute('''
+      )''');
+  if (!bengali) {
+    return;
+  }
+  db.execute('''
       CREATE TABLE hadith_bn_section(
         book_id TEXT NOT NULL,
         section INTEGER NOT NULL,

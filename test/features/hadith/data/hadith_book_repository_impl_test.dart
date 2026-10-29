@@ -313,6 +313,75 @@ void main() {
       expect(items.first.translation, 'en-text-1');
     });
   });
+
+  group('without Bengali full-book hadith', () {
+    Future<void> expectArabicEnglishOnly(
+      HadithBookRepositoryImpl repo,
+      List<String> calls,
+    ) async {
+      final nasai = (await repo.books()).valueOrNull!.last;
+      expect(nasai.usesBanglaSource('bn'), isFalse);
+      expect(nasai.bnAvailable, isFalse, reason: 'shows "English only"');
+      expect(nasai.sectionsFor('bn').first.name, 'Purification');
+
+      final items = (await repo.section(
+        nasai,
+        nasai.sectionsFor('bn').first,
+        'bn',
+      )).valueOrNull!;
+      expect(items.first.arabic, 'ar-text-1');
+      expect(items.first.translation, 'en-text-1');
+
+      // Even a caller holding the unfiltered catalog book can't reach it.
+      final raw = await HadithBookCatalogDataSource(
+        _FakeAssetBundle(const {
+          HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
+        }),
+      ).loadBooks();
+      final rawNasai = raw.last;
+      expect(rawNasai.usesBanglaSource('bn'), isTrue);
+      await repo.section(rawNasai, rawNasai.sections.first, 'bn');
+
+      expect(calls, isNotEmpty);
+      expect(calls.where((u) => u.contains('hadithbangla')), isEmpty);
+    }
+
+    String serve(Uri url, List<String> calls) {
+      calls.add(url.toString());
+      return url.toString().contains('ara-') ? _section('ar') : _section('en');
+    }
+
+    test('a DB without hadith_bn_section serves Arabic + English', () async {
+      final db = await openTestHadithDb(withBangla: false);
+      addTearDown(db.close);
+      final calls = <String>[];
+      final repo = HadithBookRepositoryImpl(
+        HadithBookCatalogDataSource(
+          _FakeAssetBundle(const {
+            HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
+          }),
+        ),
+        HadithBookBundledDataSource(() => Future.value(db)),
+        HadithBookRemoteDataSource((url) async => serve(url, calls)),
+      );
+      await expectArabicEnglishOnly(repo, calls);
+    });
+
+    test('BENGALI_HADITH=false serves Arabic + English', () async {
+      final calls = <String>[];
+      final repo = HadithBookRepositoryImpl(
+        HadithBookCatalogDataSource(
+          _FakeAssetBundle(const {
+            HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
+          }),
+        ),
+        emptyBundled, // has the table: only the flag turns it off
+        HadithBookRemoteDataSource((url) async => serve(url, calls)),
+        bengaliHadith: false,
+      );
+      await expectArabicEnglishOnly(repo, calls);
+    });
+  });
 }
 
 /// Stand-in network error (avoids a dart:io import in the test).
