@@ -6,8 +6,10 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
+import 'package:productive_muslim/features/notifications/data/jamaat_focus_bridge.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/jamaat_focus_control.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
 import 'package:productive_muslim/features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -131,7 +133,8 @@ Future<void> _register(
     ..registerSingleton<SettingsStore>(store)
     ..registerSingleton<NotificationScheduler>(scheduler)
     ..registerSingleton<NotificationController>(_controller)
-    ..registerSingleton<ZonedClock>(TimezoneClock());
+    ..registerSingleton<ZonedClock>(TimezoneClock())
+    ..registerSingleton<JamaatFocusControl>(const JamaatFocusBridge());
 }
 
 Widget _app({Widget home = const NotificationSettingsScreen()}) => MaterialApp(

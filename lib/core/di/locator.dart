@@ -53,6 +53,7 @@ import '../../features/nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../features/notifications/data/jamaat_focus_bridge.dart';
 import '../../features/notifications/data/local_notifications_scheduler.dart';
 import '../../features/notifications/domain/entities/notification_texts.dart';
+import '../../features/notifications/domain/repositories/jamaat_focus_control.dart';
 import '../../features/notifications/domain/repositories/notification_scheduler.dart';
 import '../../features/notifications/domain/usecases/build_focus_windows.dart';
 import '../../features/notifications/domain/usecases/reschedule_notifications.dart';
@@ -207,6 +208,7 @@ Future<void> setupLocator() async {
 
   // ---- notifications ----
   locator
+    ..registerLazySingleton<JamaatFocusControl>(JamaatFocusBridge.new)
     ..registerLazySingleton<NotificationScheduler>(
       () => LocalNotificationsScheduler(
         clock: locator(),

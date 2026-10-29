@@ -172,7 +172,6 @@ const _baseline = <String>{
   'lib/features/my_mosque/presentation/screens/my_mosque_screen.dart -> lib/features/prayer_times/presentation/state/home_store.dart',
   'lib/features/my_mosque/presentation/screens/my_mosque_screen.dart -> lib/features/settings/presentation/widgets/setting_labels.dart',
   'lib/features/my_mosque/presentation/widgets/prayer_jamaat_card.dart -> lib/features/settings/presentation/widgets/setting_labels.dart',
-  'lib/features/notifications/presentation/screens/notification_settings_screen.dart -> lib/features/notifications/data/jamaat_focus_bridge.dart',
   'lib/features/notifications/presentation/screens/notification_settings_screen.dart -> lib/features/settings/presentation/state/settings_store.dart',
   'lib/features/notifications/presentation/screens/notification_settings_screen.dart -> lib/features/settings/presentation/widgets/setting_labels.dart',
   'lib/features/notifications/presentation/screens/notifications_screen.dart -> lib/features/prayer_times/presentation/screens/home_formatting.dart',

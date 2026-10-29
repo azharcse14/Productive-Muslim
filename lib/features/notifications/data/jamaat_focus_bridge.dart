@@ -1,15 +1,13 @@
 import 'package:flutter/services.dart';
 
 import '../domain/entities/notification_texts.dart';
+import '../domain/repositories/jamaat_focus_control.dart';
 import '../domain/usecases/build_focus_windows.dart';
-
-/// Live session as reported by the native side.
-typedef FocusStatus = ({bool active, bool strict, bool nafs, DateTime? until});
 
 /// Android-only seam to the native jamaat focus engine (JamaatFocus.kt):
 /// it owns the alarms, Do Not Disturb, and the app-blocking accessibility
 /// service, so sessions start and end with the app closed.
-final class JamaatFocusBridge {
+final class JamaatFocusBridge implements JamaatFocusControl {
   const JamaatFocusBridge([
     this._channel = const MethodChannel('com.productivemuslim.app/focus'),
   ]);
@@ -60,6 +58,7 @@ final class JamaatFocusBridge {
 
   /// [toWall] converts the native end instant to the location wall clock
   /// (the clock the app shows), mirroring [schedule]'s `toUtc`.
+  @override
   Future<FocusStatus> status({
     required DateTime Function(DateTime instant) toWall,
   }) async {
@@ -76,18 +75,22 @@ final class JamaatFocusBridge {
   }
 
   /// Ends a running non-strict session now.
+  @override
   Future<void> end() => _channel.invokeMethod<void>('end');
 
   /// "Do Not Disturb access" — needed to silence the phone.
+  @override
   Future<bool> hasSilencePermission() async =>
       await _channel.invokeMethod<bool>('hasDndAccess') ?? false;
 
+  @override
   Future<void> requestSilencePermission() =>
       _channel.invokeMethod<void>('requestDndAccess');
 
   /// False in a build made with `focusBlocking=false`: the app-blocking
   /// service isn't in the manifest, so lock-the-phone and nafs lock can't
   /// work. Unknown (no native answer) counts as available.
+  @override
   Future<bool> isBlockingAvailable() async {
     try {
       return await _channel.invokeMethod<bool>('isBlockingAvailable') ?? true;
@@ -99,9 +102,11 @@ final class JamaatFocusBridge {
   }
 
   /// Accessibility service — needed to block other apps.
+  @override
   Future<bool> hasBlockPermission() async =>
       await _channel.invokeMethod<bool>('hasBlockAccess') ?? false;
 
+  @override
   Future<void> requestBlockPermission() =>
       _channel.invokeMethod<void>('requestBlockAccess');
 }

@@ -25,7 +25,7 @@ import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
-import '../../data/jamaat_focus_bridge.dart';
+import '../../domain/repositories/jamaat_focus_control.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../state/notification_controller.dart';
 
@@ -505,7 +505,10 @@ final class JamaatFocusSettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(QSpace.s5),
         children: [
-          _JamaatFocusCard(store: locator<SettingsStore>()),
+          _JamaatFocusCard(
+            store: locator<SettingsStore>(),
+            focus: locator<JamaatFocusControl>(),
+          ),
           const SizedBox(height: QSpace.s10),
         ],
       ),
@@ -674,16 +677,16 @@ final class _TimeRow extends StatelessWidget {
 /// natively (DND + accessibility app block); iOS only gets a nudge, since
 /// no iOS app may silence or lock the phone.
 final class _JamaatFocusCard extends StatefulWidget {
-  const _JamaatFocusCard({required this.store});
+  const _JamaatFocusCard({required this.store, required this.focus});
 
   final SettingsStore store;
+  final JamaatFocusControl focus;
 
   @override
   State<_JamaatFocusCard> createState() => _JamaatFocusCardState();
 }
 
 final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
-  static const _bridge = JamaatFocusBridge();
   final _android = defaultTargetPlatform == TargetPlatform.android;
 
   final _status = signal<FocusStatus>((
@@ -727,15 +730,15 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       return;
     }
     try {
-      _blockingAvailable.value = await _bridge.isBlockingAvailable();
-      _status.value = await _bridge.status(
+      _blockingAvailable.value = await widget.focus.isBlockingAvailable();
+      _status.value = await widget.focus.status(
         toWall: (instant) => switch (widget.store.location.value) {
           final location? => locator<ZonedClock>().instantAt(location, instant),
           null => instant.toLocal(),
         },
       );
-      _canSilence.value = await _bridge.hasSilencePermission();
-      _canBlock.value = await _bridge.hasBlockPermission();
+      _canSilence.value = await widget.focus.hasSilencePermission();
+      _canBlock.value = await widget.focus.hasBlockPermission();
     } on Object catch (_) {
       // No native side (tests, other platforms): stay on the defaults.
     }
@@ -767,7 +770,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       ),
     );
     if (ok ?? false) {
-      await _bridge.requestBlockPermission();
+      await widget.focus.requestBlockPermission();
     }
   }
 
@@ -839,7 +842,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                   kind: QButtonKind.ghost,
                   small: true,
                   onPressed: () =>
-                      unawaited(_bridge.end().then((_) => _refresh())),
+                      unawaited(widget.focus.end().then((_) => _refresh())),
                 ),
               const SizedBox(height: QSpace.s3),
             ],
@@ -867,7 +870,9 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                           : (v) {
                               set(m.copyWith(jamaatFocus: v));
                               if (v && _android && !_canSilence.value) {
-                                unawaited(_bridge.requestSilencePermission());
+                                unawaited(
+                                  widget.focus.requestSilencePermission(),
+                                );
                               }
                             },
                     ),
@@ -885,7 +890,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                     if (_android && !_canSilence.value)
                       permission(
                         l10n.focusPermSilence,
-                        _bridge.requestSilencePermission,
+                        widget.focus.requestSilencePermission,
                       ),
                     _LeadRow(
                       label: l10n.focusLeadLabel,
