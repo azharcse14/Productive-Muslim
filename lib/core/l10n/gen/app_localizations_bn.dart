@@ -697,7 +697,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'প্রতিদিন সকালে একটি আয়াতের রিমাইন্ডার (সকাল ৮:০০)';
+      'আপনার বেছে নেওয়া সময়ে চিন্তা করার মতো একটি আয়াত';
 
   @override
   String get notifDailyAyahTitle => 'আজকের আয়াত';
@@ -710,7 +710,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'প্রতিদিন সন্ধ্যায় একটি হাদিসের রিমাইন্ডার (সন্ধ্যা ৬:০০)';
+      'আপনার বেছে নেওয়া সময়ে প্রতিদিন একটি হাদিস';
 
   @override
   String get notifDailyKindHadith => 'হাদিস';
@@ -742,6 +742,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'আজকের সকল নোটিফিকেশন ও রিমাইন্ডার এখানে দেখতে পাবেন।';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'নামাজের অ্যালার্ট ও রিমাইন্ডার নির্ধারণ করতে আপনার লোকেশন সেট করুন।';
+
+  @override
+  String get notificationsOffSub =>
+      'নোটিফিকেশন বন্ধ আছে, তাই কিছুই পৌঁছাবে না। আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
   @override
   String get headerDailyAyahHadith => 'আজকের আয়াত ও হাদিস';

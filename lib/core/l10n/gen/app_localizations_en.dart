@@ -697,7 +697,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'Daily morning Quran verse reminder (8:00 AM)';
+      'A Quran verse to reflect on, at your time';
 
   @override
   String get notifDailyAyahTitle => 'Ayah of the Day';
@@ -710,7 +710,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'Daily evening Hadith reminder (6:00 PM)';
+      'A hadith to read each day, at your time';
 
   @override
   String get notifDailyKindHadith => 'Hadith';
@@ -743,6 +743,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'All scheduled notifications and reminders will appear here.';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'Set your location so prayer alerts and reminders can be scheduled.';
+
+  @override
+  String get notificationsOffSub =>
+      'Notifications are off, so nothing will be delivered. Enable them to get azan and reminders.';
 
   @override
   String get headerDailyAyahHadith => 'Today\'s Ayah & Hadith';

@@ -1247,7 +1247,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifDailyAyahToggleSub.
   ///
   /// In en, this message translates to:
-  /// **'Daily morning Quran verse reminder (8:00 AM)'**
+  /// **'A Quran verse to reflect on, at your time'**
   String get notifDailyAyahToggleSub;
 
   /// No description provided for @notifDailyAyahTitle.
@@ -1271,7 +1271,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifDailyHadithToggleSub.
   ///
   /// In en, this message translates to:
-  /// **'Daily evening Hadith reminder (6:00 PM)'**
+  /// **'A hadith to read each day, at your time'**
   String get notifDailyHadithToggleSub;
 
   /// No description provided for @notifDailyKindHadith.
@@ -1333,6 +1333,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All scheduled notifications and reminders will appear here.'**
   String get notificationsEmptySub;
+
+  /// No description provided for @notificationsNoLocationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location so prayer alerts and reminders can be scheduled.'**
+  String get notificationsNoLocationSub;
+
+  /// No description provided for @notificationsOffSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off, so nothing will be delivered. Enable them to get azan and reminders.'**
+  String get notificationsOffSub;
 
   /// No description provided for @headerDailyAyahHadith.
   ///
