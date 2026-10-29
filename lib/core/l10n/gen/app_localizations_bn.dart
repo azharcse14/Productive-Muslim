@@ -3303,4 +3303,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get undo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get mosqueLoadError =>
+      'আপনার মসজিদগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get jamaatOffsetHint => 'ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)';
 }

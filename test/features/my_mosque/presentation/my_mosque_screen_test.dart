@@ -6,6 +6,8 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/get_mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/save_mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/widgets/mosque_schedule_section.dart';
@@ -36,6 +38,20 @@ void main() {
     testWidgets('empty state offers adding a profile', (tester) async {
       await register();
       await tester.pumpWidget(_app());
+      expect(find.text('Add profile'), findsOneWidget);
+    });
+
+    testWidgets('unreadable storage offers a retry, not the add state',
+        (tester) async {
+      final repo = InMemoryMosqueRepository()..failLoad = true;
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      await store.load();
+      GetIt.I.registerSingleton<MosqueStore>(store);
+      await tester.pumpWidget(_app());
+      expect(find.text('Add profile'), findsNothing);
+      repo.failLoad = false;
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
       expect(find.text('Add profile'), findsOneWidget);
     });
 
@@ -101,7 +117,7 @@ void main() {
       );
     });
 
-    testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 1',
+    testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 5',
         (tester) async {
       JamaatEntry? changed;
       Widget card(JamaatEntry entry) => MaterialApp(
@@ -127,7 +143,7 @@ void main() {
       await tester.pumpWidget(card(const OffsetJamaat(Duration(minutes: 5))));
       expect(find.text('→ 6:55 PM today'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.add));
-      expect(changed, const OffsetJamaat(Duration(minutes: 6)));
+      expect(changed, const OffsetJamaat(Duration(minutes: 10)));
       expect(find.text('Outside today'), findsOneWidget);
     });
 

@@ -13,6 +13,8 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_empty_state.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
@@ -47,7 +49,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
       if (n != seen && mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.expenseSaveFailed)));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
       }
     });
   }
@@ -103,7 +105,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
           content: Text(l10n.scheduleRuleRemoved),
           persist: false,
           action: SnackBarAction(
-            label: l10n.expenseUndo,
+            label: l10n.undo,
             onPressed: () => unawaited(_store.insertRule(index, rule)),
           ),
         ),
@@ -258,8 +260,23 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
         builder: (context) {
           final state = _store.state.value;
           final active = _store.activeProfile.value;
+          if (_store.readFailed.value) {
+            return QErrorRetry(
+              message: l10n.mosqueLoadError,
+              retryLabel: l10n.hadithRetry,
+              onRetry: () => unawaited(_store.load()),
+            );
+          }
           if (state.profiles.isEmpty) {
-            return _EmptyState(onAdd: () => unawaited(_addProfile()));
+            return QEmptyState(
+              icon: Icons.mosque_outlined,
+              body: l10n.myMosqueSubtitle,
+              action: QButton(
+                label: l10n.addProfile,
+                icon: Icons.add,
+                onPressed: () => unawaited(_addProfile()),
+              ),
+            );
           }
           return ListView(
             padding: const EdgeInsets.all(QSpace.s5),
@@ -303,19 +320,6 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                 ],
               ),
               const SizedBox(height: QSpace.s5),
-              MosqueScheduleSection(
-                state: state,
-                formatTime: (t) => _formatTime(context, t),
-                onModeChanged: (m) => unawaited(_store.setMode(m)),
-                onAddRule: () => unawaited(_addRule(state)),
-                onRemoveRule: (i) => _removeRule(state, i),
-                onRuleChanged: (i, r) => unawaited(_store.updateRule(i, r)),
-                onDefaultChanged: (id) =>
-                    unawaited(_store.setDefaultMosque(id)),
-                onPickRuleTime: (i, {required bool isStart}) =>
-                    unawaited(_pickRuleTime(state, i, isStart: isStart)),
-              ),
-              const SizedBox(height: QSpace.s5),
               if (active != null) ...[
                 for (final prayer in Prayer.values) ...[
                   PrayerJamaatCard(
@@ -349,7 +353,24 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                     const SizedBox(height: QSpace.s3),
                   ],
                 ],
-                const SizedBox(height: QSpace.s2),
+              ],
+              // Advanced: auto-switching between mosques, after the core
+              // per-prayer jamaat setup.
+              const SizedBox(height: QSpace.s2),
+              MosqueScheduleSection(
+                state: state,
+                formatTime: (t) => _formatTime(context, t),
+                onModeChanged: (m) => unawaited(_store.setMode(m)),
+                onAddRule: () => unawaited(_addRule(state)),
+                onRemoveRule: (i) => _removeRule(state, i),
+                onRuleChanged: (i, r) => unawaited(_store.updateRule(i, r)),
+                onDefaultChanged: (id) =>
+                    unawaited(_store.setDefaultMosque(id)),
+                onPickRuleTime: (i, {required bool isStart}) =>
+                    unawaited(_pickRuleTime(state, i, isStart: isStart)),
+              ),
+              if (active != null) ...[
+                const SizedBox(height: QSpace.s5),
                 QBanner(
                   text: l10n.jamaatReminderHint,
                   icon: Icons.notifications_outlined,
@@ -478,37 +499,6 @@ final class _NameDialogState extends State<_NameDialog> {
           child: Text(l10n.save),
         ),
       ],
-    );
-  }
-}
-
-final class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onAdd});
-
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final q = context.q;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(QSpace.s8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.mosque_outlined, size: 56, color: q.ink3),
-            const SizedBox(height: QSpace.s4),
-            Text(
-              l10n.myMosqueSubtitle,
-              textAlign: TextAlign.center,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
-            const SizedBox(height: QSpace.s6),
-            QButton(label: l10n.addProfile, icon: Icons.add, onPressed: onAdd),
-          ],
-        ),
-      ),
     );
   }
 }

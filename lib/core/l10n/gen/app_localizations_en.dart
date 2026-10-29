@@ -3321,4 +3321,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undo => 'Undo';
+
+  @override
+  String get mosqueLoadError =>
+      'Couldn\'t load your mosques. Please try again.';
+
+  @override
+  String get jamaatOffsetHint => 'Minutes after waqt starts (1–60)';
 }

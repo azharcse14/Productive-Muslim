@@ -4933,6 +4933,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get undo;
+
+  /// No description provided for @mosqueLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your mosques. Please try again.'**
+  String get mosqueLoadError;
+
+  /// No description provided for @jamaatOffsetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes after waqt starts (1–60)'**
+  String get jamaatOffsetHint;
 }
 
 class _AppLocalizationsDelegate
