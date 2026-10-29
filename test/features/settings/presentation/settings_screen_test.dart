@@ -6,6 +6,7 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
@@ -28,11 +29,11 @@ final class _InMemoryRepo implements SettingsRepository {
 }
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const SettingsScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const SettingsScreen(),
+);
 
 /// Tall viewport so the whole (lazy) settings list is laid out at once.
 void _tall(WidgetTester tester) {
@@ -71,8 +72,9 @@ void main() {
       }
     });
 
-    testWidgets('show achievements switch persists (default off)',
-        (tester) async {
+    testWidgets('show achievements switch persists (default off)', (
+      tester,
+    ) async {
       _tall(tester);
       await tester.pumpWidget(_app());
       final row = find.text('Show achievements');
@@ -95,10 +97,26 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.tap(find.text('Madhab (Asr)'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Shafiʿi'));
+      // Two choices: only Hanafi changes Asr.
+      expect(find.text('Hanafi'), findsWidgets);
+      expect(find.text('Maliki'), findsNothing);
+      await tester.tap(find.text('Standard (Shafiʿi, Maliki, Hanbali)'));
       await tester.pumpAndSettle();
       expect(repo.stored.prayerParams.madhab.name, 'shafi');
-      expect(find.text('Shafiʿi'), findsOneWidget); // now the subtitle
+      // Now the subtitle.
+      expect(find.text('Standard (Shafiʿi, Maliki, Hanbali)'), findsOneWidget);
+    });
+
+    testWidgets('a prayer adjustment resets to 0', (tester) async {
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Minute adjustments'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('Increase Asr'));
+      await tester.pump();
+      expect(repo.stored.prayerParams.adjustmentFor(Prayer.asr), 1);
+      await tester.tap(find.byTooltip('Reset Asr to 0'));
+      await tester.pump();
+      expect(repo.stored.prayerParams.adjustmentFor(Prayer.asr), 0);
     });
 
     testWidgets('theme sheet selection persists', (tester) async {
@@ -115,15 +133,13 @@ void main() {
 
     testWidgets('credits mention required attributions', (tester) async {
       await tester.pumpWidget(_app());
-      await tester.scrollUntilVisible(
-        find.textContaining('GeoNames'),
-        200,
-      );
+      await tester.scrollUntilVisible(find.textContaining('GeoNames'), 200);
       expect(find.textContaining('KFGQPC'), findsOneWidget);
     });
 
-    testWidgets('Hijri offset stepper adjusts and clamps at +2',
-        (tester) async {
+    testWidgets('Hijri offset stepper adjusts and clamps at +2', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       final stepper = find.byKey(const ValueKey('hijri-offset-stepper'));
       await tester.scrollUntilVisible(stepper, 100);
@@ -151,16 +167,15 @@ void main() {
       expect(find.text('−1 day'), findsOneWidget);
     });
 
-    testWidgets('sahri safety stepper adjusts and clamps at 0',
-        (tester) async {
+    testWidgets('sahri safety stepper adjusts and clamps at 0', (tester) async {
       await tester.pumpWidget(_app());
       final stepper = find.byKey(const ValueKey('sahri-safety-stepper'));
       await tester.scrollUntilVisible(stepper, 100);
       expect(find.text('Sahri safety margin'), findsOneWidget);
       Finder button(String verb) => find.descendant(
-            of: stepper,
-            matching: find.bySemanticsLabel(RegExp('$verb Sahri safety')),
-          );
+        of: stepper,
+        matching: find.bySemanticsLabel(RegExp('$verb Sahri safety')),
+      );
       await tester.tap(button('Decrease'));
       await tester.pump();
       expect(repo.stored.prayerParams.sahriSafetyMinutes, 0);

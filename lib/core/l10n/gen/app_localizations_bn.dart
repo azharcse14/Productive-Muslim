@@ -78,6 +78,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingAdjustmentsSub => 'প্রতিটি ওয়াক্ত ±মিনিট ঠিক করুন';
 
   @override
+  String adjustmentReset(String prayer) {
+    return '$prayer ০-তে রিসেট করুন';
+  }
+
+  @override
   String get settingHighLat => 'উচ্চ-অক্ষাংশ নিয়ম';
 
   @override
@@ -163,6 +168,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get madhabHanbali => 'হাম্বলি';
 
   @override
+  String get madhabStandard => 'স্ট্যান্ডার্ড (শাফেয়ি, মালিকি, হাম্বলি)';
+
+  @override
   String get madhabExplain => 'শুধু আসরের সময়ে প্রভাব ফেলে';
 
   @override
@@ -209,6 +217,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get methodTehran => 'তেহরান (IGUT)';
+
+  @override
+  String get methodSuggested => 'আপনার অঞ্চলের জন্য প্রস্তাবিত';
 
   @override
   String get prayerFajr => 'ফজর';
@@ -627,6 +638,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifSettingsTitle => 'নোটিফিকেশন';
+
+  @override
+  String get notifOffInSystem => 'সিস্টেম সেটিংসে বন্ধ';
 
   @override
   String get notifPermissionDeniedBanner =>

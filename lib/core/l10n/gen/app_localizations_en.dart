@@ -78,6 +78,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingAdjustmentsSub => 'Fine-tune each prayer ±minutes';
 
   @override
+  String adjustmentReset(String prayer) {
+    return 'Reset $prayer to 0';
+  }
+
+  @override
   String get settingHighLat => 'High-latitude rule';
 
   @override
@@ -164,6 +169,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get madhabHanbali => 'Hanbali';
 
   @override
+  String get madhabStandard => 'Standard (Shafiʿi, Maliki, Hanbali)';
+
+  @override
   String get madhabExplain => 'Affects Asr time only';
 
   @override
@@ -210,6 +218,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodTehran => 'Tehran (IGUT)';
+
+  @override
+  String get methodSuggested => 'Suggested for your region';
 
   @override
   String get prayerFajr => 'Fajr';
@@ -628,6 +639,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifSettingsTitle => 'Notifications';
+
+  @override
+  String get notifOffInSystem => 'Off in system settings';
 
   @override
   String get notifPermissionDeniedBanner =>

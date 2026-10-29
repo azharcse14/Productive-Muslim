@@ -236,6 +236,12 @@ abstract class AppLocalizations {
   /// **'Fine-tune each prayer ±minutes'**
   String get settingAdjustmentsSub;
 
+  /// No description provided for @adjustmentReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset {prayer} to 0'**
+  String adjustmentReset(String prayer);
+
   /// No description provided for @settingHighLat.
   ///
   /// In en, this message translates to:
@@ -380,6 +386,12 @@ abstract class AppLocalizations {
   /// **'Hanbali'**
   String get madhabHanbali;
 
+  /// No description provided for @madhabStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard (Shafiʿi, Maliki, Hanbali)'**
+  String get madhabStandard;
+
   /// No description provided for @madhabExplain.
   ///
   /// In en, this message translates to:
@@ -475,6 +487,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tehran (IGUT)'**
   String get methodTehran;
+
+  /// No description provided for @methodSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for your region'**
+  String get methodSuggested;
 
   /// No description provided for @prayerFajr.
   ///
@@ -1117,6 +1135,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notifSettingsTitle;
+
+  /// No description provided for @notifOffInSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in system settings'**
+  String get notifOffInSystem;
 
   /// No description provided for @notifPermissionDeniedBanner.
   ///

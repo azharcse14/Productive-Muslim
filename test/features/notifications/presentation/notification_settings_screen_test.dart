@@ -372,7 +372,6 @@ void main() {
           location: _dhaka,
           notifications: NotificationMatrix(
             prayerModes: {Prayer.fajr: AzanMode.off},
-            muhasabaEveningReminder: false,
           ),
         ),
       );
