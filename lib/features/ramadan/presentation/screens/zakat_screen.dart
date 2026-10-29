@@ -36,9 +36,9 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   /// Fields whose non-empty text didn't parse; shown as field errors.
   Set<TextEditingController> _invalid = {};
 
-  /// No metal price given, so the nisab is unknown — never a false
-  /// "not payable".
-  bool _missingPrice = false;
+  /// The silver nisab applies (anything besides gold alone) but no silver
+  /// price was given, so the nisab is unknown — never a false "not payable".
+  bool _needSilverPrice = false;
 
   /// Price fields left blank although grams of that metal were entered —
   /// those grams would otherwise silently count as zero wealth.
@@ -63,11 +63,11 @@ final class _ZakatScreenState extends State<ZakatScreen> {
     super.dispose();
   }
 
-  /// Parsed field value; null when unparsable or non-finite ("NaN",
-  /// "Infinity" parse as doubles but are not amounts).
+  /// Parsed field value; null when unparsable, negative or non-finite
+  /// ("NaN", "Infinity" parse as doubles but are not amounts).
   double? _parse(TextEditingController controller) {
     final value = double.tryParse(LocaleDigits.toAscii(controller.text));
-    return value != null && value.isFinite ? value : null;
+    return value != null && value.isFinite && value >= 0 ? value : null;
   }
 
   double _valueOf(TextEditingController controller) => _parse(controller) ?? 0;
@@ -77,31 +77,33 @@ final class _ZakatScreenState extends State<ZakatScreen> {
 
   void _calculate(List<TextEditingController> controllers) {
     FocusScope.of(context).unfocus();
+    final input = ZakatInput(
+      cashOnHand: _valueOf(_cash),
+      bankBalance: _valueOf(_bank),
+      goldGrams: _valueOf(_gold),
+      silverGrams: _valueOf(_silver),
+      businessAssets: _valueOf(_business),
+      investments: _valueOf(_investments),
+      moneyOwedToYou: _valueOf(_owed),
+      debts: _valueOf(_debts),
+      goldPricePerGram: _valueOf(_goldPrice),
+      silverPricePerGram: _valueOf(_silverPrice),
+    );
     setState(() {
       _invalid = controllers.where(_isInvalid).toSet();
-      _missingPrice = _valueOf(_goldPrice) <= 0 && _valueOf(_silverPrice) <= 0;
+      // Gold alone uses the gold nisab (its price is checked below).
+      _needSilverPrice = !ZakatCalculator.usesGoldNisab(input) &&
+          input.silverPricePerGram <= 0;
       _unpriced = {
-        if (_valueOf(_gold) > 0 && _valueOf(_goldPrice) <= 0) _goldPrice,
-        if (_valueOf(_silver) > 0 && _valueOf(_silverPrice) <= 0) _silverPrice,
+        if (input.goldGrams > 0 && input.goldPricePerGram <= 0) _goldPrice,
+        if (input.silverGrams > 0 && input.silverPricePerGram <= 0)
+          _silverPrice,
       };
-      if (_invalid.isNotEmpty || _missingPrice || _unpriced.isNotEmpty) {
+      if (_invalid.isNotEmpty || _needSilverPrice || _unpriced.isNotEmpty) {
         _result = null;
         return;
       }
-      _result = ZakatCalculator.calculate(
-        ZakatInput(
-          cashOnHand: _valueOf(_cash),
-          bankBalance: _valueOf(_bank),
-          goldGrams: _valueOf(_gold),
-          silverGrams: _valueOf(_silver),
-          businessAssets: _valueOf(_business),
-          investments: _valueOf(_investments),
-          moneyOwedToYou: _valueOf(_owed),
-          debts: _valueOf(_debts),
-          goldPricePerGram: _valueOf(_goldPrice),
-          silverPricePerGram: _valueOf(_silverPrice),
-        ),
-      );
+      _result = ZakatCalculator.calculate(input);
     });
   }
 
@@ -130,7 +132,6 @@ final class _ZakatScreenState extends State<ZakatScreen> {
       (l10n.zakatOwed, _owed),
       (l10n.zakatDebts, _debts),
     ];
-    final isPrice = {_goldPrice, _silverPrice};
     return Scaffold(
       appBar: AppBar(title: Text(l10n.zakatTitle)),
       body: SafeArea(
@@ -150,8 +151,8 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                     labelText: label,
                     errorText: _invalid.contains(controller)
                         ? l10n.zakatInvalidNumber
-                        : _missingPrice && isPrice.contains(controller)
-                        ? l10n.zakatNeedPrice
+                        : _needSilverPrice && controller == _silverPrice
+                        ? l10n.zakatNeedSilverPrice
                         : _unpriced.contains(controller)
                         ? l10n.zakatNeedMetalPrice
                         : null,
@@ -161,10 +162,10 @@ final class _ZakatScreenState extends State<ZakatScreen> {
               ),
             const SizedBox(height: QSpace.s2),
             // The price fields sit at the top, likely scrolled away.
-            if (_missingPrice || _unpriced.isNotEmpty) ...[
+            if (_needSilverPrice || _unpriced.isNotEmpty) ...[
               QBanner(
-                text: _missingPrice
-                    ? l10n.zakatNeedPrice
+                text: _needSilverPrice
+                    ? l10n.zakatNeedSilverPrice
                     : l10n.zakatNeedMetalPrice,
                 tone: q.primarySoft,
                 foreground: q.onPrimarySoft,

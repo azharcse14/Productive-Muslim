@@ -919,6 +919,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unarchiveTracker => 'Restore';
 
   @override
+  String get trackerSaveFailed => 'Couldn\'t save. Please try again.';
+
+  @override
   String get archiveExplain =>
       'Archived items disappear from your daily list, but every past entry is preserved.';
 
@@ -1558,8 +1561,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get zakatSilverPrice => 'Silver price per gram';
 
   @override
-  String get zakatNeedPrice =>
-      'Enter today\'s gold or silver price to work out the nisab.';
+  String get zakatNeedSilverPrice =>
+      'Enter today\'s silver price — the nisab is based on silver unless gold is your only asset.';
 
   @override
   String get zakatInvalidNumber => 'Enter a valid number';
@@ -2333,6 +2336,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get expenseExported =>
       'Copied. Paste it into Notes, email or a spreadsheet to keep it safe.';
+
+  @override
+  String get expenseExportFailed =>
+      'Couldn\'t copy the backup. Please try again.';
+
+  @override
+  String get expenseImportFailed =>
+      'Couldn\'t restore the backup. Please try again.';
 
   @override
   String get expenseImportInvalid =>

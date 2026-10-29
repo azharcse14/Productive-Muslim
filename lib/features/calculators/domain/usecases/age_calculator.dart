@@ -56,9 +56,12 @@ abstract final class AgeCalculator {
   ///
   /// Only the date part of each argument matters (time-of-day is ignored).
   /// If [onDate] is before [birthDate] every field is clamped to 0.
+  /// [hijriOffsetDays] is the user's moon-sighting adjustment, applied to
+  /// both Hijri conversions like every other Hijri feature.
   static AgeResult calculate({
     required DateTime birthDate,
     required DateTime onDate,
+    int hijriOffsetDays = 0,
   }) {
     final birth = DateTime(birthDate.year, birthDate.month, birthDate.day);
     final on = DateTime(onDate.year, onDate.month, onDate.day);
@@ -89,8 +92,11 @@ abstract final class AgeCalculator {
       daysInPrecedingMonth: _gregorianDaysInPrecedingMonth,
     );
 
-    final birthHijri = HijriDate.fromGregorian(birth);
-    final onHijri = HijriDate.fromGregorian(on);
+    final birthHijri = HijriDate.fromGregorian(
+      birth,
+      offsetDays: hijriOffsetDays,
+    );
+    final onHijri = HijriDate.fromGregorian(on, offsetDays: hijriOffsetDays);
     final hijri = _diff(
       startYear: birthHijri.year,
       startMonth: birthHijri.month,

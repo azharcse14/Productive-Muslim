@@ -38,7 +38,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
 
   InheritanceResult? _result;
 
-  /// The estate text didn't parse as a finite number.
+  /// The estate text didn't parse as a finite, non-negative number.
   bool _estateInvalid = false;
 
   @override
@@ -58,7 +58,8 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     final text = LocaleDigits.toAscii(_estate.text).trim();
     final estate = double.tryParse(text);
     setState(() {
-      _estateInvalid = text.isNotEmpty && (estate == null || !estate.isFinite);
+      _estateInvalid = text.isNotEmpty &&
+          (estate == null || !estate.isFinite || estate < 0);
       if (_estateInvalid) {
         _result = null;
         return;

@@ -113,5 +113,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Enter a valid amount'), findsOneWidget);
     });
+
+    testWidgets('negative estate shows a field error', (tester) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '-1000');
+      await tester.tap(find.text('Calculate'));
+      await tester.pumpAndSettle();
+      expect(find.text('Enter a valid amount'), findsOneWidget);
+    });
   });
 }

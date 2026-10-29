@@ -180,6 +180,19 @@ void main() {
       expect(r.hijri.days, days);
     });
 
+    test('the user\'s Hijri offset shifts both conversions', () {
+      // Birth lands on a Hijri month's last day only without the offset,
+      // so the borrow anchors differently.
+      AgeResult at(int offset) => AgeCalculator.calculate(
+        birthDate: DateTime(2025, 1, 29),
+        onDate: DateTime(2026, 1, 1),
+        hijriOffsetDays: offset,
+      );
+      expect(at(0).hijri.days, 12);
+      expect(at(1).hijri.days, 13);
+      expect(at(1).gregorian.days, at(0).gregorian.days);
+    });
+
     test('Hijri year count runs ahead of the Gregorian one for long spans',
         () {
       // ~36 Gregorian years ≈ ~37 Hijri years (Hijri year ~11 days shorter).

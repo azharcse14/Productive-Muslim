@@ -57,15 +57,30 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   // ponytail: clipboard as transport — swap for a share sheet / file once
   // share_plus (or similar) is a dependency.
   Future<void> _export() async {
-    await Clipboard.setData(ClipboardData(text: await _store.toCsv()));
+    try {
+      await Clipboard.setData(ClipboardData(text: await _store.toCsv()));
+    } on Object {
+      if (mounted) {
+        _snack(context.l10n.expenseExportFailed);
+      }
+      return;
+    }
     if (mounted) {
       _snack(context.l10n.expenseExported);
     }
   }
 
   Future<void> _import() async {
-    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
-    final added = text == null ? null : await _store.importCsv(text);
+    final int? added;
+    try {
+      final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
+      added = text == null ? null : await _store.importCsv(text);
+    } on Object {
+      if (mounted) {
+        _snack(context.l10n.expenseImportFailed);
+      }
+      return;
+    }
     if (mounted) {
       _snack(
         added == null
