@@ -7,9 +7,9 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
-import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_category_tile.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
@@ -122,8 +122,12 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                         for (var i = 0; i < 6; i++)
                           const QSkeleton(height: 120, radius: QRadius.lg),
                       for (final category in categories)
-                        _CategoryCard(
-                          category: category,
+                        QCategoryTile(
+                          icon: TrackerVisuals.iconOf(category.icon),
+                          title: l10n.ruqyahCategoryName(category.id),
+                          subtitle: context.digits(
+                            l10n.ruqyahCount(category.items.length),
+                          ),
                           onTap: () =>
                               _open(RuqyahCategoryScreen(category: category)),
                         ),
@@ -153,69 +157,17 @@ final class _GuidanceCard extends StatelessWidget {
             children: [
               Icon(Icons.healing_outlined, size: 20, color: q.primary),
               const SizedBox(width: QSpace.s2),
-              Text(
-                l10n.ruqyahHowToTitle,
-                style: QType.titleSm.copyWith(color: q.ink),
+              Expanded(
+                child: Text(
+                  l10n.ruqyahHowToTitle,
+                  style: QType.titleSm.copyWith(color: q.ink),
+                ),
               ),
             ],
           ),
           const SizedBox(height: QSpace.s2),
           Text(l10n.ruqyahHowToBody, style: QType.body.copyWith(color: q.ink2)),
         ],
-      ),
-    );
-  }
-}
-
-final class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category, required this.onTap});
-
-  final RuqyahCategory category;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final q = context.q;
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return Semantics(
-      button: true,
-      child: QCard(
-        onTap: onTap,
-        padding: const EdgeInsets.all(QSpace.s4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: q.primarySoft,
-                borderRadius: BorderRadius.circular(QRadius.sm),
-              ),
-              child: Icon(
-                TrackerVisuals.iconOf(category.icon),
-                size: 19,
-                color: q.onPrimarySoft,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              l10n.ruqyahCategoryName(category.id),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: QType.titleSm.copyWith(color: q.ink),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              LocaleDigits.localize(
-                l10n.ruqyahCount(category.items.length),
-                languageCode,
-              ),
-              style: QType.caption.copyWith(color: q.ink2),
-            ),
-          ],
-        ),
       ),
     );
   }

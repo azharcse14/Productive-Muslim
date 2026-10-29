@@ -7,10 +7,10 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
-import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_category_tile.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_search_delegate.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
@@ -185,8 +185,12 @@ final class _DuaScreenState extends State<DuaScreen> {
                         for (var i = 0; i < 6; i++)
                           const QSkeleton(height: 120, radius: QRadius.lg),
                       for (final category in categories)
-                        _CategoryCard(
-                          category: category,
+                        QCategoryTile(
+                          icon: TrackerVisuals.iconOf(category.icon),
+                          title: l10n.duaCategoryName(category.id),
+                          subtitle: context.digits(
+                            l10n.duaCount(category.duas.length),
+                          ),
                           onTap: () =>
                               _push(DuaCategoryScreen(category: category)),
                         ),
@@ -276,60 +280,6 @@ final class _FeatureCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: QType.titleSm.copyWith(color: q.ink),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-final class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category, required this.onTap});
-
-  final DuaCategory category;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final q = context.q;
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return Semantics(
-      button: true,
-      child: QCard(
-        onTap: onTap,
-        padding: const EdgeInsets.all(QSpace.s4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: q.primarySoft,
-                borderRadius: BorderRadius.circular(QRadius.sm),
-              ),
-              child: Icon(
-                TrackerVisuals.iconOf(category.icon),
-                size: 19,
-                color: q.onPrimarySoft,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              l10n.duaCategoryName(category.id),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: QType.titleSm.copyWith(color: q.ink),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              LocaleDigits.localize(
-                l10n.duaCount(category.duas.length),
-                languageCode,
-              ),
-              style: QType.caption.copyWith(color: q.ink2),
             ),
           ],
         ),

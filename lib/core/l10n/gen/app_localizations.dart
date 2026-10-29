@@ -4993,6 +4993,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No times to show for today.'**
   String get specialTimesEmpty;
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
 }
 
 class _AppLocalizationsDelegate

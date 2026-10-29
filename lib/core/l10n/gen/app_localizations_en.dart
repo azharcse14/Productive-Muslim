@@ -3354,4 +3354,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get specialTimesEmpty => 'No times to show for today.';
+
+  @override
+  String get clearSearch => 'Clear search';
 }

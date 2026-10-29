@@ -53,14 +53,12 @@ void main() {
     expect(find.textContaining('Zakat due'), findsOneWidget);
   });
 
-  testWidgets('non-finite text (Infinity/NaN) is a field error', (
-    tester,
-  ) async {
+  testWidgets('unparseable text is a field error', (tester) async {
     await pump(tester);
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.enterText(field(l10n.zakatSilverPrice), '1');
-    await tester.enterText(field(l10n.zakatCash), 'Infinity');
-    await tester.enterText(field(l10n.zakatBank), 'NaN');
+    await tester.enterText(field(l10n.zakatCash), '1.2.3');
+    await tester.enterText(field(l10n.zakatBank), '.');
     await calculate(tester);
 
     expect(find.text(l10n.zakatInvalidNumber), findsNWidgets(2));
@@ -92,15 +90,22 @@ void main() {
     expect(find.textContaining('Zakat due'), findsOneWidget);
   });
 
-  testWidgets('a negative amount is a field error', (tester) async {
+  testWidgets('amount fields reject signs and letters, keep bn digits', (
+    tester,
+  ) async {
     await pump(tester);
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-    await tester.enterText(field(l10n.zakatSilverPrice), '1');
-    await tester.enterText(field(l10n.zakatCash), '-500');
-    await calculate(tester);
+    await tester.enterText(field(l10n.zakatCash), '-5x০0');
+    await tester.enterText(field(l10n.zakatBank), 'NaN');
 
-    expect(find.text(l10n.zakatInvalidNumber), findsOneWidget);
-    expect(find.textContaining('Zakat due'), findsNothing);
+    expect(
+      tester.widget<TextField>(field(l10n.zakatCash)).controller!.text,
+      '5০0',
+    );
+    expect(
+      tester.widget<TextField>(field(l10n.zakatBank)).controller!.text,
+      isEmpty,
+    );
   });
 
   testWidgets('result names the nisab used and clears on edit', (tester) async {

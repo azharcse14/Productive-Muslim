@@ -1547,5 +1547,6 @@
   "a11yTypeValue": "type a value",
   "widgetSetupHint": "Open the app to set your location",
   "onboardingSaveFailed": "Your settings couldn't be saved. You can change them later in Settings.",
-  "specialTimesEmpty": "No times to show for today."
+  "specialTimesEmpty": "No times to show for today.",
+  "clearSearch": "Clear search"
 }

@@ -56,7 +56,10 @@ final class HadithCard extends StatelessWidget {
               l10n.hadithNarratedBy(narrator),
               style: QType.caption.copyWith(color: q.ink3),
             ),
-            Text(reference, style: QType.caption.copyWith(color: q.ink3)),
+            Text(
+              context.digits(reference),
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
           ],
         ),
       ),

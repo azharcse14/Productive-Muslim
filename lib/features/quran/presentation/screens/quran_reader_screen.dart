@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderAbstractViewport;
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
@@ -12,14 +11,15 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
-import '../widgets/ayah_medallion.dart';
 import '../widgets/reader_settings_sheet.dart';
 
 /// Ayah-card extent guess for the first index→offset jump, before any card
@@ -259,8 +259,25 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: SignalBuilder(
-          builder: (context) =>
-              Text(_surah()?.transliteration ?? context.l10n.quranTitle),
+          builder: (context) {
+            final surah = _surah();
+            // English meaning only: the data has no Bengali one.
+            final showMeaning =
+                surah != null &&
+                Localizations.localeOf(context).languageCode == 'en';
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(surah?.transliteration ?? context.l10n.quranTitle),
+                if (showMeaning)
+                  Text(
+                    surah.translationEn,
+                    style: QType.caption.copyWith(color: q.ink2),
+                  ),
+              ],
+            );
+          },
         ),
         actions: [
           SignalBuilder(
@@ -390,16 +407,17 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   /// Surah-opening basmala: not part of ayah 1 (except in al-Fatihah, and
   /// at-Tawbah has none), so it heads the surah instead of joining a card.
   Widget _basmala(BuildContext context) => Padding(
-        padding: const EdgeInsetsDirectional.only(bottom: QSpace.s3),
-        child: Text(
-          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-          textAlign: TextAlign.center,
-          textDirection: TextDirection.rtl,
-          textScaler: TextScaler.noScaling,
-          style: QType.quran(_store.readerFontSize.value)
-              .copyWith(color: context.q.ink),
-        ),
-      );
+    padding: const EdgeInsetsDirectional.only(bottom: QSpace.s3),
+    child: Text(
+      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.rtl,
+      textScaler: TextScaler.noScaling,
+      style: QType.quran(
+        _store.readerFontSize.value,
+      ).copyWith(color: context.q.ink),
+    ),
+  );
 
   Widget _nextSurahCard(BuildContext context) {
     final q = context.q;
@@ -428,7 +446,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [AyahMedallion(number: ayah.number, size: 34)]),
+          Row(children: [QMedallion(number: ayah.number, size: 34)]),
           const SizedBox(height: QSpace.s3),
           Directionality(
             textDirection: TextDirection.rtl,
@@ -477,10 +495,11 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                   unawaited(_store.toggleBookmark(ayah.id));
                 },
               ),
-              IconButton(
-                tooltip: l10n.copyAyah,
-                icon: Icon(Icons.copy_outlined, color: q.ink3),
-                onPressed: () => unawaited(_copyAyah(context, ayah)),
+              QCopyButton(
+                text:
+                    '${ayah.arabic}\n'
+                    '${ayah.translationFor(languageCode)}\n'
+                    '${l10n.ayahShareSuffix(ayah.surah, ayah.number)}',
               ),
               // Share returns with the share-sheet integration phase; a
               // permanently disabled button just looked broken.
@@ -489,20 +508,5 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _copyAyah(BuildContext context, Ayah ayah) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    final languageCode = Localizations.localeOf(context).languageCode;
-    await Clipboard.setData(
-      ClipboardData(
-        text:
-            '${ayah.arabic}\n'
-            '${ayah.translationFor(languageCode)}\n'
-            '${l10n.ayahShareSuffix(ayah.surah, ayah.number)}',
-      ),
-    );
-    messenger.showSnackBar(SnackBar(content: Text(l10n.ayahCopied)));
   }
 }

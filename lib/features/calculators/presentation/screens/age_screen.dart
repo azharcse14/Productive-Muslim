@@ -10,6 +10,7 @@ import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/age_calculator.dart';
+import '../widgets/date_field.dart';
 
 /// Age calculator screen: pick a date of birth and an "as of" date, then show
 /// the elapsed age in BOTH the Gregorian and the Hijri calendar over the pure
@@ -110,15 +111,16 @@ final class _AgeScreenState extends State<AgeScreen> {
           children: [
             Text(l10n.ageSubtitle, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s4),
-            _DateField(
+            DateField(
               label: l10n.ageBirthDate,
               value: birthDate == null
                   ? l10n.ageSelectDate
                   : _formatDate(context, birthDate),
+              hasValue: birthDate != null,
               onTap: _pickBirthDate,
             ),
             const SizedBox(height: QSpace.s3),
-            _DateField(
+            DateField(
               label: l10n.ageAsOf,
               value: _formatDate(context, _asOf),
               onTap: _pickAsOf,
@@ -175,39 +177,6 @@ final class _AgeScreenState extends State<AgeScreen> {
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Tappable, read-only field that opens a date picker. Mirrors the look of a
-/// disabled [TextField] so it sits naturally beside the form styling.
-final class _DateField extends StatelessWidget {
-  const _DateField({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final q = context.q;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(QRadius.md),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: Icon(Icons.calendar_today_outlined, color: q.ink2),
-        ),
-        child: Text(
-          value,
-          style: QType.num_(QType.body).copyWith(color: q.ink),
         ),
       ),
     );

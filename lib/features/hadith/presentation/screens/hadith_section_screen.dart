@@ -48,6 +48,14 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
   /// retry — a different chapter under this title.
   String? _lang;
 
+  /// Starts at the saved offset when reopening the last read chapter.
+  ScrollController? _scroll;
+
+  /// Remembers the reading position for "continue reading"; not for a
+  /// single-hadith lookup.
+  bool get _tracksPosition =>
+      widget.focusNumber == null && locator.isRegistered<HadithBooksStore>();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -55,6 +63,17 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
     // available during initState. Guarded so it runs only once.
     if (_lang == null) {
       _lang = Localizations.localeOf(context).languageCode;
+      // ponytail: restores a pixel offset, drifts if the text size changed
+      // since; save the top-visible hadith number if that matters.
+      _scroll = ScrollController(
+        initialScrollOffset: _tracksPosition
+            ? locator<HadithBooksStore>().savedOffset(
+                widget.book,
+                widget.section,
+                _lang!,
+              )
+            : 0,
+      );
       unawaited(_load());
       if (locator.isRegistered<HadithBooksStore>()) {
         final languageCode = Localizations.localeOf(context).languageCode;
@@ -74,8 +93,23 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
 
   Future<void> _load() => _store.load(widget.book, widget.section, _lang!);
 
+  bool _onScrollEnd(ScrollEndNotification n) {
+    if (_tracksPosition && n.depth == 0) {
+      unawaited(
+        locator<HadithBooksStore>().saveOffset(
+          widget.book,
+          widget.section,
+          _lang!,
+          n.metrics.pixels,
+        ),
+      );
+    }
+    return false;
+  }
+
   @override
   void dispose() {
+    _scroll?.dispose();
     _store.dispose();
     super.dispose();
   }
@@ -126,40 +160,44 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
             final allFallback =
                 items.isNotEmpty && items.every((h) => h.fallbackTranslation);
             final leading = allFallback ? 1 : 0;
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(
-                QSpace.s5,
-                QSpace.s3,
-                QSpace.s5,
-                QSpace.s5,
-              ),
-              itemCount: items.length + leading + 1,
-              separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-              itemBuilder: (context, index) {
-                if (allFallback && index == 0) {
-                  return _Banner(text: l10n.hadithBengaliUnavailableSection);
-                }
-                final i = index - leading;
-                if (i == items.length) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: QSpace.s2),
-                    child: Text(
-                      bnSource
-                          ? l10n.hadithSourceNoteBn
-                          : l10n.hadithSourceNote,
-                      textAlign: TextAlign.center,
-                      style: QType.caption.copyWith(color: context.q.ink3),
-                    ),
+            return NotificationListener<ScrollEndNotification>(
+              onNotification: _onScrollEnd,
+              child: ListView.separated(
+                controller: _scroll,
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s5,
+                  QSpace.s3,
+                  QSpace.s5,
+                  QSpace.s5,
+                ),
+                itemCount: items.length + leading + 1,
+                separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
+                itemBuilder: (context, index) {
+                  if (allFallback && index == 0) {
+                    return _Banner(text: l10n.hadithBengaliUnavailableSection);
+                  }
+                  final i = index - leading;
+                  if (i == items.length) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: QSpace.s2),
+                      child: Text(
+                        bnSource
+                            ? l10n.hadithSourceNoteBn
+                            : l10n.hadithSourceNote,
+                        textAlign: TextAlign.center,
+                        style: QType.caption.copyWith(color: context.q.ink3),
+                      ),
+                    );
+                  }
+                  return _BookHadithCard(
+                    hadith: items[i],
+                    // Per-hadith note only for scattered gaps (not when the whole
+                    // section is English — the banner covers that).
+                    showFallbackNote:
+                        !allFallback && items[i].fallbackTranslation,
                   );
-                }
-                return _BookHadithCard(
-                  hadith: items[i],
-                  // Per-hadith note only for scattered gaps (not when the whole
-                  // section is English — the banner covers that).
-                  showFallbackNote:
-                      !allFallback && items[i].fallbackTranslation,
-                );
-              },
+                },
+              ),
             );
           },
         ),

@@ -3337,4 +3337,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialTimesEmpty => 'আজকের জন্য দেখানোর মতো কোনো সময় নেই।';
+
+  @override
+  String get clearSearch => 'খোঁজা মুছুন';
 }
