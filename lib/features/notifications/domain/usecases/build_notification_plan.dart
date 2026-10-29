@@ -79,6 +79,7 @@ List<NotificationItem> buildNotificationPlan({
                 kind: NotificationKind.jamaat,
                 prayer: prayer,
                 at: remindAt,
+                eventAt: jamaatTime,
               ),
             );
           }
@@ -95,7 +96,11 @@ List<NotificationItem> buildNotificationPlan({
       final warnAt = day.sahriEnd.subtract(matrix.sahriLead);
       if (inWindow(warnAt)) {
         items.add(
-          NotificationItem(kind: NotificationKind.sahriWarning, at: warnAt),
+          NotificationItem(
+            kind: NotificationKind.sahriWarning,
+            at: warnAt,
+            eventAt: day.sahriEnd,
+          ),
         );
       }
     }

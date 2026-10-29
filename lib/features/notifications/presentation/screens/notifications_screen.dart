@@ -171,13 +171,13 @@ final class _Tile extends StatelessWidget {
       NotificationKind.jamaat => (
         Icons.groups_outlined,
         l10n.notifJamaatTitle(prayer),
-        l10n.notifJamaatBody(time(item.at.add(matrix.jamaatLead))),
+        l10n.notifJamaatBody(time(item.eventAt ?? item.at)),
         Routes.myMosque.path,
       ),
       NotificationKind.sahriWarning => (
         Icons.nightlight_outlined,
         l10n.notifSahriTitle,
-        l10n.notifSahriBody(time(item.at.add(matrix.sahriLead))),
+        l10n.notifSahriBody(time(item.eventAt ?? item.at)),
         Routes.ramadan.path,
       ),
       NotificationKind.iftar => (

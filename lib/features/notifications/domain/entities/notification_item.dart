@@ -49,6 +49,7 @@ final class NotificationItem {
     required this.at,
     this.prayer,
     this.prayerDay,
+    this.eventAt,
     this.silent = false,
     this.beepOnly = false,
   });
@@ -64,6 +65,10 @@ final class NotificationItem {
   /// Azan only: the prayer day (date of its fajr) [at] belongs to — differs
   /// from [at]'s date when isha falls after midnight (high latitudes).
   final DateTime? prayerDay;
+
+  /// Jamaat/sahri reminders: the moment the text announces (the jamaat,
+  /// sahri end), which [at] precedes by the lead time. Null = [at].
+  final DateTime? eventAt;
 
   /// Matrix mode [AzanMode.silent]: show without sound.
   final bool silent;
@@ -100,9 +105,10 @@ final class NotificationItem {
       other.kind == kind &&
       other.at == at &&
       other.prayer == prayer &&
+      other.eventAt == eventAt &&
       other.silent == silent &&
       other.beepOnly == beepOnly;
 
   @override
-  int get hashCode => Object.hash(kind, at, prayer, silent, beepOnly);
+  int get hashCode => Object.hash(kind, at, prayer, eventAt, silent, beepOnly);
 }
