@@ -29,6 +29,8 @@ abstract final class MosqueStateModel {
                 NoJamaat() => {'type': 'none'},
               },
           },
+          if (profile.jumuah case final j?)
+            'jumuah': {'hour': j.hour, 'minute': j.minute},
         },
     ],
     'activeId': state.activeId,
@@ -153,6 +155,8 @@ abstract final class MosqueStateModel {
           if (_entry(rawEntries[prayer.name]) case final JamaatEntry entry)
             prayer: entry,
       },
+      // Absent in older payloads: no Jumu'ah time.
+      jumuah: _clock(map['jumuah']),
     );
   }
 

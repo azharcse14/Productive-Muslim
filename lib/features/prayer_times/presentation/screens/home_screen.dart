@@ -22,6 +22,7 @@ import '../../../dua_tasbih/domain/entities/dua.dart';
 import '../../../dua_tasbih/presentation/screens/tasbih_screen.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../dua_tasbih/presentation/widgets/dua_card.dart';
+import '../../../fasting/presentation/state/fasting_store.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
 import '../../../hadith/presentation/widgets/hadith_card.dart';
@@ -36,7 +37,10 @@ import '../../../settings/domain/entities/location_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/usecases/get_current_location.dart';
 import '../../../settings/presentation/state/settings_store.dart';
+import '../../domain/entities/countdown_target.dart';
 import '../../domain/entities/prayer_day.dart';
+import '../../domain/entities/special_time.dart';
+import '../../domain/usecases/resolve_countdown.dart';
 import '../state/home_store.dart';
 import '../widgets/continue_reading_card.dart';
 import '../widgets/daily_ayah_card.dart';
@@ -81,6 +85,9 @@ final class _HomeScreenState extends State<HomeScreen> {
   late final DailyContentStore? _daily =
       locator.isRegistered<DailyContentStore>()
       ? locator<DailyContentStore>()
+      : null;
+  late final FastingStore? _fasting = locator.isRegistered<FastingStore>()
+      ? locator<FastingStore>()
       : null;
   late final NotificationScheduler? _scheduler =
       locator.isRegistered<NotificationScheduler>()
@@ -140,7 +147,8 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   /// A GPS location is fixed once at setup; after travel, re-fix on resume
   /// (never prompting) so prayer times follow the device, not the old spot.
-  Future<void> _refreshGps() async {
+  /// [force]: pull-to-refresh skips the battery throttle.
+  Future<void> _refreshGps({bool force = false}) async {
     final saved = _settings.location.value;
     if (saved is! GpsLocation || !locator.isRegistered<GetCurrentLocation>()) {
       return;
@@ -148,7 +156,7 @@ final class _HomeScreenState extends State<HomeScreen> {
     // A GPS fix costs battery; travel is not a minute-scale event.
     final now = DateTime.now();
     if (_lastGpsCheck case final last?
-        when now.difference(last) < _gpsCheckInterval) {
+        when !force && now.difference(last) < _gpsCheckInterval) {
       return;
     }
     _lastGpsCheck = now;
@@ -156,6 +164,24 @@ final class _HomeScreenState extends State<HomeScreen> {
     // Skip if the user picked another location while the fix was pending.
     if (moved != null && _settings.location.value == saved) {
       await _settings.setLocation(moved);
+      if (!mounted) {
+        return;
+      }
+      // Times just changed under the user: say why.
+      final l10n = context.l10n;
+      final locale = Localizations.localeOf(context);
+      final before = formatLocationName(saved, locale, l10n);
+      final after = formatLocationName(moved, locale, l10n);
+      if (after != before) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(l10n.locationUpdatedTo(after)),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+      }
     }
   }
 
@@ -263,6 +289,7 @@ final class _HomeScreenState extends State<HomeScreen> {
   Future<void> _refresh() async {
     final tasbih = _tasbih;
     await Future.wait([
+      _refreshGps(force: true),
       if (tasbih != null) tasbih.load(),
       _loadDailyAyah(),
       _loadHadith(),
@@ -362,6 +389,9 @@ final class _HomeScreenState extends State<HomeScreen> {
             // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
             // sits right under the countdown; otherwise under the table.
             final ramadan = _store.ramadanMode.value;
+            // Outside Ramadan sahri/iftar only matters on a day being fasted.
+            final fasting =
+                ramadan || (_fasting?.isLogged(_store.dateKey.value) ?? false);
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
@@ -375,7 +405,7 @@ final class _HomeScreenState extends State<HomeScreen> {
               // by the times they qualify, not below the fold.
               if (shows(HomeCard.specialTimes))
                 _section(_specialTimesSection(context)),
-              if (!ramadan) sahriIftar,
+              if (!ramadan && fasting) sahriIftar,
               if (shows(HomeCard.muhasaba)) _section(_muhasabaSection(context)),
               if (_quran case final quran? when shows(HomeCard.continueReading))
                 _section(_continueReadingSection(context, quran, locale)),
@@ -418,17 +448,27 @@ final class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Whether [prayer] is ticked in muhasaba for its salah day.
+  bool _isPrayed(Prayer prayer) =>
+      (_muhasaba.entriesOn(_store.salahDate(prayer))['salah_${prayer.name}'] ??
+          0) >
+      0;
+
   /// Gregorian · Hijri (offset-adjusted) · Bangla (bn only) header dates.
+  /// After Maghrib the Hijri date is the next one (the Islamic day has begun).
   List<String> _headerDates(AppLocalizations l10n, Locale locale) {
-    final hijri = _store.hijriDate.value;
+    final afterMaghrib = _store.hijriAfterMaghrib.value;
+    final hijri = afterMaghrib ?? _store.hijriDate.value;
     final bangla = _store.banglaDate.value;
     final gregorian = DateFormat.yMMMEd(
       locale.toString(),
     ).format(_store.dateKey.value);
+    final hijriText =
+        '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}';
     return [
       LocaleDigits.localize(gregorian, locale.languageCode),
       LocaleDigits.localize(
-        '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}',
+        afterMaghrib == null ? hijriText : l10n.hijriFromMaghrib(hijriText),
         locale.languageCode,
       ),
       if (locale.languageCode == 'bn')
@@ -483,7 +523,24 @@ final class _HomeScreenState extends State<HomeScreen> {
           if (target == null) {
             return const SizedBox.shrink();
           }
-          final (eyebrow, sub) = countdownLabels(l10n, context, target);
+          var (eyebrow, sub) = countdownLabels(l10n, context, target);
+          final special = _store.activeSpecial.value;
+          final forbidden = special?.kind == SpecialKind.forbidden;
+          if (forbidden) {
+            sub = l10n.countdownForbiddenUntil(
+              formatHomeTime(context, special!.end),
+            );
+          }
+          final remaining = _store.remaining.value;
+          final urgency = countdownUrgencyFor(
+            now: _store.now.value,
+            target: target,
+            // A waqt already prayed has nothing left to rush.
+            prayed:
+                target.kind != CountdownKind.waqtStart &&
+                _isPrayed(target.prayer),
+            forbidden: forbidden,
+          );
           // The timeline is otherwise invisible: a footer cue plus a
           // screen-reader tap hint make the card read as tappable.
           return Semantics(
@@ -498,14 +555,20 @@ final class _HomeScreenState extends State<HomeScreen> {
                   now: _store.now.value,
                   formatTime: (t) => formatHomeTime(context, t),
                   activePrayer: _store.activeWaqt.value?.prayer,
+                  forbidden: [
+                    for (final w in _store.specialWindows.value)
+                      if (w.kind == SpecialKind.forbidden) w,
+                  ],
                 ),
               ),
               child: CountdownCard(
-                state: countdownCardState(_store.urgency.value),
+                state: countdownCardState(urgency),
                 skyPhase: skyPhaseFor(_store.now.value, day),
                 eyebrow: eyebrow,
-                big: formatCountdown(context, _store.remaining.value),
+                big: formatCountdown(context, remaining),
                 sub: sub,
+                semanticLabel:
+                    '$eyebrow ${spokenDuration(l10n, remaining)}. $sub',
                 progress: _store.progress.value,
                 corner: (fg) => QiblaMiniChip(
                   bearing: qiblaBearing,
@@ -604,6 +667,9 @@ final class _HomeScreenState extends State<HomeScreen> {
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
+          overnight: _store.overnightWaqt.value == null
+              ? null
+              : _store.activeWaqt.value,
           jamaat: _store.jamaatConfig.value,
           formatTime: (t) => formatHomeTime(context, t),
           dense: compact,
@@ -636,12 +702,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           // The real day's ticks, whatever date the Muhasaba tab is on.
           prayed: {
             for (final prayer in Prayer.values)
-              if ((muhasaba.entriesOn(
-                        _store.salahDate(prayer),
-                      )['salah_${prayer.name}'] ??
-                      0) >
-                  0)
-                prayer,
+              if (_isPrayed(prayer)) prayer,
           },
           onTogglePrayed: (prayer) => unawaited(
             muhasaba.togglePrayerOn(
@@ -669,14 +730,19 @@ final class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _sahriIftarSection(BuildContext context, PrayerDay day) =>
-      SahriIftarCard(
-        sahriEnd: formatHomeTime(
-          context,
-          _store.nextSahriEnd.value ?? day.sahriEnd,
-        ),
-        iftar: formatHomeTime(context, day.iftar),
-      );
+  /// Before iftar: today's sahri end and iftar. After: tonight's sahri
+  /// alone — today's iftar has passed and tomorrow's isn't computed here.
+  Widget _sahriIftarSection(BuildContext context, PrayerDay day) {
+    final sahri = _store.nextSahriEnd.value ?? day.sahriEnd;
+    final tonight = sahri != day.sahriEnd;
+    return SahriIftarCard(
+      sahriLabel: tonight
+          ? context.l10n.sahriEndsTonightLabel
+          : context.l10n.sahriEndsLabel,
+      sahriEnd: formatHomeTime(context, sahri),
+      iftar: tonight ? null : formatHomeTime(context, day.iftar),
+    );
+  }
 
   /// Muhasaba (daily-deeds) summary.
   Widget _muhasabaSection(BuildContext context) => SignalBuilder(
@@ -743,20 +809,24 @@ final class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  /// Forbidden & nafl windows.
+  /// One compact row: the forbidden/nafl window running now or next.
   Widget _specialTimesSection(BuildContext context) => SignalBuilder(
     builder: (context) {
-      final windows = _store.specialWindows.value;
-      if (windows.isEmpty) {
+      final window = _store.currentOrNextSpecial.value;
+      if (window == null) {
         return const SizedBox.shrink();
       }
-      return SpecialTimesCard(
-        windows: windows,
-        active: _store.activeSpecial.value,
+      final windows = _store.specialWindows.value;
+      return SpecialTimeRow(
+        window: window,
+        active: _store.activeSpecial.value == window,
         formatTime: (t) => formatHomeTime(context, t),
-        onTap: (kind) => context.pushNamed(
+        onTap: () => context.pushNamed(
           Routes.specialTimes.name,
-          extra: (kind, windows.where((w) => w.kind == kind).toList()),
+          extra: (
+            window.kind,
+            windows.where((w) => w.kind == window.kind).toList(),
+          ),
         ),
       );
     },

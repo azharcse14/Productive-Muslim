@@ -19,6 +19,8 @@ final class PrayerJamaatCard extends StatelessWidget {
     required this.formatTime,
     required this.onChanged,
     required this.onPickTime,
+    this.preview,
+    this.warning,
   });
 
   final Prayer prayer;
@@ -29,6 +31,12 @@ final class PrayerJamaatCard extends StatelessWidget {
   /// Opens the time picker; also used when switching to Fixed, so a fixed
   /// time is only ever saved once the user actually picks one.
   final VoidCallback onPickTime;
+
+  /// Today's resolved time for an offset entry, e.g. "→ 1:35 PM today".
+  final String? preview;
+
+  /// Shown when a fixed time falls outside today's waqt.
+  final String? warning;
 
   int get _modeIndex => switch (entry) {
     NoJamaat() => 0,
@@ -66,7 +74,12 @@ final class PrayerJamaatCard extends StatelessWidget {
               }
               switch (i) {
                 case 1:
-                  onChanged(const OffsetJamaat(Duration(minutes: 15)));
+                  // Maghrib is prayed promptly; others gather later.
+                  onChanged(
+                    OffsetJamaat(
+                      Duration(minutes: prayer == Prayer.maghrib ? 5 : 15),
+                    ),
+                  );
                 case 2:
                   onPickTime();
                 default:
@@ -81,9 +94,21 @@ final class PrayerJamaatCard extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      l10n.offsetAfterStart(offset.inMinutes),
-                      style: QType.caption.copyWith(color: q.ink2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.offsetAfterStart(offset.inMinutes),
+                          style: QType.caption.copyWith(color: q.ink2),
+                        ),
+                        if (preview case final p?)
+                          Text(
+                            p,
+                            style: QType.num_(
+                              QType.caption,
+                            ).copyWith(color: q.ink),
+                          ),
+                      ],
                     ),
                   ),
                   QStepButton(
@@ -91,9 +116,9 @@ final class PrayerJamaatCard extends StatelessWidget {
                     size: 32,
                     icon: Icons.remove,
                     semanticLabel: l10n.a11yDecrease(stepperLabel),
-                    onTap: offset.inMinutes > 5
+                    onTap: offset.inMinutes > 1
                         ? () => onChanged(
-                            OffsetJamaat(offset - const Duration(minutes: 5)),
+                            OffsetJamaat(offset - const Duration(minutes: 1)),
                           )
                         : null,
                   ),
@@ -112,7 +137,7 @@ final class PrayerJamaatCard extends StatelessWidget {
                     semanticLabel: l10n.a11yIncrease(stepperLabel),
                     onTap: offset.inMinutes < 60
                         ? () => onChanged(
-                            OffsetJamaat(offset + const Duration(minutes: 5)),
+                            OffsetJamaat(offset + const Duration(minutes: 1)),
                           )
                         : null,
                   ),
@@ -140,6 +165,19 @@ final class PrayerJamaatCard extends StatelessWidget {
               ),
             ),
           },
+          if (warning case final w?) ...[
+            const SizedBox(height: QSpace.s2),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.warning_amber_rounded, size: 16, color: q.warn),
+                const SizedBox(width: QSpace.s2),
+                Expanded(
+                  child: Text(w, style: QType.caption.copyWith(color: q.warn)),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

@@ -11,9 +11,11 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
+import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_chip.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/jamaat_config.dart';
 import '../../domain/entities/mosque_profile.dart';
 import '../../domain/entities/mosque_schedule.dart';
@@ -141,6 +143,56 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     }
   }
 
+  Future<void> _pickJumuah(MosqueProfile profile) async {
+    final current = profile.jumuah ?? const ClockTime(13, 30);
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: current.hour, minute: current.minute),
+    );
+    if (picked != null) {
+      await _store.setJumuah(profile.id, ClockTime(picked.hour, picked.minute));
+    }
+  }
+
+  /// "→ 1:35 PM today" for an offset entry, once today's times are known.
+  String? _preview(BuildContext context, Prayer prayer, JamaatEntry entry) {
+    final start = _waqtStart(prayer);
+    if (entry is! OffsetJamaat || start == null) {
+      return null;
+    }
+    final t = start.add(entry.offset);
+    return context.l10n.jamaatPreviewToday(
+      _formatTime(context, ClockTime(t.hour, t.minute)),
+    );
+  }
+
+  /// A fixed time outside today's waqt would never be prayed in it.
+  String? _outsideWaqt(BuildContext context, Prayer prayer, JamaatEntry entry) {
+    final day = locator.isRegistered<HomeStore>()
+        ? locator<HomeStore>().prayerDay.value
+        : null;
+    if (entry is! FixedJamaat || day == null) {
+      return null;
+    }
+    final start = day.startOf(prayer);
+    final end = day.endOf(prayer);
+    final at = DateTime(
+      start.year,
+      start.month,
+      start.day,
+      entry.time.hour,
+      entry.time.minute,
+    );
+    if (!at.isBefore(start) && at.isBefore(end)) {
+      return null;
+    }
+    String fmt(DateTime t) => _formatTime(context, ClockTime(t.hour, t.minute));
+    return context.l10n.jamaatOutsideWaqt(
+      context.l10n.prayerLabel(prayer),
+      '${fmt(start)} – ${fmt(end)}',
+    );
+  }
+
   Future<void> _addRule(MosqueState state) async {
     if (state.profiles.isEmpty) {
       return;
@@ -191,29 +243,43 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
           return ListView(
             padding: const EdgeInsets.all(QSpace.s5),
             children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final profile in state.profiles) ...[
-                      GestureDetector(
-                        onLongPress: () => unawaited(_renameProfile(profile)),
-                        child: QChip(
-                          label: profile.name,
-                          icon: Icons.mosque_outlined,
-                          active: profile.id == active?.id,
-                          onTap: () => unawaited(_store.setActive(profile.id)),
-                        ),
+              Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (final profile in state.profiles) ...[
+                            GestureDetector(
+                              onLongPress: () =>
+                                  unawaited(_renameProfile(profile)),
+                              child: QChip(
+                                label: profile.name,
+                                icon: Icons.mosque_outlined,
+                                active: profile.id == active?.id,
+                                onTap: () =>
+                                    unawaited(_store.setActive(profile.id)),
+                              ),
+                            ),
+                            const SizedBox(width: QSpace.s2),
+                          ],
+                          QChip(
+                            label: l10n.addProfile,
+                            icon: Icons.add,
+                            onTap: () => unawaited(_addProfile()),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: QSpace.s2),
-                    ],
-                    QChip(
-                      label: l10n.addProfile,
-                      icon: Icons.add,
-                      onTap: () => unawaited(_addProfile()),
                     ),
-                  ],
-                ),
+                  ),
+                  if (active != null)
+                    IconButton(
+                      tooltip: l10n.mosqueRenameProfile,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => unawaited(_renameProfile(active)),
+                    ),
+                ],
               ),
               const SizedBox(height: QSpace.s5),
               MosqueScheduleSection(
@@ -234,12 +300,33 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                   PrayerJamaatCard(
                     prayer: prayer,
                     entry: active.entries[prayer] ?? const NoJamaat(),
+                    preview: _preview(
+                      context,
+                      prayer,
+                      active.entries[prayer] ?? const NoJamaat(),
+                    ),
+                    warning: _outsideWaqt(
+                      context,
+                      prayer,
+                      active.entries[prayer] ?? const NoJamaat(),
+                    ),
                     formatTime: (t) => _formatTime(context, t),
                     onChanged: (entry) =>
                         unawaited(_store.setEntry(active.id, prayer, entry)),
                     onPickTime: () => unawaited(_pickFixedTime(active, prayer)),
                   ),
                   const SizedBox(height: QSpace.s3),
+                  if (prayer == Prayer.dhuhr) ...[
+                    _JumuahCard(
+                      time: active.jumuah == null
+                          ? null
+                          : _formatTime(context, active.jumuah!),
+                      onPick: () => unawaited(_pickJumuah(active)),
+                      onClear: () =>
+                          unawaited(_store.setJumuah(active.id, null)),
+                    ),
+                    const SizedBox(height: QSpace.s3),
+                  ],
                 ],
                 const SizedBox(height: QSpace.s2),
                 QBanner(
@@ -263,6 +350,67 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Friday's Jumu'ah jamaat: optional, replaces Dhuhr's on Fridays.
+final class _JumuahCard extends StatelessWidget {
+  const _JumuahCard({
+    required this.time,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final String? time;
+  final VoidCallback onPick;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return QCard(
+      padding: const EdgeInsets.all(QSpace.s4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.prayerJumuah, style: QType.titleSm.copyWith(color: q.ink)),
+          const SizedBox(height: QSpace.s1),
+          Text(
+            l10n.jumuahJamaatHint,
+            style: QType.caption.copyWith(color: q.ink2),
+          ),
+          const SizedBox(height: QSpace.s3),
+          Row(
+            children: [
+              Expanded(
+                child: time == null
+                    ? const SizedBox.shrink()
+                    : Text(
+                        l10n.fixedAtTime(time!),
+                        style: QType.num_(
+                          QType.caption,
+                        ).copyWith(color: q.ink2),
+                      ),
+              ),
+              if (time != null)
+                IconButton(
+                  tooltip: l10n.jumuahClear,
+                  icon: const Icon(Icons.close, size: 18),
+                  onPressed: onClear,
+                ),
+              QButton(
+                label: l10n.pickTime,
+                kind: QButtonKind.tonal,
+                small: true,
+                icon: Icons.schedule,
+                onPressed: onPick,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -164,10 +164,17 @@ void main() {
   });
 
   group('countdownUrgencyFor', () {
-    CountdownUrgency urgency(CountdownKind kind, Duration remaining) {
+    CountdownUrgency urgency(
+      CountdownKind kind,
+      Duration remaining, {
+      bool prayed = false,
+      bool forbidden = false,
+    }) {
       final now = DateTime(2026, 6, 12, 12);
       return countdownUrgencyFor(
         now: now,
+        prayed: prayed,
+        forbidden: forbidden,
         target: CountdownTarget(
           kind: kind,
           prayer: Prayer.dhuhr,
@@ -203,6 +210,37 @@ void main() {
       expect(
         urgency(CountdownKind.waqtStart, const Duration(minutes: 1)),
         CountdownUrgency.calm,
+      );
+    });
+
+    test('a prayed waqt stays calm, even when ending or forbidden', () {
+      expect(
+        urgency(
+          CountdownKind.waqtEnd,
+          const Duration(minutes: 5),
+          prayed: true,
+          forbidden: true,
+        ),
+        CountdownUrgency.calm,
+      );
+      expect(
+        urgency(CountdownKind.jamaat, const Duration(minutes: 5), prayed: true),
+        CountdownUrgency.calm,
+      );
+    });
+
+    test('a forbidden window is urgent; Ramadan states win', () {
+      expect(
+        urgency(
+          CountdownKind.waqtStart,
+          const Duration(hours: 3),
+          forbidden: true,
+        ),
+        CountdownUrgency.urgent,
+      );
+      expect(
+        urgency(CountdownKind.iftar, const Duration(minutes: 5), forbidden: true),
+        CountdownUrgency.iftar,
       );
     });
 

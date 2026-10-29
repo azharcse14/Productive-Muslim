@@ -8,6 +8,7 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
+import 'package:productive_muslim/features/fasting/presentation/state/fasting_store.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_detail_screen.dart';
@@ -25,6 +26,7 @@ import 'package:productive_muslim/features/prayer_times/presentation/widgets/hom
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/prayer_table.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/quick_actions_row.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/sahri_iftar_card.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/special_times_card.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
@@ -37,6 +39,7 @@ import 'package:productive_muslim/features/settings/domain/usecases/get_settings
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/shared/widgets/countdown_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
@@ -188,41 +191,45 @@ void main() {
       await tester.pump();
       expect(find.text('Dhaka, BD'), findsOneWidget);
       expect(find.text('Fajr'), findsOneWidget);
-      expect(find.text('Dhuhr'), findsOneWidget);
+      // 12 Jun 2026 is a Friday: Dhuhr reads Jumu'ah.
+      expect(find.text("Jumu'ah"), findsOneWidget);
       expect(find.text('Asr'), findsOneWidget);
       expect(find.text('Maghrib'), findsOneWidget);
       expect(find.text('Isha'), findsOneWidget);
-      // Sunrise was removed from the table (still in the countdown footer).
-      expect(find.text('Sunrise'), findsNothing);
+      // Sunrise sits in the table as a quiet, non-tickable row.
+      expect(find.text('Sunrise'), findsOneWidget);
       // With no jamaat configured, each of the 5 rows shows an em-dash
       // placeholder and the table carries a single "Set jamaat" CTA at its foot.
       expect(find.text('—'), findsNWidgets(5));
       expect(find.text('Set jamaat time'), findsOneWidget);
-      // The meal row sits below the fold now (cards were added above it).
-      await tester.scrollUntilVisible(
-        find.text('Sahri ends'),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      expect(find.text('Sahri ends'), findsOneWidget);
-      expect(find.text('Iftar'), findsOneWidget);
+      // Outside Ramadan and not fasting: no sahri/iftar card.
+      expect(find.byType(SahriIftarCard, skipOffstage: false), findsNothing);
     });
 
-    testWidgets('shows the forbidden and nafl times card', (tester) async {
-      await _register(withLocation: true);
+    testWidgets('shows the next special window as one compact row', (
+      tester,
+    ) async {
+      await _register(withLocation: true); // 4am, inside Fajr
       await tester.pumpWidget(_app());
       await tester.pump();
-      // The card sits below the fold, so scroll it into view first.
       await tester.scrollUntilVisible(
-        find.text('Forbidden times'),
+        find.text('Next: After sunrise'),
         300,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('Forbidden times'), findsOneWidget);
-      expect(find.text('Nafl times'), findsOneWidget);
-      expect(find.text('After sunrise'), findsOneWidget);
-      expect(find.text('Ishraq'), findsOneWidget);
-      expect(find.text('Tahajjud'), findsOneWidget);
+      expect(find.text('Next: After sunrise'), findsOneWidget);
+      expect(find.textContaining('missed fard'), findsOneWidget);
+      expect(find.text('Forbidden times'), findsNothing);
+    });
+
+    testWidgets('inside a forbidden window the hero warns', (tester) async {
+      // Just after sunrise in Dhaka (~5:11am on 12 Jun 2026).
+      await _register(withLocation: true, now: DateTime(2026, 6, 12, 5, 15));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final card = tester.widget<CountdownCard>(find.byType(CountdownCard));
+      expect(card.state, CountdownState.urgent);
+      expect(card.sub, startsWith('Forbidden time until'));
     });
 
     testWidgets('shows the minimal muhasaba track card', (tester) async {
@@ -254,10 +261,10 @@ void main() {
       );
       await tester.pumpWidget(_app());
       await tester.pump();
-      expect(find.text('Forbidden times', skipOffstage: false), findsNothing);
+      expect(find.byType(SpecialTimeRow, skipOffstage: false), findsNothing);
       expect(find.text('0/10 done', skipOffstage: false), findsNothing);
       // The core of Home stays.
-      expect(find.text('Sahri ends', skipOffstage: false), findsOneWidget);
+      expect(find.byType(PrayerTable, skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('countdown numeral ticks with the clock', (tester) async {
@@ -294,6 +301,15 @@ void main() {
       await tester.pump();
       // 12 Jun 2026 ≈ Dhul-Hijjah 1447 in the tabular calendar.
       expect(find.textContaining('Dhul-Hijjah'), findsOneWidget);
+    });
+
+    testWidgets('after Maghrib the header shows the next hijri date', (
+      tester,
+    ) async {
+      await _register(withLocation: true, now: DateTime(2026, 6, 12, 20));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.textContaining('(from Maghrib)'), findsOneWidget);
     });
 
     testWidgets('prayer check writes a salah entry to muhasaba', (
@@ -453,6 +469,10 @@ void main() {
     ) async {
       _tall(tester);
       await _register(withLocation: true); // 12 Jun 2026: Dhul-Hijjah
+      // Outside Ramadan the card shows only on a day being fasted.
+      final fasting = FastingStore(SharedPreferencesAsync())
+        ..logged.value = {20260612};
+      GetIt.I.registerSingleton<FastingStore>(fasting);
       await tester.pumpWidget(_app());
       await tester.pump();
       final table = tester.getRect(find.byType(PrayerTable));

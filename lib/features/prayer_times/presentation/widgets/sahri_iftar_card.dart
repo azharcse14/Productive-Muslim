@@ -5,17 +5,22 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 
-/// Today's sahri end and iftar times side by side. Strings arrive
+/// Sahri end and iftar times side by side; just sahri when [iftar] is
+/// null (after iftar, when the next sahri is tonight's). Strings arrive
 /// formatted (digits included).
 final class SahriIftarCard extends StatelessWidget {
   const SahriIftarCard({
     required this.sahriEnd,
     required this.iftar,
+    this.sahriLabel,
     super.key,
   });
 
   final String sahriEnd;
-  final String iftar;
+  final String? iftar;
+
+  /// Defaults to "Sahri ends".
+  final String? sahriLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -29,20 +34,22 @@ final class SahriIftarCard extends StatelessWidget {
         children: [
           Expanded(
             child: _MealTime(
-              label: l10n.sahriEndsLabel,
+              label: sahriLabel ?? l10n.sahriEndsLabel,
               time: sahriEnd,
               icon: Icons.nightlight_outlined,
             ),
           ),
-          Container(width: 1, height: 36, color: context.q.line),
-          const SizedBox(width: QSpace.s4),
-          Expanded(
-            child: _MealTime(
-              label: l10n.iftarLabel,
-              time: iftar,
-              icon: Icons.wb_twilight_outlined,
+          if (iftar case final iftar?) ...[
+            Container(width: 1, height: 36, color: context.q.line),
+            const SizedBox(width: QSpace.s4),
+            Expanded(
+              child: _MealTime(
+                label: l10n.iftarLabel,
+                time: iftar,
+                icon: Icons.wb_twilight_outlined,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

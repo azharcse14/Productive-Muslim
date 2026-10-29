@@ -30,7 +30,7 @@ void main() {
       expect(find.byIcon(Icons.explore_off_outlined), findsNothing);
     });
 
-    testWidgets('renders the qibla label + off glyph without location',
+    testWidgets('asks for a location + off glyph without location',
         (tester) async {
       await tester.pumpWidget(_app(
         const QiblaMiniChip(
@@ -39,7 +39,7 @@ void main() {
           hasLocation: false,
         ),
       ));
-      expect(find.text('Qibla'), findsOneWidget);
+      expect(find.text('Set location'), findsOneWidget);
       expect(find.byIcon(Icons.explore_off_outlined), findsOneWidget);
       expect(find.byIcon(Icons.navigation), findsNothing);
     });
