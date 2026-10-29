@@ -24,8 +24,7 @@ final class _GatedRepo implements QuranRepository {
   }
 
   @override
-  Future<Result<QuranPosition?>> lastRead() async =>
-      const Result.success(null);
+  Future<Result<QuranPosition?>> lastRead() async => const Result.success(null);
 
   @override
   Future<Result<Set<int>>> bookmarkedAyahIds() async {
@@ -71,26 +70,28 @@ void main() {
     store = QuranStore(repo, SharedPreferencesAsync());
   });
 
-  test('concurrent loads share one pass and keep a bookmark made meanwhile',
-      () async {
-    repo.readGate = Completer();
-    final first = store.load();
-    final second = store.load();
-    await pumpEventQueue();
+  test(
+    'concurrent loads share one pass and keep a bookmark made meanwhile',
+    () async {
+      repo.readGate = Completer();
+      final first = store.load();
+      final second = store.load();
+      await pumpEventQueue();
 
-    final tap = store.toggleBookmark(5); // lands while the load is reading
-    repo.writes.single.complete(true);
-    await tap;
-    repo.readGate!.complete();
-    await Future.wait([first, second]);
+      final tap = store.toggleBookmark(5); // lands while the load is reading
+      repo.writes.single.complete(true);
+      await tap;
+      repo.readGate!.complete();
+      await Future.wait([first, second]);
 
-    expect(repo.surahCalls, 1);
-    expect(store.bookmarks.value, {5});
-    expect(store.loaded.value, isTrue);
+      expect(repo.surahCalls, 1);
+      expect(store.bookmarks.value, {5});
+      expect(store.loaded.value, isTrue);
 
-    await store.load(); // a later call (Retry) still reloads
-    expect(repo.surahCalls, 2);
-  });
+      await store.load(); // a later call (Retry) still reloads
+      expect(repo.surahCalls, 2);
+    },
+  );
 
   test('a failed write undoes only its own tap', () async {
     await store.load();

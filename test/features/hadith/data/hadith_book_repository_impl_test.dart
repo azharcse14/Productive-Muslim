@@ -80,7 +80,8 @@ const _bnChapter = '''
 ]
 ''';
 
-String _section(String lang, {bool withGrade = false}) => '''
+String _section(String lang, {bool withGrade = false}) =>
+    '''
 {
   "metadata": {"name": "Revelation"},
   "hadiths": [
@@ -114,14 +115,14 @@ void main() {
   tearDownAll(() async => emptyDb.close());
 
   HadithBookRepositoryImpl makeRepo(HttpGet get) => HadithBookRepositoryImpl(
-        HadithBookCatalogDataSource(
-          _FakeAssetBundle(const {
-            HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
-          }),
-        ),
-        emptyBundled,
-        HadithBookRemoteDataSource(get),
-      );
+    HadithBookCatalogDataSource(
+      _FakeAssetBundle(const {
+        HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
+      }),
+    ),
+    emptyBundled,
+    HadithBookRemoteDataSource(get),
+  );
 
   group('books (catalog)', () {
     test('parses books and skips malformed entries', () async {
@@ -143,16 +144,20 @@ void main() {
       expect(books[1].isSahih, isFalse);
     });
 
-    test('a bn_folder book exposes Bengali chapters + source selection',
-        () async {
-      final nasai = (await makeRepo((_) async => '').books()).valueOrNull!.last;
-      expect(nasai.bnFolder, 'Al-Nasai');
-      expect(nasai.usesBanglaSource('bn'), isTrue);
-      expect(nasai.usesBanglaSource('en'), isFalse);
-      // bn locale shows the Bangla chapter list (own numbering/titles).
-      expect(nasai.sectionsFor('bn').first.name, 'পবিত্রতা');
-      expect(nasai.sectionsFor('en').first.name, 'Purification');
-    });
+    test(
+      'a bn_folder book exposes Bengali chapters + source selection',
+      () async {
+        final nasai = (await makeRepo(
+          (_) async => '',
+        ).books()).valueOrNull!.last;
+        expect(nasai.bnFolder, 'Al-Nasai');
+        expect(nasai.usesBanglaSource('bn'), isTrue);
+        expect(nasai.usesBanglaSource('en'), isFalse);
+        // bn locale shows the Bangla chapter list (own numbering/titles).
+        expect(nasai.sectionsFor('bn').first.name, 'পবিত্রতা');
+        expect(nasai.sectionsFor('en').first.name, 'Purification');
+      },
+    );
 
     test('missing catalog asset yields a failure', () async {
       final repo = HadithBookRepositoryImpl(
@@ -192,8 +197,11 @@ void main() {
       });
       final book = (await repo.books()).valueOrNull!.last; // tirmidhi (graded)
 
-      final items =
-          (await repo.section(book, book.sections.first, 'en')).valueOrNull!;
+      final items = (await repo.section(
+        book,
+        book.sections.first,
+        'en',
+      )).valueOrNull!;
       expect(items.first.grade, 'Sahih');
     });
 
@@ -211,8 +219,11 @@ void main() {
       });
       final book = (await repo.books()).valueOrNull!.first;
 
-      final items =
-          (await repo.section(book, book.sections.first, 'bn')).valueOrNull!;
+      final items = (await repo.section(
+        book,
+        book.sections.first,
+        'bn',
+      )).valueOrNull!;
       // #1 absent in bn -> English fallback; #2 present in bn.
       expect(items.first.translation, 'en-text-1');
       expect(items[1].translation, 'bn-text-2');
@@ -222,7 +233,9 @@ void main() {
       final calls = <String>[];
       final repo = makeRepo((url) async {
         calls.add(url.toString());
-        return url.toString().contains('ara-') ? _section('ar') : _section('en');
+        return url.toString().contains('ara-')
+            ? _section('ar')
+            : _section('en');
       });
       final book = (await repo.books()).valueOrNull!.first;
 
@@ -233,22 +246,28 @@ void main() {
       expect(calls, hasLength(2));
     });
 
-    test('missing Bengali edition falls back to English, not a failure',
-        () async {
-      // ben-* 404s (like 40 Hadith Qudsi), ara-* and eng-* succeed.
-      final repo = makeRepo((url) async {
-        final u = url.toString();
-        if (u.contains('ben-')) throw const SocketishError();
-        if (u.contains('ara-')) return _section('ar');
-        return _section('en');
-      });
-      final book = (await repo.books()).valueOrNull!.first;
+    test(
+      'missing Bengali edition falls back to English, not a failure',
+      () async {
+        // ben-* 404s (like 40 Hadith Qudsi), ara-* and eng-* succeed.
+        final repo = makeRepo((url) async {
+          final u = url.toString();
+          if (u.contains('ben-')) throw const SocketishError();
+          if (u.contains('ara-')) return _section('ar');
+          return _section('en');
+        });
+        final book = (await repo.books()).valueOrNull!.first;
 
-      final result = await repo.section(book, book.sections.first, 'bn');
-      final items = result.valueOrNull;
-      expect(items, isNotNull, reason: 'should not fail when only bn is missing');
-      expect(items!.first.translation, 'en-text-1');
-    });
+        final result = await repo.section(book, book.sections.first, 'bn');
+        final items = result.valueOrNull;
+        expect(
+          items,
+          isNotNull,
+          reason: 'should not fail when only bn is missing',
+        );
+        expect(items!.first.translation, 'en-text-1');
+      },
+    );
 
     test('offline (English fallback also fails) is a failure', () async {
       // Arabic loads but every translation edition is unreachable.
@@ -271,47 +290,56 @@ void main() {
       expect(result, isA<FailureResult<Object?>>());
     });
 
-    test('bn on a hadithbangla book reads the Bengali chapter source',
-        () async {
-      var hitBangla = false;
-      final repo = makeRepo((url) async {
-        if (url.toString().contains('hadithbangla')) {
-          hitBangla = true;
-          return _bnChapter;
-        }
-        // Must NOT touch fawazahmed0 for a hadithbangla book in bn.
-        return _section('SHOULD-NOT-BE-USED');
-      });
-      final nasai = (await repo.books()).valueOrNull!.last;
+    test(
+      'bn on a hadithbangla book reads the Bengali chapter source',
+      () async {
+        var hitBangla = false;
+        final repo = makeRepo((url) async {
+          if (url.toString().contains('hadithbangla')) {
+            hitBangla = true;
+            return _bnChapter;
+          }
+          // Must NOT touch fawazahmed0 for a hadithbangla book in bn.
+          return _section('SHOULD-NOT-BE-USED');
+        });
+        final nasai = (await repo.books()).valueOrNull!.last;
 
-      final items =
-          (await repo.section(nasai, nasai.sectionsFor('bn').first, 'bn'))
-              .valueOrNull!;
+        final items = (await repo.section(
+          nasai,
+          nasai.sectionsFor('bn').first,
+          'bn',
+        )).valueOrNull!;
 
-      expect(hitBangla, isTrue);
-      expect(items, hasLength(2));
-      expect(items.first.translation, 'বাংলা অনুবাদ ১');
-      expect(items.first.narrator, 'আনাস (রাঃ)');
-      expect(items.first.grade, 'সহিহ হাদিস');
-      expect(items.first.reference, 'সুনানে নাসায়ি 1');
-      expect(items.first.fallbackTranslation, isFalse);
-      expect(items[1].grade, 'হাসান হাদিস');
-    });
+        expect(hitBangla, isTrue);
+        expect(items, hasLength(2));
+        expect(items.first.translation, 'বাংলা অনুবাদ ১');
+        expect(items.first.narrator, 'আনাস (রাঃ)');
+        expect(items.first.grade, 'সহিহ হাদিস');
+        expect(items.first.reference, 'সুনানে নাসায়ি 1');
+        expect(items.first.fallbackTranslation, isFalse);
+        expect(items[1].grade, 'হাসান হাদিস');
+      },
+    );
 
-    test('en on a hadithbangla book still uses fawazahmed0 (English)',
-        () async {
-      final repo = makeRepo((url) async {
-        if (url.toString().contains('hadithbangla')) {
-          throw StateError('should not hit bangla source for en');
-        }
-        return _section(url.toString().contains('ara-') ? 'ar' : 'en');
-      });
-      final nasai = (await repo.books()).valueOrNull!.last;
+    test(
+      'en on a hadithbangla book still uses fawazahmed0 (English)',
+      () async {
+        final repo = makeRepo((url) async {
+          if (url.toString().contains('hadithbangla')) {
+            throw StateError('should not hit bangla source for en');
+          }
+          return _section(url.toString().contains('ara-') ? 'ar' : 'en');
+        });
+        final nasai = (await repo.books()).valueOrNull!.last;
 
-      final items =
-          (await repo.section(nasai, nasai.sections.first, 'en')).valueOrNull!;
-      expect(items.first.translation, 'en-text-1');
-    });
+        final items = (await repo.section(
+          nasai,
+          nasai.sections.first,
+          'en',
+        )).valueOrNull!;
+        expect(items.first.translation, 'en-text-1');
+      },
+    );
   });
 
   group('without Bengali full-book hadith', () {

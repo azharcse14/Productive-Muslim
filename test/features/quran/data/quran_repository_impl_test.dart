@@ -14,7 +14,9 @@ void main() {
   late QuranRepositoryImpl repo;
 
   setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('productive_muslim_quran_db_test');
+    tempDir = await Directory.systemTemp.createTemp(
+      'productive_muslim_quran_db_test',
+    );
     final copy = File('${tempDir.path}/quran.db');
     await File('assets/data/quran.db').copy(copy.path);
     db = QuranDatabase(NativeDatabase(copy));
@@ -66,11 +68,14 @@ void main() {
     });
 
     test('a surah number matches in Western and Bengali digits', () async {
-      expect([for (final s in (await repo.searchSurahs('2')).valueOrNull!) s.id],
-          [2]);
       expect(
-          [for (final s in (await repo.searchSurahs('১১৪')).valueOrNull!) s.id],
-          [114]);
+        [for (final s in (await repo.searchSurahs('2')).valueOrNull!) s.id],
+        [2],
+      );
+      expect(
+        [for (final s in (await repo.searchSurahs('১১৪')).valueOrNull!) s.id],
+        [114],
+      );
     });
 
     test('an Arabic query matches nameArabic ignoring diacritics', () async {
@@ -78,14 +83,18 @@ void main() {
       final ikhlas = all.firstWhere((s) => s.id == 112);
       final result = await repo.searchSurahs(ikhlas.nameArabic);
       expect([for (final s in result.valueOrNull!) s.id], contains(112));
-      expect((await repo.searchSurahs('الاخلاص')).valueOrNull!.map((s) => s.id),
-          contains(112));
+      expect(
+        (await repo.searchSurahs('الاخلاص')).valueOrNull!.map((s) => s.id),
+        contains(112),
+      );
     });
 
-    test('an unmatchable non-Latin query returns nothing, not everything',
-        () async {
-      expect((await repo.searchSurahs('ফাতিহা')).valueOrNull, isEmpty);
-    });
+    test(
+      'an unmatchable non-Latin query returns nothing, not everything',
+      () async {
+        expect((await repo.searchSurahs('ফাতিহা')).valueOrNull, isEmpty);
+      },
+    );
 
     test('empty query returns all 114 surahs in order', () async {
       final result = await repo.searchSurahs('');

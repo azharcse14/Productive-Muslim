@@ -10,11 +10,11 @@ import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_stor
 import '../../helpers/content_fakes.dart';
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 void main() {
   setUp(() async {
@@ -24,8 +24,9 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('Ruqyah screens', () {
-    testWidgets('landing renders guidance card and category grid',
-        (tester) async {
+    testWidgets('landing renders guidance card and category grid', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const RuqyahScreen()));
       await tester.pump();
       expect(find.text('How to perform ruqyah'), findsOneWidget);
@@ -33,8 +34,9 @@ void main() {
       expect(find.text('1 passages'), findsOneWidget);
     });
 
-    testWidgets('category detail shows title, arabic, translation, reference',
-        (tester) async {
+    testWidgets('category detail shows title, arabic, translation, reference', (
+      tester,
+    ) async {
       final category = GetIt.I<RuqyahStore>().categories.value.first;
       await tester.pumpWidget(_app(RuqyahCategoryScreen(category: category)));
       await tester.pump();

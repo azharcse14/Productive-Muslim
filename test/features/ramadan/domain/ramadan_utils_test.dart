@@ -70,8 +70,7 @@ void main() {
       }
     });
 
-    test('every day round-trips into Ramadan with the right roza number',
-        () {
+    test('every day round-trips into Ramadan with the right roza number', () {
       final days = RamadanUtils.gregorianDaysOf(1447);
       for (var i = 0; i < days.length; i++) {
         final hijri = HijriDate.fromGregorian(days[i]);
@@ -107,11 +106,10 @@ void main() {
       expect(RamadanUtils.nextRamadan(last), (1447, 0));
     });
 
-    test('after Ramadan 1447 (Eid day) → (1448, days to 1 Ramadan 1448)',
-        () {
-      final eid = RamadanUtils.gregorianDaysOf(1447)
-          .last
-          .add(const Duration(days: 1));
+    test('after Ramadan 1447 (Eid day) → (1448, days to 1 Ramadan 1448)', () {
+      final eid = RamadanUtils.gregorianDaysOf(
+        1447,
+      ).last.add(const Duration(days: 1));
       final (year, daysUntil) = RamadanUtils.nextRamadan(eid);
       expect(year, 1448);
       expect(daysUntil, first1448.difference(eid).inDays);
@@ -133,9 +131,11 @@ void main() {
   // DST-sensitive: only bites in a DST zone (e.g. TZ=America/New_York,
   // where 2034-12-12 gave 324 instead of 325); holds in every zone.
   test('nextRamadan daysUntil is exact across DST changes', () {
-    for (var d = DateTime(2026);
-        d.year < 2036;
-        d = DateTime(d.year, d.month, d.day + 1)) {
+    for (
+      var d = DateTime(2026);
+      d.year < 2036;
+      d = DateTime(d.year, d.month, d.day + 1)
+    ) {
       final (year, n) = RamadanUtils.nextRamadan(d);
       final first = RamadanUtils.firstDayOf(year);
       expect(

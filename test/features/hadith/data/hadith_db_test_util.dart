@@ -34,11 +34,10 @@ Future<void> putFaSection(
   required String edition,
   required int section,
   required List<RawHadith> hadiths,
-}) =>
-    db.customStatement(
-      'INSERT INTO hadith_section(edition, section, data) VALUES (?, ?, ?)',
-      [edition, section, Uint8List.fromList(encodeEditionBlob(hadiths))],
-    );
+}) => db.customStatement(
+  'INSERT INTO hadith_section(edition, section, data) VALUES (?, ?, ?)',
+  [edition, section, Uint8List.fromList(encodeEditionBlob(hadiths))],
+);
 
 /// Writes one hadithbangla chapter as a gzip blob.
 Future<void> putBnSection(
@@ -46,8 +45,7 @@ Future<void> putBnSection(
   required String bookId,
   required int section,
   required List<BnHadith> hadiths,
-}) =>
-    db.customStatement(
-      'INSERT INTO hadith_bn_section(book_id, section, data) VALUES (?, ?, ?)',
-      [bookId, section, Uint8List.fromList(encodeBanglaBlob(hadiths))],
-    );
+}) => db.customStatement(
+  'INSERT INTO hadith_bn_section(book_id, section, data) VALUES (?, ?, ?)',
+  [bookId, section, Uint8List.fromList(encodeBanglaBlob(hadiths))],
+);

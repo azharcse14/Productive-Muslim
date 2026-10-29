@@ -17,11 +17,16 @@ final class _SlowRepository implements HadithBookRepository {
     HadithBook book,
     HadithSection section,
     String languageCode,
-  ) =>
-      pending.future;
+  ) => pending.future;
 }
 
-const _section = HadithSection(number: 1, name: 'Revelation', first: 1, last: 2, count: 2);
+const _section = HadithSection(
+  number: 1,
+  name: 'Revelation',
+  first: 1,
+  last: 2,
+  count: 2,
+);
 
 const _book = HadithBook(
   id: 'bukhari',
@@ -37,13 +42,15 @@ const _book = HadithBook(
 );
 
 void main() {
-  test('leaving before the section loads does not write disposed signals',
-      () async {
-    final repo = _SlowRepository();
-    final store = HadithSectionStore(repo);
-    final load = store.load(_book, _section, 'en');
-    store.dispose(); // user popped the screen mid-load
-    repo.pending.complete(const Result.success([]));
-    await expectLater(load, completes);
-  });
+  test(
+    'leaving before the section loads does not write disposed signals',
+    () async {
+      final repo = _SlowRepository();
+      final store = HadithSectionStore(repo);
+      final load = store.load(_book, _section, 'en');
+      store.dispose(); // user popped the screen mid-load
+      repo.pending.complete(const Result.success([]));
+      await expectLater(load, completes);
+    },
+  );
 }

@@ -5,15 +5,15 @@ import 'package:productive_muslim/features/hadith/domain/repositories/hadith_rep
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_store.dart';
 
 Hadith _hadith(String id, {String topic = 'character'}) => Hadith(
-      id: id,
-      topic: topic,
-      grade: 'Sahih',
-      arabic: 'ar-$id',
-      en: 'en-$id',
-      bn: 'bn-$id',
-      narrator: 'narrator-$id',
-      reference: 'ref-$id',
-    );
+  id: id,
+  topic: topic,
+  grade: 'Sahih',
+  arabic: 'ar-$id',
+  en: 'en-$id',
+  bn: 'bn-$id',
+  narrator: 'narrator-$id',
+  reference: 'ref-$id',
+);
 
 final class _FakeHadithRepository implements HadithRepository {
   _FakeHadithRepository(this._items);
@@ -92,7 +92,10 @@ void main() {
       final items = [for (var i = 0; i < 7; i++) _hadith('h$i')];
       final store = storeWith(items)..items.value = items;
 
-      expect(store.ofDay(DateTime(2026)), isNot(store.ofDay(DateTime(2026, 1, 2))));
+      expect(
+        store.ofDay(DateTime(2026)),
+        isNot(store.ofDay(DateTime(2026, 1, 2))),
+      );
     });
   });
 }

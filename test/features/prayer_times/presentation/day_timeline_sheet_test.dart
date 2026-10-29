@@ -8,22 +8,22 @@ import 'package:productive_muslim/features/prayer_times/presentation/widgets/day
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 Widget _app(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: child),
+);
 
 PrayerDay _sampleDay() => PrayerDay(
-      fajr: DateTime(2026, 6, 14, 4, 5),
-      sunrise: DateTime(2026, 6, 14, 5, 20),
-      dhuhr: DateTime(2026, 6, 14, 12, 30),
-      asr: DateTime(2026, 6, 14, 16, 45),
-      maghrib: DateTime(2026, 6, 14, 19, 10),
-      isha: DateTime(2026, 6, 14, 20, 40),
-      fajrTomorrow: DateTime(2026, 6, 15, 4, 6),
-      ishaYesterday: DateTime(2026, 6, 13, 20, 39),
-    );
+  fajr: DateTime(2026, 6, 14, 4, 5),
+  sunrise: DateTime(2026, 6, 14, 5, 20),
+  dhuhr: DateTime(2026, 6, 14, 12, 30),
+  asr: DateTime(2026, 6, 14, 16, 45),
+  maghrib: DateTime(2026, 6, 14, 19, 10),
+  isha: DateTime(2026, 6, 14, 20, 40),
+  fajrTomorrow: DateTime(2026, 6, 15, 4, 6),
+  ishaYesterday: DateTime(2026, 6, 13, 20, 39),
+);
 
 String _fmt(DateTime t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
 
@@ -47,8 +47,9 @@ void main() {
     expect(find.text('Isha'), findsOneWidget);
   });
 
-  testWidgets('renders the start time for each prayer via the formatter',
-      (tester) async {
+  testWidgets('renders the start time for each prayer via the formatter', (
+    tester,
+  ) async {
     final day = _sampleDay();
     await tester.pumpWidget(
       _app(
@@ -82,8 +83,9 @@ void main() {
     expect(find.text('Now'), findsOneWidget);
   });
 
-  testWidgets('adds sunrise, forbidden windows and a now marker in order',
-      (tester) async {
+  testWidgets('adds sunrise, forbidden windows and a now marker in order', (
+    tester,
+  ) async {
     final day = _sampleDay();
     await tester.pumpWidget(
       _app(

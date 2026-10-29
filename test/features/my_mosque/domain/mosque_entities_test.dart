@@ -57,10 +57,7 @@ void main() {
       expect(a.hashCode, b.hashCode);
 
       expect(a, isNot(b.copyWith(name: 'Work')));
-      expect(
-        a,
-        isNot(b.copyWith(entries: const {Prayer.dhuhr: NoJamaat()})),
-      );
+      expect(a, isNot(b.copyWith(entries: const {Prayer.dhuhr: NoJamaat()})));
       expect(a, isNot(const MosqueProfile(id: 'p2', name: 'Home')));
       expect(a, isNot(b.copyWith(entries: const {})));
     });

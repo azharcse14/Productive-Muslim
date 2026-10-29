@@ -28,9 +28,8 @@ const _sample = [
   ['Bogra District', 'BD', 24.85, 89.37, 'Asia/Dhaka', 'বগুড়া জেলা'],
 ];
 
-CityRepositoryImpl _repo() => CityRepositoryImpl(
-      CityAssetDataSource(_FakeBundle(jsonEncode(_sample))),
-    );
+CityRepositoryImpl _repo() =>
+    CityRepositoryImpl(CityAssetDataSource(_FakeBundle(jsonEncode(_sample))));
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -6,15 +6,15 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 List<AsmaName> _names(int count) => [
-      for (var n = 1; n <= count; n++)
-        AsmaName(
-          number: n,
-          arabic: 'اسم $n',
-          transliteration: 'Name $n',
-          meaningEn: 'Meaning $n',
-          meaningBn: '',
-        ),
-    ];
+  for (var n = 1; n <= count; n++)
+    AsmaName(
+      number: n,
+      arabic: 'اسم $n',
+      transliteration: 'Name $n',
+      meaningEn: 'Meaning $n',
+      meaningBn: '',
+    ),
+];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,22 +46,24 @@ void main() {
       expect(store.finished.value, isFalse);
     });
 
-    test('answering correctly increments score and locks the question',
-        () async {
-      final store = makeStore();
-      await store.start(_names(99));
-      final question = store.current.value!;
+    test(
+      'answering correctly increments score and locks the question',
+      () async {
+        final store = makeStore();
+        await store.start(_names(99));
+        final question = store.current.value!;
 
-      store.answer(question.answerIndex);
+        store.answer(question.answerIndex);
 
-      expect(store.score.value, 1);
-      expect(store.answered.value, isTrue);
-      expect(store.selected.value, question.answerIndex);
+        expect(store.score.value, 1);
+        expect(store.answered.value, isTrue);
+        expect(store.selected.value, question.answerIndex);
 
-      // A second tap is ignored once locked.
-      store.answer((question.answerIndex + 1) % 4);
-      expect(store.score.value, 1);
-    });
+        // A second tap is ignored once locked.
+        store.answer((question.answerIndex + 1) % 4);
+        expect(store.score.value, 1);
+      },
+    );
 
     test('a wrong answer locks without scoring', () async {
       final store = makeStore();
@@ -107,8 +109,7 @@ void main() {
       expect(restored.best.value, 3);
     });
 
-    test('restart re-rolls a fresh question set and resets progress',
-        () async {
+    test('restart re-rolls a fresh question set and resets progress', () async {
       final store = makeStore(questionCount: 4);
       await store.start(_names(99));
       store.answer(store.current.value!.answerIndex);

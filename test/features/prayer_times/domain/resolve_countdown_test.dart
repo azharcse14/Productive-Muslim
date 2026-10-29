@@ -239,7 +239,11 @@ void main() {
         CountdownUrgency.urgent,
       );
       expect(
-        urgency(CountdownKind.iftar, const Duration(minutes: 5), forbidden: true),
+        urgency(
+          CountdownKind.iftar,
+          const Duration(minutes: 5),
+          forbidden: true,
+        ),
         CountdownUrgency.iftar,
       );
     });

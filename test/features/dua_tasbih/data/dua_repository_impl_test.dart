@@ -79,9 +79,9 @@ void main() {
       DuaRepositoryImpl(DuaAssetDataSource(bundle));
 
   _FakeAssetBundle goodBundle() => _FakeAssetBundle({
-        DuaAssetDataSource.duasAssetPath: _duasJson,
-        DuaAssetDataSource.asmaAssetPath: _asmaJson,
-      });
+    DuaAssetDataSource.duasAssetPath: _duasJson,
+    DuaAssetDataSource.asmaAssetPath: _asmaJson,
+  });
 
   group('DuaRepositoryImpl.categories', () {
     test('parses categories and duas from the asset JSON', () async {

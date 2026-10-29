@@ -5,22 +5,16 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/tasbih_quick_card.dart';
 
 Widget _app(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: child),
+);
 
 void main() {
   testWidgets('renders title, hint and count', (tester) async {
     await tester.pumpWidget(
-      _app(
-        TasbihQuickCard(
-          count: 5,
-          target: 33,
-          onTap: () {},
-        ),
-      ),
+      _app(TasbihQuickCard(count: 5, target: 33, onTap: () {})),
     );
 
     expect(find.text('Tasbih'), findsOneWidget);
@@ -32,13 +26,7 @@ void main() {
   testWidgets('tapping the counter ring fires onTap', (tester) async {
     var taps = 0;
     await tester.pumpWidget(
-      _app(
-        TasbihQuickCard(
-          count: 5,
-          target: 33,
-          onTap: () => taps++,
-        ),
-      ),
+      _app(TasbihQuickCard(count: 5, target: 33, onTap: () => taps++)),
     );
 
     await tester.tap(find.text('5'));
@@ -47,18 +35,13 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('reset icon shows and fires only when onReset provided',
-      (tester) async {
+  testWidgets('reset icon shows and fires only when onReset provided', (
+    tester,
+  ) async {
     var resets = 0;
 
     await tester.pumpWidget(
-      _app(
-        TasbihQuickCard(
-          count: 5,
-          target: 33,
-          onTap: () {},
-        ),
-      ),
+      _app(TasbihQuickCard(count: 5, target: 33, onTap: () {})),
     );
     expect(find.byIcon(Icons.refresh), findsNothing);
 
@@ -79,18 +62,13 @@ void main() {
     expect(resets, 1);
   });
 
-  testWidgets('chevron shows and fires only when onOpen provided',
-      (tester) async {
+  testWidgets('chevron shows and fires only when onOpen provided', (
+    tester,
+  ) async {
     var opens = 0;
 
     await tester.pumpWidget(
-      _app(
-        TasbihQuickCard(
-          count: 5,
-          target: 33,
-          onTap: () {},
-        ),
-      ),
+      _app(TasbihQuickCard(count: 5, target: 33, onTap: () {})),
     );
     expect(find.byIcon(Icons.chevron_right), findsNothing);
 

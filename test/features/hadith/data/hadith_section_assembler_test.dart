@@ -4,17 +4,17 @@ import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 
 HadithBook _book({String kind = 'sahih'}) => HadithBook(
-      id: 'bukhari',
-      en: 'Sahih al-Bukhari',
-      bn: 'সহিহ বুখারি',
-      author: 'al-Bukhari',
-      kind: kind,
-      total: 7563,
-      editionAr: 'ara-bukhari',
-      editionEn: 'eng-bukhari',
-      editionBn: 'ben-bukhari',
-      sections: const [],
-    );
+  id: 'bukhari',
+  en: 'Sahih al-Bukhari',
+  bn: 'সহিহ বুখারি',
+  author: 'al-Bukhari',
+  kind: kind,
+  total: 7563,
+  editionAr: 'ara-bukhari',
+  editionEn: 'eng-bukhari',
+  editionBn: 'ben-bukhari',
+  sections: const [],
+);
 
 void main() {
   group('RawHadith.parse', () {
@@ -202,8 +202,7 @@ void main() {
   group('assembleBangla', () {
     test('maps fields and defaults the grade for sahih books', () {
       final items = assembleBangla(_book(), const [
-        BnHadith(
-            number: 1, arabic: 'a', bn: 'b', narrator: 'n', grade: ''),
+        BnHadith(number: 1, arabic: 'a', bn: 'b', narrator: 'n', grade: ''),
       ]);
       expect(items.first.translation, 'b');
       expect(items.first.narrator, 'n');

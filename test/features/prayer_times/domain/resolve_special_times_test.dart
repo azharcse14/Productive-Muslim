@@ -83,7 +83,10 @@ void main() {
       SpecialWindow w(SpecialTime t) =>
           resolveSpecialWindows(day).firstWhere((w) => w.time == t);
       expect(w(SpecialTime.forbiddenSunrise).end, DateTime(2026, 6, 12, 5, 25));
-      expect(w(SpecialTime.forbiddenSunset).start, DateTime(2026, 6, 12, 18, 30));
+      expect(
+        w(SpecialTime.forbiddenSunset).start,
+        DateTime(2026, 6, 12, 18, 30),
+      );
       expect(w(SpecialTime.forbiddenSunset).end, DateTime(2026, 6, 12, 18, 45));
     });
   });

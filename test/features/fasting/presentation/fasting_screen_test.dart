@@ -10,11 +10,11 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,8 +34,9 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('FastingScreen', () {
-    testWidgets('shows the recommended-today card and a log button',
-        (tester) async {
+    testWidgets('shows the recommended-today card and a log button', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(const FastingScreen()));
       await tester.pumpAndSettle();
 
@@ -80,8 +81,9 @@ void main() {
       expect(find.text('Upcoming recommended fasts'), findsOneWidget);
     });
 
-    testWidgets('a forbidden day (Eid al-Adha) offers no log button',
-        (tester) async {
+    testWidgets('a forbidden day (Eid al-Adha) offers no log button', (
+      tester,
+    ) async {
       await GetIt.I.reset();
       GetIt.I.registerSingleton<FastingStore>(
         FastingStore(
@@ -97,8 +99,9 @@ void main() {
       expect(find.text('Log today'), findsNothing);
     });
 
-    testWidgets('a Ramadan day is the obligatory fast, not voluntary',
-        (tester) async {
+    testWidgets('a Ramadan day is the obligatory fast, not voluntary', (
+      tester,
+    ) async {
       await GetIt.I.reset();
       GetIt.I.registerSingleton<FastingStore>(
         FastingStore(

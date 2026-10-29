@@ -70,9 +70,8 @@ void main() {
   RuqyahRepositoryImpl makeRepo(_FakeAssetBundle bundle) =>
       RuqyahRepositoryImpl(RuqyahAssetDataSource(bundle));
 
-  _FakeAssetBundle goodBundle() => _FakeAssetBundle({
-        RuqyahAssetDataSource.ruqyahPath: _ruqyahJson,
-      });
+  _FakeAssetBundle goodBundle() =>
+      _FakeAssetBundle({RuqyahAssetDataSource.ruqyahPath: _ruqyahJson});
 
   group('RuqyahRepositoryImpl.categories', () {
     test('parses categories and items from the asset JSON', () async {

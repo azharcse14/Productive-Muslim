@@ -146,8 +146,7 @@ void main() {
       expect(plan.length, greaterThanOrEqualTo(12));
       final from = DateTime(2026, 3, 12, 4);
       expect(plan.every((i) => i.at.isAfter(from)), isTrue);
-      final reminders =
-          plan.where((i) => i.kind != NotificationKind.keepAlive);
+      final reminders = plan.where((i) => i.kind != NotificationKind.keepAlive);
       expect(
         reminders.every(
           (i) => !i.at.isAfter(from.add(const Duration(hours: 48))),
@@ -198,14 +197,13 @@ void main() {
       final android = await planFor(TargetPlatform.android);
       expect(android.length, greaterThan(60));
       expect(ios.length, 60);
-      final iosReminders =
-          ios.where((i) => i.kind != NotificationKind.keepAlive).toList();
-      final androidReminders =
-          android.where((i) => i.kind != NotificationKind.keepAlive).toList();
-      expect(
-        iosReminders,
-        androidReminders.take(iosReminders.length).toList(),
-      );
+      final iosReminders = ios
+          .where((i) => i.kind != NotificationKind.keepAlive)
+          .toList();
+      final androidReminders = android
+          .where((i) => i.kind != NotificationKind.keepAlive)
+          .toList();
+      expect(iosReminders, androidReminders.take(iosReminders.length).toList());
       expect(ios.last.kind, NotificationKind.keepAlive);
     });
   });
@@ -213,8 +211,7 @@ void main() {
   group('TimezoneClock.utcInstantOf', () {
     test('manual city wall time converts to the correct UTC instant', () {
       final clock = TimezoneClock();
-      final utc =
-          clock.utcInstantOf(_dhaka, DateTime(2026, 6, 12, 18, 45));
+      final utc = clock.utcInstantOf(_dhaka, DateTime(2026, 6, 12, 18, 45));
       expect(utc, DateTime.utc(2026, 6, 12, 12, 45)); // Dhaka = UTC+6
     });
 

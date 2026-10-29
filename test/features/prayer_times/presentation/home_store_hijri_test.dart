@@ -82,8 +82,7 @@ void main() {
     );
   }
 
-  test('offset 0: tabular 1 Ramadan → Ramadan mode, sahri countdown',
-      () async {
+  test('offset 0: tabular 1 Ramadan → Ramadan mode, sahri countdown', () async {
     final store = await make(0);
     expect(store.hijriDate.value, const HijriDate(1447, 9, 1));
     expect(store.ramadanMode.value, isTrue);

@@ -380,26 +380,27 @@ void main() {
       );
     });
 
-    testHomeWidgets('ticks show today even while muhasaba back-fills a past day', (
-      tester,
-    ) async {
-      await _register(withLocation: true);
-      final muhasaba = GetIt.I<MuhasabaStore>();
-      await muhasaba.togglePrayerOn('salah_fajr', DateTime(2026, 6, 12));
-      await muhasaba.selectDate(DateTime(2026, 6, 10)); // Muhasaba tab state
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      PrayerTable table() => tester.widget(find.byType(PrayerTable));
-      expect(table().prayed, {Prayer.fajr});
-      table().onTogglePrayed!(Prayer.fajr);
-      await tester.pump();
-      expect(
-        _muhasabaRepo.entries_.containsKey(('salah_fajr', 20260612)),
-        isFalse,
-      );
-      expect(table().prayed, isEmpty);
-      expect(muhasaba.selectedDate.value, DateTime(2026, 6, 10));
-    });
+    testHomeWidgets(
+      'ticks show today even while muhasaba back-fills a past day',
+      (tester) async {
+        await _register(withLocation: true);
+        final muhasaba = GetIt.I<MuhasabaStore>();
+        await muhasaba.togglePrayerOn('salah_fajr', DateTime(2026, 6, 12));
+        await muhasaba.selectDate(DateTime(2026, 6, 10)); // Muhasaba tab state
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        PrayerTable table() => tester.widget(find.byType(PrayerTable));
+        expect(table().prayed, {Prayer.fajr});
+        table().onTogglePrayed!(Prayer.fajr);
+        await tester.pump();
+        expect(
+          _muhasabaRepo.entries_.containsKey(('salah_fajr', 20260612)),
+          isFalse,
+        );
+        expect(table().prayed, isEmpty);
+        expect(muhasaba.selectedDate.value, DateTime(2026, 6, 10));
+      },
+    );
 
     testHomeWidgets('before fajr, isha is checkable and files yesterday', (
       tester,
@@ -443,73 +444,79 @@ void main() {
       },
     );
 
-    testHomeWidgets('auto schedule shows the scheduled mosque with an Auto badge', (
-      tester,
-    ) async {
-      await _register(withLocation: true);
-      final mosque = GetIt.I<MosqueStore>();
-      final office = await mosque.addProfile('Office');
-      final home = await mosque.addProfile('Home');
-      await mosque.setMode(ScheduleMode.auto);
-      // An all-day rule makes Office the scheduled mosque right now.
-      await mosque.addRule(
-        MosqueRule(
-          mosqueId: office.id,
-          start: const ClockTime(0, 0),
-          end: const ClockTime(0, 0),
-        ),
-      );
-      await mosque.setDefaultMosque(home.id);
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      // The table's mosque strip names the scheduled mosque with an Auto chip.
-      expect(find.text('Office'), findsOneWidget);
-      expect(find.text('Auto'), findsOneWidget);
-    });
+    testHomeWidgets(
+      'auto schedule shows the scheduled mosque with an Auto badge',
+      (tester) async {
+        await _register(withLocation: true);
+        final mosque = GetIt.I<MosqueStore>();
+        final office = await mosque.addProfile('Office');
+        final home = await mosque.addProfile('Home');
+        await mosque.setMode(ScheduleMode.auto);
+        // An all-day rule makes Office the scheduled mosque right now.
+        await mosque.addRule(
+          MosqueRule(
+            mosqueId: office.id,
+            start: const ClockTime(0, 0),
+            end: const ClockTime(0, 0),
+          ),
+        );
+        await mosque.setDefaultMosque(home.id);
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        // The table's mosque strip names the scheduled mosque with an Auto chip.
+        expect(find.text('Office'), findsOneWidget);
+        expect(find.text('Auto'), findsOneWidget);
+      },
+    );
 
-    testHomeWidgets('qibla is not a quick action (header + countdown chip only)', (
-      tester,
-    ) async {
-      await _register(withLocation: true);
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      final row = tester.widget<QuickActionsRow>(find.byType(QuickActionsRow));
-      expect(row.actions, hasLength(4));
-      expect(row.actions.map((a) => a.label), isNot(contains('Qibla')));
-    });
+    testHomeWidgets(
+      'qibla is not a quick action (header + countdown chip only)',
+      (tester) async {
+        await _register(withLocation: true);
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        final row = tester.widget<QuickActionsRow>(
+          find.byType(QuickActionsRow),
+        );
+        expect(row.actions, hasLength(4));
+        expect(row.actions.map((a) => a.label), isNot(contains('Qibla')));
+      },
+    );
 
-    testHomeWidgets('outside Ramadan, sahri & iftar sits right under the table', (
-      tester,
-    ) async {
-      _tall(tester);
-      await _register(withLocation: true); // 12 Jun 2026: Dhul-Hijjah
-      // Outside Ramadan the card shows only on a day being fasted.
-      final fasting = FastingStore(SharedPreferencesAsync())
-        ..logged.value = {20260612};
-      GetIt.I.registerSingleton<FastingStore>(fasting);
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      final table = tester.getRect(find.byType(PrayerTable));
-      final meal = tester.getRect(find.byType(SahriIftarCard));
-      final muhasaba = tester.getRect(find.byType(HomeMuhasabaCard));
-      expect(meal.top, greaterThan(table.bottom));
-      expect(meal.bottom, lessThan(muhasaba.top));
-    });
+    testHomeWidgets(
+      'outside Ramadan, sahri & iftar sits right under the table',
+      (tester) async {
+        _tall(tester);
+        await _register(withLocation: true); // 12 Jun 2026: Dhul-Hijjah
+        // Outside Ramadan the card shows only on a day being fasted.
+        final fasting = FastingStore(SharedPreferencesAsync())
+          ..logged.value = {20260612};
+        GetIt.I.registerSingleton<FastingStore>(fasting);
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        final table = tester.getRect(find.byType(PrayerTable));
+        final meal = tester.getRect(find.byType(SahriIftarCard));
+        final muhasaba = tester.getRect(find.byType(HomeMuhasabaCard));
+        expect(meal.top, greaterThan(table.bottom));
+        expect(meal.bottom, lessThan(muhasaba.top));
+      },
+    );
 
-    testHomeWidgets('in Ramadan, sahri & iftar sits right under the countdown', (
-      tester,
-    ) async {
-      _tall(tester);
-      // 20 Feb 2026, 10:00 = 3 Ramadan 1447 (tabular).
-      await _register(withLocation: true, now: DateTime(2026, 2, 20, 10));
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      final countdown = tester.getRect(find.byType(CountdownCard));
-      final meal = tester.getRect(find.byType(SahriIftarCard));
-      final actions = tester.getRect(find.byType(QuickActionsRow));
-      expect(meal.top, greaterThan(countdown.bottom));
-      expect(meal.bottom, lessThan(actions.top));
-    });
+    testHomeWidgets(
+      'in Ramadan, sahri & iftar sits right under the countdown',
+      (tester) async {
+        _tall(tester);
+        // 20 Feb 2026, 10:00 = 3 Ramadan 1447 (tabular).
+        await _register(withLocation: true, now: DateTime(2026, 2, 20, 10));
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        final countdown = tester.getRect(find.byType(CountdownCard));
+        final meal = tester.getRect(find.byType(SahriIftarCard));
+        final actions = tester.getRect(find.byType(QuickActionsRow));
+        expect(meal.top, greaterThan(countdown.bottom));
+        expect(meal.bottom, lessThan(actions.top));
+      },
+    );
 
     testHomeWidgets('hadith of the day opens that hadith', (tester) async {
       _tall(tester);

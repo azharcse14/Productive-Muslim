@@ -26,8 +26,9 @@ void main() {
     return store;
   }
 
-  testWidgets('badge wall entry follows the Show achievements setting',
-      (tester) async {
+  testWidgets('badge wall entry follows the Show achievements setting', (
+    tester,
+  ) async {
     final store = await pump(tester, const AppSettings());
     expect(find.byIcon(Icons.emoji_events_outlined), findsNothing);
 

@@ -32,8 +32,9 @@ void main() {
   final clock = TimezoneClock();
 
   test('every bundled city zone resolves (aliases included)', () {
-    final rows = jsonDecode(File('assets/data/cities.json').readAsStringSync())
-        as List<dynamic>;
+    final rows =
+        jsonDecode(File('assets/data/cities.json').readAsStringSync())
+            as List<dynamic>;
     final zones = {for (final r in rows) (r as List<dynamic>)[4] as String};
     final missing = [
       for (final z in zones)

@@ -3,8 +3,7 @@ import 'package:productive_muslim/features/nearby_mosques/domain/nearby_mosques_
 
 void main() {
   group('NearbyMosquesUrl', () {
-    test('targets the Google Maps mosque search centred on the coordinate',
-        () {
+    test('targets the Google Maps mosque search centred on the coordinate', () {
       final uri = NearbyMosquesUrl.build(latitude: 23.7806, longitude: 90.4074);
       expect(uri.scheme, 'https');
       expect(uri.host, 'www.google.com');

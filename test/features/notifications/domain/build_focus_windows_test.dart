@@ -8,15 +8,15 @@ import 'package:productive_muslim/features/settings/domain/entities/notification
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 PrayerDay _day(int day) => PrayerDay(
-      ishaYesterday: DateTime(2026, 5, day - 1, 20, 15),
-      fajr: DateTime(2026, 5, day, 3, 45),
-      sunrise: DateTime(2026, 5, day, 5, 10),
-      dhuhr: DateTime(2026, 5, day, 12),
-      asr: DateTime(2026, 5, day, 16, 30),
-      maghrib: DateTime(2026, 5, day, 18, 45),
-      isha: DateTime(2026, 5, day, 20, 15),
-      fajrTomorrow: DateTime(2026, 5, day + 1, 3, 45),
-    );
+  ishaYesterday: DateTime(2026, 5, day - 1, 20, 15),
+  fajr: DateTime(2026, 5, day, 3, 45),
+  sunrise: DateTime(2026, 5, day, 5, 10),
+  dhuhr: DateTime(2026, 5, day, 12),
+  asr: DateTime(2026, 5, day, 16, 30),
+  maghrib: DateTime(2026, 5, day, 18, 45),
+  isha: DateTime(2026, 5, day, 20, 15),
+  fajrTomorrow: DateTime(2026, 5, day + 1, 3, 45),
+);
 
 // Jamaat 15 min into each waqt; no jamaat set for asr.
 const _jamaat = JamaatConfig({
@@ -42,8 +42,7 @@ void main() {
     expect(_windows(const NotificationMatrix()), isEmpty);
   });
 
-  test('starts lead before jamaat, ends after duration; skips no-jamaat',
-      () {
+  test('starts lead before jamaat, ends after duration; skips no-jamaat', () {
     final w = _windows(_on);
     // 24h from 12th 03:00: 4 prayers on the 12th; the 13th's fajr focus
     // (03:55) is past the window.
@@ -99,13 +98,15 @@ void main() {
     final nudges = buildNotificationPlan(
       from: from,
       days: [_day(12), _day(13)],
-      matrix: const NotificationMatrix(prayerModes: {
-        Prayer.fajr: AzanMode.off,
-        Prayer.dhuhr: AzanMode.off,
-        Prayer.asr: AzanMode.off,
-        Prayer.maghrib: AzanMode.off,
-        Prayer.isha: AzanMode.off,
-      }),
+      matrix: const NotificationMatrix(
+        prayerModes: {
+          Prayer.fajr: AzanMode.off,
+          Prayer.dhuhr: AzanMode.off,
+          Prayer.asr: AzanMode.off,
+          Prayer.maghrib: AzanMode.off,
+          Prayer.isha: AzanMode.off,
+        },
+      ),
       jamaat: _jamaat,
       window: const Duration(hours: 24),
       focusWindows: windows,
@@ -139,8 +140,7 @@ void main() {
       matrix: const NotificationMatrix(),
       jamaat: _jamaat,
       window: const Duration(hours: 24),
-      focusWindows:
-          _windows(_on.copyWith(jamaatFocusDuration: Duration.zero)),
+      focusWindows: _windows(_on.copyWith(jamaatFocusDuration: Duration.zero)),
     );
     expect(plan.where((i) => i.kind == NotificationKind.focusEnd), isEmpty);
   });

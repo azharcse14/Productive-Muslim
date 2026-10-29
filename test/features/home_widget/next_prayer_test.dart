@@ -4,15 +4,15 @@ import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_d
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 PrayerDay _day(DateTime d) => PrayerDay(
-      fajr: DateTime(d.year, d.month, d.day, 4, 30),
-      sunrise: DateTime(d.year, d.month, d.day, 5, 50),
-      dhuhr: DateTime(d.year, d.month, d.day, 12, 10),
-      asr: DateTime(d.year, d.month, d.day, 15, 40),
-      maghrib: DateTime(d.year, d.month, d.day, 18, 25),
-      isha: DateTime(d.year, d.month, d.day, 19, 45),
-      fajrTomorrow: DateTime(d.year, d.month, d.day + 1, 4, 31),
-      ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
-    );
+  fajr: DateTime(d.year, d.month, d.day, 4, 30),
+  sunrise: DateTime(d.year, d.month, d.day, 5, 50),
+  dhuhr: DateTime(d.year, d.month, d.day, 12, 10),
+  asr: DateTime(d.year, d.month, d.day, 15, 40),
+  maghrib: DateTime(d.year, d.month, d.day, 18, 25),
+  isha: DateTime(d.year, d.month, d.day, 19, 45),
+  fajrTomorrow: DateTime(d.year, d.month, d.day + 1, 4, 31),
+  ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
+);
 
 void main() {
   final base = DateTime(2026, 6, 14);
@@ -31,11 +31,13 @@ void main() {
     expect(next.at, day.asr);
   });
 
-  test('exactly at a waqt start picks the following prayer (strictly after)',
-      () {
-    final next = resolveNextPrayer(day, day.dhuhr);
-    expect(next.prayer, Prayer.asr);
-  });
+  test(
+    'exactly at a waqt start picks the following prayer (strictly after)',
+    () {
+      final next = resolveNextPrayer(day, day.dhuhr);
+      expect(next.prayer, Prayer.asr);
+    },
+  );
 
   test('after isha rolls over to tomorrow fajr', () {
     final next = resolveNextPrayer(day, DateTime(2026, 6, 14, 21));
@@ -59,7 +61,9 @@ void main() {
     expect(next.prayer, Prayer.isha);
     expect(next.at, late.ishaYesterday);
     expect(next.tomorrow, isFalse);
-    expect(resolveNextPrayer(late, DateTime(2026, 6, 14, 1)).prayer,
-        Prayer.fajr);
+    expect(
+      resolveNextPrayer(late, DateTime(2026, 6, 14, 1)).prayer,
+      Prayer.fajr,
+    );
   });
 }

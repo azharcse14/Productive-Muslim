@@ -12,10 +12,12 @@ void main() {
 
     setUpAll(() {
       final raw = File('assets/data/hadith.json').readAsStringSync();
-      final decoded =
-          (jsonDecode(raw) as Map<dynamic, dynamic>).cast<String, Object?>();
+      final decoded = (jsonDecode(raw) as Map<dynamic, dynamic>)
+          .cast<String, Object?>();
       hadith = (decoded['hadith']! as List<Object?>)
-          .map((Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>())
+          .map(
+            (Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+          )
           .toList();
     });
 
@@ -48,8 +50,16 @@ void main() {
 
     test('every entry is topic-tagged with a known topic', () {
       const known = {
-        'intention', 'faith', 'character', 'speech', 'knowledge',
-        'charity', 'mercy', 'worship', 'dunya', 'other',
+        'intention',
+        'faith',
+        'character',
+        'speech',
+        'knowledge',
+        'charity',
+        'mercy',
+        'worship',
+        'dunya',
+        'other',
       };
       for (final h in hadith) {
         expect(
@@ -76,8 +86,8 @@ void main() {
 
     setUpAll(() {
       final raw = File('assets/data/hadith_books.json').readAsStringSync();
-      final decoded =
-          (jsonDecode(raw) as Map<dynamic, dynamic>).cast<String, Object?>();
+      final decoded = (jsonDecode(raw) as Map<dynamic, dynamic>)
+          .cast<String, Object?>();
       books = (decoded['books']! as List<Object?>)
           .map((e) => (e as Map<dynamic, dynamic>).cast<String, Object?>())
           .toList();
@@ -93,7 +103,11 @@ void main() {
 
     test('every book has edition keys and at least one section', () {
       for (final b in books) {
-        for (final field in <String>['edition_ar', 'edition_en', 'edition_bn']) {
+        for (final field in <String>[
+          'edition_ar',
+          'edition_en',
+          'edition_bn',
+        ]) {
           expect((b[field]! as String).trim(), isNotEmpty);
         }
         expect(b['sections'], isA<List<Object?>>());
@@ -103,8 +117,11 @@ void main() {
 
     test('every book has a Bengali author/compiler name', () {
       for (final b in books) {
-        expect((b['author_bn']! as String).trim(), isNotEmpty,
-            reason: '${b['id']} should have author_bn');
+        expect(
+          (b['author_bn']! as String).trim(),
+          isNotEmpty,
+          reason: '${b['id']} should have author_bn',
+        );
       }
     });
 
@@ -112,14 +129,25 @@ void main() {
       // The six canonical collections served in Bengali by the hadithbangla
       // repo must have both a folder and a non-empty Bengali chapter list.
       const bnBooks = {
-        'bukhari', 'muslim', 'abudawud', 'tirmidhi', 'nasai', 'ibnmajah',
+        'bukhari',
+        'muslim',
+        'abudawud',
+        'tirmidhi',
+        'nasai',
+        'ibnmajah',
       };
       for (final b in books) {
         if (bnBooks.contains(b['id'])) {
-          expect((b['bn_folder']! as String).trim(), isNotEmpty,
-              reason: '${b['id']} should have a bn_folder');
-          expect(b['sections_bn']! as List<Object?>, isNotEmpty,
-              reason: '${b['id']} should have Bengali chapters');
+          expect(
+            (b['bn_folder']! as String).trim(),
+            isNotEmpty,
+            reason: '${b['id']} should have a bn_folder',
+          );
+          expect(
+            b['sections_bn']! as List<Object?>,
+            isNotEmpty,
+            reason: '${b['id']} should have Bengali chapters',
+          );
         }
       }
     });

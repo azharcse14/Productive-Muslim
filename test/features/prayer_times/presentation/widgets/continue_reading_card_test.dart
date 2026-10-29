@@ -4,9 +4,9 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/continue_reading_card.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light(),
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('ContinueReadingCard', () {
@@ -25,8 +25,9 @@ void main() {
       expect(find.text('Ayah 152'), findsOneWidget);
     });
 
-    testWidgets('shows a chevron and fires onTap when tappable',
-        (tester) async {
+    testWidgets('shows a chevron and fires onTap when tappable', (
+      tester,
+    ) async {
       var taps = 0;
       await tester.pumpWidget(
         _wrap(

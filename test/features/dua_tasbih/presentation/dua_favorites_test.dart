@@ -41,11 +41,11 @@ final class _FakeDuaRepository implements DuaRepository {
 }
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 late DuaFavoritesStore favoritesStore;
 
@@ -75,8 +75,9 @@ void main() {
     );
   });
 
-  testWidgets('tapping the heart favorites a dua and updates the section',
-      (tester) async {
+  testWidgets('tapping the heart favorites a dua and updates the section', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app(const DuaCategoryScreenHost()));
     await tester.pump();
 
@@ -90,21 +91,23 @@ void main() {
     expect(find.byIcon(Icons.favorite), findsOneWidget);
   });
 
-  testWidgets('favoriting via DuaScreen heart populates the favorites section',
-      (tester) async {
-    await tester.pumpWidget(_app(const DuaScreen()));
-    await tester.pump();
+  testWidgets(
+    'favoriting via DuaScreen heart populates the favorites section',
+    (tester) async {
+      await tester.pumpWidget(_app(const DuaScreen()));
+      await tester.pump();
 
-    await favoritesStore.toggle('me_1');
-    await tester.pump();
+      await favoritesStore.toggle('me_1');
+      await tester.pump();
 
-    // The favorited dua now appears in the favorites section.
-    expect(find.text('In the name of Allah'), findsOneWidget);
-    expect(
-      find.text('Tap the heart on any dua to save it here'),
-      findsNothing,
-    );
-  });
+      // The favorited dua now appears in the favorites section.
+      expect(find.text('In the name of Allah'), findsOneWidget);
+      expect(
+        find.text('Tap the heart on any dua to save it here'),
+        findsNothing,
+      );
+    },
+  );
 }
 
 /// Minimal host that renders a single [DuaCard] for the heart-toggle test.
@@ -113,8 +116,6 @@ final class DuaCategoryScreenHost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: DuaCard(dua: _morningCategory.duas[0]),
-        ),
-      );
+    body: SafeArea(child: DuaCard(dua: _morningCategory.duas[0])),
+  );
 }

@@ -6,11 +6,11 @@ import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_ca
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_list_card.dart';
 
 Widget _app(Widget home) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: home),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: home),
+);
 
 void main() {
   group('HadithCard', () {
@@ -31,8 +31,9 @@ void main() {
       expect(find.text('Sahih Bukhari 1'), findsOneWidget);
     });
 
-    testWidgets('is not tappable and shows no chevron when onTap is null',
-        (tester) async {
+    testWidgets('is not tappable and shows no chevron when onTap is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(
           const HadithCard(
@@ -47,8 +48,9 @@ void main() {
       expect(find.byType(GestureDetector), findsNothing);
     });
 
-    testWidgets('fires onTap and shows a chevron when tappable',
-        (tester) async {
+    testWidgets('fires onTap and shows a chevron when tappable', (
+      tester,
+    ) async {
       var taps = 0;
       await tester.pumpWidget(
         _app(

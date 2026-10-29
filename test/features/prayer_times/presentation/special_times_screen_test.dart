@@ -24,30 +24,34 @@ final _nafl = [
 ];
 
 Widget _app(SpecialKind kind, List<SpecialWindow> windows) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: SpecialTimesScreen(kind: kind, windows: windows),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: SpecialTimesScreen(kind: kind, windows: windows),
+);
 
 void main() {
   group('SpecialTimesScreen', () {
-    testWidgets('forbidden page shows only the forbidden intro + windows',
-        (tester) async {
+    testWidgets('forbidden page shows only the forbidden intro + windows', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(SpecialKind.forbidden, _forbidden));
       await tester.pump();
       expect(find.text('Forbidden times'), findsOneWidget);
       expect(find.textContaining('three moments in the day'), findsOneWidget);
       expect(find.text('After sunrise'), findsOneWidget);
-      expect(find.textContaining('between the two horns of Shaytan'),
-          findsOneWidget);
+      expect(
+        find.textContaining('between the two horns of Shaytan'),
+        findsOneWidget,
+      );
       // Nothing from the nafl side leaks in.
       expect(find.textContaining('voluntary (nafl) prayers'), findsNothing);
       expect(find.text('Tahajjud'), findsNothing);
     });
 
-    testWidgets('nafl page shows only the nafl intro + windows',
-        (tester) async {
+    testWidgets('nafl page shows only the nafl intro + windows', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(SpecialKind.nafl, _nafl));
       await tester.pump();
       expect(find.text('Nafl times'), findsOneWidget);

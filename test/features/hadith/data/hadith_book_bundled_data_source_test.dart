@@ -11,25 +11,30 @@ HadithBook _book({
   String kind = 'sahih',
   String bnFolder = '',
   List<HadithSection> bnSections = const [],
-}) =>
-    HadithBook(
-      id: id,
-      en: 'Sahih al-$id',
-      bn: 'বুক-$id',
-      author: 'Author',
-      kind: kind,
-      total: 10,
-      editionAr: 'ara-$id',
-      editionEn: 'eng-$id',
-      editionBn: 'ben-$id',
-      sections: const [
-        HadithSection(number: 1, name: 'Revelation', first: 1, last: 2, count: 2),
-      ],
-      bnFolder: bnFolder,
-      bnSections: bnSections,
-    );
+}) => HadithBook(
+  id: id,
+  en: 'Sahih al-$id',
+  bn: 'বুক-$id',
+  author: 'Author',
+  kind: kind,
+  total: 10,
+  editionAr: 'ara-$id',
+  editionEn: 'eng-$id',
+  editionBn: 'ben-$id',
+  sections: const [
+    HadithSection(number: 1, name: 'Revelation', first: 1, last: 2, count: 2),
+  ],
+  bnFolder: bnFolder,
+  bnSections: bnSections,
+);
 
-const _section = HadithSection(number: 1, name: 'Revelation', first: 1, last: 2, count: 2);
+const _section = HadithSection(
+  number: 1,
+  name: 'Revelation',
+  first: 1,
+  last: 2,
+  count: 2,
+);
 
 RawHadith _r(int n, String t, [String g = '']) =>
     RawHadith(number: n, text: t, grade: g);
@@ -46,17 +51,24 @@ void main() {
   tearDown(() async => db.close());
 
   test('zips Arabic with English translation, in source order', () async {
-    await putFaSection(db,
-        edition: 'ara-bukhari',
-        section: 1,
-        hadiths: [_r(1, 'ar-1'), _r(2, 'ar-2')]);
-    await putFaSection(db,
-        edition: 'eng-bukhari',
-        section: 1,
-        hadiths: [_r(1, 'en-1'), _r(2, 'en-2')]);
+    await putFaSection(
+      db,
+      edition: 'ara-bukhari',
+      section: 1,
+      hadiths: [_r(1, 'ar-1'), _r(2, 'ar-2')],
+    );
+    await putFaSection(
+      db,
+      edition: 'eng-bukhari',
+      section: 1,
+      hadiths: [_r(1, 'en-1'), _r(2, 'en-2')],
+    );
 
-    final items =
-        await source.fetchSection(_book(id: 'bukhari'), _section, 'en');
+    final items = await source.fetchSection(
+      _book(id: 'bukhari'),
+      _section,
+      'en',
+    );
 
     expect(items, hasLength(2));
     expect(items.first.number, 1);
@@ -68,35 +80,54 @@ void main() {
   });
 
   test('stored grade is surfaced for graded books', () async {
-    await putFaSection(db,
-        edition: 'ara-tirmidhi',
-        section: 1,
-        hadiths: [_r(1, 'ar-1', 'Hasan')]);
-    await putFaSection(db,
-        edition: 'eng-tirmidhi', section: 1, hadiths: [_r(1, 'en-1')]);
+    await putFaSection(
+      db,
+      edition: 'ara-tirmidhi',
+      section: 1,
+      hadiths: [_r(1, 'ar-1', 'Hasan')],
+    );
+    await putFaSection(
+      db,
+      edition: 'eng-tirmidhi',
+      section: 1,
+      hadiths: [_r(1, 'en-1')],
+    );
 
     final items = await source.fetchSection(
-        _book(id: 'tirmidhi', kind: 'graded'), _section, 'en');
+      _book(id: 'tirmidhi', kind: 'graded'),
+      _section,
+      'en',
+    );
     expect(items.first.grade, 'Hasan');
   });
 
-  test('falls back to English when the Bengali edition lacks a hadith',
-      () async {
-    await putFaSection(db,
-        edition: 'ara-bukhari',
-        section: 1,
-        hadiths: [_r(1, 'ar-1'), _r(2, 'ar-2')]);
-    await putFaSection(db,
-        edition: 'eng-bukhari',
-        section: 1,
-        hadiths: [_r(1, 'en-1'), _r(2, 'en-2')]);
+  test('falls back to English when the Bengali edition lacks a hadith', () async {
+    await putFaSection(
+      db,
+      edition: 'ara-bukhari',
+      section: 1,
+      hadiths: [_r(1, 'ar-1'), _r(2, 'ar-2')],
+    );
+    await putFaSection(
+      db,
+      edition: 'eng-bukhari',
+      section: 1,
+      hadiths: [_r(1, 'en-1'), _r(2, 'en-2')],
+    );
     // ben edition only has #2.
-    await putFaSection(db,
-        edition: 'ben-bukhari', section: 1, hadiths: [_r(2, 'bn-2')]);
+    await putFaSection(
+      db,
+      edition: 'ben-bukhari',
+      section: 1,
+      hadiths: [_r(2, 'bn-2')],
+    );
 
     // A bn locale on a book with no hadithbangla folder uses the ben-* edition.
-    final items =
-        await source.fetchSection(_book(id: 'bukhari'), _section, 'bn');
+    final items = await source.fetchSection(
+      _book(id: 'bukhari'),
+      _section,
+      'bn',
+    );
 
     expect(items.first.translation, 'en-1'); // #1 missing in bn -> English
     expect(items.first.fallbackTranslation, isTrue);
@@ -105,15 +136,21 @@ void main() {
   });
 
   test('bn on a hadithbangla book reads the Bengali chapter table', () async {
-    await putBnSection(db, bookId: 'nasai', section: 1, hadiths: const [
-      BnHadith(
+    await putBnSection(
+      db,
+      bookId: 'nasai',
+      section: 1,
+      hadiths: const [
+        BnHadith(
           number: 1,
           arabic: 'عربي',
           bn: 'বাংলা ১',
           narrator: 'আনাস',
-          grade: 'সহিহ হাদিস'),
-      BnHadith(number: 2, arabic: '', bn: 'বাংলা ২', narrator: '', grade: ''),
-    ]);
+          grade: 'সহিহ হাদিস',
+        ),
+        BnHadith(number: 2, arabic: '', bn: 'বাংলা ২', narrator: '', grade: ''),
+      ],
+    );
 
     final nasai = _book(
       id: 'nasai',
@@ -133,8 +170,11 @@ void main() {
   });
 
   test('a missing section returns empty (so the repo can fall back)', () async {
-    final items =
-        await source.fetchSection(_book(id: 'bukhari'), _section, 'en');
+    final items = await source.fetchSection(
+      _book(id: 'bukhari'),
+      _section,
+      'en',
+    );
     expect(items, isEmpty);
   });
 }

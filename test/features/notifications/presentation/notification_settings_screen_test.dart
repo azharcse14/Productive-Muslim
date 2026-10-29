@@ -465,7 +465,8 @@ void main() {
       tester.view.physicalSize = const Size(800, 6000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app());
+      // Jamaat focus has its own page, linked from notification settings.
+      await tester.pumpWidget(_app(home: const JamaatFocusSettingsScreen()));
       await tester.pumpAndSettle();
     }
 

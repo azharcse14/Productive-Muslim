@@ -14,11 +14,11 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import '../../helpers/muhasaba_fakes.dart';
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const AchievementsScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const AchievementsScreen(),
+);
 
 Future<AchievementStore> _registerStore() async {
   final store = AchievementStore(
@@ -44,9 +44,7 @@ void main() {
     final store = await _registerStore();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle(); // initState refresh settles first
-    store.debugSetStats(
-      const AchievementStats(bestStreak: 7, totalDhikr: 100),
-    );
+    store.debugSetStats(const AchievementStats(bestStreak: 7, totalDhikr: 100));
     await tester.pumpAndSettle();
 
     expect(find.text('Achievements'), findsOneWidget);

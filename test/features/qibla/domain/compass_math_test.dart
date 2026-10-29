@@ -13,31 +13,19 @@ double _circularDelta(double a, double b) {
 void main() {
   group('qiblaBearing', () {
     test('Dhaka points west-northwest (≈278.5°)', () {
-      expect(
-        CompassMath.qiblaBearing(23.7104, 90.4074),
-        closeTo(278.5, 1.5),
-      );
+      expect(CompassMath.qiblaBearing(23.7104, 90.4074), closeTo(278.5, 1.5));
     });
 
     test('New York points northeast (≈58.5°)', () {
-      expect(
-        CompassMath.qiblaBearing(40.7128, -74.0060),
-        closeTo(58.5, 1.5),
-      );
+      expect(CompassMath.qiblaBearing(40.7128, -74.0060), closeTo(58.5, 1.5));
     });
 
     test('London points east-southeast (≈119°)', () {
-      expect(
-        CompassMath.qiblaBearing(51.5074, -0.1278),
-        closeTo(119, 1.5),
-      );
+      expect(CompassMath.qiblaBearing(51.5074, -0.1278), closeTo(119, 1.5));
     });
 
     test('Jakarta points west-northwest (≈295°)', () {
-      expect(
-        CompassMath.qiblaBearing(-6.2088, 106.8456),
-        closeTo(295, 1.5),
-      );
+      expect(CompassMath.qiblaBearing(-6.2088, 106.8456), closeTo(295, 1.5));
     });
 
     test('a point due south on the Kaaba meridian points due north', () {
@@ -111,8 +99,7 @@ void main() {
       expect(CompassMath.angularDifference(90, 270), closeTo(180, 1e-9));
     });
 
-    test('sign convention: positive clockwise, negative counter-clockwise',
-        () {
+    test('sign convention: positive clockwise, negative counter-clockwise', () {
       expect(CompassMath.angularDifference(0, 90), closeTo(90, 1e-9));
       expect(CompassMath.angularDifference(90, 0), closeTo(-90, 1e-9));
       expect(CompassMath.angularDifference(45, 44), closeTo(-1, 1e-9));
@@ -167,10 +154,7 @@ void main() {
   group('smoothHeading', () {
     test('moves a fraction of the way toward the target', () {
       expect(CompassMath.smoothHeading(0, 100), closeTo(15, 1e-9));
-      expect(
-        CompassMath.smoothHeading(0, 100, factor: 0.5),
-        closeTo(50, 1e-9),
-      );
+      expect(CompassMath.smoothHeading(0, 100, factor: 0.5), closeTo(50, 1e-9));
     });
 
     test('repeated application converges toward the target', () {

@@ -50,8 +50,9 @@ void main() {
   }
 
   for (final dense in [false, true]) {
-    testWidgets('check and locked icon have ≥48dp targets (dense: $dense)',
-        (tester) async {
+    testWidgets('check and locked icon have ≥48dp targets (dense: $dense)', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await pump(tester, dense: dense);
       final check = find.bySemanticsLabel('Mark Asr as prayed');
@@ -63,16 +64,14 @@ void main() {
       expect(tester.getSize(lock).width, greaterThanOrEqualTo(48));
       expect(tester.getSize(lock).height, greaterThanOrEqualTo(48));
       // Its own node: the row's label no longer swallows the check.
-      expect(
-        tester.getSemantics(check).label,
-        'Mark Asr as prayed',
-      );
+      expect(tester.getSemantics(check).label, 'Mark Asr as prayed');
       handle.dispose();
     });
   }
 
-  testWidgets('a tap near the edge of the check hits the check, not the row',
-      (tester) async {
+  testWidgets('a tap near the edge of the check hits the check, not the row', (
+    tester,
+  ) async {
     final handle = tester.ensureSemantics();
     await pump(tester);
     final box = tester.getRect(find.bySemanticsLabel('Mark Asr as prayed'));
@@ -81,7 +80,8 @@ void main() {
     expect(toggled, [Prayer.asr]);
     expect(rowTaps, isEmpty);
     await tester.tapAt(
-      tester.getRect(find.bySemanticsLabel("Isha: its time hasn't started yet"))
+      tester
+          .getRect(find.bySemanticsLabel("Isha: its time hasn't started yet"))
           .center
           .translate(0, 20),
     );

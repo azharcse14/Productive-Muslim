@@ -94,8 +94,7 @@ void main() {
   group('RecommendedFasts with a moon-sighting offset', () {
     // Tabular: Eid al-Fitr 1447 = 2026-03-20, Eid al-Adha = 2026-05-27,
     // Tashreeq = 28–30 May.
-    test('offset −1: adjusted Eid al-Fitr (2026-03-21) is not recommended',
-        () {
+    test('offset −1: adjusted Eid al-Fitr (2026-03-21) is not recommended', () {
       // At offset 0 it is 2 Shawwal (six-of-Shawwal).
       expect(RecommendedFasts.isRecommended(DateTime(2026, 3, 21)), isTrue);
       expect(
@@ -143,8 +142,11 @@ void main() {
           upcoming.any((u) => RecommendedFasts.isForbidden(u.hijri)),
           isFalse,
         );
-        final eidAdha =
-            const HijriDate(1447, 12, 10).toGregorian(offsetDays: offset);
+        final eidAdha = const HijriDate(
+          1447,
+          12,
+          10,
+        ).toGregorian(offsetDays: offset);
         expect(upcoming.any((u) => u.fast.date == eidAdha), isFalse);
       }
     });
@@ -156,9 +158,9 @@ void main() {
   test('upcoming never repeats a date across DST changes', () {
     for (var y = 2026; y < 2036; y++) {
       for (var m = 1; m <= 12; m++) {
-        final dates = RecommendedFasts.upcoming(DateTime(y, m)).map(
-          (u) => u.fast.date,
-        );
+        final dates = RecommendedFasts.upcoming(
+          DateTime(y, m),
+        ).map((u) => u.fast.date);
         expect(dates.toSet().length, dates.length, reason: 'from $y-$m');
       }
     }

@@ -54,18 +54,20 @@ void main() {
       expect(r.gregorian.days, 15);
     });
 
-    test('day borrow across February (28-day month): 2000-02-15 → 2000-03-01',
-        () {
-      // March's preceding month is Feb 2000 (leap) = 29 days.
-      // days = 1 - 15 = -14 → + 29 = 15; months 3 - 2 - 1 = 0.
-      final r = AgeCalculator.calculate(
-        birthDate: DateTime(2000, 2, 15),
-        onDate: DateTime(2000, 3, 1),
-      );
-      expect(r.gregorian.years, 0);
-      expect(r.gregorian.months, 0);
-      expect(r.gregorian.days, 15);
-    });
+    test(
+      'day borrow across February (28-day month): 2000-02-15 → 2000-03-01',
+      () {
+        // March's preceding month is Feb 2000 (leap) = 29 days.
+        // days = 1 - 15 = -14 → + 29 = 15; months 3 - 2 - 1 = 0.
+        final r = AgeCalculator.calculate(
+          birthDate: DateTime(2000, 2, 15),
+          onDate: DateTime(2000, 3, 1),
+        );
+        expect(r.gregorian.years, 0);
+        expect(r.gregorian.months, 0);
+        expect(r.gregorian.days, 15);
+      },
+    );
 
     test('day borrow within year: 2000-01-20 → 2000-03-10 = 0y 1m 19d', () {
       // March's preceding month Feb 2000 is leap = 29 days.
@@ -102,8 +104,7 @@ void main() {
       expect(r.gregorian.days, 26);
     });
 
-    test('start day past end of borrowed month: 2001-01-31 → 2001-03-01',
-        () {
+    test('start day past end of borrowed month: 2001-01-31 → 2001-03-01', () {
       final r = AgeCalculator.calculate(
         birthDate: DateTime(2001, 1, 31),
         onDate: DateTime(2001, 3, 1),
@@ -193,8 +194,7 @@ void main() {
       expect(at(1).gregorian.days, at(0).gregorian.days);
     });
 
-    test('Hijri year count runs ahead of the Gregorian one for long spans',
-        () {
+    test('Hijri year count runs ahead of the Gregorian one for long spans', () {
       // ~36 Gregorian years ≈ ~37 Hijri years (Hijri year ~11 days shorter).
       final r = AgeCalculator.calculate(
         birthDate: DateTime(1980, 1, 1),

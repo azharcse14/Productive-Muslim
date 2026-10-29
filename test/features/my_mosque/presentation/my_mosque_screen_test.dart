@@ -17,11 +17,11 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import '../../../helpers/mosque_fakes.dart';
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const MyMosqueScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const MyMosqueScreen(),
+);
 
 void main() {
   late InMemoryMosqueRepository repo;
@@ -41,8 +41,9 @@ void main() {
       expect(find.text('Add profile'), findsOneWidget);
     });
 
-    testWidgets('unreadable storage offers a retry, not the add state',
-        (tester) async {
+    testWidgets('unreadable storage offers a retry, not the add state', (
+      tester,
+    ) async {
       final repo = InMemoryMosqueRepository()..failLoad = true;
       final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
       await store.load();
@@ -55,8 +56,9 @@ void main() {
       expect(find.text('Add profile'), findsOneWidget);
     });
 
-    testWidgets('add-profile dialog creates and activates a profile',
-        (tester) async {
+    testWidgets('add-profile dialog creates and activates a profile', (
+      tester,
+    ) async {
       // Tall surface so the Maghrib card is laid out.
       tester.view.physicalSize = const Size(1200, 2600);
       tester.view.devicePixelRatio = 1.0;
@@ -76,8 +78,9 @@ void main() {
       expect(find.textContaining('5 min after waqt starts'), findsOneWidget);
     });
 
-    testWidgets('renders all five prayer cards with mode segments',
-        (tester) async {
+    testWidgets('renders all five prayer cards with mode segments', (
+      tester,
+    ) async {
       // Tall surface so the schedule section + all five cards fit at once.
       tester.view.physicalSize = const Size(1200, 2600);
       tester.view.devicePixelRatio = 1.0;
@@ -100,8 +103,9 @@ void main() {
       expect(find.byType(PrayerJamaatCard), findsNWidgets(5));
     });
 
-    testWidgets('choosing Offset persists a default 15-minute entry',
-        (tester) async {
+    testWidgets('choosing Offset persists a default 15-minute entry', (
+      tester,
+    ) async {
       await register(
         const MosqueState(
           profiles: [MosqueProfile(id: 'a', name: 'Home')],
@@ -117,25 +121,26 @@ void main() {
       );
     });
 
-    testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 5',
-        (tester) async {
+    testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 5', (
+      tester,
+    ) async {
       JamaatEntry? changed;
       Widget card(JamaatEntry entry) => MaterialApp(
-            theme: AppTheme.light(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: PrayerJamaatCard(
-                prayer: Prayer.maghrib,
-                entry: entry,
-                formatTime: (t) => '${t.hour}:${t.minute}',
-                onChanged: (e) => changed = e,
-                onPickTime: () {},
-                preview: '→ 6:55 PM today',
-                warning: 'Outside today',
-              ),
-            ),
-          );
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: PrayerJamaatCard(
+            prayer: Prayer.maghrib,
+            entry: entry,
+            formatTime: (t) => '${t.hour}:${t.minute}',
+            onChanged: (e) => changed = e,
+            onPickTime: () {},
+            preview: '→ 6:55 PM today',
+            warning: 'Outside today',
+          ),
+        ),
+      );
       await tester.pumpWidget(card(const NoJamaat()));
       await tester.tap(find.text('Offset'));
       expect(changed, const OffsetJamaat(Duration(minutes: 5)));
@@ -147,8 +152,9 @@ void main() {
       expect(find.text('Outside today'), findsOneWidget);
     });
 
-    testWidgets('profile switcher chips change the active profile',
-        (tester) async {
+    testWidgets('profile switcher chips change the active profile', (
+      tester,
+    ) async {
       await register(
         const MosqueState(
           profiles: [
@@ -164,8 +170,9 @@ void main() {
       expect(repo.stored.activeId, 'b');
     });
 
-    testWidgets('choosing Fixed opens the picker; cancel saves nothing',
-        (tester) async {
+    testWidgets('choosing Fixed opens the picker; cancel saves nothing', (
+      tester,
+    ) async {
       await register(
         const MosqueState(
           profiles: [MosqueProfile(id: 'a', name: 'Home')],

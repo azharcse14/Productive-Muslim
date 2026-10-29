@@ -47,9 +47,7 @@ void main() {
 
   group('progress fractions', () {
     test('first-tier badge measures from zero', () {
-      final s = AchievementEvaluator.evaluate(
-        const AchievementStats(),
-      );
+      final s = AchievementEvaluator.evaluate(const AchievementStats());
       expect(_find(s, 'streak_3').fraction, 0.0);
     });
 
@@ -109,10 +107,7 @@ void main() {
     });
 
     test('empty stats unlock nothing', () {
-      expect(
-        AchievementEvaluator.unlockedCount(const AchievementStats()),
-        0,
-      );
+      expect(AchievementEvaluator.unlockedCount(const AchievementStats()), 0);
     });
 
     test('every catalog id is unique', () {

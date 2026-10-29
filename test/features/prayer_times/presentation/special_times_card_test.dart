@@ -27,41 +27,47 @@ final _windows = [
 ];
 
 Widget _app(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('SpecialTimeRow', () {
-    testWidgets('next forbidden window shows its range and the caveat',
-        (tester) async {
-      await tester.pumpWidget(_app(
-        SpecialTimeRow(
-          window: _windows[1],
-          active: false,
-          formatTime: (t) =>
-              '${t.hour}:${t.minute.toString().padLeft(2, '0')}',
+    testWidgets('next forbidden window shows its range and the caveat', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          SpecialTimeRow(
+            window: _windows[1],
+            active: false,
+            formatTime: (t) =>
+                '${t.hour}:${t.minute.toString().padLeft(2, '0')}',
+          ),
         ),
-      ));
+      );
       expect(find.text('Next: Midday (zawal)'), findsOneWidget);
       expect(find.text('11:54\u00A0– 12:00'), findsOneWidget);
       expect(find.textContaining('missed fard'), findsOneWidget);
       expect(find.byIcon(Icons.chevron_right), findsNothing);
     });
 
-    testWidgets('active nafl window reads Now, no caveat, opens on tap',
-        (tester) async {
+    testWidgets('active nafl window reads Now, no caveat, opens on tap', (
+      tester,
+    ) async {
       var taps = 0;
-      await tester.pumpWidget(_app(
-        SpecialTimeRow(
-          window: _windows[2],
-          active: true,
-          formatTime: (t) => '${t.hour}',
-          onTap: () => taps++,
+      await tester.pumpWidget(
+        _app(
+          SpecialTimeRow(
+            window: _windows[2],
+            active: true,
+            formatTime: (t) => '${t.hour}',
+            onTap: () => taps++,
+          ),
         ),
-      ));
+      );
       expect(find.text('Now: Ishraq'), findsOneWidget);
       expect(find.textContaining('missed fard'), findsNothing);
       await tester.tap(find.byType(SpecialTimeRow));

@@ -11,8 +11,7 @@ bool _has(InheritanceResult r, String key) =>
 /// All amounts (incl. unallocated) must sum to the estate.
 void _expectConservation(InheritanceResult r) {
   final sum = r.shares.fold<double>(0, (a, s) => a + s.amount);
-  expect(sum, closeTo(r.estate, 0.001),
-      reason: 'amounts must sum to estate');
+  expect(sum, closeTo(r.estate, 0.001), reason: 'amounts must sum to estate');
   final fracSum = r.shares.fold<double>(0, (a, s) => a + s.fraction);
   expect(fracSum, closeTo(1.0, 1e-9), reason: 'fractions must sum to 1');
 }
@@ -42,12 +41,7 @@ void main() {
 
     test('wife + son + daughter (estate 240000)', () {
       final r = InheritanceCalculator.calculate(
-        const InheritanceInput(
-          estate: 240000,
-          wives: 1,
-          sons: 1,
-          daughters: 1,
-        ),
+        const InheritanceInput(estate: 240000, wives: 1, sons: 1, daughters: 1),
       );
       // wife 1/8 = 30000; residue 210000 split son:daughter 2:1.
       expect(_share(r, 'wife').amount, closeTo(30000, 0.001));
@@ -190,8 +184,7 @@ void main() {
       // daughter 1/2; father 1/6 fard + residue 1/3 = 1/2 total.
       expect(_share(r, 'daughter').fraction, closeTo(1 / 2, 1e-9));
       // father is ONE row: 1/6 fard + residue → 1/2.
-      final fatherRows =
-          r.shares.where((s) => s.heirKey == 'father').toList();
+      final fatherRows = r.shares.where((s) => s.heirKey == 'father').toList();
       expect(fatherRows, hasLength(1));
       expect(fatherRows.single.basis, ShareBasis.sixthPlusResiduary);
       expect(fatherRows.single.fraction, closeTo(1 / 2, 1e-9));
@@ -209,8 +202,7 @@ void main() {
         ),
       );
       // 2/3 + 1/6 + 1/6 = 1 → nothing left for the father as asaba.
-      final fatherRows =
-          r.shares.where((s) => s.heirKey == 'father').toList();
+      final fatherRows = r.shares.where((s) => s.heirKey == 'father').toList();
       expect(fatherRows, hasLength(1));
       expect(fatherRows.single.basis, ShareBasis.sixth);
       expect(fatherRows.single.fraction, closeTo(1 / 6, 1e-9));
@@ -235,29 +227,37 @@ void main() {
       _expectConservation(r);
     });
 
-    test("'Asaba ma'a al-ghair: daughter + full sister (no son, no father)",
-        () {
-      final r = InheritanceCalculator.calculate(
-        const InheritanceInput(estate: 240000, daughters: 1, fullSisters: 1),
-      );
-      // daughter 1/2 fard; sister becomes residuary, takes residue 1/2.
-      expect(_share(r, 'daughter').fraction, closeTo(1 / 2, 1e-9));
-      expect(_share(r, 'sister').fraction, closeTo(1 / 2, 1e-9));
-      _expectConservation(r);
-    });
+    test(
+      "'Asaba ma'a al-ghair: daughter + full sister (no son, no father)",
+      () {
+        final r = InheritanceCalculator.calculate(
+          const InheritanceInput(estate: 240000, daughters: 1, fullSisters: 1),
+        );
+        // daughter 1/2 fard; sister becomes residuary, takes residue 1/2.
+        expect(_share(r, 'daughter').fraction, closeTo(1 / 2, 1e-9));
+        expect(_share(r, 'sister').fraction, closeTo(1 / 2, 1e-9));
+        _expectConservation(r);
+      },
+    );
 
-    test('Husband + 1 daughter: husband 1/4, daughter 1/2, radd to daughter',
-        () {
-      final r = InheritanceCalculator.calculate(
-        const InheritanceInput(estate: 240000, hasHusband: true, daughters: 1),
-      );
-      // husband 1/4 (descendant), daughter 1/2; residue 1/4 → radd to
-      // daughter only (spouse excluded). daughter 1/2 + 1/4 = 3/4.
-      expect(_share(r, 'husband').fraction, closeTo(1 / 4, 1e-9));
-      expect(_share(r, 'daughter').fraction, closeTo(3 / 4, 1e-9));
-      expect(r.isRadd, isTrue);
-      _expectConservation(r);
-    });
+    test(
+      'Husband + 1 daughter: husband 1/4, daughter 1/2, radd to daughter',
+      () {
+        final r = InheritanceCalculator.calculate(
+          const InheritanceInput(
+            estate: 240000,
+            hasHusband: true,
+            daughters: 1,
+          ),
+        );
+        // husband 1/4 (descendant), daughter 1/2; residue 1/4 → radd to
+        // daughter only (spouse excluded). daughter 1/2 + 1/4 = 3/4.
+        expect(_share(r, 'husband').fraction, closeTo(1 / 4, 1e-9));
+        expect(_share(r, 'daughter').fraction, closeTo(3 / 4, 1e-9));
+        expect(r.isRadd, isTrue);
+        _expectConservation(r);
+      },
+    );
 
     test('2 full sisters only → 2/3, residue radd (no spouse)', () {
       final r = InheritanceCalculator.calculate(
@@ -367,11 +367,7 @@ void main() {
   group('InheritanceCalculator — review vectors', () {
     test("husband + 2 full sisters → 'awl 7/6", () {
       final r = InheritanceCalculator.calculate(
-        const InheritanceInput(
-          estate: 70000,
-          hasHusband: true,
-          fullSisters: 2,
-        ),
+        const InheritanceInput(estate: 70000, hasHusband: true, fullSisters: 2),
       );
       // husband 1/2 = 3/6, sisters 2/3 = 4/6 → raised to /7.
       expect(r.isAwl, isTrue);
@@ -432,11 +428,7 @@ void main() {
 
     test('mother + exactly 1 sibling, no father → mother 1/3', () {
       final r = InheritanceCalculator.calculate(
-        const InheritanceInput(
-          estate: 90000,
-          hasMother: true,
-          fullBrothers: 1,
-        ),
+        const InheritanceInput(estate: 90000, hasMother: true, fullBrothers: 1),
       );
       expect(_share(r, 'mother').fraction, closeTo(1 / 3, 1e-9));
       expect(_share(r, 'mother').basis, ShareBasis.third);

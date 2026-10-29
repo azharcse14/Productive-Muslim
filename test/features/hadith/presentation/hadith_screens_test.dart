@@ -101,12 +101,12 @@ final class _FakeBookRepository implements HadithBookRepository {
 }
 
 Widget _app(Widget home, {Locale? locale}) => MaterialApp(
-      theme: AppTheme.light(),
-      locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: home,
-    );
+  theme: AppTheme.light(),
+  locale: locale,
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: home,
+);
 
 Future<_FakeBookRepository> _register({bool failSection = false}) async {
   final store = HadithStore(_FakeHadithRepository());
@@ -155,8 +155,9 @@ void main() {
     });
   });
 
-  testWidgets('detail: a failed load offers retry, not "not found"',
-      (tester) async {
+  testWidgets('detail: a failed load offers retry, not "not found"', (
+    tester,
+  ) async {
     final store = HadithStore(_FlakyHadithRepository());
     await store.load();
     GetIt.I.registerSingleton<HadithStore>(store);
@@ -281,7 +282,13 @@ void main() {
       final repo = await _register(failSection: true);
       const screen = HadithSectionScreen(
         book: _bukhari,
-        section: HadithSection(number: 1, name: 'Revelation', first: 1, last: 7, count: 7),
+        section: HadithSection(
+          number: 1,
+          name: 'Revelation',
+          first: 1,
+          last: 7,
+          count: 7,
+        ),
       );
       await tester.pumpWidget(_app(screen, locale: const Locale('bn')));
       await tester.pumpAndSettle();

@@ -169,7 +169,14 @@ void main() {
       final launcher = _FakeLauncher();
       GetIt.I.registerSingleton<ExternalLauncher>(launcher);
       _tall(tester);
-      await tester.pumpWidget(_app());
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const CreditsScreen(),
+        ),
+      );
       await tester.tap(find.text('Quran text: Tanzil Project'));
       await tester.pump();
       expect(launcher.launched, [Uri.parse('https://tanzil.net')]);

@@ -25,8 +25,7 @@ final class _NeverSensors implements CompassSensorSource {
 
 final class _ErrorSensors implements CompassSensorSource {
   @override
-  Stream<SensorVectors> vectors() =>
-      Stream.error(StateError('no sensor'));
+  Stream<SensorVectors> vectors() => Stream.error(StateError('no sensor'));
 }
 
 final class _InMemoryRepo implements SettingsRepository {
@@ -66,19 +65,16 @@ Future<void> _register({
   GetIt.I
     ..registerSingleton<SettingsStore>(settings)
     ..registerLazySingleton<QiblaStore>(
-      () => QiblaStore(
-        sensors: sensors ?? _NeverSensors(),
-        settings: settings,
-      ),
+      () => QiblaStore(sensors: sensors ?? _NeverSensors(), settings: settings),
     );
 }
 
 Widget _app() => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const QiblaScreen(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: const QiblaScreen(),
+);
 
 void main() {
   tearDown(() => GetIt.I.reset());
@@ -94,8 +90,9 @@ void main() {
       expect(find.text('Set location'), findsOneWidget);
     });
 
-    testWidgets('ready state renders the dial and distance detail',
-        (tester) async {
+    testWidgets('ready state renders the dial and distance detail', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -103,8 +100,9 @@ void main() {
       expect(find.textContaining('km to the Kaaba'), findsOneWidget);
     });
 
-    testWidgets('turn instruction leads, device heading is secondary',
-        (tester) async {
+    testWidgets('turn instruction leads, device heading is secondary', (
+      tester,
+    ) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
       await tester.pump();
@@ -119,8 +117,9 @@ void main() {
       expect(find.text('Turn 20° right'), findsOneWidget);
     });
 
-    testWidgets('sensor failure falls back to the verbal bearing',
-        (tester) async {
+    testWidgets('sensor failure falls back to the verbal bearing', (
+      tester,
+    ) async {
       await _register(withLocation: true, sensors: _ErrorSensors());
       await tester.pumpWidget(_app());
       await tester.pump();
