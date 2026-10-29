@@ -37,4 +37,20 @@ void main() {
       throwsA(isA<TimeoutException>()),
     );
   });
+
+  test('a body over maxBytes throws, with or without Content-Length', () async {
+    server.listen((req) async {
+      if (req.uri.path == '/declared') req.response.contentLength = 11;
+      req.response.write('x' * 11);
+      await req.response.close();
+    });
+    for (final path in ['/declared', '/chunked']) {
+      await expectLater(
+        httpGetString(url(path), maxBytes: 10),
+        throwsA(isA<HttpException>()),
+        reason: path,
+      );
+    }
+    expect(await httpGetString(url('/chunked'), maxBytes: 11), 'x' * 11);
+  });
 }

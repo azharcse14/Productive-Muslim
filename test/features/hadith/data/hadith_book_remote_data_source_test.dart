@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/config/content_sources.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_remote_data_source.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 
@@ -73,8 +74,8 @@ void main() {
           .fetchSection(_book(), _section, 'en');
 
       expect(http.requested, [
-        'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-tirmidhi/sections/3.min.json',
-        'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-tirmidhi/sections/3.min.json',
+        '${ContentSources.hadithApiEditionsBase}/ara-tirmidhi/sections/3.min.json',
+        '${ContentSources.hadithApiEditionsBase}/eng-tirmidhi/sections/3.min.json',
       ]);
       expect(hadith.map((h) => h.number), [1, 2]);
       expect(hadith.first.arabic, 'ar1');
@@ -159,7 +160,7 @@ void main() {
       );
 
       expect(http.requested, [
-        'https://raw.githubusercontent.com/azharcse14/hadithbangla/main/Tirmidhi/Chapter/3.json',
+        '${ContentSources.hadithBanglaBase}/Tirmidhi/Chapter/3.json',
       ]);
       expect(hadith.map((h) => h.number), [7, 8]);
       expect(hadith[0].arabic, 'عربي');

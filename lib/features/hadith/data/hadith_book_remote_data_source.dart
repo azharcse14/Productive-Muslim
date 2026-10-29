@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 
+import '../../../config/content_sources.dart';
 import '../domain/entities/hadith_book.dart';
 import 'hadith_section_assembler.dart';
 
@@ -20,10 +21,8 @@ typedef HttpGet = Future<String> Function(Uri url);
 final class HadithBookRemoteDataSource {
   HadithBookRemoteDataSource(this._get);
 
-  static const _base =
-      'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
-  static const _bnBase =
-      'https://raw.githubusercontent.com/azharcse14/hadithbangla/main';
+  static const _base = ContentSources.hadithApiEditionsBase;
+  static const _bnBase = ContentSources.hadithBanglaBase;
 
   final HttpGet _get;
 

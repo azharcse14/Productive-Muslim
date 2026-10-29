@@ -30,6 +30,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:productive_muslim/config/content_sources.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -41,9 +42,9 @@ const _userVersion = 2;
 const _catalogPath = 'assets/data/hadith_books.json';
 const _outPath = 'assets/data/hadith.db';
 
-const _faBase =
-    'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
-const _bnBase = 'https://raw.githubusercontent.com/azharcse14/hadithbangla/main';
+// Pinned revisions, shared with the app's online fallback.
+const _faBase = ContentSources.hadithApiEditionsBase;
+const _bnBase = ContentSources.hadithBanglaBase;
 
 const _attributionLines = [
   'Hadith text (Arabic/English): fawazahmed0/hadith-api (CC0) — '
