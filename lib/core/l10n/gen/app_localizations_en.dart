@@ -3321,4 +3321,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undo => 'Undo';
+
+  @override
+  String get clearSearch => 'Clear search';
 }

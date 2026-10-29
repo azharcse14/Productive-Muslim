@@ -3303,4 +3303,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get undo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get clearSearch => 'খোঁজা মুছুন';
 }

@@ -39,6 +39,8 @@ final class _QuranScreenState extends State<QuranScreen> {
 
   Timer? _debounce;
 
+  final _query = TextEditingController();
+
   /// Last bookmark swiped away in the sheet, offered back via undo.
   final _removedBookmark = signal<int?>(null);
 
@@ -56,6 +58,7 @@ final class _QuranScreenState extends State<QuranScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _query.dispose();
     super.dispose();
   }
 
@@ -238,7 +241,6 @@ final class _QuranScreenState extends State<QuranScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final q = context.q;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.quranTitle),
@@ -275,24 +277,25 @@ final class _QuranScreenState extends State<QuranScreen> {
                       ),
                       const SizedBox(height: QSpace.s3),
                     ],
-                    TextField(
-                      onChanged: _onQueryChanged,
-                      decoration: InputDecoration(
-                        hintText: l10n.searchSurahHint,
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: q.surface,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(QRadius.md),
-                          borderSide: BorderSide(color: q.line, width: 1.5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(QRadius.md),
-                          borderSide: BorderSide(color: q.line, width: 1.5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(QRadius.md),
-                          borderSide: BorderSide(color: q.primary, width: 2),
+                    ListenableBuilder(
+                      listenable: _query,
+                      builder: (context, _) => TextField(
+                        controller: _query,
+                        onChanged: _onQueryChanged,
+                        decoration: InputDecoration(
+                          hintText: l10n.searchSurahHint,
+                          prefixIcon: const Icon(Icons.search),
+                          suffixIcon: _query.text.isEmpty
+                              ? null
+                              : IconButton(
+                                  tooltip: l10n.clearSearch,
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    _query.clear();
+                                    _debounce?.cancel();
+                                    unawaited(_runSearch(''));
+                                  },
+                                ),
                         ),
                       ),
                     ),
@@ -391,6 +394,7 @@ final class _QuranScreenState extends State<QuranScreen> {
   Widget _surahRow(BuildContext context, Surah surah) {
     final l10n = context.l10n;
     final q = context.q;
+    final languageCode = Localizations.localeOf(context).languageCode;
     return QPressable(
       onTap: () => _openReader(surah.id),
       borderRadius: BorderRadius.circular(QRadius.md),
@@ -411,6 +415,13 @@ final class _QuranScreenState extends State<QuranScreen> {
                     surah.transliteration,
                     style: QType.titleSm.copyWith(color: q.ink),
                   ),
+                  // No Bengali surah meanings in the data; never show the
+                  // English one in a Bengali UI.
+                  if (languageCode == 'en')
+                    Text(
+                      surah.translationEn,
+                      style: QType.caption.copyWith(color: q.ink2),
+                    ),
                   Text(
                     l10n.surahMeta(
                       surah.ayahCount,

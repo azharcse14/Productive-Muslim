@@ -348,7 +348,7 @@ void main() {
       await flushMarkRead(tester);
     });
 
-    testWidgets('copy shows the "Ayah copied" snackbar', (tester) async {
+    testWidgets('copy shows the "Copied" snackbar', (tester) async {
       final clipboardCalls = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
@@ -364,7 +364,7 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(find.text('Ayah copied'), findsOneWidget);
+      expect(find.text('Copied'), findsOneWidget);
       expect(
         clipboardCalls.map((c) => c.method),
         contains('Clipboard.setData'),

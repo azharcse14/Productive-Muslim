@@ -27,10 +27,7 @@ final class QMedallion extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Star8(color: q.primary, size: size),
-          Text(
-            label,
-            style: QType.num_(QType.caption).copyWith(color: q.ink),
-          ),
+          Text(label, style: QType.num_(QType.caption).copyWith(color: q.ink)),
         ],
       ),
     );

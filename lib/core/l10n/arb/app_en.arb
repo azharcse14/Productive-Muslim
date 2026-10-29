@@ -1536,5 +1536,6 @@
   "@healthKg": {"placeholders": {"kg": {"type": "String"}}},
   "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}},
   "saveFailed": "Couldn't save. Please try again.",
-  "undo": "Undo"
+  "undo": "Undo",
+  "clearSearch": "Clear search"
 }
