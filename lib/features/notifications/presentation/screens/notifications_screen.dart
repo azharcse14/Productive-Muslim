@@ -165,8 +165,8 @@ final class _Tile extends StatelessWidget {
         item.silent ? Icons.notifications_off_outlined : Icons.mosque_outlined,
         l10n.notifAzanTitle(prayer, time(item.at)),
         l10n.notifAzanBody(prayer),
-        // Muhasaba is where the prayer gets marked as prayed.
-        Routes.muhasaba.path,
+        // Same as tapping the azan itself: Home, whose table ticks it.
+        Routes.home.path,
       ),
       NotificationKind.jamaat => (
         Icons.groups_outlined,
