@@ -87,9 +87,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     if (!saved.isSuccess) {
       // Still go home (it holds in memory), but say it didn't stick.
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.trackerSaveFailed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.onboardingSaveFailed)),
+      );
     }
     final router = GoRouter.of(context);
     if (widget.rerun) {
@@ -317,6 +317,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
             QListRow(
               icon: Icons.translate,
               title: label,
+              selected: current == code,
               trailing: current == code
                   ? Icon(Icons.check_circle, color: context.q.primary)
                   : null,
@@ -377,6 +378,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
               QListRow(
                 icon: Icons.balance_outlined,
                 title: context.l10n.madhabLabel(madhab),
+                selected: current == madhab,
                 trailing: current == madhab
                     ? Icon(Icons.check_circle, color: context.q.primary)
                     : null,
@@ -418,6 +420,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
                 subtitle: method == suggested
                     ? context.l10n.methodSuggested
                     : null,
+                selected: current == method,
                 trailing: current == method
                     ? Icon(Icons.check_circle, color: context.q.primary)
                     : null,

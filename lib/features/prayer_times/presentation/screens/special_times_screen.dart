@@ -60,15 +60,18 @@ final class SpecialTimesScreen extends StatelessWidget {
               const SizedBox(width: QSpace.s2),
               Expanded(
                 child: Text(
-                  isForbidden
-                      ? l10n.forbiddenTimesIntro
-                      : l10n.naflTimesIntro,
+                  isForbidden ? l10n.forbiddenTimesIntro : l10n.naflTimesIntro,
                   style: QType.body.copyWith(color: q.ink2),
                 ),
               ),
             ],
           ),
           const SizedBox(height: QSpace.s5),
+          if (windows.isEmpty)
+            Text(
+              l10n.specialTimesEmpty,
+              style: QType.body.copyWith(color: q.ink3),
+            ),
           for (final w in windows) ...[
             _DetailCard(
               window: w,
@@ -108,7 +111,10 @@ final class _DetailCard extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: accent,
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: QSpace.s3),
               Expanded(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 
@@ -57,43 +58,48 @@ final class HomeHeader extends StatelessWidget {
                     child: InkWell(
                       onTap: onLocationTap,
                       borderRadius: BorderRadius.circular(99),
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                          4,
-                          8,
-                          10,
-                          8,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: QTouch.minTarget,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.place_outlined,
-                              size: 17,
-                              color: q.primary,
-                            ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                locationName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: QType.titleSm.copyWith(
-                                  fontSize: 15.5,
-                                  color: q.ink,
-                                  fontVariations: const [
-                                    FontVariation('wght', 700),
-                                  ],
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                            4,
+                            8,
+                            10,
+                            8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.place_outlined,
+                                size: 17,
+                                color: q.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  locationName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: QType.titleSm.copyWith(
+                                    fontSize: 15.5,
+                                    color: q.ink,
+                                    fontVariations: const [
+                                      FontVariation('wght', 700),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.keyboard_arrow_down,
-                              size: 15,
-                              color: q.ink3,
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 15,
+                                color: q.ink3,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

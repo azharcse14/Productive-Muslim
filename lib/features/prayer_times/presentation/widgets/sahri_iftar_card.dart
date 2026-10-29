@@ -74,12 +74,21 @@ final class _MealTime extends StatelessWidget {
       children: [
         Icon(icon, size: 19, color: q.ink2),
         const SizedBox(width: QSpace.s3),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: QType.caption.copyWith(color: q.ink2)),
-            Text(time, style: QType.num_(QType.titleSm).copyWith(color: q.ink)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: QType.caption.copyWith(color: q.ink2)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  time,
+                  style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -1536,5 +1536,8 @@
   "@healthKg": {"placeholders": {"kg": {"type": "String"}}},
   "@healthWeightChange": {"placeholders": {"delta": {"type": "String"}}},
   "saveFailed": "Couldn't save. Please try again.",
-  "undo": "Undo"
+  "undo": "Undo",
+  "widgetSetupHint": "Open the app to set your location",
+  "onboardingSaveFailed": "Your settings couldn't be saved. You can change them later in Settings.",
+  "specialTimesEmpty": "No times to show for today."
 }

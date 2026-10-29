@@ -362,8 +362,8 @@ final class _LockScreenState extends State<LockScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 40,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 40),
                       child: message == null
                           ? null
                           : Padding(
@@ -393,56 +393,60 @@ final class _LockScreenState extends State<LockScreen> {
                       ['7', '8', '9'],
                       ['', '0', _backspace],
                     ])
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (final key in row)
-                            Padding(
-                              padding: const EdgeInsets.all(QSpace.s2),
-                              child: key.isEmpty
-                                  ? const SizedBox(width: 72, height: 72)
-                                  : Semantics(
-                                      button: true,
-                                      enabled: cooldown == null,
-                                      label: key == _backspace
-                                          ? l10n.appLockDelete
-                                          : context.digits(key),
-                                      excludeSemantics: true,
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(
-                                          QRadius.full,
-                                        ),
-                                        onTap: cooldown != null
-                                            ? null
-                                            : () => key == _backspace
-                                                  ? _onBackspace()
-                                                  : unawaited(_onDigit(key)),
-                                        child: Container(
-                                          width: 72,
-                                          height: 72,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: q.surface,
-                                            border: Border.all(color: q.line),
+                      // A keypad keeps phone layout even in RTL locales.
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            for (final key in row)
+                              Padding(
+                                padding: const EdgeInsets.all(QSpace.s2),
+                                child: key.isEmpty
+                                    ? const SizedBox(width: 72, height: 72)
+                                    : Semantics(
+                                        button: true,
+                                        enabled: cooldown == null,
+                                        label: key == _backspace
+                                            ? l10n.appLockDelete
+                                            : context.digits(key),
+                                        excludeSemantics: true,
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            QRadius.full,
                                           ),
-                                          child: Center(
-                                            child: key == _backspace
-                                                ? Icon(
-                                                    Icons.backspace_outlined,
-                                                    color: q.ink,
-                                                  )
-                                                : Text(
-                                                    context.digits(key),
-                                                    style: QType.num_(
-                                                      QType.title,
-                                                    ).copyWith(color: q.ink),
-                                                  ),
+                                          onTap: cooldown != null
+                                              ? null
+                                              : () => key == _backspace
+                                                    ? _onBackspace()
+                                                    : unawaited(_onDigit(key)),
+                                          child: Container(
+                                            width: 72,
+                                            height: 72,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: q.surface,
+                                              border: Border.all(color: q.line),
+                                            ),
+                                            child: Center(
+                                              child: key == _backspace
+                                                  ? Icon(
+                                                      Icons.backspace_outlined,
+                                                      color: q.ink,
+                                                    )
+                                                  : Text(
+                                                      context.digits(key),
+                                                      style: QType.num_(
+                                                        QType.title,
+                                                      ).copyWith(color: q.ink),
+                                                    ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                            ),
-                        ],
+                              ),
+                          ],
+                        ),
                       ),
                     const SizedBox(height: QSpace.s4),
                     if (!_settingPin)

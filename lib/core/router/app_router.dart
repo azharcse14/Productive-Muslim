@@ -30,6 +30,7 @@ import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/domain/entities/special_time.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/prayer_times/presentation/screens/special_times_screen.dart';
+import '../../features/prayer_times/presentation/state/home_store.dart';
 import '../../features/qibla/presentation/screens/qibla_screen.dart';
 import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
@@ -253,9 +254,16 @@ GoRouter buildRouter() {
         path: Routes.specialTimes.path,
         builder: (context, state) {
           final extra = state.extra as (SpecialKind, List<SpecialWindow>)?;
+          final kind = extra?.$1 ?? SpecialKind.forbidden;
+          // No extra (deep link, restored route): read today's windows.
           return SpecialTimesScreen(
-            kind: extra?.$1 ?? SpecialKind.forbidden,
-            windows: extra?.$2 ?? const [],
+            kind: kind,
+            windows:
+                extra?.$2 ??
+                [
+                  for (final w in locator<HomeStore>().specialWindows.value)
+                    if (w.kind == kind) w,
+                ],
           );
         },
       ),

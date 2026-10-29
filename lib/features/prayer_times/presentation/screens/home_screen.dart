@@ -554,7 +554,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                 showDayTimelineSheet(
                   context,
                   day: day,
-                  now: _store.now.value,
+                  now: () => _store.now.value,
                   formatTime: (t) => formatHomeTime(context, t),
                   activePrayer: _store.activeWaqt.value?.prayer,
                   jumuah: jumuah,
@@ -726,6 +726,10 @@ final class _HomeScreenState extends State<HomeScreen> {
                 null => null,
                 final t => formatHomeTime(context, t),
               },
+              // Same rule as the table's label (prayerLabelOn).
+              jumuah:
+                  day.dhuhr.weekday == DateTime.friday &&
+                  _store.jamaatConfig.value.jumuah != null,
             ),
           ),
         );
@@ -901,7 +905,9 @@ final class _DailyReflectionSectionState extends State<DailyReflectionSection> {
           const SizedBox(height: QSpace.s3),
         ],
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : QMotion.med,
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
           transitionBuilder: (child, animation) {

@@ -32,7 +32,8 @@ final class ContinueReadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    final card = QCard(
+    return QCard(
+      onTap: onTap,
       padding: const EdgeInsets.symmetric(
         horizontal: QSpace.s5,
         vertical: QSpace.s4,
@@ -54,20 +55,11 @@ final class ContinueReadingCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: QType.overline.copyWith(color: q.ink2),
-                ),
+                Text(title, style: QType.overline.copyWith(color: q.ink2)),
                 const SizedBox(height: 2),
-                Text(
-                  surahName,
-                  style: QType.titleSm.copyWith(color: q.ink),
-                ),
+                Text(surahName, style: QType.titleSm.copyWith(color: q.ink)),
                 const SizedBox(height: 2),
-                Text(
-                  ayahLabel,
-                  style: QType.caption.copyWith(color: q.ink2),
-                ),
+                Text(ayahLabel, style: QType.caption.copyWith(color: q.ink2)),
               ],
             ),
           ),
@@ -77,14 +69,6 @@ final class ContinueReadingCard extends StatelessWidget {
           ],
         ],
       ),
-    );
-    if (onTap == null) {
-      return card;
-    }
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: card,
     );
   }
 }

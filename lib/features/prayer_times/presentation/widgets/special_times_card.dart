@@ -62,7 +62,8 @@ final class SpecialTimeRow extends StatelessWidget {
     final accent = forbidden ? q.urgent : q.ok;
     final range =
         '${formatTime(window.start)}\u00A0– ${formatTime(window.end)}';
-    final card = QCard(
+    return QCard(
+      onTap: onTap,
       padding: const EdgeInsets.symmetric(
         horizontal: QSpace.s4,
         vertical: QSpace.s3,
@@ -105,17 +106,6 @@ final class SpecialTimeRow extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-    if (onTap == null) {
-      return card;
-    }
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: card,
       ),
     );
   }

@@ -142,34 +142,40 @@ final class _MosqueRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(QRadius.md),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: QSpace.s2,
-          vertical: QSpace.s3,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              size: 20,
-              color: selected ? q.primary : q.ink3,
-            ),
-            const SizedBox(width: QSpace.s3),
-            Expanded(
-              child: Text(
-                name,
-                style: QType.titleSm.copyWith(
-                  color: q.ink,
-                  fontVariations: [FontVariation('wght', selected ? 700 : 600)],
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(QRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpace.s2,
+            vertical: QSpace.s3,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 20,
+                color: selected ? q.primary : q.ink3,
+              ),
+              const SizedBox(width: QSpace.s3),
+              Expanded(
+                child: Text(
+                  name,
+                  style: QType.titleSm.copyWith(
+                    color: q.ink,
+                    fontVariations: [
+                      FontVariation('wght', selected ? 700 : 600),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

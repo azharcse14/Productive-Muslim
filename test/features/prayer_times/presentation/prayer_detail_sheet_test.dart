@@ -69,6 +69,21 @@ void main() {
       expect(find.text('3 Witr'), findsOneWidget);
     });
 
+    testWidgets("Friday Dhuhr with Jumu'ah reads Jumu'ah, 2 fard",
+        (tester) async {
+      await tester.pumpWidget(_app(
+        const SingleChildScrollView(
+          child: PrayerDetailSheet(
+            prayer: Prayer.dhuhr,
+            range: '12:05 pm – 3:30 pm',
+            jumuah: true,
+          ),
+        ),
+      ));
+      expect(find.text("Jumu'ah"), findsOneWidget);
+      expect(find.text('2 Fard'), findsOneWidget);
+    });
+
     testWidgets('renders the fazilat paragraph', (tester) async {
       await tester.pumpWidget(_app(
         const SingleChildScrollView(

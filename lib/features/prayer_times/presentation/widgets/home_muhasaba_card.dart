@@ -39,93 +39,90 @@ final class HomeMuhasabaCard extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     final languageCode = Localizations.localeOf(context).languageCode;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return QCard(
       onTap: onTap,
-      child: QCard(
-        padding: const EdgeInsets.symmetric(
-          horizontal: QSpace.s5,
-          vertical: QSpace.s4,
-        ),
-        child: Row(
-          children: [
-            QCelebrate(
-              active: completion >= 1,
-              haptic: true,
-              child: QProgressRing(
-                progress: completion,
-                size: 44,
-                strokeWidth: 5,
-                color: completion >= 1 ? q.accent : null,
-                child: Text(
+      padding: const EdgeInsets.symmetric(
+        horizontal: QSpace.s5,
+        vertical: QSpace.s4,
+      ),
+      child: Row(
+        children: [
+          QCelebrate(
+            active: completion >= 1,
+            haptic: true,
+            child: QProgressRing(
+              progress: completion,
+              size: 44,
+              strokeWidth: 5,
+              color: completion >= 1 ? q.accent : null,
+              child: Text(
+                LocaleDigits.localize(
+                  '${(completion * 100).round()}%',
+                  languageCode,
+                ),
+                style: QType.num_(QType.caption).copyWith(color: q.ink),
+              ),
+            ),
+          ),
+          const SizedBox(width: QSpace.s4),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.muhasabaTitle,
+                  style: QType.titleSm.copyWith(color: q.ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
                   LocaleDigits.localize(
-                    '${(completion * 100).round()}%',
+                    l10n.muhasabaDoneCount(doneToday, totalItems),
                     languageCode,
                   ),
-                  style: QType.num_(QType.caption).copyWith(color: q.ink),
+                  style: QType.num_(QType.caption).copyWith(color: q.ink2),
                 ),
-              ),
-            ),
-            const SizedBox(width: QSpace.s4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    l10n.muhasabaTitle,
-                    style: QType.titleSm.copyWith(color: q.ink),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    LocaleDigits.localize(
-                      l10n.muhasabaDoneCount(doneToday, totalItems),
-                      languageCode,
+                if (milestone) ...[
+                  const SizedBox(height: QSpace.s2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: QSpace.s2,
+                      vertical: QSpace.s1,
                     ),
-                    style: QType.num_(QType.caption).copyWith(color: q.ink2),
-                  ),
-                  if (milestone) ...[
-                    const SizedBox(height: QSpace.s2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: QSpace.s2,
-                        vertical: QSpace.s1,
+                    decoration: BoxDecoration(
+                      color: q.accentSoft,
+                      borderRadius: BorderRadius.circular(QRadius.full),
+                    ),
+                    child: Text(
+                      LocaleDigits.localize(
+                        l10n.streakMilestone(streak),
+                        languageCode,
                       ),
-                      decoration: BoxDecoration(
-                        color: q.accentSoft,
-                        borderRadius: BorderRadius.circular(QRadius.full),
-                      ),
-                      child: Text(
-                        LocaleDigits.localize(
-                          l10n.streakMilestone(streak),
-                          languageCode,
-                        ),
-                        style: QType.caption.copyWith(
-                          color: q.onAccentSoft,
-                          fontVariations: const [FontVariation('wght', 600)],
-                        ),
+                      style: QType.caption.copyWith(
+                        color: q.onAccentSoft,
+                        fontVariations: const [FontVariation('wght', 600)],
                       ),
                     ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
-            if (streak > 0) ...[
-              Icon(
-                Icons.local_fire_department_outlined,
-                size: 16,
-                color: q.primary,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                LocaleDigits.localize('$streak', languageCode),
-                style: QType.num_(QType.titleSm).copyWith(color: q.ink),
-              ),
-              const SizedBox(width: QSpace.s2),
-            ],
-            Icon(Icons.chevron_right, size: 20, color: q.ink3),
+          ),
+          if (streak > 0) ...[
+            Icon(
+              Icons.local_fire_department_outlined,
+              size: 16,
+              color: q.primary,
+            ),
+            const SizedBox(width: 2),
+            Text(
+              LocaleDigits.localize('$streak', languageCode),
+              style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+            ),
+            const SizedBox(width: QSpace.s2),
           ],
-        ),
+          Icon(Icons.chevron_right, size: 20, color: q.ink3),
+        ],
       ),
     );
   }

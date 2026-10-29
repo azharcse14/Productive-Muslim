@@ -71,7 +71,7 @@ final class QChip extends StatelessWidget {
                         label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: QType.label.copyWith(fontSize: 13.5, color: fg),
+                        style: QType.label.copyWith(color: fg),
                       ),
                     ),
                   ],
