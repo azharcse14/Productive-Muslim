@@ -176,6 +176,19 @@ void main() {
       }
     });
 
+    test('every dua has a Bengali-script transliteration (trBn)', () {
+      final bengali = RegExp('[ঀ-৿]');
+      for (final dua in allDuas) {
+        final trBn = dua['trBn'];
+        expect(trBn, isA<String>(), reason: 'dua "${dua['id']}" lacks trBn');
+        expect(
+          bengali.hasMatch(trBn! as String),
+          isTrue,
+          reason: 'trBn of dua "${dua['id']}" must be in Bengali script',
+        );
+      }
+    });
+
     test('dua ids are unique across the whole collection', () {
       final ids = allDuas.map((Map<String, Object?> d) => d['id']).toList();
       expect(ids.toSet(), hasLength(ids.length), reason: 'duplicate dua ids found');

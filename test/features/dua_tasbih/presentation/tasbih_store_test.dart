@@ -205,5 +205,26 @@ void main() {
 
       expect(store.totalToday.value, 0);
     });
+
+    test(
+      'a stale persisted round is credited to lifetime, not today',
+      () async {
+        final store = makeStore();
+        await store.load();
+        store
+          ..setTarget(100)
+          ..tap()
+          ..tap();
+        await pumpEventQueue();
+
+        final nextDay = makeStore(now: () => DateTime(2026, 6, 13, 10));
+        await nextDay.load();
+        expect(nextDay.count.value, 0);
+        expect(nextDay.target.value, 100);
+        expect(nextDay.totalToday.value, 0);
+        expect(nextDay.lifetimeTotal.value, 2);
+        expect(nextDay.lifetimeSessions.value, 1);
+      },
+    );
   });
 }
