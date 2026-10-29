@@ -261,20 +261,14 @@ void main() {
       await tester.pump();
 
       expect(find.text('Your daily muhasaba'), findsNothing);
-      expect(find.text('Fajr prayer'), findsOneWidget);
+      expect(find.text('Fajr'), findsOneWidget);
     });
 
     testWidgets('checklist renders salah chips and tracker rows', (
       tester,
     ) async {
       await pumpAndDismissWelcome(tester);
-      for (final name in [
-        'Fajr prayer',
-        'Dhuhr prayer',
-        'Asr prayer',
-        'Maghrib prayer',
-        'Isha prayer',
-      ]) {
+      for (final name in ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) {
         expect(find.text(name), findsOneWidget);
       }
       expect(find.text('Quran reading'), findsOneWidget);
@@ -283,7 +277,7 @@ void main() {
 
     testWidgets('tapping a salah chip persists value 1', (tester) async {
       await pumpAndDismissWelcome(tester);
-      await tester.tap(find.text('Fajr prayer'));
+      await tester.tap(find.text('Fajr'));
       await tester.pump();
       expect(repo.valueOn('salah_fajr', DateTime.now()), 1);
     });
@@ -304,7 +298,7 @@ void main() {
       await pumpAndDismissWelcome(tester);
       // The locked Asr chip carries a quiet clock icon instead of the mosque.
       expect(find.byIcon(Icons.schedule), findsOneWidget);
-      await tester.tap(find.text('Asr prayer'));
+      await tester.tap(find.text('Asr'));
       await tester.pump();
       // Value stays unset, and a toast explains why.
       expect(lockedRepo.valueOn('salah_asr', DateTime.now()), 0);

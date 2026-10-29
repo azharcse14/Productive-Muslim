@@ -203,6 +203,14 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     );
   }
 
+  static const _waqtIcons = <String, IconData>{
+    'salah_fajr': Icons.wb_twilight_outlined,
+    'salah_dhuhr': Icons.wb_sunny_outlined,
+    'salah_asr': Icons.wb_cloudy_outlined,
+    'salah_maghrib': Icons.nights_stay_outlined,
+    'salah_isha': Icons.bedtime_outlined,
+  };
+
   void _shiftDay(int days) {
     final d = _store.selectedDate.value;
     unawaited(_store.selectDate(DateTime(d.year, d.month, d.day + days)));
@@ -232,15 +240,21 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                   builder: (context) {
                     final isLocked = locked.contains(item.id);
                     final completed = _store.valueOf(item.id) > 0;
-                    final name = _nameOf(l10n, item);
+                    // Short waqt name ("Fajr", not "Fajr prayer").
+                    final name = switch (item.id) {
+                      'salah_fajr' => l10n.prayerFajr,
+                      'salah_dhuhr' => l10n.prayerDhuhr,
+                      'salah_asr' => l10n.prayerAsr,
+                      'salah_maghrib' => l10n.prayerMaghrib,
+                      'salah_isha' => l10n.prayerIsha,
+                      _ => _nameOf(l10n, item),
+                    };
 
-                    final cardColor = isLocked
-                        ? q.surface
-                        : (completed ? q.primarySoft : q.surface);
+                    final cardColor = completed ? q.primary : q.surface;
                     final borderColor = completed ? q.primary : q.line;
-                    final textColor = isLocked
-                        ? q.ink3
-                        : (completed ? q.primary : q.ink);
+                    final textColor = completed
+                        ? q.onPrimary
+                        : (isLocked ? q.ink3 : q.ink);
 
                     return Material(
                       color: Colors.transparent,
@@ -285,13 +299,12 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                               Icon(
                                 isLocked
                                     ? Icons.schedule
-                                    : (completed
-                                        ? Icons.check_circle
-                                        : Icons.radio_button_unchecked),
-                                size: 20,
-                                color: isLocked
-                                    ? q.ink3
-                                    : (completed ? q.primary : q.ink3),
+                                    : _waqtIcons[item.id] ??
+                                          Icons.mosque_outlined,
+                                size: 22,
+                                color: completed
+                                    ? q.onPrimary
+                                    : (isLocked ? q.ink3 : q.primary),
                               ),
                               const SizedBox(height: 6),
                               FittedBox(
