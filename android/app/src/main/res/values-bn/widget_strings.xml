@@ -3,4 +3,7 @@
     <string name="widget_description">এক নজরে পরের নামাজের সময়</string>
     <string name="widget_setup_action">সেট আপ করুন</string>
     <string name="widget_setup_hint">অবস্থান সেট করতে অ্যাপটি খুলুন</string>
+    <string name="widget_next_prayer">পরবর্তী নামাজ</string>
+    <string name="widget_stale_title">অ্যাপটি খুলুন</string>
+    <string name="widget_stale_hint">নামাজের সময় হালনাগাদ করা দরকার</string>
 </resources>

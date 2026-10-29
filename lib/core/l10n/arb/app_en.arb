@@ -1546,6 +1546,15 @@
   "trackerValueInvalid": "Enter a number from 0 to 100000",
   "a11yTypeValue": "type a value",
   "widgetSetupHint": "Open the app to set your location",
+  "widgetSetupAction": "Set up",
+  "@widgetSetupAction": {
+    "description": "Home-screen widget, before a location is set: the call to action."
+  },
+  "widgetStaleTitle": "Open the app",
+  "@widgetStaleTitle": {
+    "description": "Home-screen widget when its pushed prayer times have run out (app not opened for days)."
+  },
+  "widgetStaleHint": "Prayer times need updating",
   "onboardingSaveFailed": "Your settings couldn't be saved. You can change them later in Settings.",
   "specialTimesEmpty": "No times to show for today.",
   "clearSearch": "Clear search",

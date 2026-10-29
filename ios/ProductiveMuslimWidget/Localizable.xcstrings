@@ -1,0 +1,66 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Next Prayer": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পরবর্তী নামাজ"
+          }
+        }
+      }
+    },
+    "Next prayer": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "পরবর্তী নামাজ"
+          }
+        }
+      }
+    },
+    "Next prayer time at a glance": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "এক নজরে পরের নামাজের সময়"
+          }
+        }
+      }
+    },
+    "Open the app": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "অ্যাপটি খুলুন"
+          }
+        }
+      }
+    },
+    "Open the app to set your location": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "অবস্থান সেট করতে অ্যাপটি খুলুন"
+          }
+        }
+      }
+    },
+    "Prayer times need updating": {
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "নামাজের সময় হালনাগাদ করা দরকার"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

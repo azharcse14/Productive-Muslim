@@ -3333,6 +3333,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get widgetSetupHint => 'অবস্থান সেট করতে অ্যাপটি খুলুন';
 
   @override
+  String get widgetSetupAction => 'সেট আপ করুন';
+
+  @override
+  String get widgetStaleTitle => 'অ্যাপটি খুলুন';
+
+  @override
+  String get widgetStaleHint => 'নামাজের সময় হালনাগাদ করা দরকার';
+
+  @override
   String get onboardingSaveFailed =>
       'আপনার সেটিংস সংরক্ষণ করা যায়নি। পরে সেটিংস থেকে বদলে নিতে পারবেন।';
 

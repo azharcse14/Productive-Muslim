@@ -9,77 +9,99 @@ private let qFaint = Color(red: 0.863, green: 0.914, blue: 0.894)       // #DCE9
 /// App Group shared with the Flutter app (see AppDelegate + entitlements).
 private let appGroup = "group.com.productivemuslim.app"
 
+/// Mirrors `WidgetSchedule.kt` (the Kotlin side has the unit tests) — keep
+/// the two in sync. Reads the `widget_*` strings pushed by the app.
+enum WidgetSchedule {
+  /// `widget_schedule`: `epochMillis<TAB>prayer<TAB>time` per prayer start.
+  static func starts(_ d: UserDefaults?) -> [(at: Date, prayer: String, time: String)] {
+    lines(d, "widget_schedule").compactMap { p in
+      guard p.count >= 3, let ms = Double(p[0]) else { return nil }
+      return (date(ms), p[1], p[2])
+    }
+  }
+
+  /// `widget_strips`: `startMillis<TAB>endMillis<TAB>strip` per day. Before
+  /// the first push after an upgrade: the legacy today/tomorrow strips.
+  static func strips(_ d: UserDefaults?) -> [(start: Date, end: Date, text: String)] {
+    let pushed: [(start: Date, end: Date, text: String)] =
+      lines(d, "widget_strips").compactMap { p in
+        guard p.count >= 3, let s = Double(p[0]), let e = Double(p[1]) else { return nil }
+        return (date(s), date(e), p[2])
+      }
+    if !pushed.isEmpty { return pushed }
+    let today = d?.string(forKey: "widget_times") ?? ""
+    let tomorrow = d?.string(forKey: "widget_times_next") ?? ""
+    guard let flip = Double(d?.string(forKey: "widget_day_flip") ?? ""), flip > 0,
+          !tomorrow.isEmpty else {
+      return [(.distantPast, .distantFuture, today)]
+    }
+    return [(.distantPast, date(flip), today), (date(flip), .distantFuture, tomorrow)]
+  }
+
+  private static func lines(_ d: UserDefaults?, _ key: String) -> [[String]] {
+    (d?.string(forKey: key) ?? "").split(separator: "\n").map {
+      $0.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
+    }
+  }
+
+  private static func date(_ millis: Double) -> Date {
+    Date(timeIntervalSince1970: millis / 1000)
+  }
+}
+
+enum WidgetState {
+  case setup(hint: String)
+  case next(prayer: String, time: String, strip: String)
+  /// Past the last pushed start: never show times that have passed.
+  case stale(title: String, hint: String)
+}
+
 struct ProductiveMuslimEntry: TimelineEntry {
   let date: Date
-  let configured: Bool
   let label: String
-  let prayer: String
-  let time: String
   let location: String
-  let times: String
-  let setupHint: String
+  let state: WidgetState
 }
 
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> ProductiveMuslimEntry {
-    ProductiveMuslimEntry(date: Date(), configured: false, label: "Productive Muslim",
-                prayer: "Set up", time: "", location: "", times: "", setupHint: "")
+    ProductiveMuslimEntry(date: Date(), label: "", location: "",
+                          state: .setup(hint: ""))
   }
 
   func getSnapshot(in context: Context, completion: @escaping (ProductiveMuslimEntry) -> Void) {
-    completion(read())
+    completion(read(at: Date()))
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<ProductiveMuslimEntry>) -> Void) {
-    // One entry now plus one at every upcoming prayer start, each showing
-    // the prayer after it, so "next prayer" flips on time without the app.
+    // One entry now plus one at every upcoming prayer start and day start,
+    // so the widget stays right for the pushed days without the app.
     let now = Date()
-    let starts = schedule().map { $0.at }.filter { $0 > now }
-    // Plus midnight, when the five-time strip swaps to tomorrow's.
-    let flips = [dayFlip()].compactMap { $0 }.filter { $0 > now }
-    let entries = [read(at: now)]
-      + (starts + flips).sorted().map { read(at: $0) }
-    // Past the pushed schedule: poll until the app pushes a fresh one.
-    let policy: TimelineReloadPolicy = starts.isEmpty
-      ? .after(now.addingTimeInterval(900)) : .atEnd
+    let d = UserDefaults(suiteName: appGroup)
+    let changes = WidgetSchedule.starts(d).map { $0.at }
+      + WidgetSchedule.strips(d).map { $0.start }
+    let entries = [read(at: now)] + changes.filter { $0 > now }.sorted().map { read(at: $0) }
+    // Only the app can produce new times, and it reloads timelines whenever
+    // it pushes — so once stale (or not set up), don't poll.
+    let policy: TimelineReloadPolicy
+    if case .next = entries[0].state { policy = .atEnd } else { policy = .never }
     completion(Timeline(entries: entries, policy: policy))
   }
 
-  /// When tomorrow's date begins (`widget_day_flip`, epoch millis).
-  private func dayFlip() -> Date? {
-    let raw = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_day_flip") ?? ""
-    guard let millis = Double(raw), millis > 0 else { return nil }
-    return Date(timeIntervalSince1970: millis / 1000)
-  }
-
-  /// `widget_schedule` lines (`epochMillis<TAB>prayer<TAB>time`), in order.
-  private func schedule() -> [(at: Date, prayer: String, time: String)] {
-    let raw = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_schedule") ?? ""
-    return raw.split(separator: "\n").compactMap { line in
-      let parts = line.split(separator: "\t", omittingEmptySubsequences: false)
-      guard parts.count >= 3, let millis = Double(parts[0]) else { return nil }
-      return (Date(timeIntervalSince1970: millis / 1000), String(parts[1]), String(parts[2]))
-    }
-  }
-
-  private func read(at date: Date = Date()) -> ProductiveMuslimEntry {
+  private func read(at date: Date) -> ProductiveMuslimEntry {
     let d = UserDefaults(suiteName: appGroup)
-    let configured = (d?.string(forKey: "widget_configured") ?? "0") == "1"
-    // First prayer starting after `date`; past the schedule, the last
-    // pushed snapshot.
-    let next = schedule().first { $0.at > date }
-    let nextDay = d?.string(forKey: "widget_times_next") ?? ""
-    let flipped = (dayFlip().map { date >= $0 } ?? false) && !nextDay.isEmpty
-    return ProductiveMuslimEntry(
-      date: date,
-      configured: configured,
-      label: d?.string(forKey: "widget_label") ?? "",
-      prayer: next?.prayer ?? d?.string(forKey: "widget_prayer") ?? "—",
-      time: next?.time ?? d?.string(forKey: "widget_time") ?? "",
-      location: d?.string(forKey: "widget_location") ?? "",
-      times: flipped ? nextDay : d?.string(forKey: "widget_times") ?? "",
-      setupHint: d?.string(forKey: "widget_setup_hint") ?? ""
-    )
+    func text(_ key: String) -> String { d?.string(forKey: key) ?? "" }
+    let state: WidgetState
+    if text("widget_configured") != "1" {
+      state = .setup(hint: text("widget_setup_hint"))
+    } else if let next = WidgetSchedule.starts(d).first(where: { $0.at > date }) {
+      let strip = WidgetSchedule.strips(d).first { date >= $0.start && date < $0.end }
+      state = .next(prayer: next.prayer, time: next.time, strip: strip?.text ?? "")
+    } else {
+      state = .stale(title: text("widget_stale_title"), hint: text("widget_stale_hint"))
+    }
+    return ProductiveMuslimEntry(date: date, label: text("widget_label"),
+                                 location: text("widget_location"), state: state)
   }
 }
 
@@ -88,18 +110,19 @@ struct ProductiveMuslimWidgetEntryView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      if entry.configured {
-        Text(entry.label)
+      switch entry.state {
+      case let .next(prayer, time, strip):
+        pushed(entry.label, or: "Next prayer")
           .font(.caption2)
           .foregroundColor(qSoft)
         HStack(alignment: .lastTextBaseline) {
-          Text(entry.prayer)
+          Text(prayer)
             .font(.title2.weight(.bold))
             .foregroundColor(.white)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
           Spacer()
-          Text(entry.time)
+          Text(time)
             .font(.title2)
             .foregroundColor(.white)
             .lineLimit(1)
@@ -110,22 +133,44 @@ struct ProductiveMuslimWidgetEntryView: View {
           .foregroundColor(qSoft)
           .lineLimit(1)
         Spacer()
-        Text(entry.times)
+        Text(strip)
           .font(.caption2)
           .foregroundColor(qFaint)
           .lineLimit(1)
           .minimumScaleFactor(0.5)
-      } else {
-        Text("Productive Muslim")
-          .font(.headline)
+      case let .stale(title, hint):
+        // Texts pushed in the in-app language; the String Catalog covers
+        // the time before the app first pushes them.
+        brand
+        pushed(title, or: "Open the app")
+          .font(.title2.weight(.bold))
           .foregroundColor(.white)
-        // Localized hint pushed by the app; English until it first runs.
-        Text(entry.setupHint.isEmpty ? "Open the app to set your location" : entry.setupHint)
+          .lineLimit(1)
+          .minimumScaleFactor(0.6)
+        pushed(hint, or: "Prayer times need updating")
+          .font(.caption2)
+          .foregroundColor(qSoft)
+      case let .setup(hint):
+        brand
+        pushed(hint, or: "Open the app to set your location")
           .font(.caption2)
           .foregroundColor(qSoft)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+  }
+
+  /// A text pushed by the app (in-app language), or the String Catalog
+  /// [fallback] before the app has pushed one.
+  private func pushed(_ text: String, or fallback: LocalizedStringKey) -> Text {
+    text.isEmpty ? Text(fallback) : Text(verbatim: text)
+  }
+
+  /// Brand name — never translated.
+  private var brand: some View {
+    Text(verbatim: "Productive Muslim")
+      .font(.headline)
+      .foregroundColor(.white)
   }
 }
 

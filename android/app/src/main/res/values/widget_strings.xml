@@ -4,4 +4,7 @@
     <string name="widget_setup_title" translatable="false">Productive Muslim</string>
     <string name="widget_setup_action">Set up</string>
     <string name="widget_setup_hint">Open the app to set your location</string>
+    <string name="widget_next_prayer">Next prayer</string>
+    <string name="widget_stale_title">Open the app</string>
+    <string name="widget_stale_hint">Prayer times need updating</string>
 </resources>
