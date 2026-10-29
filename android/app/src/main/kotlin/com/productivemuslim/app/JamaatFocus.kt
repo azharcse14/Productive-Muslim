@@ -63,9 +63,6 @@ object JamaatFocus {
     /** The user's own DND exceptions (starred callers, alarms) still apply. */
     private const val SILENT = NotificationManager.INTERRUPTION_FILTER_PRIORITY
 
-    /** A "until I end it" session may start this late (alarm delayed, phone off). */
-    private const val MANUAL_GRACE_MS = 30 * 60 * 1000L
-
     // activeUntil: 0 = no session, -1 = until the user ends it, else epoch ms.
     private const val ACTIVE_UNTIL = "activeUntil"
 
@@ -129,13 +126,10 @@ object JamaatFocus {
 
     /** Replaces the plan (from Dart) and re-evaluates now. */
     fun schedule(c: Context, args: Map<*, *>) {
-        val windows = (args["windows"] as? List<*>).orEmpty().mapNotNull { w ->
-            val pair = w as? List<*> ?: return@mapNotNull null
-            "${(pair[0] as Number).toLong()},${(pair[1] as Number).toLong()}"
-        }
+        val windows = FocusPlan.fromArgs(args["windows"])
         val enabled = args["enabled"] == true
         prefs(c).edit().apply {
-            putString("windows", if (enabled) windows.joinToString(";") else "")
+            putString("windows", if (enabled) FocusPlan.encode(windows) else "")
             putBoolean("block", args["block"] == true)
             putBoolean("strict", args["strict"] == true)
             putBoolean("nafs", args["nafs"] == true)
@@ -155,11 +149,7 @@ object JamaatFocus {
         tick(c)
     }
 
-    private fun windows(c: Context): List<Pair<Long, Long>> =
-        prefs(c).getString("windows", "").orEmpty().split(';').mapNotNull {
-            val parts = it.split(',')
-            if (parts.size != 2) null else parts[0].toLong() to parts[1].toLong()
-        }
+    private fun windows(c: Context) = FocusPlan.parse(prefs(c).getString("windows", ""))
 
     /** Ends a session past its time, starts a due one, arms the next alarm. */
     fun tick(c: Context) {
@@ -171,15 +161,11 @@ object JamaatFocus {
             until = 0L
         }
         if (until == 0L) {
-            val last = p.getLong("lastStart", 0L)
-            windows(c).firstOrNull { (from, to) ->
-                val closes = if (to > 0) to else from + MANUAL_GRACE_MS
-                now >= from && from != last && now < closes
-            }?.let { start(c, it.first, it.second) }
+            FocusPlan.due(windows(c), now, p.getLong("lastStart", 0L))
+                ?.let { start(c, it.first, it.second) }
             until = p.getLong(ACTIVE_UNTIL, 0L)
         }
-        val next = (windows(c).map { it.first } + until).filter { it > now }.minOrNull()
-        arm(c, next)
+        arm(c, FocusPlan.nextAlarm(windows(c), until, now))
     }
 
     private fun start(c: Context, start: Long, end: Long) {
@@ -375,24 +361,15 @@ object JamaatFocus {
         found.map { it.activityInfo.packageName }.toSet()
     }.also { clocks = it }
 
-    /**
-     * Never covered: this app, the shade, keyboard, calls, alarm apps (an
-     * alarm must never be covered) — and Settings, the
-     * package installer and Play, so the user can always turn the service off
-     * or uninstall (Play accessibility policy).
-     */
-    fun allowed(c: Context, pkg: String): Boolean {
-        if (pkg == c.packageName || pkg == "android" || pkg == "com.android.systemui" ||
-            pkg == "com.android.server.telecom" || pkg == "com.android.phone" ||
-            pkg == "com.android.emergency" || pkg == "com.android.settings" ||
-            pkg == "com.android.packageinstaller" ||
-            pkg == "com.google.android.packageinstaller" || pkg == "com.android.vending"
-        ) return true
-        val tm = c.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
-        if (pkg == tm?.defaultDialerPackage || pkg in clocks(c)) return true
-        val ime = Settings.Secure.getString(c.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
-        return ime?.startsWith("$pkg/") == true
-    }
+    /** See [FocusPlan.allowed]; this side only looks up the device's apps. */
+    fun allowed(c: Context, pkg: String): Boolean = FocusPlan.allowed(
+        pkg,
+        own = c.packageName,
+        dialer = (c.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager)
+            ?.defaultDialerPackage,
+        ime = Settings.Secure.getString(c.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD),
+        clocks = clocks(c),
+    )
 }
 
 /** Alarm (start/end), notification "End", and boot/update re-arm. */

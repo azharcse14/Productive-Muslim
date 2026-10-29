@@ -29,6 +29,7 @@ healthy maintenance. Log the check date and a one-line justification here.
 | `path_provider` + `path` | ^2.1.5 / ^1.9.x | 2026-06-12 | — | App-dir path for the copied Quran DB (flutter.dev) |
 | `local_auth` | ^3.0.1 | 2026-06-12 | 2026-02-25 | Biometric app lock (flutter.dev); local_auth_darwin ships Package.swift |
 | `crypto` | ^3.x | 2026-06-12 | — | SHA-256 PIN hashing (dart.dev) — raw PIN never stored |
+| `junit:junit` (Gradle, Android) | 4.13.2 | 2026-10-29 | 2021-02-13 | Android `testImplementation` only (never shipped): JVM unit tests for native code (`WidgetScheduleTest`, `FocusPlanTest`, `ShakeCounterTest`). **Exception note:** last publish >12 months, but JUnit 4 is the runner AGP's local unit tests are built on and the Android project template's default |
 
 ## Decisions
 
