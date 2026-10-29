@@ -105,6 +105,20 @@ void main() {
     expect(find.text('In the name of Allah'), findsNothing);
   });
 
+  testWidgets('search by category name also matches', (tester) async {
+    await tester.pumpWidget(_app(const DuaScreen()));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'sleep');
+    await tester.pumpAndSettle();
+
+    expect(find.text('O Allah, in Your name I die and live'), findsOneWidget);
+    expect(find.text('In the name of Allah'), findsNothing);
+  });
+
   testWidgets('gibberish query shows no-results message', (tester) async {
     await tester.pumpWidget(_app(const DuaScreen()));
     await tester.pump();

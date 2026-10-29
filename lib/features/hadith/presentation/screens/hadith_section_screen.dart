@@ -13,7 +13,9 @@ import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../quran/presentation/state/quran_store.dart';
+import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../../domain/entities/hadith_book.dart';
+import '../state/hadith_books_store.dart';
 import '../state/hadith_section_store.dart';
 import '../widgets/hadith_list_card.dart';
 
@@ -23,11 +25,15 @@ final class HadithSectionScreen extends StatefulWidget {
   const HadithSectionScreen({
     required this.book,
     required this.section,
+    this.focusNumber,
     super.key,
   });
 
   final HadithBook book;
   final HadithSection section;
+
+  /// Show only this hadith (number lookup) instead of the whole chapter.
+  final int? focusNumber;
 
   @override
   State<HadithSectionScreen> createState() => _HadithSectionScreenState();
@@ -50,6 +56,19 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
     if (_lang == null) {
       _lang = Localizations.localeOf(context).languageCode;
       unawaited(_load());
+      if (locator.isRegistered<HadithBooksStore>()) {
+        final languageCode = Localizations.localeOf(context).languageCode;
+        // After this frame: the books list watching it may be mid-build.
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => unawaited(
+            locator<HadithBooksStore>().markOpened(
+              widget.book,
+              widget.section,
+              languageCode,
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -65,7 +84,10 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.section.name)),
+      appBar: AppBar(
+        title: Text(widget.section.name),
+        actions: const [ReaderSettingsAction()],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
@@ -80,13 +102,19 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
               );
             }
             final bnSource = widget.book.usesBanglaSource(_lang!);
-            final items = _store.items.value;
+            final focus = widget.focusNumber;
+            final items = [
+              for (final h in _store.items.value)
+                if (focus == null || h.number == focus) h,
+            ];
             if (items.isEmpty) {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(QSpace.s6),
                   child: Text(
-                    l10n.hadithSectionEmpty,
+                    focus == null
+                        ? l10n.hadithSectionEmpty
+                        : l10n.hadithNumberNotFound,
                     textAlign: TextAlign.center,
                     style: QType.body.copyWith(color: context.q.ink2),
                   ),
@@ -156,10 +184,18 @@ final class _BookHadithCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hadith.arabic.isNotEmpty) ...[
-            Text(
-              hadith.arabic,
-              textDirection: TextDirection.rtl,
-              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+            // Rebuilds when the reader text size changes.
+            SignalBuilder(
+              builder: (context) => Text(
+                hadith.arabic,
+                textDirection: TextDirection.rtl,
+                // Lets screen readers pick an Arabic voice.
+                locale: const Locale('ar'),
+                // Sized by the reader setting, so the system text scale
+                // must not multiply it again.
+                textScaler: TextScaler.noScaling,
+                style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+              ),
             ),
             const SizedBox(height: QSpace.s3),
           ],

@@ -11,10 +11,12 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
+import 'hadith_section_screen.dart';
 import 'hadith_sections_screen.dart';
 
 /// List of the full hadith collections in the bundled catalog.
@@ -47,6 +49,37 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
     );
   }
 
+  Widget _continueCard(
+    BuildContext context,
+    HadithBook book,
+    HadithSection section,
+  ) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return QCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: QSpace.s4,
+        vertical: QSpace.s2,
+      ),
+      child: QListRow(
+        icon: Icons.menu_book_outlined,
+        title: context.l10n.continueReading,
+        subtitle: '${book.titleFor(languageCode)} · ${section.name}',
+        trailing: Icon(Icons.chevron_right, color: context.q.ink3),
+        onTap: () {
+          Haptics.selection();
+          unawaited(
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    HadithSectionScreen(book: book, section: section),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -75,6 +108,8 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
                 onRetry: () => unawaited(_store.load()),
               );
             }
+            final resume = _store.resumeFor(languageCode);
+            final lead = resume == null ? 0 : 1;
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -82,9 +117,13 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
                 QSpace.s5,
                 QSpace.s5,
               ),
-              itemCount: books.length + 1,
+              itemCount: lead + books.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-              itemBuilder: (context, index) {
+              itemBuilder: (context, i) {
+                if (resume != null && i == 0) {
+                  return _continueCard(context, resume.$1, resume.$2);
+                }
+                final index = i - lead;
                 if (index == books.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: QSpace.s2),

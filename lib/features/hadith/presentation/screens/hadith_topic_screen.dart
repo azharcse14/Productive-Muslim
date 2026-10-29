@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../../domain/entities/hadith.dart';
 import '../widgets/hadith_list_card.dart';
 
@@ -15,7 +16,10 @@ final class HadithTopicScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.hadithTopicName(topic.id))),
+      appBar: AppBar(
+        title: Text(l10n.hadithTopicName(topic.id)),
+        actions: const [ReaderSettingsAction()],
+      ),
       body: SafeArea(
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(

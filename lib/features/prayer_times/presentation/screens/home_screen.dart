@@ -21,6 +21,7 @@ import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
 import '../../../dua_tasbih/domain/entities/dua.dart';
 import '../../../dua_tasbih/presentation/screens/tasbih_screen.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../../dua_tasbih/presentation/widgets/dua_card.dart';
 import '../../../hadith/domain/entities/hadith.dart';
 import '../../../hadith/presentation/state/hadith_store.dart';
 import '../../../hadith/presentation/widgets/hadith_card.dart';
@@ -792,7 +793,7 @@ final class _HomeScreenState extends State<HomeScreen> {
     arabic: dua.arabic,
     translation: dua.translationFor(locale.languageCode),
     reference: dua.reference,
-    onTap: () => context.goNamed(Routes.dua.name),
+    onTap: () => unawaited(showDuaSheet(context, dua)),
   );
 }
 

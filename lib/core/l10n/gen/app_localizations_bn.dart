@@ -1063,6 +1063,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get searchSurahHint => 'সূরা খুঁজুন…';
 
   @override
+  String get surahSearchNoResults =>
+      'কোনো সূরা মেলেনি — অন্য নাম বা নম্বর দিয়ে চেষ্টা করুন';
+
+  @override
   String get continueReading => 'পড়া চালিয়ে যান';
 
   @override
@@ -1120,6 +1124,26 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get bookmarksEmpty =>
       'এখনো কোনো বুকমার্ক নেই। যেকোনো আয়াতের বুকমার্ক আইকনে চাপ দিলে এখানে জমা হবে।';
+
+  @override
+  String get bookmarkRemoved => 'বুকমার্ক সরানো হয়েছে';
+
+  @override
+  String get bookmarkUndo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get goToAyah => 'আয়াতে যান';
+
+  @override
+  String goToAyahHint(String max) {
+    return 'আয়াত ১–$max';
+  }
+
+  @override
+  String get goToAction => 'যান';
+
+  @override
+  String get nextSurah => 'পরের সূরা';
 
   @override
   String get bookmarkLabel => 'বুকমার্ক';
@@ -1182,6 +1206,34 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get asmaQuizNext => 'পরবর্তী';
+
+  @override
+  String get asmaQuizSwitchModeTitle => 'কুইজের মোড বদলাবেন?';
+
+  @override
+  String get asmaQuizSwitchModeBody =>
+      'নতুন কুইজ শুরু হবে; এখনকার অগ্রগতি মুছে যাবে।';
+
+  @override
+  String get asmaQuizSwitchMode => 'বদলান';
+
+  @override
+  String get asmaQuizCorrect => 'সঠিক';
+
+  @override
+  String asmaQuizWrongAnswerIs(String answer) {
+    return 'হয়নি — সঠিক উত্তর $answer';
+  }
+
+  @override
+  String asmaQuizCorrectOption(String label) {
+    return '$label, সঠিক উত্তর';
+  }
+
+  @override
+  String asmaQuizWrongOption(String label) {
+    return '$label, আপনার উত্তর, ভুল';
+  }
 
   @override
   String get asmaQuizSeeResult => 'ফলাফল দেখুন';
@@ -1447,6 +1499,16 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String duaRepeatProgress(String count, String target) {
+    return '$count/$target';
+  }
+
+  @override
+  String duaRepeatCounterLabel(String count, String target) {
+    return '$target বারের মধ্যে $count বার গোনা হয়েছে। গুনতে চাপ দিন, শূন্য করতে চেপে ধরে রাখুন।';
+  }
+
+  @override
   String get referenceLabel => 'সূত্র';
 
   @override
@@ -1519,6 +1581,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get tasbihTargetReached => 'লক্ষ্য পূর্ণ — আল্লাহ কবুল করুন';
+
+  @override
+  String get tasbihDhikr => 'জিকির';
+
+  @override
+  String tasbihPhrase(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'subhanallah': 'সুবহানাল্লাহ',
+      'alhamdulillah': 'আলহামদুলিল্লাহ',
+      'allahuakbar': 'আল্লাহু আকবার',
+      'tahlil': 'লা ইলাহা ইল্লাল্লাহ',
+      'astaghfirullah': 'আস্তাগফিরুল্লাহ',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tasbihAfterSalah => 'নামাজের পর ৩৩·৩৩·৩৪';
+
+  @override
+  String tasbihStepProgress(String count, String target) {
+    return '$target-এর মধ্যে $count';
+  }
 
   @override
   String get ramadanTitle => 'রমজান';
@@ -2252,7 +2338,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithBooksTitle => 'হাদিস সংকলন';
 
   @override
-  String get hadithBooksSubtitle => 'ওপেন ডেটাসেট থেকে পূর্ণ কিতাব ব্রাউজ করুন';
+  String get hadithBooksSubtitle => 'পূর্ণ কিতাবগুলো পড়ুন — ইন্টারনেট ছাড়াই';
 
   @override
   String get hadithBookAllSahih => 'প্রতিটি হাদিস সহিহ';
@@ -2263,8 +2349,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get hadithLoadError =>
-      'লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।';
+  String get hadithLoadError => 'লোড করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get hadithRetry => 'আবার চেষ্টা করুন';
@@ -2766,6 +2851,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get hadithSectionEmpty => 'এই অধ্যায়ে কোনো হাদিস নেই।';
+
+  @override
+  String get hadithGoToNumber => 'হাদিস নম্বরে যান';
+
+  @override
+  String get hadithNumberHint => 'হাদিস নম্বর';
+
+  @override
+  String get hadithNumberNotFound => 'এই কিতাবে এই নম্বরের কোনো হাদিস নেই';
 
   @override
   String hadithGradeWord(String word) {

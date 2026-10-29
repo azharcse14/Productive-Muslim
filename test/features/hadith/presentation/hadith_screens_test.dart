@@ -17,25 +17,28 @@ import 'package:productive_muslim/features/hadith/presentation/screens/hadith_to
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_books_store.dart';
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_section_store.dart';
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 Hadith _h(String id, String topic) => Hadith(
-      id: id,
-      topic: topic,
-      grade: 'Sahih',
-      arabic: 'عربي-$id',
-      en: 'English $id',
-      bn: '',
-      narrator: 'Abu Hurairah (RA)',
-      reference: 'Sahih Bukhari $id',
-    );
+  id: id,
+  topic: topic,
+  grade: 'Sahih',
+  arabic: 'عربي-$id',
+  en: 'English $id',
+  bn: '',
+  narrator: 'Abu Hurairah (RA)',
+  reference: 'Sahih Bukhari $id',
+);
 
 final class _FakeHadithRepository implements HadithRepository {
   @override
   Future<Result<List<Hadith>>> all() async => Result.success([
-        _h('1', 'faith'),
-        _h('2', 'character'),
-        _h('3', 'character'),
-      ]);
+    _h('1', 'faith'),
+    _h('2', 'character'),
+    _h('3', 'character'),
+  ]);
 }
 
 /// Fails the first load, succeeds after.
@@ -109,7 +112,9 @@ Future<_FakeBookRepository> _register({bool failSection = false}) async {
   final store = HadithStore(_FakeHadithRepository());
   await store.load();
   final booksRepo = _FakeBookRepository(fail: failSection);
-  final booksStore = HadithBooksStore(booksRepo);
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
+  final booksStore = HadithBooksStore(booksRepo, SharedPreferencesAsync());
   await booksStore.load();
   GetIt.I
     ..registerSingleton<HadithStore>(store)
@@ -122,8 +127,9 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('HadithScreen', () {
-    testWidgets('shows the full-collections card and the topic grid',
-        (tester) async {
+    testWidgets('shows the full-collections card and the topic grid', (
+      tester,
+    ) async {
       await _register();
       await tester.pumpWidget(_app(const HadithScreen()));
       await tester.pump();
@@ -165,8 +171,9 @@ void main() {
   });
 
   group('Hadith books browsing', () {
-    testWidgets('books -> sections -> section reader fetches hadith',
-        (tester) async {
+    testWidgets('books -> sections -> section reader fetches hadith', (
+      tester,
+    ) async {
       await _register();
       await tester.pumpWidget(_app(const HadithBooksScreen()));
       await tester.pump();
@@ -184,17 +191,59 @@ void main() {
       expect(find.text('Actions are by intentions'), findsOneWidget);
     });
 
+    testWidgets('the last opened chapter is offered as Continue reading', (
+      tester,
+    ) async {
+      await _register();
+      await GetIt.I<HadithBooksStore>().markOpened(
+        _bukhari,
+        _bukhari.sections.first,
+        'en',
+      );
+      // A fresh store restores it from prefs.
+      final restored = HadithBooksStore(
+        _FakeBookRepository(),
+        SharedPreferencesAsync(),
+      );
+      await restored.load();
+      expect(restored.resumeFor('en')?.$2.name, 'Revelation');
+      expect(restored.resumeFor('bn'), isNull); // other numbering
+
+      await tester.pumpWidget(_app(const HadithBooksScreen()));
+      await tester.pump();
+      await tester.tap(find.text('Continue reading'));
+      await tester.pumpAndSettle();
+      expect(find.byType(HadithSectionScreen), findsOneWidget);
+    });
+
+    testWidgets('hadith-number lookup opens just that hadith', (tester) async {
+      await _register();
+      await tester.pumpWidget(_app(const HadithSectionsScreen(book: _bukhari)));
+      await tester.tap(find.byTooltip('Go to hadith number'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '১'); // Bengali digit
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HadithSectionScreen), findsOneWidget);
+      expect(find.text('Actions are by intentions'), findsOneWidget);
+    });
+
     testWidgets('a failed fetch shows the retry affordance', (tester) async {
       await _register(failSection: true);
       await tester.pumpWidget(
-        _app(const HadithSectionScreen(
-          book: _bukhari,
-          section: HadithSection(
-            number: 1,
-            name: 'Revelation',
-            first: 1, last: 7, count: 7,
+        _app(
+          const HadithSectionScreen(
+            book: _bukhari,
+            section: HadithSection(
+              number: 1,
+              name: 'Revelation',
+              first: 1,
+              last: 7,
+              count: 7,
+            ),
           ),
-        )),
+        ),
       );
       await tester.pumpAndSettle();
 

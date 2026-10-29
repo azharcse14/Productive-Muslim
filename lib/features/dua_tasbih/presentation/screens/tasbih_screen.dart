@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -16,6 +18,39 @@ import '../../../../shared/widgets/q_progress_ring.dart';
 import '../state/tasbih_store.dart';
 
 const _presets = [33, 100];
+
+/// Standard short dhikr phrases: l10n id (transliteration) → Arabic.
+const _phrases = {
+  'subhanallah': 'سُبْحَانَ ٱللَّٰهِ',
+  'alhamdulillah': 'ٱلْحَمْدُ لِلَّٰهِ',
+  'allahuakbar': 'ٱللَّٰهُ أَكْبَرُ',
+  'tahlil': 'لَا إِلَٰهَ إِلَّا ٱللَّٰهُ',
+  'astaghfirullah': 'أَسْتَغْفِرُ ٱللَّٰهَ',
+};
+
+/// The after-prayer tasbih: one 100-bead round, the phrase advancing at
+/// each boundary (33 SubhanAllah, 33 Alhamdulillah, 34 Allahu Akbar).
+const _afterSalahId = 'after_salah';
+const _afterSalahSteps = [
+  ('subhanallah', 33),
+  ('alhamdulillah', 33),
+  ('allahuakbar', 34),
+];
+const _afterSalahTotal = 100;
+
+/// The after-salah step for [count]: (phrase id, beads into the step, step
+/// size). Past the end it stays on the last step, full.
+(String, int, int) afterSalahStep(int count) {
+  var start = 0;
+  for (final (id, size) in _afterSalahSteps) {
+    if (count < start + size) {
+      return (id, count - start, size);
+    }
+    start += size;
+  }
+  final (id, size) = _afterSalahSteps.last;
+  return (id, size, size);
+}
 
 /// Full-screen tactile counter: the whole lower area is one big tap target
 /// around the progress ring. Daily-touch surface — keep it calm.
@@ -30,10 +65,66 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   // App-scoped store — never disposed here.
   late final TasbihStore _store = locator<TasbihStore>();
 
+  static const _phraseKey = 'tasbih_phrase';
+  final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
+
+  /// A [_phrases] id or [_afterSalahId]; persisted.
+  final _phrase = signal(_phrases.keys.first);
+
+  /// After-salah mode only holds while the round is the 100-bead one (the
+  /// target can also change from the Home quick card).
+  bool get _afterSalah =>
+      _phrase.value == _afterSalahId && _store.target.value == _afterSalahTotal;
+
   @override
   void initState() {
     super.initState();
     unawaited(_store.load());
+    unawaited(_loadPhrase());
+  }
+
+  @override
+  void dispose() {
+    _phrase.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPhrase() async {
+    final saved = await _prefs.getString(_phraseKey);
+    if (mounted &&
+        saved != null &&
+        (saved == _afterSalahId || _phrases.containsKey(saved))) {
+      _phrase.value = saved;
+    }
+  }
+
+  void _setPhrase(String id) {
+    _phrase.value = id;
+    unawaited(_prefs.setString(_phraseKey, id));
+  }
+
+  void _startAfterSalah() {
+    _setPhrase(_afterSalahId);
+    _store.setTarget(_afterSalahTotal);
+  }
+
+  void _setTarget(int target) {
+    if (_phrase.value == _afterSalahId) {
+      _setPhrase(_phrases.keys.first);
+    }
+    _store.setTarget(target);
+  }
+
+  void _tap() {
+    _store.tap();
+    // Mark each phrase change; the store marks the final target itself.
+    final count = _store.count.value;
+    if (_afterSalah && count < _afterSalahTotal) {
+      final (_, into, _) = afterSalahStep(count);
+      if (into == 0) {
+        Haptics.medium();
+      }
+    }
   }
 
   Future<void> _pickCustomTarget() async {
@@ -42,7 +133,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
       builder: (_) => const _CustomTargetDialog(),
     );
     if (picked != null) {
-      _store.setTarget(picked);
+      _setTarget(picked);
     }
   }
 
@@ -62,6 +153,9 @@ final class _TasbihScreenState extends State<TasbihScreen> {
             final count = _store.count.value;
             final target = _store.target.value;
             final reached = count >= target;
+            final afterSalah = _afterSalah;
+            final step = afterSalah ? afterSalahStep(count) : null;
+            final phraseId = step?.$1 ?? _phrase.value;
             return Column(
               children: [
                 Padding(
@@ -89,8 +183,8 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                                 '$preset',
                                 languageCode,
                               ),
-                              active: target == preset,
-                              onTap: () => _store.setTarget(preset),
+                              active: !afterSalah && target == preset,
+                              onTap: () => _setTarget(preset),
                             ),
                           QChip(
                             label: _presets.contains(target)
@@ -99,11 +193,39 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                                     '$target',
                                     languageCode,
                                   ),
-                            active: !_presets.contains(target),
+                            active: !afterSalah && !_presets.contains(target),
                             onTap: () => unawaited(_pickCustomTarget()),
+                          ),
+                          QChip(
+                            label: l10n.tasbihAfterSalah,
+                            active: afterSalah,
+                            onTap: _startAfterSalah,
                           ),
                         ],
                       ),
+                      if (!afterSalah) ...[
+                        const SizedBox(height: QSpace.s3),
+                        Text(
+                          l10n.tasbihDhikr.toUpperCase(),
+                          style: QType.overline.copyWith(color: q.ink2),
+                        ),
+                        const SizedBox(height: QSpace.s2),
+                        // One scrolling line, so the counter keeps its room.
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            spacing: QSpace.s2,
+                            children: [
+                              for (final id in _phrases.keys)
+                                QChip(
+                                  label: l10n.tasbihPhrase(id),
+                                  active: phraseId == id,
+                                  onTap: () => _setPhrase(id),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -113,13 +235,14 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                   child: Semantics(
                     button: true,
                     liveRegion: true,
-                    label: l10n.tasbihTitle,
+                    label:
+                        '${l10n.tasbihTitle}, ${l10n.tasbihPhrase(phraseId)}',
                     value: LocaleDigits.localize('$count', languageCode),
-                    onTap: _store.tap,
+                    onTap: _tap,
                     child: ExcludeSemantics(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: _store.tap,
+                        onTap: _tap,
                         // The 240dp ring shrinks to fit short screens.
                         child: Center(
                           child: FittedBox(
@@ -127,6 +250,33 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                Text(
+                                  _phrases[phraseId]!,
+                                  textAlign: TextAlign.center,
+                                  textDirection: TextDirection.rtl,
+                                  style: QType.quran(30).copyWith(color: q.ink),
+                                ),
+                                Text(
+                                  l10n.tasbihPhrase(phraseId),
+                                  style: QType.label.copyWith(color: q.ink2),
+                                ),
+                                if (step != null)
+                                  Text(
+                                    l10n.tasbihStepProgress(
+                                      LocaleDigits.localize(
+                                        '${step.$2}',
+                                        languageCode,
+                                      ),
+                                      LocaleDigits.localize(
+                                        '${step.$3}',
+                                        languageCode,
+                                      ),
+                                    ),
+                                    style: QType.caption.copyWith(
+                                      color: q.ink3,
+                                    ),
+                                  ),
+                                const SizedBox(height: QSpace.s4),
                                 QCelebrate(
                                   active: reached,
                                   child: QProgressRing(

@@ -8,6 +8,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../domain/entities/hadith_book.dart';
 import 'hadith_section_screen.dart';
 
@@ -28,13 +29,62 @@ final class HadithSectionsScreen extends StatelessWidget {
     );
   }
 
+  /// Opens the chapter holding hadith [number] (in the numbering of the
+  /// shown chapter list), focused on that hadith.
+  Future<void> _goToNumber(
+    BuildContext context,
+    List<HadithSection> sections,
+  ) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final number = await showNumberDialog(
+      context,
+      title: l10n.hadithGoToNumber,
+      hint: l10n.hadithNumberHint,
+      actionLabel: l10n.goToAction,
+    );
+    if (number == null || !context.mounted) {
+      return;
+    }
+    final section = sections
+        .where((s) => (s.first ?? 0) <= number && number <= (s.last ?? -1))
+        .firstOrNull;
+    if (section == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.hadithNumberNotFound)),
+      );
+      return;
+    }
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => HadithSectionScreen(
+            book: book,
+            section: section,
+            focusNumber: number,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     final sections = book.sectionsFor(languageCode);
     return Scaffold(
-      appBar: AppBar(title: Text(book.titleFor(languageCode))),
+      appBar: AppBar(
+        title: Text(book.titleFor(languageCode)),
+        actions: [
+          if (sections.any((s) => s.first != null && s.last != null))
+            IconButton(
+              tooltip: context.l10n.hadithGoToNumber,
+              icon: const Icon(Icons.format_list_numbered),
+              onPressed: () => unawaited(_goToNumber(context, sections)),
+            ),
+        ],
+      ),
       body: SafeArea(
         child: ListView.separated(
           padding: const EdgeInsets.fromLTRB(
@@ -55,8 +105,8 @@ final class HadithSectionsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(QSpace.s4),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 28,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 28),
                       child: Text(
                         LocaleDigits.localize('${index + 1}', languageCode),
                         style: QType.titleSm.copyWith(color: q.ink3),

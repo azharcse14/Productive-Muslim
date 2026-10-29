@@ -1067,6 +1067,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchSurahHint => 'Search surah…';
 
   @override
+  String get surahSearchNoResults =>
+      'No matching surah — try another name or number';
+
+  @override
   String get continueReading => 'Continue reading';
 
   @override
@@ -1125,6 +1129,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookmarksEmpty =>
       'No bookmarks yet. Tap the bookmark icon on any ayah to save it here.';
+
+  @override
+  String get bookmarkRemoved => 'Bookmark removed';
+
+  @override
+  String get bookmarkUndo => 'Undo';
+
+  @override
+  String get goToAyah => 'Go to ayah';
+
+  @override
+  String goToAyahHint(String max) {
+    return 'Ayah 1–$max';
+  }
+
+  @override
+  String get goToAction => 'Go';
+
+  @override
+  String get nextSurah => 'Next surah';
 
   @override
   String get bookmarkLabel => 'Bookmark';
@@ -1188,6 +1212,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get asmaQuizNext => 'Next';
+
+  @override
+  String get asmaQuizSwitchModeTitle => 'Switch quiz mode?';
+
+  @override
+  String get asmaQuizSwitchModeBody =>
+      'This starts a new quiz; your current progress will be lost.';
+
+  @override
+  String get asmaQuizSwitchMode => 'Switch';
+
+  @override
+  String get asmaQuizCorrect => 'Correct';
+
+  @override
+  String asmaQuizWrongAnswerIs(String answer) {
+    return 'Not quite — the answer is $answer';
+  }
+
+  @override
+  String asmaQuizCorrectOption(String label) {
+    return '$label, correct answer';
+  }
+
+  @override
+  String asmaQuizWrongOption(String label) {
+    return '$label, your answer, incorrect';
+  }
 
   @override
   String get asmaQuizSeeResult => 'See result';
@@ -1452,6 +1504,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String duaRepeatProgress(String count, String target) {
+    return '$count/$target';
+  }
+
+  @override
+  String duaRepeatCounterLabel(String count, String target) {
+    return 'Counted $count of $target. Tap to count, long-press to reset.';
+  }
+
+  @override
   String get referenceLabel => 'Reference';
 
   @override
@@ -1524,6 +1586,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasbihTargetReached => 'Target reached — may Allah accept';
+
+  @override
+  String get tasbihDhikr => 'Dhikr';
+
+  @override
+  String tasbihPhrase(String id) {
+    String _temp0 = intl.Intl.selectLogic(id, {
+      'subhanallah': 'SubhanAllah',
+      'alhamdulillah': 'Alhamdulillah',
+      'allahuakbar': 'Allahu Akbar',
+      'tahlil': 'La ilaha illallah',
+      'astaghfirullah': 'Astaghfirullah',
+      'other': '$id',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tasbihAfterSalah => 'After prayer 33·33·34';
+
+  @override
+  String tasbihStepProgress(String count, String target) {
+    return '$count of $target';
+  }
 
   @override
   String get ramadanTitle => 'Ramadan';
@@ -2256,8 +2342,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithBooksTitle => 'Hadith collections';
 
   @override
-  String get hadithBooksSubtitle =>
-      'Browse the full books, fetched from an open dataset';
+  String get hadithBooksSubtitle => 'Browse the full books — available offline';
 
   @override
   String get hadithBookAllSahih => 'Every hadith authentic (Sahih)';
@@ -2268,8 +2353,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hadithLoadError =>
-      'Couldn\'t load. Check your connection and try again.';
+  String get hadithLoadError => 'Couldn\'t load this. Please try again.';
 
   @override
   String get hadithRetry => 'Try again';
@@ -2778,6 +2862,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hadithSectionEmpty => 'No hadith in this chapter.';
+
+  @override
+  String get hadithGoToNumber => 'Go to hadith number';
+
+  @override
+  String get hadithNumberHint => 'Hadith number';
+
+  @override
+  String get hadithNumberNotFound => 'No hadith with that number in this book';
 
   @override
   String hadithGradeWord(String word) {
