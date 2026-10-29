@@ -218,6 +218,35 @@ void main() {
       },
     );
 
+    test('leaving the app during a prompt still re-locks', () async {
+      late AppLockStore store;
+      var comeBack = true;
+      final biometric = _PromptingBiometric(() {
+        // Home pressed on the prompt: the OS cancels it.
+        background(store);
+        clock = clock.add(const Duration(hours: 2));
+        if (comeBack) {
+          foreground(store);
+        }
+      })..succeeds = false;
+      store = await unlocked(biometric: biometric);
+
+      // Prompt ended after the return: judged right away.
+      expect(await store.unlockWithBiometric('reason'), isFalse);
+      expect(store.locked.value, isTrue);
+
+      // Prompt ended while still away: due now (a notification action may
+      // run before resume), and the resume re-locks.
+      expect(await store.unlockWithPin('1234'), isTrue);
+      comeBack = false;
+      expect(await store.unlockWithBiometric('reason'), isFalse);
+      expect(store.locked.value, isFalse);
+      expect(store.lockedNow, isTrue);
+      expect(store.obscured.value, isTrue);
+      foreground(store);
+      expect(store.locked.value, isTrue);
+    });
+
     test('setting the clock back does not skip the re-lock', () async {
       var mono = Duration.zero;
       final store = _store(now: () => clock, elapsed: () => mono);
@@ -292,6 +321,23 @@ void main() {
       clock = clock.add(const Duration(seconds: 60));
       expect(await store.unlockWithPin('1234'), isTrue);
       expect(store.lockedUntil.value, isNull);
+    });
+
+    test('a PIN attempt in flight blocks a concurrent one', () async {
+      final store = _store(now: () => clock);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 4; i++) {
+        await store.unlockWithPin('0000');
+      }
+      // Both would pass the cooldown check before either counted.
+      final results = await Future.wait([
+        store.unlockWithPin('0000'),
+        store.unlockWithPin('1234'),
+      ]);
+      expect(results, [false, false]);
+      expect(store.locked.value, isTrue);
+      expect(store.lockedUntil.value, isNotNull);
     });
 
     test('throttle survives an app restart', () async {

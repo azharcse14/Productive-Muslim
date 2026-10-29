@@ -16,6 +16,7 @@ import WidgetKit
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     excludeBundledDataFromBackup()
+    LockKeychain.clearAfterReinstall()
     // flutter_local_notifications: show alerts in the foreground and route
     // taps/actions to Dart.
     UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
@@ -45,6 +46,10 @@ import WidgetKit
       name: "com.productivemuslim.app/magnetic",
       binaryMessenger: registrar.messenger()
     ).setStreamHandler(CalibratedMagnetometer())
+    FlutterMethodChannel(
+      name: "com.productivemuslim.app/keychain",
+      binaryMessenger: registrar.messenger()
+    ).setMethodCallHandler(LockKeychain.handle)
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()
@@ -67,6 +72,73 @@ import WidgetKit
       } else {
         result(FlutterMethodNotImplemented)
       }
+    }
+  }
+}
+
+/// App-lock record (PIN hash, throttle) for Dart's `KeychainPrefs`. The
+/// Keychain, ThisDeviceOnly, never reaches iCloud/Finder backups as
+/// UserDefaults does. AfterFirstUnlock, not WhenUnlocked: a launch while
+/// the screen is locked must still read the lock, not find it "unset".
+enum LockKeychain {
+  private static let service = "com.productivemuslim.app.lock"
+  private static let ownedKey = "lock_keychain_owned"
+
+  /// Keychain items outlive an uninstall, UserDefaults don't: a fresh
+  /// install must not come up locked behind a forgotten PIN.
+  static func clearAfterReinstall() {
+    guard !UserDefaults.standard.bool(forKey: ownedKey) else { return }
+    SecItemDelete([
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+    ] as CFDictionary)
+    UserDefaults.standard.set(true, forKey: ownedKey)
+  }
+
+  static func handle(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+          let key = args["key"] as? String else {
+      result(FlutterError(code: "ARGS", message: "missing key", details: nil))
+      return
+    }
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: key,
+    ]
+    var status: OSStatus
+    switch call.method {
+    case "get":
+      var item: CFTypeRef?
+      var get = query
+      get[kSecReturnData as String] = true
+      get[kSecMatchLimit as String] = kSecMatchLimitOne
+      status = SecItemCopyMatching(get as CFDictionary, &item)
+      if status == errSecSuccess, let data = item as? Data {
+        result(String(data: data, encoding: .utf8))
+        return
+      }
+    case "set":
+      let data = Data((args["value"] as? String ?? "").utf8)
+      status = SecItemUpdate(query as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+      if status == errSecItemNotFound {
+        var add = query
+        add[kSecValueData as String] = data
+        add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        status = SecItemAdd(add as CFDictionary, nil)
+      }
+    case "remove":
+      status = SecItemDelete(query as CFDictionary)
+    default:
+      result(FlutterMethodNotImplemented)
+      return
+    }
+    // Not found is "no value" for get/remove; any other failure surfaces in
+    // Dart rather than reading as an unset (unlocked) lock.
+    if status == errSecSuccess || (status == errSecItemNotFound && call.method != "set") {
+      result(nil)
+    } else {
+      result(FlutterError(code: "KEYCHAIN", message: "OSStatus \(status)", details: nil))
     }
   }
 }

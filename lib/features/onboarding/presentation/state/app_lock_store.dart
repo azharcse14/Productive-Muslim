@@ -104,6 +104,14 @@ final class AppLockStore {
   /// count as leaving the app (or every prompt would re-lock).
   var _authInProgress = false;
 
+  /// The app came back from longer than the grace period mid-prompt; a
+  /// failed prompt re-locks then (a passed one proves the user is here).
+  var _awayDuringAuth = false;
+
+  /// True while a PIN is being checked: a second attempt is refused, or
+  /// both would pass the cooldown check before either counted.
+  var _pinInFlight = false;
+
   /// Cooldown after [failures] consecutive wrong PINs: none for the first
   /// [freeAttempts], then 30s, 60s, 120s… capped at ~64 min.
   static Duration? cooldownFor(int failures) {
@@ -164,28 +172,24 @@ final class AppLockStore {
   void onLifecycleChanged(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
+        if (enabled.value && _backgroundedAt == null) {
+          _backgroundedAt = _now();
+          _backgroundedAtMono = _elapsed();
+        }
         if (enabled.value && !_authInProgress) {
           pinResetAuthorized.value = false;
-          if (_backgroundedAt == null) {
-            _backgroundedAt = _now();
-            _backgroundedAtMono = _elapsed();
-          }
           obscured.value = true;
         }
       case AppLifecycleState.resumed:
         // Before any early break: an inactive→resumed blip (shade, dialog)
         // never backgrounded, but it did set the cover.
         obscured.value = false;
-        final since = _backgroundedAt;
+        final due = _relockDue();
         _backgroundedAt = null;
-        if (since == null || !enabled.value || _authInProgress) {
-          break;
-        }
-        // Larger of both clocks, as for the cooldown: setting the clock
-        // back must not skip the re-lock.
-        final wall = _now().difference(since);
-        final mono = _elapsed() - _backgroundedAtMono;
-        if ((wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod) {
+        if (_authInProgress) {
+          // Judged once the prompt ends (see [_duringAuth]).
+          _awayDuringAuth |= due;
+        } else if (due) {
           locked.value = true;
         }
       // iOS snapshots the app switcher right after inactive. Android's
@@ -201,6 +205,26 @@ final class AppLockStore {
         break;
     }
   }
+
+  /// Whether the app has been in the background (still, or until this
+  /// resume) longer than the grace period with the lock enabled.
+  bool _relockDue() {
+    final since = _backgroundedAt;
+    if (since == null || !enabled.value) {
+      return false;
+    }
+    // Larger of both clocks, as for the cooldown: setting the clock back
+    // must not skip the re-lock.
+    final wall = _now().difference(since);
+    final mono = _elapsed() - _backgroundedAtMono;
+    return (wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod;
+  }
+
+  /// Whether the app must be treated as locked right now — also when it
+  /// is due to re-lock but hasn't seen `resumed` yet (a notification
+  /// action can run first).
+  bool get lockedNow =>
+      enabled.value && (locked.value || (!_authInProgress && _relockDue()));
 
   /// Whether biometric unlock is available to offer at PIN setup.
   Future<bool> canUseBiometric() => _biometric.canAuthenticate();
@@ -222,23 +246,29 @@ final class AppLockStore {
 
   /// Verifies [pin]. Always false while throttled ([lockedUntil] in the
   /// future) — the PIN is not even checked.
+  /// Also false, unchecked, while another attempt is still in flight.
   Future<bool> unlockWithPin(String pin) async {
-    if (cooldownRemaining() != null) {
+    if (_pinInFlight || cooldownRemaining() != null) {
       return false;
     }
-    final ok = await _source.verify(pin);
-    if (ok) {
-      await _resetThrottle();
-      locked.value = false;
-      return true;
+    _pinInFlight = true;
+    try {
+      final ok = await _source.verify(pin);
+      if (ok) {
+        await _resetThrottle();
+        locked.value = false;
+        return true;
+      }
+      _failedAttempts++;
+      _startCooldown(cooldownFor(_failedAttempts));
+      await _source.writeThrottle(
+        failedAttempts: _failedAttempts,
+        lockedUntil: lockedUntil.value,
+      );
+      return false;
+    } finally {
+      _pinInFlight = false;
     }
-    _failedAttempts++;
-    _startCooldown(cooldownFor(_failedAttempts));
-    await _source.writeThrottle(
-      failedAttempts: _failedAttempts,
-      lockedUntil: lockedUntil.value,
-    );
-    return false;
   }
 
   /// Attempts biometric unlock (no-op false when unavailable/disabled).
@@ -282,12 +312,28 @@ final class AppLockStore {
 
   Future<bool> _duringAuth(Future<bool> Function() prompt) async {
     _authInProgress = true;
+    _awayDuringAuth = false;
+    var ok = false;
     try {
-      return await prompt();
+      return ok = await prompt();
     } finally {
       _authInProgress = false;
-      // Any pause/resume during the prompt belongs to the prompt.
-      _backgroundedAt = null;
+      if (ok) {
+        // A passed prompt: any pause/resume during it belongs to it.
+        _backgroundedAt = null;
+      } else {
+        // Failed or cancelled (e.g. by leaving the app): a pause during it
+        // counts as usual. Already back → judge now; still away → cover
+        // the UI and let the coming resume judge it.
+        if (_awayDuringAuth) {
+          locked.value = true;
+        }
+        if (_backgroundedAt != null && enabled.value) {
+          pinResetAuthorized.value = false;
+          obscured.value = true;
+        }
+      }
+      _awayDuringAuth = false;
     }
   }
 

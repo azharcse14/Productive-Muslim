@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// App-lock persistence: a salted PIN hash + biometric preference.
@@ -9,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// On Android [_prefs] is its own file (app_lock.xml), the one store kept
 /// out of cloud backup / device transfer; [legacy] is the shared store older
-/// installs kept the lock in, moved over on first use.
+/// installs kept the lock in, moved over on first use. On iOS [_prefs] is
+/// [KeychainPrefs], for the same reason.
 final class AppLockDataSource {
   AppLockDataSource(this._prefs, {SharedPreferencesAsync? legacy})
     : _legacy = legacy;
@@ -147,4 +149,26 @@ final class AppLockDataSource {
       }),
     );
   }
+}
+
+/// iOS: the lock's three string calls go to the Keychain, this device only
+/// (AppDelegate's `LockKeychain`) — UserDefaults rides along in
+/// iCloud/Finder backups, and a 4-digit PIN's hash is trivially reversed.
+/// Only getString/setString/remove are rerouted; nothing else is used.
+final class KeychainPrefs extends SharedPreferencesAsync {
+  KeychainPrefs();
+
+  static const _channel = MethodChannel('com.productivemuslim.app/keychain');
+
+  @override
+  Future<String?> getString(String key) =>
+      _channel.invokeMethod<String>('get', {'key': key});
+
+  @override
+  Future<void> setString(String key, String value) =>
+      _channel.invokeMethod<void>('set', {'key': key, 'value': value});
+
+  @override
+  Future<void> remove(String key) =>
+      _channel.invokeMethod<void>('remove', {'key': key});
 }

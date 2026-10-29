@@ -143,6 +143,8 @@ Future<void> setupLocator() async {
               ),
               legacy: SharedPreferencesAsync(),
             )
+          : defaultTargetPlatform == TargetPlatform.iOS
+          ? AppLockDataSource(KeychainPrefs(), legacy: SharedPreferencesAsync())
           : AppLockDataSource(SharedPreferencesAsync()),
     )
     ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
@@ -450,7 +452,7 @@ void _onNotificationTap(String? payload, String? actionId) {
   final lock = locator<AppLockStore>();
   // Behind the app lock nothing is recorded; the app just opens to the gate.
   if (actionId == LocalNotificationsScheduler.markPrayedActionId &&
-      !(lock.enabled.value && lock.locked.value) &&
+      !lock.lockedNow &&
       Prayer.values.any((p) => p.name == prayer)) {
     final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
     unawaited(

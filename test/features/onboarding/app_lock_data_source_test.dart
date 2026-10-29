@@ -1,6 +1,9 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/onboarding/data/app_lock_data_source.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 /// Map-backed store: two of these are two separate files, as on Android.
 final class _MapPrefs implements SharedPreferencesAsync {
@@ -43,5 +46,31 @@ void main() {
     final source = AppLockDataSource(own, legacy: legacy);
     expect(await source.verify('1111'), isTrue);
     expect(legacy.values, isEmpty);
+  });
+
+  test('iOS: the lock moves from UserDefaults into the Keychain', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final keychain = <String, String>{};
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('com.productivemuslim.app/keychain'),
+          (call) async {
+            final args = (call.arguments as Map).cast<String, String>();
+            return switch (call.method) {
+              'get' => keychain[args['key']],
+              'set' => keychain[args['key']!] = args['value']!,
+              _ => keychain.remove(args['key']),
+            };
+          },
+        );
+    final legacy = SharedPreferencesAsync();
+    await AppLockDataSource(legacy).enable('1234', biometric: false);
+
+    final source = AppLockDataSource(KeychainPrefs(), legacy: legacy);
+    expect(await source.verify('1234'), isTrue);
+    expect(keychain.keys, ['app_lock_v1']);
+    expect(await legacy.getString('app_lock_v1'), isNull);
   });
 }
