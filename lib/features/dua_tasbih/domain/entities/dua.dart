@@ -25,7 +25,7 @@ final class Dua {
   /// Source citation (surfaced in the detail view).
   final String reference;
 
-  /// Authentic repetition count (1/3/7/33/100) — drives the repeat ring.
+  /// Authentic repetition count (1/3/4/7/10/33/34/100) — drives the repeat ring.
   final int repeat;
 
   String transliterationFor(String languageCode) => switch (languageCode) {

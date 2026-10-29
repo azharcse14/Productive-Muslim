@@ -33,8 +33,8 @@ void main() {
     return jsonDecode(utf8.decode(gzip.decode(data))) as List<dynamic>;
   }
 
-  test('schema version is 1', () {
-    expect(scalar('PRAGMA user_version'), 1);
+  test('schema version is 2', () {
+    expect(scalar('PRAGMA user_version'), 2);
   });
 
   test('has both section tables, populated', () {
@@ -94,5 +94,49 @@ void main() {
     );
     expect(bn, isNotEmpty);
     expect(((bn.first as Map)['b'] as String).trim(), isNotEmpty);
+  });
+
+  test('catalog section counts match the hadith actually in the db', () {
+    // The sections list shows `count`; it must be the real number of entries
+    // (upstream first/last ranges overlap, so they can't be used for this).
+    final catalog =
+        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
+            as Map<String, dynamic>;
+    List<dynamic>? rows(String sql, List<Object?> params) {
+      final r = db.select(sql, params);
+      if (r.isEmpty) {
+        return null;
+      }
+      final data = r.first.values.first! as List<int>;
+      return jsonDecode(utf8.decode(gzip.decode(data))) as List<dynamic>;
+    }
+
+    for (final book
+        in (catalog['books'] as List).cast<Map<String, dynamic>>()) {
+      final id = book['id'] as String;
+      final bnFolder = book['bn_folder'] as String? ?? '';
+      for (final (key, fromBn) in [
+        ('sections', false),
+        ('sections_bn', true),
+      ]) {
+        for (final s
+            in (book[key] as List? ?? const []).cast<Map<String, dynamic>>()) {
+          final n = s['n'] as int;
+          final data = fromBn && bnFolder.isNotEmpty
+              ? rows(
+                  'SELECT data FROM hadith_bn_section '
+                  'WHERE book_id = ? AND section = ?',
+                  [id, n],
+                )
+              : rows(
+                  'SELECT data FROM hadith_section '
+                  'WHERE edition = ? AND section = ?',
+                  [book['edition_ar'], n],
+                );
+          expect(data, isNotNull, reason: '$id $key $n missing from db');
+          expect(s['count'], data!.length, reason: '$id $key $n count');
+        }
+      }
+    }
   });
 }

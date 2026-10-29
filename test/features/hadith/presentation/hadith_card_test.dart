@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_card.dart';
+import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_list_card.dart';
 
 Widget _app(Widget home) => MaterialApp(
       theme: AppTheme.light(),
@@ -67,5 +68,15 @@ void main() {
 
       expect(taps, 1);
     });
+  });
+
+  test('isSahihGrade: sahih tone only for plain sahih gradings', () {
+    expect(isSahihGrade('Sahih'), isTrue);
+    expect(isSahihGrade('Hasan Sahih'), isTrue);
+    expect(isSahihGrade('সহিহ হাদিস'), isTrue);
+    expect(isSahihGrade('Daif'), isFalse);
+    expect(isSahihGrade('দুর্বল হাদিস'), isFalse);
+    expect(isSahihGrade('Shadh, Sahih'), isFalse);
+    expect(isSahihGrade('সহিহ মওকুফ শায'), isFalse);
   });
 }

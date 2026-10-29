@@ -94,11 +94,13 @@ final class HadithBookCatalogDataSource {
     }
     final first = map['first'];
     final last = map['last'];
+    final count = map['count'];
     return HadithSection(
       number: number,
       name: name,
       first: first is int ? first : null,
       last: last is int ? last : null,
+      count: count is int ? count : null,
     );
   }
 }

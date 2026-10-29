@@ -25,8 +25,8 @@ void main() {
   int scalar(String sql) =>
       db.select(sql).first.values.first! as int;
 
-  test('schema version is 1', () {
-    expect(scalar('PRAGMA user_version'), 1);
+  test('schema version is 2', () {
+    expect(scalar('PRAGMA user_version'), 2);
   });
 
   test('contains exactly 114 surahs and 6236 ayahs', () {
@@ -47,6 +47,19 @@ void main() {
       arabic.startsWith('بِسْمِ') || arabic.startsWith('بِّسْمِ'),
       isTrue,
       reason: 'Ayah 1:1 should start with the bismillah, got "$arabic"',
+    );
+  });
+
+  test('ayah 1 of other surahs does not carry the basmala', () {
+    // 1:1 is the basmala itself; every other ayah 1 must not start with it.
+    expect(
+      scalar('''
+        SELECT COUNT(*) FROM ayahs
+        WHERE number = 1 AND surah != 1
+          AND instr(arabic, (SELECT arabic FROM ayahs
+                             WHERE surah = 1 AND number = 1)) = 1
+      '''),
+      0,
     );
   });
 

@@ -13,7 +13,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 1, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 2, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -202,7 +202,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 1;
+      PRAGMA user_version = 2;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
@@ -228,7 +228,7 @@ void _buildDatabase(
             ++globalId,
             chapter.id,
             number,
-            arabic[key],
+            _stripBasmala(chapter.id, number, arabic[key]!),
             english[key],
             bangla[key],
           ]);
@@ -257,4 +257,13 @@ void _run(String cmd, List<String> args) {
     stderr.writeln(result.stderr);
     throw ProcessException(cmd, args, 'exit ${result.exitCode}');
   }
+}
+
+/// `ara-quransimple` glues the basmala onto ayah 1 of every surah but 1 and 9,
+/// while the translations don't carry it. Strip it so the Arabic matches its
+/// translation; the reader shows the basmala as a surah header instead.
+String _stripBasmala(int surah, int number, String text) {
+  const basmala = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ';
+  if (surah == 1 || number != 1 || !text.startsWith(basmala)) return text;
+  return text.substring(basmala.length);
 }

@@ -93,9 +93,7 @@ final class GradeChip extends StatelessWidget {
           final localized => localized,
         },
     ].join(' ');
-    final isSahih = grade.toLowerCase().contains('sahih') ||
-        grade.toLowerCase().contains('সহিহ');
-    final color = isSahih ? q.ok : q.ink2;
+    final color = isSahihGrade(grade) ? q.ok : q.ink2;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: QSpace.s2,
@@ -114,4 +112,14 @@ final class GradeChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// True when [grade] is a plain sahih grading (en or bn). Mixed gradings
+/// that also say shadh ("Shadh, Sahih", "সহিহ মওকুফ শায") stay neutral.
+bool isSahihGrade(String grade) {
+  final g = grade.toLowerCase();
+  if (g.contains('shadh') || g.contains('শায')) {
+    return false;
+  }
+  return g.contains('sahih') || g.contains('সহিহ');
 }

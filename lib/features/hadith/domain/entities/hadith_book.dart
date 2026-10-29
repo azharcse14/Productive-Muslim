@@ -89,6 +89,7 @@ final class HadithSection {
     required this.name,
     required this.first,
     required this.last,
+    this.count,
   });
 
   final int number;
@@ -98,8 +99,10 @@ final class HadithSection {
   final int? first;
   final int? last;
 
-  int? get count =>
-      (first != null && last != null) ? (last! - first! + 1) : null;
+  /// Number of hadith actually in this section (null when unknown). Stored
+  /// explicitly: upstream ranges overlap/contain stray numbers, so
+  /// `last - first + 1` can be wildly off (Muslim "Marriage" 388–3567).
+  final int? count;
 }
 
 /// A single hadith fetched from the online dataset.

@@ -779,7 +779,7 @@ abstract class AppLocalizations {
   /// No description provided for @forbiddenTimesIntro.
   ///
   /// In en, this message translates to:
-  /// **'There are three moments in the day when offering any salah is prohibited (makruh tahrimi). The Prophet ﷺ forbade praying as the sun rises, at its zenith, and as it sets — the times the disbelievers worshipped the sun. Missed obligatory prayers remembered in these windows may still be made up.'**
+  /// **'There are three moments in the day when offering any salah is prohibited (makruh tahrimi). The Prophet ﷺ forbade praying as the sun rises, at its zenith, and as it sets — the times the disbelievers worshipped the sun. Making up missed fard prayers in these windows: not valid in the Hanafi madhab (though that day\'s own Asr may still be prayed before sunset); permitted by the majority (Shafi\'i, Maliki, Hanbali).'**
   String get forbiddenTimesIntro;
 
   /// No description provided for @naflTimesIntro.
@@ -827,7 +827,7 @@ abstract class AppLocalizations {
   /// No description provided for @specialDetailAwwabin.
   ///
   /// In en, this message translates to:
-  /// **'Voluntary rak\'ahs offered between the Maghrib and Isha prayers — the salah of the oft-returning (awwabin), beloved for turning back to Allah after the day\'s work.'**
+  /// **'Voluntary rak\'ahs offered between the Maghrib and Isha prayers, popularly called awwabin. In the authentic hadith, the Prophet ﷺ gave the name \"salah of the awwabin\" to Duha (Muslim); naming the Maghrib–Isha prayer so rests on weaker reports.'**
   String get specialDetailAwwabin;
 
   /// No description provided for @specialDetailTahajjud.
@@ -2363,7 +2363,7 @@ abstract class AppLocalizations {
   /// No description provided for @fitraInfo.
   ///
   /// In en, this message translates to:
-  /// **'Sadaqat al-fitr is due per person before Eid prayer — roughly one sa\' (~2.5–3 kg) of staple food, or its value, per family member.'**
+  /// **'Sadaqat al-fitr is due per person before Eid prayer — by Hanafi measure, one sa\' (~3.3 kg) of dates, barley or raisins, or half a sa\' (~1.65 kg) of wheat or flour, or its value, per family member.'**
   String get fitraInfo;
 
   /// No description provided for @calendarTitle.
@@ -2681,7 +2681,7 @@ abstract class AppLocalizations {
   /// No description provided for @prayerFazilatAsr.
   ///
   /// In en, this message translates to:
-  /// **'Guard the middle prayer. Whoever prays Asr will not enter the Fire before sunrise and before sunset.'**
+  /// **'Guard the middle prayer. No one who prays before sunrise and before sunset (Fajr and Asr) will enter the Fire. (Muslim)'**
   String get prayerFazilatAsr;
 
   /// No description provided for @prayerFazilatMaghrib.

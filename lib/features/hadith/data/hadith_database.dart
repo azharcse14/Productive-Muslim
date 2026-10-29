@@ -23,7 +23,7 @@ final class HadithDatabase extends GeneratedDatabase {
 
   /// `PRAGMA user_version` of the bundled asset. Bump together with the asset
   /// (tool/hadith_db_build.dart) to force a re-copy on upgrade.
-  static const bundledVersion = 1;
+  static const bundledVersion = 2;
 
   static const _assetPath = 'assets/data/hadith.db';
   static const _fileName = 'hadith.db';

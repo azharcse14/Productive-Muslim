@@ -36,7 +36,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// Bump together with [HadithDatabase.bundledVersion] to force a re-copy of the
 /// asset on the next app launch after the data changes.
-const _userVersion = 1;
+const _userVersion = 2;
 
 const _catalogPath = 'assets/data/hadith_books.json';
 const _outPath = 'assets/data/hadith.db';
@@ -194,7 +194,7 @@ List<BnHadith> _parseBn(String body) {
   ];
 }
 
-/// GETs [url] with a few retries. Returns null on a tolerated 403/404 (a
+/// GETs [url] with a few retries. Returns null on a tolerated 404 (a
 /// missing edition/chapter) or after exhausting retries when [tolerant].
 Future<String?> _get(HttpClient http, String url, {bool tolerant = false}) async {
   for (var attempt = 1; attempt <= 4; attempt++) {
@@ -202,7 +202,10 @@ Future<String?> _get(HttpClient http, String url, {bool tolerant = false}) async
       final req = await http.getUrl(Uri.parse(url));
       req.headers.set(HttpHeaders.acceptEncodingHeader, 'gzip');
       final res = await req.close();
-      if (res.statusCode == 404 || res.statusCode == 403) {
+      // A 404 for an optional ben-*/bn file means "doesn't exist". Anything
+      // else (incl. a 403 from CDN throttling, or a 404 for ara/eng) retries
+      // and then fails/skips loudly instead of silently dropping a section.
+      if (tolerant && res.statusCode == 404) {
         await res.drain<void>();
         return null;
       }
