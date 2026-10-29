@@ -216,6 +216,32 @@ void main() {
       expect(find.byType(HadithSectionScreen), findsOneWidget);
     });
 
+    test('the reading offset persists and survives reopening', () async {
+      await _register();
+      final store = GetIt.I<HadithBooksStore>();
+      final section = _bukhari.sections.first;
+      await store.saveOffset(_bukhari, section, 'en', 1234.4);
+      // Reopening the same chapter keeps its offset.
+      await store.markOpened(_bukhari, section, 'en');
+
+      final restored = HadithBooksStore(
+        _FakeBookRepository(),
+        SharedPreferencesAsync(),
+      );
+      await restored.load();
+      expect(restored.savedOffset(_bukhari, section, 'en'), 1234);
+      expect(restored.savedOffset(_bukhari, section, 'bn'), 0);
+
+      // A value saved before offsets existed still resumes, at the top.
+      await SharedPreferencesAsync().setString(
+        'hadith_last_section',
+        '${_bukhari.id}|en|${section.number}',
+      );
+      await restored.load();
+      expect(restored.resumeFor('en')?.$2.name, 'Revelation');
+      expect(restored.savedOffset(_bukhari, section, 'en'), 0);
+    });
+
     testWidgets('hadith-number lookup opens just that hadith', (tester) async {
       await _register();
       await tester.pumpWidget(_app(const HadithSectionsScreen(book: _bukhari)));
