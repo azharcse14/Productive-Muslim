@@ -52,17 +52,20 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   int get _todayCode => _encodeDate(_clock());
 
   @override
-  Future<Result<void>> seedDefaultsIfEmpty() async {
+  Future<Result<void>> seedDefaults() async {
     try {
-      final count = await _db.trackerItems.count().getSingle();
-      if (count == 0) {
-        await _db.batch(
-          (batch) => batch.insertAll(_db.trackerItems, [
-            for (final item in DefaultTrackers.items())
-              _toCompanion(item).copyWith(createdOn: Value(_todayCode)),
-          ]),
-        );
-      }
+      // Insert-or-ignore: existing rows (edited or archived) stay as they
+      // are. Defaults added in a later release reach existing installs
+      // archived — opt-in, so past days' completion isn't diluted.
+      final upgrade = await _db.trackerItems.count().getSingle() > 0;
+      await _db.batch(
+        (batch) => batch.insertAll(_db.trackerItems, [
+          for (final item in DefaultTrackers.items())
+            _toCompanion(
+              upgrade ? item.copyWith(archived: true) : item,
+            ).copyWith(createdOn: Value(_todayCode)),
+        ], mode: InsertMode.insertOrIgnore),
+      );
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to seed defaults', e));
@@ -121,6 +124,18 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   @override
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     try {
+      if (!archived) {
+        // Seeded dormant (archived without an archived-on day, i.e. a
+        // default added by an update): it starts counting today, not from
+        // the seed day.
+        await (_db.update(_db.trackerItems)..where(
+              (t) =>
+                  t.id.equals(id) &
+                  t.archived.equals(true) &
+                  t.archivedOn.isNull(),
+            ))
+            .write(TrackerItemsCompanion(createdOn: Value(_todayCode)));
+      }
       // Flag update only — entries are never deleted (hard product rule).
       await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id))).write(
         TrackerItemsCompanion(

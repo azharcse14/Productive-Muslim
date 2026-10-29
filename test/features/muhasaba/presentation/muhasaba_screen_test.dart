@@ -36,11 +36,13 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
       storedEntries[itemId]?[_d(date)] ?? 0;
 
   @override
-  Future<Result<void>> seedDefaultsIfEmpty() async {
-    if (storedItems.isEmpty) {
-      for (final item in DefaultTrackers.items()) {
-        storedItems[item.id] = item;
-      }
+  Future<Result<void>> seedDefaults() async {
+    final upgrade = storedItems.isNotEmpty;
+    for (final item in DefaultTrackers.items()) {
+      storedItems.putIfAbsent(
+        item.id,
+        () => upgrade ? item.copyWith(archived: true) : item,
+      );
     }
     return const Result.success(null);
   }

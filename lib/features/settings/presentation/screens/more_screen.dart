@@ -108,6 +108,12 @@ final class MoreScreen extends StatelessWidget {
               l10n.expenseSubtitle,
               () => context.pushNamed(Routes.expenses.name),
             ),
+            _Entry(
+              Icons.monitor_heart_outlined,
+              l10n.healthTitle,
+              l10n.healthSubtitle,
+              () => context.pushNamed(Routes.health.name),
+            ),
           ]),
           _Header(l10n.moreGroupYou),
           _Group([

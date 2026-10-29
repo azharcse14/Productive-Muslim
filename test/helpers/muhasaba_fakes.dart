@@ -19,12 +19,16 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   static int _key(DateTime d) => d.year * 10000 + d.month * 100 + d.day;
 
   @override
-  Future<Result<void>> seedDefaultsIfEmpty() async {
-    if (items_.isEmpty) {
+  Future<Result<void>> seedDefaults() async {
+    final upgrade = items_.isNotEmpty;
+    if (!upgrade) {
       seeds++;
-      for (final item in DefaultTrackers.items()) {
-        items_[item.id] = item;
-      }
+    }
+    for (final item in DefaultTrackers.items()) {
+      items_.putIfAbsent(
+        item.id,
+        () => upgrade ? item.copyWith(archived: true) : item,
+      );
     }
     return const Result.success(null);
   }
