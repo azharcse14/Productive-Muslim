@@ -19,7 +19,6 @@ import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../state/ramadan_store.dart';
-import 'zakat_screen.dart';
 
 /// Ramadan hub (design §4.x): roza counter, sahri & iftar month table,
 /// zakat calculator entry, and the fitra reminder.
@@ -112,13 +111,8 @@ final class _RamadanScreenState extends State<RamadanScreen> {
                     title: l10n.zakatTitle,
                     icon: Icons.volunteer_activism_outlined,
                     trailing: Icon(Icons.chevron_right, color: q.ink3),
-                    onTap: () => unawaited(
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const ZakatScreen(),
-                        ),
-                      ),
-                    ),
+                    onTap: () =>
+                        unawaited(context.pushNamed(Routes.zakat.name)),
                   ),
                 ),
                 const SizedBox(height: QSpace.s4),
