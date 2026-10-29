@@ -1128,6 +1128,7 @@
   "shortcutsTimeStep2": "Add the “Set Focus” action: Turn Do Not Disturb On until a time after jamaat.",
   "shortcutsTimeStep3": "Make one automation for each prayer.",
   "shortcutsOpen": "Open Shortcuts",
+  "shortcutsOpenFailed": "Couldn't open Shortcuts. Make sure the Shortcuts app is installed.",
   "notifFocusEndTitle": "{prayer} — prayed in jamaat?",
   "@notifFocusEndTitle": {
     "placeholders": {

@@ -967,9 +967,7 @@ Future<void> _showShortcutsGuide(BuildContext context) {
                 label: l10n.shortcutsOpen,
                 icon: Icons.open_in_new,
                 expand: true,
-                onPressed: () => unawaited(
-                  locator<ExternalLauncher>().launch(Uri.parse('shortcuts://')),
-                ),
+                onPressed: () => unawaited(_openShortcuts(sheetContext)),
               ),
             ],
           ),
@@ -977,4 +975,16 @@ Future<void> _showShortcutsGuide(BuildContext context) {
       );
     },
   );
+}
+
+/// When iOS refuses `shortcuts://` (app deleted / restricted) the guide
+/// is moot: close the sheet so the snackbar isn't hidden under it.
+Future<void> _openShortcuts(BuildContext sheetContext) async {
+  final navigator = Navigator.of(sheetContext);
+  final messenger = ScaffoldMessenger.of(sheetContext);
+  final message = sheetContext.l10n.shortcutsOpenFailed;
+  if (!await locator<ExternalLauncher>().launch(Uri.parse('shortcuts://'))) {
+    navigator.pop();
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
 }

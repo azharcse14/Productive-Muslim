@@ -80,6 +80,19 @@ void main() {
     expect(w.first.start, DateTime(2026, 5, 12, 3, 55));
   });
 
+  test('"until I end it" is kept through the native late-start grace', () {
+    final manual = _on.copyWith(jamaatFocusDuration: Duration.zero);
+    // Fajr focus starts 03:55; still startable until 04:25.
+    expect(
+      _windows(manual, from: DateTime(2026, 5, 12, 4, 20)).first.start,
+      DateTime(2026, 5, 12, 3, 55),
+    );
+    expect(
+      _windows(manual, from: DateTime(2026, 5, 12, 4, 25)).first.prayer,
+      Prayer.dhuhr,
+    );
+  });
+
   test('iOS: each focus window becomes a nudge in the plan', () {
     final from = DateTime(2026, 5, 12, 3);
     final windows = _windows(_on);

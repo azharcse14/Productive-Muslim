@@ -153,4 +153,23 @@ void main() {
       () => fail('must not re-read the asset'),
     );
   });
+
+  test('a corrupt copy is replaced by the asset instead of throwing', () async {
+    final quran = File(p.join(support.path, 'quran.db'))
+      ..writeAsStringSync('not a database');
+    final hadith = File(p.join(support.path, 'hadith.db'))
+      ..writeAsStringSync('not a database');
+
+    await QuranDatabase.ensureCopied(quran, () => asset('quran.db'));
+    await HadithDatabase.ensureCopied(hadith, () => asset('hadith.db'));
+
+    for (final (file, version) in [
+      (quran, QuranDatabase.bundledVersion),
+      (hadith, HadithDatabase.bundledVersion),
+    ]) {
+      final db = sqlite.sqlite3.open(file.path);
+      expect(db.userVersion, version);
+      db.close();
+    }
+  });
 }

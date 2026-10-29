@@ -35,24 +35,25 @@ final class HadithSectionScreen extends StatefulWidget {
 
 final class _HadithSectionScreenState extends State<HadithSectionScreen> {
   final HadithSectionStore _store = locator<HadithSectionStore>();
-  bool _started = false;
+
+  /// Language the screen was opened in, pinned for its lifetime: the
+  /// section came from that language's list (bn chapter numbers differ
+  /// from en), so a mid-screen language switch must not refetch — or
+  /// retry — a different chapter under this title.
+  String? _lang;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Locale is read here (not initState) — inherited widgets aren't yet
     // available during initState. Guarded so it runs only once.
-    if (!_started) {
-      _started = true;
+    if (_lang == null) {
+      _lang = Localizations.localeOf(context).languageCode;
       unawaited(_load());
     }
   }
 
-  Future<void> _load() => _store.load(
-    widget.book,
-    widget.section,
-    Localizations.localeOf(context).languageCode,
-  );
+  Future<void> _load() => _store.load(widget.book, widget.section, _lang!);
 
   @override
   void dispose() {
@@ -78,8 +79,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
                 onRetry: () => unawaited(_load()),
               );
             }
-            final lang = Localizations.localeOf(context).languageCode;
-            final bnSource = widget.book.usesBanglaSource(lang);
+            final bnSource = widget.book.usesBanglaSource(_lang!);
             final items = _store.items.value;
             if (items.isEmpty) {
               return Center(

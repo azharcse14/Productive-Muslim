@@ -3854,6 +3854,12 @@ abstract class AppLocalizations {
   /// **'Open Shortcuts'**
   String get shortcutsOpen;
 
+  /// No description provided for @shortcutsOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open Shortcuts. Make sure the Shortcuts app is installed.'**
+  String get shortcutsOpenFailed;
+
   /// No description provided for @notifFocusEndTitle.
   ///
   /// In en, this message translates to:
