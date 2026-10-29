@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -194,6 +195,23 @@ final class _LockScreenState extends State<LockScreen> {
       return;
     }
     final l10n = context.l10n;
+    try {
+      await _submit(l10n);
+    } on Object catch (e) {
+      // Keychain/prefs failure: without this the dots stay full and the
+      // keypad ignores taps with no explanation.
+      debugPrint('lock screen: $e');
+      if (mounted) {
+        setState(() {
+          _firstPin = null;
+          _entered = '';
+          _error = l10n.appLockStorageError;
+        });
+      }
+    }
+  }
+
+  Future<void> _submit(AppLocalizations l10n) async {
     switch (_settingPin) {
       case false:
         final ok = await _store.unlockWithPin(_entered);

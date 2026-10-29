@@ -37,13 +37,16 @@ final class DuaCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  dua.arabic,
-                  textDirection: TextDirection.rtl,
-                  // A non-Arabic TTS garbles raw Arabic glyphs; speak the
-                  // transliteration instead.
-                  semanticsLabel: dua.transliterationFor(languageCode),
-                  style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+                // Rebuilds when the Quran reader's font size changes.
+                child: SignalBuilder(
+                  builder: (context) => Text(
+                    dua.arabic,
+                    textDirection: TextDirection.rtl,
+                    // A non-Arabic TTS garbles raw Arabic glyphs; speak the
+                    // transliteration instead.
+                    semanticsLabel: dua.transliterationFor(languageCode),
+                    style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+                  ),
                 ),
               ),
               SignalBuilder(

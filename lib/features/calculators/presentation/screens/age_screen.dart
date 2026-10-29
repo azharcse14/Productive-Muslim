@@ -34,7 +34,10 @@ final class _AgeScreenState extends State<AgeScreen> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      setState(() => _birthDate = picked);
+      setState(() {
+        _birthDate = picked;
+        _result = null;
+      });
     }
   }
 
@@ -46,7 +49,10 @@ final class _AgeScreenState extends State<AgeScreen> {
       lastDate: DateTime(2200),
     );
     if (picked != null) {
-      setState(() => _asOf = picked);
+      setState(() {
+        _asOf = picked;
+        _result = null;
+      });
     }
   }
 

@@ -33,7 +33,10 @@ final class PrayerDay {
     required this.ishaYesterday,
     this.maghribYesterday,
     this.sahriSafety = Duration.zero,
-  });
+    DateTime? trueSunrise,
+    DateTime? sunset,
+  }) : trueSunrise = trueSunrise ?? sunrise,
+       sunset = sunset ?? maghrib;
 
   final DateTime fajr;
   final DateTime sunrise;
@@ -55,6 +58,16 @@ final class PrayerDay {
 
   /// Ihtiyat margin before Fajr (the user's sahri safety setting).
   final Duration sahriSafety;
+
+  /// Sunrise without the method's minute offset (Türkiye −7, Dubai −3):
+  /// bounds the makruh window after sunrise. [sunrise] keeps the offset, as
+  /// it ends Fajr. Defaults to [sunrise].
+  final DateTime trueSunrise;
+
+  /// Astronomical sunset: [maghrib] can sit minutes after it (method
+  /// offset, Tehran's angle, user adjustment). Bounds the makruh window
+  /// before sunset. Defaults to [maghrib].
+  final DateTime sunset;
 
   DateTime get sahriEnd => fajr.subtract(sahriSafety);
   DateTime get iftar => maghrib;

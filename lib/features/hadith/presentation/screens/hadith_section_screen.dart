@@ -156,10 +156,13 @@ final class _BookHadithCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hadith.arabic.isNotEmpty) ...[
-            Text(
-              hadith.arabic,
-              textDirection: TextDirection.rtl,
-              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+            // Rebuilds when the Quran reader's font size changes.
+            SignalBuilder(
+              builder: (context) => Text(
+                hadith.arabic,
+                textDirection: TextDirection.rtl,
+                style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+              ),
             ),
             const SizedBox(height: QSpace.s3),
           ],

@@ -1269,7 +1269,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'whiteDays': 'White days (Ayyam al-Beed)',
       'ashura': 'Ashura',
       'arafah': 'Day of Arafah',
-      'dhulHijjah': 'First ten days of Dhul-Hijjah',
+      'dhulHijjah': 'First nine days of Dhul-Hijjah',
       'shawwal': 'Six days of Shawwal',
       'other': '$id',
     });
@@ -1688,6 +1688,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appLockPinMismatch => 'PINs didn\'t match — try again';
+
+  @override
+  String get appLockStorageError =>
+      'Couldn\'t read or save your PIN. Please try again.';
 
   @override
   String get appLockBiometricOfferTitle => 'Unlock with fingerprint or face?';

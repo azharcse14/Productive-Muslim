@@ -7,6 +7,10 @@ void main() {
       expect(foldForSearch('Ayatul KURSI'), 'ayatul kursi');
     });
 
+    test('maps Bengali digits to ASCII', () {
+      expect(foldForSearch('বুখারি ৬১১৪'), foldForSearch('বুখারি 6114'));
+    });
+
     test('folds Bengali base + nukta to the precomposed letter', () {
       // য + ় → য় (U+09DF), ড + ় → ড় (U+09DC), ঢ + ় → ঢ় (U+09DD).
       expect(foldForSearch('য়'), 'য়');

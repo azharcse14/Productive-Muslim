@@ -60,8 +60,15 @@ final class _QuranScreenState extends State<QuranScreen> {
     );
   }
 
+  var _searchSeq = 0;
+
   Future<void> _runSearch(String query) async {
-    _results.value = query.trim().isEmpty ? null : await _store.search(query);
+    final seq = ++_searchSeq;
+    final results = query.trim().isEmpty ? null : await _store.search(query);
+    // A slower earlier query must not overwrite a newer one's results.
+    if (seq == _searchSeq) {
+      _results.value = results;
+    }
   }
 
   void _openReader(int surahId, {int? initialAyah}) {

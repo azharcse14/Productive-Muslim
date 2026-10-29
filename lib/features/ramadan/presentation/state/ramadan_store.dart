@@ -9,7 +9,9 @@ import '../../domain/usecases/ramadan_utils.dart';
 
 /// One row of the Ramadan month table: the Gregorian civil day plus its
 /// sahri-end and iftar wall-clock times at the configured location.
-typedef RamadanRow = (DateTime day, DateTime sahri, DateTime iftar);
+/// [roza] is the Ramadan day number (1-based), kept per row because a day
+/// whose prayer times fail to compute is left out of the table.
+typedef RamadanRow = (int roza, DateTime day, DateTime sahri, DateTime iftar);
 
 /// Ramadan-screen state over the pure [RamadanUtils] date math. Everything
 /// date-derived is `computed` (guide §4: derive, don't duplicate),
@@ -83,14 +85,14 @@ final class RamadanStore {
       nextRamadan.value.$1,
       offsetDays: _offset.value,
     );
-    for (final day in days) {
+    for (final (index, day) in days.indexed) {
       final prayerDay = _getPrayerDay(
         location: location,
         params: params,
         date: day,
       ).valueOrNull;
       if (prayerDay != null) {
-        rows.add((day, prayerDay.sahriEnd, prayerDay.iftar));
+        rows.add((index + 1, day, prayerDay.sahriEnd, prayerDay.iftar));
       }
     }
     return rows;

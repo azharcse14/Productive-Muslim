@@ -34,7 +34,10 @@ final class _AchievementsSummaryCardState
     super.initState();
     final muhasaba = locator<MuhasabaStore>();
     _refreshOnLog = effect(() {
-      muhasaba.stats.value; // the only tracked dependency
+      // Tracked: muhasaba logs plus fasting/tasbih/Quran, so a fast logged or
+      // a bookmark added elsewhere updates the card too.
+      muhasaba.stats.value;
+      store.watchSources();
       untracked(
         () => unawaited(
           // Best-effort: badges keep their last state until the next log.

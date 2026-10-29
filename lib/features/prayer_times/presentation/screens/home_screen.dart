@@ -517,7 +517,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                   (
                     icon: Icons.wb_twilight_outlined,
                     text:
-                        '${l10n.sunsetLabel} ${formatHomeTime(context, day.maghrib)}',
+                        '${l10n.sunsetLabel} ${formatHomeTime(context, day.sunset)}',
                   ),
                   (
                     icon: Icons.view_timeline_outlined,

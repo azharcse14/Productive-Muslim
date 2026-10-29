@@ -185,8 +185,16 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
 
   void _markRead() {
     final ayahs = _ayahs.value;
-    final index = _topVisibleIndex();
-    if (!mounted || ayahs.isEmpty || index == null || index >= ayahs.length) {
+    if (!mounted || ayahs.isEmpty || !_controller.hasClients) {
+      return;
+    }
+    // Scrolled to the end: the last ayah has been read, not just the one at
+    // the top of the viewport.
+    final position = _controller.position;
+    final index = position.pixels >= position.maxScrollExtent - 0.5
+        ? ayahs.length - 1
+        : _topVisibleIndex();
+    if (index == null || index >= ayahs.length) {
       return;
     }
     unawaited(

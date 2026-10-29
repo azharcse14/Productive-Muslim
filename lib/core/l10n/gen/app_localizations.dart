@@ -2069,7 +2069,7 @@ abstract class AppLocalizations {
   /// No description provided for @fastingKindName.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, mondayThursday{Monday & Thursday} whiteDays{White days (Ayyam al-Beed)} ashura{Ashura} arafah{Day of Arafah} dhulHijjah{First ten days of Dhul-Hijjah} shawwal{Six days of Shawwal} other{{id}}}'**
+  /// **'{id, select, mondayThursday{Monday & Thursday} whiteDays{White days (Ayyam al-Beed)} ashura{Ashura} arafah{Day of Arafah} dhulHijjah{First nine days of Dhul-Hijjah} shawwal{Six days of Shawwal} other{{id}}}'**
   String fastingKindName(String id);
 
   /// No description provided for @fastingKindNote.
@@ -2521,6 +2521,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PINs didn\'t match — try again'**
   String get appLockPinMismatch;
+
+  /// No description provided for @appLockStorageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read or save your PIN. Please try again.'**
+  String get appLockStorageError;
 
   /// No description provided for @appLockBiometricOfferTitle.
   ///

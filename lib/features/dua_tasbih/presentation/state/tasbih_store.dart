@@ -230,6 +230,9 @@ final class TasbihStore {
     _roundDay = null;
     count.value = 0;
     milestone.value = false;
+    // First: killed before the total is written, the round is lost — better
+    // than restoring it next to a total that already counts it.
+    _saveRound();
     if (saveToHistory && round > 0) {
       rollOverDay();
       // A round started before midnight is not part of today's total.
@@ -242,7 +245,5 @@ final class TasbihStore {
       }
       await _creditLifetime(round);
     }
-    // Last: killed before this, the round restores rather than being lost.
-    _saveRound();
   }
 }

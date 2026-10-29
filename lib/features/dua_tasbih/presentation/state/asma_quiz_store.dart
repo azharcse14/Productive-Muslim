@@ -65,8 +65,12 @@ final class AsmaQuizStore {
 
   /// Restores the persisted best score for the current [mode].
   Future<void> load() async {
-    final stored = await _prefs.getInt(_bestKey(mode.value));
-    best.value = stored ?? 0;
+    final m = mode.value;
+    final stored = await _prefs.getInt(_bestKey(m));
+    // A quicker mode switch since: its own load owns [best].
+    if (mode.value == m) {
+      best.value = stored ?? 0;
+    }
   }
 
   /// Begins a fresh run for [names] in the given [mode]. The seed is captured

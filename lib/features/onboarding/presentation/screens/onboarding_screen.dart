@@ -107,19 +107,28 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   /// Set once the user picks a method, mirroring [_madhabChosen].
   var _methodChosen = false;
 
+  /// What [_applyRegionalDefaults] last set, so going back and picking
+  /// another location re-applies that region's defaults.
+  Madhab? _autoMadhab;
+  CalculationMethodId? _autoMethod;
+
   /// Leaving the location step: pre-select the region's default madhab and
   /// suggested method, unless the user already chose or changed them, so
   /// the next two steps are a confirm rather than a decision.
   Future<void> _applyRegionalDefaults() async {
     final country = countryCodeOf(_settings.location.value);
     const defaults = PrayerParams();
+    final madhab = _settings.prayerParams.value.madhab;
     if (!_madhabChosen &&
-        _settings.prayerParams.value.madhab == defaults.madhab) {
-      await _settings.setMadhab(defaultMadhabFor(country));
+        (madhab == defaults.madhab || madhab == _autoMadhab)) {
+      _autoMadhab = defaultMadhabFor(country);
+      await _settings.setMadhab(_autoMadhab!);
     }
+    final method = _settings.prayerParams.value.method;
     if (!_methodChosen &&
-        _settings.prayerParams.value.method == defaults.method) {
-      await _settings.setMethod(suggestedMethodFor(country));
+        (method == defaults.method || method == _autoMethod)) {
+      _autoMethod = suggestedMethodFor(country);
+      await _settings.setMethod(_autoMethod!);
     }
   }
 

@@ -65,6 +65,27 @@ void main() {
       expect(w.start, _day.maghrib.subtract(const Duration(minutes: 15)));
       expect(w.end, _day.maghrib);
     });
+
+    test('uses the sun, not a method-offset sunrise / maghrib', () {
+      // e.g. Türkiye: sunrise −7, maghrib +7 around the astronomical times.
+      final day = PrayerDay(
+        ishaYesterday: _day.ishaYesterday,
+        fajr: _day.fajr,
+        sunrise: DateTime(2026, 6, 12, 5, 3),
+        trueSunrise: DateTime(2026, 6, 12, 5, 10),
+        dhuhr: _day.dhuhr,
+        asr: _day.asr,
+        maghrib: DateTime(2026, 6, 12, 18, 52),
+        sunset: DateTime(2026, 6, 12, 18, 45),
+        isha: _day.isha,
+        fajrTomorrow: _day.fajrTomorrow,
+      );
+      SpecialWindow w(SpecialTime t) =>
+          resolveSpecialWindows(day).firstWhere((w) => w.time == t);
+      expect(w(SpecialTime.forbiddenSunrise).end, DateTime(2026, 6, 12, 5, 25));
+      expect(w(SpecialTime.forbiddenSunset).start, DateTime(2026, 6, 12, 18, 30));
+      expect(w(SpecialTime.forbiddenSunset).end, DateTime(2026, 6, 12, 18, 45));
+    });
   });
 
   group('resolveSpecialWindows — nafl bounds', () {

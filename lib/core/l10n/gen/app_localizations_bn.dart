@@ -1263,7 +1263,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'whiteDays': 'আইয়ামে বীজ (শুভ্র দিন)',
       'ashura': 'আশুরা',
       'arafah': 'আরাফার দিন',
-      'dhulHijjah': 'জিলহজের প্রথম দশ দিন',
+      'dhulHijjah': 'জিলহজের প্রথম নয় দিন',
       'shawwal': 'শাওয়ালের ছয় রোজা',
       'other': '$id',
     });
@@ -1681,6 +1681,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get appLockPinMismatch => 'পিন মেলেনি — আবার চেষ্টা করুন';
+
+  @override
+  String get appLockStorageError =>
+      'পিন পড়া বা সেভ করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get appLockBiometricOfferTitle => 'আঙুলের ছাপ বা মুখ দিয়ে খুলবেন?';

@@ -147,6 +147,13 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                     decimal: true,
                   ),
                   style: QType.num_(QType.body).copyWith(color: q.ink),
+                  // An edit invalidates the shown result, as on the other
+                  // calculators.
+                  onChanged: (_) {
+                    if (_result != null) {
+                      setState(() => _result = null);
+                    }
+                  },
                   decoration: InputDecoration(
                     labelText: label,
                     errorText: _invalid.contains(controller)

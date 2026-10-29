@@ -286,7 +286,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   Future<void> cancelAll() => _plugin.cancelAll();
 
   (String, String) _texts(NotificationItem item, NotificationTexts t) {
-    final time = _formatTime(item.at);
+    final time = _formatTime(item.eventAt ?? item.at);
     final prayer = t.prayerNames[item.prayer?.name] ?? '';
     String f(String template) =>
         NotificationTexts.fill(template, prayer: prayer, time: time);

@@ -111,6 +111,15 @@ final class AchievementStore {
     }();
   }
 
+  /// Reads the non-muhasaba signals badges depend on, so an effect calling
+  /// it re-runs (and can [refresh]) when any of them changes.
+  void watchSources() {
+    _fasting?.logged.value;
+    _tasbih?.lifetimeTotal.value;
+    _quran?.bookmarks.value;
+    _quran?.lastRead.value;
+  }
+
   Future<void> _evaluate() async {
     // Bookmarks / last-read live in QuranStore, which is otherwise only
     // loaded by the Quran screen.

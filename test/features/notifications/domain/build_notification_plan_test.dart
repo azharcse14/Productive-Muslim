@@ -196,6 +196,8 @@ void main() {
       final reminders =
           plan.where((i) => i.kind == NotificationKind.jamaat).toList();
       expect(reminders.first.at, DateTime(2026, 3, 12, 13)); // 15 min lead
+      // The body shows the jamaat time, not when the reminder fires.
+      expect(reminders.first.eventAt, DateTime(2026, 3, 12, 13, 15));
       expect(reminders.length, 2); // day 12 + 13
     });
 

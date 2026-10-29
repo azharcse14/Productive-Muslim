@@ -12,6 +12,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../prayer_times/presentation/screens/home_formatting.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
+import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
@@ -61,67 +62,29 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
           final items = <_NotificationViewItem>[];
 
           if (day != null) {
-            final fajr = day.fajr;
-            final dhuhr = day.dhuhr;
-            final asr = day.asr;
-            final maghrib = day.maghrib;
-            final isha = day.isha;
-
-            final fajrName = l10n.prayerLabel(Prayer.fajr);
-            final dhuhrName = l10n.prayerLabel(Prayer.dhuhr);
-            final asrName = l10n.prayerLabel(Prayer.asr);
-            final maghribName = l10n.prayerLabel(Prayer.maghrib);
-            final ishaName = l10n.prayerLabel(Prayer.isha);
-
-            items.addAll([
-              _NotificationViewItem(
-                icon: Icons.mosque_outlined,
-                title: l10n.notifAzanTitle(
-                  fajrName,
-                  _formatTime(context, fajr),
+            const icons = {
+              Prayer.fajr: Icons.mosque_outlined,
+              Prayer.dhuhr: Icons.wb_sunny_outlined,
+              Prayer.asr: Icons.wb_twilight_outlined,
+              Prayer.maghrib: Icons.nightlight_round_outlined,
+              Prayer.isha: Icons.bedtime_outlined,
+            };
+            for (final prayer in Prayer.values) {
+              if (matrix.modeFor(prayer) == AzanMode.off) {
+                continue;
+              }
+              final name = l10n.prayerLabel(prayer);
+              final time = _formatTime(context, day.startOf(prayer));
+              items.add(
+                _NotificationViewItem(
+                  icon: icons[prayer]!,
+                  title: l10n.notifAzanTitle(name, time),
+                  subtitle: l10n.notifAzanBody(name),
+                  time: time,
+                  route: '/home',
                 ),
-                subtitle: l10n.notifAzanBody(fajrName),
-                time: _formatTime(context, fajr),
-                route: '/home',
-              ),
-              _NotificationViewItem(
-                icon: Icons.wb_sunny_outlined,
-                title: l10n.notifAzanTitle(
-                  dhuhrName,
-                  _formatTime(context, dhuhr),
-                ),
-                subtitle: l10n.notifAzanBody(dhuhrName),
-                time: _formatTime(context, dhuhr),
-                route: '/home',
-              ),
-              _NotificationViewItem(
-                icon: Icons.wb_twilight_outlined,
-                title: l10n.notifAzanTitle(asrName, _formatTime(context, asr)),
-                subtitle: l10n.notifAzanBody(asrName),
-                time: _formatTime(context, asr),
-                route: '/home',
-              ),
-              _NotificationViewItem(
-                icon: Icons.nightlight_round_outlined,
-                title: l10n.notifAzanTitle(
-                  maghribName,
-                  _formatTime(context, maghrib),
-                ),
-                subtitle: l10n.notifAzanBody(maghribName),
-                time: _formatTime(context, maghrib),
-                route: '/home',
-              ),
-              _NotificationViewItem(
-                icon: Icons.bedtime_outlined,
-                title: l10n.notifAzanTitle(
-                  ishaName,
-                  _formatTime(context, isha),
-                ),
-                subtitle: l10n.notifAzanBody(ishaName),
-                time: _formatTime(context, isha),
-                route: '/home',
-              ),
-            ]);
+              );
+            }
           }
 
           if (matrix.dailyAyahReminder) {
@@ -164,15 +127,17 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
             );
           }
 
-          if (matrix.muhasabaEveningReminder) {
-            final now = DateTime.now();
-            final t = DateTime(now.year, now.month, now.day, 21, 30);
+          if (matrix.muhasabaEveningReminder && day != null) {
             items.add(
               _NotificationViewItem(
                 icon: Icons.favorite_outline,
                 title: l10n.notifMuhasabaTitle,
                 subtitle: l10n.notifMuhasabaBody,
-                time: _formatTime(context, t),
+                // Same moment the plan fires it: isha + 45 min.
+                time: _formatTime(
+                  context,
+                  day.isha.add(const Duration(minutes: 45)),
+                ),
                 route: '/muhasaba',
               ),
             );

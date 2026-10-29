@@ -314,8 +314,10 @@ final class AppLockStore {
       return false;
     }
     pinResetAuthorized.value = false;
-    await enable(pin, biometric: biometricEnabled.value);
+    // Device ownership is proven: unlock before saving, so a storage error
+    // in [enable] can't leave the user shut out.
     locked.value = false;
+    await enable(pin, biometric: biometricEnabled.value);
     return true;
   }
 

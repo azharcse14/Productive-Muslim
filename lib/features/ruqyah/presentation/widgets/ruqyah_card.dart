@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -42,13 +43,16 @@ final class RuqyahCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: QSpace.s2),
-          Text(
-            item.arabic,
-            textDirection: TextDirection.rtl,
-            // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
-            // transliteration instead so screen-reader users hear the words.
-            semanticsLabel: item.transliteration,
-            style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+          // Rebuilds when the Quran reader's font size changes.
+          SignalBuilder(
+            builder: (context) => Text(
+              item.arabic,
+              textDirection: TextDirection.rtl,
+              // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
+              // transliteration instead so screen-reader users hear the words.
+              semanticsLabel: item.transliteration,
+              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+            ),
           ),
           const SizedBox(height: QSpace.s3),
           Text(

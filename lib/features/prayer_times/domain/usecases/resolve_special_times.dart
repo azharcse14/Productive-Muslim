@@ -24,10 +24,11 @@ List<SpecialWindow> resolveSpecialWindows(
   PrayerDay day, {
   bool preFajr = false,
 }) {
-  final sunriseEnd = day.sunrise.add(_horizonWindow);
+  // The sun's own sunrise/sunset, not the method-offset Fajr end / Maghrib.
+  final sunriseEnd = day.trueSunrise.add(_horizonWindow);
   final ishraqEnd = sunriseEnd.add(_ishraqWindow);
   final zawalStart = day.dhuhr.subtract(_zawalWindow);
-  final sunsetStart = day.maghrib.subtract(_horizonWindow);
+  final sunsetStart = day.sunset.subtract(_horizonWindow);
 
   // Tahajjud: the last third of the night, sunset (Maghrib) → next Fajr.
   final (nightStart, nightEnd) = switch (day.maghribYesterday) {
@@ -41,7 +42,7 @@ List<SpecialWindow> resolveSpecialWindows(
     SpecialWindow(
       time: SpecialTime.forbiddenSunrise,
       kind: SpecialKind.forbidden,
-      start: day.sunrise,
+      start: day.trueSunrise,
       end: sunriseEnd,
     ),
     SpecialWindow(
@@ -54,7 +55,7 @@ List<SpecialWindow> resolveSpecialWindows(
       time: SpecialTime.forbiddenSunset,
       kind: SpecialKind.forbidden,
       start: sunsetStart,
-      end: day.maghrib,
+      end: day.sunset,
     ),
     SpecialWindow(
       time: SpecialTime.ishraq,

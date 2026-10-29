@@ -16,7 +16,6 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
-import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -308,6 +307,18 @@ final class _NotificationSettingsScreenState
                         ),
                       ),
                     ),
+                    if (matrix.dailyAyahReminder)
+                      _TimeRow(
+                        label: l10n.notifDailyTimeLabel,
+                        minuteOfDay: matrix.dailyAyahMinute,
+                        formatMinuteOfDay: (m) =>
+                            _formatMinuteOfDay(context, m),
+                        onChanged: (m) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyAyahMinute: m),
+                          ),
+                        ),
+                      ),
                     const Divider(),
                     QListRow(
                       icon: Icons.auto_stories_outlined,
@@ -322,44 +333,18 @@ final class _NotificationSettingsScreenState
                         ),
                       ),
                     ),
-                    if (matrix.dailyReminder) ...[
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 52,
-                          bottom: QSpace.s2,
-                        ),
-                        child: QSegControl(
-                          options: [
-                            l10n.notifDailyKindHadith,
-                            l10n.notifDailyKindDua,
-                          ],
-                          activeIndex:
-                              matrix.dailyReminderKind == DailyContentKind.dua
-                              ? 1
-                              : 0,
-                          onChanged: (i) => unawaited(
-                            _store.setNotifications(
-                              matrix.copyWith(
-                                dailyReminderKind: i == 1
-                                    ? DailyContentKind.dua
-                                    : DailyContentKind.hadith,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    if (matrix.dailyHadithReminder)
                       _TimeRow(
                         label: l10n.notifDailyTimeLabel,
-                        minuteOfDay: matrix.dailyReminderMinute,
+                        minuteOfDay: matrix.dailyHadithMinute,
                         formatMinuteOfDay: (m) =>
                             _formatMinuteOfDay(context, m),
                         onChanged: (m) => unawaited(
                           _store.setNotifications(
-                            matrix.copyWith(dailyReminderMinute: m),
+                            matrix.copyWith(dailyHadithMinute: m),
                           ),
                         ),
                       ),
-                    ],
                   ],
                 ),
               ),

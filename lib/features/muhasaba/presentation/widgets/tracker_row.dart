@@ -238,9 +238,10 @@ final class _TypeValueDialogState extends State<_TypeValueDialog> {
     super.dispose();
   }
 
-  void _submit() => Navigator.of(
-    context,
-  ).pop(int.tryParse(LocaleDigits.toAscii(_controller.text.trim())));
+  // Capped: a huge value would overflow SQLite's SUM in the stats query.
+  void _submit() => Navigator.of(context).pop(
+    int.tryParse(LocaleDigits.toAscii(_controller.text.trim()))?.clamp(0, 100000),
+  );
 
   @override
   Widget build(BuildContext context) {

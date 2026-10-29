@@ -257,7 +257,7 @@ final class _MonthTableCard extends StatelessWidget {
               const SizedBox(height: QSpace.s2),
               // Inline rows (no nested scroller), so today's highlighted row
               // is reachable with the page scroll like everything else.
-              for (final (index, (day, sahri, iftar)) in rows.indexed)
+              for (final (roza, day, sahri, iftar) in rows)
                 Builder(
                   builder: (context) {
                     final isToday = day == today;
@@ -277,7 +277,7 @@ final class _MonthTableCard extends StatelessWidget {
                               width: 32,
                               child: Text(
                                 LocaleDigits.localize(
-                                  '${index + 1}',
+                                  '$roza',
                                   locale.languageCode,
                                 ),
                                 style: QType.num_(QType.label).copyWith(

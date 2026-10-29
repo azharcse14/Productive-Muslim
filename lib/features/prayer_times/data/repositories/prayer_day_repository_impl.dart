@@ -57,6 +57,11 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       final yesterday = timesOn(-1);
 
       DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
+      // Fajr ends at the method's sunrise; the makruh window uses the sun's.
+      final sunriseOffset =
+          _calculationParameters(params, false)
+              .methodAdjustments[adhan.Prayer.sunrise] ??
+          0;
 
       return Result.success(
         PrayerDay(
@@ -64,6 +69,9 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           // Rounded *up* like the rest, but sunrise ends Fajr: take a
           // minute off so Fajr never shows as running past true sunrise.
           sunrise: wall(times.sunrise).subtract(const Duration(minutes: 1)),
+          trueSunrise: wall(times.sunrise)
+              .subtract(Duration(minutes: 1 + sunriseOffset)),
+          sunset: wall(times.sunset),
           dhuhr: wall(times.dhuhr),
           asr: wall(times.asr),
           maghrib: wall(times.maghrib),

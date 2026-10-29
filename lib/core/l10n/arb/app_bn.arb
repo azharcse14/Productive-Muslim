@@ -350,7 +350,7 @@
     }
   },
   "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
-  "fastingKindName": "{id, select, mondayThursday{সোম ও বৃহস্পতিবার} whiteDays{আইয়ামে বীজ (শুভ্র দিন)} ashura{আশুরা} arafah{আরাফার দিন} dhulHijjah{জিলহজের প্রথম দশ দিন} shawwal{শাওয়ালের ছয় রোজা} other{{id}}}",
+  "fastingKindName": "{id, select, mondayThursday{সোম ও বৃহস্পতিবার} whiteDays{আইয়ামে বীজ (শুভ্র দিন)} ashura{আশুরা} arafah{আরাফার দিন} dhulHijjah{জিলহজের প্রথম নয় দিন} shawwal{শাওয়ালের ছয় রোজা} other{{id}}}",
   "@fastingKindName": {
     "placeholders": {
       "id": { "type": "String" }
@@ -463,6 +463,7 @@
   "appLockSetPin": "৪ সংখ্যার পিন সেট করুন",
   "appLockConfirmPin": "পিনটি আবার দিন",
   "appLockPinMismatch": "পিন মেলেনি — আবার চেষ্টা করুন",
+  "appLockStorageError": "পিন পড়া বা সেভ করা যায়নি। আবার চেষ্টা করুন।",
   "appLockBiometricOfferTitle": "আঙুলের ছাপ বা মুখ দিয়ে খুলবেন?",
   "appLockBiometricOfferBody": "পিন সবসময় বিকল্প হিসেবে কাজ করবে।",
   "appLockBiometricUse": "চালু করুন",

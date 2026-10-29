@@ -4,6 +4,7 @@
 /// folded to precomposed; ZWJ/ZWNJ dropped; Arabic harakat, Quranic marks
 /// and tatweel dropped, alef forms unified and ى/ی→ي, ة→ه, ک→ك, so plain
 /// typed Arabic (or a Persian/Urdu keyboard) matches vowelled text.
+/// Bengali digits become ASCII, so "৬১১৪" finds a reference shown localized.
 String foldForSearch(String input) {
   final lower = input
       .toLowerCase()
@@ -25,6 +26,7 @@ String foldForSearch(String input) {
       0x0649 || 0x06CC => 0x064A, // alef maksura, Persian yeh → ي
       0x0629 => 0x0647, // ta marbuta → ه
       0x06A9 => 0x0643, // Persian keheh → ك
+      >= 0x09E6 && <= 0x09EF => 0x30 + rune - 0x09E6, // ০-৯ → 0-9
       _ => rune,
     });
   }

@@ -184,6 +184,12 @@ abstract final class AppSettingsModel {
     final map = raw.cast<String, Object?>();
     final rawModes =
         _as<Map<Object?, Object?>>(map['modes'])?.cast<String, Object?>() ?? {};
+    // Pre-ayah/hadith saves had one "daily reminder" toggle that no switch
+    // controls any more: carry it into the hadith reminder (its time too),
+    // unless that was saved itself, and retire it.
+    final legacyDaily = _as<bool>(map['dailyReminder']) ?? false;
+    final legacyMinute = _as<int>(map['dailyReminderMinute']);
+    final hasHadith = map.containsKey('dailyHadithReminder');
     return NotificationMatrix(
       prayerModes: {
         for (final prayer in Prayer.values)
@@ -207,7 +213,6 @@ abstract final class AppSettingsModel {
       ),
       muhasabaEveningReminder:
           _as<bool>(map['muhasabaEvening']) ?? defaults.muhasabaEveningReminder,
-      dailyReminder: _as<bool>(map['dailyReminder']) ?? defaults.dailyReminder,
       dailyReminderMinute:
           _as<int>(map['dailyReminderMinute']) ?? defaults.dailyReminderMinute,
       dailyReminderKind: _enumOrDefault(
@@ -219,10 +224,14 @@ abstract final class AppSettingsModel {
           _as<bool>(map['dailyAyahReminder']) ?? defaults.dailyAyahReminder,
       dailyAyahMinute:
           _as<int>(map['dailyAyahMinute']) ?? defaults.dailyAyahMinute,
-      dailyHadithReminder:
-          _as<bool>(map['dailyHadithReminder']) ?? defaults.dailyHadithReminder,
+      dailyHadithReminder: hasHadith
+          ? _as<bool>(map['dailyHadithReminder']) ??
+                defaults.dailyHadithReminder
+          : legacyDaily,
       dailyHadithMinute:
-          _as<int>(map['dailyHadithMinute']) ?? defaults.dailyHadithMinute,
+          _as<int>(map['dailyHadithMinute']) ??
+          (!hasHadith && legacyDaily ? legacyMinute : null) ??
+          defaults.dailyHadithMinute,
       jamaatFocus: _as<bool>(map['jamaatFocus']) ?? defaults.jamaatFocus,
       jamaatFocusLead: Duration(
         minutes:

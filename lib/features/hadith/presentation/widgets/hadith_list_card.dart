@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -26,10 +27,13 @@ final class HadithListCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hadith.arabic.isNotEmpty) ...[
-            Text(
-              hadith.arabic,
-              textDirection: TextDirection.rtl,
-              style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+            // Rebuilds when the Quran reader's font size changes.
+            SignalBuilder(
+              builder: (context) => Text(
+                hadith.arabic,
+                textDirection: TextDirection.rtl,
+                style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+              ),
             ),
             const SizedBox(height: QSpace.s3),
           ],
