@@ -134,12 +134,6 @@ abstract class AppLocalizations {
   /// **'More'**
   String get tabMore;
 
-  /// Placeholder body text on screens that are not built yet
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
-
   /// Title of the debug-only component gallery screen
   ///
   /// In en, this message translates to:
@@ -2354,6 +2348,42 @@ abstract class AppLocalizations {
   /// **'Nisab threshold: {amount}'**
   String zakatNisab(String amount);
 
+  /// No description provided for @zakatNisabGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold nisab ({grams} g)'**
+  String zakatNisabGold(String grams);
+
+  /// No description provided for @zakatNisabSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver nisab ({grams} g)'**
+  String zakatNisabSilver(String grams);
+
+  /// No description provided for @zakatRowCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and bank'**
+  String get zakatRowCash;
+
+  /// No description provided for @zakatRowMetals.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold and silver'**
+  String get zakatRowMetals;
+
+  /// No description provided for @zakatRowBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business, investments and money owed'**
+  String get zakatRowBusiness;
+
+  /// No description provided for @zakatRowDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts deducted'**
+  String get zakatRowDebts;
+
   /// No description provided for @zakatDue.
   ///
   /// In en, this message translates to:
@@ -2365,6 +2395,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your zakatable wealth is below the nisab — no zakat is due.'**
   String get zakatNotPayable;
+
+  /// No description provided for @zakatDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate. Zakat is due only once a full lunar year (hawl) has passed on wealth at or above the nisab, and schools differ on zakat on personal jewellery. Consult a qualified scholar for a binding ruling.'**
+  String get zakatDisclaimer;
 
   /// No description provided for @fitraInfo.
   ///
@@ -2858,6 +2894,12 @@ abstract class AppLocalizations {
   /// **'Pay before the Eid prayer.'**
   String get fitraBeforeEid;
 
+  /// No description provided for @fitraHanafiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This calculator follows Hanafi measures (half a sa\' for wheat or flour). Other schools prescribe a full sa\' of staple food — please consult a scholar.'**
+  String get fitraHanafiOnly;
+
   /// No description provided for @qazaTitle.
   ///
   /// In en, this message translates to:
@@ -2875,6 +2917,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From date'**
   String get qazaStartDate;
+
+  /// No description provided for @qazaStartHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually the date you reached puberty (bulugh), when prayer became obligatory.'**
+  String get qazaStartHelper;
 
   /// No description provided for @qazaEndDate.
   ///
@@ -2900,6 +2948,18 @@ abstract class AppLocalizations {
   /// **'Already made up (per prayer)'**
   String get qazaAlreadyMadeUp;
 
+  /// No description provided for @qazaExcludePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Days to exclude per month (optional)'**
+  String get qazaExcludePerMonth;
+
+  /// No description provided for @qazaExcludeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, days of menstruation, when no prayer is owed'**
+  String get qazaExcludeHelper;
+
   /// No description provided for @qazaEndBeforeStart.
   ///
   /// In en, this message translates to:
@@ -2917,6 +2977,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Period: {count} days'**
   String qazaDays(String count);
+
+  /// No description provided for @qazaExcludedDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Excluded: {count} days'**
+  String qazaExcludedDays(String count);
 
   /// No description provided for @qazaPerPrayer.
   ///
@@ -3020,6 +3086,12 @@ abstract class AppLocalizations {
   /// **'Estate value'**
   String get faraidEstate;
 
+  /// No description provided for @faraidEstateHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Net of funeral costs, debts and bequests (bequests at most 1/3)'**
+  String get faraidEstateHelper;
+
   /// No description provided for @faraidSpouse.
   ///
   /// In en, this message translates to:
@@ -3097,6 +3169,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label}: {amount}'**
   String faraidShare(String label, String amount);
+
+  /// No description provided for @faraidPerHead.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} each'**
+  String faraidPerHead(String amount);
 
   /// No description provided for @faraidAwlNote.
   ///
@@ -3416,6 +3494,18 @@ abstract class AppLocalizations {
   /// **'No expenses logged.'**
   String get expenseEmpty;
 
+  /// No description provided for @expenseFilterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No {category} entries this month.'**
+  String expenseFilterEmpty(String category);
+
+  /// No description provided for @expenseShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get expenseShowAll;
+
   /// No description provided for @expenseIsrafReminder.
   ///
   /// In en, this message translates to:
@@ -3482,6 +3572,12 @@ abstract class AppLocalizations {
   /// **'{amount} over budget — rethink the wants'**
   String expenseBudgetOver(String amount);
 
+  /// No description provided for @expenseCategoryOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over'**
+  String get expenseCategoryOver;
+
   /// No description provided for @expenseVsLastMonth.
   ///
   /// In en, this message translates to:
@@ -3503,7 +3599,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseCategoryBudgetHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap a category to filter; hold to set its budget (sadaqah: a goal)'**
+  /// **'Tap a category to filter; tap the pencil or hold to set its budget (sadaqah: a goal)'**
   String get expenseCategoryBudgetHint;
 
   /// No description provided for @expenseCategoryBudgetTitle.
@@ -4052,17 +4148,29 @@ abstract class AppLocalizations {
   /// **'Enter a valid amount'**
   String get faraidInvalidNumber;
 
-  /// No description provided for @fitraInvalidNumber.
+  /// No description provided for @fitraPriceInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a valid number'**
-  String get fitraInvalidNumber;
+  /// **'Enter a price above 0'**
+  String get fitraPriceInvalid;
+
+  /// No description provided for @fitraPeopleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 1 person'**
+  String get fitraPeopleInvalid;
 
   /// No description provided for @qazaInvalidNumber.
   ///
   /// In en, this message translates to:
   /// **'Enter a whole number'**
   String get qazaInvalidNumber;
+
+  /// No description provided for @qazaExcludeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 0 to 30'**
+  String get qazaExcludeInvalid;
 
   /// No description provided for @mosqueRenameProfile.
   ///

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -8,6 +9,8 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/qaza_calculator.dart';
 
 /// Qaza Salah calculator: estimates outstanding obligatory prayers over a
@@ -23,17 +26,24 @@ final class QazaScreen extends StatefulWidget {
 final class _QazaScreenState extends State<QazaScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
-  bool _includeWitr = false;
+  // Witr is wajib for Hanafis, so it starts on for them.
+  late bool _includeWitr =
+      locator<SettingsStore>().prayerParams.value.madhab == Madhab.hanafi;
   final _madeUp = TextEditingController();
+  final _excluded = TextEditingController();
 
   QazaResult? _result;
 
   /// "Already made up" text didn't parse as a whole number.
   bool _madeUpInvalid = false;
 
+  /// "Days to exclude per month" isn't a whole number in 0..30.
+  bool _excludedInvalid = false;
+
   @override
   void dispose() {
     _madeUp.dispose();
+    _excluded.dispose();
     super.dispose();
   }
 
@@ -71,9 +81,14 @@ final class _QazaScreenState extends State<QazaScreen> {
     }
     final text = LocaleDigits.toAscii(_madeUp.text).trim();
     final madeUp = int.tryParse(text);
+    final excludedText = LocaleDigits.toAscii(_excluded.text).trim();
+    final excluded = int.tryParse(excludedText);
     setState(() {
       _madeUpInvalid = text.isNotEmpty && madeUp == null;
-      if (_madeUpInvalid) {
+      _excludedInvalid =
+          excludedText.isNotEmpty &&
+          (excluded == null || excluded < 0 || excluded > 30);
+      if (_madeUpInvalid || _excludedInvalid) {
         _result = null;
         return;
       }
@@ -83,6 +98,7 @@ final class _QazaScreenState extends State<QazaScreen> {
           endDate: end,
           includeWitr: _includeWitr,
           alreadyMadeUpPerPrayer: madeUp ?? 0,
+          excludedDaysPerMonth: excluded ?? 0,
         ),
       );
     });
@@ -123,6 +139,18 @@ final class _QazaScreenState extends State<QazaScreen> {
                   : _formatDate(context, _startDate!),
               hasValue: _startDate != null,
               onTap: () => _pickDate(isStart: true),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                QSpace.s4,
+                QSpace.s2,
+                QSpace.s4,
+                0,
+              ),
+              child: Text(
+                l10n.qazaStartHelper,
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
             ),
             const SizedBox(height: QSpace.s3),
             _DateTile(
@@ -168,6 +196,22 @@ final class _QazaScreenState extends State<QazaScreen> {
                 errorText: _madeUpInvalid ? l10n.qazaInvalidNumber : null,
               ),
             ),
+            const SizedBox(height: QSpace.s3),
+            TextField(
+              controller: _excluded,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {
+                _result = null;
+                _excludedInvalid = false;
+              }),
+              style: QType.num_(QType.body).copyWith(color: q.ink),
+              decoration: InputDecoration(
+                labelText: l10n.qazaExcludePerMonth,
+                helperText: l10n.qazaExcludeHelper,
+                helperMaxLines: 2,
+                errorText: _excludedInvalid ? l10n.qazaExcludeInvalid : null,
+              ),
+            ),
             const SizedBox(height: QSpace.s4),
             QButton(
               label: l10n.qazaCalculate,
@@ -197,6 +241,15 @@ final class _QazaScreenState extends State<QazaScreen> {
                       l10n.qazaDays(_formatCount(context, result.days)),
                       style: QType.body.copyWith(color: q.ink2),
                     ),
+                    if (result.excludedDays > 0) ...[
+                      const SizedBox(height: QSpace.s2),
+                      Text(
+                        l10n.qazaExcludedDays(
+                          _formatCount(context, result.excludedDays),
+                        ),
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                    ],
                     const SizedBox(height: QSpace.s2),
                     Text(
                       l10n.qazaPerPrayer(

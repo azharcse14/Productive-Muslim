@@ -8,6 +8,8 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_seg_control.dart';
+import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/usecases/inheritance_calculator.dart';
 
 /// Spouse selection for the form.
@@ -58,8 +60,8 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     final text = LocaleDigits.toAscii(_estate.text).trim();
     final estate = double.tryParse(text);
     setState(() {
-      _estateInvalid = text.isNotEmpty &&
-          (estate == null || !estate.isFinite || estate < 0);
+      _estateInvalid =
+          text.isNotEmpty && (estate == null || !estate.isFinite || estate < 0);
       if (_estateInvalid) {
         _result = null;
         return;
@@ -101,7 +103,9 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   String _money(BuildContext context, double amount) {
     final locale = Localizations.localeOf(context);
     return LocaleDigits.localize(
-      NumberFormat.decimalPattern(locale.toString()).format(amount),
+      (NumberFormat.decimalPattern(
+        locale.toString(),
+      )..maximumFractionDigits = 2).format(amount),
       locale.languageCode,
     );
   }
@@ -148,6 +152,8 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
               style: QType.num_(QType.body).copyWith(color: q.ink),
               decoration: InputDecoration(
                 labelText: l10n.faraidEstate,
+                helperText: l10n.faraidEstateHelper,
+                helperMaxLines: 2,
                 errorText: _estateInvalid ? l10n.faraidInvalidNumber : null,
               ),
             ),
@@ -156,23 +162,10 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             // Spouse selector.
             Text(l10n.faraidSpouse, style: QType.label.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s2),
-            SegmentedButton<_Spouse>(
-              segments: [
-                ButtonSegment(
-                  value: _Spouse.none,
-                  label: Text(l10n.faraidNone),
-                ),
-                ButtonSegment(
-                  value: _Spouse.husband,
-                  label: Text(l10n.faraidHusband),
-                ),
-                ButtonSegment(
-                  value: _Spouse.wife,
-                  label: Text(l10n.faraidWife),
-                ),
-              ],
-              selected: {_spouse},
-              onSelectionChanged: (s) => _edit(() => _spouse = s.first),
+            QSegControl(
+              options: [l10n.faraidNone, l10n.faraidHusband, l10n.faraidWife],
+              activeIndex: _spouse.index,
+              onChanged: (i) => _edit(() => _spouse = _Spouse.values[i]),
             ),
             if (_spouse == _Spouse.wife) ...[
               const SizedBox(height: QSpace.s3),
@@ -280,11 +273,25 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                             ),
                             if (s.heirKey != 'unallocated') ...[
                               const SizedBox(width: QSpace.s3),
-                              Text(
-                                _money(context, s.amount),
-                                style: QType.num_(
-                                  QType.titleSm,
-                                ).copyWith(color: q.ink),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    _money(context, s.amount),
+                                    style: QType.num_(
+                                      QType.titleSm,
+                                    ).copyWith(color: q.ink),
+                                  ),
+                                  if (s.count > 1)
+                                    Text(
+                                      l10n.faraidPerHead(
+                                        _money(context, s.amount / s.count),
+                                      ),
+                                      style: QType.num_(
+                                        QType.caption,
+                                      ).copyWith(color: q.ink2),
+                                    ),
+                                ],
                               ),
                             ],
                           ],
@@ -333,7 +340,7 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   }
 }
 
-/// Compact label + [-] value [+] stepper, value clamped to [min]..[max].
+/// Label + [QStepButton] −/+ pair, value clamped to [min]..[max].
 final class _Stepper extends StatelessWidget {
   const _Stepper({
     required this.label,
@@ -357,10 +364,11 @@ final class _Stepper extends StatelessWidget {
         Expanded(
           child: Text(label, style: QType.body.copyWith(color: q.ink)),
         ),
-        IconButton(
-          icon: const Icon(Icons.remove_circle_outline),
-          tooltip: context.l10n.a11yDecrease(label),
-          onPressed: value > min ? () => onChanged(value - 1) : null,
+        QStepButton(
+          icon: Icons.remove,
+          semanticLabel: context.l10n.a11yDecrease(label),
+          fill: q.surface2,
+          onTap: value > min ? () => onChanged(value - 1) : null,
         ),
         Text(
           LocaleDigits.localize(
@@ -369,10 +377,11 @@ final class _Stepper extends StatelessWidget {
           ),
           style: QType.num_(QType.titleSm).copyWith(color: q.ink),
         ),
-        IconButton(
-          icon: const Icon(Icons.add_circle_outline),
-          tooltip: context.l10n.a11yIncrease(label),
-          onPressed: value < max ? () => onChanged(value + 1) : null,
+        QStepButton(
+          icon: Icons.add,
+          semanticLabel: context.l10n.a11yIncrease(label),
+          fill: q.surface2,
+          onTap: value < max ? () => onChanged(value + 1) : null,
         ),
       ],
     );

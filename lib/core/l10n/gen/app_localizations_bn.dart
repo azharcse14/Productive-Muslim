@@ -27,9 +27,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tabMore => 'আরও';
 
   @override
-  String get comingSoon => 'শীঘ্রই আসছে';
-
-  @override
   String get galleryTitle => 'উইজেট গ্যালারি';
 
   @override
@@ -1574,6 +1571,28 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String zakatNisabGold(String grams) {
+    return 'স্বর্ণের নিসাব ($grams গ্রাম)';
+  }
+
+  @override
+  String zakatNisabSilver(String grams) {
+    return 'রুপার নিসাব ($grams গ্রাম)';
+  }
+
+  @override
+  String get zakatRowCash => 'নগদ ও ব্যাংক';
+
+  @override
+  String get zakatRowMetals => 'স্বর্ণ ও রুপা';
+
+  @override
+  String get zakatRowBusiness => 'ব্যবসা, বিনিয়োগ ও পাওনা';
+
+  @override
+  String get zakatRowDebts => 'বাদ দেওয়া ঋণ';
+
+  @override
   String zakatDue(String amount) {
     return 'প্রদেয় যাকাত: $amount';
   }
@@ -1581,6 +1600,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get zakatNotPayable =>
       'আপনার যাকাতযোগ্য সম্পদ নিসাবের নিচে — যাকাত ফরজ হয়নি।';
+
+  @override
+  String get zakatDisclaimer =>
+      'এটি একটি অনুমান। নিসাব পরিমাণ সম্পদের ওপর পূর্ণ এক চান্দ্র বছর (হাওল) অতিবাহিত হলেই যাকাত ফরজ হয়, আর ব্যবহৃত অলংকারের যাকাত নিয়ে মাযহাবগুলোর মধ্যে মতভেদ আছে। চূড়ান্ত সিদ্ধান্তের জন্য একজন যোগ্য আলেমের পরামর্শ নিন।';
 
   @override
   String get fitraInfo =>
@@ -1885,6 +1908,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fitraBeforeEid => 'ঈদের নামাজের আগে আদায় করুন।';
 
   @override
+  String get fitraHanafiOnly =>
+      'এই হিসাব হানাফি পরিমাপ অনুযায়ী (গম বা আটায় অর্ধ সা\')। অন্যান্য মাযহাবে প্রধান খাদ্যের পূর্ণ এক সা\' নির্ধারিত — একজন আলেমের পরামর্শ নিন।';
+
+  @override
   String get qazaTitle => 'কাযা নামাজ ক্যালকুলেটর';
 
   @override
@@ -1893,6 +1920,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qazaStartDate => 'শুরুর তারিখ';
+
+  @override
+  String get qazaStartHelper =>
+      'সাধারণত যেদিন বালেগ হয়েছেন (বুলুগ), অর্থাৎ যখন থেকে নামাজ ফরজ হয়েছে।';
 
   @override
   String get qazaEndDate => 'শেষের তারিখ';
@@ -1907,6 +1938,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qazaAlreadyMadeUp => 'ইতিমধ্যে আদায়কৃত (প্রতি নামাজ)';
 
   @override
+  String get qazaExcludePerMonth => 'প্রতি মাসে বাদ দেওয়ার দিন (ঐচ্ছিক)';
+
+  @override
+  String get qazaExcludeHelper =>
+      'যেমন হায়েজের দিনগুলো, যখন নামাজ ফরজ থাকে না';
+
+  @override
   String get qazaEndBeforeStart => 'শেষের তারিখ শুরুর তারিখের আগে পড়েছে।';
 
   @override
@@ -1915,6 +1953,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String qazaDays(String count) {
     return 'সময়কাল: $count দিন';
+  }
+
+  @override
+  String qazaExcludedDays(String count) {
+    return 'বাদ দেওয়া: $count দিন';
   }
 
   @override
@@ -1981,6 +2024,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get faraidEstate => 'সম্পত্তির পরিমাণ';
 
   @override
+  String get faraidEstateHelper =>
+      'দাফন-কাফনের খরচ, ঋণ ও অসিয়ত (সর্বোচ্চ ১/৩) বাদ দেওয়ার পর';
+
+  @override
   String get faraidSpouse => 'স্বামী/স্ত্রী';
 
   @override
@@ -2019,6 +2066,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String faraidShare(String label, String amount) {
     return '$label: $amount';
+  }
+
+  @override
+  String faraidPerHead(String amount) {
+    return 'জনপ্রতি $amount';
   }
 
   @override
@@ -2235,6 +2287,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseEmpty => 'কোনো খরচ লেখা হয়নি।';
 
   @override
+  String expenseFilterEmpty(String category) {
+    return 'এই মাসে $category খাতে কোনো খরচ নেই।';
+  }
+
+  @override
+  String get expenseShowAll => 'সব দেখুন';
+
+  @override
   String get expenseIsrafReminder =>
       '“আর যারা ব্যয় করে, তারা অপচয় করে না, কৃপণতাও করে না; বরং তারা এর মাঝে মধ্যপন্থা অবলম্বন করে।” (আল-ফুরকান ২৫:৬৭)';
 
@@ -2282,6 +2342,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get expenseCategoryOver => 'বেশি';
+
+  @override
   String expenseVsLastMonth(String dir, String amount) {
     String _temp0 = intl.Intl.selectLogic(dir, {
       'more': 'গত মাসের চেয়ে $amount বেশি',
@@ -2306,7 +2369,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'ক্যাটাগরিতে চাপলে শুধু সেই খরচ দেখাবে; বাজেট দিতে চেপে ধরুন (সাদাকাহ: লক্ষ্য)';
+      'ক্যাটাগরিতে চাপলে শুধু সেই খরচ দেখাবে; বাজেট দিতে পেনসিল আইকনে চাপুন বা চেপে ধরুন (সাদাকাহ: লক্ষ্য)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {
@@ -2697,10 +2760,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get faraidInvalidNumber => 'সঠিক পরিমাণ লিখুন';
 
   @override
-  String get fitraInvalidNumber => 'সঠিক সংখ্যা লিখুন';
+  String get fitraPriceInvalid => '০-এর বেশি দাম লিখুন';
+
+  @override
+  String get fitraPeopleInvalid => 'কমপক্ষে ১ জন লিখুন';
 
   @override
   String get qazaInvalidNumber => 'একটি পূর্ণসংখ্যা লিখুন';
+
+  @override
+  String get qazaExcludeInvalid => '০ থেকে ৩০-এর মধ্যে একটি পূর্ণসংখ্যা লিখুন';
 
   @override
   String get mosqueRenameProfile => 'মসজিদের নাম বদলান';

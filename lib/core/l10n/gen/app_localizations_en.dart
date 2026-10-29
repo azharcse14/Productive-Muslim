@@ -27,9 +27,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabMore => 'More';
 
   @override
-  String get comingSoon => 'Coming soon';
-
-  @override
   String get galleryTitle => 'Widget Gallery';
 
   @override
@@ -1580,6 +1577,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String zakatNisabGold(String grams) {
+    return 'Gold nisab ($grams g)';
+  }
+
+  @override
+  String zakatNisabSilver(String grams) {
+    return 'Silver nisab ($grams g)';
+  }
+
+  @override
+  String get zakatRowCash => 'Cash and bank';
+
+  @override
+  String get zakatRowMetals => 'Gold and silver';
+
+  @override
+  String get zakatRowBusiness => 'Business, investments and money owed';
+
+  @override
+  String get zakatRowDebts => 'Debts deducted';
+
+  @override
   String zakatDue(String amount) {
     return 'Zakat due: $amount';
   }
@@ -1587,6 +1606,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get zakatNotPayable =>
       'Your zakatable wealth is below the nisab — no zakat is due.';
+
+  @override
+  String get zakatDisclaimer =>
+      'An estimate. Zakat is due only once a full lunar year (hawl) has passed on wealth at or above the nisab, and schools differ on zakat on personal jewellery. Consult a qualified scholar for a binding ruling.';
 
   @override
   String get fitraInfo =>
@@ -1891,6 +1914,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fitraBeforeEid => 'Pay before the Eid prayer.';
 
   @override
+  String get fitraHanafiOnly =>
+      'This calculator follows Hanafi measures (half a sa\' for wheat or flour). Other schools prescribe a full sa\' of staple food — please consult a scholar.';
+
+  @override
   String get qazaTitle => 'Qaza prayer calculator';
 
   @override
@@ -1898,6 +1925,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qazaStartDate => 'From date';
+
+  @override
+  String get qazaStartHelper =>
+      'Usually the date you reached puberty (bulugh), when prayer became obligatory.';
 
   @override
   String get qazaEndDate => 'To date';
@@ -1912,6 +1943,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qazaAlreadyMadeUp => 'Already made up (per prayer)';
 
   @override
+  String get qazaExcludePerMonth => 'Days to exclude per month (optional)';
+
+  @override
+  String get qazaExcludeHelper =>
+      'For example, days of menstruation, when no prayer is owed';
+
+  @override
   String get qazaEndBeforeStart => 'The end date is before the start date.';
 
   @override
@@ -1920,6 +1958,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String qazaDays(String count) {
     return 'Period: $count days';
+  }
+
+  @override
+  String qazaExcludedDays(String count) {
+    return 'Excluded: $count days';
   }
 
   @override
@@ -1986,6 +2029,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get faraidEstate => 'Estate value';
 
   @override
+  String get faraidEstateHelper =>
+      'Net of funeral costs, debts and bequests (bequests at most 1/3)';
+
+  @override
   String get faraidSpouse => 'Spouse';
 
   @override
@@ -2024,6 +2071,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String faraidShare(String label, String amount) {
     return '$label: $amount';
+  }
+
+  @override
+  String faraidPerHead(String amount) {
+    return '$amount each';
   }
 
   @override
@@ -2239,6 +2291,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseEmpty => 'No expenses logged.';
 
   @override
+  String expenseFilterEmpty(String category) {
+    return 'No $category entries this month.';
+  }
+
+  @override
+  String get expenseShowAll => 'Show all';
+
+  @override
   String get expenseIsrafReminder =>
       '“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)';
 
@@ -2286,6 +2346,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expenseCategoryOver => 'Over';
+
+  @override
   String expenseVsLastMonth(String dir, String amount) {
     String _temp0 = intl.Intl.selectLogic(dir, {
       'more': '$amount more than last month',
@@ -2310,7 +2373,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseCategoryBudgetHint =>
-      'Tap a category to filter; hold to set its budget (sadaqah: a goal)';
+      'Tap a category to filter; tap the pencil or hold to set its budget (sadaqah: a goal)';
 
   @override
   String expenseCategoryBudgetTitle(String id) {
@@ -2709,10 +2772,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get faraidInvalidNumber => 'Enter a valid amount';
 
   @override
-  String get fitraInvalidNumber => 'Enter a valid number';
+  String get fitraPriceInvalid => 'Enter a price above 0';
+
+  @override
+  String get fitraPeopleInvalid => 'Enter at least 1 person';
 
   @override
   String get qazaInvalidNumber => 'Enter a whole number';
+
+  @override
+  String get qazaExcludeInvalid => 'Enter a whole number from 0 to 30';
 
   @override
   String get mosqueRenameProfile => 'Rename mosque';

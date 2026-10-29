@@ -34,19 +34,27 @@ final class _AgeScreenState extends State<AgeScreen> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      setState(() => _birthDate = picked);
+      setState(() {
+        _birthDate = picked;
+        _result = null;
+      });
     }
   }
 
   Future<void> _pickAsOf() async {
+    // An age can't be measured before birth.
+    final first = _birthDate ?? DateTime(1900);
     final picked = await showDatePicker(
       context: context,
-      initialDate: _asOf,
-      firstDate: DateTime(1900),
+      initialDate: _asOf.isBefore(first) ? first : _asOf,
+      firstDate: first,
       lastDate: DateTime(2200),
     );
     if (picked != null) {
-      setState(() => _asOf = picked);
+      setState(() {
+        _asOf = picked;
+        _result = null;
+      });
     }
   }
 
@@ -100,10 +108,7 @@ final class _AgeScreenState extends State<AgeScreen> {
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
           children: [
-            Text(
-              l10n.ageSubtitle,
-              style: QType.body.copyWith(color: q.ink2),
-            ),
+            Text(l10n.ageSubtitle, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s4),
             _DateField(
               label: l10n.ageBirthDate,
@@ -156,8 +161,9 @@ final class _AgeScreenState extends State<AgeScreen> {
                     const SizedBox(height: QSpace.s1),
                     Text(
                       _ageValue(context, result.hijri),
-                      style: QType.num_(QType.title)
-                          .copyWith(color: q.onPrimarySoft),
+                      style: QType.num_(
+                        QType.title,
+                      ).copyWith(color: q.onPrimarySoft),
                     ),
                   ],
                 ),

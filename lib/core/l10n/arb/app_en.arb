@@ -24,10 +24,6 @@
   "@tabMore": {
     "description": "Bottom navigation label for the More/overflow tab"
   },
-  "comingSoon": "Coming soon",
-  "@comingSoon": {
-    "description": "Placeholder body text on screens that are not built yet"
-  },
   "galleryTitle": "Widget Gallery",
   "@galleryTitle": {
     "description": "Title of the debug-only component gallery screen"
@@ -721,6 +717,26 @@
       }
     }
   },
+  "zakatNisabGold": "Gold nisab ({grams} g)",
+  "@zakatNisabGold": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatNisabSilver": "Silver nisab ({grams} g)",
+  "@zakatNisabSilver": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatRowCash": "Cash and bank",
+  "zakatRowMetals": "Gold and silver",
+  "zakatRowBusiness": "Business, investments and money owed",
+  "zakatRowDebts": "Debts deducted",
   "zakatDue": "Zakat due: {amount}",
   "@zakatDue": {
     "placeholders": {
@@ -730,6 +746,7 @@
     }
   },
   "zakatNotPayable": "Your zakatable wealth is below the nisab — no zakat is due.",
+  "zakatDisclaimer": "An estimate. Zakat is due only once a full lunar year (hawl) has passed on wealth at or above the nisab, and schools differ on zakat on personal jewellery. Consult a qualified scholar for a binding ruling.",
   "fitraInfo": "Sadaqat al-fitr is due per person before Eid prayer — by Hanafi measure, one sa' (~3.3 kg) of dates, barley or raisins, or half a sa' (~1.65 kg) of wheat or flour, or its value, per family member.",
   "calendarTitle": "Calendar",
   "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
@@ -857,18 +874,30 @@
     "placeholders": { "kg": { "type": "String" } }
   },
   "fitraBeforeEid": "Pay before the Eid prayer.",
+  "fitraHanafiOnly": "This calculator follows Hanafi measures (half a sa' for wheat or flour). Other schools prescribe a full sa' of staple food — please consult a scholar.",
   "qazaTitle": "Qaza prayer calculator",
   "qazaSubtitle": "Estimate missed obligatory prayers to make up",
   "qazaStartDate": "From date",
+  "qazaStartHelper": "Usually the date you reached puberty (bulugh), when prayer became obligatory.",
   "qazaEndDate": "To date",
   "qazaSelectDate": "Select date",
   "qazaIncludeWitr": "Include Witr (Hanafi)",
   "qazaAlreadyMadeUp": "Already made up (per prayer)",
+  "qazaExcludePerMonth": "Days to exclude per month (optional)",
+  "qazaExcludeHelper": "For example, days of menstruation, when no prayer is owed",
   "qazaEndBeforeStart": "The end date is before the start date.",
   "qazaCalculate": "Calculate",
   "qazaDays": "Period: {count} days",
   "@qazaDays": {
     "placeholders": { "count": { "type": "String" } }
+  },
+  "qazaExcludedDays": "Excluded: {count} days",
+  "@qazaExcludedDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   },
   "qazaPerPrayer": "Each prayer: {count}",
   "@qazaPerPrayer": {
@@ -906,6 +935,7 @@
   "faraidTitle": "Inheritance calculator",
   "faraidSubtitle": "Estimate shares for common heirs (Faraid)",
   "faraidEstate": "Estate value",
+  "faraidEstateHelper": "Net of funeral costs, debts and bequests (bequests at most 1/3)",
   "faraidSpouse": "Spouse",
   "faraidNone": "None",
   "faraidHusband": "Husband",
@@ -923,6 +953,14 @@
     "placeholders": {
       "label": { "type": "String" },
       "amount": { "type": "String" }
+    }
+  },
+  "faraidPerHead": "{amount} each",
+  "@faraidPerHead": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "faraidAwlNote": "Shares exceed the estate — reduced proportionally ('Awl).",
@@ -996,6 +1034,15 @@
   "expensePrevMonth": "Previous month",
   "expenseNextMonth": "Next month",
   "expenseEmpty": "No expenses logged.",
+  "expenseFilterEmpty": "No {category} entries this month.",
+  "@expenseFilterEmpty": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseShowAll": "Show all",
   "expenseIsrafReminder": "“And those who, when they spend, are neither extravagant nor stingy, but hold a just balance between them.” (Al-Furqan 25:67)",
   "expenseCategory": "{id, select, need{Needs} family{Family} sadaqah{Sadaqah} want{Wants} other{{id}}}",
   "@expenseCategory": {
@@ -1012,6 +1059,7 @@
   "expenseBudgetClear": "Remove budget",
   "expenseBudgetLeft": "{left} left of {budget}",
   "expenseBudgetOver": "{amount} over budget — rethink the wants",
+  "expenseCategoryOver": "Over",
   "@expenseBudgetLeft": {
     "placeholders": {
       "left": {"type": "String"},
@@ -1038,7 +1086,7 @@
     }
   },
   "expenseYesterday": "Yesterday",
-  "expenseCategoryBudgetHint": "Tap a category to filter; hold to set its budget (sadaqah: a goal)",
+  "expenseCategoryBudgetHint": "Tap a category to filter; tap the pencil or hold to set its budget (sadaqah: a goal)",
   "expenseCategoryBudgetTitle": "{id, select, need{Needs budget} family{Family budget} sadaqah{Monthly sadaqah goal} want{Wants budget} other{{id}}}",
   "@expenseCategoryBudgetTitle": {
     "placeholders": {
@@ -1199,8 +1247,10 @@
   "faraidBasisSixthPlusResiduary": "1/6 + residuary",
   "faraidBasisResiduaryTwoToOne": "residuary (2:1)",
   "faraidInvalidNumber": "Enter a valid amount",
-  "fitraInvalidNumber": "Enter a valid number",
+  "fitraPriceInvalid": "Enter a price above 0",
+  "fitraPeopleInvalid": "Enter at least 1 person",
   "qazaInvalidNumber": "Enter a whole number",
+  "qazaExcludeInvalid": "Enter a whole number from 0 to 30",
   "mosqueRenameProfile": "Rename mosque",
   "locationDeniedForever": "Location access is blocked for this app. Allow it in Settings, or pick your city below.",
   "locationUnavailable": "Couldn't get your location. Try again, or pick your city below.",
