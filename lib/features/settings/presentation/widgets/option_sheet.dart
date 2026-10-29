@@ -12,7 +12,7 @@ Future<T?> showOptionSheet<T>({
   required List<T> options,
   required T selected,
   required String Function(T) labelOf,
-  String Function(T)? sublabelOf,
+  String? Function(T)? sublabelOf,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -65,9 +65,10 @@ Future<T?> showOptionSheet<T>({
                                             color: q.ink,
                                           ),
                                         ),
-                                        if (sublabelOf != null)
+                                        if (sublabelOf?.call(option)
+                                            case final sublabel?)
                                           Text(
-                                            sublabelOf(option),
+                                            sublabel,
                                             style: QType.caption.copyWith(
                                               color: q.ink2,
                                             ),

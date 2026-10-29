@@ -180,6 +180,7 @@ final class _NotificationSettingsScreenState
                           ),
                           Expanded(
                             child: QSegControl(
+                              semanticsPrefix: l10n.prayerLabel(prayer),
                               options: [
                                 l10n.azanModeAzan,
                                 l10n.azanModeBeep,
@@ -307,6 +308,18 @@ final class _NotificationSettingsScreenState
                         ),
                       ),
                     ),
+                    if (matrix.dailyAyahReminder)
+                      _TimeRow(
+                        label: l10n.notifDailyTimeLabel,
+                        minuteOfDay: matrix.dailyAyahMinute,
+                        formatMinuteOfDay: (m) =>
+                            _formatMinuteOfDay(context, m),
+                        onChanged: (m) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyAyahMinute: m),
+                          ),
+                        ),
+                      ),
                     const Divider(),
                     QListRow(
                       icon: Icons.auto_stories_outlined,
@@ -317,6 +330,32 @@ final class _NotificationSettingsScreenState
                         onChanged: (v) => unawaited(
                           _store.setNotifications(
                             matrix.copyWith(dailyHadithReminder: v),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (matrix.dailyHadithReminder)
+                      _TimeRow(
+                        label: l10n.notifDailyTimeLabel,
+                        minuteOfDay: matrix.dailyHadithMinute,
+                        formatMinuteOfDay: (m) =>
+                            _formatMinuteOfDay(context, m),
+                        onChanged: (m) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyHadithMinute: m),
+                          ),
+                        ),
+                      ),
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.today_outlined,
+                      title: l10n.notifDailyToggle,
+                      subtitle: l10n.notifDailyToggleSub,
+                      trailing: Switch(
+                        value: matrix.dailyReminder,
+                        onChanged: (v) => unawaited(
+                          _store.setNotifications(
+                            matrix.copyWith(dailyReminder: v),
                           ),
                         ),
                       ),
@@ -371,13 +410,16 @@ final class _NotificationSettingsScreenState
                 tone: q.surface2,
                 foreground: q.ink2,
               ),
-              const SizedBox(height: QSpace.s2),
-              QBanner(
-                text: l10n.notifBatteryHint,
-                icon: Icons.battery_saver_outlined,
-                tone: q.surface2,
-                foreground: q.ink2,
-              ),
+              // Battery optimization is an Android-only setting.
+              if (defaultTargetPlatform == TargetPlatform.android) ...[
+                const SizedBox(height: QSpace.s2),
+                QBanner(
+                  text: l10n.notifBatteryHint,
+                  icon: Icons.battery_saver_outlined,
+                  tone: q.surface2,
+                  foreground: q.ink2,
+                ),
+              ],
               const SizedBox(height: QSpace.s10),
             ],
           );

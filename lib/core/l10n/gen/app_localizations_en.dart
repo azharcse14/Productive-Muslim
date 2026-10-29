@@ -75,6 +75,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingAdjustmentsSub => 'Fine-tune each prayer ±minutes';
 
   @override
+  String adjustmentReset(String prayer) {
+    return 'Reset $prayer to 0';
+  }
+
+  @override
   String get settingHighLat => 'High-latitude rule';
 
   @override
@@ -161,6 +166,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get madhabHanbali => 'Hanbali';
 
   @override
+  String get madhabStandard => 'Standard (Shafiʿi, Maliki, Hanbali)';
+
+  @override
   String get madhabExplain => 'Affects Asr time only';
 
   @override
@@ -207,6 +215,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodTehran => 'Tehran (IGUT)';
+
+  @override
+  String get methodSuggested => 'Suggested for your region';
 
   @override
   String get prayerFajr => 'Fajr';
@@ -260,6 +271,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationCurrent => 'Current location';
+
+  @override
+  String locationRegionalTitle(String country) {
+    return 'Use the suggested method for $country?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · Asr: $madhab. You can change these anytime in Settings.';
+  }
+
+  @override
+  String get locationRegionalKeep => 'Keep current';
+
+  @override
+  String get locationRegionalUse => 'Use suggested';
 
   @override
   String get searchNoResults => 'No matching city — try a different spelling';
@@ -627,6 +654,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifSettingsTitle => 'Notifications';
 
   @override
+  String get notifOffInSystem => 'Off in system settings';
+
+  @override
   String get notifPermissionDeniedBanner =>
       'Notifications are off in system settings. Productive Muslim stays fully useful — enable them to get azan and reminders.';
 
@@ -694,7 +724,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'Daily morning Quran verse reminder (8:00 AM)';
+      'A Quran verse to reflect on, at your time';
 
   @override
   String get notifDailyAyahTitle => 'Ayah of the Day';
@@ -707,7 +737,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'Daily evening Hadith reminder (6:00 PM)';
+      'A hadith to read each day, at your time';
 
   @override
   String get notifDailyKindHadith => 'Hadith';
@@ -740,6 +770,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'All scheduled notifications and reminders will appear here.';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'Set your location so prayer alerts and reminders can be scheduled.';
+
+  @override
+  String get notificationsOffSub =>
+      'Notifications are off, so nothing will be delivered. Enable them to get azan and reminders.';
 
   @override
   String get headerDailyAyahHadith => 'Today\'s Ayah & Hadith';
@@ -1728,6 +1766,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLockWrongPin => 'Wrong PIN — try again';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong PIN — $countString attempts left before a wait',
+      one: 'Wrong PIN — 1 attempt left before a wait',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'Use fingerprint / face';
 
   @override
@@ -1760,6 +1813,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.';
+
+  @override
+  String get appLockResetFailed =>
+      'Couldn\'t confirm it\'s you. Your PIN is unchanged.';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'No screen lock on this device';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'Without a device screen lock, a forgotten app PIN can\'t be reset. Only clearing the app\'s data removes it — and that erases your saved progress.';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'I understand';
 
   @override
   String get appLockNewPin => 'Set a new 4-digit PIN';

@@ -2,14 +2,21 @@ import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
 
+/// The two Asr choices offered in pickers; "Standard" stores [Madhab.shafi]
+/// (maliki/hanbali stay valid stored values with the same Asr).
+const asrMadhabChoices = [Madhab.hanafi, Madhab.shafi];
+
+/// [m] as one of [asrMadhabChoices].
+Madhab asrMadhabOf(Madhab m) => m == Madhab.hanafi ? m : Madhab.shafi;
+
 /// Maps settings enums to localized labels (no hardcoded strings in
 /// widgets — guide §6).
 extension SettingLabels on AppLocalizations {
+  /// Only Hanafi changes Asr, so the other three share one "Standard"
+  /// label (see [asrMadhabChoices]).
   String madhabLabel(Madhab m) => switch (m) {
     Madhab.hanafi => madhabHanafi,
-    Madhab.shafi => madhabShafi,
-    Madhab.maliki => madhabMaliki,
-    Madhab.hanbali => madhabHanbali,
+    Madhab.shafi || Madhab.maliki || Madhab.hanbali => madhabStandard,
   };
 
   String methodLabel(CalculationMethodId m) => switch (m) {

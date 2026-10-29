@@ -75,6 +75,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingAdjustmentsSub => 'প্রতিটি ওয়াক্ত ±মিনিট ঠিক করুন';
 
   @override
+  String adjustmentReset(String prayer) {
+    return '$prayer ০-তে রিসেট করুন';
+  }
+
+  @override
   String get settingHighLat => 'উচ্চ-অক্ষাংশ নিয়ম';
 
   @override
@@ -160,6 +165,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get madhabHanbali => 'হাম্বলি';
 
   @override
+  String get madhabStandard => 'স্ট্যান্ডার্ড (শাফেয়ি, মালিকি, হাম্বলি)';
+
+  @override
   String get madhabExplain => 'শুধু আসরের সময়ে প্রভাব ফেলে';
 
   @override
@@ -206,6 +214,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get methodTehran => 'তেহরান (IGUT)';
+
+  @override
+  String get methodSuggested => 'আপনার অঞ্চলের জন্য প্রস্তাবিত';
 
   @override
   String get prayerFajr => 'ফজর';
@@ -258,6 +269,22 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get locationCurrent => 'বর্তমান অবস্থান';
+
+  @override
+  String locationRegionalTitle(String country) {
+    return '$country-এর জন্য প্রস্তাবিত পদ্ধতি ব্যবহার করবেন?';
+  }
+
+  @override
+  String locationRegionalBody(String method, String madhab) {
+    return '$method · আসর: $madhab। সেটিংসে যেকোনো সময় বদলানো যাবে।';
+  }
+
+  @override
+  String get locationRegionalKeep => 'বর্তমানটি রাখুন';
+
+  @override
+  String get locationRegionalUse => 'প্রস্তাবিতটি নিন';
 
   @override
   String get searchNoResults => 'কোনো শহর মেলেনি — অন্য বানানে চেষ্টা করুন';
@@ -626,6 +653,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifSettingsTitle => 'নোটিফিকেশন';
 
   @override
+  String get notifOffInSystem => 'সিস্টেম সেটিংসে বন্ধ';
+
+  @override
   String get notifPermissionDeniedBanner =>
       'সিস্টেম সেটিংসে নোটিফিকেশন বন্ধ আছে। প্রোডাক্টিভ মুসলিম পুরোপুরি ব্যবহারযোগ্য থাকবে — আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
@@ -694,7 +724,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyAyahToggleSub =>
-      'প্রতিদিন সকালে একটি আয়াতের রিমাইন্ডার (সকাল ৮:০০)';
+      'আপনার বেছে নেওয়া সময়ে চিন্তা করার মতো একটি আয়াত';
 
   @override
   String get notifDailyAyahTitle => 'আজকের আয়াত';
@@ -707,7 +737,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifDailyHadithToggleSub =>
-      'প্রতিদিন সন্ধ্যায় একটি হাদিসের রিমাইন্ডার (সন্ধ্যা ৬:০০)';
+      'আপনার বেছে নেওয়া সময়ে প্রতিদিন একটি হাদিস';
 
   @override
   String get notifDailyKindHadith => 'হাদিস';
@@ -739,6 +769,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get notificationsEmptySub =>
       'আজকের সকল নোটিফিকেশন ও রিমাইন্ডার এখানে দেখতে পাবেন।';
+
+  @override
+  String get notificationsNoLocationSub =>
+      'নামাজের অ্যালার্ট ও রিমাইন্ডার নির্ধারণ করতে আপনার লোকেশন সেট করুন।';
+
+  @override
+  String get notificationsOffSub =>
+      'নোটিফিকেশন বন্ধ আছে, তাই কিছুই পৌঁছাবে না। আজান ও রিমাইন্ডার পেতে চালু করুন।';
 
   @override
   String get headerDailyAyahHadith => 'আজকের আয়াত ও হাদিস';
@@ -1721,6 +1759,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appLockWrongPin => 'ভুল পিন — আবার চেষ্টা করুন';
 
   @override
+  String appLockAttemptsLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ভুল পিন — অপেক্ষার আগে আর $countStringবার চেষ্টা করা যাবে',
+      one: 'ভুল পিন — অপেক্ষার আগে আর ১বার চেষ্টা করা যাবে',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get appLockUseBiometric => 'ফিঙ্গারপ্রিন্ট / ফেস ব্যবহার করুন';
 
   @override
@@ -1754,6 +1807,20 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get appLockNoDeviceLockBody =>
       'আপনার ডিভাইসে কোনো স্ক্রিন লক নেই, তাই আপনাকে যাচাই করা যাচ্ছে না। ডিভাইসের সেটিংসে স্ক্রিন লক চালু করে আবার চেষ্টা করুন। অ্যাপের ডেটা মুছে ফেললেও পিন সরে যায়, তবে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockResetFailed =>
+      'আপনাকে যাচাই করা যায়নি। পিন আগের মতোই আছে।';
+
+  @override
+  String get appLockSetupNoDeviceLockTitle => 'এই ডিভাইসে কোনো স্ক্রিন লক নেই';
+
+  @override
+  String get appLockSetupNoDeviceLockBody =>
+      'ডিভাইসে স্ক্রিন লক না থাকলে অ্যাপের পিন ভুলে গেলে তা রিসেট করা যাবে না। কেবল অ্যাপের ডেটা মুছলেই পিন সরে যায় — আর তাতে আপনার সংরক্ষিত অগ্রগতিও মুছে যাবে।';
+
+  @override
+  String get appLockSetupNoDeviceLockAck => 'বুঝেছি';
 
   @override
   String get appLockNewPin => 'নতুন ৪-সংখ্যার পিন দিন';

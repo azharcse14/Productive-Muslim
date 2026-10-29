@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'Fine-tune each prayer ±minutes'**
   String get settingAdjustmentsSub;
 
+  /// No description provided for @adjustmentReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset {prayer} to 0'**
+  String adjustmentReset(String prayer);
+
   /// No description provided for @settingHighLat.
   ///
   /// In en, this message translates to:
@@ -374,6 +380,12 @@ abstract class AppLocalizations {
   /// **'Hanbali'**
   String get madhabHanbali;
 
+  /// No description provided for @madhabStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard (Shafiʿi, Maliki, Hanbali)'**
+  String get madhabStandard;
+
   /// No description provided for @madhabExplain.
   ///
   /// In en, this message translates to:
@@ -470,6 +482,12 @@ abstract class AppLocalizations {
   /// **'Tehran (IGUT)'**
   String get methodTehran;
 
+  /// No description provided for @methodSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for your region'**
+  String get methodSuggested;
+
   /// No description provided for @prayerFajr.
   ///
   /// In en, this message translates to:
@@ -565,6 +583,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current location'**
   String get locationCurrent;
+
+  /// No description provided for @locationRegionalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the suggested method for {country}?'**
+  String locationRegionalTitle(String country);
+
+  /// No description provided for @locationRegionalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{method} · Asr: {madhab}. You can change these anytime in Settings.'**
+  String locationRegionalBody(String method, String madhab);
+
+  /// No description provided for @locationRegionalKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current'**
+  String get locationRegionalKeep;
+
+  /// No description provided for @locationRegionalUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use suggested'**
+  String get locationRegionalUse;
 
   /// No description provided for @searchNoResults.
   ///
@@ -1112,6 +1154,12 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get notifSettingsTitle;
 
+  /// No description provided for @notifOffInSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in system settings'**
+  String get notifOffInSystem;
+
   /// No description provided for @notifPermissionDeniedBanner.
   ///
   /// In en, this message translates to:
@@ -1241,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifDailyAyahToggleSub.
   ///
   /// In en, this message translates to:
-  /// **'Daily morning Quran verse reminder (8:00 AM)'**
+  /// **'A Quran verse to reflect on, at your time'**
   String get notifDailyAyahToggleSub;
 
   /// No description provided for @notifDailyAyahTitle.
@@ -1265,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifDailyHadithToggleSub.
   ///
   /// In en, this message translates to:
-  /// **'Daily evening Hadith reminder (6:00 PM)'**
+  /// **'A hadith to read each day, at your time'**
   String get notifDailyHadithToggleSub;
 
   /// No description provided for @notifDailyKindHadith.
@@ -1327,6 +1375,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All scheduled notifications and reminders will appear here.'**
   String get notificationsEmptySub;
+
+  /// No description provided for @notificationsNoLocationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location so prayer alerts and reminders can be scheduled.'**
+  String get notificationsNoLocationSub;
+
+  /// No description provided for @notificationsOffSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off, so nothing will be delivered. Enable them to get azan and reminders.'**
+  String get notificationsOffSub;
 
   /// No description provided for @headerDailyAyahHadith.
   ///
@@ -2588,6 +2648,12 @@ abstract class AppLocalizations {
   /// **'Wrong PIN — try again'**
   String get appLockWrongPin;
 
+  /// No description provided for @appLockAttemptsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Wrong PIN — 1 attempt left before a wait} other{Wrong PIN — {count} attempts left before a wait}}'**
+  String appLockAttemptsLeft(int count);
+
   /// No description provided for @appLockUseBiometric.
   ///
   /// In en, this message translates to:
@@ -2647,6 +2713,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your device has no screen lock, so we can\'t confirm it\'s you. Set up a screen lock in your device settings and try again. Clearing the app\'s data also removes the PIN, but erases your saved progress.'**
   String get appLockNoDeviceLockBody;
+
+  /// No description provided for @appLockResetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t confirm it\'s you. Your PIN is unchanged.'**
+  String get appLockResetFailed;
+
+  /// No description provided for @appLockSetupNoDeviceLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen lock on this device'**
+  String get appLockSetupNoDeviceLockTitle;
+
+  /// No description provided for @appLockSetupNoDeviceLockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a device screen lock, a forgotten app PIN can\'t be reset. Only clearing the app\'s data removes it — and that erases your saved progress.'**
+  String get appLockSetupNoDeviceLockBody;
+
+  /// No description provided for @appLockSetupNoDeviceLockAck.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get appLockSetupNoDeviceLockAck;
 
   /// No description provided for @appLockNewPin.
   ///
