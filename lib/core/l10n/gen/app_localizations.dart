@@ -4987,6 +4987,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications are off'**
   String get notificationsOffTitle;
+
+  /// No description provided for @groupAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get groupAdvanced;
+
+  /// No description provided for @settingCreditsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources of the Quran translations, hadith, data and fonts'**
+  String get settingCreditsSub;
+
+  /// No description provided for @creditsArabicText.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic text'**
+  String get creditsArabicText;
+
+  /// No description provided for @creditsEnTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'English translation'**
+  String get creditsEnTranslation;
+
+  /// No description provided for @creditsBnTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Bangla translation'**
+  String get creditsBnTranslation;
+
+  /// No description provided for @creditsHadithText.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic & English text'**
+  String get creditsHadithText;
+
+  /// No description provided for @creditsGroupPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times & places'**
+  String get creditsGroupPlaces;
+
+  /// No description provided for @creditsPrayerCalc.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times & qibla'**
+  String get creditsPrayerCalc;
+
+  /// No description provided for @creditsPrayerCalcValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated on your device (adhan_dart)'**
+  String get creditsPrayerCalcValue;
+
+  /// No description provided for @creditsCities.
+  ///
+  /// In en, this message translates to:
+  /// **'City database'**
+  String get creditsCities;
+
+  /// No description provided for @creditsGroupFonts.
+  ///
+  /// In en, this message translates to:
+  /// **'Fonts'**
+  String get creditsGroupFonts;
+
+  /// No description provided for @creditsFontsUi.
+  ///
+  /// In en, this message translates to:
+  /// **'Interface'**
+  String get creditsFontsUi;
+
+  /// No description provided for @creditsFontQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran script'**
+  String get creditsFontQuran;
+
+  /// No description provided for @creditsReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Duas, ruqyah and the hadith of the day cite their source on each item.'**
+  String get creditsReferences;
 }
 
 class _AppLocalizationsDelegate

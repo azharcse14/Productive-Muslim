@@ -46,7 +46,16 @@ final class MoreScreen extends StatelessWidget {
       () => context.pushNamed(Routes.ramadan.name),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabMore)),
+      appBar: AppBar(
+        title: Text(l10n.tabMore),
+        actions: [
+          IconButton(
+            tooltip: l10n.settingsTitle,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.goNamed(Routes.settings.name),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(QSpace.s5, 0, QSpace.s5, QSpace.s5),
         children: staggered([

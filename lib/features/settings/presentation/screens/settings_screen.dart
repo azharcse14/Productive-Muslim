@@ -16,6 +16,8 @@ import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
 import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
+import '../../../quran/presentation/state/quran_store.dart';
+import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
 import '../../domain/usecases/regional_defaults.dart';
@@ -124,18 +126,14 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const Divider(),
                     QListRow(
-                      icon: Icons.public_outlined,
-                      title: l10n.settingHighLat,
-                      subtitle: l10n.highLatLabel(params.highLatitudeRule),
-                      trailing: Icon(Icons.chevron_right, color: q.ink3),
-                      onTap: () => _pickHighLat(params.highLatitudeRule),
-                    ),
-                    const Divider(),
-                    QListRow(
                       icon: Icons.nightlight_outlined,
                       title: l10n.settingSahriSafety,
                       subtitle: l10n.settingSahriSafetySub,
-                      trailing: _AdjustmentStepper(
+                    ),
+                    // Under the text, not trailing: the wide stepper
+                    // squeezed the title at large text scales.
+                    _UnderRow(
+                      child: _AdjustmentStepper(
                         key: const ValueKey('sahri-safety-stepper'),
                         value: params.sahriSafetyMinutes,
                         min: 0,
@@ -149,7 +147,9 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.calendar_month_outlined,
                       title: l10n.settingHijriOffset,
                       subtitle: l10n.settingHijriOffsetSub,
-                      trailing: _AdjustmentStepper(
+                    ),
+                    _UnderRow(
+                      child: _AdjustmentStepper(
                         key: const ValueKey('hijri-offset-stepper'),
                         value: settings.hijriOffsetDays,
                         min: AppSettings.minHijriOffset,
@@ -163,6 +163,20 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              _GroupHeader(l10n.groupAdvanced),
+              QCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: QSpace.s4,
+                  vertical: QSpace.s1,
+                ),
+                child: QListRow(
+                  icon: Icons.public_outlined,
+                  title: l10n.settingHighLat,
+                  subtitle: l10n.highLatLabel(params.highLatitudeRule),
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => _pickHighLat(params.highLatitudeRule),
                 ),
               ),
               _GroupHeader(l10n.groupNotifications),
@@ -218,6 +232,18 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       trailing: Icon(Icons.chevron_right, color: q.ink3),
                       onTap: () => unawaited(_editHomeCards()),
                     ),
+                    // Same sheet as the Quran reader's; dua/hadith/ruqyah
+                    // Arabic follows it too.
+                    if (locator.isRegistered<QuranStore>()) ...[
+                      const Divider(),
+                      QListRow(
+                        icon: Icons.format_size,
+                        title: l10n.readerFontSize,
+                        trailing: Icon(Icons.chevron_right, color: q.ink3),
+                        onTap: () =>
+                            unawaited(showReaderSettingsSheet(context)),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -284,7 +310,9 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                 child: QListRow(
                   icon: Icons.info_outline,
                   title: l10n.settingCredits,
-                  subtitle: l10n.creditsBody,
+                  subtitle: l10n.settingCreditsSub,
+                  trailing: Icon(Icons.chevron_right, color: q.ink3),
+                  onTap: () => context.pushNamed(Routes.credits.name),
                 ),
               ),
               const SizedBox(height: QSpace.s10),
@@ -512,6 +540,20 @@ final class _GroupHeader extends StatelessWidget {
       start: QSpace.s1,
     ),
     child: Text(title.toUpperCase(), style: context.text.labelSmall),
+  );
+}
+
+/// A control below the [QListRow] above it, aligned with its text.
+final class _UnderRow extends StatelessWidget {
+  const _UnderRow({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    // 38 icon tile + 14 gap in QListRow.
+    padding: const EdgeInsetsDirectional.only(start: 54, bottom: QSpace.s3),
+    child: Align(alignment: AlignmentDirectional.centerStart, child: child),
   );
 }
 

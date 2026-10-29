@@ -1545,5 +1545,19 @@
   "focusPageTitle": "Jamaat focus & nafs lock",
   "focusPageRowSub": "Stay undisturbed around jamaat",
   "notificationsNoLocationTitle": "Location not set",
-  "notificationsOffTitle": "Notifications are off"
+  "notificationsOffTitle": "Notifications are off",
+  "groupAdvanced": "Advanced",
+  "settingCreditsSub": "Sources of the Quran translations, hadith, data and fonts",
+  "creditsArabicText": "Arabic text",
+  "creditsEnTranslation": "English translation",
+  "creditsBnTranslation": "Bangla translation",
+  "creditsHadithText": "Arabic & English text",
+  "creditsGroupPlaces": "Prayer times & places",
+  "creditsPrayerCalc": "Prayer times & qibla",
+  "creditsPrayerCalcValue": "Calculated on your device (adhan_dart)",
+  "creditsCities": "City database",
+  "creditsGroupFonts": "Fonts",
+  "creditsFontsUi": "Interface",
+  "creditsFontQuran": "Quran script",
+  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item."
 }

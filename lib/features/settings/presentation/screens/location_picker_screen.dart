@@ -11,6 +11,7 @@ import '../../../../core/utils/result.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/city.dart';
@@ -51,6 +52,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   /// Bumped per search; a response from an older query is dropped.
   var _searchGen = 0;
+
+  /// Last query searched, for retrying a failed search.
+  var _query = '';
 
   late final AppLifecycleListener _lifecycle;
 
@@ -94,6 +98,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _runSearch(String query) async {
     final gen = ++_searchGen;
+    _query = query;
     _searching.value = true;
     final result = await _searchCities(query);
     if (gen != _searchGen || !mounted) {
@@ -309,19 +314,31 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 );
               }
               final cities = _results.value;
+              if (_searchFailed.value) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: QErrorRetry(
+                    message: l10n.locationSearchError,
+                    retryLabel: l10n.locationRetry,
+                    onRetry: () => unawaited(_runSearch(_query)),
+                  ),
+                );
+              }
               if (cities.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
                     child: Text(
-                      _searchFailed.value
-                          ? l10n.locationSearchError
-                          : l10n.searchNoResults,
+                      l10n.searchNoResults,
                       style: QType.body.copyWith(color: q.ink2),
                     ),
                   ),
                 );
               }
+              final current = switch (_store.location.value) {
+                ManualCityLocation(:final city) => city,
+                _ => null,
+              };
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
                 sliver: SliverList.builder(
@@ -329,8 +346,15 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   itemBuilder: (context, index) {
                     final city = cities[index];
                     final bn = isBn ? city.nameBn : null;
+                    final selected = city == current;
                     // Flag + country code reads better than a raw IANA zone.
+                    // ponytail: ISO code, not a localized country name — no
+                    // country-name data is bundled and intl has none.
                     return QListRow(
+                      selected: selected,
+                      trailing: selected
+                          ? Icon(Icons.check, color: q.primary)
+                          : null,
                       title: bn ?? city.name,
                       subtitle: [
                         '${_flag(city.countryCode)} ${city.countryCode}',

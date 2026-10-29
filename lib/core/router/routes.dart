@@ -9,6 +9,9 @@ abstract final class Routes {
 
   /// Settings stack lives under the More branch.
   static const settings = (name: 'settings', path: 'settings');
+
+  /// Sources & licenses page, under Settings.
+  static const credits = (name: 'credits', path: 'credits');
   static const notifications = (name: 'notifications', path: '/notifications');
   static const notificationSettings = (
     name: 'notificationSettings',

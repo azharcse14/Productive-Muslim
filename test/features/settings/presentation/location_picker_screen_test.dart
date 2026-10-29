@@ -28,10 +28,15 @@ const _cairo = City(
   timezone: 'Africa/Cairo',
 );
 
+/// Makes the city search fail (reset per test).
+var _citiesFail = false;
+
 final class _Cities implements CityRepository {
   @override
   Future<Result<List<City>>> search(String query, {int limit = 30}) async =>
-      const Result.success([_cairo]);
+      _citiesFail
+      ? const Result.failure(UnexpectedFailure('boom'))
+      : const Result.success([_cairo]);
 }
 
 final class _NoGps implements LocationRepository {
@@ -78,7 +83,28 @@ Future<SettingsStore> _pump(WidgetTester tester, {required bool setup}) async {
 }
 
 void main() {
-  tearDown(GetIt.I.reset);
+  tearDown(() {
+    _citiesFail = false;
+    return GetIt.I.reset();
+  });
+
+  testWidgets('marks the current city as selected', (tester) async {
+    final store = await _pump(tester, setup: true);
+    expect(find.byIcon(Icons.check), findsNothing);
+    await store.setLocation(const ManualCityLocation(_cairo));
+    await tester.pump();
+    expect(find.byIcon(Icons.check), findsOneWidget);
+  });
+
+  testWidgets('a failed search offers a retry', (tester) async {
+    _citiesFail = true;
+    await _pump(tester, setup: true);
+    expect(find.text('Cairo'), findsNothing);
+    _citiesFail = false;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cairo'), findsOneWidget);
+  });
 
   testWidgets('moving country offers that region\'s method and madhab', (
     tester,

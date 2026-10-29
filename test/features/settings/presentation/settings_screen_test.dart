@@ -10,6 +10,7 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import 'package:productive_muslim/features/settings/presentation/screens/credits_screen.dart';
 import 'package:productive_muslim/features/settings/presentation/screens/settings_screen.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
@@ -131,10 +132,26 @@ void main() {
       expect(repo.stored.themeMode, AppThemeMode.dark);
     });
 
-    testWidgets('credits mention required attributions', (tester) async {
-      await tester.pumpWidget(_app());
-      await tester.scrollUntilVisible(find.textContaining('GeoNames'), 200);
-      expect(find.textContaining('KFGQPC'), findsOneWidget);
+    testWidgets('credits page names required attributions', (tester) async {
+      _tall(tester);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const CreditsScreen(),
+        ),
+      );
+      for (final source in [
+        'Tanzil',
+        'Pickthall',
+        'Muhiuddin Khan',
+        'hadithbangla',
+        'GeoNames',
+        'KFGQPC',
+      ]) {
+        expect(find.textContaining(source), findsWidgets, reason: source);
+      }
     });
 
     testWidgets('Hijri offset stepper adjusts and clamps at +2', (
