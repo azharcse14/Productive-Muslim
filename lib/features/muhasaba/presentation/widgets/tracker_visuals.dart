@@ -31,13 +31,13 @@ abstract final class TrackerVisuals {
 
   /// Curated palette — token-derived, no raw colors in feature widgets.
   static List<Color> palette(ProductiveMuslimColors q) => [
-        q.primary,
-        q.accentStrong,
-        q.ok,
-        q.warn,
-        q.onPrimarySoft,
-        q.ink2,
-      ];
+    q.primary,
+    q.accentStrong,
+    q.ok,
+    q.warn,
+    q.onPrimarySoft,
+    q.ink2,
+  ];
 
   static Color colorOf(ProductiveMuslimColors q, int index) {
     final colors = palette(q);

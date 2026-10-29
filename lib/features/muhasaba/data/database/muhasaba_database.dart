@@ -56,12 +56,12 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        onUpgrade: (m, from, to) async {
-          // Add one step per version here (e.g. `if (from < 2) ...`) and a
-          // case in muhasaba_migration_test.dart. Until then nothing to do —
-          // fail loudly rather than open a mismatched schema.
-          throw StateError('No muhasaba migration from v$from to v$to');
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      // Add one step per version here (e.g. `if (from < 2) ...`) and a
+      // case in muhasaba_migration_test.dart. Until then nothing to do —
+      // fail loudly rather than open a mismatched schema.
+      throw StateError('No muhasaba migration from v$from to v$to');
+    },
+  );
 }

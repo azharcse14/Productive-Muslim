@@ -37,16 +37,16 @@ final class TrackerItem {
 
   /// Whether [value] completes this item for a day.
   bool isDone(int value) => switch (dailyTarget) {
-        null => value > 0,
-        final target => value >= target,
-      };
+    null => value > 0,
+    final target => value >= target,
+  };
 
   /// 0..1 progress of [value] toward completion.
   double fractionOf(int value) => switch (dailyTarget) {
-        null => value > 0 ? 1 : 0,
-        final target when target <= 0 => value > 0 ? 1 : 0,
-        final target => (value / target).clamp(0, 1).toDouble(),
-      };
+    null => value > 0 ? 1 : 0,
+    final target when target <= 0 => value > 0 ? 1 : 0,
+    final target => (value / target).clamp(0, 1).toDouble(),
+  };
 
   TrackerItem copyWith({
     String? name,
@@ -85,16 +85,16 @@ final class TrackerItem {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        name,
-        kind,
-        dailyTarget,
-        icon,
-        colorIndex,
-        isDefault,
-        archived,
-        sortOrder,
-      );
+    id,
+    name,
+    kind,
+    dailyTarget,
+    icon,
+    colorIndex,
+    isDefault,
+    archived,
+    sortOrder,
+  );
 }
 
 /// Seeded default items (design §4.7). Names are l10n KEYS resolved in
@@ -109,61 +109,61 @@ abstract final class DefaultTrackers {
   ];
 
   static List<TrackerItem> items() => [
-        for (final (i, id) in salahIds.indexed)
-          TrackerItem(
-            id: id,
-            name: id,
-            kind: TrackerKind.yesNo,
-            icon: 'mosque',
-            isDefault: true,
-            sortOrder: i,
-          ),
-        const TrackerItem(
-          id: 'quran',
-          name: 'quran',
-          kind: TrackerKind.duration,
-          dailyTarget: 10,
-          icon: 'book',
-          colorIndex: 1,
-          isDefault: true,
-          sortOrder: 5,
-        ),
-        const TrackerItem(
-          id: 'azkar',
-          name: 'azkar',
-          kind: TrackerKind.count,
-          dailyTarget: 100,
-          icon: 'beads',
-          colorIndex: 2,
-          isDefault: true,
-          sortOrder: 6,
-        ),
-        const TrackerItem(
-          id: 'sadaqah',
-          name: 'sadaqah',
-          kind: TrackerKind.yesNo,
-          icon: 'heart',
-          colorIndex: 3,
-          isDefault: true,
-          sortOrder: 7,
-        ),
-        const TrackerItem(
-          id: 'tahajjud',
-          name: 'tahajjud',
-          kind: TrackerKind.yesNo,
-          icon: 'moon',
-          colorIndex: 4,
-          isDefault: true,
-          sortOrder: 8,
-        ),
-        const TrackerItem(
-          id: 'roza',
-          name: 'roza',
-          kind: TrackerKind.yesNo,
-          icon: 'sun',
-          colorIndex: 5,
-          isDefault: true,
-          sortOrder: 9,
-        ),
-      ];
+    for (final (i, id) in salahIds.indexed)
+      TrackerItem(
+        id: id,
+        name: id,
+        kind: TrackerKind.yesNo,
+        icon: 'mosque',
+        isDefault: true,
+        sortOrder: i,
+      ),
+    const TrackerItem(
+      id: 'quran',
+      name: 'quran',
+      kind: TrackerKind.duration,
+      dailyTarget: 10,
+      icon: 'book',
+      colorIndex: 1,
+      isDefault: true,
+      sortOrder: 5,
+    ),
+    const TrackerItem(
+      id: 'azkar',
+      name: 'azkar',
+      kind: TrackerKind.count,
+      dailyTarget: 100,
+      icon: 'beads',
+      colorIndex: 2,
+      isDefault: true,
+      sortOrder: 6,
+    ),
+    const TrackerItem(
+      id: 'sadaqah',
+      name: 'sadaqah',
+      kind: TrackerKind.yesNo,
+      icon: 'heart',
+      colorIndex: 3,
+      isDefault: true,
+      sortOrder: 7,
+    ),
+    const TrackerItem(
+      id: 'tahajjud',
+      name: 'tahajjud',
+      kind: TrackerKind.yesNo,
+      icon: 'moon',
+      colorIndex: 4,
+      isDefault: true,
+      sortOrder: 8,
+    ),
+    const TrackerItem(
+      id: 'roza',
+      name: 'roza',
+      kind: TrackerKind.yesNo,
+      icon: 'sun',
+      colorIndex: 5,
+      isDefault: true,
+      sortOrder: 9,
+    ),
+  ];
 }

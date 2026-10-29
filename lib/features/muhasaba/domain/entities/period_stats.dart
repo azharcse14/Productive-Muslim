@@ -48,8 +48,7 @@ final class ItemPeriodStats {
       other.totalValue == totalValue;
 
   @override
-  int get hashCode =>
-      Object.hash(itemId, daysDone, periodDays, totalValue);
+  int get hashCode => Object.hash(itemId, daysDone, periodDays, totalValue);
 }
 
 /// Dashboard aggregate for a date range (design §4.7). All framed
