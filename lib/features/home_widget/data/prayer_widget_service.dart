@@ -64,7 +64,8 @@ final class PrayerWidgetService {
         tomorrow = _getPrayerDay(
           location: location,
           params: appSettings.prayerParams,
-          date: today.add(const Duration(days: 1)),
+          // Calendar +1, not +24h: a DST fall-back day is 25h long.
+          date: DateTime(today.year, today.month, today.day + 1),
         ).valueOrNull;
         locationLabel = location.displayName;
       } else {

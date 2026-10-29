@@ -41,7 +41,7 @@ const _catalogJson = '''
       "edition_en": "eng-bukhari",
       "edition_bn": "ben-bukhari",
       "sections": [
-        {"n": 1, "name": "Revelation", "first": 1, "last": 7},
+        {"n": 1, "name": "Revelation", "first": 1, "last": 7, "count": 7},
         {"n": 2, "name": "Belief", "first": 8, "last": 58}
       ]
     },

@@ -87,6 +87,30 @@ void main() {
     );
   });
 
+  test('catalog section counts match the hadith actually bundled', () {
+    final catalog = jsonDecode(
+      File('assets/data/hadith_books.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    for (final book in (catalog['books'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()) {
+      final sections = [
+        for (final s in book['sections'] as List<dynamic>)
+          ('hadith_section', 'edition', book['edition_ar'], s),
+        for (final s in (book['sections_bn'] as List<dynamic>?) ?? [])
+          ('hadith_bn_section', 'book_id', book['id'], s),
+      ];
+      for (final (table, keyColumn, key, s) in sections) {
+        final section = s as Map<String, dynamic>;
+        expect(
+          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?',
+              [key, section['n']]).length,
+          section['count'],
+          reason: '$table $key §${section['n']}',
+        );
+      }
+    }
+  });
+
   test('a Bengali chapter decodes with Bangla text', () {
     final bn = blob(
       'SELECT data FROM hadith_bn_section WHERE book_id = ? AND section = 1',

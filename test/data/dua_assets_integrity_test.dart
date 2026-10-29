@@ -165,6 +165,17 @@ void main() {
       });
     });
 
+    test('no English field contains Bengali script', () {
+      final bengali = RegExp('[ঀ-৿]');
+      for (final dua in allDuas) {
+        expect(
+          bengali.hasMatch(dua['en']! as String),
+          isFalse,
+          reason: 'dua "${dua['id']}" has Bengali in "en"',
+        );
+      }
+    });
+
     test('dua ids are unique across the whole collection', () {
       final ids = allDuas.map((Map<String, Object?> d) => d['id']).toList();
       expect(ids.toSet(), hasLength(ids.length), reason: 'duplicate dua ids found');

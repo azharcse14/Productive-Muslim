@@ -391,6 +391,7 @@ class JamaatFocusService : AccessibilityService() {
         syncShake()
     }
     private var listening = false
+    private var registered = false
 
     override fun onServiceConnected() {
         current = WeakReference(this)
@@ -405,6 +406,7 @@ class JamaatFocusService : AccessibilityService() {
             registerReceiver(filterChanged, filter)
             registerReceiver(screenChanged, screen)
         }
+        registered = true
         syncShake()
     }
 
@@ -439,8 +441,12 @@ class JamaatFocusService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onDestroy() {
-        unregisterReceiver(filterChanged)
-        unregisterReceiver(screenChanged)
+        // Receivers only exist once onServiceConnected ran.
+        if (registered) {
+            unregisterReceiver(filterChanged)
+            unregisterReceiver(screenChanged)
+            registered = false
+        }
         (getSystemService(Context.SENSOR_SERVICE) as SensorManager).unregisterListener(shakes)
         if (current?.get() === this) current = null
         super.onDestroy()

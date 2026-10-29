@@ -87,19 +87,15 @@ final class HadithSection {
   const HadithSection({
     required this.number,
     required this.name,
-    required this.first,
-    required this.last,
+    required this.count,
   });
 
   final int number;
   final String name;
 
-  /// First/last hadith number in this section (null when unknown).
-  final int? first;
-  final int? last;
-
-  int? get count =>
-      (first != null && last != null) ? (last! - first! + 1) : null;
+  /// Hadith in this section, counted from the bundled DB at catalog build
+  /// time (null when unknown). Not last − first + 1: numbering has gaps.
+  final int? count;
 }
 
 /// A single hadith fetched from the online dataset.

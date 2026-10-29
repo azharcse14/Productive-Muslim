@@ -48,7 +48,7 @@ const _bukhari = HadithBook(
   editionEn: 'eng-bukhari',
   editionBn: 'ben-bukhari',
   sections: [
-    HadithSection(number: 1, name: 'Revelation', first: 1, last: 7),
+    HadithSection(number: 1, name: 'Revelation', count: 7),
   ],
 );
 
@@ -160,8 +160,7 @@ void main() {
           section: HadithSection(
             number: 1,
             name: 'Revelation',
-            first: 1,
-            last: 7,
+            count: 7,
           ),
         )),
       );

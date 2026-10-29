@@ -13,7 +13,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 1, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 2, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -202,7 +202,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 1;
+      PRAGMA user_version = 2;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
@@ -228,7 +228,7 @@ void _buildDatabase(
             ++globalId,
             chapter.id,
             number,
-            arabic[key],
+            _withoutBismillah(key, arabic[key]!, arabic[(1, 1)]!),
             english[key],
             bangla[key],
           ]);
@@ -244,6 +244,16 @@ void _buildDatabase(
   } finally {
     db.close();
   }
+}
+
+/// The source prefixes ayah 1 of every surah but 1 and 9 with the bismillah;
+/// it isn't part of that ayah (translations omit it), so the reader shows it
+/// as a header instead.
+String _withoutBismillah((int, int) key, String text, String bismillah) {
+  final (surah, number) = key;
+  return number == 1 && surah != 1 && text.startsWith('$bismillah ')
+      ? text.substring(bismillah.length + 1)
+      : text;
 }
 
 Never _fail(String message) {

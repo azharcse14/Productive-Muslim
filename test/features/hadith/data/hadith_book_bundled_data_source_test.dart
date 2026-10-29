@@ -23,13 +23,13 @@ HadithBook _book({
       editionEn: 'eng-$id',
       editionBn: 'ben-$id',
       sections: const [
-        HadithSection(number: 1, name: 'Revelation', first: 1, last: 2),
+        HadithSection(number: 1, name: 'Revelation', count: 2),
       ],
       bnFolder: bnFolder,
       bnSections: bnSections,
     );
 
-const _section = HadithSection(number: 1, name: 'Revelation', first: 1, last: 2);
+const _section = HadithSection(number: 1, name: 'Revelation', count: 2);
 
 RawHadith _r(int n, String t, [String g = '']) =>
     RawHadith(number: n, text: t, grade: g);

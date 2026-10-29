@@ -278,8 +278,17 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
                       // Lazy items build outside the body SignalBuilder's
                       // tracked scope, so each card subscribes on its own.
                       child: SignalBuilder(
-                        builder: (context) =>
-                            _ayahCard(context, ayahs[index]),
+                        builder: (context) => index == 0 &&
+                                widget.surahId != 1 &&
+                                widget.surahId != 9
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  _bismillah(context),
+                                  _ayahCard(context, ayahs[index]),
+                                ],
+                              )
+                            : _ayahCard(context, ayahs[index]),
                       ),
                     );
                   },
@@ -291,6 +300,20 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       ),
     );
   }
+
+  /// Header for every surah but Al-Fatiha (where it is ayah 1) and
+  /// At-Tawbah (which has none). Inside item 0 so ayah indices stay intact.
+  Widget _bismillah(BuildContext context) => Padding(
+        padding: const EdgeInsetsDirectional.only(bottom: QSpace.s3),
+        child: Text(
+          'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.rtl,
+          textScaler: TextScaler.noScaling,
+          style: QType.quran(_store.readerFontSize.value)
+              .copyWith(color: context.q.ink),
+        ),
+      );
 
   Widget _ayahCard(BuildContext context, Ayah ayah) {
     final l10n = context.l10n;
