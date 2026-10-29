@@ -12,6 +12,7 @@ import '../widgets/q_card.dart';
 import '../widgets/q_chip.dart';
 import '../widgets/q_heatmap.dart';
 import '../widgets/q_list_row.dart';
+import '../widgets/q_pressable.dart';
 import '../widgets/q_progress_ring.dart';
 import '../widgets/q_seg_control.dart';
 import '../widgets/q_skeleton.dart';
@@ -77,12 +78,16 @@ final class _WidgetGalleryScreenState extends State<WidgetGalleryScreen> {
             (CountdownState.sahri, 'Sahri ends in', 'Fajr at 3:51 am'),
             (CountdownState.iftar, 'Iftar in', 'Maghrib at 6:42 pm'),
           ]) ...[
-            CountdownCard(
-              state: state,
-              eyebrow: eyebrow,
-              big: '01:24:36',
-              sub: sub,
-              progress: 0.42,
+            QPressable(
+              onTap: () => _tapped('Countdown'),
+              borderRadius: BorderRadius.circular(QRadius.xl),
+              child: CountdownCard(
+                state: state,
+                eyebrow: eyebrow,
+                big: '01:24:36',
+                sub: sub,
+                progress: 0.42,
+              ),
             ),
             const SizedBox(height: QSpace.s3),
           ],
