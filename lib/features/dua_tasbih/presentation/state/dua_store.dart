@@ -16,7 +16,13 @@ final class DuaStore {
   /// The last load failed; the screen offers a retry.
   late final failed = signal(false);
 
-  Future<void> load() async {
+  Future<void>? _loading;
+
+  /// Concurrent callers (dua screen, home's dua of the day) share one load.
+  Future<void> load() =>
+      _loading ??= _load().whenComplete(() => _loading = null);
+
+  Future<void> _load() async {
     final cats = await _repository.categories();
     if (cats.valueOrNull case final value?) {
       categories.value = value;

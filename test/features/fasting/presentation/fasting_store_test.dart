@@ -40,6 +40,22 @@ void main() {
       },
     );
 
+    test('a failed load never lets a toggle overwrite the history', () async {
+      final day = DateTime(2026, 6, 15);
+      final prefs = _FailingReadPrefs();
+      SharedPreferencesAsyncPlatform.instance = prefs;
+      await store().toggle(DateTime(2026, 6, 11));
+      prefs.failReads = true;
+      final s = store();
+      await expectLater(s.load(), throwsStateError);
+      await expectLater(s.toggle(day), throwsStateError);
+      // Storage readable again: the toggle retries the load first.
+      prefs.failReads = false;
+      await s.toggle(day);
+      expect(s.isLogged(DateTime(2026, 6, 11)), isTrue);
+      expect(s.isLogged(day), isTrue);
+    });
+
     test('a failed write puts the log back and rethrows', () async {
       SharedPreferencesAsyncPlatform.instance = _FailingPrefs();
       final s = store();
@@ -159,4 +175,19 @@ base class _FailingPrefs extends InMemorySharedPreferencesAsync {
     List<String> value,
     SharedPreferencesOptions options,
   ) async => throw StateError('disk full');
+}
+
+/// Fails reads while [failReads].
+base class _FailingReadPrefs extends InMemorySharedPreferencesAsync {
+  _FailingReadPrefs() : super.empty();
+
+  bool failReads = false;
+
+  @override
+  Future<List<String>?> getStringList(
+    String key,
+    SharedPreferencesOptions options,
+  ) async => failReads
+      ? throw StateError('unreadable')
+      : super.getStringList(key, options);
 }

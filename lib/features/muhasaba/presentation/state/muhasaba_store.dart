@@ -95,8 +95,10 @@ final class MuhasabaStore {
     return nothingEver;
   });
 
-  /// The "today" [stats] were last computed for (null before [load]).
-  DateTime? _statsDay;
+  /// The "today" [load] / [rollOverIfNewDay] last synced to (null before
+  /// [load]). Not set by [refreshStats], or a tick after midnight would
+  /// make the roll-over a no-op.
+  DateTime? _day;
   AppLifecycleListener? _lifecycle;
 
   DateTime _today() {
@@ -110,7 +112,8 @@ final class MuhasabaStore {
     }
     await _repository.seedDefaultsIfEmpty();
     await _reloadItems();
-    await selectDate(_today());
+    _day = _today();
+    await selectDate(_day!);
     await _loadYesterday();
     await refreshStats();
     loaded.value = true;
@@ -124,11 +127,12 @@ final class MuhasabaStore {
   /// moves to the new today (a back-filled past date stays put), and the
   /// dashboard/streak are recomputed. No-op on the same day.
   Future<void> rollOverIfNewDay() async {
-    final previous = _statsDay;
+    final previous = _day;
     final today = _today();
     if (previous == null || previous == today) {
       return;
     }
+    _day = today;
     if (selectedDate.value == previous) {
       await selectDate(today);
     } else {
@@ -145,14 +149,27 @@ final class MuhasabaStore {
   }
 
   Future<void> _loadDay(DateTime day) async {
+    final before = _days.value[day];
     final result = await _repository.entriesOn(day);
-    _days.value = {
-      ..._days.value,
-      day: {
-        for (final e in result.valueOrNull ?? const <DailyEntry>[])
-          e.itemId: e.value,
-      },
+    final fresh = {
+      for (final e in result.valueOrNull ?? const <DailyEntry>[])
+        e.itemId: e.value,
     };
+    // A _put landed mid-read (the read may predate its write): keep the
+    // keys it changed rather than the possibly stale DB values.
+    final current = _days.value[day];
+    if (current != null && !identical(current, before)) {
+      for (final id in {...?before?.keys, ...current.keys}) {
+        if (before?[id] != current[id]) {
+          if (current[id] case final v?) {
+            fresh[id] = v;
+          } else {
+            fresh.remove(id);
+          }
+        }
+      }
+    }
+    _days.value = {..._days.value, day: fresh};
   }
 
   /// Sets one cached value (0 removes it), leaving other keys untouched.
@@ -302,7 +319,6 @@ final class MuhasabaStore {
     _statsTimer?.cancel();
     final request = ++_statsRequest;
     final today = _today();
-    _statsDay = today;
     final (start, end) = _range();
     final result = await _repository.periodStats(
       start: start,

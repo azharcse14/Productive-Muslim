@@ -27,7 +27,12 @@ final class AppLockDataSource {
   /// can belong to another zone (tests' runAsync vs fake async) and hang.
   Future<void> _ready() async {
     if (_legacy case final legacy?) {
-      await (_moved ??= _moveFromLegacy(legacy));
+      try {
+        await (_moved ??= _moveFromLegacy(legacy));
+      } on Object {
+        _moved = null; // a failed migration is retried, not cached
+        rethrow;
+      }
     }
   }
 

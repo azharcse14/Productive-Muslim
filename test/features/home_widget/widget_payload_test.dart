@@ -85,14 +85,16 @@ void main() {
       instantOf: (wall) => wall.add(const Duration(hours: 1)),
     );
     final lines = payload['widget_schedule']!.split('\n');
-    expect(lines, hasLength(11)); // 5 today + 5 tomorrow + next Fajr
-    final first = lines.first.split('\t');
+    // Yesterday's Isha + 5 today + 5 tomorrow + next Fajr.
+    expect(lines, hasLength(12));
+    expect(lines.first.split('\t').sublist(1), ['isha', '19:44']);
+    final first = lines[1].split('\t');
     expect(
       int.parse(first[0]),
       DateTime(2026, 6, 14, 5, 30).millisecondsSinceEpoch,
     );
     expect(first.sublist(1), ['fajr', '4:30']);
-    expect(lines[5].split('\t').sublist(1), ['fajr', '4:30']);
+    expect(lines[6].split('\t').sublist(1), ['fajr', '4:30']);
     expect(lines.last.split('\t').sublist(1), ['fajr', '4:31']);
     final millis = [for (final l in lines) int.parse(l.split('\t')[0])];
     expect(millis, orderedEquals([...millis]..sort()));

@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/widgets/countdown_card.dart';
-import '../../../settings/domain/entities/city.dart';
 import '../../../settings/domain/entities/location_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';

@@ -24,6 +24,7 @@ import 'package:productive_muslim/features/settings/presentation/state/settings_
 import 'package:productive_muslim/shared/widgets/q_bottom_nav.dart';
 
 import '../../helpers/content_fakes.dart';
+import '../../helpers/home_store_fakes.dart';
 import '../../helpers/lock_fakes.dart';
 import '../../helpers/mosque_fakes.dart';
 import '../../helpers/muhasaba_fakes.dart';
@@ -83,7 +84,7 @@ void main() {
 
   tearDown(() => GetIt.I.reset());
   group('App shell routing', () {
-    testWidgets('boots into the Home branch with 5 nav destinations',
+    testHomeWidgets('boots into the Home branch with 5 nav destinations',
         (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
@@ -96,7 +97,7 @@ void main() {
       expect(find.text('More'), findsOneWidget);
     });
 
-    testWidgets('switching tabs shows the target branch', (tester) async {
+    testHomeWidgets('switching tabs shows the target branch', (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
@@ -106,7 +107,7 @@ void main() {
       expect(find.text('Quran'), findsNWidgets(2));
     });
 
-    testWidgets('tab state persists across switches (indexed stack)',
+    testHomeWidgets('tab state persists across switches (indexed stack)',
         (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
@@ -119,7 +120,7 @@ void main() {
       expect(find.text('Muhasaba'), findsOneWidget);
     });
 
-    testWidgets('nav bar hugs the bottom of the screen (regression)',
+    testHomeWidgets('nav bar hugs the bottom of the screen (regression)',
         (tester) async {
       // A max-sized Column inside the nav once swallowed the whole
       // screen height, centering the bar mid-screen and blanking the
@@ -140,7 +141,7 @@ void main() {
       expect(find.text('Where are you?'), findsOneWidget);
     });
 
-    testWidgets('incomplete setup gates every route to onboarding',
+    testHomeWidgets('incomplete setup gates every route to onboarding',
         (tester) async {
       await GetIt.I.reset();
       final repo = _InMemoryRepo()..stored = const AppSettings();
@@ -165,7 +166,7 @@ void main() {
       );
     });
 
-    testWidgets('enabled app lock gates to the PIN screen and unlocks',
+    testHomeWidgets('enabled app lock gates to the PIN screen and unlocks',
         (tester) async {
       await GetIt.I.reset();
       final repo = _InMemoryRepo();
@@ -187,7 +188,7 @@ void main() {
         ..registerSingleton<TasbihStore>(tasbihStore)
         ..registerSingleton<MosqueStore>(mosqueStore)
         ..registerSingleton<MuhasabaStore>(muhasabaStore)
-        ..registerFactory<HomeStore>(
+        ..registerLazySingleton<HomeStore>(
           () => HomeStore(
             getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
             clock: clock,
@@ -208,7 +209,7 @@ void main() {
       expect(find.text('Muhasaba'), findsOneWidget);
     });
 
-    testWidgets(
+    testHomeWidgets(
         'background re-lock overlays the gate and keeps pushed pages',
         (tester) async {
       await GetIt.I.reset();
@@ -228,7 +229,7 @@ void main() {
         ..registerSingleton<TasbihStore>(await makeTasbihStore())
         ..registerSingleton<MosqueStore>(mosqueStore)
         ..registerSingleton<MuhasabaStore>(muhasabaStore)
-        ..registerFactory<HomeStore>(
+        ..registerLazySingleton<HomeStore>(
           () => HomeStore(
             getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
             clock: clock,
@@ -293,7 +294,7 @@ void main() {
       expect(find.text('Zakat calculator'), findsOneWidget);
     });
 
-    testWidgets('More opens the Calculators hub with every tool',
+    testHomeWidgets('More opens the Calculators hub with every tool',
         (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
@@ -314,7 +315,7 @@ void main() {
       expect(find.text('Age calculator'), findsOneWidget);
     });
 
-    testWidgets('Calculators hub navigates into the Zakat tool',
+    testHomeWidgets('Calculators hub navigates into the Zakat tool',
         (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
@@ -334,7 +335,7 @@ void main() {
       expect(find.text('Gold (grams)'), findsOneWidget);
     });
 
-    testWidgets('renders Bangla labels under the bn locale', (tester) async {
+    testHomeWidgets('renders Bangla labels under the bn locale', (tester) async {
       await tester.pumpWidget(
         MaterialApp.router(
           theme: AppTheme.light(),

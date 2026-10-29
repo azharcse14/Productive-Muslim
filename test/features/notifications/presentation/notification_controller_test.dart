@@ -49,9 +49,10 @@ final class _CountingScheduler implements NotificationScheduler {
     }
   }
 
+  NotificationPermission permission = NotificationPermission.granted;
+
   @override
-  Future<NotificationPermission> permissionStatus() async =>
-      NotificationPermission.granted;
+  Future<NotificationPermission> permissionStatus() async => permission;
 
   @override
   Future<NotificationPermission> requestPermission() async =>
@@ -214,71 +215,79 @@ void main() {
     controller.dispose();
   });
 
-  test('start initializes, schedules once, and reschedules on changes',
-      () async {
-    final scheduler = _CountingScheduler();
-    final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
-    final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
-    await settings.load();
-    final (mosqueStore, _) = await makeMosqueStore();
-    final controller = NotificationController(
-      reschedule: RescheduleNotifications(
-        getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+  test(
+    'start initializes, schedules once, and reschedules on changes',
+    () async {
+      final scheduler = _CountingScheduler();
+      final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
+      final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
+      await settings.load();
+      final (mosqueStore, _) = await makeMosqueStore();
+      final controller = NotificationController(
+        reschedule: RescheduleNotifications(
+          getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+          scheduler: scheduler,
+          clock: TimezoneClock(),
+        ),
         scheduler: scheduler,
-        clock: TimezoneClock(),
-      ),
-      scheduler: scheduler,
-      settings: settings,
-      mosque: mosqueStore,
-    );
+        settings: settings,
+        mosque: mosqueStore,
+      );
 
-    await controller.start();
-    expect(scheduler.initCalls, 1);
-    expect(scheduler.rescheduleCalls, 1);
-    // No redundant follow-up from the effect's initial subscription run.
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    expect(scheduler.rescheduleCalls, 1);
+      await controller.start();
+      expect(scheduler.initCalls, 1);
+      expect(scheduler.rescheduleCalls, 1);
+      // No redundant follow-up from the effect's initial subscription run.
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(scheduler.rescheduleCalls, 1);
 
-    // A prayer-param change triggers a debounced reschedule.
-    await settings.setMadhab(Madhab.shafi);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    expect(scheduler.rescheduleCalls, 2);
+      // A prayer-param change triggers a debounced reschedule.
+      await settings.setMadhab(Madhab.shafi);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(scheduler.rescheduleCalls, 2);
 
-    // Locale change re-resolves the texts.
-    await settings.setLocale('bn');
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    expect(scheduler.rescheduleCalls, 3);
-    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+      // Locale change re-resolves the texts.
+      await settings.setLocale('bn');
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(scheduler.rescheduleCalls, 3);
+      expect(scheduler.lastTexts!.channelAzanName, 'আজান');
 
-    // start() is idempotent.
-    await controller.start();
-    expect(scheduler.initCalls, 1);
+      // start() is idempotent.
+      await controller.start();
+      expect(scheduler.rescheduleCalls, 3);
 
-    controller.dispose();
-  });
+      controller.dispose();
+    },
+  );
 
-  test('overlapping reschedules are serialized; the newest runs last',
-      () async {
-    final (controller, scheduler) = await _controller();
-    await controller.start();
-    final settings = _lastSettings!;
+  test(
+    'overlapping reschedules are serialized; the newest runs last',
+    () async {
+      final (controller, scheduler) = await _controller();
+      await controller.start();
+      final settings = _lastSettings!;
 
-    scheduler.gate = Completer<void>();
-    await settings.setMadhab(Madhab.shafi);
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    expect(scheduler.inFlight, 1, reason: 'first run parked in the scheduler');
+      scheduler.gate = Completer<void>();
+      await settings.setMadhab(Madhab.shafi);
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      expect(
+        scheduler.inFlight,
+        1,
+        reason: 'first run parked in the scheduler',
+      );
 
-    await settings.setLocale('bn');
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    expect(scheduler.maxInFlight, 1, reason: 'second run waits its turn');
+      await settings.setLocale('bn');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      expect(scheduler.maxInFlight, 1, reason: 'second run waits its turn');
 
-    scheduler.gate!.complete();
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    expect(scheduler.rescheduleCalls, 3);
-    expect(scheduler.maxInFlight, 1);
-    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
-    controller.dispose();
-  });
+      scheduler.gate!.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(scheduler.rescheduleCalls, 3);
+      expect(scheduler.maxInFlight, 1);
+      expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+      controller.dispose();
+    },
+  );
 
   test('unrelated settings (theme) do not reschedule', () async {
     final (controller, scheduler) = await _controller();
@@ -289,16 +298,18 @@ void main() {
     controller.dispose();
   });
 
-  test('mosque state changes (not just the active profile) reschedule',
-      () async {
-    final (controller, scheduler) = await _controller();
-    await controller.start();
-    final mosque = _lastMosque!;
-    await mosque.setMode(ScheduleMode.auto);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    expect(scheduler.rescheduleCalls, 2);
-    controller.dispose();
-  });
+  test(
+    'mosque state changes (not just the active profile) reschedule',
+    () async {
+      final (controller, scheduler) = await _controller();
+      await controller.start();
+      final mosque = _lastMosque!;
+      await mosque.setMode(ScheduleMode.auto);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(scheduler.rescheduleCalls, 2);
+      controller.dispose();
+    },
+  );
 
   test('a change during the first reschedule is not lost', () async {
     final (controller, scheduler) = await _controller();
@@ -316,20 +327,32 @@ void main() {
     controller.dispose();
   });
 
-  test('a change queued behind a failed boot still reschedules', () async {
+  test(
+    'a failed plugin init skips scheduling and is retried next run',
+    () async {
+      final (controller, scheduler) = await _controller();
+      scheduler.initError = StateError('plugin init failed');
+      await controller.start(); // caught, not thrown (start is unawaited)
+      expect(scheduler.rescheduleCalls, 0, reason: 'never on an uninit plugin');
+      scheduler.initError = null;
+      await _lastSettings!.setLocale('bn');
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(scheduler.initCalls, 2);
+      expect(scheduler.rescheduleCalls, 1);
+      expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+      controller.dispose();
+    },
+  );
+
+  test('resume after a notification grant reschedules a fresh plan', () async {
     final (controller, scheduler) = await _controller();
-    scheduler
-      ..initError = StateError('plugin init failed')
-      ..initGate = Completer<void>();
-    final failed = expectLater(controller.start(), throwsStateError);
-    await _lastSettings!.setLocale('bn'); // lands while boot is in flight
-    // Debounce fires; the queued run waits on the still-pending boot.
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    scheduler.initGate!.complete(); // boot now fails
-    await failed;
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    expect(scheduler.rescheduleCalls, 1, reason: 'the queued run went ahead');
-    expect(scheduler.lastTexts!.channelAzanName, 'আজান');
+    scheduler.permission = NotificationPermission.notRequested;
+    await controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    scheduler.permission = NotificationPermission.granted;
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, 2);
     controller.dispose();
   });
 }

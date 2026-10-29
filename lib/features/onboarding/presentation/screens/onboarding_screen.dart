@@ -81,9 +81,15 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finish() async {
-    await _settings.setSetupComplete(complete: true);
+    final saved = await _settings.setSetupComplete(complete: true);
     if (!mounted) {
       return;
+    }
+    if (!saved.isSuccess) {
+      // Still go home (it holds in memory), but say it didn't stick.
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.trackerSaveFailed)));
     }
     final router = GoRouter.of(context);
     if (widget.rerun) {

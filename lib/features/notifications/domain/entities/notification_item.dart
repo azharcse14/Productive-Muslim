@@ -74,7 +74,9 @@ final class NotificationItem {
   /// Deterministic id so rescheduling replaces rather than duplicates:
   /// derived from kind, prayer, and the minute it fires. Plain arithmetic,
   /// not Object.hash (seeded per run), and kept within 31 bits: the minute
-  /// wraps every ~85 years, far beyond any planned window.
+  /// counter wraps every ~62 years (first in Nov 2031; shorter per added
+  /// kind). Harmless: a wrap only collides ids ~62 years apart, far beyond
+  /// any planned window.
   int get id {
     final minute =
         DateTime.utc(

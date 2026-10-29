@@ -78,7 +78,7 @@ MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
   final override = state.activeOverride;
   if (override != null &&
       override.baselineAutoId == autoId &&
-      override.liveAt(now) &&
+      override.liveAt(now, state.rules) &&
       _byId(state, override.mosqueId) != null) {
     return MosqueResolution(
       mode: state.mode,

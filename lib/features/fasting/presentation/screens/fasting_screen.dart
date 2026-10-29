@@ -36,7 +36,8 @@ final class _FastingScreenState extends State<FastingScreen> {
   void initState() {
     super.initState();
     if (!_store.loaded.value) {
-      unawaited(_store.load());
+      // A failure is retried by the next load or toggle.
+      unawaited(_store.load().catchError((Object _) {}));
     }
   }
 

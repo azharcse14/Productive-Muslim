@@ -94,12 +94,14 @@ final class QiblaStore {
 
   /// Aligned within ±3°, and stays so until beyond ±5° (hysteresis), so
   /// sensor jitter at the edge doesn't re-fire the haptic / live region.
+  /// Never while calibrating: the heading can't be trusted then.
   late final aligned = signal(false);
 
   void _updateAligned() {
     final h = heading.value;
     final b = bearing.value;
     aligned.value =
+        !needsCalibration.value &&
         h != null &&
         b != null &&
         CompassMath.isAligned(h, b, toleranceDeg: aligned.value ? 5 : 3);

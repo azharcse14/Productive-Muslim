@@ -40,6 +40,14 @@ void main() {
       expect(double.tryParse(LocaleDigits.toAscii('1,234.50')), 1234.5);
     });
 
+    test('a lone comma not followed by 3 digits is a decimal comma', () {
+      expect(double.tryParse(LocaleDigits.toAscii('12,5')), 12.5);
+      expect(double.tryParse(LocaleDigits.toAscii('০,৭৫')), 0.75);
+      expect(LocaleDigits.toAscii('1,000'), '1000');
+      expect(LocaleDigits.toAscii('1,00,000'), '100000');
+      expect(int.tryParse(LocaleDigits.toAscii('12,5')), isNull);
+    });
+
     test('round-trips localize', () {
       expect(LocaleDigits.toAscii(LocaleDigits.localize('9876', 'bn')), '9876');
     });

@@ -16,6 +16,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
+import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -42,6 +43,10 @@ final class _CalendarScreenState extends State<CalendarScreen> {
   int get _offset => _settings.hijriOffsetDays.value;
 
   DateTime get _today {
+    // Home's day signal flips at midnight, so the highlight follows it.
+    if (locator.isRegistered<HomeStore>()) {
+      locator<HomeStore>().dateKey.value;
+    }
     final location = _settings.location.value;
     final now = location == null ? DateTime.now() : _clock.nowAt(location);
     return DateTime(now.year, now.month, now.day);

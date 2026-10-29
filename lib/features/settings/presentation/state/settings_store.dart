@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show Locale, ThemeMode;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/haptics.dart';
+import '../../../../core/utils/result.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/location_config.dart';
 import '../../domain/entities/notification_matrix.dart';
@@ -62,22 +63,16 @@ final class SettingsStore {
       _update((s) => s.copyWith(location: location));
 
   Future<void> setMadhab(Madhab madhab) => _update(
-    (s) => s.copyWith(
-      prayerParams: s.prayerParams.copyWith(madhab: madhab),
-    ),
+    (s) => s.copyWith(prayerParams: s.prayerParams.copyWith(madhab: madhab)),
   );
 
   Future<void> setMethod(CalculationMethodId method) => _update(
-    (s) => s.copyWith(
-      prayerParams: s.prayerParams.copyWith(method: method),
-    ),
+    (s) => s.copyWith(prayerParams: s.prayerParams.copyWith(method: method)),
   );
 
   Future<void> setHighLatitudeRule(HighLatitudeRule rule) => _update(
     (s) => s.copyWith(
-      prayerParams: s.prayerParams.copyWith(
-        highLatitudeRule: rule,
-      ),
+      prayerParams: s.prayerParams.copyWith(highLatitudeRule: rule),
     ),
   );
 
@@ -88,9 +83,7 @@ final class SettingsStore {
   /// Clamped to −2..+2 by [AppSettings].
   Future<void> setSahriSafety(int minutes) => _update(
     (s) => s.copyWith(
-      prayerParams: s.prayerParams.copyWith(
-        sahriSafetyMinutes: minutes,
-      ),
+      prayerParams: s.prayerParams.copyWith(sahriSafetyMinutes: minutes),
     ),
   );
 
@@ -113,7 +106,9 @@ final class SettingsStore {
     });
   }
 
-  Future<void> setSetupComplete({required bool complete}) =>
+  /// A failure means the flag holds in memory only (onboarding reruns
+  /// next launch).
+  Future<Result<void>> setSetupComplete({required bool complete}) =>
       _update((s) => s.copyWith(setupComplete: complete));
 
   /// Clamped to ±[PrayerParams.maxAdjustment].
@@ -133,8 +128,9 @@ final class SettingsStore {
 
   /// Applies [change] to the current settings and saves. [change] is a
   /// function, not a value, so a change made while storage was unreadable
-  /// can be replayed onto the real settings once they load.
-  Future<void> _update(AppSettings Function(AppSettings) change) async {
+  /// can be replayed onto the real settings once they load. Fails when the
+  /// change couldn't be persisted.
+  Future<Result<void>> _update(AppSettings Function(AppSettings) change) async {
     if (_readFailed) {
       // Retry the read first so [change] lands on the user's settings,
       // not on the defaults kept after the failed load.
@@ -144,11 +140,13 @@ final class SettingsStore {
         // settings with defaults, so the change lives in memory only and
         // is lost on restart.
         settings.value = change(settings.value);
-        return;
+        return const Result.failure(
+          UnexpectedFailure('Settings unreadable; change not saved'),
+        );
       }
     }
     final next = change(settings.value);
     settings.value = next;
-    await _saveSettings(next);
+    return _saveSettings(next);
   }
 }

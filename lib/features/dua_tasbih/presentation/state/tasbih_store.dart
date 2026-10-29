@@ -223,21 +223,26 @@ final class TasbihStore {
   /// Ends the round. With [saveToHistory] the round is added to today's
   /// total and persisted; otherwise the count is simply discarded.
   Future<void> reset({required bool saveToHistory}) async {
-    if (saveToHistory && count.value > 0) {
+    // Snapshot and clear synchronously: taps landing during the awaits
+    // below start the next round instead of being lost or miscredited.
+    final round = count.value;
+    final roundDay = _roundDay;
+    _roundDay = null;
+    count.value = 0;
+    milestone.value = false;
+    if (saveToHistory && round > 0) {
       rollOverDay();
       // A round started before midnight is not part of today's total.
-      if (_roundDay == null || _roundDay == _todayKey()) {
-        totalToday.value = totalToday.value + count.value;
+      if (roundDay == null || roundDay == _todayKey()) {
+        totalToday.value = totalToday.value + round;
         await _prefs.setString(
           _key,
           jsonEncode({'date': _todayKey(), 'total': totalToday.value}),
         );
       }
-      await _creditLifetime(count.value);
+      await _creditLifetime(round);
     }
-    _roundDay = null;
-    count.value = 0;
-    milestone.value = false;
+    // Last: killed before this, the round restores rather than being lost.
     _saveRound();
   }
 }

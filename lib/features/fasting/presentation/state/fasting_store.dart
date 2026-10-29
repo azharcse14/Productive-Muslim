@@ -52,25 +52,35 @@ final class FastingStore {
     return DateTime(n.year, n.month, n.day);
   }
 
-  /// Restores the persisted log.
-  Future<void> load() async {
-    final stored = await _prefs.getStringList(_key);
-    if (stored != null) {
-      logged.value = {
-        for (final s in stored)
-          if (int.tryParse(s) case final v?) v,
-      };
+  Future<void>? _loading;
+
+  /// Restores the persisted log, once per store; [toggle] awaits it first,
+  /// so a write never replaces the stored history with an empty log. A
+  /// failed load is forgotten, so the next call (or toggle) retries it
+  /// (mirrors ExpenseStore).
+  Future<void> load() => _loading ??= () async {
+    try {
+      final stored = await _prefs.getStringList(_key);
+      if (stored != null) {
+        logged.value = {
+          for (final s in stored)
+            if (int.tryParse(s) case final v?) v,
+        };
+      }
+      final storedQaza = await _prefs.getStringList(_qazaKey);
+      if (storedQaza != null) {
+        qaza.value = {
+          for (final s in storedQaza)
+            if (int.tryParse(s) case final v? when logged.value.contains(v)) v,
+        };
+      }
+      qazaOwed.value = await _prefs.getInt(_qazaOwedKey);
+      loaded.value = true;
+    } on Object {
+      _loading = null;
+      rethrow;
     }
-    final storedQaza = await _prefs.getStringList(_qazaKey);
-    if (storedQaza != null) {
-      qaza.value = {
-        for (final s in storedQaza)
-          if (int.tryParse(s) case final v? when logged.value.contains(v)) v,
-      };
-    }
-    qazaOwed.value = await _prefs.getInt(_qazaOwedKey);
-    loaded.value = true;
-  }
+  }();
 
   /// Whether [date] is logged as fasted.
   bool isLogged(DateTime date) =>
@@ -85,12 +95,12 @@ final class FastingStore {
     HijriDate.fromGregorian(date, offsetDays: _hijriOffset()),
   );
 
-  /// Whether [date] may be newly logged: not in the future, not forbidden.
   /// Ramadan day — the fast is obligatory, never offered as voluntary.
   bool isRamadan(DateTime date) =>
       HijriDate.fromGregorian(date, offsetDays: _hijriOffset()).month ==
       HijriDate.ramadanMonth;
 
+  /// Whether [date] may be newly logged: not in the future, not forbidden.
   bool canLog(DateTime date) =>
       !DateTime(date.year, date.month, date.day).isAfter(today) &&
       !isForbidden(date);
@@ -100,6 +110,7 @@ final class FastingStore {
   /// allowed. [asQaza] marks a newly logged day as a make-up fast (never
   /// in Ramadan, whose days are the obligatory fast itself).
   Future<void> toggle(DateTime date, {bool asQaza = false}) async {
+    await load();
     final stamp = _stamp(DateTime(date.year, date.month, date.day));
     final next = Set<int>.from(logged.value);
     final nextQaza = Set<int>.from(qaza.value);

@@ -56,28 +56,35 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
       appBar: AppBar(
         title: Text(l10n.ruqyahTitle),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: l10n.ruqyahSearchHint,
-            onPressed: () => unawaited(
-              showSearch<void>(
-                context: context,
-                delegate: QSearchDelegate<RuqyahItem>(
-                  items: [for (final c in _store.categories.value) ...c.items],
-                  fields: (r) => [
-                    r.arabic,
-                    r.titleEn,
-                    r.titleBn,
-                    r.transliteration,
-                    r.translationEn,
-                    r.translationBn,
-                    r.reference,
-                  ],
-                  itemBuilder: (_, r) => RuqyahCard(item: r),
-                  emptyText: l10n.ruqyahNoResults,
-                  hint: l10n.ruqyahSearchHint,
-                ),
-              ),
+          // Disabled until loaded: the delegate snapshots the list.
+          SignalBuilder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.ruqyahSearchHint,
+              onPressed: !_store.loaded.value
+                  ? null
+                  : () => unawaited(
+                      showSearch<void>(
+                        context: context,
+                        delegate: QSearchDelegate<RuqyahItem>(
+                          items: [
+                            for (final c in _store.categories.value) ...c.items,
+                          ],
+                          fields: (r) => [
+                            r.arabic,
+                            r.titleEn,
+                            r.titleBn,
+                            r.transliteration,
+                            r.translationEn,
+                            r.translationBn,
+                            r.reference,
+                          ],
+                          itemBuilder: (_, r) => RuqyahCard(item: r),
+                          emptyText: l10n.ruqyahNoResults,
+                          hint: l10n.ruqyahSearchHint,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ],

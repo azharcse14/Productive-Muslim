@@ -58,8 +58,9 @@ final class _DuaScreenState extends State<DuaScreen> {
 
   Future<void> _openCategory(String id, Future<void>? loading) async {
     await loading;
-    final category =
-        _store.categories.value.where((c) => c.id == id).firstOrNull;
+    final category = _store.categories.value
+        .where((c) => c.id == id)
+        .firstOrNull;
     if (category != null && mounted) {
       _push(DuaCategoryScreen(category: category));
     }
@@ -81,36 +82,45 @@ final class _DuaScreenState extends State<DuaScreen> {
       appBar: AppBar(
         title: Text(l10n.duaTitle),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            tooltip: l10n.duaSearchTitle,
-            onPressed: () {
-              // Searching "sleep" also finds that category's duas.
-              final categoryOf = {
-                for (final c in _store.categories.value)
-                  for (final d in c.duas) d.id: l10n.duaCategoryName(c.id),
-              };
-              unawaited(
-                showSearch<void>(
-                  context: context,
-                  delegate: QSearchDelegate<Dua>(
-                    items: [for (final c in _store.categories.value) ...c.duas],
-                    fields: (d) => [
-                      d.arabic,
-                      d.transliteration,
-                      d.transliterationBn,
-                      d.translationEn,
-                      d.translationBn,
-                      d.reference,
-                      categoryOf[d.id] ?? '',
-                    ],
-                    itemBuilder: (_, d) => DuaCard(dua: d),
-                    emptyText: l10n.duaNoResults,
-                    hint: l10n.duaSearchHint,
-                  ),
-                ),
-              );
-            },
+          // Disabled until loaded: the delegate snapshots the list.
+          SignalBuilder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: l10n.duaSearchTitle,
+              onPressed: !_store.loaded.value
+                  ? null
+                  : () {
+                      // Searching "sleep" also finds that category's duas.
+                      final categoryOf = {
+                        for (final c in _store.categories.value)
+                          for (final d in c.duas)
+                            d.id: l10n.duaCategoryName(c.id),
+                      };
+                      unawaited(
+                        showSearch<void>(
+                          context: context,
+                          delegate: QSearchDelegate<Dua>(
+                            items: [
+                              for (final c in _store.categories.value)
+                                ...c.duas,
+                            ],
+                            fields: (d) => [
+                              d.arabic,
+                              d.transliteration,
+                              d.transliterationBn,
+                              d.translationEn,
+                              d.translationBn,
+                              d.reference,
+                              categoryOf[d.id] ?? '',
+                            ],
+                            itemBuilder: (_, d) => DuaCard(dua: d),
+                            emptyText: l10n.duaNoResults,
+                            hint: l10n.duaSearchHint,
+                          ),
+                        ),
+                      );
+                    },
+            ),
           ),
         ],
       ),

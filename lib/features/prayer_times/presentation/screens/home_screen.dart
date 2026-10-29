@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
+import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../daily_content/presentation/state/daily_content_store.dart';
 import '../../../daily_content/presentation/widgets/dua_of_day_card.dart';
 import '../../../dua_tasbih/domain/entities/dua.dart';
@@ -131,9 +132,6 @@ final class _HomeScreenState extends State<HomeScreen> {
   Ayah? _ayah;
   Hadith? _hadithOfDay;
   Dua? _duaOfDay;
-
-  /// Which of ayah / hadith / dua the daily-reflection card shows.
-  int _reflection = 0;
 
   /// True until the first ayah/hadith/dua load settles, so the card's
   /// space is held by a skeleton instead of popping in late.
@@ -265,14 +263,9 @@ final class _HomeScreenState extends State<HomeScreen> {
     if (!quran.loaded.value) {
       await quran.load();
     }
-    final d = _store.dateKey.value;
-    // UTC on both sides: a local-date difference is off by an hour on DST.
-    final dayOfYear = DateTime.utc(
-      d.year,
-      d.month,
-      d.day,
-    ).difference(DateTime.utc(d.year)).inDays;
-    final (surah, number) = _dailyVerses[dayOfYear % _dailyVerses.length];
+    // Days since epoch, not day-of-year: no jump back to verse 0 on Jan 1.
+    final seed = dailySeed(_store.dateKey.value);
+    final (surah, number) = _dailyVerses[seed % _dailyVerses.length];
     final ayahs = await quran.ayahsOf(surah);
     Ayah? match;
     for (final a in ayahs ?? const <Ayah>[]) {
@@ -324,7 +317,9 @@ final class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _lifecycle.dispose();
     _dayWatcher();
-    _store.stop(); // app-wide singleton: not disposed, Home may remount
+    // App-wide singleton: other screens still read dateKey/prayerDay, so
+    // keep the slow tick rather than freezing `now`.
+    _store.pause();
     super.dispose();
   }
 
@@ -540,6 +535,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                 target.kind != CountdownKind.waqtStart &&
                 _isPrayed(target.prayer),
             forbidden: forbidden,
+            instantOf: _store.instantOf.value,
           );
           // The timeline is otherwise invisible: a footer cue plus a
           // screen-reader tap hint make the card read as tappable.
@@ -868,20 +864,15 @@ final class _HomeScreenState extends State<HomeScreen> {
 }
 
 final class DailyReflectionSection extends StatefulWidget {
-  const DailyReflectionSection({
-    required this.options,
-    super.key,
-  });
+  const DailyReflectionSection({required this.options, super.key});
 
   final List<(String, Widget)> options;
 
   @override
-  State<DailyReflectionSection> createState() =>
-      _DailyReflectionSectionState();
+  State<DailyReflectionSection> createState() => _DailyReflectionSectionState();
 }
 
-final class _DailyReflectionSectionState
-    extends State<DailyReflectionSection> {
+final class _DailyReflectionSectionState extends State<DailyReflectionSection> {
   int _selectedIndex = 0;
 
   @override
@@ -909,10 +900,7 @@ final class _DailyReflectionSectionState
           transitionBuilder: (child, animation) {
             return FadeTransition(
               opacity: animation,
-              child: SizeTransition(
-                sizeFactor: animation,
-                child: child,
-              ),
+              child: SizeTransition(sizeFactor: animation, child: child),
             );
           },
           child: KeyedSubtree(

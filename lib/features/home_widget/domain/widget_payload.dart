@@ -48,6 +48,8 @@ WidgetPayload buildWidgetPayload({
     formatTime(at),
   ].join('\t');
   final schedule = [
+    // Native picks the first line still ahead: covers an after-midnight Isha.
+    line(Prayer.isha, day.ishaYesterday),
     for (final d in [day, ?tomorrow])
       for (final prayer in Prayer.values) line(prayer, d.startOf(prayer)),
     line(Prayer.fajr, (tomorrow ?? day).fajrTomorrow),

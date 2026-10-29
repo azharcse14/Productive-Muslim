@@ -20,6 +20,7 @@ import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
+import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../data/jamaat_focus_bridge.dart';
@@ -621,7 +622,12 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       return;
     }
     try {
-      _status.value = await _bridge.status();
+      _status.value = await _bridge.status(
+        toWall: (instant) => switch (widget.store.location.value) {
+          final location? => locator<ZonedClock>().instantAt(location, instant),
+          null => instant.toLocal(),
+        },
+      );
       _canSilence.value = await _bridge.hasSilencePermission();
       _canBlock.value = await _bridge.hasBlockPermission();
     } on Object catch (_) {

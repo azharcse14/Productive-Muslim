@@ -98,6 +98,23 @@ void main() {
       },
     );
 
+    test('taps during a saving reset start the next round', () async {
+      final store = makeStore()
+        ..tap()
+        ..tap()
+        ..tap();
+
+      final saving = store.reset(saveToHistory: true);
+      store
+        ..tap()
+        ..tap();
+      await saving;
+
+      expect(store.count.value, 2);
+      expect(store.totalToday.value, 3);
+      expect(store.lifetimeTotal.value, 3);
+    });
+
     test('reset(saveToHistory: false) discards the round', () async {
       final store = makeStore();
       store.tap();

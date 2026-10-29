@@ -26,17 +26,26 @@ final class CountdownTarget {
   /// Start of the visual progress window (progress = elapsed/(at−start)).
   final DateTime windowStart;
 
-  Duration remainingAt(DateTime now) => at.difference(now);
+  /// [instantOf] maps a wall time to its real instant (the location's
+  /// zone), so a DST shift on the device doesn't skew the difference.
+  Duration remainingAt(DateTime now, [DateTime Function(DateTime)? instantOf]) {
+    final i = instantOf ?? _wall;
+    return i(at).difference(i(now));
+  }
 
   /// 0..1 elapsed fraction of the window at [now].
-  double progressAt(DateTime now) {
-    final total = at.difference(windowStart).inSeconds;
+  double progressAt(DateTime now, [DateTime Function(DateTime)? instantOf]) {
+    final i = instantOf ?? _wall;
+    final start = i(windowStart);
+    final total = i(at).difference(start).inSeconds;
     if (total <= 0) {
       return 1;
     }
-    final elapsed = now.difference(windowStart).inSeconds;
+    final elapsed = i(now).difference(start).inSeconds;
     return (elapsed / total).clamp(0, 1).toDouble();
   }
+
+  static DateTime _wall(DateTime t) => t;
 
   @override
   bool operator ==(Object other) =>

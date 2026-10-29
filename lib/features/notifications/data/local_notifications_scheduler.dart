@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,12 +21,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     void Function(String? payload, String? actionId)? onTap,
     FlutterLocalNotificationsPlugin? plugin,
     SharedPreferencesAsync? prefs,
-  })  : _prefs = prefs,
-        _clock = clock,
-        _currentLocation = currentLocation,
-        _formatTime = formatTime,
-        _onTap = onTap,
-        _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  }) : _prefs = prefs,
+       _clock = clock,
+       _currentLocation = currentLocation,
+       _formatTime = formatTime,
+       _onTap = onTap,
+       _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _azanCategoryId = 'productive_muslim_azan';
 
@@ -33,9 +34,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   /// and Android 13+ report "off", which is not the same as "denied".
   static const _promptedKey = 'notif_permission_prompted';
 
+  /// The last cold-start tap replayed. Android hands back the same launch
+  /// intent when the app is recreated from recents; replay each tap once.
+  static const _launchKey = 'notif_last_launch_tap';
+
   final SharedPreferencesAsync? _prefs;
-  late final SharedPreferencesAsync _store =
-      _prefs ?? SharedPreferencesAsync();
+  late final SharedPreferencesAsync _store = _prefs ?? SharedPreferencesAsync();
 
   Future<bool> _prompted() async {
     try {
@@ -63,16 +67,22 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   void _dispatch(NotificationResponse response) =>
       _onTap?.call(response.payload, response.actionId);
 
-  bool _initialized = false;
+  /// Action title the plugin was initialized with; null until it succeeds.
+  String? _initializedWith;
 
   @override
   Future<void> initialize(NotificationTexts texts) async {
-    if (_initialized) {
+    final first = _initializedWith == null;
+    if (_initializedWith == texts.markAsPrayedAction) {
       return;
     }
+    // Re-initializing re-registers the iOS category (setNotificationCategories
+    // replaces them), localizing "Mark as prayed" after a language change.
     await _plugin.initialize(
       settings: InitializationSettings(
-        android: const AndroidInitializationSettings('@drawable/ic_stat_notify'),
+        android: const AndroidInitializationSettings(
+          '@drawable/ic_stat_notify',
+        ),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -94,22 +104,36 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       ),
       onDidReceiveNotificationResponse: _dispatch,
     );
-    _initialized = true;
+    _initializedWith = texts.markAsPrayedAction;
+    if (!first) {
+      return;
+    }
     // Cold start from a tap: replay it once the app is up.
     final launch = await _plugin.getNotificationAppLaunchDetails();
     final response = launch?.notificationResponse;
     if ((launch?.didNotificationLaunchApp ?? false) && response != null) {
+      final tap = '${response.id}|${response.actionId}|${response.payload}';
+      try {
+        if (await _store.getString(_launchKey) == tap) {
+          return;
+        }
+        await _store.setString(_launchKey, tap);
+      } on Exception {
+        // Unreadable: replaying a stale tap beats dropping a real one.
+      }
       _dispatch(response);
     }
   }
 
-  AndroidFlutterLocalNotificationsPlugin? get _android =>
-      _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  AndroidFlutterLocalNotificationsPlugin? get _android => _plugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
 
-  IOSFlutterLocalNotificationsPlugin? get _ios =>
-      _plugin.resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>();
+  IOSFlutterLocalNotificationsPlugin? get _ios => _plugin
+      .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin
+      >();
 
   @override
   Future<NotificationPermission> permissionStatus() async {
@@ -153,8 +177,11 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     }
     final ios = _ios;
     if (ios != null) {
-      final granted =
-          await ios.requestPermissions(alert: true, badge: true, sound: true);
+      final granted = await ios.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
       return (granted ?? false)
           ? NotificationPermission.granted
           : NotificationPermission.denied;
@@ -194,8 +221,11 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle;
       // One bad item (e.g. exact-alarm permission revoked mid-loop) must not
-      // leave the rest unscheduled; the first error is still reported.
+      // leave the rest unscheduled. Partial success is success (logged), so
+      // the caller still records the run; only all-failed is a failure.
       Object? firstError;
+      var failed = 0;
+      var attempted = 0;
       for (final item in items) {
         final utc = _clock.utcInstantOf(location, item.at);
         // zonedSchedule throws on a past instant; an item that came due
@@ -204,6 +234,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           continue;
         }
         final (title, body) = _texts(item, texts);
+        attempted++;
         try {
           await _plugin.zonedSchedule(
             id: item.id,
@@ -220,8 +251,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
               // Prayer + its prayer-day date ride along for the "mark as
               // prayed" action, so a late (or after-midnight isha) tap
               // files the right day.
-              NotificationKind.azan => '/home?prayer=${item.prayer?.name}'
-                  '&date=${_dateParam(item.prayerDay ?? item.at)}',
+              NotificationKind.azan =>
+                '/home?prayer=${item.prayer?.name}'
+                    '&date=${_dateParam(item.prayerDay ?? item.at)}',
               // Tap → after-salah duas; the action files the prayer.
               NotificationKind.focusEnd =>
                 '/dua?category=salah&prayer=${item.prayer?.name}'
@@ -231,9 +263,13 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           );
         } on Object catch (e) {
           firstError ??= e;
+          failed++;
         }
       }
-      if (firstError != null) {
+      if (failed > 0) {
+        debugPrint('$failed/$attempted notifications failed: $firstError');
+      }
+      if (failed > 0 && failed == attempted) {
         return Result.failure(
           UnexpectedFailure('Failed to schedule notifications', firstError),
         );
@@ -252,32 +288,35 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   (String, String) _texts(NotificationItem item, NotificationTexts t) {
     final time = _formatTime(item.at);
     final prayer = t.prayerNames[item.prayer?.name] ?? '';
-    String f(String template) => NotificationTexts.fill(
-          template,
-          prayer: prayer,
-          time: time,
-        );
+    String f(String template) =>
+        NotificationTexts.fill(template, prayer: prayer, time: time);
     return switch (item.kind) {
       NotificationKind.azan => (f(t.azanTitle), f(t.azanBody)),
       NotificationKind.jamaat => (f(t.jamaatTitle), f(t.jamaatBody)),
       NotificationKind.sahriWarning => (f(t.sahriTitle), f(t.sahriBody)),
       NotificationKind.iftar => (f(t.iftarTitle), f(t.iftarBody)),
       NotificationKind.muhasabaEvening => (
-          f(t.muhasabaTitle),
-          f(t.muhasabaBody),
-        ),
+        f(t.muhasabaTitle),
+        f(t.muhasabaBody),
+      ),
       NotificationKind.dailyReminder => (
-          f(t.dailyReminderTitle),
-          f(t.dailyReminderBody),
-        ),
+        f(t.dailyReminderTitle),
+        f(t.dailyReminderBody),
+      ),
       NotificationKind.dailyAyah => (
-          t.dailyAyahTitle.isEmpty ? f(t.dailyReminderTitle) : f(t.dailyAyahTitle),
-          t.dailyAyahBody.isEmpty ? f(t.dailyReminderBody) : f(t.dailyAyahBody),
-        ),
+        t.dailyAyahTitle.isEmpty
+            ? f(t.dailyReminderTitle)
+            : f(t.dailyAyahTitle),
+        t.dailyAyahBody.isEmpty ? f(t.dailyReminderBody) : f(t.dailyAyahBody),
+      ),
       NotificationKind.dailyHadith => (
-          t.dailyHadithTitle.isEmpty ? f(t.dailyReminderTitle) : f(t.dailyHadithTitle),
-          t.dailyHadithBody.isEmpty ? f(t.dailyReminderBody) : f(t.dailyHadithBody),
-        ),
+        t.dailyHadithTitle.isEmpty
+            ? f(t.dailyReminderTitle)
+            : f(t.dailyHadithTitle),
+        t.dailyHadithBody.isEmpty
+            ? f(t.dailyReminderBody)
+            : f(t.dailyHadithBody),
+      ),
       NotificationKind.keepAlive => (t.keepAliveTitle, t.keepAliveBody),
       NotificationKind.jamaatFocus => (f(t.focusTitle), f(t.focusBody)),
       NotificationKind.focusEnd => (f(t.focusEndTitle), f(t.focusEndBody)),
@@ -296,23 +335,27 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     final beep = item.kind == NotificationKind.azan && item.beepOnly;
     final (channelId, channelName, sound) = switch (item.kind) {
       NotificationKind.azan when item.silent => (
-          'productive_muslim_silent',
-          t.channelSilentName,
-          false,
-        ),
+        'productive_muslim_silent',
+        t.channelSilentName,
+        false,
+      ),
       NotificationKind.azan when item.beepOnly => (
-          'productive_muslim_beep',
-          t.channelBeepName,
-          true,
-        ),
-      NotificationKind.azan => ('productive_muslim_azan', t.channelAzanName, true),
+        'productive_muslim_beep',
+        t.channelBeepName,
+        true,
+      ),
+      NotificationKind.azan => (
+        'productive_muslim_azan',
+        t.channelAzanName,
+        true,
+      ),
       // Own low-importance channel: Android 8+ takes importance from the
       // channel, not the notification.
       NotificationKind.keepAlive => (
-          'productive_muslim_keep_alive',
-          t.keepAliveTitle,
-          false,
-        ),
+        'productive_muslim_keep_alive',
+        t.keepAliveTitle,
+        false,
+      ),
       _ => ('productive_muslim_reminders', t.channelRemindersName, true),
     };
     return NotificationDetails(
@@ -328,7 +371,8 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         playSound: sound,
         enableVibration: !beep,
         category: AndroidNotificationCategory.reminder,
-        actions: item.kind == NotificationKind.azan ||
+        actions:
+            item.kind == NotificationKind.azan ||
                 item.kind == NotificationKind.focusEnd
             ? [
                 AndroidNotificationAction(
@@ -342,15 +386,15 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       iOS: DarwinNotificationDetails(
         categoryIdentifier:
             item.kind == NotificationKind.azan ||
-                    item.kind == NotificationKind.focusEnd
-                ? _azanCategoryId
-                : null,
+                item.kind == NotificationKind.focusEnd
+            ? _azanCategoryId
+            : null,
         presentSound: sound,
         interruptionLevel: quiet
             ? InterruptionLevel.passive
             : beep
-                ? InterruptionLevel.active
-                : InterruptionLevel.timeSensitive,
+            ? InterruptionLevel.active
+            : InterruptionLevel.timeSensitive,
       ),
     );
   }

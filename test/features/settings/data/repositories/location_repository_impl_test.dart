@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:productive_muslim/features/settings/data/datasources/city_asset_data_source.dart';
 import 'package:productive_muslim/features/settings/data/datasources/geolocator_data_source.dart';
 import 'package:productive_muslim/features/settings/data/repositories/location_repository_impl.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/location_repository.dart';
@@ -48,8 +52,34 @@ Position _position(double lat, double lng) => Position(
   speedAccuracy: 0,
 );
 
+final class _FakeBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async => ByteData.sublistView(
+    utf8.encode(
+      jsonEncode([
+        ['Dhaka', 'BD', 23.7104, 90.4074, 'Asia/Dhaka'],
+        ['Narayanganj', 'BD', 23.6238, 90.5000, 'Asia/Dhaka'],
+      ]),
+    ),
+  );
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('LocationRepositoryImpl', () {
+    test('names a fix after the nearest bundled city within 50 km', () async {
+      final cities = CityAssetDataSource(_FakeBundle());
+      Future<String?> nameAt(double lat, double lng) async =>
+          (await LocationRepositoryImpl(
+            _FakeSource(position: _position(lat, lng)),
+            cities: cities,
+          ).getCurrentLocation()).valueOrNull?.resolvedName;
+      expect(await nameAt(23.75, 90.39), 'Dhaka, BD');
+      expect(await nameAt(23.63, 90.51), 'Narayanganj, BD');
+      expect(await nameAt(25.5, 90.4), '', reason: '~200 km from any city');
+    });
+
     test('service disabled → LocationServiceDisabled', () async {
       final repo = LocationRepositoryImpl(_FakeSource(serviceEnabled: false));
       final result = await repo.getCurrentLocation();

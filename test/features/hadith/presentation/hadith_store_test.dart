@@ -79,25 +79,13 @@ void main() {
       expect(identical(first, second), isTrue);
     });
 
-    test('selects by day-of-year modulo the list length', () async {
+    test('advances one per day, without resetting on January 1st', () {
       final items = [for (var i = 0; i < 5; i++) _hadith('h$i')];
       final store = storeWith(items)..items.value = items;
 
-      // 1 Jan -> dayOfYear 0 -> index 0.
-      expect(store.ofDay(DateTime(2026)), items[0]);
-      // 3 Jan -> dayOfYear 2 -> index 2.
-      expect(store.ofDay(DateTime(2026, 1, 3)), items[2]);
-    });
-
-    test('wraps with modulo when day-of-year exceeds the list length',
-        () async {
-      final items = [for (var i = 0; i < 5; i++) _hadith('h$i')];
-      final store = storeWith(items)..items.value = items;
-
-      // 6 Jan -> dayOfYear 5 -> 5 % 5 == 0 -> index 0.
-      expect(store.ofDay(DateTime(2026, 1, 6)), items[0]);
-      // 7 Jan -> dayOfYear 6 -> 6 % 5 == 1 -> index 1.
-      expect(store.ofDay(DateTime(2026, 1, 7)), items[1]);
+      final dec31 = items.indexOf(store.ofDay(DateTime(2026, 12, 31))!);
+      expect(store.ofDay(DateTime(2027)), items[(dec31 + 1) % 5]);
+      expect(store.ofDay(DateTime(2027, 1, 2)), items[(dec31 + 2) % 5]);
     });
 
     test('different days can map to different hadith', () async {
