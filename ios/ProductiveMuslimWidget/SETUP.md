@@ -24,7 +24,8 @@ Flutter → `MethodChannel("com.productivemuslim.app/widget")` → App Group
    - Delete Xcode's auto-generated `ProductiveMuslimWidget.swift` (and any
      `*Bundle.swift` / `Assets` it made that you don't need), then
      **Add Files to "Runner"…** and select this folder's
-     `ProductiveMuslimWidget.swift`, adding it to the **ProductiveMuslimWidget** target only.
+     `ProductiveMuslimWidget.swift` and `Localizable.xcstrings` (the String
+     Catalog, en + bn), adding both to the **ProductiveMuslimWidget** target only.
    - Point the extension's **Info.plist** at this folder's `Info.plist`
      (or copy its `NSExtension` dict into the generated one), and set the
      extension's **Code Signing Entitlements** build setting to
@@ -51,6 +52,10 @@ Flutter → `MethodChannel("com.productivemuslim.app/widget")` → App Group
 - After choosing a location it shows the next prayer + time + a 5-waqt strip,
   and updates when you change location, calculation params, or language
   (the app calls `PrayerWidgetService.update()` on those changes and on open).
+- The app pushes 7 days of prayer starts and daily strips; the widget walks
+  them on its own. Past the last pushed start it shows "Open the app" (no
+  stale times) and stops reloading until the app pushes again. Test: device
+  clock +8 days → the open-app state.
 
 ## Where things live
 

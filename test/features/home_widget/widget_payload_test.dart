@@ -14,89 +14,135 @@ PrayerDay _day(DateTime d) => PrayerDay(
   ishaYesterday: DateTime(d.year, d.month, d.day - 1, 19, 44),
 );
 
+/// [count] consecutive days from [from] (calendar steps, DST-safe).
+List<PrayerDay> _days(DateTime from, int count) => [
+  for (var i = 0; i < count; i++)
+    _day(DateTime(from.year, from.month, from.day + i)),
+];
+
 String _name(Prayer p, DateTime _) => p.name;
 String _fmt(DateTime t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
 
+WidgetPayload _build(
+  List<PrayerDay> days, {
+  DateTime Function(DateTime)? instantOf,
+}) => buildWidgetPayload(
+  days: days,
+  nextPrayerLabel: 'Next prayer',
+  prayerName: _name,
+  formatTime: _fmt,
+  locationLabel: 'Dhaka, BD',
+  setupAction: 'Set up',
+  setupHint: 'Open the app to set your location',
+  staleTitle: 'Open the app',
+  staleHint: 'Prayer times need updating',
+  instantOf: instantOf,
+);
+
+List<List<String>> _lines(String raw) => [
+  for (final l in raw.split('\n')) l.split('\t'),
+];
+
 void main() {
-  test('no location → unconfigured payload, empty fields', () {
-    final payload = buildWidgetPayload(
-      day: null,
-      now: DateTime(2026, 6, 14, 10),
-      nextPrayerLabel: 'Next prayer',
-      prayerName: _name,
-      formatTime: _fmt,
-      locationLabel: '',
-    );
+  test('no location → unconfigured payload with setup texts', () {
+    final payload = _build(const []);
     expect(payload['widget_configured'], '0');
-    expect(payload['widget_prayer'], '');
-    expect(payload['widget_time'], '');
+    expect(payload['widget_location'], '');
+    expect(payload['widget_schedule'], '');
+    expect(payload['widget_strips'], '');
+    expect(payload['widget_setup_action'], 'Set up');
+    expect(payload['widget_setup_hint'], 'Open the app to set your location');
   });
 
-  test('configured payload carries next prayer + full strip', () {
-    final day = _day(DateTime(2026, 6, 14));
-    final payload = buildWidgetPayload(
-      day: day,
-      now: DateTime(2026, 6, 14, 13),
-      nextPrayerLabel: 'Next prayer',
-      prayerName: _name,
-      formatTime: _fmt,
-      locationLabel: 'Dhaka, BD',
-    );
+  test('legacy keys are cleared and stale texts pushed', () {
+    final payload = _build(_days(DateTime(2026, 6, 14), 7));
+    for (final key in [
+      'widget_prayer',
+      'widget_time',
+      'widget_times',
+      'widget_times_next',
+      'widget_day_flip',
+    ]) {
+      expect(payload[key], '', reason: key);
+    }
     expect(payload['widget_configured'], '1');
     expect(payload['widget_label'], 'Next prayer');
-    expect(payload['widget_prayer'], 'asr');
-    expect(payload['widget_time'], '15:40');
     expect(payload['widget_location'], 'Dhaka, BD');
-    // Strip lists all five waqts.
+    expect(payload['widget_stale_title'], 'Open the app');
+    expect(payload['widget_stale_hint'], 'Prayer times need updating');
+  });
+
+  test('7 days: every prayer start as instants, in order', () {
+    final payload = _build(
+      _days(DateTime(2026, 6, 14), 7),
+      instantOf: (wall) => wall.add(const Duration(hours: 1)),
+    );
+    final lines = _lines(payload['widget_schedule']!);
+    // Isha before + 5 × 7 days + the Fajr after the last day.
+    expect(lines, hasLength(37));
+    expect(lines.first.sublist(1), ['isha', '19:44']);
+    expect(
+      int.parse(lines[1][0]),
+      DateTime(2026, 6, 14, 5, 30).millisecondsSinceEpoch,
+    );
+    expect(lines[1].sublist(1), ['fajr', '4:30']);
+    expect(lines[35].sublist(1), ['isha', '19:45']);
+    expect(lines.last.sublist(1), ['fajr', '4:31']);
+    final millis = [for (final l in lines) int.parse(l[0])];
+    expect(millis, orderedEquals([...millis]..sort()));
+  });
+
+  test('7 days: one strip per day, back to back, with all five waqts', () {
+    final payload = _build(_days(DateTime(2026, 6, 14), 7));
+    final strips = _lines(payload['widget_strips']!);
+    expect(strips, hasLength(7));
+    expect(
+      int.parse(strips.first[0]),
+      DateTime(2026, 6, 14).millisecondsSinceEpoch,
+    );
+    expect(
+      int.parse(strips.last[1]),
+      DateTime(2026, 6, 21).millisecondsSinceEpoch,
+    );
+    for (var i = 1; i < strips.length; i++) {
+      expect(strips[i][0], strips[i - 1][1], reason: 'day $i starts at end');
+    }
     for (final p in Prayer.values) {
-      expect(payload['widget_times'], contains(p.name));
+      expect(strips.first[2], contains(p.name));
     }
   });
 
-  test("tomorrow's strip and its midnight instant are pushed", () {
-    final payload = buildWidgetPayload(
-      day: _day(DateTime(2026, 6, 14)),
-      tomorrow: _day(DateTime(2026, 6, 15)),
-      now: DateTime(2026, 6, 14, 13),
-      nextPrayerLabel: 'Next prayer',
-      prayerName: _name,
-      formatTime: _fmt,
-      locationLabel: 'Dhaka, BD',
-      instantOf: (wall) => wall.add(const Duration(hours: 1)),
-    );
-    expect(payload['widget_times_next'], contains('fajr'));
-    expect(
-      int.parse(payload['widget_day_flip']!),
-      DateTime(2026, 6, 15, 1).millisecondsSinceEpoch,
-    );
-  });
+  test('DST change: day boundaries follow real instants (23h day)', () {
+    // A zone at UTC+1 that springs forward to UTC+2 from Mar 29, 2026.
+    DateTime instantOf(DateTime wall) {
+      final offset = wall.isBefore(DateTime(2026, 3, 29, 2)) ? 1 : 2;
+      return DateTime.utc(
+        wall.year,
+        wall.month,
+        wall.day,
+        wall.hour,
+        wall.minute,
+      ).subtract(Duration(hours: offset));
+    }
 
-  test('schedule lists every prayer start as instants, in order', () {
-    final day = _day(DateTime(2026, 6, 14));
-    final tomorrow = _day(DateTime(2026, 6, 15));
-    final payload = buildWidgetPayload(
-      day: day,
-      tomorrow: tomorrow,
-      now: DateTime(2026, 6, 14, 13),
-      nextPrayerLabel: 'Next prayer',
-      prayerName: _name,
-      formatTime: _fmt,
-      locationLabel: 'Dhaka, BD',
-      instantOf: (wall) => wall.add(const Duration(hours: 1)),
+    final payload = _build(
+      _days(DateTime(2026, 3, 27), 7),
+      instantOf: instantOf,
     );
-    final lines = payload['widget_schedule']!.split('\n');
-    // Yesterday's Isha + 5 today + 5 tomorrow + next Fajr.
-    expect(lines, hasLength(12));
-    expect(lines.first.split('\t').sublist(1), ['isha', '19:44']);
-    final first = lines[1].split('\t');
+    final strips = _lines(payload['widget_strips']!);
+    Duration span(List<String> s) => Duration(
+      milliseconds: int.parse(s[1]) - int.parse(s[0]),
+    );
+    expect(span(strips[0]), const Duration(hours: 24)); // Mar 27
+    expect(span(strips[2]), const Duration(hours: 23)); // Mar 29
+    expect(span(strips[3]), const Duration(hours: 24)); // Mar 30
     expect(
-      int.parse(first[0]),
-      DateTime(2026, 6, 14, 5, 30).millisecondsSinceEpoch,
+      int.parse(strips[3][0]),
+      DateTime.utc(2026, 3, 29, 22).millisecondsSinceEpoch,
     );
-    expect(first.sublist(1), ['fajr', '4:30']);
-    expect(lines[6].split('\t').sublist(1), ['fajr', '4:30']);
-    expect(lines.last.split('\t').sublist(1), ['fajr', '4:31']);
-    final millis = [for (final l in lines) int.parse(l.split('\t')[0])];
-    expect(millis, orderedEquals([...millis]..sort()));
+    final starts = [
+      for (final l in _lines(payload['widget_schedule']!)) int.parse(l[0]),
+    ];
+    expect(starts, orderedEquals([...starts]..sort()));
   });
 }

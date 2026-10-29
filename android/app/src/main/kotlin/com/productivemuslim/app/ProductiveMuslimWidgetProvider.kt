@@ -15,9 +15,10 @@ import android.widget.RemoteViews
  * a MethodChannel ([MainActivity]) which stores them in [PREFS]; this
  * provider only renders. Tapping the widget opens the app.
  *
- * The next prayer is picked here from `widget_schedule` on every update,
- * and an alarm re-renders at the next prayer start, so the widget stays
- * correct while the app isn't running.
+ * The next prayer and the day's strip are picked by [WidgetSchedule] on
+ * every update, and an alarm re-renders at the next prayer start or day
+ * boundary, so the widget stays correct for the pushed 7 days while the app
+ * isn't running; after that it asks the user to open the app.
  */
 class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
 
@@ -43,48 +44,22 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
             scheduleNext(context)
         }
 
-        /** `widget_schedule` lines as (epochMillis, prayer, time). */
-        private fun schedule(context: Context): List<Triple<Long, String, String>> {
-            val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString("widget_schedule", "") ?: ""
-            return raw.lines().mapNotNull { line ->
-                val parts = line.split('\t')
-                val millis = parts.getOrNull(0)?.toLongOrNull()
-                if (millis == null || parts.size < 3) null
-                else Triple(millis, parts[1], parts[2])
-            }
-        }
-
-        /** Epoch millis tomorrow's date begins (0 = unknown). */
-        private fun dayFlip(context: Context): Long =
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString("widget_day_flip", "")?.toLongOrNull() ?: 0L
-
-        /** Today's five-time strip; tomorrow's once its date has begun. */
-        private fun times(context: Context): String {
-            val data = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val nextDay = data.getString("widget_times_next", "") ?: ""
-            val flip = dayFlip(context)
-            return if (flip in 1..System.currentTimeMillis() && nextDay.isNotEmpty()) nextDay
-            else data.getString("widget_times", "") ?: ""
-        }
-
-        /** First scheduled prayer still ahead, or null past the schedule. */
-        private fun upcoming(context: Context) =
-            schedule(context).firstOrNull { it.first > System.currentTimeMillis() }
+        /** Every pushed `widget_*` string (for [WidgetSchedule]). */
+        private fun data(context: Context): Map<String, String> =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).all
+                .mapNotNull { (key, value) -> (value as? String)?.let { key to it } }
+                .toMap()
 
         /**
-         * Re-renders at the next prayer start. Inexact and non-waking (no
+         * Re-renders at the next change (see [WidgetSchedule.nextChange]). Inexact and non-waking (no
          * exact-alarm permission): it may land late or on the next screen-on;
          * updatePeriodMillis (30 min) is the backstop.
          */
         private fun scheduleNext(context: Context) {
-            val now = System.currentTimeMillis()
-            // Next prayer start or midnight (strip swap), whichever is first.
-            val at = listOfNotNull(
-                upcoming(context)?.first,
-                dayFlip(context).takeIf { it > now },
-            ).minOrNull() ?: return
+            // Next prayer start or day boundary; nothing once stale (only the
+            // app can push new times).
+            val at = WidgetSchedule.nextChange(data(context), System.currentTimeMillis())
+                ?: return
             val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(
                 ComponentName(context, ProductiveMuslimWidgetProvider::class.java)
             )
@@ -106,24 +81,40 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
             manager: AppWidgetManager,
             widgetId: Int
         ) {
-            val data = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val configured = data.getString("widget_configured", "0") == "1"
+            val data = data(context)
+            // Pushed (in-app language) texts win; resources cover the time
+            // before the app has ever pushed them.
+            fun text(key: String, fallback: Int) =
+                data[key]?.takeIf { it.isNotEmpty() } ?: context.getString(fallback)
+            val configured = data["widget_configured"] == "1"
+            val view = if (configured) {
+                WidgetSchedule.view(data, System.currentTimeMillis())
+            } else null
 
             val views = RemoteViews(context.packageName, R.layout.productive_muslim_widget).apply {
-                if (configured) {
-                    // Past the schedule: fall back to the last pushed snapshot.
-                    val next = upcoming(context)
-                    setTextViewText(R.id.widget_label, data.getString("widget_label", "") ?: "")
-                    setTextViewText(R.id.widget_prayer, next?.second ?: data.getString("widget_prayer", "—") ?: "—")
-                    setTextViewText(R.id.widget_time, next?.third ?: data.getString("widget_time", "") ?: "")
-                    setTextViewText(R.id.widget_location, data.getString("widget_location", "") ?: "")
-                    setTextViewText(R.id.widget_times, times(context))
-                } else {
-                    setTextViewText(R.id.widget_label, context.getString(R.string.widget_setup_title))
-                    setTextViewText(R.id.widget_prayer, context.getString(R.string.widget_setup_action))
-                    setTextViewText(R.id.widget_time, "")
-                    setTextViewText(R.id.widget_location, "")
-                    setTextViewText(R.id.widget_times, context.getString(R.string.widget_setup_hint))
+                when (view) {
+                    is WidgetSchedule.View.Next -> {
+                        setTextViewText(R.id.widget_label, text("widget_label", R.string.widget_next_prayer))
+                        setTextViewText(R.id.widget_prayer, view.prayer)
+                        setTextViewText(R.id.widget_time, view.time)
+                        setTextViewText(R.id.widget_location, data["widget_location"].orEmpty())
+                        setTextViewText(R.id.widget_times, view.strip)
+                    }
+                    // Past the pushed schedule: never show times that have passed.
+                    WidgetSchedule.View.Stale -> {
+                        setTextViewText(R.id.widget_label, context.getString(R.string.widget_setup_title))
+                        setTextViewText(R.id.widget_prayer, text("widget_stale_title", R.string.widget_stale_title))
+                        setTextViewText(R.id.widget_time, "")
+                        setTextViewText(R.id.widget_location, data["widget_location"].orEmpty())
+                        setTextViewText(R.id.widget_times, text("widget_stale_hint", R.string.widget_stale_hint))
+                    }
+                    null -> {
+                        setTextViewText(R.id.widget_label, context.getString(R.string.widget_setup_title))
+                        setTextViewText(R.id.widget_prayer, text("widget_setup_action", R.string.widget_setup_action))
+                        setTextViewText(R.id.widget_time, "")
+                        setTextViewText(R.id.widget_location, "")
+                        setTextViewText(R.id.widget_times, text("widget_setup_hint", R.string.widget_setup_hint))
+                    }
                 }
 
                 val launch = context.packageManager

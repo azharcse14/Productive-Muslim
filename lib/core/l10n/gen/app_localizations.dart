@@ -5006,6 +5006,24 @@ abstract class AppLocalizations {
   /// **'Open the app to set your location'**
   String get widgetSetupHint;
 
+  /// Home-screen widget, before a location is set: the call to action.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get widgetSetupAction;
+
+  /// Home-screen widget when its pushed prayer times have run out (app not opened for days).
+  ///
+  /// In en, this message translates to:
+  /// **'Open the app'**
+  String get widgetStaleTitle;
+
+  /// No description provided for @widgetStaleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times need updating'**
+  String get widgetStaleHint;
+
   /// No description provided for @onboardingSaveFailed.
   ///
   /// In en, this message translates to:

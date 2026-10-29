@@ -3363,6 +3363,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetSetupHint => 'Open the app to set your location';
 
   @override
+  String get widgetSetupAction => 'Set up';
+
+  @override
+  String get widgetStaleTitle => 'Open the app';
+
+  @override
+  String get widgetStaleHint => 'Prayer times need updating';
+
+  @override
   String get onboardingSaveFailed =>
       'Your settings couldn\'t be saved. You can change them later in Settings.';
 

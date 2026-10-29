@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:intl/intl.dart';
 
+import '../../../config/app_config.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/utils/locale_digits.dart';
 import '../../my_mosque/domain/usecases/resolve_active_mosque.dart';
@@ -55,24 +56,25 @@ final class PrayerWidgetService {
       final l10n = lookupAppLocalizations(Locale(code));
       final location = _settings.location.value;
 
-      PrayerDay? day;
-      PrayerDay? tomorrow;
+      final days = <PrayerDay>[];
       DateTime now;
       var locationLabel = '';
       if (location != null) {
         now = _clock.nowAt(location);
         final today = DateTime(now.year, now.month, now.day);
-        day = _getPrayerDay(
-          location: location,
-          params: appSettings.prayerParams,
-          date: today,
-        ).valueOrNull;
-        tomorrow = _getPrayerDay(
-          location: location,
-          params: appSettings.prayerParams,
-          // Calendar +1, not +24h: a DST fall-back day is 25h long.
-          date: DateTime(today.year, today.month, today.day + 1),
-        ).valueOrNull;
+        // The same window notifications cover; past it the widget asks the
+        // user to open the app instead of showing stale times.
+        final windowDays = AppConfig.notificationSchedulingWindow.inDays;
+        for (var i = 0; i < windowDays; i++) {
+          final d = _getPrayerDay(
+            location: location,
+            params: appSettings.prayerParams,
+            // Calendar +i, not +24h·i: a DST day is 23h or 25h long.
+            date: DateTime(today.year, today.month, today.day + i),
+          ).valueOrNull;
+          if (d == null) break; // Keep the days consecutive.
+          days.add(d);
+        }
         locationLabel = formatLocationName(location, Locale(code), l10n);
       } else {
         now = DateTime.now();
@@ -91,20 +93,21 @@ final class PrayerWidgetService {
       };
 
       final payload = buildWidgetPayload(
-        day: day,
-        now: now,
+        days: days,
         nextPrayerLabel: l10n.widgetNextPrayerLabel,
         prayerName: (p, at) => l10n.prayerLabelOn(p, at, jumuah: jumuah),
         formatTime: formatTime,
         locationLabel: locationLabel,
+        setupAction: l10n.widgetSetupAction,
         setupHint: l10n.widgetSetupHint,
-        tomorrow: tomorrow,
+        staleTitle: l10n.widgetStaleTitle,
+        staleHint: l10n.widgetStaleHint,
         instantOf: location == null
             ? null
             : (wall) => _clock.utcInstantOf(location, wall),
       );
 
-      if (day != null) {
+      if (days.firstOrNull case final day?) {
         final next = resolveNextPrayer(day, now).at;
         final midnight = DateTime(now.year, now.month, now.day + 1);
         // A past `next` would re-arm with zero delay in a tight loop.
