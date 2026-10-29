@@ -2,8 +2,8 @@
 /// cited contemporary per-person weight in kilograms.
 ///
 /// Fitra is classically one *sa'* of a staple food per person. A sa' is
-/// roughly 3.0 kg of grain (estimates vary by staple and density). The
-/// widespread Hanafi position allows *half a sa'* (≈ 1.5 kg) when paying in
+/// roughly 3.30 kg of grain (estimates vary by staple and density). The
+/// widespread Hanafi position allows *half a sa'* (≈ 1.65 kg) when paying in
 /// wheat or wheat flour, which is reflected here. These weights are
 /// approximate, contemporary commonly-cited values — exposing the weight
 /// lets users sidestep fiqh disputes by entering their own local price.
