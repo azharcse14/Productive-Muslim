@@ -70,7 +70,8 @@ void main() {
       ..registerSingleton<QuranStore>(quranStore)
       ..registerSingleton<DuaStore>(duaStore)
       ..registerSingleton<TasbihStore>(tasbihStore)
-      ..registerFactory<HomeStore>(
+      // App-wide singleton, as in production (Muhasaba reads it too).
+      ..registerLazySingleton<HomeStore>(
         () => HomeStore(
           getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
           clock: clock,
