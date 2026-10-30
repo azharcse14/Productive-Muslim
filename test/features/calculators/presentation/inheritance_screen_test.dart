@@ -68,6 +68,28 @@ void main() {
       expect(find.textContaining('Daughter'), findsWidgets);
     });
 
+    testWidgets('each share shows its percentage, even with no estate', (
+      tester,
+    ) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Wife'));
+      await tester.pumpAndSettle();
+      final adds = find.byIcon(Icons.add);
+      await tester.tap(adds.at(1)); // sons
+      await tester.pump();
+      await tester.tap(adds.at(2)); // daughters
+      await tester.pump();
+      await tester.tap(find.text('Calculate'));
+      await tester.pumpAndSettle();
+
+      // Wife 1/8; the residue 7/8 splits 2:1 between son and daughter.
+      expect(find.text('12.5%'), findsOneWidget);
+      expect(find.text('58.33%'), findsOneWidget);
+      expect(find.text('29.17%'), findsOneWidget);
+    });
+
     testWidgets('husband only shows an unallocated row', (tester) async {
       _useTallSurface(tester);
       await tester.pumpWidget(_app());

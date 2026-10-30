@@ -69,18 +69,16 @@ abstract final class AgeCalculator {
     // Reference date before birth (or equal) → nothing has elapsed.
     if (!on.isAfter(birth)) {
       const zero = AgeBreakdown(years: 0, months: 0, days: 0);
-      return const AgeResult(
-        gregorian: zero,
-        hijri: zero,
-        totalDays: 0,
-      );
+      return const AgeResult(gregorian: zero, hijri: zero, totalDays: 0);
     }
 
     // UTC midnights: a local-time difference loses an hour across DST and
     // `.inDays` would truncate e.g. 182 days down to 181.
-    final totalDays = DateTime.utc(on.year, on.month, on.day)
-        .difference(DateTime.utc(birth.year, birth.month, birth.day))
-        .inDays;
+    final totalDays = DateTime.utc(
+      on.year,
+      on.month,
+      on.day,
+    ).difference(DateTime.utc(birth.year, birth.month, birth.day)).inDays;
 
     final gregorian = _diff(
       startYear: birth.year,
@@ -107,11 +105,7 @@ abstract final class AgeCalculator {
       daysInPrecedingMonth: HijriDate.daysInMonth,
     );
 
-    return AgeResult(
-      gregorian: gregorian,
-      hijri: hijri,
-      totalDays: totalDays,
-    );
+    return AgeResult(gregorian: gregorian, hijri: hijri, totalDays: totalDays);
   }
 
   /// Generic borrow algorithm shared by both calendars. [daysInPrecedingMonth]

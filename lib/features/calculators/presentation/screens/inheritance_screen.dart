@@ -116,6 +116,16 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     );
   }
 
+  String _percent(BuildContext context, double fraction) {
+    final locale = Localizations.localeOf(context);
+    return LocaleDigits.localize(
+      (NumberFormat.percentPattern(
+        locale.toString(),
+      )..maximumFractionDigits = 2).format(fraction),
+      locale.languageCode,
+    );
+  }
+
   String _heirName(BuildContext context, String key) {
     final l10n = context.l10n;
     return switch (key) {
@@ -293,6 +303,14 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                                     style: QType.num_(
                                       QType.titleSm,
                                     ).copyWith(color: q.ink),
+                                  ),
+                                  // The share after 'awl / radd — the
+                                  // answer even with no estate entered.
+                                  Text(
+                                    _percent(context, s.fraction),
+                                    style: QType.num_(
+                                      QType.caption,
+                                    ).copyWith(color: q.ink2),
                                   ),
                                   if (s.count > 1)
                                     Text(

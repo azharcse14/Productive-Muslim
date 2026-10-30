@@ -17,38 +17,39 @@ final class CalculatorsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final l10n = context.l10n;
-    final tools = <({IconData icon, String title, String? subtitle, String route})>[
-      (
-        icon: Icons.volunteer_activism_outlined,
-        title: l10n.zakatTitle,
-        subtitle: l10n.zakatSubtitle,
-        route: Routes.zakat.name,
-      ),
-      (
-        icon: Icons.rice_bowl_outlined,
-        title: l10n.fitraTitle,
-        subtitle: l10n.fitraSubtitle,
-        route: Routes.fitra.name,
-      ),
-      (
-        icon: Icons.event_repeat_outlined,
-        title: l10n.qazaTitle,
-        subtitle: l10n.qazaSubtitle,
-        route: Routes.qaza.name,
-      ),
-      (
-        icon: Icons.account_tree_outlined,
-        title: l10n.faraidTitle,
-        subtitle: l10n.faraidSubtitle,
-        route: Routes.faraid.name,
-      ),
-      (
-        icon: Icons.cake_outlined,
-        title: l10n.ageTitle,
-        subtitle: l10n.ageSubtitle,
-        route: Routes.age.name,
-      ),
-    ];
+    final tools =
+        <({IconData icon, String title, String? subtitle, String route})>[
+          (
+            icon: Icons.volunteer_activism_outlined,
+            title: l10n.zakatTitle,
+            subtitle: l10n.zakatSubtitle,
+            route: Routes.zakat.name,
+          ),
+          (
+            icon: Icons.rice_bowl_outlined,
+            title: l10n.fitraTitle,
+            subtitle: l10n.fitraSubtitle,
+            route: Routes.fitra.name,
+          ),
+          (
+            icon: Icons.event_repeat_outlined,
+            title: l10n.qazaTitle,
+            subtitle: l10n.qazaSubtitle,
+            route: Routes.qaza.name,
+          ),
+          (
+            icon: Icons.account_tree_outlined,
+            title: l10n.faraidTitle,
+            subtitle: l10n.faraidSubtitle,
+            route: Routes.faraid.name,
+          ),
+          (
+            icon: Icons.cake_outlined,
+            title: l10n.ageTitle,
+            subtitle: l10n.ageSubtitle,
+            route: Routes.age.name,
+          ),
+        ];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.calculatorsTitle)),
       body: SafeArea(
