@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/ramadan/domain/usecases/ramadan_utils.dart';
 import 'package:productive_muslim/features/ramadan/presentation/state/ramadan_store.dart';
@@ -8,6 +10,7 @@ import 'package:productive_muslim/features/settings/data/datasources/timezone_cl
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
@@ -26,6 +29,24 @@ final class _Repo implements SettingsRepository {
     stored = settings;
     return const Result.success(null);
   }
+}
+
+/// Real prayer times, except [failOn] fails (as an extreme-latitude
+/// day can).
+final class _FailingOn implements PrayerDayRepository {
+  _FailingOn(this.failOn);
+
+  final DateTime failOn;
+  final _real = PrayerDayRepositoryImpl(TimezoneClock());
+
+  @override
+  Result<PrayerDay> prayerDay({
+    required LocationConfig location,
+    required PrayerParams params,
+    required DateTime date,
+  }) => date == failOn
+      ? const Result.failure(UnexpectedFailure('no times'))
+      : _real.prayerDay(location: location, params: params, date: date);
 }
 
 const _dhaka = ManualCityLocation(
@@ -117,6 +138,46 @@ void main() {
     expect(store.today.value, DateTime(2026, 3, 2));
     expect(store.rozaDay.value, 13);
     store.dispose();
+  });
+
+  test('re-reads the day on a location change, not just the tick', () async {
+    // Device clock is New York 20:00; the manual city's wall clock is
+    // already the next morning once it's selected.
+    var clock = DateTime(2026, 3, 1, 20);
+    settings = SettingsStore(
+      GetSettings(_Repo(const AppSettings())),
+      SaveSettings(_Repo(const AppSettings())),
+    );
+    await settings.load();
+    final store = RamadanStore(
+      GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      settings,
+      now: () => clock,
+    );
+    addTearDown(store.dispose);
+    expect(store.rozaDay.value, 12);
+    clock = DateTime(2026, 3, 2, 7);
+    await settings.setLocation(_dhaka);
+    expect(store.today.value, DateTime(2026, 3, 2));
+    expect(store.rozaDay.value, 13);
+  });
+
+  test('rowAfter: no row when the next day failed to compute', () async {
+    settings = SettingsStore(
+      GetSettings(_Repo(const AppSettings(location: _dhaka))),
+      SaveSettings(_Repo(const AppSettings())),
+    );
+    await settings.load();
+    final store = RamadanStore(
+      GetPrayerDay(_FailingOn(DateTime(2026, 3, 3))),
+      settings,
+      now: () => DateTime(2026, 3, 2, 20),
+    );
+    addTearDown(store.dispose);
+    expect(store.rowAfter(DateTime(2026, 3, 2)), isNull);
+    expect(store.rowAfter(DateTime(2026, 3, 3))?.$4, 15);
+    final last = store.monthRows.value.last.$1;
+    expect(store.rowAfter(last), isNull);
   });
 
   group('RamadanStore with a Hijri offset', () {

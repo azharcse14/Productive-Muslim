@@ -374,6 +374,27 @@ void main() {
       expect(result.previousCompletion, closeTo((1 / 3 + 1 / 6) / 7, 0.01));
     });
 
+    test('trendCompletion leaves out a today with nothing logged', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      for (var d = 6; d <= 11; d++) {
+        await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, d), 1)));
+      }
+      var result = await stats();
+      expect(result.completion, closeTo(6 / 7, 1e-9), reason: 'shown as is');
+      expect(result.trendCompletion, 1.0);
+
+      // A single untouched day: nothing finished to compare.
+      final single = await unwrap(
+        repo.periodStats(start: today, end: today, today: today),
+      );
+      expect(single.trendCompletion, isNull);
+
+      // Once today has an entry it counts like any other day.
+      await unwrap(repo.setEntry(_entry('a', today, 1)));
+      result = await stats();
+      expect(result.trendCompletion, result.completion);
+    });
+
     test('items archived before the range are excluded', () async {
       await seedScenario();
       // Archived Dec 31 (repo clock): c is dropped from every June day
