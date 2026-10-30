@@ -57,6 +57,21 @@ void main() {
     expect(w.first.end, DateTime(2026, 5, 12, 4, 15));
   });
 
+  test('no session for a jamaat after its waqt ends', () {
+    final w = buildFocusWindows(
+      from: DateTime(2026, 5, 12, 3),
+      days: [_day(12)],
+      matrix: _on,
+      // Asr ends at maghrib 18:45: a stale 19:00 jamaat is skipped.
+      jamaat: const JamaatConfig({
+        Prayer.asr: FixedJamaat(ClockTime(19, 0)),
+        Prayer.dhuhr: FixedJamaat(ClockTime(13, 15)),
+      }),
+      window: const Duration(hours: 24),
+    );
+    expect(w.map((e) => e.prayer), [Prayer.dhuhr]);
+  });
+
   test('zero duration = until the user ends it', () {
     final w = _windows(_on.copyWith(jamaatFocusDuration: Duration.zero));
     expect(w.every((e) => e.end == null), isTrue);

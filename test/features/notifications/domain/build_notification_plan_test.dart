@@ -210,6 +210,19 @@ void main() {
       expect(reminders.length, 2); // day 12 + 13
     });
 
+    test('a jamaat after its waqt ends gets no reminder', () {
+      // Stale summer time: Asr ends at maghrib 18:45, jamaat set for 19:00.
+      const jamaat = JamaatConfig({
+        Prayer.asr: FixedJamaat(ClockTime(19, 0)),
+        Prayer.dhuhr: FixedJamaat(ClockTime(13, 15)),
+      });
+      final reminders = _plan(
+        jamaat: jamaat,
+        matrix: const NotificationMatrix(jamaatReminder: true),
+      ).where((i) => i.kind == NotificationKind.jamaat);
+      expect(reminders.map((i) => i.prayer).toSet(), {Prayer.dhuhr});
+    });
+
     test('offset jamaat resolves from waqt start', () {
       const jamaat = JamaatConfig({
         Prayer.maghrib: OffsetJamaat(Duration(minutes: 5)),

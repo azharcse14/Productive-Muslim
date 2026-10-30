@@ -89,7 +89,8 @@ List<FocusWindow> buildFocusWindows({
       final waqt = day.startOf(prayer);
       final config = jamaatAt?.call(waqt) ?? jamaat;
       final jamaatTime = config.timeFor(prayer, waqt);
-      if (jamaatTime == null) {
+      // No session for a jamaat after its waqt ends (stale fixed time).
+      if (jamaatTime == null || !jamaatTime.isBefore(day.endOf(prayer))) {
         continue;
       }
       final start = jamaatTime.subtract(matrix.jamaatFocusLead);
