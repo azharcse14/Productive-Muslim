@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review round 2, fixes 6 + 15:** the locator's widget effect also watches `MosqueStore.state`, so a mosque edit (Jumu'ah time, active mosque, rules) refreshes the home-screen widget. `PrayerWidgetService` resolves the mosque only for Friday Dhuhr lines, not ~70 times per update | analyze clean; home_widget tests green (the effect is locator glue) |
 | 2026-10-30 | **Deep review round 2, fixes 5 + 10:** the notification inbox names an item "Jumu'ah" when `NotificationItem.jumuah` is set, matching what the OS shows. The `NotificationTexts` class doc is moved back above the class (`jumuahNameKey` had split it off) | notifications green (+1 inbox widget test, fails without the fix) |
 | 2026-10-30 | **Deep review round 2, fix 4:** `PrayerDayRepositoryImpl` shifts adhan's UTC solar day when the location's Dhuhr would land on another local date. In zones a day ahead of solar time (Samoa UTC+13, Kiritimati UTC+14), every "day D" time used to fall on D+1, which broke the countdown and the salah locks | prayer_times green (+4 zone tests: Apia and Kiritimati fail without the fix) |
 | 2026-10-30 | **Deep review round 2, fix 3:** a fixed jamaat that round 1 pulled back to the evening before an after-midnight waqt (23:45 jamaat, isha at 00:20) is now held at the waqt start instead. A jamaat never comes before its waqt, and the focus-end "mark as prayed" is no longer refused by the salah lock | my_mosque tests green (expectation updated) |

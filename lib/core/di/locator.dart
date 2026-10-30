@@ -467,10 +467,11 @@ int? notificationCapFor(TargetPlatform platform) => switch (platform) {
 
 /// Keeps the home-screen widget in sync. Runs once now (app open), on every
 /// resume, at each next-prayer/midnight boundary, and whenever the location,
-/// prayer parameters, or locale change. Best-effort:
+/// prayer parameters, locale or mosques change. Best-effort:
 /// [PrayerWidgetService.update] swallows its own errors.
 void _startWidgetUpdates() {
   final settings = locator<SettingsStore>();
+  final mosque = locator<MosqueStore>();
   final widget = locator<PrayerWidgetService>();
   effect(() {
     // Touch the signals the snapshot depends on so the effect re-runs —
@@ -480,6 +481,8 @@ void _startWidgetUpdates() {
     settings.locale.value;
     // Umm al-Qura shifts Isha in Ramadan, and the offset moves Ramadan.
     settings.hijriOffsetDays.value;
+    // The Jumu'ah label follows the mosque active at each Friday Dhuhr.
+    mosque.state.value;
     untracked(() => unawaited(widget.update()));
   });
   // Times moved on while backgrounded (Dart timers don't fire then).
