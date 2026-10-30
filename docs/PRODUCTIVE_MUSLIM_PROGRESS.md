@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review round 2, fix 13:** the "strict focus always has a length" rule is now `NotificationMatrix.effectiveFocusDuration` (fallback `strictFallbackDuration`, 20 min), and `buildFocusWindows` uses it, so a matrix built any way can't plan an endless strict session. `copyWith` keeps normalizing the stored value | notifications / settings green (+1) |
 | 2026-10-30 | **Deep review round 2, fix 9:** iOS permission prompts are localized. New `ios/Runner/InfoPlist.xcstrings` holds en + bn for `NSLocationWhenInUseUsageDescription` (the Bangla reuses `locationPrimingBody`) and `NSFaceIDUsageDescription`; it is added to the Runner target's resources, and `bn` to `knownRegions` | `flutter build ios --simulator --debug` ✓; the built app has `bn.lproj/InfoPlist.strings` with both keys |
 | 2026-10-30 | **Deep review round 2, fix 11:** the salah lock is a pure `prayer_times/domain/usecases/locked_prayers.dart` `lockedPrayersOn`, which locator's `_lockedSalahOn` calls, so round 1's yesterday/after-midnight-isha rule is now unit-tested | +3 domain tests |
 | 2026-10-30 | **Deep review round 2, fixes 8 + 12:** muhasaba streak queries (`_doneDates`, `doneDates`) skip unknown-kind (hidden) items, as completion already did. `MuhasabaStore._setOn` checks that the item is a salah before running the prayer-time lock, and its stale comment is updated | muhasaba green (+1 streak test) |

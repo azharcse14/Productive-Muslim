@@ -69,6 +69,16 @@ void main() {
     expect(m.jamaatFocusDuration, const Duration(minutes: 20));
   });
 
+  test('a strict matrix built with no length still gets timed sessions', () {
+    const m = NotificationMatrix(
+      jamaatFocus: true,
+      jamaatFocusStrict: true,
+      jamaatFocusDuration: Duration.zero,
+    );
+    final w = _windows(m).first;
+    expect(w.end, w.start.add(NotificationMatrix.strictFallbackDuration));
+  });
+
   test('only selected prayers', () {
     final w = _windows(_on.copyWith(jamaatFocusPrayers: {Prayer.isha}));
     expect(w.map((e) => e.prayer), [Prayer.isha]);

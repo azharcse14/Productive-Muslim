@@ -79,7 +79,7 @@ List<FocusWindow> buildFocusWindows({
     return const [];
   }
   final until = from.add(window);
-  final length = matrix.jamaatFocusDuration;
+  final length = matrix.effectiveFocusDuration;
   final windows = <FocusWindow>[];
   for (final day in days) {
     for (final prayer in Prayer.values) {
