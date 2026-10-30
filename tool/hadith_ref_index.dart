@@ -1,12 +1,14 @@
-// Writes each section's standard-reference numbers into
+// Writes the numbers each section actually holds into
 // assets/data/hadith_books.json as `refs`: runs `[[from, to], …]` of the
-// whole-number part of the displayed reference ("Sahih Muslim 17a" → 17).
+// number a card shows — the whole-number part of the displayed reference
+// ("Sahih Muslim 17a" → 17), else the hadith number.
 //
-// Only books whose Arabic edition carries refs (`r` in the blobs: today Sahih
-// Muslim) get them; elsewhere the internal number already is the reference
-// and `first` / `last` serve "go to hadith number". Muslim needs this: its
-// chapters are listed by internal number (chapter 1 starts at 93), and
-// variants of one number sit in several chapters (17a–c in 1, 17d–g in 36).
+// Every section of both catalogs (`sections` from the Arabic edition,
+// `sections_bn` from the hadithbangla chapters) gets them, because upstream
+// `first` / `last` lie: stray numbers make ranges overlap (Tirmidhi §32 is
+// 2133–2298 but §33 starts at 2158), and Muslim lists chapters by internal
+// number with variants of one number in several chapters (17a–c in 1, 17d–g
+// in 36). "Go to hadith number" matches against `refs`.
 //
 // Run after `tool/hadith_db_build.dart`:
 //   dart run tool/hadith_ref_index.dart
@@ -29,27 +31,39 @@ void main() {
     for (final book
         in (catalog['books'] as List).cast<Map<String, dynamic>>()) {
       final edition = book['edition_ar'] as String? ?? 'ara-${book['id']}';
-      for (final section
-          in (book['sections'] as List? ?? const [])
-              .cast<Map<String, dynamic>>()) {
-        section.remove('refs');
-        final rows = db.select(
-          'SELECT data FROM hadith_section WHERE edition = ? AND section = ?',
-          [edition, section['n']],
-        );
-        if (rows.isEmpty) {
-          continue;
+      final bnFolder = book['bn_folder'] as String? ?? '';
+      for (final (key, fromBn) in [
+        ('sections', false),
+        ('sections_bn', true),
+      ]) {
+        for (final section
+            in (book[key] as List? ?? const []).cast<Map<String, dynamic>>()) {
+          section.remove('refs');
+          final bn = fromBn && bnFolder.isNotEmpty;
+          final rows = bn
+              ? db.select(
+                  'SELECT data FROM hadith_bn_section '
+                  'WHERE book_id = ? AND section = ?',
+                  [book['id'], section['n']],
+                )
+              : db.select(
+                  'SELECT data FROM hadith_section '
+                  'WHERE edition = ? AND section = ?',
+                  [edition, section['n']],
+                );
+          if (rows.isEmpty) {
+            continue;
+          }
+          final data = rows.first.values.first! as List<int>;
+          final runs = refRuns(
+            bn
+                ? [for (final h in decodeBanglaBlob(data)) h.number]
+                : [for (final h in decodeEditionBlob(data)) h.referenceNumber],
+          );
+          section['refs'] = [
+            for (final (from, to) in runs) [from, to],
+          ];
         }
-        final hadiths = decodeEditionBlob(
-          rows.first.values.first! as List<int>,
-        );
-        if (hadiths.every((h) => h.ref.isEmpty)) {
-          continue;
-        }
-        final runs = refRuns([for (final h in hadiths) h.referenceNumber]);
-        section['refs'] = [
-          for (final (from, to) in runs) [from, to],
-        ];
       }
     }
   } finally {

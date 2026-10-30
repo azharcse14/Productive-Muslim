@@ -6,8 +6,20 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_book_catalog_data_source.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 import 'package:sqlite3/sqlite3.dart';
+
+/// Serves assets straight from the project tree, so the test parses the
+/// catalog through the app's own data source.
+final class _FileBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async =>
+      ByteData.sublistView(await File(key).readAsBytes());
+}
 
 void main() {
   const dbPath = 'assets/data/hadith.db';
@@ -178,14 +190,12 @@ void main() {
           'SELECT data FROM hadith_section WHERE edition = ? AND section = ?',
           [book['edition_ar'], s['n']],
         );
-        final hasRefs = data.any((h) => (h as Map)['r'] != null);
         final expected = <int>{
-          if (hasRefs)
-            for (final h in data.cast<Map<String, dynamic>>())
-              int.tryParse(
-                    leading.stringMatch(h['r'] as String? ?? '') ?? '',
-                  ) ??
-                  h['n'] as int,
+          for (final h in data.cast<Map<String, dynamic>>())
+            int.tryParse(
+                  leading.stringMatch(h['r'] as String? ?? '') ?? '',
+                ) ??
+                h['n'] as int,
         };
         final listed = <int>{
           for (final run
@@ -195,5 +205,62 @@ void main() {
         expect(listed, expected, reason: '${book['id']} section ${s['n']}');
       }
     }
+  });
+
+  group('go to hadith number', () {
+    late List<HadithBook> books;
+
+    setUpAll(() async {
+      books = await HadithBookCatalogDataSource(_FileBundle()).loadBooks();
+    });
+
+    /// The numbers the reader can focus on in [section] of [book] — what
+    /// its cards' `referenceNumber` is for that catalog's source.
+    Set<int> numbersIn(HadithBook book, HadithSection section, bool bn) {
+      final rows = bn
+          ? db.select(
+              'SELECT data FROM hadith_bn_section '
+              'WHERE book_id = ? AND section = ?',
+              [book.id, section.number],
+            )
+          : db.select(
+              'SELECT data FROM hadith_section '
+              'WHERE edition = ? AND section = ?',
+              [book.editionAr, section.number],
+            );
+      final data = rows.first.values.first! as List<int>;
+      return bn
+          ? {for (final h in decodeBanglaBlob(data)) h.number}
+          : {for (final h in decodeEditionBlob(data)) h.referenceNumber};
+    }
+
+    test('every bundled number opens a chapter that contains it', () {
+      for (final book in books) {
+        for (final lang in ['en', 'bn']) {
+          final bn = book.usesBanglaSource(lang);
+          final sections = book.sectionsFor(lang);
+          final held = [for (final s in sections) numbersIn(book, s, bn)];
+          for (final numbers in held) {
+            for (final n in numbers) {
+              // Same first-match rule as HadithSectionsScreen._goToNumber.
+              final i = sections.indexWhere((s) => s.holds(n));
+              expect(
+                i >= 0 && held[i].contains(n),
+                isTrue,
+                reason:
+                    '${book.id} $lang: $n opens '
+                    '${i < 0 ? 'nothing' : 'section ${sections[i].number}'}',
+              );
+            }
+          }
+        }
+      }
+    });
+
+    test('Tirmidhi 2160 opens the chapter that holds it', () {
+      final tirmidhi = books.firstWhere((b) => b.id == 'tirmidhi');
+      final section = tirmidhi.sections.firstWhere((s) => s.holds(2160));
+      expect(numbersIn(tirmidhi, section, false), contains(2160));
+    });
   });
 }
