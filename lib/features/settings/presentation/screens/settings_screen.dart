@@ -94,10 +94,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     QListRow(
                       icon: Icons.place_outlined,
                       title: l10n.settingLocation,
-                      subtitle:
-                          settings.location?.displayName.isNotEmpty ?? false
-                          ? settings.location!.displayName
-                          : l10n.settingLocationNotSet,
+                      subtitle: locationLabel(settings.location, l10n),
                       trailing: Icon(Icons.chevron_right, color: q.ink3),
                       onTap: () =>
                           context.pushNamed(Routes.locationPicker.name),
