@@ -80,6 +80,9 @@ final class ExpenseStore {
   /// Per-category monthly limits (for sadaqah, a goal); absent = none.
   late final categoryBudgets = signal(const <ExpenseCategory, int>{});
 
+  /// Stored budget entries this version can't read, written back as-is.
+  Map<String, Object?> _keptBudgets = const {};
+
   /// Largest accepted amount — keeps int totals far from overflow.
   static const maxAmount = 999999999999;
 
@@ -167,11 +170,21 @@ final class ExpenseStore {
     final storedBudgets = await _prefs.getString(_categoryBudgetKey);
     if (storedBudgets != null) {
       try {
-        categoryBudgets.value = {
-          for (final MapEntry(:key, :value)
-              in (jsonDecode(storedBudgets) as Map<String, dynamic>).entries)
-            ExpenseCategory.values.byName(key): value as int,
-        };
+        // Per entry: an unknown category (a newer version's) or a bad
+        // value is kept aside and written back, never dropping the rest.
+        final byName = ExpenseCategory.values.asNameMap();
+        final budgets = <ExpenseCategory, int>{};
+        final kept = <String, Object?>{};
+        for (final MapEntry(:key, :value)
+            in (jsonDecode(storedBudgets) as Map<String, dynamic>).entries) {
+          if ((byName[key], value) case (final category?, final int amount)) {
+            budgets[category] = amount;
+          } else {
+            kept[key] = value;
+          }
+        }
+        categoryBudgets.value = budgets;
+        _keptBudgets = kept;
       } on Object {
         // Corrupt payload: no category budgets rather than a crash.
       }
@@ -244,7 +257,10 @@ final class ExpenseStore {
     try {
       await _prefs.setString(
         _categoryBudgetKey,
-        jsonEncode({for (final e in next.entries) e.key.name: e.value}),
+        jsonEncode({
+          ..._keptBudgets,
+          for (final e in next.entries) e.key.name: e.value,
+        }),
       );
     } on Object {
       categoryBudgets.value = previous; // not saved: don't show it as set
