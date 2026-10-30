@@ -11,7 +11,7 @@ void main() {
       prayer: Prayer.maghrib,
     );
     // Pinned: must not change between runs (Object.hash is seeded per run).
-    expect(azan.id, 1959418894);
+    expect(azan.id, 702580228);
     expect(azan.id, inInclusiveRange(0, 0x7FFFFFFF));
     expect(
       NotificationItem(
@@ -28,6 +28,18 @@ void main() {
         prayer: Prayer.isha,
       ).id,
       isNot(azan.id),
+    );
+  });
+
+  test('kind codes are pinned (ids of pending notifications)', () {
+    expect(NotificationKind.values.map((k) => k.code), [
+      for (var i = 0; i <= 10; i++) i,
+    ]);
+    expect(
+      NotificationKind.values.every(
+        (k) => k.code < NotificationKind.kindCapacity,
+      ),
+      isTrue,
     );
   });
 

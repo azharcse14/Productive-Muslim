@@ -241,6 +241,7 @@ final class NotificationController {
       prayerNames: {
         for (final prayer in Prayer.values)
           prayer.name: l10n.prayerLabel(prayer),
+        jumuahNameKey: l10n.prayerJumuah,
       },
     );
   }

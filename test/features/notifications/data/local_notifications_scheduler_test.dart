@@ -16,6 +16,7 @@ import 'package:timezone/timezone.dart';
 /// Records schedule calls; throws for the ids in [failIds].
 final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   final scheduled = <int, NotificationDetails>{};
+  final titles = <int, String?>{};
   final failIds = <int>{};
   int cancelAllCalls = 0;
   int cancelPendingCalls = 0;
@@ -58,6 +59,7 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
       throw StateError('exact alarms revoked');
     }
     scheduled[id] = notificationDetails;
+    titles[id] = title;
   }
 
   // No platform implementation: exact alarms read as allowed.
@@ -249,6 +251,42 @@ void main() {
       ),
     );
     expect(plugin.initCalls, 2);
+  });
+
+  test("Friday's Dhuhr with a Jumu'ah time is named Jumu'ah", () async {
+    const texts = NotificationTexts(
+      azanTitle: '{prayer}',
+      azanBody: '',
+      jamaatTitle: '',
+      jamaatBody: '',
+      sahriTitle: '',
+      sahriBody: '',
+      iftarTitle: '',
+      iftarBody: '',
+      muhasabaTitle: '',
+      muhasabaBody: '',
+      dailyReminderTitle: '',
+      dailyReminderBody: '',
+      dailyReminderRoute: '/hadith',
+      keepAliveTitle: '',
+      keepAliveBody: '',
+      markAsPrayedAction: '',
+      channelAzanName: '',
+      channelRemindersName: '',
+      channelSilentName: '',
+      channelBeepName: '',
+      prayerNames: {'dhuhr': 'Dhuhr', jumuahNameKey: "Jumu'ah"},
+    );
+    final dhuhr = azan(Prayer.dhuhr);
+    final jumuah = NotificationItem(
+      kind: NotificationKind.azan,
+      prayer: Prayer.dhuhr,
+      at: at.add(const Duration(hours: 9)),
+      jumuah: true,
+    );
+    await scheduler.reschedule([dhuhr, jumuah], texts);
+    expect(plugin.titles[dhuhr.id], 'Dhuhr');
+    expect(plugin.titles[jumuah.id], "Jumu'ah");
   });
 
   test('beep and azan use different channels and urgency', () async {

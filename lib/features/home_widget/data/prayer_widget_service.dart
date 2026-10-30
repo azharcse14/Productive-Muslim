@@ -84,18 +84,16 @@ final class PrayerWidgetService {
           LocaleDigits.localize(DateFormat.jm(code).format(t), code);
 
       // Same rule as the prayer table: Friday Dhuhr reads Jumu'ah only when
-      // the active mosque has a Jumu'ah time.
-      final jumuah = switch (_mosque) {
-        final m? =>
-          resolveActiveMosque(m.state.value, now).profile?.config.jumuah !=
-              null,
-        null => false,
-      };
+      // the mosque active at that Dhuhr has a Jumu'ah time.
+      final mosqueState = _mosque?.state.value;
+      bool jumuahAt(DateTime at) =>
+          mosqueState != null &&
+          resolveActiveMosque(mosqueState, at).profile?.config.jumuah != null;
 
       final payload = buildWidgetPayload(
         days: days,
         nextPrayerLabel: l10n.widgetNextPrayerLabel,
-        prayerName: (p, at) => l10n.prayerLabelOn(p, at, jumuah: jumuah),
+        prayerName: (p, at) => l10n.prayerLabelOn(p, at, jumuah: jumuahAt(at)),
         formatTime: formatTime,
         locationLabel: locationLabel,
         setupAction: l10n.widgetSetupAction,

@@ -73,28 +73,42 @@ final class JamaatConfig {
   /// Resolved jamaat moment for [prayer] whose waqt begins at [waqtStart]
   /// (wall clock), or null when not configured.
   DateTime? timeFor(Prayer prayer, DateTime waqtStart) => switch (jumuah) {
-    final j?
-        when prayer == Prayer.dhuhr && waqtStart.weekday == DateTime.friday =>
-      DateTime(
-        waqtStart.year,
-        waqtStart.month,
-        waqtStart.day,
-        j.hour,
-        j.minute,
-      ),
+    final j? when isJumuah(prayer, waqtStart) => _near(waqtStart, j),
     _ => _entryTime(prayer, waqtStart),
   };
+
+  /// Whether [prayer] starting at [waqtStart] is Friday's Dhuhr with a
+  /// Jumu'ah time set — label it Jumu'ah then.
+  bool isJumuah(Prayer prayer, DateTime waqtStart) =>
+      jumuah != null &&
+      prayer == Prayer.dhuhr &&
+      waqtStart.weekday == DateTime.friday;
 
   DateTime? _entryTime(Prayer prayer, DateTime waqtStart) =>
       switch (entries[prayer]) {
         null || NoJamaat() => null,
-        FixedJamaat(:final time) => DateTime(
-          waqtStart.year,
-          waqtStart.month,
-          waqtStart.day,
-          time.hour,
-          time.minute,
-        ),
+        FixedJamaat(:final time) => _near(waqtStart, time),
         OffsetJamaat(:final offset) => waqtStart.add(offset),
       };
+
+  /// [time] on the calendar day within 12 h of [waqtStart]: an isha that
+  /// starts after midnight keeps a 23:45 jamaat on the same night, and an
+  /// evening isha puts a 00:15 jamaat after it.
+  static DateTime _near(DateTime waqtStart, ClockTime time) {
+    DateTime on(int day) => DateTime(
+      waqtStart.year,
+      waqtStart.month,
+      waqtStart.day + day,
+      time.hour,
+      time.minute,
+    );
+    final gap = on(0).difference(waqtStart);
+    if (gap > const Duration(hours: 12)) {
+      return on(-1);
+    }
+    if (gap < const Duration(hours: -12)) {
+      return on(1);
+    }
+    return on(0);
+  }
 }

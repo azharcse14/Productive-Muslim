@@ -523,8 +523,9 @@ DateTime _wallNow() {
 }
 
 /// Salah ids whose waqt hasn't begun on [date] at the location's clock —
-/// so muhasaba/home won't let them be checked off ahead of time. Past
-/// dates and no-location cases lock nothing (back-fill stays open).
+/// so muhasaba/home won't let them be checked off ahead of time. Older
+/// dates and no-location cases lock nothing (back-fill stays open);
+/// yesterday is checked too, as its isha can start after midnight.
 Set<String> _lockedSalahOn(DateTime date) {
   final settings = locator<SettingsStore>();
   final location = settings.location.value;
@@ -532,16 +533,15 @@ Set<String> _lockedSalahOn(DateTime date) {
     return const <String>{};
   }
   final now = locator<ZonedClock>().nowAt(location);
-  final today = DateTime(now.year, now.month, now.day);
   final d = DateTime(date.year, date.month, date.day);
-  if (d != today) {
-    // Past: already happened, fully open. Future can't be selected anyway.
+  final yesterday = DateTime(now.year, now.month, now.day - 1);
+  if (d.isBefore(yesterday)) {
     return const <String>{};
   }
   final day = locator<GetPrayerDay>()(
     location: location,
     params: settings.prayerParams.value,
-    date: today,
+    date: d,
   ).valueOrNull;
   if (day == null) {
     return const <String>{};

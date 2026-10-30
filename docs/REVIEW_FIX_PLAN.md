@@ -37,7 +37,8 @@ Findings that change this plan:
 - Alarm allowlist allows every `ACTION_SHOW_ALARMS` handler (not only a default); needs a
   `<queries>` manifest entry on Android 11+.
 - Cross-feature imports are 77, not ~40; data→presentation was 5 (incl. `local_auth_biometric`).
-- `NotificationKind.index` / `Prayer.index` build notification ids — owner to confirm that's acceptable.
+- ~~`NotificationKind.index` / `Prayer.index` build notification ids~~ — fixed 2026-10-30 (stable
+  `NotificationKind.code` + explicit prayer slots, branch `fix/deep-review-2026-10-30`).
 - `dart format` over `lib/` + `test/` reformats ~60 untouched files (formatter version drift).
 - A fresh worktree needs `flutter pub get` before `flutter gen-l10n`, or the l10n gate fails.
 

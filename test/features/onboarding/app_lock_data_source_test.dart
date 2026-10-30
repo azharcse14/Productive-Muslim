@@ -37,6 +37,19 @@ void main() {
     expect(own.values.keys, ['app_lock_v1']);
   });
 
+  for (final raw in [
+    'not json',
+    '{"salt":"s","biometric":true}',
+    '{"hash":1}',
+  ]) {
+    test('a stored payload without a PIN hash fails closed: $raw', () async {
+      final own = _MapPrefs()..values['app_lock_v1'] = raw;
+      final source = AppLockDataSource(own);
+      expect(await source.read(), (enabled: true, biometric: false));
+      expect(await source.verify(''), isFalse);
+    });
+  }
+
   test('the own store wins over a stale legacy copy', () async {
     final own = _MapPrefs();
     await AppLockDataSource(own).enable('1111', biometric: false);

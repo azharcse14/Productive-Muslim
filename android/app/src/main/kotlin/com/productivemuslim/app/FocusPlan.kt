@@ -31,11 +31,21 @@ object FocusPlan {
             from to to
         }
 
-    /** The window to start now: open, and not the one started last ([lastStart]). */
-    fun due(windows: List<Pair<Long, Long>>, now: Long, lastStart: Long): Pair<Long, Long>? =
+    /**
+     * The window to start now: open, not the one started last ([lastStart]),
+     * and not one that opened before the last jamaat session ended
+     * ([lastEnd]) — a plan re-sent mid-session (lead, length or jamaat time
+     * changed) moves that jamaat's start, and it must not run twice.
+     */
+    fun due(
+        windows: List<Pair<Long, Long>>,
+        now: Long,
+        lastStart: Long,
+        lastEnd: Long = 0L,
+    ): Pair<Long, Long>? =
         windows.firstOrNull { (from, to) ->
             val closes = if (to > 0) to else from + MANUAL_GRACE_MS
-            now >= from && from != lastStart && now < closes
+            now >= from && from != lastStart && from >= lastEnd && now < closes
         }
 
     /** Next alarm: the earliest future start, or the running session's end ([until]). */

@@ -8,12 +8,15 @@ import 'package:productive_muslim/features/notifications/domain/entities/notific
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 
 final class _FakeScheduler implements NotificationScheduler {
@@ -71,6 +74,31 @@ final class _FixedClock implements ZonedClock {
   @override
   DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
       real.utcInstantOf(location, wall);
+}
+
+/// High-latitude summer: every day's isha starts at 00:30 the next day.
+final class _LateIshaRepository implements PrayerDayRepository {
+  @override
+  Result<PrayerDay> prayerDay({
+    required LocationConfig location,
+    required PrayerParams params,
+    required DateTime date,
+  }) {
+    DateTime at(int day, int h, [int m = 0]) =>
+        DateTime(date.year, date.month, date.day + day, h, m);
+    return Result.success(
+      PrayerDay(
+        fajr: at(0, 2, 30),
+        sunrise: at(0, 4),
+        dhuhr: at(0, 13),
+        asr: at(0, 17),
+        maghrib: at(0, 22),
+        isha: at(1, 0, 30),
+        fajrTomorrow: at(1, 2, 30),
+        ishaYesterday: at(0, 0, 30),
+      ),
+    );
+  }
 }
 
 const _texts = NotificationTexts(
@@ -154,6 +182,23 @@ void main() {
         isTrue,
       );
       expect(plan.last.kind, NotificationKind.keepAlive);
+    });
+
+    test("keeps yesterday's isha that starts after midnight", () async {
+      final scheduler = _FakeScheduler();
+      await RescheduleNotifications(
+        getPrayerDay: GetPrayerDay(_LateIshaRepository()),
+        scheduler: scheduler,
+        clock: _FixedClock(DateTime(2026, 6, 15, 0, 10), TimezoneClock()),
+      )(
+        settings: const AppSettings(location: _dhaka),
+        texts: _texts,
+      );
+      final ishas = scheduler.lastPlan!.where(
+        (i) => i.kind == NotificationKind.azan && i.prayer == Prayer.isha,
+      );
+      expect(ishas.first.at, DateTime(2026, 6, 15, 0, 30));
+      expect(ishas.first.prayerDay, DateTime(2026, 6, 14));
     });
 
     Future<List<NotificationItem>> planFor(TargetPlatform platform) async {

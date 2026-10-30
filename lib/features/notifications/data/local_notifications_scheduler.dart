@@ -287,7 +287,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
 
   (String, String) _texts(NotificationItem item, NotificationTexts t) {
     final time = _formatTime(item.eventAt ?? item.at);
-    final prayer = t.prayerNames[item.prayer?.name] ?? '';
+    final prayer =
+        (item.jumuah ? t.prayerNames[jumuahNameKey] : null) ??
+        t.prayerNames[item.prayer?.name] ??
+        '';
     String f(String template) =>
         NotificationTexts.fill(template, prayer: prayer, time: time);
     return switch (item.kind) {

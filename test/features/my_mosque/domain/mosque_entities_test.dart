@@ -5,6 +5,35 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_stat
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 void main() {
+  group('JamaatConfig.timeFor', () {
+    test('fixed time lands on the same day for a normal waqt', () {
+      const config = JamaatConfig({Prayer.fajr: FixedJamaat(ClockTime(5, 0))});
+      expect(
+        config.timeFor(Prayer.fajr, DateTime(2026, 6, 15, 4, 30)),
+        DateTime(2026, 6, 15, 5),
+      );
+    });
+
+    test('isha starting after midnight keeps a late-evening jamaat on the '
+        'same night', () {
+      const config = JamaatConfig({
+        Prayer.isha: FixedJamaat(ClockTime(23, 45)),
+      });
+      expect(
+        config.timeFor(Prayer.isha, DateTime(2026, 6, 15, 0, 20)),
+        DateTime(2026, 6, 14, 23, 45),
+      );
+    });
+
+    test('an after-midnight jamaat follows an evening isha', () {
+      const config = JamaatConfig({Prayer.isha: FixedJamaat(ClockTime(0, 15))});
+      expect(
+        config.timeFor(Prayer.isha, DateTime(2026, 6, 14, 22)),
+        DateTime(2026, 6, 15, 0, 15),
+      );
+    });
+  });
+
   group('MosqueProfile', () {
     test('create defaults Maghrib to offset +5 minutes', () {
       final profile = MosqueProfile.create(id: 'p1', name: 'Home');

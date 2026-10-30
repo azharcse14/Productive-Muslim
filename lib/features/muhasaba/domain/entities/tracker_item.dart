@@ -58,6 +58,7 @@ final class TrackerItem {
   /// Whether [value] completes this item for a day.
   bool isDone(int value) => switch (dailyTarget) {
     null => value > 0,
+    final target when target <= 0 => value > 0,
     final target => value >= target,
   };
 

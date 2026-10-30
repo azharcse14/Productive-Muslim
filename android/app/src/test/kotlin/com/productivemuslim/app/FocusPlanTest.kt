@@ -34,6 +34,17 @@ class FocusPlanTest {
     }
 
     @Test
+    fun aWindowMovedMidSessionDoesNotRunAgain() {
+        // Session 1000..2000 ran; the re-sent plan moved its start to 1500.
+        val moved = listOf(1_500L to 2_500L, 5_000L to 6_000L)
+        assertNull(FocusPlan.due(moved, 2_000, lastStart = 1_000, lastEnd = 2_000))
+        assertEquals(
+            5_000L to 6_000L,
+            FocusPlan.due(moved, 5_000, lastStart = 1_000, lastEnd = 2_000),
+        )
+    }
+
+    @Test
     fun nextAlarmIsTheEarliestFutureStartOrTheActiveEnd() {
         assertEquals(1_000L, FocusPlan.nextAlarm(windows, 0, 0))
         assertEquals(5_000L, FocusPlan.nextAlarm(windows, 0, 1_000))

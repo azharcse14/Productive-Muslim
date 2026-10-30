@@ -8,9 +8,9 @@ import 'build_focus_windows.dart';
 
 /// Builds the notification plan (guide §5) as pure logic.
 ///
-/// [days] are consecutive [PrayerDay]s starting at [from]'s day — pass
-/// enough to cover [window] plus one so a late-evening [from] still fills
-/// the whole window. Only items strictly after [from] and within [window]
+/// [days] are consecutive [PrayerDay]s covering [window] — start the day
+/// before [from]'s (its isha may fall after midnight) and pass one spare so
+/// a late-evening [from] still fills the whole window. Only items strictly after [from] and within [window]
 /// are planned.
 ///
 /// [maxItems] caps the plan (iOS allows only 64 pending notifications);
@@ -53,6 +53,8 @@ List<NotificationItem> buildNotificationPlan({
     for (final prayer in Prayer.values) {
       final mode = matrix.modeFor(prayer);
       final start = day.startOf(prayer);
+      final config = jamaatAt?.call(start) ?? jamaat;
+      final jumuah = config.isJumuah(prayer, start);
       if (mode != AzanMode.off && inWindow(start)) {
         items.add(
           NotificationItem(
@@ -62,6 +64,7 @@ List<NotificationItem> buildNotificationPlan({
             at: start,
             silent: mode == AzanMode.silent,
             beepOnly: mode == AzanMode.beep,
+            jumuah: jumuah,
           ),
         );
       }
@@ -69,8 +72,7 @@ List<NotificationItem> buildNotificationPlan({
       // Jamaat reminder: requires the global toggle AND a configured
       // entry for this prayer.
       if (matrix.jamaatReminder) {
-        final jamaatTime =
-            (jamaatAt?.call(start) ?? jamaat).timeFor(prayer, start);
+        final jamaatTime = config.timeFor(prayer, start);
         if (jamaatTime != null) {
           final remindAt = jamaatTime.subtract(matrix.jamaatLead);
           if (inWindow(remindAt)) {
@@ -80,6 +82,7 @@ List<NotificationItem> buildNotificationPlan({
                 prayer: prayer,
                 at: remindAt,
                 eventAt: jamaatTime,
+                jumuah: jumuah,
               ),
             );
           }
@@ -90,7 +93,7 @@ List<NotificationItem> buildNotificationPlan({
     final date = DateTime(day.fajr.year, day.fajr.month, day.fajr.day);
     final ramadan =
         HijriDate.fromGregorian(date, offsetDays: hijriOffsetDays).month ==
-            HijriDate.ramadanMonth;
+        HijriDate.ramadanMonth;
 
     if (ramadan && matrix.sahriAlert) {
       final warnAt = day.sahriEnd.subtract(matrix.sahriLead);
@@ -127,8 +130,13 @@ List<NotificationItem> buildNotificationPlan({
       // Field constructor, not midnight + Duration: stays on the wall-clock
       // time across a DST shift.
       final minute = matrix.dailyReminderMinute;
-      final remindAt =
-          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
+      final remindAt = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        minute ~/ 60,
+        minute % 60,
+      );
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyReminder, at: remindAt),
@@ -138,8 +146,13 @@ List<NotificationItem> buildNotificationPlan({
 
     if (matrix.dailyAyahReminder) {
       final minute = matrix.dailyAyahMinute;
-      final remindAt =
-          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
+      final remindAt = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        minute ~/ 60,
+        minute % 60,
+      );
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyAyah, at: remindAt),
@@ -149,8 +162,13 @@ List<NotificationItem> buildNotificationPlan({
 
     if (matrix.dailyHadithReminder) {
       final minute = matrix.dailyHadithMinute;
-      final remindAt =
-          DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
+      final remindAt = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        minute ~/ 60,
+        minute % 60,
+      );
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyHadith, at: remindAt),
@@ -166,6 +184,7 @@ List<NotificationItem> buildNotificationPlan({
           kind: NotificationKind.jamaatFocus,
           prayer: focus.prayer,
           at: focus.start,
+          jumuah: focus.jumuah,
         ),
       );
     }
@@ -177,6 +196,7 @@ List<NotificationItem> buildNotificationPlan({
           prayer: focus.prayer,
           prayerDay: focus.prayerDay,
           at: end,
+          jumuah: focus.jumuah,
         ),
       );
     }

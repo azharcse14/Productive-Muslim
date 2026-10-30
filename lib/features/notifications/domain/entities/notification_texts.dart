@@ -1,6 +1,9 @@
 /// Localized notification copy, resolved from l10n by the caller and
 /// passed down so the scheduler stays free of Flutter/l10n imports.
 /// Templates may contain `{prayer}` and `{time}` placeholders.
+/// [NotificationTexts.prayerNames] key for the Jumu'ah name.
+const jumuahNameKey = 'jumuah';
+
 final class NotificationTexts {
   const NotificationTexts({
     required this.azanTitle,
@@ -87,7 +90,8 @@ final class NotificationTexts {
   final String dailyHadithTitle;
   final String dailyHadithBody;
 
-  /// Localized prayer display names keyed by `Prayer.name`.
+  /// Localized prayer display names keyed by `Prayer.name`, plus
+  /// [jumuahNameKey] for Friday's Dhuhr when a Jumu'ah time is set.
   final Map<String, String> prayerNames;
 
   static String fill(String template, {String prayer = '', String time = ''}) =>
