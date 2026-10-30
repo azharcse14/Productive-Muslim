@@ -62,15 +62,13 @@ final class AppLockDataSource implements AppLockStorage {
       return (enabled: false, biometric: false);
     }
     final map = _decode(raw);
-    if (map == null) {
-      // Unreadable: fail closed. No PIN verifies, so "Forgot PIN?" (device
-      // lock) is the way back in, never a silent unlock.
+    if (map == null || map['hash'] is! String) {
+      // Unreadable or no PIN hash ([disable] removes the key, so a stored
+      // payload means the lock is on): fail closed. No PIN verifies, so
+      // "Forgot PIN?" (device lock) is the way back in, never a silent unlock.
       return (enabled: true, biometric: false);
     }
-    return (
-      enabled: map['hash'] is String,
-      biometric: map['biometric'] == true,
-    );
+    return (enabled: true, biometric: map['biometric'] == true);
   }
 
   /// The stored JSON object, or null when it is corrupt.
