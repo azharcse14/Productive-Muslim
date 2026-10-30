@@ -1,0 +1,40 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSFaceIDUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "অ্যাপ লক চালু থাকলে প্রোডাক্টিভ মুসলিম ফেস আইডি দিয়ে অ্যাপ আনলক করে।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productive Muslim uses Face ID to unlock the app when app lock is on."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "প্রোডাক্টিভ মুসলিম আপনার অবস্থান এই ডিভাইসেই নামাজের সময় ও কিবলার দিক হিসাবের জন্য ব্যবহার করে। আপনি নিজে ম্যাপে কাছের মসজিদ খুললে তবেই তা শেয়ার হয়।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
