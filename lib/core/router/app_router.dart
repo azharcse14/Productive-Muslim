@@ -95,6 +95,9 @@ GoRouter buildRouter() {
         lockGatePassed = true;
       }
       if (path == Routes.lock.path) {
+        if (_pendingDeepLink != null) {
+          return Routes.home.path; // home opens the link parked at the gate
+        }
         final from = state.uri.queryParameters[_lockFromParam];
         // Only in-app paths; never an absolute URL.
         return from != null && from.startsWith('/') && !from.startsWith('//')
@@ -403,14 +406,18 @@ final _shellRoots = [
 var _splashDone = false;
 
 /// Opens an in-app [location] from outside the widget tree (notification
-/// taps). While the splash still owns cold-start navigation the link is
-/// parked and applied when splash hands off to home.
+/// taps). While the splash or the cold-start PIN gate still owns navigation
+/// the link is parked and applied once home is reached (after unlock).
 void openDeepLink(String location) {
   // Only in-app paths; never an absolute URL.
   if (!location.startsWith('/') || location.startsWith('//')) {
     return;
   }
-  if (_splashDone) {
+  // The redirect keeps /lock only until the first unlock (later re-locks
+  // use the overlay), so this is the cold-start gate: navigating now would
+  // be redirected to /lock and, after unlock, leave the page with no home
+  // beneath it.
+  if (_splashDone && appRouter.state.uri.path != Routes.lock.path) {
     final path = Uri.parse(location).path;
     final inShell = _shellRoots.any(
       (root) => path == root || path.startsWith('$root/'),
