@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/storage/json_prefs.dart';
 import '../../domain/entities/mosque_state.dart';
 import '../models/mosque_state_model.dart';
 
@@ -19,20 +20,12 @@ final class MosqueLocalDataSource {
   final SharedPreferencesAsync _prefs;
 
   Future<MosqueState> read() async {
-    final raw = await _prefs.getString(_key);
-    if (raw == null) {
-      return const MosqueState();
-    }
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map) {
-        return MosqueStateModel.fromMap(decoded.cast<String, Object?>());
-      }
-    } on FormatException {
-      // fall through to quarantine
-    }
-    await _prefs.setString(unreadableKey, raw);
-    return const MosqueState();
+    final map = await readJsonObject(
+      _prefs,
+      _key,
+      unreadableKey: unreadableKey,
+    );
+    return map == null ? const MosqueState() : MosqueStateModel.fromMap(map);
   }
 
   Future<void> write(MosqueState state) =>

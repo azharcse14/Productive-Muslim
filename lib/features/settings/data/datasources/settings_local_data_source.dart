@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/storage/json_prefs.dart';
 import '../../domain/entities/app_settings.dart';
 import '../models/app_settings_model.dart';
 
@@ -19,20 +20,12 @@ final class SettingsLocalDataSource {
   final SharedPreferencesAsync _prefs;
 
   Future<AppSettings> read() async {
-    final raw = await _prefs.getString(_key);
-    if (raw == null) {
-      return const AppSettings();
-    }
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map) {
-        return AppSettingsModel.fromMap(decoded.cast<String, Object?>());
-      }
-    } on FormatException {
-      // fall through to quarantine
-    }
-    await _prefs.setString(unreadableKey, raw);
-    return const AppSettings();
+    final map = await readJsonObject(
+      _prefs,
+      _key,
+      unreadableKey: unreadableKey,
+    );
+    return map == null ? const AppSettings() : AppSettingsModel.fromMap(map);
   }
 
   Future<void> write(AppSettings settings) =>
