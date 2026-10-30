@@ -173,7 +173,12 @@ final class _Tile extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     String time(DateTime at) => formatHomeTime(context, at);
-    final prayer = item.prayer == null ? '' : l10n.prayerLabel(item.prayer!);
+    // Same name the OS notification carries (Jumu'ah on a Friday Dhuhr).
+    final prayer = switch (item.prayer) {
+      null => '',
+      _ when item.jumuah => l10n.prayerJumuah,
+      final p => l10n.prayerLabel(p),
+    };
     final dua = matrix.dailyReminderKind == DailyContentKind.dua;
     // (icon, title, body, route) — routes mirror the notification payloads.
     final (icon, title, body, route) = switch (item.kind) {
