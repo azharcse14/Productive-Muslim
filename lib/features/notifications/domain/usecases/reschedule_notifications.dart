@@ -70,9 +70,10 @@ final class RescheduleNotifications {
 
     final now = _clock.nowAt(location);
     final days = <PrayerDay>[];
-    // Whole days in the window, plus today and one spare for a late start.
+    // Yesterday (its isha can start after midnight at high latitudes), today,
+    // whole days in the window, and one spare for a late start.
     final dayCount = (_window.inHours / 24).ceil() + 2;
-    for (var offset = 0; offset < dayCount; offset++) {
+    for (var offset = -1; offset < dayCount; offset++) {
       final result = _getPrayerDay(
         location: location,
         params: settings.prayerParams,

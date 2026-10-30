@@ -8,9 +8,9 @@ import 'build_focus_windows.dart';
 
 /// Builds the notification plan (guide §5) as pure logic.
 ///
-/// [days] are consecutive [PrayerDay]s starting at [from]'s day — pass
-/// enough to cover [window] plus one so a late-evening [from] still fills
-/// the whole window. Only items strictly after [from] and within [window]
+/// [days] are consecutive [PrayerDay]s covering [window] — start the day
+/// before [from]'s (its isha may fall after midnight) and pass one spare so
+/// a late-evening [from] still fills the whole window. Only items strictly after [from] and within [window]
 /// are planned.
 ///
 /// [maxItems] caps the plan (iOS allows only 64 pending notifications);

@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review fix 1** (branch `fix/deep-review-2026-10-30`): `RescheduleNotifications` now builds yesterday's `PrayerDay` too, so an isha that starts after midnight (high-latitude summer) stays in the plan when a reschedule runs between midnight and its start | notifications domain tests green (+1 late-isha test) |
 | 2026-10-29 | **Review fix plan — stop point.** Replaced `docs/REVIEW_FIX_PLAN.md` with the owner's revision (adds 1.2 worklog backfill and 4.5 end-to-end flow test) and a Status section listing what's done and what's left (1.2 backfill, 4.5, three 5.2 refactors, Phase 6, owner decisions). Corrected the Phase 5 baseline counts in the rows below (96 → 94 → 93 → 92). | Docs only |
 | 2026-10-29 | **Review fix plan 5.2 — jamaat focus page behind a domain interface:** new `notifications/domain/repositories/jamaat_focus_control.dart` (`JamaatFocusControl` + `FocusStatus`); `JamaatFocusBridge` implements it and is registered in the locator; `_JamaatFocusCard` gets it injected instead of constructing the bridge. | No behavior change. Baseline 93 → 92. |
 | 2026-10-29 | **Review fix plan 5.2 — qibla sensor seam in domain:** `CompassSensorSource` and `SensorVectors` moved from `sensor_data_source.dart` to `qibla/domain/repositories/compass_sensor_source.dart`; `QiblaStore` imports only domain. | No behavior change. Baseline 94 → 93. |
