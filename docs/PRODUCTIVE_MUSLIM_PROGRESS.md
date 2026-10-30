@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review round 2, fixes 8 + 12:** muhasaba streak queries (`_doneDates`, `doneDates`) skip unknown-kind (hidden) items, as completion already did. `MuhasabaStore._setOn` checks that the item is a salah before running the prayer-time lock, and its stale comment is updated | muhasaba green (+1 streak test) |
 | 2026-10-30 | **Deep review round 2, fix 7:** Home's countdown, day timeline, prayer table and detail sheet take the Jumu'ah label from the new memoized `HomeStore.jumuahToday` (the mosque active at today's Friday Dhuhr, not now), the same rule as notifications and the widget. `PrayerTable` gets a `jumuah` flag | prayer_times green (+1 schedule test, fails without the fix) |
 | 2026-10-30 | **Deep review round 2, fixes 6 + 15:** the locator's widget effect also watches `MosqueStore.state`, so a mosque edit (Jumu'ah time, active mosque, rules) refreshes the home-screen widget. `PrayerWidgetService` resolves the mosque only for Friday Dhuhr lines, not ~70 times per update | analyze clean; home_widget tests green (the effect is locator glue) |
 | 2026-10-30 | **Deep review round 2, fixes 5 + 10:** the notification inbox names an item "Jumu'ah" when `NotificationItem.jumuah` is set, matching what the OS shows. The `NotificationTexts` class doc is moved back above the class (`jumuahNameKey` had split it off) | notifications green (+1 inbox widget test, fails without the fix) |

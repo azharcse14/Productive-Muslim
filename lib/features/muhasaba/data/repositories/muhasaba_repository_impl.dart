@@ -340,7 +340,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
             'FROM daily_entries e '
             'INNER JOIN tracker_items i ON i.id = e.item_id '
             'WHERE e.item_id IN (${List.filled(itemIds.length, '?').join(', ')}) '
-            'AND ($_doneCase)',
+            'AND $_knownKind AND ($_doneCase)',
             variables: [for (final id in itemIds) Variable<String>(id)],
             readsFrom: {_db.dailyEntries, _db.trackerItems},
           )
@@ -380,15 +380,15 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   }
 
   /// yyyymmdd codes of days in [from]..[to] with at least one completed
-  /// item. Archived items count (history is never lost), matching the
-  /// achievements' streaks.
+  /// item. Archived items count (history is never lost) and hidden
+  /// unknown-kind ones don't, matching the achievements' streaks.
   Future<Set<int>> _doneDates(int from, int to) async {
     final rows = await _db
         .customSelect(
           'SELECT DISTINCT e.date AS day '
           'FROM daily_entries e '
           'INNER JOIN tracker_items i ON i.id = e.item_id '
-          'WHERE e.date BETWEEN ? AND ? AND ($_doneCase)',
+          'WHERE e.date BETWEEN ? AND ? AND $_knownKind AND ($_doneCase)',
           variables: [Variable<int>(from), Variable<int>(to)],
           readsFrom: {_db.dailyEntries, _db.trackerItems},
         )
