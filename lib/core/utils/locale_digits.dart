@@ -31,10 +31,14 @@ abstract final class LocaleDigits {
   /// Inverse of [localize] for parsing user input: maps Bengali (০-৯),
   /// Arabic-Indic (٠-٩) and Extended Arabic-Indic (۰-۹) digits to ASCII,
   /// the Arabic decimal separator (٫) to '.', and strips thousands
-  /// separators ('٬' and whitespace). ',' is grouping when a '.' is present,
-  /// it repeats, or 3 digits follow it ("1,000", "1,00,000"); otherwise it
-  /// is a decimal comma ("12,5" from a European keypad). Feed the result to
-  /// `double.tryParse` / `int.tryParse`.
+  /// separators ('٬' and whitespace). Then ',' versus '.':
+  /// - both present: whichever comes last is the decimal separator and the
+  ///   other is grouping ("1,234.50" → 1234.50, "1.000,50" → 1000.50);
+  /// - several commas: grouping ("1,00,000" → 100000);
+  /// - one comma: grouping only in the "1,000" shape (non-zero integer part
+  ///   of 1–3 digits, exactly 3 digits after); otherwise a decimal comma
+  ///   ("12,5", "0,500", ",500").
+  /// Feed the result to `double.tryParse` / `int.tryParse`.
   static String toAscii(String input) {
     final buffer = StringBuffer();
     for (final rune in input.runes) {
@@ -53,15 +57,19 @@ abstract final class LocaleDigits {
       }
     }
     final out = buffer.toString();
-    final comma = out.indexOf(',');
-    if (comma != -1 &&
-        !out.contains('.') &&
-        comma == out.lastIndexOf(',') &&
-        !RegExp(r',\d{3}$').hasMatch(out)) {
-      return out.replaceFirst(',', '.');
-    }
-    return out.replaceAll(',', '');
+    final comma = out.lastIndexOf(',');
+    if (comma == -1) return out;
+    final dot = out.lastIndexOf('.');
+    final decimalComma = dot != -1
+        ? comma > dot
+        : comma == out.indexOf(',') && !_thousands.hasMatch(out);
+    if (!decimalComma) return out.replaceAll(',', '');
+    return '${out.substring(0, comma).replaceAll(RegExp('[.,]'), '')}'
+        '.${out.substring(comma + 1)}';
   }
+
+  /// A lone comma that reads as grouping: "1,000" but not "0,500".
+  static final _thousands = RegExp(r'^[-+]?[1-9]\d{0,2},\d{3}$');
 
   static bool _isSpace(int rune) => String.fromCharCode(rune).trim().isEmpty;
 }

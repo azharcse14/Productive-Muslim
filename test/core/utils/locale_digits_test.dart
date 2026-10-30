@@ -48,6 +48,22 @@ void main() {
       expect(int.tryParse(LocaleDigits.toAscii('12,5')), isNull);
     });
 
+    test('a lone comma with a zero or empty integer part is decimal', () {
+      expect(double.tryParse(LocaleDigits.toAscii('0,500')), 0.5);
+      expect(double.tryParse(LocaleDigits.toAscii(',500')), 0.5);
+      expect(double.tryParse(LocaleDigits.toAscii('1234,567')), 1234.567);
+      expect(LocaleDigits.toAscii('12,500'), '12500');
+    });
+
+    test('with both separators the last one is the decimal point', () {
+      expect(double.tryParse(LocaleDigits.toAscii('1.000,50')), 1000.5);
+      expect(double.tryParse(LocaleDigits.toAscii('1.234.567,89')), 1234567.89);
+      expect(double.tryParse(LocaleDigits.toAscii('1,234,567.89')), 1234567.89);
+      expect(double.tryParse(LocaleDigits.toAscii('১.০০০,৫০')), 1000.5);
+      expect(LocaleDigits.toAscii('1,234,567'), '1234567');
+      expect(LocaleDigits.toAscii('12.5'), '12.5');
+    });
+
     test('round-trips localize', () {
       expect(LocaleDigits.toAscii(LocaleDigits.localize('9876', 'bn')), '9876');
     });
