@@ -48,8 +48,9 @@ Future<_Repo> _pumpToLocationStep(
   WidgetTester tester, {
   PrayerParams params = const PrayerParams(),
   bool rerun = false,
+  LocationConfig location = _cairo,
 }) async {
-  final repo = _Repo(AppSettings(location: _cairo, prayerParams: params));
+  final repo = _Repo(AppSettings(location: location, prayerParams: params));
   final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await store.load();
   GetIt.I
@@ -93,9 +94,7 @@ void main() {
     expect(repo.stored.prayerParams.madhab, Madhab.maliki);
   });
 
-  testWidgets('a rerun keeps a saved Hanafi / Karachi choice', (
-    tester,
-  ) async {
+  testWidgets('a rerun keeps a saved Hanafi / Karachi choice', (tester) async {
     final repo = await _pumpToLocationStep(tester, rerun: true);
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
@@ -130,5 +129,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Bismillah'), findsOneWidget);
     expect(find.text('Begin'), findsOneWidget);
+  });
+
+  testWidgets('a GPS fix with no nearby city reads "Current location"', (
+    tester,
+  ) async {
+    await _pumpToLocationStep(
+      tester,
+      location: const GpsLocation(latitude: 10, longitude: 20),
+    );
+    expect(find.text('Current location'), findsOneWidget);
+    expect(find.text('Not set'), findsNothing);
   });
 }

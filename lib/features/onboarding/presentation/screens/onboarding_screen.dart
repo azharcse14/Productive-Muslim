@@ -344,9 +344,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               child: QListRow(
                 icon: Icons.place_outlined,
-                title: location?.displayName.isNotEmpty ?? false
-                    ? location!.displayName
-                    : context.l10n.settingLocationNotSet,
+                title: locationLabel(location, context.l10n),
                 subtitle: context.l10n.locationPrimingBody,
                 trailing: Icon(Icons.chevron_right, color: context.q.ink3),
                 onTap: () => context.pushNamed(Routes.locationPicker.name),

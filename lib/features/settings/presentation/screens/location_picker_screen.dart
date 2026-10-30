@@ -53,6 +53,10 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   /// Bumped per search; a response from an older query is dropped.
   var _searchGen = 0;
 
+  /// Bumped per GPS request and by a manual city pick, so a fix that
+  /// lands after the user chose a city is dropped instead of overwriting it.
+  var _gpsGen = 0;
+
   /// Last query searched, for retrying a failed search.
   var _query = '';
 
@@ -112,8 +116,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   Future<void> _useGps() async {
     _gpsBusy.value = true;
     _gpsFailure.value = null;
+    final gen = ++_gpsGen;
     final result = await _getLocation();
-    if (!mounted) {
+    if (gen != _gpsGen || !mounted) {
       return;
     }
     _gpsBusy.value = false;
@@ -125,7 +130,11 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
     }
   }
 
-  Future<void> _selectCity(City city) => _apply(ManualCityLocation(city));
+  Future<void> _selectCity(City city) {
+    _gpsGen++;
+    _gpsBusy.value = false;
+    return _apply(ManualCityLocation(city));
+  }
 
   /// Saves [location] and closes. A later move to another country (not
   /// during first setup, whose own steps pre-select these) offers that
