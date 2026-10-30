@@ -31,6 +31,11 @@ const _existedOnEntryDay =
     '(i.created_on IS NULL OR e.date >= i.created_on) '
     'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on))';
 
+/// SQL fragment: item `i` has a kind this build knows — unknown kinds are
+/// hidden from the UI, so they count toward no completion either.
+final _knownKind =
+    'i.kind IN (${TrackerKind.values.map((k) => k.code).join(', ')})';
+
 /// SQL fragment: whether an entry value completes its item for a day
 /// (mirrors `TrackerItem.isDone`).
 const _doneCase =
@@ -224,6 +229,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         return spans
             .where(
               (r) =>
+                  TrackerKind.fromCode(r.kind) != null &&
                   (r.createdOn == null || r.createdOn! <= code) &&
                   (!r.archived ||
                       (r.archivedOn != null && code < r.archivedOn!)),
@@ -360,7 +366,8 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'END) AS REAL) AS fraction_sum '
           'FROM daily_entries e '
           'INNER JOIN tracker_items i ON i.id = e.item_id '
-          'WHERE ($_existedOnEntryDay) AND e.date BETWEEN ? AND ? '
+          'WHERE ($_existedOnEntryDay) AND $_knownKind '
+          'AND e.date BETWEEN ? AND ? '
           'GROUP BY e.date',
           variables: [Variable<int>(from), Variable<int>(to)],
           readsFrom: {_db.dailyEntries, _db.trackerItems},

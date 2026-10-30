@@ -61,6 +61,22 @@ void main() {
       final raw = await db.select(db.trackerItems).get();
       expect(raw.firstWhere((r) => r.id == 'future').kind, 99);
     });
+
+    test('a hidden unknown-kind item does not cap completion', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('future', sortOrder: 1)));
+      final day = DateTime(2026, 6, 12);
+      await unwrap(repo.setEntry(_entry('a', day, 1)));
+      await unwrap(repo.setEntry(_entry('future', day, 1)));
+      await db.customStatement(
+        "UPDATE tracker_items SET kind = 99 WHERE id = 'future'",
+      );
+
+      final stats = await unwrap(
+        repo.periodStats(start: day, end: day, today: day),
+      );
+      expect(stats.days.single.completion, 1.0);
+    });
   });
 
   group('seedDefaults', () {

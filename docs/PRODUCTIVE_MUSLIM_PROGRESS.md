@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review fixes 10 + 12:** `TrackerItem.isDone` treats a non-positive target like no target (`value > 0`), matching SQL `_doneCase`; `periodStats` leaves unknown-kind (hidden) items out of both the day denominator (`countOn`) and the fraction sums, so ticking every visible item reaches 100% | muhasaba tests green (+2) |
 | 2026-10-30 | **Deep review fix 9:** `AppLockDataSource.read` fails closed for any stored payload without a String `hash` (not only undecodable JSON) — `disable` removes the key, so a stored payload means the lock is on | onboarding tests green (+3) |
 | 2026-10-30 | **Deep review fix 6:** notifications name Friday's Dhuhr "Jumu'ah" when the mosque has a Jumu'ah time, matching Home and the widget: new `JamaatConfig.isJumuah`; `NotificationItem` / `FocusWindow` carry a `jumuah` flag (azan, jamaat reminder, focus nudge, focus end); the scheduler looks up `prayerNames[jumuahNameKey]`, which the controller fills with `prayerJumuah` | notifications / my_mosque / home_widget green (+2) |
 | 2026-10-30 | **Deep review fix 5:** `JamaatFocus.stop` records `lastEnd` for jamaat sessions and `FocusPlan.due` skips windows that opened before it, so a plan re-sent mid-session (lead, length or jamaat time changed) can't start the same jamaat's session a second time; nafs sessions don't set it | `:app:testDebugUnitTest` green (+1 `FocusPlanTest`) |
