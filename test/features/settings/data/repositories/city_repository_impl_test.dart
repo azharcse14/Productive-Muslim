@@ -25,6 +25,9 @@ const _sample = [
   ['Mecca', 'SA', 21.4267, 39.8261, 'Asia/Riyadh'],
   ['New London', 'US', 41.3556, -72.0995, 'America/New_York'],
   ['Bāndarban', 'BD', 22.1953, 92.2184, 'Asia/Dhaka'],
+  ['Eskişehir', 'TR', 39.7767, 30.5206, 'Europe/Istanbul'],
+  ['Al Ḩudaydah', 'YE', 14.7978, 42.9545, 'Asia/Aden'],
+  ['Gdańsk', 'PL', 54.352, 18.6464, 'Europe/Warsaw'],
   ['Bogra District', 'BD', 24.85, 89.37, 'Asia/Dhaka', 'বগুড়া জেলা'],
 ];
 
@@ -56,6 +59,20 @@ void main() {
       final result = await _repo().search('bandarban');
       expect(result.valueOrNull!.single.name, 'Bāndarban');
     });
+
+    test(
+      'search folds Turkish, Arabic-transliteration and Polish marks',
+      () async {
+        for (final (query, name) in [
+          ('eskisehir', 'Eskişehir'),
+          ('al hudaydah', 'Al Ḩudaydah'),
+          ('gdansk', 'Gdańsk'),
+        ]) {
+          final result = await _repo().search(query);
+          expect(result.valueOrNull!.single.name, name, reason: query);
+        }
+      },
+    );
 
     test('search matches the Bengali name by prefix', () async {
       final result = await _repo().search('বগুড়া');
