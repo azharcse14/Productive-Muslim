@@ -120,9 +120,11 @@ final class HadithSection {
   final int? first;
   final int? last;
 
-  /// Runs (from, to) of the standard reference numbers this section holds,
-  /// for books whose displayed reference differs from the internal number
-  /// (Sahih Muslim). Empty: [first]..[last] are the reference numbers.
+  /// Runs (from, to) of the numbers this section's cards show (Sahih
+  /// Muslim's standard reference, else the hadith number). Preferred over
+  /// [first]..[last], which upstream stray numbers make overlap (Tirmidhi
+  /// §32 lists 2133–2298 though §33 starts at 2158). Empty: fall back to
+  /// [first]..[last].
   final List<(int, int)> refs;
 
   /// Whether "go to hadith [number]" lands in this section.
