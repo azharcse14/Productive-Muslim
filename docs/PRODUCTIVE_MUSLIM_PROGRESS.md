@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review fix 13:** notification ids no longer use `.index` (CLAUDE.md persisted-enum rule): `NotificationKind` carries a pinned `code` (0–10, the old indexes), prayers map to explicit slots, and the id layout reserves `kindCapacity` = 16 kinds so adding one never shifts ids. Every id changes once on upgrade, which is harmless because each reschedule cancels all pending notifications first. Marked resolved in `REVIEW_FIX_PLAN.md` | notifications tests green (id re-pinned, +1 code-pin test) |
 | 2026-10-30 | **Deep review fix 11:** `PrayerWidgetService` resolves the active mosque at each prayer's time (not once at `now`) for the Jumu'ah label, so a schedule rule that switches mosque on Friday is honoured across the 7-day payload | new `prayer_widget_service_test.dart` (fails without the fix) |
 | 2026-10-30 | **Deep review fixes 10 + 12:** `TrackerItem.isDone` treats a non-positive target like no target (`value > 0`), matching SQL `_doneCase`; `periodStats` leaves unknown-kind (hidden) items out of both the day denominator (`countOn`) and the fraction sums, so ticking every visible item reaches 100% | muhasaba tests green (+2) |
 | 2026-10-30 | **Deep review fix 9:** `AppLockDataSource.read` fails closed for any stored payload without a String `hash` (not only undecodable JSON) — `disable` removes the key, so a stored payload means the lock is on | onboarding tests green (+3) |
