@@ -106,5 +106,17 @@ final class RamadanStore {
     return rows;
   });
 
+  /// The row for the day after [day], or null past the month's end or
+  /// when that day's times failed to compute (the table skips it).
+  RamadanRow? rowAfter(DateTime day) {
+    final next = DateTime(day.year, day.month, day.day + 1);
+    for (final row in monthRows.value) {
+      if (row.$1 == next) {
+        return row;
+      }
+    }
+    return null;
+  }
+
   void dispose() => _ticker.cancel();
 }
