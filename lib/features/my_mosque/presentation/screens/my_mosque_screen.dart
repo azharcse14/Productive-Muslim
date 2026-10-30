@@ -199,13 +199,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
     }
     final start = day.startOf(prayer);
     final end = day.endOf(prayer);
-    final at = DateTime(
-      start.year,
-      start.month,
-      start.day,
-      entry.time.hour,
-      entry.time.minute,
-    );
+    final at = JamaatConfig.placeNear(start, entry.time);
     if (!at.isBefore(start) && at.isBefore(end)) {
       return null;
     }

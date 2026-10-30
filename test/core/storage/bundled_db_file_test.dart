@@ -109,7 +109,9 @@ void main() {
       addTearDown(db.close);
       expect(db.userVersion, QuranDatabase.bundledVersion);
       expect(
-        db.select('SELECT ayah_id FROM bookmarks ORDER BY 1').map((r) => r['ayah_id']),
+        db
+            .select('SELECT ayah_id FROM bookmarks ORDER BY 1')
+            .map((r) => r['ayah_id']),
         [7, 255],
       );
       expect(db.select('SELECT surah, ayah FROM last_read').first.values, [
@@ -118,6 +120,31 @@ void main() {
       ]);
       // The asset's own tables came across too.
       expect(db.select('SELECT COUNT(*) FROM ayahs').first.values.first, 6236);
+    },
+  );
+
+  test(
+    'a NULL last_read row is dropped instead of blocking the upgrade',
+    () async {
+      final target = File(p.join(support.path, 'quran.db'));
+      sqlite.sqlite3.open(target.path)
+        ..execute('PRAGMA user_version = 0')
+        ..execute('CREATE TABLE bookmarks(ayah_id INTEGER PRIMARY KEY)')
+        ..execute('INSERT INTO bookmarks VALUES (7)')
+        ..execute(
+          'CREATE TABLE last_read(id INTEGER PRIMARY KEY CHECK(id = 1), '
+          'surah INTEGER, ayah INTEGER)',
+        )
+        ..execute('INSERT INTO last_read VALUES (1, NULL, 10)')
+        ..close();
+
+      await QuranDatabase.ensureCopied(target, () => asset('quran.db'));
+
+      final db = sqlite.sqlite3.open(target.path);
+      addTearDown(db.close);
+      expect(db.userVersion, QuranDatabase.bundledVersion);
+      expect(db.select('SELECT ayah_id FROM bookmarks').length, 1);
+      expect(db.select('SELECT * FROM last_read'), isEmpty);
     },
   );
 

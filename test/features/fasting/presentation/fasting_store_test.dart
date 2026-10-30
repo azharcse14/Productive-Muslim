@@ -65,6 +65,30 @@ void main() {
       expect(s.isLogged(day), isFalse);
     });
 
+    test('a failed second write leaves memory matching storage', () async {
+      final day = DateTime(2026, 6, 10);
+      // Adding a qaza: the qaza key is written first, so its failure
+      // leaves nothing logged on disk either.
+      SharedPreferencesAsyncPlatform.instance = _KeyFailingPrefs(
+        'fasting_qaza_v1',
+      );
+      final s = store();
+      await expectLater(s.toggle(day, asQaza: true), throwsStateError);
+      expect(s.isLogged(day), isFalse);
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.isLogged(day), isFalse);
+    });
+
+    test('a failed qaza-owed write rolls the count back', () async {
+      SharedPreferencesAsyncPlatform.instance = _KeyFailingPrefs(
+        'fasting_qaza_owed',
+      );
+      final s = store();
+      await expectLater(s.setQazaOwed(5), throwsStateError);
+      expect(s.qazaOwed.value, isNull);
+    });
+
     test('logging ignores time-of-day', () async {
       final s = store();
       await s.load();
@@ -190,4 +214,29 @@ base class _FailingReadPrefs extends InMemorySharedPreferencesAsync {
   ) async => failReads
       ? throw StateError('unreadable')
       : super.getStringList(key, options);
+}
+
+/// Fails every write to [key].
+base class _KeyFailingPrefs extends InMemorySharedPreferencesAsync {
+  _KeyFailingPrefs(this.key) : super.empty();
+
+  final String key;
+
+  @override
+  Future<bool> setStringList(
+    String key,
+    List<String> value,
+    SharedPreferencesOptions options,
+  ) async => key == this.key
+      ? throw StateError('disk full')
+      : super.setStringList(key, value, options);
+
+  @override
+  Future<bool> setInt(
+    String key,
+    int value,
+    SharedPreferencesOptions options,
+  ) async => key == this.key
+      ? throw StateError('disk full')
+      : super.setInt(key, value, options);
 }

@@ -794,7 +794,8 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date.isAfter(now) ? now : _date,
-      firstDate: DateTime(2000),
+      // An imported entry may predate 2000; the picker asserts on it.
+      firstDate: _date.isBefore(DateTime(2000)) ? _date : DateTime(2000),
       lastDate: now,
     );
     if (picked != null) {

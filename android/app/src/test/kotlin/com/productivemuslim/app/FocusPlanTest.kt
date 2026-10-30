@@ -119,4 +119,25 @@ class FocusPlanTest {
     fun allowlistWithoutDialerOrKeyboard() {
         assertFalse(FocusPlan.allowed("com.x", "own", dialer = null, ime = null, clocks = emptySet()))
     }
+
+    @Test
+    fun inexactAlarmsHopHalfwayUntilClose() {
+        val min = 60_000L
+        // 8 h away: halfway, so a deferral can't overshoot the window.
+        assertEquals(4 * 60 * min, FocusPlan.inexactHop(8 * 60 * min, 0L))
+        // Within 10 min: aim at the target itself.
+        assertEquals(10 * min, FocusPlan.inexactHop(10 * min, 0L))
+        // A worst-case (75%) deferral of every hop still lands before the start.
+        var now = 0L
+        val at = 8 * 60 * min
+        var hops = 0
+        while (now < at) {
+            val armed = FocusPlan.inexactHop(at, now)
+            if (armed == at) break
+            now = armed + (armed - now) * 3 / 4
+            hops++
+        }
+        assertTrue(now < at)
+        assertTrue(hops < 12)
+    }
 }

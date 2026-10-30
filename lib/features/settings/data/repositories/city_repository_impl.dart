@@ -51,13 +51,30 @@ final class CityRepositoryImpl implements CityRepository {
     }
   }
 
-  /// [foldForSearch] + strip common Latin diacritics so "Sao" matches "São".
+  /// [foldForSearch] + strip Latin diacritics so "Sao" matches "São" and
+  /// "eskisehir" matches "Eskişehir". The table is every lowercase letter
+  /// in Latin-1, Extended-A/B and Extended Additional whose decomposition
+  /// starts with an ASCII letter (generated from Unicode data), plus ł đ ø
+  /// ı ħ ð and the typographic apostrophes; combining marks are dropped.
   static String _normalize(String input) {
-    const from = 'àáâãäåāçèéêëēìíîïīñòóôõöōùúûüūýÿšžł’';
-    const to = "aaaaaaaceeeeeiiiiinoooooouuuuuyyszl'";
+    const from =
+        'àáâãäåçèéêëìíîïñòóôõöùúûüýÿāăąćĉċčďēĕėęěĝğġģĥĩīĭįĵķĺļľńņňōŏő'
+        'ŕŗřśŝşšţťũūŭůűųŵŷźżžơưǎǐǒǔǖǘǚǜǟǡǧǩǫǭǰǵǹǻȁȃȅȇȉȋȍȏȑȓȕȗșțȟȧȩȫȭȯ'
+        'ȱȳḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳ'
+        'ṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕẖẗẘẙạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừử'
+        'ữựỳỵỷỹłđøıħð’‘ʻ–';
+    const to =
+        "aaaaaaceeeeiiiinooooouuuuyyaaaccccdeeeeegggghiiiijklllnnnooo"
+        "rrrssssttuuuuuuwyzzzouaiouuuuuaagkoojgnaaaeeiioorruusthaeooo"
+        "oyabbbcdddddeeeeefghhhhhiikkkllllmmmnnnnoooopprrrrsssssttttu"
+        "uuuuvvwwwwwxxyzzzhtwyaaaaaaaaaaaaeeeeeeeeiioooooooooooouuuuu"
+        "uuyyyyldoihd'''-";
     final lower = foldForSearch(input);
     final buffer = StringBuffer();
     for (final ch in lower.runes) {
+      if (ch >= 0x0300 && ch <= 0x036F) {
+        continue; // combining mark
+      }
       final s = String.fromCharCode(ch);
       final idx = from.indexOf(s);
       buffer.write(idx >= 0 ? to[idx] : s);

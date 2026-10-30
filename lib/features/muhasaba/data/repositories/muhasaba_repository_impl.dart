@@ -240,7 +240,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // a) Day completions: SQL fraction sums, calendar filled in Dart.
       final fractionSums = await _dayFractionSums(startCode, endCode);
       final days = <DayCompletion>[];
+      // The overall average counts only days that had items and have
+      // come (as the per-item bars do): a new tracker's first perfect day
+      // reads 100%, not 1/7.
+      final todayCode = _encodeDate(today);
       var completionTotal = 0.0;
+      var countedDays = 0;
       for (var i = 0; i < periodDays; i++) {
         final day = DateTime(start.year, start.month, start.day + i);
         final sum = fractionSums[_encodeDate(day)] ?? 0;
@@ -248,10 +253,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         final completion = count == 0
             ? 0.0
             : (sum / count).clamp(0, 1).toDouble();
-        completionTotal += completion;
+        if (count > 0 && _encodeDate(day) <= todayCode) {
+          completionTotal += completion;
+          countedDays++;
+        }
         days.add(DayCompletion(day, completion));
       }
-      final completion = periodDays == 0 ? 0.0 : completionTotal / periodDays;
+      final completion = countedDays == 0 ? 0.0 : completionTotal / countedDays;
 
       // b) Per-item aggregates over the range.
       final itemStats = await _itemStats(start, end, periodDays);
@@ -303,11 +311,20 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       double? previousCompletion;
       if (prevSums.isNotEmpty && periodDays > 0) {
         var total = 0.0;
-        for (final MapEntry(key: code, value: sum) in prevSums.entries) {
-          final count = countOn(_decodeDate(code));
-          if (count > 0) total += (sum / count).clamp(0, 1);
+        var counted = 0;
+        for (var i = 0; i < periodDays; i++) {
+          final day = DateTime(
+            prevStart.year,
+            prevStart.month,
+            prevStart.day + i,
+          );
+          final count = countOn(day);
+          if (count > 0) {
+            total += ((prevSums[_encodeDate(day)] ?? 0) / count).clamp(0, 1);
+            counted++;
+          }
         }
-        previousCompletion = total / periodDays;
+        previousCompletion = counted == 0 ? null : total / counted;
       }
 
       return Result.success(

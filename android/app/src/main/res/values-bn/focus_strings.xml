@@ -4,4 +4,6 @@
     <string name="jamaat_focus_service_description">জামাতের সময়, আর ফোন জোরে ৫ বার ঝাঁকালে নির্দিষ্ট সময়ের জন্য (নফস লক) ফোন লক রাখে: সেশন চলাকালে অন্য অ্যাপ খুললে তা লক স্ক্রিন দিয়ে ঢেকে দেয়। আপনি যা দেখেন বা লেখেন তা পড়া বা সংগ্রহ করা হয় না।</string>
     <!-- Content description of the call button on the jamaat cover. -->
     <string name="jamaat_focus_phone">ফোন</string>
+    <!-- Notification channel name until the app has pushed its own (channelFocus). -->
+    <string name="jamaat_focus_channel">জামাত ফোকাস</string>
 </resources>

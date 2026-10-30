@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.widget.RemoteViews
 
 /**
@@ -31,6 +32,12 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
         scheduleNext(context)
     }
 
+    /** The last widget was removed: stop the re-render alarm chain. */
+    override fun onDisabled(context: Context) {
+        val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarms.cancel(updateIntent(context, IntArray(0)))
+    }
+
     companion object {
         const val PREFS = "productive_muslim_widget"
 
@@ -40,9 +47,21 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
             val ids = manager.getAppWidgetIds(
                 ComponentName(context, ProductiveMuslimWidgetProvider::class.java)
             )
+            if (ids.isEmpty()) return // no widget placed: no alarm chain
             ids.forEach { renderWidget(context, manager, it) }
             scheduleNext(context)
         }
+
+        /** The re-render broadcast; extras don't affect PendingIntent identity. */
+        private fun updateIntent(context: Context, ids: IntArray): PendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                Intent(context, ProductiveMuslimWidgetProvider::class.java)
+                    .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                    .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
 
         /** Every pushed `widget_*` string (for [WidgetSchedule]). */
         private fun data(context: Context): Map<String, String> =
@@ -51,8 +70,8 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
                 .toMap()
 
         /**
-         * Re-renders at the next change (see [WidgetSchedule.nextChange]). Inexact and non-waking (no
-         * exact-alarm permission): it may land late or on the next screen-on;
+         * Re-renders at the next change (see [WidgetSchedule.nextChange]). Non-waking; exact when the
+         * app holds exact-alarm access, else inexact, which Android may defer by up to an hour —
          * updatePeriodMillis (30 min) is the backstop.
          */
         private fun scheduleNext(context: Context) {
@@ -63,17 +82,18 @@ class ProductiveMuslimWidgetProvider : AppWidgetProvider() {
             val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(
                 ComponentName(context, ProductiveMuslimWidgetProvider::class.java)
             )
-            val intent = Intent(context, ProductiveMuslimWidgetProvider::class.java)
-                .setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-            val pending = PendingIntent.getBroadcast(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            val pending = updateIntent(context, ids)
             val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarms.set(AlarmManager.RTC, at + 1000, pending)
+            val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()
+            try {
+                if (exact) {
+                    alarms.setExact(AlarmManager.RTC, at + 1000, pending)
+                } else {
+                    alarms.set(AlarmManager.RTC, at + 1000, pending)
+                }
+            } catch (e: SecurityException) {
+                alarms.set(AlarmManager.RTC, at + 1000, pending)
+            }
         }
 
         private fun renderWidget(

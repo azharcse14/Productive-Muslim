@@ -101,11 +101,13 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// Set once the user picks a madhab, so the region default never
-  /// overrides an explicit choice.
-  var _madhabChosen = false;
+  /// overrides an explicit choice. On a rerun the saved madhab already is
+  /// one (a deliberate Hanafi looks like the default); the location
+  /// picker offers the region's defaults itself.
+  late var _madhabChosen = widget.rerun;
 
   /// Set once the user picks a method, mirroring [_madhabChosen].
-  var _methodChosen = false;
+  late var _methodChosen = widget.rerun;
 
   /// What [_applyRegionalDefaults] last set, so going back and picking
   /// another location re-applies that region's defaults.

@@ -6,6 +6,7 @@ import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
+import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/reschedule_notifications.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
@@ -181,7 +182,10 @@ void main() {
         ),
         isTrue,
       );
-      expect(plan.last.kind, NotificationKind.keepAlive);
+      expect(
+        plan.where((i) => i.kind == NotificationKind.keepAlive),
+        hasLength(1),
+      );
     });
 
     test("keeps yesterday's isha that starts after midnight", () async {
@@ -234,7 +238,10 @@ void main() {
         isTrue,
       );
       expect(azans.last.at.isAfter(from.add(const Duration(days: 6))), isTrue);
-      expect(plan.last.kind, NotificationKind.keepAlive);
+      final nudge = plan.singleWhere(
+        (i) => i.kind == NotificationKind.keepAlive,
+      );
+      expect(nudge.at, plan.last.at.subtract(keepAliveLead));
     });
 
     test('iOS caps at 60 pending items, keeping the earliest', () async {
@@ -249,7 +256,11 @@ void main() {
           .where((i) => i.kind != NotificationKind.keepAlive)
           .toList();
       expect(iosReminders, androidReminders.take(iosReminders.length).toList());
-      expect(ios.last.kind, NotificationKind.keepAlive);
+      // Well before the capped plan's last reminder, not after it.
+      final nudge = ios.singleWhere(
+        (i) => i.kind == NotificationKind.keepAlive,
+      );
+      expect(nudge.at, iosReminders.last.at.subtract(keepAliveLead));
     });
   });
 

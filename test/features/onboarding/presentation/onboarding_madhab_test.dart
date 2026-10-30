@@ -47,6 +47,7 @@ const _cairo = ManualCityLocation(
 Future<_Repo> _pumpToLocationStep(
   WidgetTester tester, {
   PrayerParams params = const PrayerParams(),
+  bool rerun = false,
 }) async {
   final repo = _Repo(AppSettings(location: _cairo, prayerParams: params));
   final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
@@ -59,7 +60,7 @@ Future<_Repo> _pumpToLocationStep(
       theme: AppTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const OnboardingScreen(),
+      home: OnboardingScreen(rerun: rerun),
     ),
   );
   // Welcome (with the language picker) → location.
@@ -90,6 +91,17 @@ void main() {
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.madhab, Madhab.maliki);
+  });
+
+  testWidgets('a rerun keeps a saved Hanafi / Karachi choice', (
+    tester,
+  ) async {
+    final repo = await _pumpToLocationStep(tester, rerun: true);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    const defaults = PrayerParams();
+    expect(repo.stored.prayerParams.madhab, defaults.madhab);
+    expect(repo.stored.prayerParams.method, defaults.method);
   });
 
   testWidgets('leaving the location step pre-selects the region method', (

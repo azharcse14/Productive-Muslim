@@ -150,6 +150,21 @@ void main() {
       store.dispose();
     });
 
+    test(
+      'a zero field keeps the last heading instead of reading north',
+      () async {
+        final (store, sensors, _) = await _make();
+        sensors.emitHeading(90);
+        await Future<void>.delayed(Duration.zero);
+        final before = store.heading.value;
+        sensors.emitField(0); // iOS while uncalibrated
+        await Future<void>.delayed(Duration.zero);
+        expect(store.heading.value, before);
+        expect(store.status.value, QiblaStatus.calibrating);
+        store.dispose();
+      },
+    );
+
     test('weak magnetic field flags calibration', () async {
       final (store, sensors, _) = await _make();
       sensors.emitWeakField();

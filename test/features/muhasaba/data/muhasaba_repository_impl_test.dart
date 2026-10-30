@@ -434,6 +434,19 @@ void main() {
       expect(byId['b']!.periodDays, 1);
     });
 
+    test(
+      'overall completion skips days before any item and future days',
+      () async {
+        now = DateTime(2026, 6, 10);
+        await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+        await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 10), 1)));
+        await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 11), 1)));
+        // Week Jun 6–12 viewed on Jun 11: two perfect days, Jun 12 to come.
+        final result = await stats(anchor: DateTime(2026, 6, 11));
+        expect(result.completion, 1.0);
+      },
+    );
+
     test('best streak is never below the current streak', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       // 10 consecutive done days ending Jun 12 — longer than a week range.

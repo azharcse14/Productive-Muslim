@@ -92,11 +92,9 @@ final class JamaatConfig {
       };
 
   /// [time] on the calendar day within 12 h of [waqtStart], so an evening
-  /// isha puts a 00:15 jamaat after it. A time that would fall on the
-  /// evening before (a 23:45 jamaat, isha starting at 00:20) is held at
-  /// [waqtStart] instead of a day late: no jamaat precedes its waqt, and
-  /// "mark as prayed" before it would be refused.
-  static DateTime _near(DateTime waqtStart, ClockTime time) {
+  /// isha puts a 00:15 jamaat after it and an after-midnight isha keeps a
+  /// 23:45 jamaat on the evening before. Unclamped: may precede the waqt.
+  static DateTime placeNear(DateTime waqtStart, ClockTime time) {
     DateTime on(int day) => DateTime(
       waqtStart.year,
       waqtStart.month,
@@ -106,11 +104,20 @@ final class JamaatConfig {
     );
     final gap = on(0).difference(waqtStart);
     if (gap > const Duration(hours: 12)) {
-      return waqtStart;
+      return on(-1);
     }
     if (gap < const Duration(hours: -12)) {
       return on(1);
     }
     return on(0);
+  }
+
+  /// [placeNear], held at [waqtStart] when it would fall before the waqt
+  /// (a 23:45 jamaat with isha at 00:20, or a winter 20:00 jamaat with
+  /// summer isha at 22:30): no jamaat precedes its waqt, and "mark as
+  /// prayed" before it would be refused.
+  static DateTime _near(DateTime waqtStart, ClockTime time) {
+    final at = placeNear(waqtStart, time);
+    return at.isBefore(waqtStart) ? waqtStart : at;
   }
 }

@@ -400,6 +400,25 @@ void main() {
     expect(stored, hasLength(2));
   });
 
+  test('an unknown budget category is kept, not wiping the rest', () async {
+    await SharedPreferencesAsync().setString(
+      'expense_category_budgets_v1',
+      jsonEncode({'need': 5000, 'zakat': 100}),
+    );
+    final s = store();
+    await s.load();
+    expect(s.categoryBudgets.value, {ExpenseCategory.need: 5000});
+    await s.setCategoryBudget(ExpenseCategory.want, 700);
+    expect(
+      jsonDecode(
+        (await SharedPreferencesAsync().getString(
+          'expense_category_budgets_v1',
+        ))!,
+      ),
+      {'need': 5000, 'zakat': 100, 'want': 700},
+    );
+  });
+
   test('a failed category-budget write reverts and rethrows', () async {
     final prefs = _FlakyPrefs();
     SharedPreferencesAsyncPlatform.instance = prefs;

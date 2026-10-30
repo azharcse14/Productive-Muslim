@@ -110,6 +110,7 @@ final class HadithSection {
     required this.first,
     required this.last,
     this.count,
+    this.refs = const [],
   });
 
   final int number;
@@ -118,6 +119,16 @@ final class HadithSection {
   /// First/last hadith number in this section (null when unknown).
   final int? first;
   final int? last;
+
+  /// Runs (from, to) of the standard reference numbers this section holds,
+  /// for books whose displayed reference differs from the internal number
+  /// (Sahih Muslim). Empty: [first]..[last] are the reference numbers.
+  final List<(int, int)> refs;
+
+  /// Whether "go to hadith [number]" lands in this section.
+  bool holds(int number) => refs.isNotEmpty
+      ? refs.any((r) => r.$1 <= number && number <= r.$2)
+      : (first ?? 0) <= number && number <= (last ?? -1);
 
   /// Number of hadith actually in this section (null when unknown). Stored
   /// explicitly: upstream ranges overlap/contain stray numbers, so
@@ -135,9 +146,14 @@ final class BookHadith {
     required this.reference,
     this.narrator = '',
     this.fallbackTranslation = false,
-  });
+    int? referenceNumber,
+  }) : referenceNumber = referenceNumber ?? number;
 
   final int number;
+
+  /// The number a reader looks up: the displayed reference's whole-number
+  /// part ("Sahih Muslim 8a" → 8); [number] when that is the reference.
+  final int referenceNumber;
   final String arabic;
   final String translation;
 

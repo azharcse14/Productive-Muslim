@@ -15,9 +15,10 @@ import 'build_focus_windows.dart';
 ///
 /// [maxItems] caps the plan (iOS allows only 64 pending notifications);
 /// the earliest items are kept. With [keepAlive], one extra low-priority
-/// [NotificationKind.keepAlive] item fires a minute after the last planned
-/// item, asking the user to open the app so the schedule is refilled. It
-/// counts toward [maxItems].
+/// [NotificationKind.keepAlive] item asks the user to open the app so the
+/// schedule is refilled — [keepAliveLead] before the last planned item, so
+/// there is time to act before reminders run out (a minute after it when
+/// the plan is shorter than that). It counts toward [maxItems].
 ///
 /// Sahri/iftar alerts are Ramadan-only: a day qualifies when its Gregorian
 /// date maps to Ramadan with [hijriOffsetDays] applied (same rule as the
@@ -30,6 +31,9 @@ import 'build_focus_windows.dart';
 /// Each of [focusWindows] with an end gets a [NotificationKind.focusEnd]
 /// item then; with [focusStartNudges] (iOS, where the app can't silence
 /// the phone) also a [NotificationKind.jamaatFocus] nudge at its start.
+/// How long before the plan's last reminder the keep-alive nudge fires.
+const keepAliveLead = Duration(hours: 12);
+
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
   required List<PrayerDay> days,
@@ -208,11 +212,16 @@ List<NotificationItem> buildNotificationPlan({
       ? items.sublist(0, cap < 0 ? 0 : cap)
       : items;
   if (keepAlive && plan.isNotEmpty) {
-    plan.add(
-      NotificationItem(
-        kind: NotificationKind.keepAlive,
-        at: plan.last.at.add(const Duration(minutes: 1)),
-      ),
+    final last = plan.last.at;
+    final early = last.subtract(keepAliveLead);
+    final at = early.isAfter(from)
+        ? early
+        : last.add(const Duration(minutes: 1));
+    // Inserted in time order (no re-sort: List.sort isn't stable).
+    final index = plan.indexWhere((i) => i.at.isAfter(at));
+    plan.insert(
+      index < 0 ? plan.length : index,
+      NotificationItem(kind: NotificationKind.keepAlive, at: at),
     );
   }
   return plan;

@@ -97,6 +97,26 @@ void main() {
       expect(find.text('More'), findsOneWidget);
     });
 
+    testHomeWidgets('an unknown path lands on Home, not a dead end', (
+      tester,
+    ) async {
+      final router = buildRouter();
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      router.go('/no-such-page');
+      await tester.pumpAndSettle();
+      expect(find.byType(QBottomNavScaffold), findsOneWidget);
+      expect(router.state.uri.path, '/home');
+    });
+
     testHomeWidgets('switching tabs shows the target branch', (tester) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer

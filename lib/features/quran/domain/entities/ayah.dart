@@ -21,9 +21,9 @@ final class Ayah {
 
   /// Bundled translation for [languageCode], falling back to English.
   String translationFor(String languageCode) => switch (languageCode) {
-        'bn' when translationBn.isNotEmpty => translationBn,
-        _ => translationEn,
-      };
+    'bn' when translationBn.isNotEmpty => translationBn,
+    _ => translationEn,
+  };
 
   @override
   bool operator ==(Object other) => other is Ayah && other.id == id;

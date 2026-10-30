@@ -33,18 +33,18 @@ final class QuranDatabase extends GeneratedDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        beforeOpen: (_) async {
-          await customStatement(
-            'CREATE TABLE IF NOT EXISTS '
-            'bookmarks(ayah_id INTEGER PRIMARY KEY)',
-          );
-          await customStatement(
-            'CREATE TABLE IF NOT EXISTS '
-            'last_read(id INTEGER PRIMARY KEY CHECK(id = 1), '
-            'surah INTEGER, ayah INTEGER)',
-          );
-        },
+    beforeOpen: (_) async {
+      await customStatement(
+        'CREATE TABLE IF NOT EXISTS '
+        'bookmarks(ayah_id INTEGER PRIMARY KEY)',
       );
+      await customStatement(
+        'CREATE TABLE IF NOT EXISTS '
+        'last_read(id INTEGER PRIMARY KEY CHECK(id = 1), '
+        'surah INTEGER, ayah INTEGER)',
+      );
+    },
+  );
 
   /// Copies the bundled asset into Application Support on first run (or on
   /// a version bump, preserving bookmarks/last-read) and opens it. Not in
@@ -106,18 +106,18 @@ final class _UserState {
     final bookmarks = _hasTable(db, 'bookmarks')
         ? [
             for (final row in db.select('SELECT ayah_id FROM bookmarks'))
-              row.values.first! as int,
+              if (row.values.first case final int id) id,
           ]
         : const <int>[];
     (int, int)? lastRead;
     if (_hasTable(db, 'last_read')) {
-      final rows =
-          db.select('SELECT surah, ayah FROM last_read WHERE id = 1');
+      final rows = db.select('SELECT surah, ayah FROM last_read WHERE id = 1');
+      // The schema allows NULLs; a bad row is dropped, not thrown — a
+      // throw here would block every future upgrade copy.
       if (rows.isNotEmpty) {
-        lastRead = (
-          rows.first.values[0]! as int,
-          rows.first.values[1]! as int,
-        );
+        if (rows.first.values case [final int surah, final int ayah]) {
+          lastRead = (surah, ayah);
+        }
       }
     }
     return _UserState(bookmarks, lastRead);
@@ -126,12 +126,10 @@ final class _UserState {
   final List<int> bookmarks;
   final (int, int)? lastRead;
 
-  static bool _hasTable(sqlite.Database db, String name) => db
-      .select(
-        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
-        [name],
-      )
-      .isNotEmpty;
+  static bool _hasTable(sqlite.Database db, String name) => db.select(
+    "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+    [name],
+  ).isNotEmpty;
 
   void writeInto(sqlite.Database db) {
     db
