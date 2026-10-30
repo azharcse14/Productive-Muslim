@@ -79,14 +79,13 @@ final class SettingsStore {
   Future<void> setNotifications(NotificationMatrix matrix) =>
       _update((s) => s.copyWith(notifications: matrix));
 
-  /// Onboarding gate (router redirect reads this).
-  /// Clamped to −2..+2 by [AppSettings].
   Future<void> setSahriSafety(int minutes) => _update(
     (s) => s.copyWith(
       prayerParams: s.prayerParams.copyWith(sahriSafetyMinutes: minutes),
     ),
   );
 
+  /// Clamped to −2..+2 by [AppSettings].
   Future<void> setHijriOffset(int days) =>
       _update((s) => s.copyWith(hijriOffsetDays: days));
 
@@ -106,8 +105,8 @@ final class SettingsStore {
     });
   }
 
-  /// A failure means the flag holds in memory only (onboarding reruns
-  /// next launch).
+  /// Onboarding gate (router redirect reads this). A failure means the
+  /// flag holds in memory only (onboarding reruns next launch).
   Future<Result<void>> setSetupComplete({required bool complete}) =>
       _update((s) => s.copyWith(setupComplete: complete));
 

@@ -83,6 +83,20 @@ void main() {
       );
     });
 
+    test('stored strict focus with no length gets one', () {
+      final restored = AppSettingsModel.fromMap(const {
+        'notifications': {
+          'jamaatFocusStrict': true,
+          'jamaatFocusDurationMin': 0,
+        },
+      });
+      expect(restored.notifications.jamaatFocusStrict, isTrue);
+      expect(
+        restored.notifications.jamaatFocusDuration,
+        const Duration(minutes: 20),
+      );
+    });
+
     test('one wrong-typed field keeps every other setting', () {
       final restored = AppSettingsModel.fromMap(const {
         'setupComplete': true,

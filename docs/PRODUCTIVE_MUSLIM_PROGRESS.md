@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review fixes 3 + 14:** `AppSettingsModel.fromMap` runs the stored `NotificationMatrix` through `copyWith()`, so a stored strict focus with duration 0 gets 20 min instead of a session that never ends; `SettingsStore` doc comments moved back to `setSetupComplete` / `setHijriOffset` | settings data tests green (+1) |
 | 2026-10-30 | **Deep review fix 2:** Umm al-Qura's Ramadan Isha (+30 min) now asks whether the *next* civil day is Ramadan, since Isha comes after Maghrib when the Hijri day has turned: the evening before 1 Ramadan gets 120 min, Eid night 90 | prayer_times tests green (+1 boundary test) |
 | 2026-10-30 | **Deep review fix 1** (branch `fix/deep-review-2026-10-30`): `RescheduleNotifications` now builds yesterday's `PrayerDay` too, so an isha that starts after midnight (high-latitude summer) stays in the plan when a reschedule runs between midnight and its start | notifications domain tests green (+1 late-isha test) |
 | 2026-10-29 | **Review fix plan — stop point.** Replaced `docs/REVIEW_FIX_PLAN.md` with the owner's revision (adds 1.2 worklog backfill and 4.5 end-to-end flow test) and a Status section listing what's done and what's left (1.2 backfill, 4.5, three 5.2 refactors, Phase 6, owner decisions). Corrected the Phase 5 baseline counts in the rows below (96 → 94 → 93 → 92). | Docs only |

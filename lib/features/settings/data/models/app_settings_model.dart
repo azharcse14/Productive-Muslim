@@ -184,6 +184,8 @@ abstract final class AppSettingsModel {
     final map = raw.cast<String, Object?>();
     final rawModes =
         _as<Map<Object?, Object?>>(map['modes'])?.cast<String, Object?>() ?? {};
+    // copyWith() applies the matrix's invariants (strict focus always has
+    // a length) to whatever was stored.
     return NotificationMatrix(
       prayerModes: {
         for (final prayer in Prayer.values)
@@ -252,7 +254,7 @@ abstract final class AppSettingsModel {
         minutes:
             _as<int>(map['nafsLockMin']) ?? defaults.nafsLockDuration.inMinutes,
       ),
-    );
+    ).copyWith();
   }
 
   static T _enumOrDefault<T extends Enum>(
