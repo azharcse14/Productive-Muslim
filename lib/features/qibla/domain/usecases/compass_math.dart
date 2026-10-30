@@ -30,7 +30,8 @@ abstract final class CompassMath {
     const phi2 = kaabaLat * _deg2rad;
     final deltaLambda = (kaabaLng - longitude) * _deg2rad;
     final y = math.sin(deltaLambda) * math.cos(phi2);
-    final x = math.cos(phi1) * math.sin(phi2) -
+    final x =
+        math.cos(phi1) * math.sin(phi2) -
         math.sin(phi1) * math.cos(phi2) * math.cos(deltaLambda);
     return _norm360(math.atan2(y, x) * _rad2deg);
   }
@@ -44,7 +45,8 @@ abstract final class CompassMath {
     final deltaLambda = (kaabaLng - longitude) * _deg2rad;
     final sinHalfPhi = math.sin(deltaPhi / 2);
     final sinHalfLambda = math.sin(deltaLambda / 2);
-    final a = sinHalfPhi * sinHalfPhi +
+    final a =
+        sinHalfPhi * sinHalfPhi +
         math.cos(phi1) * math.cos(phi2) * sinHalfLambda * sinHalfLambda;
     return 2 * _earthRadiusKm * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   }
@@ -64,8 +66,7 @@ abstract final class CompassMath {
     double heading,
     double bearing, {
     double toleranceDeg = 3,
-  }) =>
-      angularDifference(heading, bearing).abs() <= toleranceDeg;
+  }) => angularDifference(heading, bearing).abs() <= toleranceDeg;
 
   /// Exponential smoothing of a compass heading along the SHORTEST arc:
   /// moves [factor] of the way from [previous] toward [next], so
@@ -75,8 +76,7 @@ abstract final class CompassMath {
     double previous,
     double next, {
     double factor = 0.15,
-  }) =>
-      _norm360(previous + factor * angularDifference(previous, next));
+  }) => _norm360(previous + factor * angularDifference(previous, next));
 
   /// Tilt-compensated magnetic heading from raw accelerometer and
   /// magnetometer vectors, in [0, 360) clockwise from magnetic north.

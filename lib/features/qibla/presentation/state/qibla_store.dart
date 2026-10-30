@@ -119,6 +119,12 @@ final class QiblaStore {
         needsCalibration.value = needsCalibration.value
             ? magnitude < 25 || magnitude > 75
             : magnitude < 20 || magnitude > 80;
+        if (magnitude < 1) {
+          // No field at all (iOS sends zeros while uncalibrated): atan2(0, 0)
+          // would read as north. Keep the last heading instead.
+          _updateAligned();
+          return;
+        }
         final magnetic = CompassMath.tiltCompensatedHeading(
           ax: v.ax,
           ay: v.ay,
