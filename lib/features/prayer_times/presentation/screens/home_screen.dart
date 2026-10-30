@@ -672,10 +672,8 @@ final class _HomeScreenState extends State<HomeScreen> {
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
-          overnight: _store.overnightWaqt.value == null
-              ? null
-              : _store.activeWaqt.value,
-          jamaat: _store.jamaatConfig.value,
+          overnight: _store.overnightRange.value,
+          jamaatTimes: _store.rowJamaat.value,
           jumuah: _store.jumuahToday.value,
           formatTime: (t) => formatHomeTime(context, t),
           dense: compact,
@@ -716,22 +714,23 @@ final class _HomeScreenState extends State<HomeScreen> {
               _store.salahDate(prayer),
             ),
           ),
-          onPrayerTap: (prayer) => unawaited(
-            showPrayerDetailSheet(
-              context,
-              prayer: prayer,
-              range:
-                  '${formatHomeTime(context, day.startOf(prayer))} – ${formatHomeTime(context, day.endOf(prayer))}',
-              jamaatTime: switch (_store.jamaatConfig.value.timeFor(
-                prayer,
-                day.startOf(prayer),
-              )) {
-                null => null,
-                final t => formatHomeTime(context, t),
-              },
-              jumuah: _store.jumuahToday.value,
-            ),
-          ),
+          onPrayerTap: (prayer) {
+            // The row's own window: yesterday's for the overnight waqt.
+            final (start, end) = _store.waqtRangeOf(prayer)!;
+            unawaited(
+              showPrayerDetailSheet(
+                context,
+                prayer: prayer,
+                range:
+                    '${formatHomeTime(context, start)} – ${formatHomeTime(context, end)}',
+                jamaatTime: switch (_store.rowJamaat.value[prayer]) {
+                  null => null,
+                  final t => formatHomeTime(context, t),
+                },
+                jumuah: _store.jumuahToday.value,
+              ),
+            );
+          },
         );
       },
     );

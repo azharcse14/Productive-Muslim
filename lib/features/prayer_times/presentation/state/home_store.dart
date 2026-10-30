@@ -193,6 +193,22 @@ final class HomeStore {
             null;
   });
 
+  /// Each prayer row's jamaat moment (active mosque): the overnight row's
+  /// from its own (yesterday's) waqt start. Recomputes only when a
+  /// dependency flips.
+  late final rowJamaat = computed<Map<Prayer, DateTime>>(() {
+    final day = prayerDay.value;
+    if (day == null) {
+      return const {};
+    }
+    final config = jamaatConfig.value;
+    return {
+      for (final prayer in Prayer.values)
+        if (config.timeFor(prayer, waqtRangeOf(prayer)!.$1) case final t?)
+          prayer: t,
+    };
+  });
+
   /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
   /// schedule's current target so it self-expires at the next window boundary.
   Future<void> overrideMosque(String mosqueId) => _mosque.setOverride(
@@ -270,9 +286,27 @@ final class HomeStore {
 
   /// Yesterday's waqt still running after midnight (Isha, or Maghrib when
   /// that Isha starts past midnight), or null once Fajr begins.
-  late final overnightWaqt = computed<Prayer?>(
-    () => _preFajr.value ? activeWaqt.value?.prayer : null,
+  late final overnightRange = computed<ActiveWaqt?>(
+    () => _preFajr.value ? activeWaqt.value : null,
   );
+
+  /// [overnightRange]'s prayer.
+  late final overnightWaqt = computed<Prayer?>(
+    () => overnightRange.value?.prayer,
+  );
+
+  /// The window a table row shows: yesterday's for the overnight waqt,
+  /// today's otherwise (null until a location is set).
+  (DateTime, DateTime)? waqtRangeOf(Prayer prayer) {
+    final day = prayerDay.value;
+    if (day == null) {
+      return null;
+    }
+    return switch (overnightRange.value) {
+      final o? when o.prayer == prayer => (o.start, o.end),
+      _ => (day.startOf(prayer), day.endOf(prayer)),
+    };
+  }
 
   /// The muhasaba day a prayer's check-in belongs to: today, except the
   /// overnight waqt before Fajr, which is still yesterday's (the same day

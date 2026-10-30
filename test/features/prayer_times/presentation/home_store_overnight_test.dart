@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -85,11 +88,14 @@ const _london = ManualCityLocation(
 void main() {
   setUpAll(TimezoneClock.initialize);
 
-  Future<HomeStore> at(DateTime now) async {
+  Future<HomeStore> at(
+    DateTime now, {
+    MosqueState mosqueState = const MosqueState(),
+  }) async {
     final repo = _Repo(const AppSettings(location: _london));
     final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
     await settings.load();
-    final (mosque, _) = await makeMosqueStore();
+    final (mosque, _) = await makeMosqueStore(mosqueState);
     return HomeStore(
       getPrayerDay: GetPrayerDay(_LateIshaDays()),
       clock: _FixedClock(now),
@@ -117,6 +123,34 @@ void main() {
     expect(store.lockedPrayers.value, isNot(contains(Prayer.isha)));
     expect(store.salahDate(Prayer.isha), DateTime(2026, 6, 20));
     expect(store.salahDate(Prayer.maghrib), DateTime(2026, 6, 21));
+    store.dispose();
+  });
+
+  test("the overnight row's jamaat and range are yesterday's", () async {
+    final store = await at(
+      DateTime(2026, 6, 21, 1),
+      mosqueState: const MosqueState(
+        profiles: [
+          MosqueProfile(
+            id: 'a',
+            name: 'A',
+            entries: {Prayer.isha: OffsetJamaat(Duration(minutes: 10))},
+          ),
+        ],
+        activeId: 'a',
+      ),
+    );
+    // Yesterday's isha 00:30 → today's fajr 02:50, not tonight's 00:31 → …
+    expect(store.waqtRangeOf(Prayer.isha), (
+      DateTime(2026, 6, 21, 0, 30),
+      DateTime(2026, 6, 21, 2, 50),
+    ));
+    expect(store.rowJamaat.value[Prayer.isha], DateTime(2026, 6, 21, 0, 40));
+    // Other rows keep today's window.
+    expect(store.waqtRangeOf(Prayer.maghrib), (
+      DateTime(2026, 6, 21, 21, 21),
+      DateTime(2026, 6, 22, 0, 31),
+    ));
     store.dispose();
   });
 }
