@@ -10,8 +10,9 @@ import '../entities/prayer_day.dart';
 ///    - before sahri end → "Sahri ends in" (Fajr minus the safety margin)
 ///    - Asr start → Maghrib → "Iftar in" (targets Maghrib)
 /// 2. Between waqts (sunrise→dhuhr gap) → next waqt start.
-/// 3. Inside a waqt, jamaat configured for it AND still in the future →
-///    jamaat; otherwise → waqt end.
+/// 3. Inside a waqt, jamaat configured for it, still in the future AND
+///    before the waqt ends → jamaat; otherwise → waqt end (a stale fixed
+///    time past the waqt, e.g. summer's 17:00 Asr in December, is ignored).
 CountdownTarget resolveCountdownTarget({
   required DateTime now,
   required PrayerDay day,
@@ -49,7 +50,9 @@ CountdownTarget resolveCountdownTarget({
   }
 
   final jamaatAt = jamaat.timeFor(active.prayer, active.start);
-  if (jamaatAt != null && jamaatAt.isAfter(now)) {
+  if (jamaatAt != null &&
+      jamaatAt.isAfter(now) &&
+      jamaatAt.isBefore(active.end)) {
     return CountdownTarget(
       kind: CountdownKind.jamaat,
       prayer: active.prayer,

@@ -383,10 +383,12 @@ final class _HomeScreenState extends State<HomeScreen> {
             final sahriIftar = _section(_sahriIftarSection(context, day));
             // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
             // sits right under the countdown; otherwise under the table.
-            final ramadan = _store.ramadanMode.value;
+            // After iftar the card is about tomorrow's fast.
+            final ramadan = _store.sahriInRamadan.value;
             // Outside Ramadan sahri/iftar only matters on a day being fasted.
             final fasting =
-                ramadan || (_fasting?.isLogged(_store.dateKey.value) ?? false);
+                ramadan ||
+                (_fasting?.isLogged(_store.sahriFastDay.value) ?? false);
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
@@ -670,10 +672,8 @@ final class _HomeScreenState extends State<HomeScreen> {
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
-          overnight: _store.overnightWaqt.value == null
-              ? null
-              : _store.activeWaqt.value,
-          jamaat: _store.jamaatConfig.value,
+          overnight: _store.overnightRange.value,
+          jamaatTimes: _store.rowJamaat.value,
           jumuah: _store.jumuahToday.value,
           formatTime: (t) => formatHomeTime(context, t),
           dense: compact,
@@ -714,22 +714,23 @@ final class _HomeScreenState extends State<HomeScreen> {
               _store.salahDate(prayer),
             ),
           ),
-          onPrayerTap: (prayer) => unawaited(
-            showPrayerDetailSheet(
-              context,
-              prayer: prayer,
-              range:
-                  '${formatHomeTime(context, day.startOf(prayer))} – ${formatHomeTime(context, day.endOf(prayer))}',
-              jamaatTime: switch (_store.jamaatConfig.value.timeFor(
-                prayer,
-                day.startOf(prayer),
-              )) {
-                null => null,
-                final t => formatHomeTime(context, t),
-              },
-              jumuah: _store.jumuahToday.value,
-            ),
-          ),
+          onPrayerTap: (prayer) {
+            // The row's own window: yesterday's for the overnight waqt.
+            final (start, end) = _store.waqtRangeOf(prayer)!;
+            unawaited(
+              showPrayerDetailSheet(
+                context,
+                prayer: prayer,
+                range:
+                    '${formatHomeTime(context, start)} – ${formatHomeTime(context, end)}',
+                jamaatTime: switch (_store.rowJamaat.value[prayer]) {
+                  null => null,
+                  final t => formatHomeTime(context, t),
+                },
+                jumuah: _store.jumuahToday.value,
+              ),
+            );
+          },
         );
       },
     );

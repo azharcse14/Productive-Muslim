@@ -65,7 +65,7 @@ void main() {
 
   // 18 Feb 2026 = tabular 1 Ramadan 1447; 03:00 is before fajr, where the
   // Ramadan override targets sahri end.
-  Future<HomeStore> make(int offset) async {
+  Future<HomeStore> make(int offset, {DateTime? at}) async {
     final settings = SettingsStore(
       GetSettings(
         _Repo(AppSettings(location: _dhaka, hijriOffsetDays: offset)),
@@ -76,7 +76,7 @@ void main() {
     final (mosque, _) = await makeMosqueStore();
     return HomeStore(
       getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
-      clock: _FixedClock(DateTime(2026, 2, 18, 3)),
+      clock: _FixedClock(at ?? DateTime(2026, 2, 18, 3)),
       settings: settings,
       mosque: mosque,
     );
@@ -96,5 +96,37 @@ void main() {
     expect(store.ramadanMode.value, isFalse);
     expect(store.countdownTarget.value?.kind, isNot(CountdownKind.sahriEnd));
     store.dispose();
+  });
+
+  // Tabular Ramadan 1447 runs 18 Feb – 19 Mar 2026; Dhaka Maghrib ≈ 18:00.
+  group('sahri card follows the fast it belongs to', () {
+    test('Eid eve after iftar: tonight\'s sahri is not Ramadan', () async {
+      final store = await make(0, at: DateTime(2026, 3, 19, 21));
+      expect(store.ramadanMode.value, isTrue); // today is still 30 Ramadan
+      expect(store.sahriFastDay.value, DateTime(2026, 3, 20));
+      expect(store.sahriInRamadan.value, isFalse);
+      store.dispose();
+    });
+
+    test('last day of Ramadan before iftar: still shown', () async {
+      final store = await make(0, at: DateTime(2026, 3, 19, 12));
+      expect(store.sahriFastDay.value, DateTime(2026, 3, 19));
+      expect(store.sahriInRamadan.value, isTrue);
+      store.dispose();
+    });
+
+    test('evening before 1 Ramadan: tonight\'s sahri is Ramadan', () async {
+      final store = await make(0, at: DateTime(2026, 2, 17, 21));
+      expect(store.ramadanMode.value, isFalse);
+      expect(store.sahriFastDay.value, DateTime(2026, 2, 18));
+      expect(store.sahriInRamadan.value, isTrue);
+      store.dispose();
+    });
+
+    test('hijri offset shifts tomorrow too', () async {
+      final store = await make(-1, at: DateTime(2026, 2, 17, 21));
+      expect(store.sahriInRamadan.value, isFalse); // 1 Ramadan is 19 Feb
+      store.dispose();
+    });
   });
 }

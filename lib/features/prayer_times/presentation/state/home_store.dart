@@ -179,18 +179,45 @@ final class HomeStore {
     () => mosqueResolution.value.profile?.config ?? JamaatConfig.none,
   );
 
-  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
-  /// at that Dhuhr (not now) has a Jumu'ah time — the rule notifications
-  /// and the widget use. Memoized: flips at most at a day or mosque change.
-  late final jumuahToday = computed(() {
+  /// On a Friday, the jamaat config of the mosque active at that Dhuhr (not
+  /// now) — the Jumu'ah row's mosque, the rule notifications and the widget
+  /// use. Null on other days.
+  late final _fridayDhuhrConfig = computed<JamaatConfig?>(() {
     final dhuhr = prayerDay.value?.dhuhr;
-    return dhuhr != null &&
-        dhuhr.weekday == DateTime.friday &&
-        resolveActiveMosque(
-              _mosque.state.value,
-              dhuhr,
-            ).profile?.config.jumuah !=
-            null;
+    if (dhuhr == null || dhuhr.weekday != DateTime.friday) {
+      return null;
+    }
+    return resolveActiveMosque(_mosque.state.value, dhuhr).profile?.config ??
+        JamaatConfig.none;
+  });
+
+  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
+  /// at that Dhuhr has a Jumu'ah time. Memoized: flips at most at a day or
+  /// mosque change.
+  late final jumuahToday = computed(
+    () => _fridayDhuhrConfig.value?.jumuah != null,
+  );
+
+  /// Each prayer row's jamaat moment: the overnight row's from its own
+  /// (yesterday's) waqt start, Friday's Dhuhr from the mosque active at that
+  /// Dhuhr (so the time matches the [jumuahToday] label), the rest from the
+  /// mosque active now. Recomputes only when a dependency flips.
+  late final rowJamaat = computed<Map<Prayer, DateTime>>(() {
+    final day = prayerDay.value;
+    if (day == null) {
+      return const {};
+    }
+    final current = jamaatConfig.value;
+    final friday = _fridayDhuhrConfig.value;
+    return {
+      for (final prayer in Prayer.values)
+        if ((prayer == Prayer.dhuhr ? friday ?? current : current).timeFor(
+              prayer,
+              waqtRangeOf(prayer)!.$1,
+            )
+            case final t?)
+          prayer: t,
+    };
   });
 
   /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
@@ -244,6 +271,24 @@ final class HomeStore {
         : day.fajrTomorrow.subtract(day.sahriSafety);
   });
 
+  /// The day whose fast the sahri/iftar card is about: today until iftar,
+  /// then tomorrow — from iftar the card shows tonight's sahri, which
+  /// opens tomorrow's fast (same switch as [nextSahriEnd]; iftar = Maghrib).
+  late final sahriFastDay = computed<DateTime>(() {
+    final d = dateKey.value;
+    return hijriAfterMaghrib.value == null
+        ? d
+        : DateTime(d.year, d.month, d.day + 1);
+  });
+
+  /// Whether [sahriFastDay] is in Ramadan (offset-aware): no "sahri ends
+  /// tonight" on Eid eve, and it already shows the evening before 1 Ramadan.
+  late final sahriInRamadan = computed(
+    () =>
+        (hijriAfterMaghrib.value ?? hijriDate.value).month ==
+        HijriDate.ramadanMonth,
+  );
+
   /// True after midnight but before Fajr: the active waqt is yesterday's.
   late final _preFajr = computed(() {
     final day = prayerDay.value;
@@ -252,9 +297,27 @@ final class HomeStore {
 
   /// Yesterday's waqt still running after midnight (Isha, or Maghrib when
   /// that Isha starts past midnight), or null once Fajr begins.
-  late final overnightWaqt = computed<Prayer?>(
-    () => _preFajr.value ? activeWaqt.value?.prayer : null,
+  late final overnightRange = computed<ActiveWaqt?>(
+    () => _preFajr.value ? activeWaqt.value : null,
   );
+
+  /// [overnightRange]'s prayer.
+  late final overnightWaqt = computed<Prayer?>(
+    () => overnightRange.value?.prayer,
+  );
+
+  /// The window a table row shows: yesterday's for the overnight waqt,
+  /// today's otherwise (null until a location is set).
+  (DateTime, DateTime)? waqtRangeOf(Prayer prayer) {
+    final day = prayerDay.value;
+    if (day == null) {
+      return null;
+    }
+    return switch (overnightRange.value) {
+      final o? when o.prayer == prayer => (o.start, o.end),
+      _ => (day.startOf(prayer), day.endOf(prayer)),
+    };
+  }
 
   /// The muhasaba day a prayer's check-in belongs to: today, except the
   /// overnight waqt before Fajr, which is still yesterday's (the same day
