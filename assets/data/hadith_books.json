@@ -1395,392 +1395,1188 @@
           "name": "The Book of Faith",
           "first": 93,
           "last": 533,
-          "count": 436
+          "count": 436,
+          "refs": [
+            [
+              8,
+              222
+            ]
+          ]
         },
         {
           "n": 2,
           "name": "The Book of Purification",
           "first": 534,
           "last": 678,
-          "count": 143
+          "count": 143,
+          "refs": [
+            [
+              223,
+              274
+            ],
+            [
+              276,
+              292
+            ]
+          ]
         },
         {
           "n": 3,
           "name": "The Book of Menstruation",
           "first": 679,
           "last": 836,
-          "count": 157
+          "count": 157,
+          "refs": [
+            [
+              293,
+              376
+            ]
+          ]
         },
         {
           "n": 4,
           "name": "The Book of Prayers ",
           "first": 837,
           "last": 1160,
-          "count": 321
+          "count": 321,
+          "refs": [
+            [
+              274,
+              274
+            ],
+            [
+              377,
+              386
+            ],
+            [
+              388,
+              519
+            ]
+          ]
         },
         {
           "n": 5,
           "name": "The Book of Mosques and Places of Prayer",
           "first": 1161,
           "last": 1569,
-          "count": 396
+          "count": 396,
+          "refs": [
+            [
+              33,
+              33
+            ],
+            [
+              389,
+              389
+            ],
+            [
+              513,
+              513
+            ],
+            [
+              520,
+              597
+            ],
+            [
+              599,
+              603
+            ],
+            [
+              605,
+              629
+            ],
+            [
+              631,
+              684
+            ]
+          ]
         },
         {
           "n": 6,
           "name": "The Book of Prayer - Travellers",
           "first": 1570,
           "last": 1950,
-          "count": 377
+          "count": 377,
+          "refs": [
+            [
+              336,
+              336
+            ],
+            [
+              685,
+              843
+            ]
+          ]
         },
         {
           "n": 7,
           "name": "The Book of Prayer - Friday",
           "first": 1951,
           "last": 2043,
-          "count": 93
+          "count": 93,
+          "refs": [
+            [
+              844,
+              883
+            ]
+          ]
         },
         {
           "n": 8,
           "name": "The Book of Prayer - Two Eids",
           "first": 2044,
           "last": 2069,
-          "count": 22
+          "count": 22,
+          "refs": [
+            [
+              884,
+              893
+            ]
+          ]
         },
         {
           "n": 9,
           "name": "The Book of Prayer - Rain",
           "first": 2070,
           "last": 2088,
-          "count": 19
+          "count": 19,
+          "refs": [
+            [
+              894,
+              900
+            ]
+          ]
         },
         {
           "n": 10,
           "name": "The Book of Prayer - Eclipses",
           "first": 2089,
           "last": 2122,
-          "count": 29
+          "count": 29,
+          "refs": [
+            [
+              901,
+              915
+            ]
+          ]
         },
         {
           "n": 11,
           "name": "The Book of Prayer - Funerals",
           "first": 2123,
           "last": 2262,
-          "count": 135
+          "count": 135,
+          "refs": [
+            [
+              916,
+              927
+            ],
+            [
+              929,
+              978
+            ]
+          ]
         },
         {
           "n": 12,
           "name": "The Book of Zakat",
           "first": 2263,
           "last": 2494,
-          "count": 229
+          "count": 229,
+          "refs": [
+            [
+              94,
+              94
+            ],
+            [
+              150,
+              150
+            ],
+            [
+              157,
+              157
+            ],
+            [
+              979,
+              1029
+            ],
+            [
+              1031,
+              1078
+            ]
+          ]
         },
         {
           "n": 13,
           "name": "The Book of Fasting ",
           "first": 2495,
           "last": 2779,
-          "count": 285
+          "count": 285,
+          "refs": [
+            [
+              762,
+              762
+            ],
+            [
+              782,
+              782
+            ],
+            [
+              827,
+              827
+            ],
+            [
+              1079,
+              1170
+            ]
+          ]
         },
         {
           "n": 14,
           "name": "The Book of I'tikaf",
           "first": 2780,
           "last": 2790,
-          "count": 11
+          "count": 11,
+          "refs": [
+            [
+              1171,
+              1176
+            ]
+          ]
         },
         {
           "n": 15,
           "name": "The Book of Pilgrimage",
           "first": 2791,
           "last": 3397,
-          "count": 583
+          "count": 583,
+          "refs": [
+            [
+              703,
+              703
+            ],
+            [
+              827,
+              827
+            ],
+            [
+              1177,
+              1246
+            ],
+            [
+              1248,
+              1250
+            ],
+            [
+              1252,
+              1255
+            ],
+            [
+              1257,
+              1286
+            ],
+            [
+              1288,
+              1399
+            ]
+          ]
         },
         {
           "n": 16,
           "name": "The Book of Marriage",
           "first": 388,
           "last": 3567,
-          "count": 168
+          "count": 168,
+          "refs": [
+            [
+              154,
+              154
+            ],
+            [
+              1365,
+              1365
+            ],
+            [
+              1400,
+              1443
+            ]
+          ]
         },
         {
           "n": 17,
           "name": "The Book of Suckling",
           "first": 3568,
           "last": 3651,
-          "count": 84
+          "count": 84,
+          "refs": [
+            [
+              715,
+              715
+            ],
+            [
+              1444,
+              1470
+            ]
+          ]
         },
         {
           "n": 18,
           "name": "The Book of Divorce ",
           "first": 3652,
           "last": 3742,
-          "count": 86
+          "count": 86,
+          "refs": [
+            [
+              938,
+              938
+            ],
+            [
+              1471,
+              1486
+            ],
+            [
+              1488,
+              1491
+            ]
+          ]
         },
         {
           "n": 19,
           "name": "The Book of Invoking Curses",
           "first": 3743,
           "last": 3769,
-          "count": 27
+          "count": 27,
+          "refs": [
+            [
+              1492,
+              1500
+            ]
+          ]
         },
         {
           "n": 20,
           "name": "The Book of Emancipating Slaves",
           "first": 3770,
           "last": 3800,
-          "count": 30
+          "count": 30,
+          "refs": [
+            [
+              1370,
+              1370
+            ],
+            [
+              1501,
+              1510
+            ]
+          ]
         },
         {
           "n": 21,
           "name": "The Book of Transactions",
           "first": 3801,
           "last": 3961,
-          "count": 158
+          "count": 158,
+          "refs": [
+            [
+              1412,
+              1412
+            ],
+            [
+              1511,
+              1550
+            ]
+          ]
         },
         {
           "n": 22,
           "name": "The Book of Musaqah",
           "first": 3962,
           "last": 4139,
-          "count": 178
+          "count": 178,
+          "refs": [
+            [
+              715,
+              715
+            ],
+            [
+              1202,
+              1202
+            ],
+            [
+              1551,
+              1613
+            ]
+          ]
         },
         {
           "n": 23,
           "name": "The Book of the Rules of Inheritance",
           "first": 4140,
           "last": 4162,
-          "count": 23
+          "count": 23,
+          "refs": [
+            [
+              1614,
+              1619
+            ]
+          ]
         },
         {
           "n": 24,
           "name": "The Book of Gifts",
           "first": 4163,
           "last": 4203,
-          "count": 41
+          "count": 41,
+          "refs": [
+            [
+              1620,
+              1626
+            ]
+          ]
         },
         {
           "n": 25,
           "name": "The Book of Wills",
           "first": 4204,
           "last": 4234,
-          "count": 31
+          "count": 31,
+          "refs": [
+            [
+              1004,
+              1004
+            ],
+            [
+              1627,
+              1637
+            ]
+          ]
         },
         {
           "n": 26,
           "name": "The Book of Vows",
           "first": 4235,
           "last": 4253,
-          "count": 17
+          "count": 17,
+          "refs": [
+            [
+              1638,
+              1645
+            ]
+          ]
         },
         {
           "n": 27,
           "name": "The Book of Oaths",
           "first": 4254,
           "last": 4341,
-          "count": 88
+          "count": 88,
+          "refs": [
+            [
+              997,
+              997
+            ],
+            [
+              1501,
+              1503
+            ],
+            [
+              1646,
+              1668
+            ]
+          ]
         },
         {
           "n": 28,
           "name": "The Book of Oaths, Muharibin, Qasas (Retaliation), and Diyat (Blood Money)",
           "first": 4342,
           "last": 4397,
-          "count": 56
+          "count": 56,
+          "refs": [
+            [
+              1669,
+              1683
+            ]
+          ]
         },
         {
           "n": 29,
           "name": "The Book of Legal Punishments",
           "first": 4398,
           "last": 4469,
-          "count": 70
+          "count": 70,
+          "refs": [
+            [
+              1684,
+              1696
+            ],
+            [
+              1699,
+              1710
+            ]
+          ]
         },
         {
           "n": 30,
           "name": "The Book of Judicial Decisions",
           "first": 4470,
           "last": 4497,
-          "count": 28
+          "count": 28,
+          "refs": [
+            [
+              593,
+              593
+            ],
+            [
+              1711,
+              1721
+            ]
+          ]
         },
         {
           "n": 31,
           "name": "The Book of Lost Property",
           "first": 4498,
           "last": 4518,
-          "count": 19
+          "count": 19,
+          "refs": [
+            [
+              48,
+              48
+            ],
+            [
+              1722,
+              1729
+            ]
+          ]
         },
         {
           "n": 32,
           "name": "The Book of Jihad and Expeditions",
           "first": 4519,
           "last": 4700,
-          "count": 178
+          "count": 178,
+          "refs": [
+            [
+              1254,
+              1254
+            ],
+            [
+              1365,
+              1365
+            ],
+            [
+              1730,
+              1808
+            ],
+            [
+              1810,
+              1817
+            ]
+          ]
         },
         {
           "n": 33,
           "name": "The Book on Government",
           "first": 4701,
           "last": 4967,
-          "count": 257
+          "count": 257,
+          "refs": [
+            [
+              142,
+              142
+            ],
+            [
+              677,
+              677
+            ],
+            [
+              715,
+              715
+            ],
+            [
+              1037,
+              1037
+            ],
+            [
+              1353,
+              1353
+            ],
+            [
+              1652,
+              1652
+            ],
+            [
+              1709,
+              1709
+            ],
+            [
+              1733,
+              1733
+            ],
+            [
+              1818,
+              1823
+            ],
+            [
+              1825,
+              1928
+            ]
+          ]
         },
         {
           "n": 34,
           "name": "The Book of Hunting, Slaughter, and what may be Eaten",
           "first": 4972,
           "last": 5063,
-          "count": 92
+          "count": 92,
+          "refs": [
+            [
+              561,
+              561
+            ],
+            [
+              1407,
+              1407
+            ],
+            [
+              1802,
+              1802
+            ],
+            [
+              1929,
+              1959
+            ]
+          ]
         },
         {
           "n": 35,
           "name": "The Book of Sacrifices",
           "first": 5064,
           "last": 5126,
-          "count": 59
+          "count": 59,
+          "refs": [
+            [
+              1960,
+              1978
+            ]
+          ]
         },
         {
           "n": 36,
           "name": "The Book of Drinks",
           "first": 5114,
           "last": 5383,
-          "count": 255
+          "count": 255,
+          "refs": [
+            [
+              17,
+              17
+            ],
+            [
+              168,
+              168
+            ],
+            [
+              267,
+              267
+            ],
+            [
+              977,
+              977
+            ],
+            [
+              1733,
+              1733
+            ],
+            [
+              1979,
+              2064
+            ]
+          ]
         },
         {
           "n": 37,
           "name": "The Book of Clothes and Adornment",
           "first": 5385,
           "last": 5585,
-          "count": 184
+          "count": 184,
+          "refs": [
+            [
+              2065,
+              2109
+            ],
+            [
+              2113,
+              2123
+            ],
+            [
+              2125,
+              2130
+            ]
+          ]
         },
         {
           "n": 38,
           "name": "The Book of Manners and Etiquette",
           "first": 5586,
           "last": 5645,
-          "count": 59
+          "count": 59,
+          "refs": [
+            [
+              2131,
+              2159
+            ]
+          ]
         },
         {
           "n": 39,
           "name": "The Book of Greetings",
           "first": 5646,
           "last": 5861,
-          "count": 210
+          "count": 210,
+          "refs": [
+            [
+              287,
+              287
+            ],
+            [
+              537,
+              537
+            ],
+            [
+              1202,
+              1202
+            ],
+            [
+              1577,
+              1577
+            ],
+            [
+              2121,
+              2121
+            ],
+            [
+              2160,
+              2245
+            ]
+          ]
         },
         {
           "n": 40,
           "name": "The Book Concerning the Use of Correct Words",
           "first": 5862,
           "last": 5884,
-          "count": 23
+          "count": 23,
+          "refs": [
+            [
+              2246,
+              2254
+            ]
+          ]
         },
         {
           "n": 41,
           "name": "The Book of Poetry",
           "first": 5887,
           "last": 5896,
-          "count": 10
+          "count": 10,
+          "refs": [
+            [
+              2255,
+              2260
+            ]
+          ]
         },
         {
           "n": 42,
           "name": "The Book of Dreams",
           "first": 5897,
           "last": 5937,
-          "count": 40
+          "count": 40,
+          "refs": [
+            [
+              2261,
+              2272
+            ],
+            [
+              2274,
+              2275
+            ]
+          ]
         },
         {
           "n": 43,
           "name": "The Book of Virtues",
           "first": 384,
           "last": 6168,
-          "count": 217
+          "count": 217,
+          "refs": [
+            [
+              151,
+              151
+            ],
+            [
+              339,
+              339
+            ],
+            [
+              706,
+              706
+            ],
+            [
+              843,
+              843
+            ],
+            [
+              1337,
+              1337
+            ],
+            [
+              1392,
+              1392
+            ],
+            [
+              2276,
+              2289
+            ],
+            [
+              2291,
+              2291
+            ],
+            [
+              2293,
+              2302
+            ],
+            [
+              2306,
+              2380
+            ]
+          ]
         },
         {
           "n": 44,
           "name": "The Book of the Merits of the Companions",
           "first": 6169,
           "last": 6499,
-          "count": 324
+          "count": 324,
+          "refs": [
+            [
+              799,
+              799
+            ],
+            [
+              1028,
+              1028
+            ],
+            [
+              1748,
+              1748
+            ],
+            [
+              2144,
+              2144
+            ],
+            [
+              2381,
+              2385
+            ],
+            [
+              2387,
+              2394
+            ],
+            [
+              2396,
+              2482
+            ],
+            [
+              2484,
+              2501
+            ],
+            [
+              2503,
+              2505
+            ],
+            [
+              2507,
+              2547
+            ]
+          ]
         },
         {
           "n": 45,
           "name": "The Book of Virtue, Enjoining Good Manners, and Joining of the Ties of Kinship",
           "first": 6500,
           "last": 6722,
-          "count": 210
+          "count": 210,
+          "refs": [
+            [
+              1914,
+              1914
+            ],
+            [
+              2242,
+              2242
+            ],
+            [
+              2526,
+              2526
+            ],
+            [
+              2548,
+              2634
+            ],
+            [
+              2636,
+              2642
+            ]
+          ]
         },
         {
           "n": 46,
           "name": "The Book of Destiny",
           "first": 6723,
           "last": 6774,
-          "count": 52
+          "count": 52,
+          "refs": [
+            [
+              112,
+              112
+            ],
+            [
+              2643,
+              2664
+            ]
+          ]
         },
         {
           "n": 47,
           "name": "The Book of Knowledge",
           "first": 6775,
           "last": 6804,
-          "count": 29
+          "count": 29,
+          "refs": [
+            [
+              157,
+              157
+            ],
+            [
+              1017,
+              1017
+            ],
+            [
+              2665,
+              2674
+            ]
+          ]
         },
         {
           "n": 48,
           "name": "The Book Pertaining to the Remembrance of Allah, Supplication, Repentance and Seeking Forgiveness ",
           "first": 6805,
           "last": 6936,
-          "count": 124
+          "count": 124,
+          "refs": [
+            [
+              589,
+              589
+            ],
+            [
+              2675,
+              2692
+            ],
+            [
+              2694,
+              2699
+            ],
+            [
+              2701,
+              2727
+            ],
+            [
+              2729,
+              2732
+            ],
+            [
+              2734,
+              2735
+            ]
+          ]
         },
         {
           "n": 49,
           "name": "The Book of Heart-Melting Traditions",
           "first": 6937,
           "last": 6951,
-          "count": 15
+          "count": 15,
+          "refs": [
+            [
+              2736,
+              2743
+            ]
+          ]
         },
         {
           "n": 50,
           "name": "The Book of Repentance",
           "first": 6952,
           "last": 7023,
-          "count": 63
+          "count": 63,
+          "refs": [
+            [
+              2619,
+              2619
+            ],
+            [
+              2675,
+              2675
+            ],
+            [
+              2744,
+              2758
+            ],
+            [
+              2760,
+              2771
+            ]
+          ]
         },
         {
           "n": 51,
           "name": "Characteristics of The Hypocrites And Rulings Concerning Them",
           "first": 7024,
           "last": 7044,
-          "count": 21
+          "count": 21,
+          "refs": [
+            [
+              2772,
+              2784
+            ]
+          ]
         },
         {
           "n": 52,
           "name": "Characteristics of the Day of Judgment, Paradise, and Hell",
           "first": 7045,
           "last": 7129,
-          "count": 79
+          "count": 79,
+          "refs": [
+            [
+              2785,
+              2821
+            ]
+          ]
         },
         {
           "n": 53,
           "name": "The Book of Paradise, its Description, its Bounties and its Inhabitants",
           "first": 7130,
           "last": 7234,
-          "count": 102
+          "count": 102,
+          "refs": [
+            [
+              2128,
+              2128
+            ],
+            [
+              2822,
+              2826
+            ],
+            [
+              2828,
+              2829
+            ],
+            [
+              2831,
+              2879
+            ]
+          ]
         },
         {
           "n": 54,
           "name": "The Book of Tribulations and Portents of the Last Hour",
           "first": 7235,
           "last": 7416,
-          "count": 158
+          "count": 158,
+          "refs": [
+            [
+              144,
+              144
+            ],
+            [
+              157,
+              157
+            ],
+            [
+              169,
+              169
+            ],
+            [
+              2880,
+              2918
+            ],
+            [
+              2924,
+              2930
+            ],
+            [
+              2932,
+              2955
+            ]
+          ]
         },
         {
           "n": 55,
           "name": "The Book of Zuhd and Softening of Hearts ",
           "first": 7417,
           "last": 7522,
-          "count": 79
+          "count": 79,
+          "refs": [
+            [
+              533,
+              533
+            ],
+            [
+              1055,
+              1055
+            ],
+            [
+              2009,
+              2009
+            ],
+            [
+              2493,
+              2493
+            ],
+            [
+              2956,
+              2970
+            ],
+            [
+              2980,
+              2997
+            ],
+            [
+              2999,
+              3005
+            ],
+            [
+              3014,
+              3014
+            ]
+          ]
         },
         {
           "n": 56,
           "name": "The Book of Commentary on the Qur'an",
           "first": 7523,
           "last": 7563,
-          "count": 39
+          "count": 39,
+          "refs": [
+            [
+              3015,
+              3033
+            ]
+          ]
         }
       ],
       "sections_bn": [

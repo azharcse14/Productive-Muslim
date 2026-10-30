@@ -66,6 +66,30 @@ const _bukhari = HadithBook(
   ],
 );
 
+/// Listed by internal number (chapter 1 starts at 93), shown and looked
+/// up by standard reference (93 is "8a").
+const _muslim = HadithBook(
+  id: 'muslim',
+  en: 'Sahih Muslim',
+  bn: '',
+  author: 'Imam Muslim',
+  kind: 'sahih',
+  total: 7563,
+  editionAr: 'ara-muslim',
+  editionEn: 'eng-muslim',
+  editionBn: 'ben-muslim',
+  sections: [
+    HadithSection(
+      number: 1,
+      name: 'Faith',
+      first: 93,
+      last: 95,
+      count: 3,
+      refs: [(8, 9)],
+    ),
+  ],
+);
+
 final class _FakeBookRepository implements HadithBookRepository {
   _FakeBookRepository({this.fail = false});
 
@@ -87,6 +111,23 @@ final class _FakeBookRepository implements HadithBookRepository {
     languages.add(languageCode);
     if (fail) {
       return const Result.failure(UnexpectedFailure('offline'));
+    }
+    if (book.id == 'muslim') {
+      return Result.success([
+        for (final (n, ref, std) in [
+          (93, '8a', 8),
+          (94, '8b', 8),
+          (95, '9', 9),
+        ])
+          BookHadith(
+            number: n,
+            arabic: 'عربي',
+            translation: 'Muslim $ref',
+            grade: 'Sahih',
+            reference: 'Sahih Muslim $ref',
+            referenceNumber: std,
+          ),
+      ]);
     }
     return const Result.success([
       BookHadith(
@@ -256,6 +297,23 @@ void main() {
       expect(find.text('Actions are by intentions'), findsOneWidget);
       // A lookup isn't reading: "Continue reading" stays untouched.
       expect(GetIt.I<HadithBooksStore>().lastOpened.value, isNull);
+    });
+
+    testWidgets('lookup uses the number on the cards (Sahih Muslim refs)', (
+      tester,
+    ) async {
+      await _register();
+      await tester.pumpWidget(_app(const HadithSectionsScreen(book: _muslim)));
+      await tester.tap(find.byTooltip('Go to hadith number'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '8');
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HadithSectionScreen), findsOneWidget);
+      expect(find.text('Muslim 8a'), findsOneWidget);
+      expect(find.text('Muslim 8b'), findsOneWidget);
+      expect(find.text('Muslim 9'), findsNothing);
     });
 
     testWidgets('a failed fetch shows the retry affordance', (tester) async {

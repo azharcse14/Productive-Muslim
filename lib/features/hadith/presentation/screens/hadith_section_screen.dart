@@ -32,7 +32,9 @@ final class HadithSectionScreen extends StatefulWidget {
   final HadithBook book;
   final HadithSection section;
 
-  /// Show only this hadith (number lookup) instead of the whole chapter.
+  /// Show only this hadith (number lookup, matched on
+  /// [BookHadith.referenceNumber], so 8a and 8b both show) instead of the
+  /// whole chapter.
   final int? focusNumber;
 
   @override
@@ -139,7 +141,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
             final focus = widget.focusNumber;
             final items = [
               for (final h in _store.items.value)
-                if (focus == null || h.number == focus) h,
+                if (focus == null || h.referenceNumber == focus) h,
             ];
             if (items.isEmpty) {
               return Center(

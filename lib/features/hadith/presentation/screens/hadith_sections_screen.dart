@@ -29,8 +29,9 @@ final class HadithSectionsScreen extends StatelessWidget {
     );
   }
 
-  /// Opens the chapter holding hadith [number] (in the numbering of the
-  /// shown chapter list), focused on that hadith.
+  /// Opens the chapter holding hadith [number] — the number its card shows
+  /// (Sahih Muslim's standard reference, not the internal one) — focused on
+  /// that hadith.
   Future<void> _goToNumber(
     BuildContext context,
     List<HadithSection> sections,
@@ -46,9 +47,7 @@ final class HadithSectionsScreen extends StatelessWidget {
     if (number == null || !context.mounted) {
       return;
     }
-    final section = sections
-        .where((s) => (s.first ?? 0) <= number && number <= (s.last ?? -1))
-        .firstOrNull;
+    final section = sections.where((s) => s.holds(number)).firstOrNull;
     if (section == null) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.hadithNumberNotFound)),
@@ -77,7 +76,9 @@ final class HadithSectionsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(book.titleFor(languageCode)),
         actions: [
-          if (sections.any((s) => s.first != null && s.last != null))
+          if (sections.any(
+            (s) => s.refs.isNotEmpty || (s.first != null && s.last != null),
+          ))
             IconButton(
               tooltip: context.l10n.hadithGoToNumber,
               icon: const Icon(Icons.format_list_numbered),

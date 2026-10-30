@@ -1,5 +1,10 @@
 import '../domain/entities/hadith_book.dart';
 
+/// The whole-number part of a displayed reference ("17a" → 17); [number]
+/// when [ref] is empty or has no leading digits.
+int referenceNumberOf(String ref, int number) =>
+    int.tryParse(RegExp(r'^\d+').stringMatch(ref) ?? '') ?? number;
+
 /// Pure assembly of one hadith section into display [BookHadith]s, shared by
 /// the bundled (SQLite) and remote (network) data sources so the zip / grade /
 /// English-fallback rules live in exactly one place. The data sources differ
@@ -23,6 +28,9 @@ final class RawHadith {
   /// [number] — e.g. Sahih Muslim's sequential 93 is "8a" (Abd al-Baqi).
   /// Empty when [number] already is the standard reference.
   final String ref;
+
+  /// The whole number readers look up: [ref]'s ("8a" → 8), else [number].
+  int get referenceNumber => referenceNumberOf(ref, number);
 
   static RawHadith? parse(Object? entry) {
     if (entry is! Map) {
@@ -169,6 +177,7 @@ List<BookHadith> assembleSection({
           // rigorously authentic — surface "Sahih" so every entry is labelled.
           grade: _grade(ar, preferred, book.isSahih),
           reference: '${book.en} ${ar.ref.isNotEmpty ? ar.ref : ar.number}',
+          referenceNumber: ar.referenceNumber,
           // bn requested but only English was available for this hadith.
           fallbackTranslation:
               wantsNonEnglish && !hasPreferred && text.isNotEmpty,

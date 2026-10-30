@@ -163,4 +163,37 @@ void main() {
       }
     }
   });
+
+  test('catalog refs match the bundled standard references', () {
+    // Written by `dart run tool/hadith_ref_index.dart`; rerun it after
+    // rebuilding hadith.db.
+    final catalog =
+        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
+            as Map<String, dynamic>;
+    final leading = RegExp(r'^\d+');
+    for (final book
+        in (catalog['books'] as List).cast<Map<String, dynamic>>()) {
+      for (final s in (book['sections'] as List).cast<Map<String, dynamic>>()) {
+        final data = blob(
+          'SELECT data FROM hadith_section WHERE edition = ? AND section = ?',
+          [book['edition_ar'], s['n']],
+        );
+        final hasRefs = data.any((h) => (h as Map)['r'] != null);
+        final expected = <int>{
+          if (hasRefs)
+            for (final h in data.cast<Map<String, dynamic>>())
+              int.tryParse(
+                    leading.stringMatch(h['r'] as String? ?? '') ?? '',
+                  ) ??
+                  h['n'] as int,
+        };
+        final listed = <int>{
+          for (final run
+              in (s['refs'] as List? ?? const []).cast<List<dynamic>>())
+            for (var n = run[0] as int; n <= (run[1] as int); n++) n,
+        };
+        expect(listed, expected, reason: '${book['id']} section ${s['n']}');
+      }
+    }
+  });
 }
