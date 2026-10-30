@@ -63,6 +63,10 @@ GoRouter buildRouter() {
   return GoRouter(
     initialLocation: Routes.splash.path,
     refreshListenable: _RouterRefresh(),
+    // An unknown path (a stale notification payload, an old deep link)
+    // goes home; go_router's default page is English-only and its Home
+    // button targets '/', which isn't a route — a dead end.
+    onException: (_, _, router) => router.go(Routes.home.path),
     redirect: (context, state) {
       final path = state.uri.path;
       if (path == Routes.splash.path) {
