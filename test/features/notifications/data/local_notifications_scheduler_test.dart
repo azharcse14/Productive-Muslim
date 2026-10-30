@@ -18,6 +18,8 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   final scheduled = <int, NotificationDetails>{};
   final titles = <int, String?>{};
   final failIds = <int>{};
+  final pending = <int>{};
+  final cancelled = <int>{};
   int cancelAllCalls = 0;
   int cancelPendingCalls = 0;
   int initCalls = 0;
@@ -43,6 +45,18 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
 
   @override
   Future<void> cancelAllPendingNotifications() async => cancelPendingCalls++;
+
+  @override
+  Future<List<PendingNotificationRequest>>
+  pendingNotificationRequests() async => [
+    for (final id in pending) PendingNotificationRequest(id, null, null, null),
+  ];
+
+  @override
+  Future<void> cancel({required int id, String? tag}) async {
+    cancelled.add(id);
+    pending.remove(id);
+  }
 
   @override
   Future<void> zonedSchedule({
@@ -171,9 +185,37 @@ void main() {
 
   test('reschedule keeps shown notifications (cancels pending only)', () async {
     await scheduler.reschedule([azan(Prayer.fajr)], _texts);
-    expect(plugin.cancelPendingCalls, 1);
+    expect(plugin.cancelPendingCalls, 0);
     expect(plugin.cancelAllCalls, 0);
   });
+
+  test(
+    'reschedule cancels only dropped ids, never one that just came due',
+    () async {
+      final now = TimezoneClock().nowAt(_dhaka);
+      // Dhuhr due 10 min ago, deferred by Android: still pending, unshown.
+      final overdue = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.dhuhr,
+        at: now.subtract(const Duration(minutes: 10)),
+      );
+      // Lost alarm from yesterday (e.g. app force-stopped).
+      final stale = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.fajr,
+        at: now.subtract(const Duration(days: 1)),
+      );
+      final kept = azan(Prayer.asr);
+      final dropped = azan(Prayer.isha); // e.g. its azan was switched off
+      plugin.pending.addAll([overdue.id, stale.id, kept.id, dropped.id]);
+
+      await scheduler.reschedule([kept], _texts);
+
+      expect(plugin.cancelled, {stale.id, dropped.id});
+      expect(plugin.pending, {overdue.id, kept.id});
+      expect(plugin.scheduled.keys, {kept.id});
+    },
+  );
 
   test(
     'one failing item still schedules the rest; only all-failed fails',

@@ -95,21 +95,31 @@ final class NotificationItem {
   /// counter wraps every ~42.5 years (next in 2055). Harmless: a wrap only
   /// collides ids ~42 years apart, far beyond any planned window.
   int get id {
-    final minute =
-        DateTime.utc(
-          at.year,
-          at.month,
-          at.day,
-          at.hour,
-          at.minute,
-        ).millisecondsSinceEpoch ~/
-        Duration.millisecondsPerMinute;
-    // kind × prayer slot (< 6), from stable codes (never `.index`): a new
-    // or reordered enum value can't shift the ids of pending notifications.
-    const perMinute = NotificationKind.kindCapacity * 6;
     final slot = kind.code * 6 + _prayerSlot(prayer);
-    return (minute % (0x7FFFFFFF ~/ perMinute)) * perMinute + slot;
+    return (_minuteOf(at) % _minuteWrap) * _perMinute + slot;
   }
+
+  // kind × prayer slot (< 6), from stable codes (never `.index`): a new
+  // or reordered enum value can't shift the ids of pending notifications.
+  static const _perMinute = NotificationKind.kindCapacity * 6;
+  static const _minuteWrap = 0x7FFFFFFF ~/ _perMinute;
+
+  static int _minuteOf(DateTime at) =>
+      DateTime.utc(
+        at.year,
+        at.month,
+        at.day,
+        at.hour,
+        at.minute,
+      ).millisecondsSinceEpoch ~/
+      Duration.millisecondsPerMinute;
+
+  /// How long before [now] (same wall clock as [at]) the notification with
+  /// [id] was due, read back from the minute encoded in the id. A future
+  /// id reads as ~42 years overdue (the counter wraps), so compare against
+  /// a short grace only.
+  static Duration overdueBy(int id, DateTime now) =>
+      Duration(minutes: (_minuteOf(now) - id ~/ _perMinute) % _minuteWrap);
 
   static int _prayerSlot(Prayer? prayer) => switch (prayer) {
     null => 0,
