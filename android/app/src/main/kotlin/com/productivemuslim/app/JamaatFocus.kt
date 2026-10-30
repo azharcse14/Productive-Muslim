@@ -260,14 +260,15 @@ object JamaatFocus {
         )
         am.cancel(pi)
         if (at == null) return
+        val inexact = FocusPlan.inexactHop(at, System.currentTimeMillis())
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
-                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, inexact, pi)
             } else {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
             }
         } catch (e: SecurityException) {
-            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, inexact, pi)
         }
     }
 
@@ -293,7 +294,7 @@ object JamaatFocus {
             nm.createNotificationChannel(
                 NotificationChannel(
                     CHANNEL,
-                    text(c, "channelName").ifEmpty { "Jamaat focus" },
+                    text(c, "channelName").ifEmpty { c.getString(R.string.jamaat_focus_channel) },
                     NotificationManager.IMPORTANCE_LOW
                 )
             )

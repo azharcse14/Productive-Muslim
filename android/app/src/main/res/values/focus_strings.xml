@@ -4,4 +4,6 @@
     <string name="jamaat_focus_service_description">Locks the phone during jamaat, and for a set time when you shake it hard 5 times (nafs lock): while a session runs, other apps are covered with a lock screen. Nothing you see or type is read or collected.</string>
     <!-- Content description of the call button on the jamaat cover. -->
     <string name="jamaat_focus_phone">Phone</string>
+    <!-- Notification channel name until the app has pushed its own (channelFocus). -->
+    <string name="jamaat_focus_channel">Jamaat focus</string>
 </resources>
