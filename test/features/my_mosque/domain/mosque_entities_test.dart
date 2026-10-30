@@ -39,6 +39,23 @@ void main() {
       );
     });
 
+    test('placeNear keeps the raw time for the outside-waqt warning', () {
+      expect(
+        JamaatConfig.placeNear(
+          DateTime(2026, 6, 14, 23, 50),
+          const ClockTime(0, 15),
+        ),
+        DateTime(2026, 6, 15, 0, 15),
+      );
+      expect(
+        JamaatConfig.placeNear(
+          DateTime(2026, 6, 20, 22, 30),
+          const ClockTime(20, 0),
+        ),
+        DateTime(2026, 6, 20, 20),
+      );
+    });
+
     test('an after-midnight jamaat follows an evening isha', () {
       const config = JamaatConfig({Prayer.isha: FixedJamaat(ClockTime(0, 15))});
       expect(
