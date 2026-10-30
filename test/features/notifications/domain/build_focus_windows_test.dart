@@ -70,6 +70,46 @@ void main() {
       window: const Duration(hours: 24),
     );
     expect(w.map((e) => e.prayer), [Prayer.dhuhr]);
+    // ...so no "prayed in jamaat?" end item for it either.
+    final plan = buildNotificationPlan(
+      from: DateTime(2026, 5, 12, 3),
+      days: [_day(12)],
+      matrix: _on,
+      jamaat: JamaatConfig.none,
+      focusWindows: w,
+    );
+    expect(
+      plan
+          .where((i) => i.kind == NotificationKind.focusEnd)
+          .map((i) => i.prayer),
+      [Prayer.dhuhr],
+    );
+  });
+
+  test("invariant: every focus window's jamaat lies within its waqt", () {
+    final days = [_day(12), _day(13), _day(14)];
+    final w = buildFocusWindows(
+      from: DateTime(2026, 5, 12, 3),
+      days: days,
+      matrix: _on,
+      jamaat: const JamaatConfig({
+        Prayer.fajr: FixedJamaat(ClockTime(5, 30)), // past sunrise 05:10
+        Prayer.dhuhr: OffsetJamaat(Duration(minutes: 20)),
+        Prayer.asr: FixedJamaat(ClockTime(17, 0)),
+        Prayer.maghrib: OffsetJamaat(Duration(hours: 2)), // past isha
+        Prayer.isha: FixedJamaat(ClockTime(0, 15)), // after midnight
+      }),
+    );
+    for (final f in w) {
+      final jamaatAt = f.start.add(_on.jamaatFocusLead);
+      final day = days.lastWhere((d) => !d.startOf(f.prayer).isAfter(jamaatAt));
+      expect(jamaatAt.isBefore(day.endOf(f.prayer)), isTrue, reason: '$f');
+    }
+    expect(w.map((e) => e.prayer).toSet(), {
+      Prayer.dhuhr,
+      Prayer.asr,
+      Prayer.isha,
+    });
   });
 
   test('zero duration = until the user ends it', () {
