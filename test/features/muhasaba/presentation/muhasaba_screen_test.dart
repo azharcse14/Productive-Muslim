@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -318,6 +319,30 @@ void main() {
         find.text("This prayer's time hasn't started yet"),
         findsOneWidget,
       );
+    });
+
+    testWidgets('date picker ends at the store today, not the device day', (
+      tester,
+    ) async {
+      // Manual city a day ahead of the device (NY evening → Dhaka morning).
+      final ahead = DateTime.now().add(const Duration(days: 1));
+      final aheadStore = MuhasabaStore(
+        InMemoryMuhasabaRepository(),
+        now: () => ahead,
+        statsDebounce: Duration.zero,
+      );
+      await aheadStore.load();
+      GetIt.I.unregister<MuhasabaStore>();
+      GetIt.I.registerSingleton<MuhasabaStore>(aheadStore);
+
+      await pumpAndDismissWelcome(tester);
+      await tester.tap(find.text(DateFormat.MMMEd('en').format(ahead)));
+      await tester.pumpAndSettle();
+      final picker = tester.widget<DatePickerDialog>(
+        find.byType(DatePickerDialog),
+      );
+      expect(picker.lastDate, aheadStore.today);
+      expect(picker.initialDate, aheadStore.today);
     });
 
     testWidgets('count stepper + persists the incremented value', (

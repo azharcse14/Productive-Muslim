@@ -593,7 +593,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         if (!_store.selectedIsToday)
           QChip(
             label: l10n.todayTab,
-            onTap: () => unawaited(_store.selectDate(_todayDate())),
+            onTap: () => unawaited(_store.selectDate(_store.today)),
           ),
         IconButton(
           tooltip: l10n.nextDay,
@@ -604,14 +604,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     );
   }
 
-  DateTime _todayDate() {
-    final n = DateTime.now();
-    return DateTime(n.year, n.month, n.day);
-  }
-
   Future<void> _pickDate(BuildContext context) async {
-    // The store clamps to its own clock; the picker just bars the future.
-    final today = _todayDate();
+    // The store's clock (location wall time), not the device's: a manual
+    // city a day ahead must still be able to pick its today.
+    final today = _store.today;
     final selected = _store.selectedDate.value;
     final picked = await showDatePicker(
       context: context,
