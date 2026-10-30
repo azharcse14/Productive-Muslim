@@ -179,32 +179,43 @@ final class HomeStore {
     () => mosqueResolution.value.profile?.config ?? JamaatConfig.none,
   );
 
-  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
-  /// at that Dhuhr (not now) has a Jumu'ah time — the rule notifications
-  /// and the widget use. Memoized: flips at most at a day or mosque change.
-  late final jumuahToday = computed(() {
+  /// On a Friday, the jamaat config of the mosque active at that Dhuhr (not
+  /// now) — the Jumu'ah row's mosque, the rule notifications and the widget
+  /// use. Null on other days.
+  late final _fridayDhuhrConfig = computed<JamaatConfig?>(() {
     final dhuhr = prayerDay.value?.dhuhr;
-    return dhuhr != null &&
-        dhuhr.weekday == DateTime.friday &&
-        resolveActiveMosque(
-              _mosque.state.value,
-              dhuhr,
-            ).profile?.config.jumuah !=
-            null;
+    if (dhuhr == null || dhuhr.weekday != DateTime.friday) {
+      return null;
+    }
+    return resolveActiveMosque(_mosque.state.value, dhuhr).profile?.config ??
+        JamaatConfig.none;
   });
 
-  /// Each prayer row's jamaat moment (active mosque): the overnight row's
-  /// from its own (yesterday's) waqt start. Recomputes only when a
-  /// dependency flips.
+  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
+  /// at that Dhuhr has a Jumu'ah time. Memoized: flips at most at a day or
+  /// mosque change.
+  late final jumuahToday = computed(
+    () => _fridayDhuhrConfig.value?.jumuah != null,
+  );
+
+  /// Each prayer row's jamaat moment: the overnight row's from its own
+  /// (yesterday's) waqt start, Friday's Dhuhr from the mosque active at that
+  /// Dhuhr (so the time matches the [jumuahToday] label), the rest from the
+  /// mosque active now. Recomputes only when a dependency flips.
   late final rowJamaat = computed<Map<Prayer, DateTime>>(() {
     final day = prayerDay.value;
     if (day == null) {
       return const {};
     }
-    final config = jamaatConfig.value;
+    final current = jamaatConfig.value;
+    final friday = _fridayDhuhrConfig.value;
     return {
       for (final prayer in Prayer.values)
-        if (config.timeFor(prayer, waqtRangeOf(prayer)!.$1) case final t?)
+        if ((prayer == Prayer.dhuhr ? friday ?? current : current).timeFor(
+              prayer,
+              waqtRangeOf(prayer)!.$1,
+            )
+            case final t?)
           prayer: t,
     };
   });
