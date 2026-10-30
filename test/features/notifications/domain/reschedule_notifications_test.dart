@@ -190,7 +190,10 @@ void main() {
         getPrayerDay: GetPrayerDay(_LateIshaRepository()),
         scheduler: scheduler,
         clock: _FixedClock(DateTime(2026, 6, 15, 0, 10), TimezoneClock()),
-      )(settings: const AppSettings(location: _dhaka), texts: _texts);
+      )(
+        settings: const AppSettings(location: _dhaka),
+        texts: _texts,
+      );
       final ishas = scheduler.lastPlan!.where(
         (i) => i.kind == NotificationKind.azan && i.prayer == Prayer.isha,
       );

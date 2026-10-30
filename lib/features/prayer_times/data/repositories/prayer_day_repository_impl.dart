@@ -43,8 +43,13 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           date.day + dayOffset,
           12,
         );
+        // Only Isha depends on it, and Isha comes after Maghrib, when the
+        // Hijri day has already turned: ask about the next civil day.
         final ramadan =
-            HijriDate.fromGregorian(day, offsetDays: offset).month ==
+            HijriDate.fromGregorian(
+              day.add(const Duration(days: 1)),
+              offsetDays: offset,
+            ).month ==
             HijriDate.ramadanMonth;
         return adhan.PrayerTimes(
           date: day,
@@ -59,8 +64,10 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
       // Fajr ends at the method's sunrise; the makruh window uses the sun's.
       final sunriseOffset =
-          _calculationParameters(params, false)
-              .methodAdjustments[adhan.Prayer.sunrise] ??
+          _calculationParameters(
+            params,
+            false,
+          ).methodAdjustments[adhan.Prayer.sunrise] ??
           0;
 
       return Result.success(
@@ -69,8 +76,9 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           // Rounded *up* like the rest, but sunrise ends Fajr: take a
           // minute off so Fajr never shows as running past true sunrise.
           sunrise: wall(times.sunrise).subtract(const Duration(minutes: 1)),
-          trueSunrise: wall(times.sunrise)
-              .subtract(Duration(minutes: 1 + sunriseOffset)),
+          trueSunrise: wall(
+            times.sunrise,
+          ).subtract(Duration(minutes: 1 + sunriseOffset)),
           sunset: wall(times.sunset),
           dhuhr: wall(times.dhuhr),
           asr: wall(times.asr),

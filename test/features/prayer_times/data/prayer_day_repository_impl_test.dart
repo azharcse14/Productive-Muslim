@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
@@ -200,5 +201,27 @@ void main() {
     // 2026-03-02 is in Ramadan 1447; 2026-04-02 is not.
     expect(gap(DateTime(2026, 3, 2)), const Duration(minutes: 120));
     expect(gap(DateTime(2026, 4, 2)), const Duration(minutes: 90));
+  });
+
+  test('Umm al-Qura: the Ramadan Isha follows the Hijri day turning at '
+      'Maghrib', () {
+    const params = PrayerParams(method: CalculationMethodId.ummAlQura);
+    Duration gap(DateTime d) {
+      final day = repo
+          .prayerDay(location: _dhaka, params: params, date: d)
+          .valueOrNull!;
+      return day.isha.difference(day.maghrib);
+    }
+
+    final first = const HijriDate(1447, 9, 1).toGregorian();
+    final eid = const HijriDate(1447, 10, 1).toGregorian();
+    DateTime civil(DateTime d, int plus) =>
+        DateTime(d.year, d.month, d.day + plus);
+    // The evening before 1 Ramadan is its first night (Taraweeh).
+    expect(gap(civil(first, -2)), const Duration(minutes: 90));
+    expect(gap(civil(first, -1)), const Duration(minutes: 120));
+    // The evening of the last fast is Eid night.
+    expect(gap(civil(eid, -2)), const Duration(minutes: 120));
+    expect(gap(civil(eid, -1)), const Duration(minutes: 90));
   });
 }
