@@ -275,6 +275,14 @@ final class MuhasabaStore {
     if (day.isAfter(_today())) {
       return;
     }
+    // An archived tracker takes no new entries (or it would keep streaks
+    // and badges alive). Asks the repository: callers may run pre-[load].
+    final active = await _repository.items();
+    if (!(active.valueOrNull ?? const <TrackerItem>[]).any(
+      (i) => i.id == itemId,
+    )) {
+      return;
+    }
     final existing = await _repository.entriesOn(day);
     if ((existing.valueOrNull ?? const <DailyEntry>[]).any(
       (e) => e.itemId == itemId && e.value > 0,

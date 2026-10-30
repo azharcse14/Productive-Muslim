@@ -308,6 +308,14 @@ void main() {
       },
     );
 
+    test('markDoneOn skips an archived tracker', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setArchived('sadaqah', archived: true);
+      await store.markDoneOn('sadaqah', DateTime(2026, 6, 12));
+      expect(repo.entries_.containsKey(('sadaqah', 20260612)), isFalse);
+      expect(store.archivedItems.value.map((i) => i.id), ['sadaqah']);
+    });
+
     test('markDoneOn ignores a date after today', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
       await store.markDoneOn('salah_fajr', DateTime(2026, 6, 13));
