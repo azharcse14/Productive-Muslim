@@ -55,6 +55,7 @@ void main() {
           prayer: Prayer.dhuhr,
           start: DateTime.utc(2026, 10, 29, 13),
           end: DateTime.utc(2026, 10, 29, 13, 20),
+          prayerDay: DateTime(2026, 10, 29),
         ),
       ],
       enabled: true,
@@ -83,5 +84,16 @@ void main() {
     final args = await scheduled(blocking: true);
     expect(args['block'], isTrue);
     expect(args['nafs'], isTrue);
+  });
+
+  test('each window carries its jamaat key (prayer day + prayer)', () async {
+    final args = await scheduled(blocking: true);
+    expect(args['windows'], [
+      [
+        DateTime.utc(2026, 10, 29, 13).millisecondsSinceEpoch,
+        DateTime.utc(2026, 10, 29, 13, 20).millisecondsSinceEpoch,
+        202610292,
+      ],
+    ]);
   });
 }

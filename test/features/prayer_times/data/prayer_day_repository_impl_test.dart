@@ -180,6 +180,40 @@ void main() {
     expect(day.dhuhr.day, 21);
   });
 
+  for (final (name, lat, lng, tz) in [
+    ('Apia', -13.83, -171.76, 'Pacific/Apia'), // UTC+13
+    ('Kiritimati', 1.87, -157.43, 'Pacific/Kiritimati'), // UTC+14
+    ('Honolulu', 21.31, -157.86, 'Pacific/Honolulu'), // UTC−10
+    ('Auckland', -36.85, 174.76, 'Pacific/Auckland'), // UTC+12/13
+  ]) {
+    test('$name: every time of the day falls on that local date', () {
+      final city = ManualCityLocation(
+        City(
+          name: name,
+          countryCode: 'XX',
+          latitude: lat,
+          longitude: lng,
+          timezone: tz,
+        ),
+      );
+      final d = DateTime(2026, 3, 10);
+      final day = repo
+          .prayerDay(location: city, params: const PrayerParams(), date: d)
+          .valueOrNull!;
+      for (final t in [
+        day.fajr,
+        day.sunrise,
+        day.dhuhr,
+        day.asr,
+        day.maghrib,
+      ]) {
+        expect((t.year, t.month, t.day), (2026, 3, 10), reason: '$t');
+      }
+      expect(day.fajrTomorrow.day, 11);
+      expect(day.ishaYesterday.day, 9);
+    });
+  }
+
   test('times are whole minutes', () {
     final day = repo
         .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)

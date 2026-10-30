@@ -236,8 +236,11 @@ final class MuhasabaStore {
     int value, {
     bool debounceStats = false,
   }) async {
-    // Can't mark a salah whose waqt hasn't started yet (today only).
+    // Can't mark a salah whose waqt hasn't started yet (today, or
+    // yesterday's after-midnight isha). Other items skip the prayer-time
+    // computation.
     if (value > 0 &&
+        DefaultTrackers.salahIds.contains(itemId) &&
         (_lockedSalahOn?.call(day) ?? const <String>{}).contains(itemId)) {
       return;
     }

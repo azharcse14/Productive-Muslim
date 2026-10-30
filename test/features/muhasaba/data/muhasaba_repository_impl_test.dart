@@ -77,6 +77,21 @@ void main() {
       );
       expect(stats.days.single.completion, 1.0);
     });
+
+    test('a hidden unknown-kind item extends no streak', () async {
+      await unwrap(repo.upsertItem(_item('future', sortOrder: 0)));
+      final day = DateTime(2026, 6, 12);
+      await unwrap(repo.setEntry(_entry('future', day, 1)));
+      await db.customStatement(
+        "UPDATE tracker_items SET kind = 99 WHERE id = 'future'",
+      );
+
+      final stats = await unwrap(
+        repo.periodStats(start: day, end: day, today: day),
+      );
+      expect((stats.currentStreak, stats.bestStreak), (0, 0));
+      expect(await unwrap(repo.doneDates({'future'})), isEmpty);
+    });
   });
 
   group('seedDefaults', () {

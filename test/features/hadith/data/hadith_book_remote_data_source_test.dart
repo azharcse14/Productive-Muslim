@@ -70,25 +70,29 @@ final class _FakeHttp {
 
 void main() {
   group('HadithBookRemoteDataSource — fawazahmed0 editions', () {
-    test('en: zips Arabic + English, parses grades, skips malformed rows', () async {
-      final http = _FakeHttp({
-        'ara-tirmidhi': _edition({1: 'ar1', 2: 'ar2'}, grade: 'Hasan'),
-        'eng-tirmidhi': _edition({1: ' en1 ', 2: 'en2'}),
-      });
-      final hadith = await HadithBookRemoteDataSource(http.call)
-          .fetchSection(_book(), _section, 'en');
+    test(
+      'en: zips Arabic + English, parses grades, skips malformed rows',
+      () async {
+        final http = _FakeHttp({
+          'ara-tirmidhi': _edition({1: 'ar1', 2: 'ar2'}, grade: 'Hasan'),
+          'eng-tirmidhi': _edition({1: ' en1 ', 2: 'en2'}),
+        });
+        final hadith = await HadithBookRemoteDataSource(
+          http.call,
+        ).fetchSection(_book(), _section, 'en');
 
-      expect(http.requested, [
-        '${ContentSources.hadithApiEditionsBase}/ara-tirmidhi/sections/3.min.json',
-        '${ContentSources.hadithApiEditionsBase}/eng-tirmidhi/sections/3.min.json',
-      ]);
-      expect(hadith.map((h) => h.number), [1, 2]);
-      expect(hadith.first.arabic, 'ar1');
-      expect(hadith.first.translation, 'en1');
-      expect(hadith.first.grade, 'Hasan');
-      expect(hadith.first.reference, "Jami' at-Tirmidhi 1");
-      expect(hadith.any((h) => h.fallbackTranslation), isFalse);
-    });
+        expect(http.requested, [
+          '${ContentSources.hadithApiEditionsBase}/ara-tirmidhi/sections/3.min.json',
+          '${ContentSources.hadithApiEditionsBase}/eng-tirmidhi/sections/3.min.json',
+        ]);
+        expect(hadith.map((h) => h.number), [1, 2]);
+        expect(hadith.first.arabic, 'ar1');
+        expect(hadith.first.translation, 'en1');
+        expect(hadith.first.grade, 'Hasan');
+        expect(hadith.first.reference, "Jami' at-Tirmidhi 1");
+        expect(hadith.any((h) => h.fallbackTranslation), isFalse);
+      },
+    );
 
     test(
       'bn: gaps in the Bengali edition fall back to English, flagged',
@@ -98,8 +102,9 @@ void main() {
           'ben-tirmidhi': _edition({1: 'bn1', 2: null}),
           'eng-tirmidhi': _edition({1: 'en1', 2: 'en2'}),
         });
-        final hadith = await HadithBookRemoteDataSource(http.call)
-            .fetchSection(_book(), _section, 'bn');
+        final hadith = await HadithBookRemoteDataSource(
+          http.call,
+        ).fetchSection(_book(), _section, 'bn');
 
         expect(hadith[0].translation, 'bn1');
         expect(hadith[0].fallbackTranslation, isFalse);
@@ -115,8 +120,9 @@ void main() {
           'ara-tirmidhi': _edition({1: 'ar1'}),
           'eng-tirmidhi': _edition({1: 'en1'}),
         });
-        final hadith = await HadithBookRemoteDataSource(http.call)
-            .fetchSection(_book(), _section, 'bn');
+        final hadith = await HadithBookRemoteDataSource(
+          http.call,
+        ).fetchSection(_book(), _section, 'bn');
 
         expect(hadith.single.translation, 'en1');
         expect(hadith.single.fallbackTranslation, isTrue);
@@ -128,10 +134,33 @@ void main() {
         'ara-tirmidhi': _edition({1: 'ar1'}),
       });
       await expectLater(
-        HadithBookRemoteDataSource(http.call)
-            .fetchSection(_book(), _section, 'bn'),
+        HadithBookRemoteDataSource(
+          http.call,
+        ).fetchSection(_book(), _section, 'bn'),
         throwsException,
       );
+    });
+
+    test('caches recent sections, but only a few', () async {
+      final http = _FakeHttp({
+        'ara-tirmidhi': _edition({1: 'ar1'}),
+        'eng-tirmidhi': _edition({1: 'en1'}),
+      });
+      final source = HadithBookRemoteDataSource(http.call);
+      HadithSection section(int n) =>
+          HadithSection(number: n, name: '$n', first: 1, last: 1, count: 1);
+      Future<void> open(int n) =>
+          source.fetchSection(_book(), section(n), 'en');
+
+      await open(1);
+      await open(1);
+      expect(http.requested, hasLength(2)); // Arabic + English, then cached
+      for (var n = 2; n <= 4; n++) {
+        await open(n); // 2 entries each: section 1 falls out of the cache
+      }
+      http.requested.clear();
+      await open(1);
+      expect(http.requested, hasLength(2));
     });
 
     test('a body without a hadiths list parses to no hadith', () async {
@@ -139,8 +168,9 @@ void main() {
         'ara-tirmidhi': '[1, 2]',
         'eng-tirmidhi': '{"metadata": {}}',
       });
-      final hadith = await HadithBookRemoteDataSource(http.call)
-          .fetchSection(_book(), _section, 'en');
+      final hadith = await HadithBookRemoteDataSource(
+        http.call,
+      ).fetchSection(_book(), _section, 'en');
       expect(hadith, isEmpty);
     });
   });
@@ -191,8 +221,9 @@ void main() {
 
     test('a non-list chapter body parses to no hadith', () async {
       final http = _FakeHttp({'Chapter': '{"oops": true}'});
-      final hadith = await HadithBookRemoteDataSource(http.call)
-          .fetchSection(_book(bangla: true), _section, 'bn');
+      final hadith = await HadithBookRemoteDataSource(
+        http.call,
+      ).fetchSection(_book(bangla: true), _section, 'bn');
       expect(hadith, isEmpty);
     });
   });

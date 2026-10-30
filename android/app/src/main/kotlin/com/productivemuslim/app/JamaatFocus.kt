@@ -161,16 +161,14 @@ object JamaatFocus {
             until = 0L
         }
         if (until == 0L) {
-            FocusPlan.due(
-                windows(c), now, p.getLong("lastStart", 0L), p.getLong("lastEnd", 0L),
-            )
-                ?.let { start(c, it.first, it.second) }
+            FocusPlan.due(windows(c), now, p.getLong("lastStart", 0L), p.getLong("lastKey", 0L))
+                ?.let { start(c, it.start, it.end, it.key) }
             until = p.getLong(ACTIVE_UNTIL, 0L)
         }
         arm(c, FocusPlan.nextAlarm(windows(c), until, now))
     }
 
-    private fun start(c: Context, start: Long, end: Long) {
+    private fun start(c: Context, start: Long, end: Long, key: Long) {
         val nm = nm(c)
         // DND already on (Bedtime, the user's own) is left alone: we neither
         // loosen it nor take it over, so stop() never restores the wrong state.
@@ -179,6 +177,7 @@ object JamaatFocus {
         prefs(c).edit()
             .putLong(ACTIVE_UNTIL, if (end > 0) end else -1L)
             .putLong("lastStart", start)
+            .putLong("lastKey", key)
             .putString(KIND, "jamaat")
             .putBoolean("sessionStrict", prefs(c).getBoolean("strict", false))
             .putBoolean("silenced", silence)
@@ -206,15 +205,7 @@ object JamaatFocus {
                 p.getInt("prevFilter", NotificationManager.INTERRUPTION_FILTER_ALL)
             )
         }
-        p.edit().apply {
-            // Nafs sessions don't count: a jamaat due meanwhile still runs.
-            if (p.getString(KIND, null) == "jamaat") {
-                putLong("lastEnd", System.currentTimeMillis())
-            }
-            putLong(ACTIVE_UNTIL, 0L)
-            putBoolean("silenced", false)
-            remove(KIND)
-        }.apply()
+        p.edit().putLong(ACTIVE_UNTIL, 0L).putBoolean("silenced", false).remove(KIND).apply()
         nm.cancel(NOTIFICATION_ID)
         JamaatFocusActivity.current?.get()?.finish()
         JamaatFocusService.current?.get()?.syncShake()

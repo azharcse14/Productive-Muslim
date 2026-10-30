@@ -91,9 +91,11 @@ final class JamaatConfig {
         OffsetJamaat(:final offset) => waqtStart.add(offset),
       };
 
-  /// [time] on the calendar day within 12 h of [waqtStart]: an isha that
-  /// starts after midnight keeps a 23:45 jamaat on the same night, and an
-  /// evening isha puts a 00:15 jamaat after it.
+  /// [time] on the calendar day within 12 h of [waqtStart], so an evening
+  /// isha puts a 00:15 jamaat after it. A time that would fall on the
+  /// evening before (a 23:45 jamaat, isha starting at 00:20) is held at
+  /// [waqtStart] instead of a day late: no jamaat precedes its waqt, and
+  /// "mark as prayed" before it would be refused.
   static DateTime _near(DateTime waqtStart, ClockTime time) {
     DateTime on(int day) => DateTime(
       waqtStart.year,
@@ -104,7 +106,7 @@ final class JamaatConfig {
     );
     final gap = on(0).difference(waqtStart);
     if (gap > const Duration(hours: 12)) {
-      return on(-1);
+      return waqtStart;
     }
     if (gap < const Duration(hours: -12)) {
       return on(1);

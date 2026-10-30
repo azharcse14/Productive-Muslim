@@ -1,9 +1,9 @@
-/// Localized notification copy, resolved from l10n by the caller and
-/// passed down so the scheduler stays free of Flutter/l10n imports.
-/// Templates may contain `{prayer}` and `{time}` placeholders.
 /// [NotificationTexts.prayerNames] key for the Jumu'ah name.
 const jumuahNameKey = 'jumuah';
 
+/// Localized notification copy, resolved from l10n by the caller and
+/// passed down so the scheduler stays free of Flutter/l10n imports.
+/// Templates may contain `{prayer}` and `{time}` placeholders.
 final class NotificationTexts {
   const NotificationTexts({
     required this.azanTitle,

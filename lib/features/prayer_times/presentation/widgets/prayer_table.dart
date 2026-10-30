@@ -21,6 +21,7 @@ final class PrayerTable extends StatelessWidget {
     required this.day,
     required this.activePrayer,
     required this.jamaat,
+    this.jumuah = false,
     required this.formatTime,
     this.onSetJamaat,
     this.prayed = const {},
@@ -39,6 +40,9 @@ final class PrayerTable extends StatelessWidget {
   final PrayerDay day;
   final Prayer? activePrayer;
   final JamaatConfig jamaat;
+
+  /// Friday's Dhuhr reads Jumu'ah (see `HomeStore.jumuahToday`).
+  final bool jumuah;
 
   /// Yesterday's waqt still running after midnight (before Fajr): its row
   /// shows that window (e.g. last night's Isha → Fajr), not tonight's.
@@ -128,11 +132,7 @@ final class PrayerTable extends StatelessWidget {
             for (final (i, prayer) in Prayer.values.indexed) ...[
               _PrayerRow(
                 prayer: prayer,
-                name: l10n.prayerLabelOn(
-                  prayer,
-                  day.dhuhr,
-                  jumuah: jamaat.jumuah != null,
-                ),
+                name: l10n.prayerLabelOn(prayer, day.dhuhr, jumuah: jumuah),
                 range: overnight?.prayer == prayer
                     ? _range(
                         formatTime(overnight!.start),

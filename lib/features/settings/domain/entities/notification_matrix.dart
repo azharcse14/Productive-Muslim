@@ -85,6 +85,17 @@ final class NotificationMatrix {
 
   AzanMode modeFor(Prayer prayer) => prayerModes[prayer] ?? AzanMode.azan;
 
+  /// What a strict session with no length runs for instead: "until I end
+  /// it" can't be ended in strict mode.
+  static const strictFallbackDuration = Duration(minutes: 20);
+
+  /// [jamaatFocusDuration] as sessions use it: strict always has a length,
+  /// however the matrix was built.
+  Duration get effectiveFocusDuration =>
+      jamaatFocusStrict && jamaatFocusDuration == Duration.zero
+      ? strictFallbackDuration
+      : jamaatFocusDuration;
+
   NotificationMatrix copyWith({
     Map<Prayer, AzanMode>? prayerModes,
     bool? sahriAlert,
@@ -131,7 +142,7 @@ final class NotificationMatrix {
       jamaatFocusLead: jamaatFocusLead ?? this.jamaatFocusLead,
       // Strict + "until I end it" would never end: fall back to 20 min.
       jamaatFocusDuration: strict && duration == Duration.zero
-          ? const Duration(minutes: 20)
+          ? strictFallbackDuration
           : duration,
       jamaatFocusPrayers: jamaatFocusPrayers ?? this.jamaatFocusPrayers,
       jamaatFocusBlock: jamaatFocusBlock ?? this.jamaatFocusBlock,

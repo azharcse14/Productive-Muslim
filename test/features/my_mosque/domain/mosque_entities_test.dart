@@ -15,12 +15,17 @@ void main() {
     });
 
     test('isha starting after midnight keeps a late-evening jamaat on the '
-        'same night', () {
+        'same night, never before the waqt', () {
       const config = JamaatConfig({
         Prayer.isha: FixedJamaat(ClockTime(23, 45)),
       });
       expect(
         config.timeFor(Prayer.isha, DateTime(2026, 6, 15, 0, 20)),
+        DateTime(2026, 6, 15, 0, 20),
+      );
+      // Waqt still on the 14th: the jamaat stays as set.
+      expect(
+        config.timeFor(Prayer.isha, DateTime(2026, 6, 14, 23, 30)),
         DateTime(2026, 6, 14, 23, 45),
       );
     });

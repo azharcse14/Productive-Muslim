@@ -36,6 +36,10 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       final offset = _hijriOffset();
       // Whole minutes, rounded up: the displayed (minute-only) time, the
       // countdown and the notification then agree, and never run early.
+      // adhan computes the solar day of a UTC date. Where the zone runs a
+      // day ahead of solar time (Samoa, UTC+13 at 172°W) that day's times
+      // land on the next local date: [shift] picks the matching solar day.
+      var shift = 0;
       adhan.PrayerTimes timesOn(int dayOffset) {
         final day = DateTime.utc(
           date.year,
@@ -52,16 +56,22 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
             ).month ==
             HijriDate.ramadanMonth;
         return adhan.PrayerTimes(
-          date: day,
+          date: day.add(Duration(days: shift)),
           coordinates: coordinates,
           calculationParameters: _calculationParameters(params, ramadan),
         );
       }
 
+      DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
+      final noon = wall(timesOn(0).dhuhr);
+      shift = DateTime.utc(
+        date.year,
+        date.month,
+        date.day,
+      ).difference(DateTime.utc(noon.year, noon.month, noon.day)).inDays;
+
       final times = timesOn(0);
       final yesterday = timesOn(-1);
-
-      DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
       // Fajr ends at the method's sunrise; the makruh window uses the sun's.
       final sunriseOffset =
           _calculationParameters(

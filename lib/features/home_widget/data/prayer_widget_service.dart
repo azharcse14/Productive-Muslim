@@ -11,6 +11,7 @@ import '../../my_mosque/presentation/state/mosque_store.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
 import '../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../prayer_times/presentation/screens/home_formatting.dart';
+import '../../settings/domain/entities/prayer_params.dart';
 import '../../settings/domain/repositories/zoned_clock.dart';
 import '../../settings/presentation/state/settings_store.dart';
 import '../../settings/presentation/widgets/setting_labels.dart';
@@ -83,17 +84,20 @@ final class PrayerWidgetService {
       String formatTime(DateTime t) =>
           LocaleDigits.localize(DateFormat.jm(code).format(t), code);
 
-      // Same rule as the prayer table: Friday Dhuhr reads Jumu'ah only when
-      // the mosque active at that Dhuhr has a Jumu'ah time.
+      // Same rule as Home: Friday Dhuhr reads Jumu'ah only when the mosque
+      // active at that Dhuhr has a Jumu'ah time (resolved for it alone).
       final mosqueState = _mosque?.state.value;
-      bool jumuahAt(DateTime at) =>
+      bool jumuahAt(Prayer p, DateTime at) =>
+          p == Prayer.dhuhr &&
+          at.weekday == DateTime.friday &&
           mosqueState != null &&
           resolveActiveMosque(mosqueState, at).profile?.config.jumuah != null;
 
       final payload = buildWidgetPayload(
         days: days,
         nextPrayerLabel: l10n.widgetNextPrayerLabel,
-        prayerName: (p, at) => l10n.prayerLabelOn(p, at, jumuah: jumuahAt(at)),
+        prayerName: (p, at) =>
+            l10n.prayerLabelOn(p, at, jumuah: jumuahAt(p, at)),
         formatTime: formatTime,
         locationLabel: locationLabel,
         setupAction: l10n.widgetSetupAction,

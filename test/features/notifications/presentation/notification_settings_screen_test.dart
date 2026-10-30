@@ -5,6 +5,9 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
 import 'package:productive_muslim/features/notifications/data/jamaat_focus_bridge.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
@@ -111,19 +114,41 @@ final class _FakeLauncher implements ExternalLauncher {
 late _InMemoryRepo _repo;
 late NotificationController _controller;
 
+/// Wall clock pinned to [now] (instant conversions stay real).
+final class _FixedClock implements ZonedClock {
+  _FixedClock(this.now);
+
+  final DateTime now;
+  final _real = TimezoneClock();
+
+  @override
+  DateTime nowAt(LocationConfig location) => now;
+
+  @override
+  DateTime instantAt(LocationConfig location, DateTime instant) =>
+      _real.instantAt(location, instant);
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      _real.utcInstantOf(location, wall);
+}
+
 Future<void> _register(
   _FakeScheduler scheduler, {
   AppSettings settings = const AppSettings(),
+  MosqueState mosqueState = const MosqueState(),
+  ZonedClock? clock,
 }) async {
   _repo = _InMemoryRepo()..stored = settings;
   final store = SettingsStore(GetSettings(_repo), SaveSettings(_repo));
   await store.load();
-  final (mosque, _) = await makeMosqueStore();
+  final (mosque, _) = await makeMosqueStore(mosqueState);
+  final zoned = clock ?? TimezoneClock();
   _controller = NotificationController(
     reschedule: RescheduleNotifications(
       getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
       scheduler: scheduler,
-      clock: TimezoneClock(),
+      clock: zoned,
     ),
     scheduler: scheduler,
     settings: store,
@@ -133,7 +158,7 @@ Future<void> _register(
     ..registerSingleton<SettingsStore>(store)
     ..registerSingleton<NotificationScheduler>(scheduler)
     ..registerSingleton<NotificationController>(_controller)
-    ..registerSingleton<ZonedClock>(TimezoneClock())
+    ..registerSingleton<ZonedClock>(zoned)
     ..registerSingleton<JamaatFocusControl>(const JamaatFocusBridge());
 }
 
@@ -417,6 +442,27 @@ void main() {
       await tester.pump();
       expect(find.text("It's time for Dhuhr."), findsOneWidget);
       expect(find.text("It's time for Fajr."), findsNothing);
+    });
+
+    testWidgets("Friday's Dhuhr reads Jumu'ah, as the OS shows it", (
+      tester,
+    ) async {
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(location: _dhaka),
+        mosqueState: const MosqueState(
+          profiles: [
+            MosqueProfile(id: 'a', name: 'A', jumuah: ClockTime(13, 30)),
+          ],
+          activeId: 'a',
+        ),
+        clock: _FixedClock(DateTime(2026, 10, 30, 8)), // a Friday
+      );
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      expect(find.text("It's time for Jumu'ah."), findsOneWidget);
+      expect(find.text("It's time for Dhuhr."), findsNothing);
     });
 
     testWidgets('denied permission offers to enable', (tester) async {
