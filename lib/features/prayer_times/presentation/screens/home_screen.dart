@@ -518,7 +518,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           if (target == null) {
             return const SizedBox.shrink();
           }
-          final jumuah = _store.jamaatConfig.value.jumuah != null;
+          final jumuah = _store.jumuahToday.value;
           var (eyebrow, sub) = countdownLabels(
             l10n,
             context,
@@ -674,6 +674,7 @@ final class _HomeScreenState extends State<HomeScreen> {
               ? null
               : _store.activeWaqt.value,
           jamaat: _store.jamaatConfig.value,
+          jumuah: _store.jumuahToday.value,
           formatTime: (t) => formatHomeTime(context, t),
           dense: compact,
           locked: _store.lockedPrayers.value,
@@ -726,10 +727,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                 null => null,
                 final t => formatHomeTime(context, t),
               },
-              // Same rule as the table's label (prayerLabelOn).
-              jumuah:
-                  day.dhuhr.weekday == DateTime.friday &&
-                  _store.jamaatConfig.value.jumuah != null,
+              jumuah: _store.jumuahToday.value,
             ),
           ),
         );

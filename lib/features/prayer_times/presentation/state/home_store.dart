@@ -179,6 +179,20 @@ final class HomeStore {
     () => mosqueResolution.value.profile?.config ?? JamaatConfig.none,
   );
 
+  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
+  /// at that Dhuhr (not now) has a Jumu'ah time — the rule notifications
+  /// and the widget use. Memoized: flips at most at a day or mosque change.
+  late final jumuahToday = computed(() {
+    final dhuhr = prayerDay.value?.dhuhr;
+    return dhuhr != null &&
+        dhuhr.weekday == DateTime.friday &&
+        resolveActiveMosque(
+              _mosque.state.value,
+              dhuhr,
+            ).profile?.config.jumuah !=
+            null;
+  });
+
   /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
   /// schedule's current target so it self-expires at the next window boundary.
   Future<void> overrideMosque(String mosqueId) => _mosque.setOverride(

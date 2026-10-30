@@ -16,7 +16,9 @@ import 'package:productive_muslim/features/hadith/presentation/state/hadith_stor
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_card.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -99,6 +101,7 @@ Future<void> _register({
   required bool withLocation,
   DateTime? now,
   HadithStore? hadith,
+  MosqueState mosqueState = const MosqueState(),
 }) async {
   SharedPreferencesAsyncPlatform.instance =
       InMemorySharedPreferencesAsync.empty();
@@ -112,7 +115,7 @@ Future<void> _register({
     SaveSettings(settingsRepo),
   );
   await settingsStore.load();
-  final (mosqueStore, _) = await makeMosqueStore();
+  final (mosqueStore, _) = await makeMosqueStore(mosqueState);
   final (muhasabaStore, muhasabaRepo) = await makeMuhasabaStore(
     now: () => _clock.current,
   );
@@ -191,6 +194,35 @@ void main() {
       final mosque = GetIt.I<MosqueStore>();
       final profile = await mosque.addProfile('Baitul');
       await mosque.setJumuah(profile.id, const ClockTime(13, 30));
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text("Jumu'ah"), findsOneWidget);
+    });
+
+    testHomeWidgets("Jumu'ah follows the mosque active at Friday's Dhuhr", (
+      tester,
+    ) async {
+      // 04:00 Friday: mosque A (no Jumu'ah) is active; from 11:00 the
+      // schedule switches to B, which has one.
+      await _register(
+        withLocation: true,
+        mosqueState: const MosqueState(
+          profiles: [
+            MosqueProfile(id: 'a', name: 'A'),
+            MosqueProfile(id: 'b', name: 'B', jumuah: ClockTime(13, 30)),
+          ],
+          mode: ScheduleMode.auto,
+          defaultId: 'a',
+          rules: [
+            MosqueRule(
+              mosqueId: 'b',
+              start: ClockTime(11, 0),
+              end: ClockTime(15, 0),
+              days: {DateTime.friday},
+            ),
+          ],
+        ),
+      );
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(find.text("Jumu'ah"), findsOneWidget);
