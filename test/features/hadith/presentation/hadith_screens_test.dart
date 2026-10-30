@@ -254,6 +254,8 @@ void main() {
 
       expect(find.byType(HadithSectionScreen), findsOneWidget);
       expect(find.text('Actions are by intentions'), findsOneWidget);
+      // A lookup isn't reading: "Continue reading" stays untouched.
+      expect(GetIt.I<HadithBooksStore>().lastOpened.value, isNull);
     });
 
     testWidgets('a failed fetch shows the retry affordance', (tester) async {

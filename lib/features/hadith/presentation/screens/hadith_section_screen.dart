@@ -75,7 +75,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
             : 0,
       );
       unawaited(_load());
-      if (locator.isRegistered<HadithBooksStore>()) {
+      if (_tracksPosition) {
         final languageCode = Localizations.localeOf(context).languageCode;
         // After this frame: the books list watching it may be mid-build.
         WidgetsBinding.instance.addPostFrameCallback(
