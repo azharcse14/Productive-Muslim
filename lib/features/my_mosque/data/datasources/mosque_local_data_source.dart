@@ -12,6 +12,10 @@ final class MosqueLocalDataSource {
 
   static const _key = 'mosque_state_v1';
 
+  /// Last blob that failed to parse, kept verbatim so the next save (which
+  /// overwrites [_key]) can't destroy the user's mosques.
+  static const unreadableKey = 'mosque_state_v1_unreadable';
+
   final SharedPreferencesAsync _prefs;
 
   Future<MosqueState> read() async {
@@ -19,11 +23,16 @@ final class MosqueLocalDataSource {
     if (raw == null) {
       return const MosqueState();
     }
-    final decoded = jsonDecode(raw);
-    if (decoded is! Map) {
-      return const MosqueState();
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return MosqueStateModel.fromMap(decoded.cast<String, Object?>());
+      }
+    } on FormatException {
+      // fall through to quarantine
     }
-    return MosqueStateModel.fromMap(decoded.cast<String, Object?>());
+    await _prefs.setString(unreadableKey, raw);
+    return const MosqueState();
   }
 
   Future<void> write(MosqueState state) =>

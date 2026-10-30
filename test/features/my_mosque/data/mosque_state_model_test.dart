@@ -107,6 +107,21 @@ void main() {
       expect(restored.rules, isEmpty);
     });
 
+    test('wrong-typed ids and entries load without throwing', () {
+      final state = MosqueStateModel.fromMap(const {
+        'profiles': [
+          {'id': 'a', 'name': 'A', 'entries': 'oops'},
+        ],
+        'activeId': 7,
+        'defaultId': ['a'],
+        'override': {'mosqueId': 'a', 'baselineAutoId': 3},
+      });
+      expect(state.profiles.single.entries, isEmpty);
+      expect(state.activeId, isNull);
+      expect(state.defaultId, isNull);
+      expect(state.activeOverride?.baselineAutoId, isNull);
+    });
+
     test('corrupt rules are skipped without throwing', () {
       final state = MosqueStateModel.fromMap(const {
         'mode': 'auto',

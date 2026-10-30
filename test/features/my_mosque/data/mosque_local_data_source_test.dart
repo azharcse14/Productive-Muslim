@@ -41,5 +41,16 @@ void main() {
       await source.write(state);
       expect(await source.read(), state);
     });
+
+    for (final raw in ['{"profiles": ', '[1]', '"x"']) {
+      test('unreadable payload $raw is quarantined before a save', () async {
+        final prefs = SharedPreferencesAsync();
+        await prefs.setString('mosque_state_v1', raw);
+        final source = MosqueLocalDataSource(prefs);
+        expect(await source.read(), const MosqueState());
+        await source.write(const MosqueState());
+        expect(await prefs.getString(MosqueLocalDataSource.unreadableKey), raw);
+      });
+    }
   });
 }

@@ -62,17 +62,19 @@ abstract final class MosqueStateModel {
           for (final raw in rawProfiles)
             if (_profile(raw) case final MosqueProfile profile) profile,
       ],
-      activeId: map['activeId'] as String?,
+      activeId: _string(map['activeId']),
       mode: map['mode'] == 'auto' ? ScheduleMode.auto : ScheduleMode.manual,
       rules: [
         if (rawRules is List)
           for (final raw in rawRules)
             if (_rule(raw) case final MosqueRule rule) rule,
       ],
-      defaultId: map['defaultId'] as String?,
+      defaultId: _string(map['defaultId']),
       activeOverride: _override(map['override']),
     );
   }
+
+  static String? _string(Object? raw) => raw is String ? raw : null;
 
   /// Null when the rule shape is unusable (missing mosqueId / times).
   static MosqueRule? _rule(Object? raw) {
@@ -127,7 +129,7 @@ abstract final class MosqueStateModel {
     }
     return MosqueOverride(
       mosqueId: mosqueId,
-      baselineAutoId: map['baselineAutoId'] as String?,
+      baselineAutoId: _string(map['baselineAutoId']),
       setOn: switch (map['setOn']) {
         final String s => DateTime.tryParse(s),
         _ => null,
@@ -146,7 +148,10 @@ abstract final class MosqueStateModel {
     if (id is! String || name is! String) {
       return null;
     }
-    final rawEntries = (map['entries'] as Map?)?.cast<String, Object?>() ?? {};
+    final rawEntries = switch (map['entries']) {
+      final Map<Object?, Object?> m => m.cast<String, Object?>(),
+      _ => const <String, Object?>{},
+    };
     return MosqueProfile(
       id: id,
       name: name,
