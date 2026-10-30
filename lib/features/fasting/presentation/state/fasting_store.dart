@@ -114,7 +114,8 @@ final class FastingStore {
     final stamp = _stamp(DateTime(date.year, date.month, date.day));
     final next = Set<int>.from(logged.value);
     final nextQaza = Set<int>.from(qaza.value);
-    if (next.remove(stamp)) {
+    final removing = next.remove(stamp);
+    if (removing) {
       nextQaza.remove(stamp);
     } else {
       if (!canLog(date)) {
@@ -129,15 +130,30 @@ final class FastingStore {
     final previousQaza = qaza.value;
     logged.value = next;
     qaza.value = nextQaza;
-    try {
+    // Two keys, no transaction: order the writes so a failed second one
+    // leaves only a qaza stamp for an unlogged day, which [load] drops.
+    // Adding writes qaza first; removing writes the log first.
+    var logSaved = false;
+    Future<void> saveLog() async {
       await _prefs.setStringList(_key, [for (final v in next) v.toString()]);
-      await _prefs.setStringList(_qazaKey, [
-        for (final v in nextQaza) v.toString(),
-      ]);
+      logSaved = true;
+    }
+
+    Future<void> saveQaza() => _prefs.setStringList(_qazaKey, [
+      for (final v in nextQaza) v.toString(),
+    ]);
+    try {
+      if (removing) {
+        await saveLog();
+        await saveQaza();
+      } else {
+        await saveQaza();
+        await saveLog();
+      }
     } on Object {
-      // Not saved: don't show a tick the log doesn't have — unless another
-      // toggle has already moved the log on.
-      if (identical(logged.value, next)) {
+      // The log is what's on disk: keep showing it if it was saved, else
+      // roll back — unless another toggle has already moved the log on.
+      if (!logSaved && identical(logged.value, next)) {
         logged.value = previous;
         qaza.value = previousQaza;
       }
@@ -147,12 +163,21 @@ final class FastingStore {
 
   /// Sets (or clears, with null / 0) the number of qaza fasts owed.
   Future<void> setQazaOwed(int? owed) async {
+    await load();
     final value = owed == null || owed <= 0 ? null : owed;
+    final previous = qazaOwed.value;
     qazaOwed.value = value;
-    if (value == null) {
-      await _prefs.remove(_qazaOwedKey);
-    } else {
-      await _prefs.setInt(_qazaOwedKey, value);
+    try {
+      if (value == null) {
+        await _prefs.remove(_qazaOwedKey);
+      } else {
+        await _prefs.setInt(_qazaOwedKey, value);
+      }
+    } on Object {
+      if (qazaOwed.value == value) {
+        qazaOwed.value = previous;
+      }
+      rethrow;
     }
   }
 
