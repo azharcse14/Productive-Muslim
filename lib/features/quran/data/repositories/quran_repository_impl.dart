@@ -16,8 +16,9 @@ final class QuranRepositoryImpl implements QuranRepository {
   @override
   Future<Result<List<Surah>>> surahs() async {
     try {
-      final rows =
-          await _db.customSelect('SELECT * FROM surahs ORDER BY id').get();
+      final rows = await _db
+          .customSelect('SELECT * FROM surahs ORDER BY id')
+          .get();
       return Result.success(rows.map(_surahOf).toList());
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to load surahs', e));
@@ -27,10 +28,12 @@ final class QuranRepositoryImpl implements QuranRepository {
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async {
     try {
-      final rows = await _db.customSelect(
-        'SELECT * FROM ayahs WHERE surah = ? ORDER BY number',
-        variables: [Variable<int>(surah)],
-      ).get();
+      final rows = await _db
+          .customSelect(
+            'SELECT * FROM ayahs WHERE surah = ? ORDER BY number',
+            variables: [Variable<int>(surah)],
+          )
+          .get();
       return Result.success(rows.map(_ayahOf).toList());
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to load ayahs', e));
@@ -77,8 +80,9 @@ final class QuranRepositoryImpl implements QuranRepository {
   @override
   Future<Result<Set<int>>> bookmarkedAyahIds() async {
     try {
-      final rows =
-          await _db.customSelect('SELECT ayah_id FROM bookmarks').get();
+      final rows = await _db
+          .customSelect('SELECT ayah_id FROM bookmarks')
+          .get();
       return Result.success({for (final row in rows) row.read<int>('ayah_id')});
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to load bookmarks', e));
@@ -109,20 +113,20 @@ final class QuranRepositoryImpl implements QuranRepository {
   }
 
   Surah _surahOf(QueryRow row) => Surah(
-        id: row.read<int>('id'),
-        nameArabic: row.read<String>('name_arabic'),
-        transliteration: row.read<String>('transliteration'),
-        translationEn: row.read<String>('translation_en'),
-        ayahCount: row.read<int>('ayah_count'),
-        revelation: row.read<String>('revelation'),
-      );
+    id: row.read<int>('id'),
+    nameArabic: row.read<String>('name_arabic'),
+    transliteration: row.read<String>('transliteration'),
+    translationEn: row.read<String>('translation_en'),
+    ayahCount: row.read<int>('ayah_count'),
+    revelation: row.read<String>('revelation'),
+  );
 
   Ayah _ayahOf(QueryRow row) => Ayah(
-        id: row.read<int>('id'),
-        surah: row.read<int>('surah'),
-        number: row.read<int>('number'),
-        arabic: row.read<String>('arabic'),
-        translationEn: row.read<String>('translation_en'),
-        translationBn: row.read<String>('translation_bn'),
-      );
+    id: row.read<int>('id'),
+    surah: row.read<int>('surah'),
+    number: row.read<int>('number'),
+    arabic: row.read<String>('arabic'),
+    translationEn: row.read<String>('translation_en'),
+    translationBn: row.read<String>('translation_bn'),
+  );
 }

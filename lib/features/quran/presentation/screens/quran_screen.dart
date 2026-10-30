@@ -181,7 +181,17 @@ final class _QuranScreenState extends State<QuranScreen> {
                           child: FutureBuilder(
                             future: _previewAyahs.putIfAbsent(
                               position.surah,
-                              () => _store.ayahsOf(position.surah),
+                              () async {
+                                final a = await _store.ayahsOf(position.surah);
+                                // A failed read isn't cached: the next
+                                // build retries it.
+                                if (a == null) {
+                                  _previewAyahs.removeWhere(
+                                    (k, _) => k == position.surah,
+                                  );
+                                }
+                                return a;
+                              },
                             ),
                             builder: (context, snapshot) {
                               final reference = LocaleDigits.localize(
