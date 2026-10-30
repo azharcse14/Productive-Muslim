@@ -65,6 +65,7 @@ import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import '../../features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
+import '../../features/prayer_times/domain/usecases/locked_prayers.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
 import '../../features/qibla/data/datasources/sensor_data_source.dart';
 import '../../features/qibla/domain/repositories/compass_sensor_source.dart';
@@ -525,32 +526,25 @@ DateTime _wallNow() {
       : locator<ZonedClock>().nowAt(location);
 }
 
-/// Salah ids whose waqt hasn't begun on [date] at the location's clock —
-/// so muhasaba/home won't let them be checked off ahead of time. Older
-/// dates and no-location cases lock nothing (back-fill stays open);
-/// yesterday is checked too, as its isha can start after midnight.
+/// Salah ids whose waqt hasn't begun on [date] at the location's clock
+/// (see [lockedPrayersOn]), so muhasaba/home won't let them be checked off
+/// ahead of time. No location locks nothing.
 Set<String> _lockedSalahOn(DateTime date) {
   final settings = locator<SettingsStore>();
   final location = settings.location.value;
   if (location == null) {
     return const <String>{};
   }
-  final now = locator<ZonedClock>().nowAt(location);
-  final d = DateTime(date.year, date.month, date.day);
-  final yesterday = DateTime(now.year, now.month, now.day - 1);
-  if (d.isBefore(yesterday)) {
-    return const <String>{};
-  }
-  final day = locator<GetPrayerDay>()(
-    location: location,
-    params: settings.prayerParams.value,
-    date: d,
-  ).valueOrNull;
-  if (day == null) {
-    return const <String>{};
-  }
   return {
-    for (final prayer in Prayer.values)
-      if (now.isBefore(day.startOf(prayer))) 'salah_${prayer.name}',
+    for (final prayer in lockedPrayersOn(
+      date: date,
+      now: locator<ZonedClock>().nowAt(location),
+      dayOn: (d) => locator<GetPrayerDay>()(
+        location: location,
+        params: settings.prayerParams.value,
+        date: d,
+      ).valueOrNull,
+    ))
+      'salah_${prayer.name}',
   };
 }
