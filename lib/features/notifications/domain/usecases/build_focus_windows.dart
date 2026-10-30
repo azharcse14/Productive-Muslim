@@ -11,9 +11,13 @@ final class FocusWindow {
     required this.start,
     this.end,
     this.prayerDay,
+    this.jumuah = false,
   });
 
   final Prayer prayer;
+
+  /// Friday's Dhuhr with a Jumu'ah time set.
+  final bool jumuah;
 
   /// Date of the prayer day's fajr — differs from [start]'s date when isha
   /// runs past midnight (high latitudes). Files "mark as prayed".
@@ -28,10 +32,11 @@ final class FocusWindow {
       other is FocusWindow &&
       other.prayer == prayer &&
       other.start == start &&
-      other.end == end;
+      other.end == end &&
+      other.jumuah == jumuah;
 
   @override
-  int get hashCode => Object.hash(prayer, start, end);
+  int get hashCode => Object.hash(prayer, start, end, jumuah);
 
   @override
   String toString() => 'FocusWindow($prayer, $start → $end)';
@@ -66,7 +71,8 @@ List<FocusWindow> buildFocusWindows({
         continue;
       }
       final waqt = day.startOf(prayer);
-      final jamaatTime = (jamaatAt?.call(waqt) ?? jamaat).timeFor(prayer, waqt);
+      final config = jamaatAt?.call(waqt) ?? jamaat;
+      final jamaatTime = config.timeFor(prayer, waqt);
       if (jamaatTime == null) {
         continue;
       }
@@ -83,6 +89,7 @@ List<FocusWindow> buildFocusWindows({
           start: start,
           end: end,
           prayerDay: DateTime(day.fajr.year, day.fajr.month, day.fajr.day),
+          jumuah: config.isJumuah(prayer, waqt),
         ),
       );
     }

@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review fix 6:** notifications name Friday's Dhuhr "Jumu'ah" when the mosque has a Jumu'ah time, matching Home and the widget: new `JamaatConfig.isJumuah`; `NotificationItem` / `FocusWindow` carry a `jumuah` flag (azan, jamaat reminder, focus nudge, focus end); the scheduler looks up `prayerNames[jumuahNameKey]`, which the controller fills with `prayerJumuah` | notifications / my_mosque / home_widget green (+2) |
 | 2026-10-30 | **Deep review fix 5:** `JamaatFocus.stop` records `lastEnd` for jamaat sessions and `FocusPlan.due` skips windows that opened before it, so a plan re-sent mid-session (lead, length or jamaat time changed) can't start the same jamaat's session a second time; nafs sessions don't set it | `:app:testDebugUnitTest` green (+1 `FocusPlanTest`) |
 | 2026-10-30 | **Deep review fix 7:** locator's `_lockedSalahOn` also computes yesterday's prayer day, so an isha that starts after midnight can't be marked prayed on yesterday's Muhasaba page before its waqt; older dates stay fully open | analyze clean; locator glue (store tests already cover the injected lock) |
 | 2026-10-30 | **Deep review fix 8:** `JamaatConfig.timeFor` places a fixed (and Jumu'ah) time on the calendar day within 12 h of the waqt start, so an isha starting after midnight keeps a 23:45 jamaat on the same night and a 00:15 jamaat follows an evening isha | my_mosque / notifications / prayer_times green (+3) |

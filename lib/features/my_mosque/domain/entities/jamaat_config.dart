@@ -73,11 +73,16 @@ final class JamaatConfig {
   /// Resolved jamaat moment for [prayer] whose waqt begins at [waqtStart]
   /// (wall clock), or null when not configured.
   DateTime? timeFor(Prayer prayer, DateTime waqtStart) => switch (jumuah) {
-    final j?
-        when prayer == Prayer.dhuhr && waqtStart.weekday == DateTime.friday =>
-      _near(waqtStart, j),
+    final j? when isJumuah(prayer, waqtStart) => _near(waqtStart, j),
     _ => _entryTime(prayer, waqtStart),
   };
+
+  /// Whether [prayer] starting at [waqtStart] is Friday's Dhuhr with a
+  /// Jumu'ah time set — label it Jumu'ah then.
+  bool isJumuah(Prayer prayer, DateTime waqtStart) =>
+      jumuah != null &&
+      prayer == Prayer.dhuhr &&
+      waqtStart.weekday == DateTime.friday;
 
   DateTime? _entryTime(Prayer prayer, DateTime waqtStart) =>
       switch (entries[prayer]) {

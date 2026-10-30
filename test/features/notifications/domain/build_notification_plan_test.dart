@@ -396,6 +396,30 @@ void main() {
     });
   });
 
+  test("only Friday's Dhuhr is flagged Jumu'ah, when a time is set", () {
+    // 2026-03-13 is a Friday.
+    const entries = {Prayer.dhuhr: FixedJamaat(ClockTime(12, 15))};
+    List<NotificationItem> dhuhrs(JamaatConfig jamaat) => _plan(
+      matrix: const NotificationMatrix(jamaatReminder: true),
+      jamaat: jamaat,
+    ).where((i) => i.prayer == Prayer.dhuhr).toList();
+
+    final withJumuah = dhuhrs(const JamaatConfig(entries, ClockTime(13, 30)));
+    expect(
+      {for (final i in withJumuah) (i.kind, i.at.day, i.jumuah)},
+      {
+        (NotificationKind.azan, 12, false),
+        (NotificationKind.jamaat, 12, false),
+        (NotificationKind.azan, 13, true),
+        (NotificationKind.jamaat, 13, true),
+      },
+    );
+    expect(
+      dhuhrs(const JamaatConfig(entries)).every((i) => !i.jumuah),
+      isTrue,
+    );
+  });
+
   test('an after-midnight isha keeps its prayer day (mark-as-prayed date)', () {
     // High-latitude summer: isha of the 12th falls at 00:40 on the 13th.
     final late = PrayerDay(

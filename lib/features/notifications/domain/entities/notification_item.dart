@@ -52,6 +52,7 @@ final class NotificationItem {
     this.eventAt,
     this.silent = false,
     this.beepOnly = false,
+    this.jumuah = false,
   });
 
   final NotificationKind kind;
@@ -75,6 +76,9 @@ final class NotificationItem {
 
   /// Matrix mode [AzanMode.beep]: short tone instead of azan audio.
   final bool beepOnly;
+
+  /// Friday's Dhuhr with a Jumu'ah time set: the text names Jumu'ah.
+  final bool jumuah;
 
   /// Deterministic id so rescheduling replaces rather than duplicates:
   /// derived from kind, prayer, and the minute it fires. Plain arithmetic,
@@ -107,8 +111,10 @@ final class NotificationItem {
       other.prayer == prayer &&
       other.eventAt == eventAt &&
       other.silent == silent &&
-      other.beepOnly == beepOnly;
+      other.beepOnly == beepOnly &&
+      other.jumuah == jumuah;
 
   @override
-  int get hashCode => Object.hash(kind, at, prayer, eventAt, silent, beepOnly);
+  int get hashCode =>
+      Object.hash(kind, at, prayer, eventAt, silent, beepOnly, jumuah);
 }
