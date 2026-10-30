@@ -53,6 +53,19 @@ object FocusPlan {
     fun nextAlarm(windows: List<Window>, until: Long, now: Long): Long? =
         (windows.map { it.start } + until).filter { it > now }.minOrNull()
 
+    /** Gap below which an inexact alarm is armed at the target itself. */
+    const val INEXACT_HOP_MS = 10 * 60 * 1000L
+
+    /**
+     * Where to arm an inexact alarm (no exact-alarm access) aiming at [at]:
+     * Android may defer it by up to 75% of the wait (an hour on 12+), which
+     * would miss a short jamaat window. Halfway each time instead — tick()
+     * re-arms — so the last hop is under [INEXACT_HOP_MS] and a few
+     * minutes late at most, for ~log2(wait / 10 min) wakeups.
+     */
+    fun inexactHop(at: Long, now: Long): Long =
+        if (at - now > INEXACT_HOP_MS) now + (at - now) / 2 else at
+
     private val SYSTEM = setOf(
         "android", "com.android.systemui",
         "com.android.server.telecom", "com.android.phone", "com.android.emergency",
