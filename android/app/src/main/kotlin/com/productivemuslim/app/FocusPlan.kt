@@ -49,7 +49,15 @@ object FocusPlan {
                 (w.key == 0L || w.key != lastKey) && now < closes
         }
 
-    /** Next alarm: the earliest future start, or the running session's end ([until]). */
+    /**
+     * The running session's window in a re-sent plan — same jamaat
+     * ([lastKey]) or, for older plans without keys, same start — so a
+     * changed jamaat time or length moves its end. Null if it's gone.
+     */
+    fun running(windows: List<Window>, lastStart: Long, lastKey: Long): Window? =
+        windows.firstOrNull { if (lastKey != 0L) it.key == lastKey else it.start == lastStart }
+
+    /** Next alarm:the earliest future start, or the running session's end ([until]). */
     fun nextAlarm(windows: List<Window>, until: Long, now: Long): Long? =
         (windows.map { it.start } + until).filter { it > now }.minOrNull()
 
