@@ -27,6 +27,22 @@ final class FocusWindow {
   final DateTime start;
   final DateTime? end;
 
+  /// Stable id of the jamaat (yyyymmdd of [prayerDay] × 10 + prayer slot),
+  /// so the native engine knows a re-sent window that moved is the session
+  /// it already ran. 0 when [prayerDay] is unknown.
+  int get key => switch (prayerDay) {
+    final d? =>
+      (d.year * 10000 + d.month * 100 + d.day) * 10 +
+          switch (prayer) {
+            Prayer.fajr => 1,
+            Prayer.dhuhr => 2,
+            Prayer.asr => 3,
+            Prayer.maghrib => 4,
+            Prayer.isha => 5,
+          },
+    null => 0,
+  };
+
   @override
   bool operator ==(Object other) =>
       other is FocusWindow &&

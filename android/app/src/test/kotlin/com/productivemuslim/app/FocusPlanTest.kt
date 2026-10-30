@@ -1,6 +1,7 @@
 package com.productivemuslim.app
 
 import com.productivemuslim.app.FocusPlan.MANUAL_GRACE_MS
+import com.productivemuslim.app.FocusPlan.Window
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -8,39 +9,53 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FocusPlanTest {
-    private val windows = listOf(1_000L to 2_000L, 5_000L to 6_000L)
+    private fun w(start: Long, end: Long, key: Long = 0L) = Window(start, end, key)
+
+    private val windows = listOf(w(1_000, 2_000), w(5_000, 6_000))
 
     @Test
     fun dueWindowIsTheOpenOne() {
         assertNull(FocusPlan.due(windows, 999, 0))
-        assertEquals(1_000L to 2_000L, FocusPlan.due(windows, 1_000, 0))
-        assertEquals(1_000L to 2_000L, FocusPlan.due(windows, 1_999, 0))
+        assertEquals(w(1_000, 2_000), FocusPlan.due(windows, 1_000, 0))
+        assertEquals(w(1_000, 2_000), FocusPlan.due(windows, 1_999, 0))
         assertNull(FocusPlan.due(windows, 2_000, 0))
-        assertEquals(5_000L to 6_000L, FocusPlan.due(windows, 5_500, 0))
+        assertEquals(w(5_000, 6_000), FocusPlan.due(windows, 5_500, 0))
     }
 
     @Test
     fun manualSessionStartsOnlyWithinTheGrace() {
-        val manual = listOf(1_000L to -1L)
-        assertEquals(1_000L to -1L, FocusPlan.due(manual, 1_000, 0))
-        assertEquals(1_000L to -1L, FocusPlan.due(manual, 1_000 + MANUAL_GRACE_MS - 1, 0))
+        val manual = listOf(w(1_000, -1))
+        assertEquals(w(1_000, -1), FocusPlan.due(manual, 1_000, 0))
+        assertEquals(w(1_000, -1), FocusPlan.due(manual, 1_000 + MANUAL_GRACE_MS - 1, 0))
         assertNull(FocusPlan.due(manual, 1_000 + MANUAL_GRACE_MS, 0))
     }
 
     @Test
     fun theSameStartNeverRestarts() {
         assertNull(FocusPlan.due(windows, 1_500, lastStart = 1_000))
-        assertNull(FocusPlan.due(listOf(1_000L to -1L), 1_500, lastStart = 1_000))
+        assertNull(FocusPlan.due(listOf(w(1_000, -1)), 1_500, lastStart = 1_000))
     }
 
     @Test
-    fun aWindowMovedMidSessionDoesNotRunAgain() {
-        // Session 1000..2000 ran; the re-sent plan moved its start to 1500.
-        val moved = listOf(1_500L to 2_500L, 5_000L to 6_000L)
-        assertNull(FocusPlan.due(moved, 2_000, lastStart = 1_000, lastEnd = 2_000))
+    fun aJamaatMovedMidSessionDoesNotRunAgain() {
+        // Key 1 ran from 1000; the re-sent plan moved it to 1500 (and the
+        // user may have ended it early): it must not start again.
+        val moved = listOf(w(1_500, 2_500, key = 1), w(5_000, 6_000, key = 2))
+        assertNull(FocusPlan.due(moved, 1_600, lastStart = 1_000, lastKey = 1))
         assertEquals(
-            5_000L to 6_000L,
-            FocusPlan.due(moved, 5_000, lastStart = 1_000, lastEnd = 2_000),
+            w(5_000, 6_000, key = 2),
+            FocusPlan.due(moved, 5_000, lastStart = 1_000, lastKey = 1),
+        )
+    }
+
+    @Test
+    fun theNextJamaatStartsRightAfterOrInsideThePreviousOne() {
+        // Maghrib (key 1) ran 1000..2000; Isha (key 2) opened at 1800,
+        // before Maghrib's end alarm fired (late, at 2100).
+        val plan = listOf(w(1_000, 2_000, key = 1), w(1_800, 3_000, key = 2))
+        assertEquals(
+            w(1_800, 3_000, key = 2),
+            FocusPlan.due(plan, 2_100, lastStart = 1_000, lastKey = 1),
         )
     }
 
@@ -58,21 +73,24 @@ class FocusPlanTest {
     @Test
     fun malformedStoredEntriesAreSkipped() {
         assertEquals(
-            listOf(1L to 2L, 3L to -1L),
-            FocusPlan.parse("1,2;x,4;5;;6,7,8;3,-1;9,"),
+            listOf(w(1, 2), w(6, 7, key = 8), w(3, -1)),
+            FocusPlan.parse("1,2;x,4;5;;6,7,8;3,-1;9,;1,2,y;1,2,3,4"),
         )
-        assertEquals(emptyList<Pair<Long, Long>>(), FocusPlan.parse(""))
-        assertEquals(emptyList<Pair<Long, Long>>(), FocusPlan.parse(null))
+        assertEquals(emptyList<Window>(), FocusPlan.parse(""))
+        assertEquals(emptyList<Window>(), FocusPlan.parse(null))
     }
 
     @Test
     fun malformedPlanEntriesAreSkippedAndRoundTrip() {
         val parsed = FocusPlan.fromArgs(
-            listOf(listOf(1, 2L), listOf(3.0), "x", listOf("4", 5), null, listOf(6L, -1))
+            listOf(
+                listOf(1, 2L), listOf(3.0), "x", listOf("4", 5), null,
+                listOf(6L, -1), listOf(7L, 8L, 202606151L),
+            )
         )
-        assertEquals(listOf(1L to 2L, 6L to -1L), parsed)
+        assertEquals(listOf(w(1, 2), w(6, -1), w(7, 8, key = 202606151)), parsed)
         assertEquals(parsed, FocusPlan.parse(FocusPlan.encode(parsed)))
-        assertEquals(emptyList<Pair<Long, Long>>(), FocusPlan.fromArgs("nope"))
+        assertEquals(emptyList<Window>(), FocusPlan.fromArgs("nope"))
     }
 
     private fun allowed(pkg: String) = FocusPlan.allowed(

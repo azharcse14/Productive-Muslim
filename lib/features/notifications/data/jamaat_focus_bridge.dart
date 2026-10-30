@@ -44,6 +44,7 @@ final class JamaatFocusBridge implements JamaatFocusControl {
               toUtc(end).millisecondsSinceEpoch
             else
               -1,
+            w.key,
           ],
       ],
       'title': texts.channelFocusName,
