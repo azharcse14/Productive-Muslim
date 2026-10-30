@@ -383,10 +383,12 @@ final class _HomeScreenState extends State<HomeScreen> {
             final sahriIftar = _section(_sahriIftarSection(context, day));
             // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
             // sits right under the countdown; otherwise under the table.
-            final ramadan = _store.ramadanMode.value;
+            // After iftar the card is about tomorrow's fast.
+            final ramadan = _store.sahriInRamadan.value;
             // Outside Ramadan sahri/iftar only matters on a day being fasted.
             final fasting =
-                ramadan || (_fasting?.isLogged(_store.dateKey.value) ?? false);
+                ramadan ||
+                (_fasting?.isLogged(_store.sahriFastDay.value) ?? false);
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[

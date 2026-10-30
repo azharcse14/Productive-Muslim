@@ -244,6 +244,24 @@ final class HomeStore {
         : day.fajrTomorrow.subtract(day.sahriSafety);
   });
 
+  /// The day whose fast the sahri/iftar card is about: today until iftar,
+  /// then tomorrow — from iftar the card shows tonight's sahri, which
+  /// opens tomorrow's fast (same switch as [nextSahriEnd]; iftar = Maghrib).
+  late final sahriFastDay = computed<DateTime>(() {
+    final d = dateKey.value;
+    return hijriAfterMaghrib.value == null
+        ? d
+        : DateTime(d.year, d.month, d.day + 1);
+  });
+
+  /// Whether [sahriFastDay] is in Ramadan (offset-aware): no "sahri ends
+  /// tonight" on Eid eve, and it already shows the evening before 1 Ramadan.
+  late final sahriInRamadan = computed(
+    () =>
+        (hijriAfterMaghrib.value ?? hijriDate.value).month ==
+        HijriDate.ramadanMonth,
+  );
+
   /// True after midnight but before Fajr: the active waqt is yesterday's.
   late final _preFajr = computed(() {
     final day = prayerDay.value;
