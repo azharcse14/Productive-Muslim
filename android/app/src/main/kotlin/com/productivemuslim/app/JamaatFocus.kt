@@ -146,7 +146,27 @@ object JamaatFocus {
         if (!enabled && isActive(c) && !isStrict(c)) {
             stop(c)
         }
+        retime(c)
         tick(c)
+    }
+
+    /**
+     * A non-strict jamaat session follows its window when the plan moves it
+     * (jamaat time or length changed mid-session); tick() then ends it if
+     * the new end has passed. Strict sessions keep the time they started
+     * with, so changing settings can't cut one short.
+     */
+    private fun retime(c: Context) {
+        val p = prefs(c)
+        val until = p.getLong(ACTIVE_UNTIL, 0L)
+        if (until == 0L || isNafs(c) || isStrict(c)) return
+        val w = FocusPlan.running(windows(c), p.getLong("lastStart", 0L), p.getLong("lastKey", 0L))
+            ?: return
+        val end = if (w.end > 0) w.end else -1L
+        if (end != until) {
+            p.edit().putLong(ACTIVE_UNTIL, end).apply()
+            showOngoing(c) // its text names the end time
+        }
     }
 
     private fun windows(c: Context) = FocusPlan.parse(prefs(c).getString("windows", ""))

@@ -77,7 +77,10 @@ List<NotificationItem> buildNotificationPlan({
       // entry for this prayer.
       if (matrix.jamaatReminder) {
         final jamaatTime = config.timeFor(prayer, start);
-        if (jamaatTime != null) {
+        // A jamaat after its waqt ends (stale fixed time, e.g. summer's
+        // 17:00 Asr in December) isn't announced — same rule as the
+        // home countdown.
+        if (jamaatTime != null && jamaatTime.isBefore(day.endOf(prayer))) {
           final remindAt = jamaatTime.subtract(matrix.jamaatLead);
           if (inWindow(remindAt)) {
             items.add(

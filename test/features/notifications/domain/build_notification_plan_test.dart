@@ -210,6 +210,97 @@ void main() {
       expect(reminders.length, 2); // day 12 + 13
     });
 
+    test('a jamaat after its waqt ends gets no reminder', () {
+      // Stale summer time: Asr ends at maghrib 18:45, jamaat set for 19:00.
+      const jamaat = JamaatConfig({
+        Prayer.asr: FixedJamaat(ClockTime(19, 0)),
+        Prayer.dhuhr: FixedJamaat(ClockTime(13, 15)),
+      });
+      final plan = _plan(
+        jamaat: jamaat,
+        matrix: const NotificationMatrix(jamaatReminder: true),
+      );
+      expect(
+        plan
+            .where((i) => i.kind == NotificationKind.jamaat)
+            .map((i) => i.prayer)
+            .toSet(),
+        {Prayer.dhuhr},
+      );
+      // The Asr azan itself is untouched.
+      expect(
+        plan.where(
+          (i) => i.kind == NotificationKind.azan && i.prayer == Prayer.asr,
+        ),
+        hasLength(2),
+      );
+    });
+
+    test('a jamaat exactly at waqt end is skipped too', () {
+      // Asr ends at maghrib 18:45.
+      final reminders = _plan(
+        jamaat: const JamaatConfig({
+          Prayer.asr: FixedJamaat(ClockTime(18, 45)),
+        }),
+        matrix: const NotificationMatrix(jamaatReminder: true),
+      ).where((i) => i.kind == NotificationKind.jamaat);
+      expect(reminders, isEmpty);
+    });
+
+    test('an after-midnight isha jamaat inside the overnight waqt is kept', () {
+      // High latitude: isha 00:40 on the 13th, ends at fajr 02:40.
+      final late = PrayerDay(
+        ishaYesterday: DateTime(2026, 6, 12, 0, 30),
+        fajr: DateTime(2026, 6, 12, 2, 40),
+        sunrise: DateTime(2026, 6, 12, 3, 50),
+        dhuhr: DateTime(2026, 6, 12, 13, 20),
+        asr: DateTime(2026, 6, 12, 17, 50),
+        maghrib: DateTime(2026, 6, 12, 22, 40),
+        isha: DateTime(2026, 6, 13, 0, 40),
+        fajrTomorrow: DateTime(2026, 6, 13, 2, 40),
+      );
+      // And an evening isha 20:15 with a 00:15 jamaat (fajr 03:45).
+      for (final (day, time, eventAt) in [
+        (late, const ClockTime(1, 0), DateTime(2026, 6, 13, 1)),
+        (_day(12), const ClockTime(0, 15), DateTime(2026, 3, 13, 0, 15)),
+      ]) {
+        final reminder = buildNotificationPlan(
+          from: day.fajr,
+          days: [day],
+          matrix: const NotificationMatrix(jamaatReminder: true),
+          jamaat: JamaatConfig({Prayer.isha: FixedJamaat(time)}),
+        ).singleWhere((i) => i.kind == NotificationKind.jamaat);
+        expect(reminder.eventAt, eventAt);
+      }
+    });
+
+    test('invariant: every jamaat reminder lies within its waqt', () {
+      // Fresh and stale times, offsets, and Jumu'ah (the 13th is a Friday).
+      const jamaat = JamaatConfig({
+        Prayer.fajr: FixedJamaat(ClockTime(5, 30)), // past sunrise 05:10
+        Prayer.dhuhr: OffsetJamaat(Duration(minutes: 20)),
+        Prayer.asr: FixedJamaat(ClockTime(17, 0)),
+        Prayer.maghrib: OffsetJamaat(Duration(hours: 2)), // past isha
+        Prayer.isha: FixedJamaat(ClockTime(21, 0)),
+      }, ClockTime(13, 30));
+      final reminders = _plan(
+        jamaat: jamaat,
+        matrix: const NotificationMatrix(jamaatReminder: true),
+      ).where((i) => i.kind == NotificationKind.jamaat).toList();
+      expect(reminders.any((i) => i.jumuah), isTrue);
+      for (final r in reminders) {
+        final day = _days.lastWhere(
+          (d) => !d.startOf(r.prayer!).isAfter(r.eventAt!),
+        );
+        expect(r.eventAt!.isBefore(day.endOf(r.prayer!)), isTrue, reason: '$r');
+      }
+      expect(reminders.map((i) => i.prayer).toSet(), {
+        Prayer.dhuhr,
+        Prayer.asr,
+        Prayer.isha,
+      });
+    });
+
     test('offset jamaat resolves from waqt start', () {
       const jamaat = JamaatConfig({
         Prayer.maghrib: OffsetJamaat(Duration(minutes: 5)),

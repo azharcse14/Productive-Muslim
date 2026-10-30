@@ -46,12 +46,14 @@
             android:value="2" />
 
         <!-- flutter_local_notifications: fire scheduled notifications and
-             restore them after reboot/app update. -->
+             restore them after reboot/app update. NotificationBootReceiver
+             wraps the plugin's boot receiver, dropping notifications missed
+             while the phone was off so they don't all fire at boot. -->
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="false" />
         <receiver
-            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:name=".NotificationBootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -140,4 +140,15 @@ class FocusPlanTest {
         assertTrue(now < at)
         assertTrue(hops < 12)
     }
+
+    @Test
+    fun runningSessionIsFoundByJamaatEvenWhenMoved() {
+        // Jamaat 7 moved later and lengthened: same key, new start/end.
+        val plan = listOf(w(1_500, 3_000, key = 7), w(5_000, 6_000, key = 8))
+        assertEquals(w(1_500, 3_000, 7), FocusPlan.running(plan, 1_000, 7))
+        assertNull(FocusPlan.running(plan, 1_000, 9)) // removed from the plan
+        // Older plans without keys match on start.
+        assertEquals(w(5_000, 6_000), FocusPlan.running(windows, 5_000, 0))
+        assertNull(FocusPlan.running(windows, 4_000, 0))
+    }
 }
