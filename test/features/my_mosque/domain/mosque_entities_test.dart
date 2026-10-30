@@ -30,6 +30,15 @@ void main() {
       );
     });
 
+    test('a fixed time earlier the same day is held at the waqt start', () {
+      // Set in winter; summer isha starts later than the fixed jamaat.
+      const config = JamaatConfig({Prayer.isha: FixedJamaat(ClockTime(20, 0))});
+      expect(
+        config.timeFor(Prayer.isha, DateTime(2026, 6, 20, 22, 30)),
+        DateTime(2026, 6, 20, 22, 30),
+      );
+    });
+
     test('an after-midnight jamaat follows an evening isha', () {
       const config = JamaatConfig({Prayer.isha: FixedJamaat(ClockTime(0, 15))});
       expect(
