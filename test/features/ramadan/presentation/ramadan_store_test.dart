@@ -119,6 +119,28 @@ void main() {
     store.dispose();
   });
 
+  test('re-reads the day on a location change, not just the tick', () async {
+    // Device clock is New York 20:00; the manual city's wall clock is
+    // already the next morning once it's selected.
+    var clock = DateTime(2026, 3, 1, 20);
+    settings = SettingsStore(
+      GetSettings(_Repo(const AppSettings())),
+      SaveSettings(_Repo(const AppSettings())),
+    );
+    await settings.load();
+    final store = RamadanStore(
+      GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      settings,
+      now: () => clock,
+    );
+    addTearDown(store.dispose);
+    expect(store.rozaDay.value, 12);
+    clock = DateTime(2026, 3, 2, 7);
+    await settings.setLocation(_dhaka);
+    expect(store.today.value, DateTime(2026, 3, 2));
+    expect(store.rozaDay.value, 13);
+  });
+
   group('RamadanStore with a Hijri offset', () {
     test('offset shifts the roza day', () async {
       expect((await make(hijriOffset: -1)).rozaDay.value, 11);

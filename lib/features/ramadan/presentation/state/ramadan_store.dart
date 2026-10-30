@@ -25,10 +25,10 @@ final class RamadanStore {
        _settings = settings,
        _now = now ?? DateTime.now {
     // The screen can stay open past midnight: re-read the day each minute.
-    // A signal memoizes by ==, so dependants recompute only when it flips.
+    // [today] memoizes by ==, so dependants recompute only when it flips.
     _ticker = Timer.periodic(
       const Duration(minutes: 1),
-      (_) => today.value = _day(),
+      (_) => _minute.value++,
     );
   }
 
@@ -42,8 +42,16 @@ final class RamadanStore {
     return DateTime(n.year, n.month, n.day);
   }
 
-  /// Today's civil date (y/m/d only) at the caller-provided clock.
-  late final today = signal(_day());
+  late final _minute = signal(0);
+
+  /// Today's civil date (y/m/d only) at the caller-provided clock. Re-read
+  /// each minute and on a location change (the clock follows the
+  /// location's timezone, which may sit on another date).
+  late final today = computed(() {
+    _minute.value;
+    _settings.location.value;
+    return _day();
+  });
 
   /// User's moon-sighting adjustment, applied to every Hijri conversion.
   late final _offset = computed(() => _settings.settings.value.hijriOffsetDays);
