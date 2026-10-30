@@ -172,6 +172,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-10-30 | **Deep review round 2, fix 16:** the online hadith fallback's two section caches are a bounded LRU of 6 entries each (insertion-ordered map, like the bundled source) instead of growing for the app's lifetime. Isolate parsing moved to top-level helpers so each closure captures only the body | hadith tests green (+1 eviction test) |
 | 2026-10-30 | **Deep review round 2, fix 14:** `NotificationItem`'s `==` / `hashCode` include `prayerDay` (the day "mark as prayed" files under), so plan tests can catch an item filed under the wrong day | notifications green (+1) |
 | 2026-10-30 | **Deep review round 2, fix 13:** the "strict focus always has a length" rule is now `NotificationMatrix.effectiveFocusDuration` (fallback `strictFallbackDuration`, 20 min), and `buildFocusWindows` uses it, so a matrix built any way can't plan an endless strict session. `copyWith` keeps normalizing the stored value | notifications / settings green (+1) |
 | 2026-10-30 | **Deep review round 2, fix 9:** iOS permission prompts are localized. New `ios/Runner/InfoPlist.xcstrings` holds en + bn for `NSLocationWhenInUseUsageDescription` (the Bangla reuses `locationPrimingBody`) and `NSFaceIDUsageDescription`; it is added to the Runner target's resources, and `bn` to `knownRegions` | `flutter build ios --simulator --debug` ✓; the built app has `bn.lproj/InfoPlist.strings` with both keys |

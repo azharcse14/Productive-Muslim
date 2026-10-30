@@ -26,9 +26,29 @@ final class HadithBookRemoteDataSource {
 
   final HttpGet _get;
 
-  // Cache by full section URL so Arabic and translation are cached separately.
+  /// Recently parsed sections, by full URL (insertion-ordered map as an
+  /// LRU, like the bundled source): a section takes up to three entries
+  /// (Arabic, translation, English), and Bangla chapters run to MBs.
+  static const _cacheSize = 6;
   final Map<String, List<RawHadith>> _cache = {};
   final Map<String, List<BnHadith>> _bnCache = {};
+
+  static Future<T> _cached<T extends Object>(
+    Map<String, T> cache,
+    Uri url,
+    Future<T> Function() load,
+  ) async {
+    final key = url.toString();
+    if (cache.remove(key) case final hit?) {
+      return cache[key] = hit; // re-insert as most recent
+    }
+    final value = await load();
+    cache[key] = value;
+    if (cache.length > _cacheSize) {
+      cache.remove(cache.keys.first);
+    }
+    return value;
+  }
 
   Uri _sectionUrl(String edition, int section) =>
       Uri.parse('$_base/$edition/sections/$section.min.json');
@@ -77,14 +97,8 @@ final class HadithBookRemoteDataSource {
     HadithSection section,
   ) async {
     final url = _bnChapterUrl(book.bnFolder, section.number);
-    if (_bnCache[url.toString()] case final cached?) {
-      return cached;
-    }
-    final body = await _get(url);
     // Chapters run to MBs of JSON: decode off the UI thread.
-    return _bnCache[url.toString()] = await Isolate.run(
-      () => _parseBangla(body),
-    );
+    return _cached(_bnCache, url, () async => _parseBanglaOff(await _get(url)));
   }
 
   /// Like [_fetchEdition] but returns an empty list instead of throwing —
@@ -102,17 +116,17 @@ final class HadithBookRemoteDataSource {
 
   Future<List<RawHadith>> _fetchEdition(String edition, int section) async {
     final url = _sectionUrl(edition, section);
-    if (_cache[url.toString()] case final cached?) {
-      return cached;
-    }
-    final body = await _get(url);
-    return _cache[url.toString()] = await Isolate.run(
-      () => _parseEdition(body),
-    );
+    return _cached(_cache, url, () async => _parseEditionOff(await _get(url)));
   }
 }
 
 // Top-level so the isolate closures capture only the body string.
+Future<List<BnHadith>> _parseBanglaOff(String body) =>
+    Isolate.run(() => _parseBangla(body));
+
+Future<List<RawHadith>> _parseEditionOff(String body) =>
+    Isolate.run(() => _parseEdition(body));
+
 List<BnHadith> _parseBangla(String body) {
   final decoded = jsonDecode(body);
   final entries = decoded is List ? decoded : const <Object?>[];
