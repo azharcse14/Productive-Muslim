@@ -246,6 +246,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final todayCode = _encodeDate(today);
       var completionTotal = 0.0;
       var countedDays = 0;
+      var todayUntouched = false;
       for (var i = 0; i < periodDays; i++) {
         final day = DateTime(start.year, start.month, start.day + i);
         final sum = fractionSums[_encodeDate(day)] ?? 0;
@@ -256,10 +257,18 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         if (count > 0 && _encodeDate(day) <= todayCode) {
           completionTotal += completion;
           countedDays++;
+          todayUntouched |= _encodeDate(day) == todayCode && sum == 0;
         }
         days.add(DayCompletion(day, completion));
       }
       final completion = countedDays == 0 ? 0.0 : completionTotal / countedDays;
+      // The trend compares against finished days, so a today with nothing
+      // logged yet sits out (else every morning reads "down").
+      final trendCompletion = !todayUntouched
+          ? completion
+          : countedDays > 1
+          ? completionTotal / (countedDays - 1)
+          : null;
 
       // b) Per-item aggregates over the range.
       final itemStats = await _itemStats(start, end, periodDays);
@@ -335,6 +344,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           currentStreak: currentStreak,
           bestStreak: bestStreak,
           previousCompletion: previousCompletion,
+          trendCompletion: trendCompletion,
         ),
       );
     } on Object catch (e) {

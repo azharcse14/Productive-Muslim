@@ -695,7 +695,10 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
     final l10n = context.l10n;
     final q = context.q;
     final previous = stats.previousCompletion;
-    final delta = previous == null ? null : stats.completion - previous;
+    final current = stats.trendCompletion;
+    final delta = previous == null || current == null
+        ? null
+        : current - previous;
     final trend = delta == null
         ? null
         : delta > 0.05

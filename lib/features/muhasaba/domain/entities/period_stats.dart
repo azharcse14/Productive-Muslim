@@ -61,6 +61,7 @@ final class PeriodStats {
     required this.currentStreak,
     required this.bestStreak,
     this.previousCompletion,
+    this.trendCompletion,
   });
 
   /// Mean of day completions over the period, 0..1.
@@ -78,4 +79,9 @@ final class PeriodStats {
   /// Completion of the equal-length window immediately before the range
   /// (null when no prior data) — "vs previous period" trend.
   final double? previousCompletion;
+
+  /// [completion] as compared with [previousCompletion]: the same mean,
+  /// minus a today with nothing logged yet (an untouched morning is not a
+  /// drop). Null when no finished day is left to compare.
+  final double? trendCompletion;
 }
