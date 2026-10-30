@@ -314,6 +314,43 @@ void main() {
       expect(find.text('Zakat calculator'), findsOneWidget);
     });
 
+    // The only test on the global [appRouter] (what openDeepLink drives).
+    testHomeWidgets(
+        'a notification tap at the cold-start PIN gate opens after unlock '
+        'with home beneath', (tester) async {
+      GetIt.I
+        ..unregister<AppLockStore>()
+        ..registerSingleton<AppLockStore>(
+          await makeAppLockStore(withPin: true),
+        );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: appRouter,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      expect(appRouter.state.uri.path, '/lock');
+
+      openDeepLink('/zakat');
+      await tester.pumpAndSettle();
+      expect(appRouter.state.uri.path, '/lock');
+      for (final digit in ['1', '2', '3', '4']) {
+        await tester.tap(find.text(digit));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cash on hand'), findsOneWidget);
+      expect(appRouter.canPop(), isTrue);
+      appRouter.pop();
+      await tester.pumpAndSettle();
+      expect(appRouter.state.uri.path, '/home');
+    });
+
     testHomeWidgets('More opens the Calculators hub with every tool',
         (tester) async {
       await tester.pumpWidget(_app());
