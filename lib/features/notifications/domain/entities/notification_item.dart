@@ -126,12 +126,21 @@ final class NotificationItem {
       other.kind == kind &&
       other.at == at &&
       other.prayer == prayer &&
+      other.prayerDay == prayerDay &&
       other.eventAt == eventAt &&
       other.silent == silent &&
       other.beepOnly == beepOnly &&
       other.jumuah == jumuah;
 
   @override
-  int get hashCode =>
-      Object.hash(kind, at, prayer, eventAt, silent, beepOnly, jumuah);
+  int get hashCode => Object.hash(
+    kind,
+    at,
+    prayer,
+    prayerDay,
+    eventAt,
+    silent,
+    beepOnly,
+    jumuah,
+  );
 }

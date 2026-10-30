@@ -63,4 +63,16 @@ void main() {
     }
     expect(ids, hasLength(count));
   });
+
+  test('items filed under different prayer days are not equal', () {
+    NotificationItem isha(int day) => NotificationItem(
+      kind: NotificationKind.azan,
+      at: DateTime(2026, 6, 15, 0, 30),
+      prayer: Prayer.isha,
+      prayerDay: DateTime(2026, 6, day),
+    );
+    expect(isha(14), isNot(isha(15)));
+    expect(isha(14), isha(14));
+    expect(isha(14).hashCode, isha(14).hashCode);
+  });
 }
