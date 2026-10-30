@@ -210,8 +210,10 @@ void main() {
     expect(controller.scheduledUntil.value, isNull);
     await controller.start();
     final plan = scheduler.lastPlan!;
-    expect(plan.last.kind, NotificationKind.keepAlive);
-    expect(controller.scheduledUntil.value, plan[plan.length - 2].at);
+    expect(
+      controller.scheduledUntil.value,
+      plan.lastWhere((i) => i.kind != NotificationKind.keepAlive).at,
+    );
     controller.dispose();
   });
 

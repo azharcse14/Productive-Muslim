@@ -368,22 +368,39 @@ void main() {
       expect(_plan(maxItems: 1000), _plan());
     });
 
-    test('keep-alive is the final item, a minute after the last reminder', () {
+    test('keep-alive fires 12 h before the last reminder, in time order', () {
       final full = _plan();
       final plan = _plan(keepAlive: true);
       expect(plan.length, full.length + 1);
-      expect(plan.last.kind, NotificationKind.keepAlive);
-      expect(plan.last.at, full.last.at.add(const Duration(minutes: 1)));
-      expect(plan.last.prayer, isNull);
+      final nudge = plan.singleWhere(
+        (i) => i.kind == NotificationKind.keepAlive,
+      );
+      expect(nudge.at, full.last.at.subtract(keepAliveLead));
+      expect(nudge.prayer, isNull);
+      expect(plan.where((i) => i != nudge).toList(), full);
+      for (var i = 1; i < plan.length; i++) {
+        expect(plan[i].at.isBefore(plan[i - 1].at), isFalse);
+      }
     });
 
-    test('keep-alive counts toward the cap and follows the trimmed tail', () {
+    test('keep-alive counts toward the cap', () {
       final full = _plan();
       final plan = _plan(maxItems: 5, keepAlive: true);
       expect(plan.length, 5);
-      expect(plan.take(4).toList(), full.take(4).toList());
+      expect(
+        plan.where((i) => i.kind != NotificationKind.keepAlive).toList(),
+        full.take(4).toList(),
+      );
+    });
+
+    test('keep-alive follows the last reminder when the plan is short', () {
+      const window = Duration(hours: 8); // less than keepAliveLead
+      final full = _plan(window: window);
+      final plan = _plan(window: window, keepAlive: true);
+      expect(full, isNotEmpty);
+      expect(plan.take(full.length).toList(), full);
       expect(plan.last.kind, NotificationKind.keepAlive);
-      expect(plan.last.at, full[3].at.add(const Duration(minutes: 1)));
+      expect(plan.last.at, full.last.at.add(const Duration(minutes: 1)));
     });
 
     test('no keep-alive when nothing is planned', () {
@@ -414,10 +431,7 @@ void main() {
         (NotificationKind.jamaat, 13, true),
       },
     );
-    expect(
-      dhuhrs(const JamaatConfig(entries)).every((i) => !i.jumuah),
-      isTrue,
-    );
+    expect(dhuhrs(const JamaatConfig(entries)).every((i) => !i.jumuah), isTrue);
   });
 
   test('an after-midnight isha keeps its prayer day (mark-as-prayed date)', () {
