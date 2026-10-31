@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
-import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/prayer_table.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
@@ -36,7 +35,7 @@ void main() {
           body: PrayerTable(
             day: _day,
             activePrayer: Prayer.dhuhr,
-            jamaat: JamaatConfig.none,
+            jamaatTimes: const {},
             formatTime: (t) => '${t.hour}:${t.minute}',
             dense: dense,
             locked: const {Prayer.maghrib, Prayer.isha},
@@ -102,7 +101,7 @@ void main() {
           body: PrayerTable(
             day: _day,
             activePrayer: null,
-            jamaat: JamaatConfig.none,
+            jamaatTimes: const {},
             formatTime: (t) => '',
             onTogglePrayed: (_) {},
           ),

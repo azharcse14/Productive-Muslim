@@ -53,8 +53,8 @@ abstract final class RecommendedFasts {
       kinds.add(FastingKind.mondayThursday);
     }
 
-    // Ayyam al-Beed — 13, 14, 15 of every hijri month. (14 Dhul-Hijjah is a
-    // day of Tashreeq, already excluded above.)
+    // Ayyam al-Beed — 13, 14, 15 of every hijri month. (13 Dhul-Hijjah is a
+    // day of Tashreeq, already excluded above; the 14th and 15th remain.)
     if (h.day >= 13 && h.day <= 15) {
       kinds.add(FastingKind.whiteDays);
     }

@@ -49,6 +49,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     }
   }
 
+  /// A pending notification due at most this long ago is left to fire late
+  /// rather than cancelled by [reschedule]; older ones are stale (alarm
+  /// lost, e.g. force-stop) and cleared. iOS delivers on time, so nothing
+  /// overdue lingers there and the pending count stays within the plan cap.
+  static const overdueGrace = Duration(hours: 1);
+
   /// Action id of the azan "mark as prayed" button.
   static const markPrayedActionId = 'mark_prayed';
 
@@ -213,9 +219,21 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         await cancelAll();
         return const Result.success(null);
       }
-      // Pending only: cancelAll() would also clear azans already in the
-      // tray, taking their "mark as prayed" action with them.
-      await _plugin.cancelAllPendingNotifications();
+      // Cancel only what the new plan drops: same-id items are replaced by
+      // zonedSchedule below. Never cancelAll() (it clears azans already in
+      // the tray, "mark as prayed" with them), and leave alone an alarm
+      // that just came due but hasn't fired yet (Android defers inexact
+      // alarms; the plugin lists it until its receiver runs): it isn't in
+      // the plan (that starts now), and cancelling would drop it unshown.
+      final planned = {for (final item in items) item.id};
+      final now = _clock.nowAt(location);
+      for (final pending in await _plugin.pendingNotificationRequests()) {
+        final id = pending.id;
+        if (!planned.contains(id) &&
+            NotificationItem.overdueBy(id, now) > overdueGrace) {
+          await _plugin.cancel(id: id);
+        }
+      }
       final exact = await canScheduleExactAlarms();
       final mode = exact
           ? AndroidScheduleMode.exactAllowWhileIdle

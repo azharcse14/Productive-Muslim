@@ -319,4 +319,85 @@ void main() {
       );
     });
   });
+
+  group('resolveCountdownTarget — jamaat past the waqt end', () {
+    // December: Asr 13:35–15:52, a summer fixed Asr jamaat at 17:00 left on.
+    final winter = PrayerDay(
+      ishaYesterday: DateTime(2026, 12, 14, 17, 40),
+      fajr: DateTime(2026, 12, 15, 5, 10),
+      sunrise: DateTime(2026, 12, 15, 6, 30),
+      dhuhr: DateTime(2026, 12, 15, 11, 55),
+      asr: DateTime(2026, 12, 15, 13, 35),
+      maghrib: DateTime(2026, 12, 15, 15, 52),
+      isha: DateTime(2026, 12, 15, 17, 40),
+      fajrTomorrow: DateTime(2026, 12, 16, 5, 11),
+    );
+
+    test('a stale fixed jamaat after the waqt ends → waqt-end countdown', () {
+      const jamaat = JamaatConfig({Prayer.asr: FixedJamaat(ClockTime(17, 0))});
+      final t = resolveCountdownTarget(
+        now: DateTime(2026, 12, 15, 15),
+        day: winter,
+        jamaat: jamaat,
+        ramadanMode: false,
+      );
+      expect(t.kind, CountdownKind.waqtEnd);
+      expect(t.at, winter.maghrib);
+      // So the last minutes of the waqt still go urgent.
+      expect(
+        countdownUrgencyFor(now: DateTime(2026, 12, 15, 15, 40), target: t),
+        CountdownUrgency.urgent,
+      );
+    });
+
+    test('invariant: a jamaat target always lies in [start, end)', () {
+      final configs = [
+        for (final time in const [
+          ClockTime(0, 15),
+          ClockTime(4, 0),
+          ClockTime(6, 0),
+          ClockTime(13, 15),
+          ClockTime(14, 0),
+          ClockTime(17, 0),
+          ClockTime(20, 0),
+          ClockTime(23, 45),
+        ])
+          JamaatConfig({
+            for (final p in Prayer.values) p: FixedJamaat(time),
+          }, time),
+        for (final minutes in const [0, 10, 45, 120, 600])
+          JamaatConfig({
+            for (final p in Prayer.values)
+              p: OffsetJamaat(Duration(minutes: minutes)),
+          }),
+      ];
+      var jamaatTargets = 0;
+      for (final day in [_day, winter]) {
+        final midnight = DateTime(day.fajr.year, day.fajr.month, day.fajr.day);
+        for (final config in configs) {
+          for (final ramadan in const [false, true]) {
+            for (var m = 0; m < 24 * 60; m += 5) {
+              final now = midnight.add(Duration(minutes: m));
+              final t = resolveCountdownTarget(
+                now: now,
+                day: day,
+                jamaat: config,
+                ramadanMode: ramadan,
+              );
+              if (t.kind != CountdownKind.jamaat) {
+                continue;
+              }
+              jamaatTargets++;
+              final active = day.activeWaqtAt(now)!;
+              final reason = '$now ${t.prayer} jamaat ${t.at}';
+              expect(t.prayer, active.prayer, reason: reason);
+              expect(t.at.isBefore(active.start), isFalse, reason: reason);
+              expect(t.at.isBefore(active.end), isTrue, reason: reason);
+            }
+          }
+        }
+      }
+      expect(jamaatTargets, greaterThan(0));
+    });
+  });
 }

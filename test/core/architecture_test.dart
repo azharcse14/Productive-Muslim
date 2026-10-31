@@ -51,6 +51,14 @@ const _platformPackages = {
   'path_provider',
 };
 
+/// The only non-domain project files a domain file may import. Each must stay
+/// pure Dart (no Flutter, no packages); add one only if that holds.
+const _pureCoreUtils = {
+  'lib/core/utils/hijri_date.dart',
+  'lib/core/utils/locale_digits.dart',
+  'lib/core/utils/result.dart',
+};
+
 // `import` / `export` directives; `\s+` also spans multi-line statements.
 final _directive = RegExp(
   r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''',
@@ -74,7 +82,9 @@ Set<String> _findViolations() {
     final from = file.path.replaceAll(r'\', '/');
     if (_isExempt(from)) continue;
     final source = file.readAsStringSync();
-    final inDomain = from.contains('/domain/');
+    // Allowlisted utils are held to the domain rules so they stay pure.
+    final inDomain =
+        from.contains('/domain/') || _pureCoreUtils.contains(from);
     final inData = from.contains('/data/');
     final inPresentation = from.contains('/presentation/');
 
@@ -98,6 +108,12 @@ Set<String> _findViolations() {
           out.add('$from -> package:$package');
         }
         continue;
+      }
+      // Rule 1b: domain imports only domain and pure-Dart core utils.
+      if (inDomain &&
+          !to.contains('/domain/') &&
+          !_pureCoreUtils.contains(to)) {
+        out.add('$from -> $to');
       }
       // Rules 2 and 3: data and presentation never import each other.
       if (inData && to.contains('/presentation/')) out.add('$from -> $to');

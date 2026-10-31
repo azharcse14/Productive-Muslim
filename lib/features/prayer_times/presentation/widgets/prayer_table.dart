@@ -7,7 +7,6 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../shared/extensions/context_ext.dart';
-import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/prayer_day.dart';
@@ -20,7 +19,7 @@ final class PrayerTable extends StatelessWidget {
   const PrayerTable({
     required this.day,
     required this.activePrayer,
-    required this.jamaat,
+    required this.jamaatTimes,
     this.jumuah = false,
     required this.formatTime,
     this.onSetJamaat,
@@ -39,7 +38,9 @@ final class PrayerTable extends StatelessWidget {
 
   final PrayerDay day;
   final Prayer? activePrayer;
-  final JamaatConfig jamaat;
+
+  /// Each row's jamaat moment (see `HomeStore.rowJamaat`); absent = unset.
+  final Map<Prayer, DateTime> jamaatTimes;
 
   /// Friday's Dhuhr reads Jumu'ah (see `HomeStore.jumuahToday`).
   final bool jumuah;
@@ -92,9 +93,8 @@ final class PrayerTable extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     final jamaatTimes = {
-      for (final prayer in Prayer.values)
-        if (jamaat.timeFor(prayer, day.startOf(prayer)) case final t?)
-          prayer: formatTime(t),
+      for (final MapEntry(:key, :value) in this.jamaatTimes.entries)
+        key: formatTime(value),
     };
     // The jamaat column fits its widest entry (Bangla times run long)
     // instead of shrinking it; the header label aligns over it.

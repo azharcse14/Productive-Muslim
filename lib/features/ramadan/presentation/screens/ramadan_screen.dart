@@ -255,9 +255,10 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             ? (l10n.countdownSahriEnds, sahri)
             : now.isBefore(iftar)
             ? (l10n.countdownIftarIn, iftar)
-            : i + 1 < rows.length
-            ? (l10n.countdownSahriEnds, rows[i + 1].$2)
-            : (null, null);
+            : switch (widget.store.rowAfter(today)) {
+                final next? => (l10n.countdownSahriEnds, next.$2),
+                null => (null, null),
+              };
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

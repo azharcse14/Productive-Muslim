@@ -1,5 +1,6 @@
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../domain/entities/app_settings.dart';
+import '../../domain/entities/location_config.dart';
 import '../../domain/entities/prayer_params.dart';
 
 /// The two Asr choices offered in pickers; "Standard" stores [Madhab.shafi]
@@ -8,6 +9,20 @@ const asrMadhabChoices = [Madhab.hanafi, Madhab.shafi];
 
 /// [m] as one of [asrMadhabChoices].
 Madhab asrMadhabOf(Madhab m) => m == Madhab.hanafi ? m : Madhab.shafi;
+
+/// The saved location as Home names it; only `null` is "not set". A GPS
+/// fix with no bundled city nearby has an empty name: "Current location".
+// ponytail: mirrors prayer_times' formatLocationName minus its Bangla
+// city-name map; settings may not import another feature's presentation.
+String locationLabel(LocationConfig? location, AppLocalizations l10n) =>
+    switch (location) {
+      null => l10n.settingLocationNotSet,
+      ManualCityLocation(:final city)
+          when l10n.localeName == 'bn' && (city.nameBn ?? '').isNotEmpty =>
+        city.nameBn!,
+      final LocationConfig l when l.displayName.isEmpty => l10n.locationCurrent,
+      final LocationConfig l => l.displayName,
+    };
 
 /// Maps settings enums to localized labels (no hardcoded strings in
 /// widgets — guide §6).

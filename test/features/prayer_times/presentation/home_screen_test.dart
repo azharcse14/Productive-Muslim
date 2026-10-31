@@ -226,6 +226,8 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(find.text("Jumu'ah"), findsOneWidget);
+      // Its jamaat time comes from that same mosque (B), not A (active now).
+      expect(find.textContaining('1:30'), findsOneWidget);
     });
 
     testHomeWidgets('with a location renders header, table and meal row', (

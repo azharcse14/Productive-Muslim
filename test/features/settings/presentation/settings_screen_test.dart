@@ -7,6 +7,7 @@ import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
@@ -103,6 +104,17 @@ void main() {
     testWidgets('location row shows "Not set" before setup', (tester) async {
       await tester.pumpWidget(_app());
       expect(find.text('Not set'), findsOneWidget);
+    });
+
+    testWidgets('a GPS fix with no nearby city reads "Current location"', (
+      tester,
+    ) async {
+      await GetIt.I<SettingsStore>().setLocation(
+        const GpsLocation(latitude: 10, longitude: 20),
+      );
+      await tester.pumpWidget(_app());
+      expect(find.text('Current location'), findsOneWidget);
+      expect(find.text('Not set'), findsNothing);
     });
 
     testWidgets('madhab sheet selection persists', (tester) async {

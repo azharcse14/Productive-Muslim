@@ -44,7 +44,24 @@ final class _NoGps implements LocationRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Future<SettingsStore> _pump(WidgetTester tester, {required bool setup}) async {
+/// A GPS fix that arrives only when the test completes [fix].
+final class _SlowGps implements LocationRepository {
+  final fix = Completer<Result<GpsLocation>>();
+
+  @override
+  Future<Result<GpsLocation>> getCurrentLocation({
+    bool requestPermission = true,
+  }) => fix.future;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+Future<SettingsStore> _pump(
+  WidgetTester tester, {
+  required bool setup,
+  LocationRepository? gps,
+}) async {
   final store = await makeSettingsStore(
     AppSettings(
       setupComplete: setup,
@@ -62,7 +79,7 @@ Future<SettingsStore> _pump(WidgetTester tester, {required bool setup}) async {
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
     ..registerSingleton(SearchCities(_Cities()))
-    ..registerSingleton(GetCurrentLocation(_NoGps()));
+    ..registerSingleton(GetCurrentLocation(gps ?? _NoGps()));
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (_, _) => const Scaffold()),
@@ -128,5 +145,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Use the suggested method for'), findsNothing);
     expect(store.prayerParams.value.method, CalculationMethodId.karachi);
+  });
+
+  testWidgets('a GPS fix landing after a city pick is dropped', (
+    tester,
+  ) async {
+    final gps = _SlowGps();
+    final store = await _pump(tester, setup: true, gps: gps);
+    await tester.tap(find.text('Use my location'));
+    await tester.pump();
+    // The pick saves Cairo and keeps the screen up behind the region dialog.
+    await tester.tap(find.text('Cairo'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Use the suggested method for'), findsOne);
+    gps.fix.complete(
+      const Result.success(GpsLocation(latitude: 1, longitude: 2)),
+    );
+    await tester.pumpAndSettle();
+    expect(store.location.value, const ManualCityLocation(_cairo));
+    expect(find.byType(AlertDialog), findsOne);
   });
 }
