@@ -366,6 +366,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(store.categoryBudgets.value[ExpenseCategory.want], isNull);
   });
+
+  testWidgets('a new entry is stamped when saved, not when the sheet opened', (
+    tester,
+  ) async {
+    var clock = DateTime(2026, 10, 26, 10);
+    store = ExpenseStore(SharedPreferencesAsync(), now: () => clock);
+    GetIt.I.registerSingleton<ExpenseStore>(store);
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '120');
+    await tester.pump();
+    clock = DateTime(2026, 10, 26, 10, 45);
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(store.entries.value.single.date, DateTime(2026, 10, 26, 10, 45));
+  });
+
+  testWidgets('re-dating an evening entry to today never lands after now', (
+    tester,
+  ) async {
+    register(); // now = Oct 26, 10:00
+    await store.add(
+      amount: 80,
+      category: ExpenseCategory.want,
+      note: 'tea',
+      date: DateTime(2026, 10, 25, 21, 30),
+    );
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('tea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('tea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.calendar_today_outlined));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('26'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(store.entries.value.single.date, DateTime(2026, 10, 26, 10));
+  });
 }
 
 base class _FailingWrites extends InMemorySharedPreferencesAsync {

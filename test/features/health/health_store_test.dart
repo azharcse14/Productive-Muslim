@@ -39,4 +39,29 @@ void main() {
     expect(await s.setWeight(now, double.nan), isFalse);
     expect(s.history, isEmpty);
   });
+
+  test('a failed write rolls the log back and rethrows', () async {
+    final prefs = _FailingWrites();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    final s = store();
+    expect(await s.setWeight(DateTime(2026, 10, 20), 70), isTrue);
+    prefs.fail = true;
+    await expectLater(s.setWeight(now, 69.5), throwsStateError);
+    expect(s.history, [(DateTime(2026, 10, 20), 70.0)]);
+  });
+}
+
+base class _FailingWrites extends InMemorySharedPreferencesAsync {
+  _FailingWrites() : super.empty();
+
+  bool fail = false;
+
+  @override
+  Future<bool> setStringList(
+    String key,
+    List<String> value,
+    SharedPreferencesOptions options,
+  ) => fail
+      ? throw StateError('disk full')
+      : super.setStringList(key, value, options);
 }

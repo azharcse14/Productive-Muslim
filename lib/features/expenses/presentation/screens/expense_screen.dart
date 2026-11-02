@@ -749,6 +749,10 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       widget.existing?.category ?? ExpenseCategory.need;
   late DateTime _date = widget.existing?.date ?? widget.store.now();
 
+  /// Whether the user picked a date; an untouched new entry is stamped
+  /// with the clock at save, not when the sheet opened.
+  bool _datePicked = false;
+
   /// Set while a save is in flight — a second tap must neither add again
   /// nor pop the screen under the closing sheet.
   bool _saving = false;
@@ -799,17 +803,21 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       lastDate: now,
     );
     if (picked != null) {
-      // Keep the time of day so same-day entries stay in entry order.
-      setState(
-        () => _date = DateTime(
-          picked.year,
-          picked.month,
-          picked.day,
-          _date.hour,
-          _date.minute,
-          _date.second,
-        ),
+      // Keep the time of day so same-day entries stay in entry order —
+      // but never past now (re-dating an evening entry to today).
+      final kept = DateTime(
+        picked.year,
+        picked.month,
+        picked.day,
+        _date.hour,
+        _date.minute,
+        _date.second,
       );
+      final latest = widget.store.now();
+      setState(() {
+        _date = kept.isAfter(latest) ? latest : kept;
+        _datePicked = true;
+      });
     }
   }
 
@@ -833,7 +841,7 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
           amount: amount,
           category: _category,
           note: _note.text,
-          date: _date,
+          date: _datePicked ? _date : null,
         );
       }
     } on Object {
