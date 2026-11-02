@@ -258,7 +258,9 @@ GoRouter buildRouter() {
       GoRoute(
         name: Routes.locationPicker.name,
         path: Routes.locationPicker.path,
-        builder: (context, state) => const LocationPickerScreen(),
+        builder: (context, state) => LocationPickerScreen(
+          autoGps: state.uri.queryParameters['gps'] == '1',
+        ),
       ),
       GoRoute(
         name: Routes.myMosque.name,
@@ -466,11 +468,21 @@ final class QShellScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return QBottomNavScaffold(
-      currentIndex: shell.currentIndex,
-      onSelect: (index) =>
-          shell.goBranch(index, initialLocation: index == shell.currentIndex),
-      body: shell,
+    // System back on another tab's root returns to Home instead of
+    // exiting the app; only Home's root lets the OS close it.
+    return PopScope(
+      canPop: shell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          shell.goBranch(0);
+        }
+      },
+      child: QBottomNavScaffold(
+        currentIndex: shell.currentIndex,
+        onSelect: (index) =>
+            shell.goBranch(index, initialLocation: index == shell.currentIndex),
+        body: shell,
+      ),
     );
   }
 }

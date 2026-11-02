@@ -9,6 +9,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_empty_state.dart';
@@ -81,7 +82,7 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text(l10n.notificationsTitle),
         actions: [
           IconButton(
-            tooltip: l10n.notifSettingsTitle,
+            tooltip: l10n.notifSettingsScreenTitle,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () =>
                 unawaited(context.pushNamed(Routes.notificationSettings.name)),
@@ -130,27 +131,60 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
                   !item.at.isAfter(until))
                 item,
           ];
-          if (items.isEmpty) {
-            return QEmptyState(
-              icon: Icons.notifications_none_outlined,
-              title: l10n.notificationsEmptyTitle,
-              body: l10n.notificationsEmptySub,
-              action: QButton(
-                label: l10n.notifSettingsTitle,
-                kind: QButtonKind.tonal,
-                icon: Icons.tune,
-                onPressed: () => unawaited(
-                  context.pushNamed(Routes.notificationSettings.name),
+          final Widget content = items.isEmpty
+              ? QEmptyState(
+                  icon: Icons.notifications_none_outlined,
+                  title: l10n.notificationsEmptyTitle,
+                  body: l10n.notificationsEmptySub,
+                  action: QButton(
+                    label: l10n.notifSettingsScreenTitle,
+                    kind: QButtonKind.tonal,
+                    icon: Icons.tune,
+                    onPressed: () => unawaited(
+                      context.pushNamed(Routes.notificationSettings.name),
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(QSpace.s5),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
+                  itemBuilder: (context, index) =>
+                      _Tile(item: items[index], matrix: matrix),
+                );
+          if (!_controller.failed.value) {
+            return content;
+          }
+          // The OS may not hold this plan: say so instead of implying it.
+          final q = context.q;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  QSpace.s5,
+                  QSpace.s5,
+                  QSpace.s5,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    QBanner(
+                      text: l10n.notifRescheduleFailed,
+                      icon: Icons.warning_amber_outlined,
+                      tone: q.warnSoft,
+                      foreground: q.warn,
+                    ),
+                    TextButton(
+                      onPressed: () => unawaited(_controller.retry()),
+                      child: Text(l10n.notifRescheduleRetry),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(QSpace.s5),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-            itemBuilder: (context, index) =>
-                _Tile(item: items[index], matrix: matrix),
+              Expanded(child: content),
+            ],
           );
         },
       ),

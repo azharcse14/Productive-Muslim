@@ -63,10 +63,31 @@ final class _NotificationSettingsScreenState
       onResume: () => unawaited(_refreshStatus()),
     );
     unawaited(_refreshStatus());
+    _watchSaveFailures();
+  }
+
+  EffectCleanup? _stopSaveWatch;
+
+  /// Snackbar per failed save, from the topmost settings screen only.
+  void _watchSaveFailures() {
+    var seen = _store.saveFailures.peek();
+    _stopSaveWatch = effect(() {
+      final failures = _store.saveFailures.value;
+      if (failures == seen) {
+        return;
+      }
+      seen = failures;
+      if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      }
+    });
   }
 
   @override
   void dispose() {
+    _stopSaveWatch?.call();
     _lifecycle.dispose();
     super.dispose();
   }
@@ -122,7 +143,7 @@ final class _NotificationSettingsScreenState
     final l10n = context.l10n;
     final q = context.q;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.notifSettingsTitle)),
+      appBar: AppBar(title: Text(l10n.notifSettingsScreenTitle)),
       body: SignalBuilder(
         builder: (context) {
           final matrix = _matrix;
@@ -459,6 +480,13 @@ final class _NotificationSettingsScreenState
                   icon: Icons.battery_saver_outlined,
                   tone: q.surface2,
                   foreground: q.ink2,
+                ),
+                // App info → Battery holds the "Unrestricted" switch.
+                QButton(
+                  label: l10n.openSystemSettings,
+                  kind: QButtonKind.ghost,
+                  small: true,
+                  onPressed: () => unawaited(_scheduler.openSystemSettings()),
                 ),
               ],
               const SizedBox(height: QSpace.s10),

@@ -702,6 +702,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifSettingsTitle => 'নোটিফিকেশন';
 
   @override
+  String get notifSettingsScreenTitle => 'নোটিফিকেশন সেটিংস';
+
+  @override
   String get notifOffInSystem => 'সিস্টেম সেটিংসে বন্ধ';
 
   @override
@@ -717,6 +720,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifExactAlarmCta => 'এক্সাক্ট অ্যালার্ম অনুমতি দিন';
+
+  @override
+  String get onboardingExactAlarmTitle => 'আরেকটি অনুমতি';
+
+  @override
+  String get onboardingExactAlarmBody =>
+      'আজান যেন ঠিক মিনিটে আসে, সেজন্য অ্যান্ড্রয়েডে \"অ্যালার্ম ও রিমাইন্ডার\" অনুমতি দিতে হয়। পরের স্ক্রিনে প্রোডাক্টিভ মুসলিমের জন্য এটি চালু করে ফিরে আসুন।';
 
   @override
   String get notifBatteryHint =>
@@ -810,7 +820,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifDailyDuaBody => 'আজকের দোয়া প্রস্তুত — পড়তে ট্যাপ করুন।';
 
   @override
-  String get notificationsTitle => 'নোটিফিকেশন';
+  String get notificationsTitle => 'আসন্ন নোটিফিকেশন';
+
+  @override
+  String get notifRescheduleFailed =>
+      'নোটিফিকেশন নির্ধারণ করা যায়নি, তাই রিমাইন্ডার নাও আসতে পারে। আবার চেষ্টা করুন।';
+
+  @override
+  String get notifRescheduleRetry => 'আবার চেষ্টা করুন';
 
   @override
   String get notificationsEmptyTitle => 'কোনো নোটিফিকেশন নেই';

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -34,6 +35,21 @@ final class _NoopScheduler implements NotificationScheduler {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Grants notifications; exact alarms not yet allowed.
+final class _GrantingScheduler extends _NoopScheduler {
+  bool exactRequested = false;
+
+  @override
+  Future<NotificationPermission> requestPermission() async =>
+      NotificationPermission.granted;
+
+  @override
+  Future<bool> canScheduleExactAlarms() async => false;
+
+  @override
+  Future<void> requestExactAlarmPermission() async => exactRequested = true;
+}
+
 const _cairo = ManualCityLocation(
   City(
     name: 'Cairo',
@@ -49,13 +65,14 @@ Future<_Repo> _pumpToLocationStep(
   PrayerParams params = const PrayerParams(),
   bool rerun = false,
   LocationConfig location = _cairo,
+  NotificationScheduler? scheduler,
 }) async {
   final repo = _Repo(AppSettings(location: location, prayerParams: params));
   final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await store.load();
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
-    ..registerSingleton<NotificationScheduler>(_NoopScheduler());
+    ..registerSingleton<NotificationScheduler>(scheduler ?? _NoopScheduler());
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.light(),
@@ -141,4 +158,45 @@ void main() {
     expect(find.text('Current location'), findsOneWidget);
     expect(find.text('Not set'), findsNothing);
   });
+
+  testWidgets('the location step offers GPS and a city search directly', (
+    tester,
+  ) async {
+    await _pumpToLocationStep(tester);
+    expect(find.text('Use my location'), findsOneWidget);
+    expect(find.text('Choose city manually'), findsOneWidget);
+    expect(find.textContaining('Cairo'), findsOneWidget); // current choice
+  });
+
+  for (final (accept, label) in [
+    (true, 'Allow exact alarms'),
+    (false, 'Maybe later'),
+  ]) {
+    testWidgets('Android: exact alarms are explained first ($label)', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final scheduler = _GrantingScheduler();
+      await _pumpToLocationStep(tester, scheduler: scheduler);
+      for (var i = 0; i < 3; i++) {
+        // location → madhab → method → notifications
+        await tester.tap(find.text('Next').hitTestable());
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.text('Allow notifications').hitTestable());
+      await tester.pumpAndSettle();
+      expect(find.text('One more permission'), findsOneWidget);
+      expect(scheduler.exactRequested, isFalse);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text(label),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(scheduler.exactRequested, accept);
+      expect(find.text('Bismillah'), findsOneWidget);
+      debugDefaultTargetPlatformOverride = null;
+    });
+  }
 }

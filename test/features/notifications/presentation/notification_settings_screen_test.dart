@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,12 +37,16 @@ import '../../../helpers/mosque_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();
+  bool failSaves = false;
 
   @override
   Future<Result<AppSettings>> load() async => Result.success(stored);
 
   @override
   Future<Result<void>> save(AppSettings settings) async {
+    if (failSaves) {
+      return const Result.failure(UnexpectedFailure('disk full'));
+    }
     stored = settings;
     return const Result.success(null);
   }
@@ -88,11 +93,15 @@ final class _FakeScheduler implements NotificationScheduler {
   @override
   Future<void> openSystemSettings() async => settingsOpened = true;
 
+  bool rescheduleFails = false;
+
   @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,
-  ) async => const Result.success(null);
+  ) async => rescheduleFails
+      ? const Result.failure(UnexpectedFailure('plugin'))
+      : const Result.success(null);
 
   @override
   Future<void> cancelAll() async {}
@@ -361,6 +370,37 @@ void main() {
       expect(scheduler.exactRequested, isTrue);
     });
 
+    testWidgets('is titled as settings, apart from the inbox', (tester) async {
+      await _register(_FakeScheduler());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text('Notification settings'), findsOneWidget);
+    });
+
+    testWidgets('a failed save says so', (tester) async {
+      await _register(_FakeScheduler());
+      _repo.failSaves = true;
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Silent').first);
+      await tester.pump();
+      expect(find.text("Couldn't save. Please try again."), findsOneWidget);
+    });
+
+    testWidgets('Android: battery hint opens system settings', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final scheduler = _FakeScheduler();
+      await _register(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final open = find.text('Open settings');
+      await tester.scrollUntilVisible(open, 200);
+      await tester.tap(open);
+      await tester.pump();
+      expect(scheduler.settingsOpened, isTrue);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     testWidgets('nothing scheduled says so', (tester) async {
       await _register(_FakeScheduler());
       await tester.pumpWidget(_app());
@@ -463,6 +503,28 @@ void main() {
       await tester.pump();
       expect(find.text("It's time for Jumu'ah."), findsOneWidget);
       expect(find.text("It's time for Dhuhr."), findsNothing);
+    });
+
+    testWidgets('a failed reschedule warns and retries', (tester) async {
+      final scheduler = _FakeScheduler()..rescheduleFails = true;
+      await _register(scheduler, settings: const AppSettings(location: _dhaka));
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      expect(find.text('Upcoming notifications'), findsOneWidget);
+      expect(
+        find.textContaining("Couldn't schedule your notifications"),
+        findsOneWidget,
+      );
+      scheduler.rescheduleFails = false;
+      await tester.tap(find.text('Try again'));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump();
+      expect(
+        find.textContaining("Couldn't schedule your notifications"),
+        findsNothing,
+      );
+      expect(find.text("It's time for Dhuhr."), findsOneWidget);
     });
 
     testWidgets('denied permission offers to enable', (tester) async {

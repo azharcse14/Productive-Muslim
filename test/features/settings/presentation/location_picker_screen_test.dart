@@ -61,6 +61,7 @@ Future<SettingsStore> _pump(
   WidgetTester tester, {
   required bool setup,
   LocationRepository? gps,
+  bool autoGps = false,
 }) async {
   final store = await makeSettingsStore(
     AppSettings(
@@ -83,7 +84,10 @@ Future<SettingsStore> _pump(
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (_, _) => const Scaffold()),
-      GoRoute(path: '/l', builder: (_, _) => const LocationPickerScreen()),
+      GoRoute(
+        path: '/l',
+        builder: (_, _) => LocationPickerScreen(autoGps: autoGps),
+      ),
     ],
   );
   await tester.pumpWidget(
@@ -147,9 +151,7 @@ void main() {
     expect(store.prayerParams.value.method, CalculationMethodId.karachi);
   });
 
-  testWidgets('a GPS fix landing after a city pick is dropped', (
-    tester,
-  ) async {
+  testWidgets('a GPS fix landing after a city pick is dropped', (tester) async {
     final gps = _SlowGps();
     final store = await _pump(tester, setup: true, gps: gps);
     await tester.tap(find.text('Use my location'));
@@ -164,5 +166,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(store.location.value, const ManualCityLocation(_cairo));
     expect(find.byType(AlertDialog), findsOne);
+  });
+
+  testWidgets('autoGps starts a fix on open and applies it', (tester) async {
+    final gps = _SlowGps()
+      ..fix.complete(
+        const Result.success(GpsLocation(latitude: 1, longitude: 2)),
+      );
+    final store = await _pump(tester, setup: false, gps: gps, autoGps: true);
+    expect(store.location.value, const GpsLocation(latitude: 1, longitude: 2));
+    expect(find.byType(LocationPickerScreen), findsNothing); // popped
   });
 }

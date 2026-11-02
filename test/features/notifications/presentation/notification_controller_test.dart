@@ -346,6 +346,18 @@ void main() {
     },
   );
 
+  test('a failed run sets failed; retry clears it on success', () async {
+    final (controller, scheduler) = await _controller();
+    scheduler.initError = StateError('plugin init failed');
+    await controller.start();
+    expect(controller.failed.value, isTrue);
+    scheduler.initError = null;
+    await controller.retry();
+    expect(controller.failed.value, isFalse);
+    expect(scheduler.rescheduleCalls, 1);
+    controller.dispose();
+  });
+
   test('resume after a notification grant reschedules a fresh plan', () async {
     final (controller, scheduler) = await _controller();
     scheduler.permission = NotificationPermission.notRequested;

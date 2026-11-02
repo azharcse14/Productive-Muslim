@@ -27,7 +27,10 @@ import '../widgets/setting_labels.dart';
 /// and a searchable manual city list. Every GPS failure routes to the
 /// manual path — never a dead end.
 final class LocationPickerScreen extends StatefulWidget {
-  const LocationPickerScreen({super.key});
+  const LocationPickerScreen({this.autoGps = false, super.key});
+
+  /// Starts a GPS fix on open ("Use my location" chosen before arriving).
+  final bool autoGps;
 
   @override
   State<LocationPickerScreen> createState() => _LocationPickerScreenState();
@@ -67,6 +70,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
     super.initState();
     _lifecycle = AppLifecycleListener(onResume: _onResume);
     unawaited(_runSearch(''));
+    if (widget.autoGps) {
+      unawaited(_useGps());
+    }
   }
 
   @override

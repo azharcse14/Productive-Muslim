@@ -1214,6 +1214,12 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get notifSettingsTitle;
 
+  /// No description provided for @notifSettingsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notifSettingsScreenTitle;
+
   /// No description provided for @notifOffInSystem.
   ///
   /// In en, this message translates to:
@@ -1243,6 +1249,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow exact alarms'**
   String get notifExactAlarmCta;
+
+  /// No description provided for @onboardingExactAlarmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One more permission'**
+  String get onboardingExactAlarmTitle;
+
+  /// No description provided for @onboardingExactAlarmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'So azan arrives at the exact minute, Android needs \"Alarms & reminders\" allowed. On the next screen, switch it on for Productive Muslim, then come back.'**
+  String get onboardingExactAlarmBody;
 
   /// No description provided for @notifBatteryHint.
   ///
@@ -1421,8 +1439,20 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Notifications'**
+  /// **'Upcoming notifications'**
   String get notificationsTitle;
+
+  /// No description provided for @notifRescheduleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t schedule your notifications, so reminders may not arrive. Please try again.'**
+  String get notifRescheduleFailed;
+
+  /// No description provided for @notifRescheduleRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get notifRescheduleRetry;
 
   /// No description provided for @notificationsEmptyTitle.
   ///

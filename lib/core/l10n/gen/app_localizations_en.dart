@@ -705,6 +705,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifSettingsTitle => 'Notifications';
 
   @override
+  String get notifSettingsScreenTitle => 'Notification settings';
+
+  @override
   String get notifOffInSystem => 'Off in system settings';
 
   @override
@@ -720,6 +723,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifExactAlarmCta => 'Allow exact alarms';
+
+  @override
+  String get onboardingExactAlarmTitle => 'One more permission';
+
+  @override
+  String get onboardingExactAlarmBody =>
+      'So azan arrives at the exact minute, Android needs \"Alarms & reminders\" allowed. On the next screen, switch it on for Productive Muslim, then come back.';
 
   @override
   String get notifBatteryHint =>
@@ -813,7 +823,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifDailyDuaBody => 'Today\'s dua is ready — tap to read it.';
 
   @override
-  String get notificationsTitle => 'Notifications';
+  String get notificationsTitle => 'Upcoming notifications';
+
+  @override
+  String get notifRescheduleFailed =>
+      'Couldn\'t schedule your notifications, so reminders may not arrive. Please try again.';
+
+  @override
+  String get notifRescheduleRetry => 'Try again';
 
   @override
   String get notificationsEmptyTitle => 'No notifications';
