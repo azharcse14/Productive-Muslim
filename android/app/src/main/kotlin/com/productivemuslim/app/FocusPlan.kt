@@ -57,6 +57,14 @@ object FocusPlan {
     fun running(windows: List<Window>, lastStart: Long, lastKey: Long): Window? =
         windows.firstOrNull { if (lastKey != 0L) it.key == lastKey else it.start == lastStart }
 
+    /**
+     * The session must be stopped (and DND we [silenced] restored): it ran
+     * past its end ([until] > 0), or none is recorded (0) though DND is still
+     * ours. -1 = until the user ends it, never on its own.
+     */
+    fun mustStop(until: Long, silenced: Boolean, now: Long): Boolean =
+        if (until == 0L) silenced else until > 0 && now >= until
+
     /** Next alarm:the earliest future start, or the running session's end ([until]). */
     fun nextAlarm(windows: List<Window>, until: Long, now: Long): Long? =
         (windows.map { it.start } + until).filter { it > now }.minOrNull()

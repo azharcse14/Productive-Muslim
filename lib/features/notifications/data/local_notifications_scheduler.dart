@@ -21,7 +21,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     void Function(String? payload, String? actionId)? onTap,
     FlutterLocalNotificationsPlugin? plugin,
     SharedPreferencesAsync? prefs,
+    DateTime Function()? now,
   }) : _prefs = prefs,
+       _now = now ?? DateTime.now,
        _clock = clock,
        _currentLocation = currentLocation,
        _formatTime = formatTime,
@@ -38,13 +40,15 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   /// intent when the app is recreated from recents; replay each tap once.
   static const _launchKey = 'notif_last_launch_tap';
 
-  /// Wall clock minus UTC (minutes) where the pending ids were planned.
-  /// Ids encode wall-clock minutes there, so their overdue check must read
-  /// that clock: after a zone change (a manual city in another zone, or a
-  /// GPS user whose device zone moved) a future old alarm would otherwise
-  /// look just-due and survive the sweep. Persisted: the zone may change
-  /// while the app is dead.
-  static const _plannedOffsetKey = 'notif_planned_utc_offset_min';
+  /// `id:utcMinute` of every notification this class scheduled and the OS
+  /// may still hold. An id encodes the wall-clock minute at its own fire
+  /// time, which no single later clock reads back right: after a zone
+  /// change (manual city in another zone, GPS user whose device zone
+  /// moved, also while the app was dead) or a DST change, a future alarm
+  /// could look just-due and survive the sweep, or a just-due one look
+  /// 42 years old and be dropped unshown. The UTC instant stored at
+  /// schedule time can't drift. Pruned to what is still pending each run.
+  static const _firesAtKey = 'notif_pending_fires_utc_min';
 
   final SharedPreferencesAsync? _prefs;
   late final SharedPreferencesAsync _store = _prefs ?? SharedPreferencesAsync();
@@ -68,6 +72,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
 
   final FlutterLocalNotificationsPlugin _plugin;
   final ZonedClock _clock;
+  final DateTime Function() _now;
 
   /// Scheduling needs the active location to convert wall → instant.
   final LocationConfig? Function() _currentLocation;
@@ -234,15 +239,32 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       // alarms; the plugin lists it until its receiver runs): it isn't in
       // the plan (that starts now), and cancelling would drop it unshown.
       final planned = {for (final item in items) item.id};
-      final offset = _utcOffsetAt(location);
-      final plannedOffset = await _plannedOffset() ?? offset;
-      final now = DateTime.now().toUtc().add(plannedOffset);
-      await Future.wait([
+      final nowUtc = _now().toUtc();
+      final firesAt = await _firesAt();
+      // No record (scheduled before this was kept, or the save failed):
+      // fall back to reading the id on the current wall clock.
+      final wallNow = _clock.instantAt(location, nowUtc);
+      bool stale(int id) {
+        final at = firesAt[id];
+        if (at == null) {
+          return NotificationItem.overdueBy(id, wallNow) > overdueGrace;
+        }
+        final overdue = nowUtc.difference(at);
+        return overdue.isNegative || overdue > overdueGrace;
+      }
+
+      final pendingIds = {
         for (final pending in await _plugin.pendingNotificationRequests())
-          if (!planned.contains(pending.id) &&
-              NotificationItem.overdueBy(pending.id, now) > overdueGrace)
-            _plugin.cancel(id: pending.id),
-      ]);
+          pending.id,
+      };
+      final dropped = {
+        for (final id in pendingIds)
+          if (!planned.contains(id) && stale(id)) id,
+      };
+      await Future.wait([for (final id in dropped) _plugin.cancel(id: id)]);
+      firesAt.removeWhere(
+        (id, _) => !pendingIds.contains(id) || dropped.contains(id),
+      );
       final exact = await canScheduleExactAlarms();
       final mode = exact
           ? AndroidScheduleMode.exactAllowWhileIdle
@@ -257,7 +279,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         final utc = _clock.utcInstantOf(location, item.at);
         // zonedSchedule throws on a past instant; an item that came due
         // while planning is simply skipped, not reported as a failure.
-        if (!utc.isAfter(DateTime.now().add(const Duration(seconds: 5)))) {
+        if (!utc.isAfter(nowUtc.add(const Duration(seconds: 5)))) {
           continue;
         }
         final (title, body) = _texts(item, texts);
@@ -288,6 +310,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
               _ => '/home',
             },
           );
+          firesAt[item.id] = utc;
         } on Object catch (e) {
           firstError ??= e;
           failed++;
@@ -296,13 +319,12 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       if (failed > 0) {
         debugPrint('$failed/$attempted notifications failed: $firstError');
       }
+      await _saveFiresAt(firesAt);
       if (failed > 0 && failed == attempted) {
-        // Nothing moved to the new clock: keep reading the old one.
         return Result.failure(
           UnexpectedFailure('Failed to schedule notifications', firstError),
         );
       }
-      await _savePlannedOffset(offset);
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(
@@ -311,40 +333,38 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     }
   }
 
-  /// [location]'s wall clock minus UTC, snapped to 15 min (every real zone
-  /// offset is a multiple) so the two clock reads can't straddle a minute.
-  Duration _utcOffsetAt(LocationConfig location) {
-    final w = _clock.nowAt(location);
-    final u = DateTime.now().toUtc();
-    final minutes = DateTime.utc(
-      w.year,
-      w.month,
-      w.day,
-      w.hour,
-      w.minute,
-    ).difference(u).inMinutes;
-    return Duration(minutes: (minutes / 15).round() * 15);
-  }
-
-  Future<Duration?> _plannedOffset() async {
+  Future<Map<int, DateTime>> _firesAt() async {
     try {
-      final minutes = await _store.getInt(_plannedOffsetKey);
-      return minutes == null ? null : Duration(minutes: minutes);
+      return {
+        for (final entry
+            in await _store.getStringList(_firesAtKey) ?? const <String>[])
+          if (entry.split(':') case [final id, final minute])
+            int.parse(id): DateTime.fromMillisecondsSinceEpoch(
+              int.parse(minute) * Duration.millisecondsPerMinute,
+              isUtc: true,
+            ),
+      };
     } on Exception {
-      return null; // unknown: read the current location's clock
+      return {}; // unknown: every id falls back to the wall-clock read
     }
   }
 
-  Future<void> _savePlannedOffset(Duration offset) async {
+  Future<void> _saveFiresAt(Map<int, DateTime> firesAt) async {
     try {
-      await _store.setInt(_plannedOffsetKey, offset.inMinutes);
+      await _store.setStringList(_firesAtKey, [
+        for (final MapEntry(:key, :value) in firesAt.entries)
+          '$key:${value.millisecondsSinceEpoch ~/ Duration.millisecondsPerMinute}',
+      ]);
     } on Exception catch (e) {
-      debugPrint('Failed to save planned offset: $e');
+      debugPrint('Failed to save notification fire times: $e');
     }
   }
 
   @override
-  Future<void> cancelAll() => _plugin.cancelAll();
+  Future<void> cancelAll() async {
+    await _plugin.cancelAll();
+    await _saveFiresAt(const {});
+  }
 
   (String, String) _texts(NotificationItem item, NotificationTexts t) {
     final time = _formatTime(item.eventAt ?? item.at);
