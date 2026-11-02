@@ -52,27 +52,10 @@ final class DuaCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Actions on their own row, so the Arabic gets the full width.
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                // Rebuilds when the reader text size changes.
-                child: SignalBuilder(
-                  builder: (context) => Text(
-                    dua.arabic,
-                    textDirection: TextDirection.rtl,
-                    // A non-Arabic TTS garbles raw Arabic glyphs; speak the
-                    // transliteration instead.
-                    semanticsLabel: dua.transliterationFor(languageCode),
-                    // Sized by the reader setting, so the system text scale
-                    // must not multiply it again.
-                    textScaler: TextScaler.noScaling,
-                    style: QType.quran(
-                      arabicBodySize(context),
-                    ).copyWith(color: q.ink),
-                  ),
-                ),
-              ),
               SignalBuilder(
                 builder: (context) {
                   final active = favorites.ids.value.contains(dua.id);
@@ -108,6 +91,22 @@ final class DuaCard extends StatelessWidget {
                     '${dua.reference.isEmpty ? '' : '\n— ${dua.reference}'}',
               ),
             ],
+          ),
+          // Rebuilds when the reader text size changes.
+          SignalBuilder(
+            builder: (context) => Text(
+              dua.arabic,
+              textDirection: TextDirection.rtl,
+              // A non-Arabic TTS garbles raw Arabic glyphs; speak the
+              // transliteration instead.
+              semanticsLabel: dua.transliterationFor(languageCode),
+              // Sized by the reader setting, so the system text scale
+              // must not multiply it again.
+              textScaler: TextScaler.noScaling,
+              style: QType.quran(
+                arabicBodySize(context),
+              ).copyWith(color: q.ink),
+            ),
           ),
           const SizedBox(height: QSpace.s3),
           Text(

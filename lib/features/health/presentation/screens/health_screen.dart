@@ -140,7 +140,16 @@ final class _HealthScreenState extends State<HealthScreen> {
                     habits.isNotEmpty ||
                     archivedHabits)
                   _Section(l10n.healthToday),
-                if (!_muhasaba.loaded.value) ...[
+                if (_muhasaba.loadFailed.value) ...[
+                  QCard(
+                    child: QErrorRetry(
+                      message: l10n.dataLoadFailed,
+                      retryLabel: l10n.retry,
+                      onRetry: () => unawaited(_muhasaba.load()),
+                    ),
+                  ),
+                  const SizedBox(height: QSpace.s2),
+                ] else if (!_muhasaba.loaded.value) ...[
                   for (var i = 0; i < 3; i++) ...[
                     const QSkeleton(height: 56, radius: QRadius.md),
                     const SizedBox(height: QSpace.s2),
@@ -404,6 +413,8 @@ final class _WeightDialogState extends State<_WeightDialog> {
         autofocus: true,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
+          labelText: l10n.healthWeightTitle,
+          suffixText: l10n.unitKg,
           hintText: l10n.healthWeightHint,
           errorText: text.isNotEmpty && _parsed == null
               ? l10n.healthWeightInvalid

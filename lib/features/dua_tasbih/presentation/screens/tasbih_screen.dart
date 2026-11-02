@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
@@ -65,16 +64,17 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   // App-scoped store — never disposed here.
   late final TasbihStore _store = locator<TasbihStore>();
 
-  static const _phraseKey = 'tasbih_phrase';
-  final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
-
-  /// A [_phrases] id or [_afterSalahId]; persisted.
-  final _phrase = signal(_phrases.keys.first);
+  /// A [_phrases] id or [_afterSalahId] (persisted by the store); an
+  /// unknown stored id falls back to the first phrase.
+  String get _phraseId => switch (_store.phrase.value) {
+    final id? when id == _afterSalahId || _phrases.containsKey(id) => id,
+    _ => _phrases.keys.first,
+  };
 
   /// After-salah mode only holds while the round is the 100-bead one (the
   /// target can also change from the Home quick card).
   bool get _afterSalah =>
-      _phrase.value == _afterSalahId && _store.target.value == _afterSalahTotal;
+      _phraseId == _afterSalahId && _store.target.value == _afterSalahTotal;
 
   /// Keeps "Today: N counted" on the right day while the screen stays open
   /// past midnight.
@@ -84,7 +84,6 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   void initState() {
     super.initState();
     unawaited(_store.load());
-    unawaited(_loadPhrase());
     _dayTick = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _store.rollOverDay(),
@@ -94,23 +93,10 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   @override
   void dispose() {
     _dayTick?.cancel();
-    _phrase.dispose();
     super.dispose();
   }
 
-  Future<void> _loadPhrase() async {
-    final saved = await _prefs.getString(_phraseKey);
-    if (mounted &&
-        saved != null &&
-        (saved == _afterSalahId || _phrases.containsKey(saved))) {
-      _phrase.value = saved;
-    }
-  }
-
-  void _setPhrase(String id) {
-    _phrase.value = id;
-    unawaited(_prefs.setString(_phraseKey, id));
-  }
+  void _setPhrase(String id) => unawaited(_store.setPhrase(id));
 
   void _startAfterSalah() {
     _setPhrase(_afterSalahId);
@@ -118,7 +104,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   }
 
   void _setTarget(int target) {
-    if (_phrase.value == _afterSalahId) {
+    if (_phraseId == _afterSalahId) {
       _setPhrase(_phrases.keys.first);
     }
     _store.setTarget(target);
@@ -170,7 +156,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
             final reached = count >= target;
             final afterSalah = _afterSalah;
             final step = afterSalah ? afterSalahStep(count) : null;
-            final phraseId = step?.$1 ?? _phrase.value;
+            final phraseId = step?.$1 ?? _phraseId;
             return Column(
               children: [
                 Padding(

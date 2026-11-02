@@ -84,6 +84,9 @@ final class MuhasabaStore {
   late final stats = signal<PeriodStats?>(null);
   late final loaded = signal(false);
 
+  /// The last [load] couldn't read the tracker list (screens offer a retry).
+  late final loadFailed = signal(false);
+
   /// True until the user logs their very first entry (welcome state).
   late final firstDay = computed(() {
     final s = stats.value;
@@ -127,9 +130,12 @@ final class MuhasabaStore {
       onResume: () => unawaited(rollOverIfNewDay()),
     );
     // Without the tracker list there is nothing to show: [loaded] stays
-    // false (screens keep their skeletons) until a resume retries.
+    // false and [loadFailed] lets screens offer a retry (a resume retries
+    // too).
+    loadFailed.value = false;
     final seeded = (await _repository.seedDefaults()).isSuccess;
     if (!seeded || !await _reloadItems()) {
+      loadFailed.value = true;
       return;
     }
     _day = _today();

@@ -162,7 +162,9 @@ final class _FullCollectionsCard extends StatelessWidget {
     final q = context.q;
     return Semantics(
       button: true,
-      label: l10n.hadithBooksTitle,
+      label: '${l10n.hadithBooksTitle}, ${l10n.hadithBooksSubtitle}',
+      onTap: onTap,
+      excludeSemantics: true,
       child: QCard(
         onTap: onTap,
         padding: const EdgeInsets.all(QSpace.s4),

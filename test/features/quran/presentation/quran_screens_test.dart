@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodCall, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
@@ -159,6 +161,42 @@ Widget _app(Widget home) => MaterialApp(
   home: home,
 );
 
+/// The Quran routes as the app declares them (names/paths from [Routes]).
+Widget _routerApp(String location) => MaterialApp.router(
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  builder: (context, child) =>
+      ReaderTextSizeScope(textSize: ReaderTextSize(), child: child!),
+  routerConfig: GoRouter(
+    initialLocation: location,
+    routes: [
+      GoRoute(
+        name: Routes.quran.name,
+        path: Routes.quran.path,
+        builder: (_, _) => const QuranScreen(),
+        routes: [
+          GoRoute(
+            name: Routes.quranAyah.name,
+            path: Routes.quranAyah.path,
+            builder: (_, state) => QuranReaderScreen(
+              surahId: int.parse(state.pathParameters['surah']!),
+              initialAyah: int.tryParse(state.pathParameters['ayah'] ?? ''),
+            ),
+          ),
+          GoRoute(
+            name: Routes.quranReader.name,
+            path: Routes.quranReader.path,
+            builder: (_, state) => QuranReaderScreen(
+              surahId: int.parse(state.pathParameters['surah']!),
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+);
+
 void main() {
   late FakeQuranRepository repo;
   late QuranStore store;
@@ -183,7 +221,7 @@ void main() {
     testWidgets('renders the surah index with first-open banner', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
 
       expect(find.text('Al-Faatiha'), findsOneWidget);
@@ -206,7 +244,7 @@ void main() {
     ) async {
       repo.storedLastRead = const QuranPosition(2, 2);
       await store.load();
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
 
       expect(find.text('Continue reading'), findsOneWidget);
@@ -216,7 +254,7 @@ void main() {
     testWidgets('search filters the list and empty results show a notice', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
 
       await tester.enterText(find.byType(TextField), 'cow');
@@ -241,7 +279,7 @@ void main() {
     testWidgets('bookmarks sheet lists saved ayahs and opens the reader', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
 
       await tester.tap(find.byTooltip('Bookmarks'));
@@ -269,7 +307,7 @@ void main() {
       tester,
     ) async {
       await store.toggleBookmark(4);
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
       await tester.tap(find.byTooltip('Bookmarks'));
       await tester.pumpAndSettle();
@@ -285,8 +323,21 @@ void main() {
       expect(find.textContaining('2:2'), findsOneWidget);
     });
 
+    testWidgets('a bookmark has a labelled remove button', (tester) async {
+      await store.toggleBookmark(4);
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Remove bookmark'));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, isEmpty);
+      expect(find.text('Bookmark removed'), findsOneWidget);
+    });
+
     testWidgets('tapping a surah row opens the reader', (tester) async {
-      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pumpWidget(_routerApp('/quran'));
       await tester.pump();
 
       await tester.tap(find.text('Al-Faatiha'));
@@ -493,7 +544,7 @@ void main() {
     testWidgets('the last card opens the next surah, none after 114', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pumpWidget(_routerApp('/quran/1'));
       await tester.pumpAndSettle();
       expect(find.text('Next surah'), findsOneWidget);
 

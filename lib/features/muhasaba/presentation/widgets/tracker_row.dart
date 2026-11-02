@@ -47,6 +47,10 @@ final class TrackerRow extends StatelessWidget {
       _ => null,
     };
     final changed = this.onChanged;
+    // Archived (read-only): dim the icon and controls, keep the name legible.
+    final dim = changed == null;
+    Widget dimmed(Widget child) =>
+        dim ? Opacity(opacity: 0.55, child: child) : child;
     final target = item.dailyTarget;
     final onChanged = changed == null
         ? null
@@ -79,17 +83,19 @@ final class TrackerRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: q.primarySoft,
-                  borderRadius: BorderRadius.circular(QRadius.md),
-                ),
-                child: Icon(
-                  TrackerVisuals.iconOf(item.icon),
-                  size: 20,
-                  color: tone,
+              dimmed(
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: q.primarySoft,
+                    borderRadius: BorderRadius.circular(QRadius.md),
+                  ),
+                  child: Icon(
+                    TrackerVisuals.iconOf(item.icon),
+                    size: 20,
+                    color: tone,
+                  ),
                 ),
               ),
               const SizedBox(width: QSpace.s3),
@@ -99,7 +105,9 @@ final class TrackerRow extends StatelessWidget {
                   children: [
                     Text(
                       displayName,
-                      style: QType.titleSm.copyWith(color: q.ink),
+                      style: QType.titleSm.copyWith(
+                        color: dim ? q.ink2 : q.ink,
+                      ),
                     ),
                     if (sub != null)
                       Text(
@@ -111,7 +119,7 @@ final class TrackerRow extends StatelessWidget {
                   ],
                 ),
               ),
-              switch (item.kind) {
+              dimmed(switch (item.kind) {
                 // container: its own node, not merged into the row's tap.
                 TrackerKind.yesNo => Semantics(
                   container: true,
@@ -139,7 +147,7 @@ final class TrackerRow extends StatelessWidget {
                   label: displayName,
                   onChanged: onChanged,
                 ),
-              },
+              }),
             ],
           ),
         ),
