@@ -17,6 +17,7 @@ import 'package:productive_muslim/features/settings/domain/usecases/get_settings
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/main.dart';
+import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 
 import 'helpers/content_fakes.dart';
 import 'helpers/home_store_fakes.dart';
@@ -40,10 +41,14 @@ final class _InMemoryRepo implements SettingsRepository {
 void main() {
   tearDown(() => GetIt.I.reset());
 
-  testHomeWidgets('app boots to the shell with bottom navigation', (tester) async {
+  testHomeWidgets('app boots to the shell with bottom navigation', (
+    tester,
+  ) async {
     TimezoneClock.initialize();
-    final settings =
-        SettingsStore(GetSettings(_InMemoryRepo()), SaveSettings(_InMemoryRepo()));
+    final settings = SettingsStore(
+      GetSettings(_InMemoryRepo()),
+      SaveSettings(_InMemoryRepo()),
+    );
     await settings.load();
     final clock = TimezoneClock();
     final (mosqueStore, _) = await makeMosqueStore();
@@ -58,6 +63,7 @@ void main() {
       ..registerSingleton<MuhasabaStore>(muhasabaStore)
       ..registerSingleton<AppLockStore>(lockStore)
       ..registerSingleton<QuranStore>(quranStore)
+      ..registerSingleton(ReaderTextSize())
       ..registerSingleton<DuaStore>(duaStore)
       ..registerSingleton<TasbihStore>(tasbihStore)
       ..registerLazySingleton<HomeStore>(

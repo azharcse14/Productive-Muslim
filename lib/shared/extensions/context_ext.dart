@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/l10n/gen/app_localizations.dart';
 import '../../core/theme/productive_muslim_colors.dart';
 import '../../core/utils/locale_digits.dart';
+import '../../core/utils/time_format.dart';
 
 /// Convenience accessors used across all presentation code.
 extension ProductiveMuslimContext on BuildContext {
@@ -23,4 +24,12 @@ extension ProductiveMuslimContext on BuildContext {
   /// [input] with its ASCII digits in the current locale's digit set.
   String digits(String input) =>
       LocaleDigits.localize(input, Localizations.localeOf(this).languageCode);
+
+  /// [time] as a wall-clock time in the current locale, following the
+  /// device's 24-hour setting.
+  String clockTime(DateTime time) => formatClockTime(
+    time,
+    locale: Localizations.localeOf(this).toString(),
+    use24h: MediaQuery.alwaysUse24HourFormatOf(this),
+  );
 }

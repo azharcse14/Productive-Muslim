@@ -14,6 +14,7 @@ final class ProductiveMuslimColors
     required this.ink2,
     required this.ink3,
     required this.line,
+    required this.lineStrong,
     required this.primary,
     required this.onPrimary,
     required this.primarySoft,
@@ -30,6 +31,7 @@ final class ProductiveMuslimColors
     required this.urgent,
     required this.urgentSoft,
     required this.scrim,
+    required this.e1,
   });
 
   /// Screen background — warm paper (light) / teal-black (dark).
@@ -52,6 +54,10 @@ final class ProductiveMuslimColors
 
   /// Hairlines and card borders.
   final Color line;
+
+  /// Borders that must read as UI boundaries (text fields, unselected
+  /// chips): ≥3:1 against [bg], [surface] and [surface2] in both themes.
+  final Color lineStrong;
 
   /// Brand teal ("qalb teal").
   final Color primary;
@@ -87,6 +93,10 @@ final class ProductiveMuslimColors
   /// Sheet/dialog scrim.
   final Color scrim;
 
+  /// Resting elevation (e-1) shadow for cards and lifted pills. Ink-tinted
+  /// in light; plain black in dark so cards never glow.
+  final List<BoxShadow> e1;
+
   static const light = ProductiveMuslimColors(
     bg: Color(0xFFF6F4EE),
     surface: Color(0xFFFFFFFF),
@@ -95,6 +105,7 @@ final class ProductiveMuslimColors
     ink2: Color(0xFF5A6661),
     ink3: Color(0xFF656C68),
     line: Color(0xFFE4DFD3),
+    lineStrong: Color(0xFF7F8682),
     primary: Color(0xFF15564D),
     onPrimary: Color(0xFFF2F7F5),
     primarySoft: Color(0xFFDCE9E4),
@@ -106,11 +117,24 @@ final class ProductiveMuslimColors
     onAccentSoft: Color(0xFF6E4A0E),
     ok: Color(0xFF246B45),
     okSoft: Color(0xFFDCEBDF),
-    warn: Color(0xFF8E5E12),
+    // 5.5:1 on warnSoft (≈5:1 under the countdown motif).
+    warn: Color(0xFF7E5210),
     warnSoft: Color(0xFFF4E6C8),
     urgent: Color(0xFFA93B29),
     urgentSoft: Color(0xFFF6DDD6),
     scrim: Color.fromRGBO(20, 28, 26, 0.45),
+    e1: [
+      BoxShadow(
+        color: Color.fromRGBO(31, 42, 38, 0.06),
+        offset: Offset(0, 1),
+        blurRadius: 2,
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(31, 42, 38, 0.07),
+        offset: Offset(0, 4),
+        blurRadius: 14,
+      ),
+    ],
   );
 
   static const dark = ProductiveMuslimColors(
@@ -121,6 +145,7 @@ final class ProductiveMuslimColors
     ink2: Color(0xFF9BABA3),
     ink3: Color(0xFF80928A),
     line: Color(0xFF243029),
+    lineStrong: Color(0xFF66766F),
     primary: Color(0xFF79C7B6),
     onPrimary: Color(0xFF07231D),
     primarySoft: Color(0xFF1C332D),
@@ -137,6 +162,18 @@ final class ProductiveMuslimColors
     urgent: Color(0xFFE78D77),
     urgentSoft: Color(0xFF36201B),
     scrim: Color.fromRGBO(4, 8, 7, 0.6),
+    e1: [
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.3),
+        offset: Offset(0, 1),
+        blurRadius: 2,
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.35),
+        offset: Offset(0, 6),
+        blurRadius: 18,
+      ),
+    ],
   );
 
   @override
@@ -148,6 +185,7 @@ final class ProductiveMuslimColors
     Color? ink2,
     Color? ink3,
     Color? line,
+    Color? lineStrong,
     Color? primary,
     Color? onPrimary,
     Color? primarySoft,
@@ -164,6 +202,7 @@ final class ProductiveMuslimColors
     Color? urgent,
     Color? urgentSoft,
     Color? scrim,
+    List<BoxShadow>? e1,
   }) {
     return ProductiveMuslimColors(
       bg: bg ?? this.bg,
@@ -173,6 +212,7 @@ final class ProductiveMuslimColors
       ink2: ink2 ?? this.ink2,
       ink3: ink3 ?? this.ink3,
       line: line ?? this.line,
+      lineStrong: lineStrong ?? this.lineStrong,
       primary: primary ?? this.primary,
       onPrimary: onPrimary ?? this.onPrimary,
       primarySoft: primarySoft ?? this.primarySoft,
@@ -189,6 +229,7 @@ final class ProductiveMuslimColors
       urgent: urgent ?? this.urgent,
       urgentSoft: urgentSoft ?? this.urgentSoft,
       scrim: scrim ?? this.scrim,
+      e1: e1 ?? this.e1,
     );
   }
 
@@ -205,6 +246,7 @@ final class ProductiveMuslimColors
       ink2: Color.lerp(ink2, other.ink2, t)!,
       ink3: Color.lerp(ink3, other.ink3, t)!,
       line: Color.lerp(line, other.line, t)!,
+      lineStrong: Color.lerp(lineStrong, other.lineStrong, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
       onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
       primarySoft: Color.lerp(primarySoft, other.primarySoft, t)!,
@@ -221,6 +263,7 @@ final class ProductiveMuslimColors
       urgent: Color.lerp(urgent, other.urgent, t)!,
       urgentSoft: Color.lerp(urgentSoft, other.urgentSoft, t)!,
       scrim: Color.lerp(scrim, other.scrim, t)!,
+      e1: BoxShadow.lerpList(e1, other.e1, t)!,
     );
   }
 }

@@ -1,12 +1,12 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/widgets.dart' show Locale;
-import 'package:intl/intl.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
-import '../../../core/utils/locale_digits.dart';
+import '../../../core/utils/time_format.dart';
 import '../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../my_mosque/presentation/state/mosque_store.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
@@ -85,8 +85,11 @@ final class PrayerWidgetService {
         now = DateTime.now();
       }
 
-      String formatTime(DateTime t) =>
-          LocaleDigits.localize(DateFormat.jm(code).format(t), code);
+      String formatTime(DateTime t) => formatClockTime(
+        t,
+        locale: code,
+        use24h: PlatformDispatcher.instance.alwaysUse24HourFormat,
+      );
 
       // Same rule as Home: Friday Dhuhr reads Jumu'ah only when the mosque
       // active at that Dhuhr has a Jumu'ah time (resolved for it alone).

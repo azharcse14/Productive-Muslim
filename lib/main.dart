@@ -14,6 +14,7 @@ import 'core/theme/app_theme.dart';
 import 'features/notifications/presentation/state/notification_controller.dart';
 import 'features/onboarding/presentation/state/app_lock_store.dart';
 import 'features/settings/presentation/state/settings_store.dart';
+import 'shared/reader/reader_text_size.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +51,7 @@ final class ProductiveMuslimApp extends StatefulWidget {
 final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
   final SettingsStore _store = locator<SettingsStore>();
   final AppLockStore _lock = locator<AppLockStore>();
+  final ReaderTextSize _readerTextSize = locator<ReaderTextSize>();
 
   /// App-scoped (notification taps navigate it from outside the tree).
   final GoRouter _router = appRouter;
@@ -69,14 +71,17 @@ final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
         // App lock: re-locks overlay the PIN gate (navigation state kept);
         // an opaque cover while backgrounded hides the UI from the app
         // switcher and from the first frame back before the gate.
-        builder: (context, child) => SignalBuilder(
-          builder: (context) => Stack(
-            fit: StackFit.expand,
-            children: [
-              LockOverlay(router: _router, child: child),
-              if (_lock.obscured.value)
-                ColoredBox(color: Theme.of(context).colorScheme.surface),
-            ],
+        builder: (context, child) => ReaderTextSizeScope(
+          textSize: _readerTextSize,
+          child: SignalBuilder(
+            builder: (context) => Stack(
+              fit: StackFit.expand,
+              children: [
+                LockOverlay(router: _router, child: child),
+                if (_lock.obscured.value)
+                  ColoredBox(color: Theme.of(context).colorScheme.surface),
+              ],
+            ),
           ),
         ),
       ),

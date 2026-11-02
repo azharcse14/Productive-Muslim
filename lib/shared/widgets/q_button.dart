@@ -58,15 +58,20 @@ final class _QButtonState extends State<QButton> {
     };
 
     final height = widget.small ? 40.0 : 52.0;
+    // Cut (no scale, no tween) under reduced-motion, like QPressable.
+    final animate = !MediaQuery.disableAnimationsOf(context);
+    final duration = animate ? QMotion.fast : Duration.zero;
     final child = AnimatedScale(
-      scale: _pressed ? 0.985 : 1,
-      duration: QMotion.fast,
+      scale: _pressed && animate ? 0.985 : 1,
+      duration: duration,
       curve: QMotion.ease,
       child: AnimatedContainer(
-        duration: QMotion.fast,
+        duration: duration,
         curve: QMotion.ease,
         constraints: BoxConstraints(minHeight: height),
-        padding: EdgeInsets.symmetric(horizontal: widget.small ? 18 : 26),
+        padding: EdgeInsets.symmetric(
+          horizontal: widget.small ? QSpace.s4 : QSpace.s6,
+        ),
         decoration: BoxDecoration(
           color: _pressed ? Color.lerp(bg, q.ink, 0.10) : bg,
           borderRadius: BorderRadius.circular(QRadius.full),
@@ -89,8 +94,7 @@ final class _QButtonState extends State<QButton> {
             Flexible(
               child: Text(
                 widget.label,
-                style: QType.titleSm.copyWith(
-                  fontSize: widget.small ? 14 : 15.5,
+                style: (widget.small ? QType.buttonSm : QType.button).copyWith(
                   color: fg,
                 ),
               ),

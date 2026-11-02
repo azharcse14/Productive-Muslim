@@ -130,7 +130,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
               if (_names.loaded.value && _names.asma.value.isEmpty) {
                 return QErrorRetry(
                   message: l10n.asmaLoadError,
-                  retryLabel: l10n.hadithRetry,
+                  retryLabel: l10n.retry,
                   onRetry: () => unawaited(_retry()),
                 );
               }

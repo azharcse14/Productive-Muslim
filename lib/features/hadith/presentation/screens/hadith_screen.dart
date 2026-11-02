@@ -119,7 +119,7 @@ final class _HadithScreenState extends State<HadithScreen> {
                 if (_store.failed.value && topics.isEmpty)
                   QErrorRetry(
                     message: l10n.hadithTopicsLoadError,
-                    retryLabel: l10n.hadithRetry,
+                    retryLabel: l10n.retry,
                     onRetry: () => unawaited(_store.load()),
                   )
                 else

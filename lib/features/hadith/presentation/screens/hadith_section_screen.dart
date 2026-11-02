@@ -8,12 +8,12 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
+import '../../../../shared/reader/reader_text_size.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
-import '../../../quran/presentation/state/quran_store.dart';
-import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
 import '../state/hadith_section_store.dart';
@@ -133,7 +133,7 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
             if (_store.failed.value) {
               return QErrorRetry(
                 message: l10n.hadithLoadError,
-                retryLabel: l10n.hadithRetry,
+                retryLabel: l10n.retry,
                 onRetry: () => unawaited(_load()),
               );
             }
@@ -234,7 +234,9 @@ final class _BookHadithCard extends StatelessWidget {
                 // Sized by the reader setting, so the system text scale
                 // must not multiply it again.
                 textScaler: TextScaler.noScaling,
-                style: QType.quran(arabicBodySize()).copyWith(color: q.ink),
+                style: QType.quran(
+                  arabicBodySize(context),
+                ).copyWith(color: q.ink),
               ),
             ),
             const SizedBox(height: QSpace.s3),

@@ -743,7 +743,6 @@
     "placeholders": { "grade": { "type": "String" } }
   },
   "hadithLoadError": "লোড করা যায়নি। আবার চেষ্টা করুন।",
-  "hadithRetry": "আবার চেষ্টা করুন",
   "hadithSourceNote": "সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)",
   "hadithSourceNoteBn": "বাংলা সূত্র: hadithbangla প্রজেক্ট",
   "hadithEnglishOnly": "শুধু ইংরেজি",
@@ -977,5 +976,20 @@
   "creditsGroupFonts": "ফন্ট",
   "creditsFontsUi": "ইন্টারফেস",
   "creditsFontQuran": "কুরআনের লিপি",
-  "creditsReferences": "দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।"
+  "creditsReferences": "দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।",
+  "retry": "আবার চেষ্টা করুন",
+  "numberRangeError": "{min}–{max} এর মধ্যে লিখুন",
+  "appLockBiometricUnavailable": "বায়োমেট্রিক ব্যবহার করা যাচ্ছে না — আপনার পিন দিন",
+  "ageAsOfBeforeBirth": "নির্বাচিত তারিখটি জন্ম তারিখের আগে",
+  "trackerArchivedToast": "আর্কাইভ করা হয়েছে",
+  "heatmapLegendAllDone": "সব সম্পন্ন",
+  "muhasabaIconName": "{key, select, mosque{মসজিদ} book{বই} beads{তাসবিহ} heart{হৃদয়} moon{চাঁদ} sun{সূর্য} spark{ঝলক} food{খাবার} water{পানি} walk{হাঁটা} bed{ঘুম} star{তারা} speech{কথোপকথন} hands{দান} people{মানুষ} globe{পৃথিবী} library{পড়াশোনা} shield{ঢাল} healing{আরোগ্য} eye{চোখ} protect{সুরক্ষা} other{আইকন}}",
+  "muhasabaColorName": "{key, select, teal{টিল} honey{মধু রং} green{সবুজ} brown{বাদামি} deepTeal{গাঢ় টিল} grey{ধূসর} other{রং}}",
+  "unitKg": "কেজি",
+  "trackerNameLabel": "নাম",
+  "fastingLoggedOn": "{date} রেকর্ড হয়েছে",
+  "focusSilenceDisclosureTitle": "ডু নট ডিস্টার্ব অ্যাক্সেস",
+  "focusSilenceDisclosureBody": "Productive Muslim ডু নট ডিস্টার্ব অ্যাক্সেস শুধু জামাত ফোকাসের জন্য ব্যবহার করে: সেশন শুরু হলে ফোন সাইলেন্ট করতে আর শেষ হলে আগের সেটিং ফিরিয়ে দিতে। আপনার নোটিফিকেশন পড়া, সংগ্রহ বা শেয়ার করা হয় না।",
+  "notifRescheduleFailed": "রিমাইন্ডার নির্ধারণ করা যায়নি",
+  "bookmarkRemoveTooltip": "বুকমার্ক সরান"
 }

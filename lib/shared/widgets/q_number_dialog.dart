@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 
 import '../../core/utils/locale_digits.dart';
 import '../extensions/context_ext.dart';
+import 'q_form.dart';
 
 /// Asks for a whole number in [min]..[max] (localized digits accepted); null
-/// on cancel. An out-of-range entry shows [hint] as the error. [initial]
-/// prefills the field.
+/// on cancel. An empty or out-of-range entry shows "Enter min–max" as the
+/// error. [initial] prefills the field.
 Future<int?> showNumberDialog(
   BuildContext context, {
   required String title,
@@ -83,12 +84,17 @@ final class _NumberDialogState extends State<_NumberDialog> {
         autofocus: true,
         keyboardType: TextInputType.number,
         inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp('[0-9০-৯٠-٩۰-۹]')),
+          ...QInputFormat.digits,
           LengthLimitingTextInputFormatter('${widget.max}'.length),
         ],
         decoration: InputDecoration(
           hintText: widget.hint,
-          errorText: _invalid ? widget.hint : null,
+          errorText: _invalid
+              ? context.l10n.numberRangeError(
+                  context.digits('${widget.min}'),
+                  context.digits('${widget.max}'),
+                )
+              : null,
         ),
         onChanged: (_) {
           if (_invalid) {

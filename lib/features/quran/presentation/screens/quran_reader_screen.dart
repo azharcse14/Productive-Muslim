@@ -10,6 +10,8 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
+import '../../../../shared/reader/reader_text_size.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
@@ -20,7 +22,6 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
-import '../widgets/reader_settings_sheet.dart';
 
 /// Ayah-card extent guess for the first index→offset jump, before any card
 /// has been measured. The jump then refines itself (see `_jumpToIndex`).
@@ -288,7 +289,15 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             onPressed: () => unawaited(
               showReaderSettingsSheet(
                 context,
-                showTranslationToggle: true,
+                extras: (context) => [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(context.l10n.showTranslation),
+                    value: _store.showTranslation.value,
+                    onChanged: (value) =>
+                        unawaited(_store.setShowTranslation(value: value)),
+                  ),
+                ],
                 // Keep the ayah at the top in place while cards resize.
                 onFontChangeStart: () => _fontAnchor = _topVisibleIndex(),
                 onFontChanged: () {
@@ -319,7 +328,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
             if (_failed.value) {
               return QErrorRetry(
                 message: context.l10n.quranLoadError,
-                retryLabel: context.l10n.hadithRetry,
+                retryLabel: context.l10n.retry,
                 onRetry: () => unawaited(_load()),
               );
             }
@@ -407,7 +416,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       textDirection: TextDirection.rtl,
       textScaler: TextScaler.noScaling,
       style: QType.quran(
-        _store.readerFontSize.value,
+        readerArabicSize(context),
       ).copyWith(color: context.q.ink),
     ),
   );
@@ -451,7 +460,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
               // system text scale must not multiply it again.
               textScaler: TextScaler.noScaling,
               style: QType.quran(
-                _store.readerFontSize.value,
+                readerArabicSize(context),
               ).copyWith(color: q.ink),
             ),
           ),

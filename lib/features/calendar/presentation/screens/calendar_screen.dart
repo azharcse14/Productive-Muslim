@@ -412,11 +412,7 @@ final class _DaySheet extends StatelessWidget {
       LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
 
   String _formatTime(BuildContext context, DateTime time) {
-    final locale = Localizations.localeOf(context);
-    return LocaleDigits.localize(
-      DateFormat.jm(locale.toString()).format(time),
-      locale.languageCode,
-    );
+    return context.clockTime(time);
   }
 
   @override

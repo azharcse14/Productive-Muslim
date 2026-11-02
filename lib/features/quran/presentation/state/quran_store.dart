@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart' show debugPrint;
-import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../config/app_config.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
@@ -15,9 +13,7 @@ import '../../domain/repositories/quran_repository.dart';
 final class QuranStore {
   QuranStore(this._repository, this._prefs);
 
-  static const _fontSizeKey = 'quran_font_size';
   static const _showTranslationKey = 'quran_show_translation';
-  static const _defaultFontSize = 28.0;
 
   final QuranRepository _repository;
   final SharedPreferencesAsync _prefs;
@@ -28,7 +24,6 @@ final class QuranStore {
   /// Global ayah ids (1..6236).
   late final bookmarks = signal(const <int>{});
 
-  late final readerFontSize = signal(_defaultFontSize);
   late final showTranslation = signal(true);
   late final loaded = signal(false);
 
@@ -58,9 +53,6 @@ final class QuranStore {
     if (edits == _bookmarkEdits) {
       bookmarks.value = ids ?? const {};
     }
-    readerFontSize.value = _clampFontSize(
-      await _prefs.getDouble(_fontSizeKey) ?? _defaultFontSize,
-    );
     showTranslation.value = await _prefs.getBool(_showTranslationKey) ?? true;
     loaded.value = true;
   }
@@ -122,28 +114,8 @@ final class QuranStore {
     return null;
   }
 
-  /// [persist] false previews the size (slider drag) without a prefs write.
-  Future<void> setReaderFontSize(double size, {bool persist = true}) async {
-    final clamped = _clampFontSize(size);
-    readerFontSize.value = clamped;
-    if (persist) {
-      await _prefs.setDouble(_fontSizeKey, clamped);
-    }
-  }
-
   Future<void> setShowTranslation({required bool value}) async {
     showTranslation.value = value;
     await _prefs.setBool(_showTranslationKey, value);
   }
-
-  static double _clampFontSize(double size) => size
-      .clamp(AppConfig.quranFontSizeMin, AppConfig.quranFontSizeMax)
-      .toDouble();
 }
-
-/// Arabic size for duas, hadith and ruqyah: follows the Quran reader's
-/// size setting, a step smaller (24 at the reader's default 28). Falls
-/// back to 24 where no Quran store is registered.
-double arabicBodySize() => GetIt.I.isRegistered<QuranStore>()
-    ? GetIt.I<QuranStore>().readerFontSize.value * 6 / 7
-    : 24;

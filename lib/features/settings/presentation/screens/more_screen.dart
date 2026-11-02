@@ -12,6 +12,7 @@ import '../../../../core/utils/hijri_date.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../ramadan/domain/usecases/ramadan_utils.dart';
 import '../../domain/repositories/zoned_clock.dart';
@@ -99,7 +100,7 @@ final class _MoreScreenState extends State<MoreScreen> {
             const SizedBox(height: QSpace.s5),
             _Group([ramadan]),
           ],
-          _Header(l10n.moreGroupWorship),
+          QSectionHeader(l10n.moreGroupWorship),
           _Group([
             _Entry(
               Icons.explore_outlined,
@@ -133,7 +134,7 @@ final class _MoreScreenState extends State<MoreScreen> {
               () => context.pushNamed(Routes.ruqyah.name),
             ),
           ]),
-          _Header(l10n.moreGroupTools),
+          QSectionHeader(l10n.moreGroupTools),
           _Group([
             _Entry(
               Icons.mosque_outlined,
@@ -166,7 +167,7 @@ final class _MoreScreenState extends State<MoreScreen> {
               () => context.pushNamed(Routes.tibbNabawi.name),
             ),
           ]),
-          _Header(l10n.moreGroupYou),
+          QSectionHeader(l10n.moreGroupYou),
           _Group([
             if (showAchievements)
               _Entry(
@@ -202,22 +203,6 @@ final class _Entry {
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
-}
-
-final class _Header extends StatelessWidget {
-  const _Header(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.only(
-      top: QSpace.s6,
-      bottom: QSpace.s3,
-      start: QSpace.s1,
-    ),
-    child: Text(title.toUpperCase(), style: context.text.labelSmall),
-  );
 }
 
 /// One card of rows separated by dividers.

@@ -27,6 +27,21 @@ void main() {
       expect(theme.brightness, Brightness.dark);
     });
 
+    test('secondary/tertiary roles never use the celebration accent', () {
+      for (final theme in [AppTheme.light(), AppTheme.dark()]) {
+        final q = theme.extension<ProductiveMuslimColors>()!;
+        final scheme = theme.colorScheme;
+        for (final c in [
+          scheme.secondary,
+          scheme.secondaryContainer,
+          scheme.tertiary,
+          scheme.tertiaryContainer,
+        ]) {
+          expect(c, isNot(anyOf(q.accent, q.accentSoft)));
+        }
+      }
+    });
+
     test('Material 3 is enabled', () {
       expect(AppTheme.light().useMaterial3, isTrue);
       expect(AppTheme.dark().useMaterial3, isTrue);
@@ -97,6 +112,17 @@ void main() {
           expect(ratio(fg, bg), greaterThanOrEqualTo(4.5), reason: name);
         }
       });
+
+      test('$name: warn keeps ≥5:1 on warnSoft (countdown motif headroom)',
+          () {
+        expect(ratio(q.warn, q.warnSoft), greaterThanOrEqualTo(5));
+      });
+
+      test('$name: lineStrong is a ≥3:1 UI boundary on every surface', () {
+        for (final bg in [q.bg, q.surface, q.surface2]) {
+          expect(ratio(q.lineStrong, bg), greaterThanOrEqualTo(3));
+        }
+      });
     }
   });
 
@@ -122,6 +148,7 @@ void main() {
           'ink-2': q.ink2,
           'ink-3': q.ink3,
           'line': q.line,
+          'line-strong': q.lineStrong,
           'primary': q.primary,
           'on-primary': q.onPrimary,
           'primary-soft': q.primarySoft,

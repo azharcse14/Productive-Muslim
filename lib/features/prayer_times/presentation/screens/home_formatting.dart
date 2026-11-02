@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../settings/domain/entities/location_config.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
@@ -22,17 +22,8 @@ bool isStreakMilestone(int streak) =>
     streak == 365 ||
     (streak > 0 && streak % 100 == 0);
 
-/// One `jm` formatter per locale: the countdown labels format every second.
-final _jmByLocale = <String, DateFormat>{};
-
-String formatHomeTime(BuildContext context, DateTime time) {
-  final locale = Localizations.localeOf(context);
-  final tag = locale.toString();
-  return LocaleDigits.localize(
-    (_jmByLocale[tag] ??= DateFormat.jm(tag)).format(time),
-    locale.languageCode,
-  );
-}
+String formatHomeTime(BuildContext context, DateTime time) =>
+    context.clockTime(time);
 
 String formatCountdown(BuildContext context, Duration d) {
   String two(int v) => v.toString().padLeft(2, '0');

@@ -47,7 +47,16 @@ final class QProgressRing extends StatelessWidget {
           ),
           child: child,
         ),
-        child: Center(child: child),
+        // Inset past the stroke; content shrinks at large text sizes
+        // instead of spilling over the ring.
+        child: Padding(
+          padding: EdgeInsets.all(strokeWidth + QSpace.s1),
+          child: Center(
+            child: child == null
+                ? null
+                : FittedBox(fit: BoxFit.scaleDown, child: child),
+          ),
+        ),
       ),
     );
   }

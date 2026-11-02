@@ -52,11 +52,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
   }
 
   String _formatTime(BuildContext context, DateTime time) {
-    final locale = Localizations.localeOf(context);
-    return LocaleDigits.localize(
-      DateFormat.jm(locale.toString()).format(time),
-      locale.languageCode,
-    );
+    return context.clockTime(time);
   }
 
   @override
@@ -369,8 +365,7 @@ final class _MonthTableCard extends StatelessWidget {
                   builder: (context) {
                     final isToday = day == today;
                     // Iftar of fasting day 20, 22, … begins odd night 21, 23, …
-                    final oddNightEve =
-                        roza >= 20 && roza <= 28 && roza.isEven;
+                    final oddNightEve = roza >= 20 && roza <= 28 && roza.isEven;
                     return DecoratedBox(
                       decoration: BoxDecoration(
                         color: isToday ? q.primarySoft : null,

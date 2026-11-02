@@ -27,7 +27,18 @@ final class QMedallion extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Star8(color: q.primary, size: size),
-          Text(label, style: QType.num_(QType.caption).copyWith(color: q.ink)),
+          // Shrinks inside the star at large text sizes instead of clipping.
+          Padding(
+            padding: EdgeInsets.all(size * 0.18),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: QType.num_(QType.caption).copyWith(color: q.ink),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -193,7 +193,7 @@ final class _NavDestination extends StatelessWidget {
                 width: 52,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: active ? q.primarySoft : const Color(0x00000000),
+                  color: active ? q.primarySoft : Colors.transparent,
                   borderRadius: BorderRadius.circular(QRadius.full),
                 ),
                 // Pops in (overshoot) when the tab becomes active; the key

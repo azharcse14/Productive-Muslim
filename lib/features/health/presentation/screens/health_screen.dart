@@ -174,7 +174,7 @@ final class _HealthScreenState extends State<HealthScreen> {
                   QCard(
                     child: QErrorRetry(
                       message: l10n.dataLoadFailed,
-                      retryLabel: l10n.hadithRetry,
+                      retryLabel: l10n.retry,
                       onRetry: _load,
                     ),
                   )
