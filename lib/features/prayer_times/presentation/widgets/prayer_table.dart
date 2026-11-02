@@ -165,7 +165,12 @@ final class PrayerTable extends StatelessWidget {
                 ),
             ],
             if (onSetJamaat != null)
-              _SetJamaatButton(dense: dense, onTap: onSetJamaat!),
+              _SetJamaatButton(
+                dense: dense,
+                // Once any jamaat is set the CTA edits rather than sets.
+                label: jamaatTimes.isEmpty ? l10n.setJamaat : l10n.editJamaat,
+                onTap: onSetJamaat!,
+              ),
           ],
         ),
       ),
@@ -321,9 +326,14 @@ final class _SunriseRow extends StatelessWidget {
 /// A single centered "Set jamaat" CTA pinned to the foot of the table
 /// (replaces the per-row affordance) → opens the My Mosque jamaat editor.
 final class _SetJamaatButton extends StatelessWidget {
-  const _SetJamaatButton({required this.dense, required this.onTap});
+  const _SetJamaatButton({
+    required this.dense,
+    required this.label,
+    required this.onTap,
+  });
 
   final bool dense;
+  final String label;
   final VoidCallback onTap;
 
   @override
@@ -344,7 +354,7 @@ final class _SetJamaatButton extends StatelessWidget {
             const SizedBox(width: 7),
             Flexible(
               child: Text(
-                context.l10n.setJamaat,
+                label,
                 textAlign: TextAlign.center,
                 style: QType.titleSm.copyWith(
                   fontSize: dense ? 13 : 14,
@@ -415,6 +425,7 @@ final class _PrayerRow extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Container(
+          // Dense still keeps the 48dp minimum touch target.
           constraints: BoxConstraints(minHeight: dense ? QTouch.minTarget : 54),
           // End inset is reduced by the check's 11dp hit-box overhang.
           padding: EdgeInsetsDirectional.only(

@@ -382,19 +382,23 @@ final class _HomeScreenState extends State<HomeScreen> {
             final compact = MediaQuery.sizeOf(context).height < 700;
             final locale = Localizations.localeOf(context);
             final location = _store.location.value;
-            final sahriIftar = _section(_sahriIftarSection(context, day));
-            // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
-            // sits right under the countdown; otherwise under the table.
-            // After iftar the card is about tomorrow's fast.
             final ramadan = _store.sahriInRamadan.value;
-            // Outside Ramadan sahri/iftar only matters on a day being fasted.
+            // Outside Ramadan and not fasting: a compact row.
             final fasting =
                 ramadan ||
                 (_fasting?.isLogged(_store.sahriFastDay.value) ?? false);
+            final sahriIftar = _section(
+              _sahriIftarSection(context, day, compact: !fasting),
+            );
+            // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
+            // sits right under the countdown; otherwise under the table.
+            // After iftar the card is about tomorrow's fast.
+            // Always shown (design brief): compact unless fasting.
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
-              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
+              if (!_exactAlarms)
+                _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -404,7 +408,7 @@ final class _HomeScreenState extends State<HomeScreen> {
               // by the times they qualify, not below the fold.
               if (shows(HomeCard.specialTimes))
                 _section(_specialTimesSection(context)),
-              if (!ramadan && fasting) sahriIftar,
+              if (!ramadan) sahriIftar,
               if (shows(HomeCard.muhasaba)) _section(_muhasabaSection(context)),
               if (_quran case final quran? when shows(HomeCard.continueReading))
                 _section(_continueReadingSection(context, quran, locale)),
@@ -630,6 +634,7 @@ final class _HomeScreenState extends State<HomeScreen> {
         QuickAction(
           icon: Icons.mosque_outlined,
           label: l10n.nearbyMosquesLabel,
+          externalHint: l10n.nearbyMosquesHint,
           onTap: () => _openNearbyMosques(context),
         ),
         QuickAction(
@@ -737,7 +742,11 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   /// Before iftar: today's sahri end and iftar. After: tonight's sahri
   /// alone — today's iftar has passed and tomorrow's isn't computed here.
-  Widget _sahriIftarSection(BuildContext context, PrayerDay day) {
+  Widget _sahriIftarSection(
+    BuildContext context,
+    PrayerDay day, {
+    required bool compact,
+  }) {
     final sahri = _store.nextSahriEnd.value ?? day.sahriEnd;
     final tonight = sahri != day.sahriEnd;
     return SahriIftarCard(
@@ -746,6 +755,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           : context.l10n.sahriEndsLabel,
       sahriEnd: formatHomeTime(context, sahri),
       iftar: tonight ? null : formatHomeTime(context, day.iftar),
+      compact: compact,
     );
   }
 

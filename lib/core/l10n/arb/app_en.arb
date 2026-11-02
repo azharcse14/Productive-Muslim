@@ -238,6 +238,7 @@
   "specialDetailAwwabin": "Voluntary rak'ahs offered between the Maghrib and Isha prayers, popularly called awwabin. In the authentic hadith, the Prophet ﷺ gave the name \"salah of the awwabin\" to Duha (Muslim); naming the Maghrib–Isha prayer so rests on weaker reports.",
   "specialDetailTahajjud": "Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.",
   "setJamaat": "Set jamaat time",
+  "editJamaat": "Edit jamaat",
   "switchMosqueTitle": "Jamaat mosque",
   "mosqueAutoBadge": "Auto",
   "mosqueOverrideBadge": "Override",
@@ -440,6 +441,7 @@
   },
   "qiblaCalibrate": "Move your phone in a figure-8 to calibrate the compass",
   "qiblaSensorUnavailable": "Compass sensor unavailable on this device",
+  "qiblaRetry": "Try again",
   "qiblaVerbalBearing": "Qibla is at {degrees}° {cardinal} from north",
   "@qiblaVerbalBearing": {
     "placeholders": {
@@ -1246,8 +1248,9 @@
   "favoriteAddLabel": "Add to favorites",
   "favoriteRemoveLabel": "Remove from favorites",
   "widgetNextPrayerLabel": "Next prayer",
-  "nearbyMosquesLabel": "Mosques",
-  "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed.",
+  "nearbyMosquesLabel": "Nearby mosques",
+  "nearbyMosquesHint": "Opens in Maps",
+  "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed or you're online.",
   "nearbyMosquesLocationError": "Set your location first to find nearby mosques.",
   "expenseTitle": "Expense tracker",
   "expenseSubtitle": "Monthly hisab, no israf",
@@ -1418,7 +1421,7 @@
   "notifFocusEndBody": "Mark it in Muhasaba, then tap for the after-salah adhkar.",
   "prayerTimesComputeFailedTitle": "Couldn't calculate prayer times",
   "prayerTimesComputeFailedBody": "Prayer times can't be worked out for this location with the current settings. Try another location or calculation method.",
-  "prayerTimesExactAlarmBanner": "Azan may arrive late. Tap to allow exact alarms.",
+  "prayerTimesExactAlarmBanner": "Azan may arrive late without exact alarms.",
   "qiblaCompassPoint": "{point, select, N{N} NNE{NNE} NE{NE} ENE{ENE} E{E} ESE{ESE} SE{SE} SSE{SSE} S{S} SSW{SSW} SW{SW} WSW{WSW} W{W} WNW{WNW} NW{NW} NNW{NNW} other{{point}}}",
   "@qiblaCompassPoint": {
     "placeholders": {
@@ -1573,6 +1576,14 @@
   "specialTimesEmpty": "No times to show for today.",
   "clearSearch": "Clear search",
   "mosqueLoadError": "Couldn't load your mosques. Please try again.",
+  "jamaatCleared": "{prayer} jamaat removed",
+  "@jamaatCleared": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
   "jamaatOffsetHint": "Minutes after waqt starts (1–60)",
   "notifPermissionNotAskedBanner": "Notifications aren't on yet, so nothing below will be delivered until you enable them.",
   "notifGroupDaily": "Daily reminders",

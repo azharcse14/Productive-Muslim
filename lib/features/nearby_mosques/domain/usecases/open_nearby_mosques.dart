@@ -11,8 +11,8 @@ final class MapsLaunchFailed extends Failure {
   const MapsLaunchFailed() : super('Could not open the maps app');
 }
 
-/// Opens Google Maps centred on the user's position, searching for nearby
-/// mosques.
+/// Opens a maps app (`geo:`, falling back to the Google Maps web URL)
+/// centred on the user's position, searching for nearby mosques.
 ///
 /// Location is resolved cheaply first: if the user already has a chosen
 /// location (manual city or a prior GPS fix) we reuse its coordinates and
@@ -24,9 +24,9 @@ final class OpenNearbyMosques {
     required LocationConfig? Function() currentLocation,
     required GetCurrentLocation getCurrentLocation,
     required ExternalLauncher launcher,
-  })  : _currentLocation = currentLocation,
-        _getCurrentLocation = getCurrentLocation,
-        _launcher = launcher;
+  }) : _currentLocation = currentLocation,
+       _getCurrentLocation = getCurrentLocation,
+       _launcher = launcher;
 
   final LocationConfig? Function() _currentLocation;
   final GetCurrentLocation _getCurrentLocation;
@@ -57,11 +57,15 @@ final class OpenNearbyMosques {
       }
     }
 
-    final uri = NearbyMosquesUrl.build(
-      latitude: latitude,
-      longitude: longitude,
-    );
-    final opened = await _launcher.launch(uri);
+    // The maps app via geo: first (Android); the web URL when no app
+    // takes it (e.g. iOS, or no maps app installed).
+    final opened =
+        await _launcher.launch(
+          NearbyMosquesUrl.buildGeo(latitude: latitude, longitude: longitude),
+        ) ||
+        await _launcher.launch(
+          NearbyMosquesUrl.build(latitude: latitude, longitude: longitude),
+        );
     return opened
         ? const Result.success(null)
         : const Result.failure(MapsLaunchFailed());

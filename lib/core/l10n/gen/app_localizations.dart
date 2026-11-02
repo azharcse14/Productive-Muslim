@@ -932,6 +932,12 @@ abstract class AppLocalizations {
   /// **'Set jamaat time'**
   String get setJamaat;
 
+  /// No description provided for @editJamaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit jamaat'**
+  String get editJamaat;
+
   /// No description provided for @switchMosqueTitle.
   ///
   /// In en, this message translates to:
@@ -1645,6 +1651,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Compass sensor unavailable on this device'**
   String get qiblaSensorUnavailable;
+
+  /// No description provided for @qiblaRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get qiblaRetry;
 
   /// No description provided for @qiblaVerbalBearing.
   ///
@@ -3911,13 +3923,19 @@ abstract class AppLocalizations {
   /// No description provided for @nearbyMosquesLabel.
   ///
   /// In en, this message translates to:
-  /// **'Mosques'**
+  /// **'Nearby mosques'**
   String get nearbyMosquesLabel;
+
+  /// No description provided for @nearbyMosquesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens in Maps'**
+  String get nearbyMosquesHint;
 
   /// No description provided for @nearbyMosquesLaunchError.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t open Maps. Make sure a maps app is installed.'**
+  /// **'Couldn\'t open Maps. Make sure a maps app is installed or you\'re online.'**
   String get nearbyMosquesLaunchError;
 
   /// No description provided for @nearbyMosquesLocationError.
@@ -4505,7 +4523,7 @@ abstract class AppLocalizations {
   /// No description provided for @prayerTimesExactAlarmBanner.
   ///
   /// In en, this message translates to:
-  /// **'Azan may arrive late. Tap to allow exact alarms.'**
+  /// **'Azan may arrive late without exact alarms.'**
   String get prayerTimesExactAlarmBanner;
 
   /// No description provided for @qiblaCompassPoint.
@@ -5071,6 +5089,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load your mosques. Please try again.'**
   String get mosqueLoadError;
+
+  /// No description provided for @jamaatCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} jamaat removed'**
+  String jamaatCleared(String prayer);
 
   /// No description provided for @jamaatOffsetHint.
   ///

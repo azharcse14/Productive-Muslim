@@ -166,5 +166,12 @@ final class QiblaStore {
     }
   }
 
+  /// Re-subscribes from scratch after the sensor failed or timed out
+  /// ([resume] alone keeps a stalled subscription).
+  void retry() {
+    pause();
+    _subscribe();
+  }
+
   void dispose() => pause();
 }

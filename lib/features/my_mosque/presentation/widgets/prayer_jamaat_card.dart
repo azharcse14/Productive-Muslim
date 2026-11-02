@@ -71,6 +71,8 @@ final class PrayerJamaatCard extends StatelessWidget {
           // large text scales.
           const SizedBox(height: QSpace.s2),
           QSegControl(
+            // Five cards share these options: say which prayer.
+            semanticsPrefix: l10n.prayerLabel(prayer),
             options: [
               l10n.jamaatModeNone,
               l10n.jamaatModeOffset,

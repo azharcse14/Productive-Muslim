@@ -23,6 +23,12 @@ abstract final class NearbyMosquesUrl {
     );
   }
 
+  /// A `geo:` URI for the same search. On Android it opens the installed
+  /// maps app directly, which can still work offline from cached maps;
+  /// platforms without a `geo:` handler reject it and [build] is used.
+  static Uri buildGeo({required double latitude, required double longitude}) =>
+      Uri.parse('geo:${_format(latitude)},${_format(longitude)}?q=$_query');
+
   /// Coordinates use a '.' decimal separator regardless of locale — `double`
   /// `toString()` already guarantees this, but trim noisy precision.
   static String _format(double value) =>

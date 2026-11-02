@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -498,6 +497,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setJamaat => 'Set jamaat time';
 
   @override
+  String get editJamaat => 'Edit jamaat';
+
+  @override
   String get switchMosqueTitle => 'Jamaat mosque';
 
   @override
@@ -952,6 +954,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qiblaSensorUnavailable =>
       'Compass sensor unavailable on this device';
+
+  @override
+  String get qiblaRetry => 'Try again';
 
   @override
   String qiblaVerbalBearing(String degrees, String cardinal) {
@@ -1545,12 +1550,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
-      'whiteDays': 'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
-      'ashura': 'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
-      'arafah': 'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
-      'dhulHijjah': 'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
-      'shawwal': 'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
+      'mondayThursday':
+          'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
+      'whiteDays':
+          'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
+      'ashura':
+          'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
+      'arafah':
+          'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
+      'dhulHijjah':
+          'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
+      'shawwal':
+          'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
     });
     return '$_temp0';
@@ -2631,11 +2642,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'Next prayer';
 
   @override
-  String get nearbyMosquesLabel => 'Mosques';
+  String get nearbyMosquesLabel => 'Nearby mosques';
+
+  @override
+  String get nearbyMosquesHint => 'Opens in Maps';
 
   @override
   String get nearbyMosquesLaunchError =>
-      'Couldn\'t open Maps. Make sure a maps app is installed.';
+      'Couldn\'t open Maps. Make sure a maps app is installed or you\'re online.';
 
   @override
   String get nearbyMosquesLocationError =>
@@ -3016,7 +3030,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prayerTimesExactAlarmBanner =>
-      'Azan may arrive late. Tap to allow exact alarms.';
+      'Azan may arrive late without exact alarms.';
 
   @override
   String qiblaCompassPoint(String point) {
@@ -3402,6 +3416,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mosqueLoadError =>
       'Couldn\'t load your mosques. Please try again.';
+
+  @override
+  String jamaatCleared(String prayer) {
+    return '$prayer jamaat removed';
+  }
 
   @override
   String get jamaatOffsetHint => 'Minutes after waqt starts (1–60)';

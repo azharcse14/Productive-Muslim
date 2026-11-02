@@ -208,7 +208,12 @@ final class _ActionRow extends StatelessWidget {
           children: [
             Icon(icon, size: 19, color: q.primary),
             const SizedBox(width: QSpace.s3),
-            Text(label, style: QType.titleSm.copyWith(color: q.primary)),
+            Expanded(
+              child: Text(
+                label,
+                style: QType.titleSm.copyWith(color: q.primary),
+              ),
+            ),
           ],
         ),
       ),
