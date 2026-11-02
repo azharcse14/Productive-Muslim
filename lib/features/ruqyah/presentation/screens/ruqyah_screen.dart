@@ -82,7 +82,8 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                             r.translationBn,
                             r.reference,
                           ],
-                          itemBuilder: (_, r) => RuqyahCard(item: r),
+                          itemBuilder: (_, r) =>
+                              RuqyahCard(key: ValueKey(r.id), item: r),
                           emptyText: l10n.ruqyahNoResults,
                           hint: l10n.ruqyahSearchHint,
                         ),

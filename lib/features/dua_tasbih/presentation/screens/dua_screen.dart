@@ -113,7 +113,8 @@ final class _DuaScreenState extends State<DuaScreen> {
                               d.reference,
                               categoryOf[d.id] ?? '',
                             ],
-                            itemBuilder: (_, d) => DuaCard(dua: d),
+                            itemBuilder: (_, d) =>
+                                DuaCard(key: ValueKey(d.id), dua: d),
                             emptyText: l10n.duaNoResults,
                             hint: l10n.duaSearchHint,
                           ),
@@ -233,7 +234,7 @@ final class _FavoritesSection extends StatelessWidget {
           )
         else
           for (final dua in duas) ...[
-            DuaCard(dua: dua),
+            DuaCard(key: ValueKey(dua.id), dua: dua),
             const SizedBox(height: QSpace.s3),
           ],
       ],

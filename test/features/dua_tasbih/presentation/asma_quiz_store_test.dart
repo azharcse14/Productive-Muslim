@@ -5,6 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+/// Prefs whose int writes fail (full disk, platform error).
+final class _FailingIntPrefs extends InMemorySharedPreferencesAsync {
+  _FailingIntPrefs() : super.empty();
+
+  @override
+  Future<bool> setInt(
+    String key,
+    int value,
+    SharedPreferencesOptions options,
+  ) => Future.error(StateError('disk full'));
+}
+
 List<AsmaName> _names(int count) => [
   for (var n = 1; n <= count; n++)
     AsmaName(
@@ -107,6 +119,20 @@ void main() {
       final restored = makeStore();
       await restored.load();
       expect(restored.best.value, 3);
+    });
+
+    test('a failed best-score save is contained and rolled back', () async {
+      SharedPreferencesAsyncPlatform.instance = _FailingIntPrefs();
+      final store = makeStore(questionCount: 2);
+      await store.start(_names(99));
+
+      for (var i = 0; i < 2; i++) {
+        store.answer(store.current.value!.answerIndex);
+        await store.next(); // must not throw
+      }
+
+      expect(store.finished.value, isTrue);
+      expect(store.best.value, 0);
     });
 
     test('restart re-rolls a fresh question set and resets progress', () async {

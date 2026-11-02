@@ -78,7 +78,7 @@ final class _TibbNabawiScreenState extends State<TibbNabawiScreen> {
                   ]
                 else
                   for (final item in items) ...[
-                    RuqyahCard(item: item),
+                    RuqyahCard(key: ValueKey(item.id), item: item),
                     const SizedBox(height: QSpace.s3),
                   ],
               ],

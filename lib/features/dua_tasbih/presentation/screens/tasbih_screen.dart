@@ -76,15 +76,24 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   bool get _afterSalah =>
       _phrase.value == _afterSalahId && _store.target.value == _afterSalahTotal;
 
+  /// Keeps "Today: N counted" on the right day while the screen stays open
+  /// past midnight.
+  Timer? _dayTick;
+
   @override
   void initState() {
     super.initState();
     unawaited(_store.load());
     unawaited(_loadPhrase());
+    _dayTick = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _store.rollOverDay(),
+    );
   }
 
   @override
   void dispose() {
+    _dayTick?.cancel();
     _phrase.dispose();
     super.dispose();
   }

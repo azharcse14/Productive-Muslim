@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -17,9 +18,9 @@ final class AsmaQuizStore {
     void Function()? correctHaptic,
     void Function()? wrongHaptic,
     this.questionCount = 10,
-  })  : _seed = seed ?? (() => DateTime.now().millisecondsSinceEpoch),
-        _correctHaptic = correctHaptic ?? _defaultCorrectHaptic,
-        _wrongHaptic = wrongHaptic ?? _defaultWrongHaptic;
+  }) : _seed = seed ?? (() => DateTime.now().millisecondsSinceEpoch),
+       _correctHaptic = correctHaptic ?? _defaultCorrectHaptic,
+       _wrongHaptic = wrongHaptic ?? _defaultWrongHaptic;
 
   static const _bestKeyPrefix = 'asma_quiz_best_';
 
@@ -55,11 +56,9 @@ final class AsmaQuizStore {
     return i >= 0 && i < all.length ? all[i] : null;
   });
 
-  static void _defaultCorrectHaptic() =>
-      Haptics.light();
+  static void _defaultCorrectHaptic() => Haptics.light();
 
-  static void _defaultWrongHaptic() =>
-      Haptics.medium();
+  static void _defaultWrongHaptic() => Haptics.medium();
 
   String _bestKey(AsmaQuizMode mode) => '$_bestKeyPrefix${mode.name}';
 
@@ -129,8 +128,16 @@ final class AsmaQuizStore {
 
   Future<void> _recordBest() async {
     if (score.value > best.value) {
+      final previous = best.value;
       best.value = score.value;
-      await _prefs.setInt(_bestKey(mode.value), score.value);
+      try {
+        await _prefs.setInt(_bestKey(mode.value), score.value);
+      } on Object catch (e) {
+        // Called unawaited from the screen: never let it escape. Show the
+        // best that is actually stored.
+        debugPrint('Asma quiz best score save failed: $e');
+        best.value = previous;
+      }
     }
   }
 

@@ -84,7 +84,7 @@ final class RuqyahCard extends StatelessWidget {
           ],
           if (item.repeat > 1) ...[
             const SizedBox(height: QSpace.s3),
-            QRepeatCounter(repeat: item.repeat),
+            QRepeatCounter(key: ValueKey(item.id), repeat: item.repeat),
           ],
         ],
       ),

@@ -25,6 +25,8 @@ final class QCopyButton extends StatelessWidget {
             (_) => messenger.showSnackBar(
               SnackBar(content: Text(l10n.copiedLabel)),
             ),
+            // No "copied" confirmation for a copy that didn't happen.
+            onError: (Object e) => debugPrint('Copy failed: $e'),
           ),
         );
       },

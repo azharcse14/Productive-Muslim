@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -24,16 +25,37 @@ final class DuaFavoritesStore {
   bool isFavorite(String id) => ids.value.contains(id);
 
   /// Adds or removes [id], updating the signal immediately then persisting.
-  Future<void> toggle(String id) async {
-    // Writing before the stored list is read would overwrite it.
-    if (!loaded.value) {
-      await load();
+  /// Returns false (and takes the change back) when it couldn't be saved.
+  Future<bool> toggle(String id) async {
+    try {
+      // Writing before the stored list is read would overwrite it.
+      if (!loaded.value) {
+        await load();
+      }
+    } on Object catch (e) {
+      debugPrint('Dua favorites load failed: $e');
+      return false;
     }
     final next = Set<String>.from(ids.value);
-    if (!next.add(id)) {
+    final added = next.add(id);
+    if (!added) {
       next.remove(id);
     }
     ids.value = next;
-    await _prefs.setStringList(_key, next.toList());
+    try {
+      await _prefs.setStringList(_key, next.toList());
+      return true;
+    } on Object catch (e) {
+      debugPrint('Dua favorite save failed: $e');
+      // Undo just this id: another toggle may have landed meanwhile.
+      final reverted = Set<String>.from(ids.value);
+      if (added) {
+        reverted.remove(id);
+      } else {
+        reverted.add(id);
+      }
+      ids.value = reverted;
+      return false;
+    }
   }
 }

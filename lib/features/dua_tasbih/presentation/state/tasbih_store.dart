@@ -7,7 +7,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/utils/haptics.dart';
 
 /// Tasbih counter state: current round, target preset, and today's running
-/// total (persisted as one JSON blob, reset on date rollover).
+/// total (persisted as one JSON blob, re-read on a day change).
 final class TasbihStore {
   TasbihStore(
     this._prefs, {
@@ -41,6 +41,11 @@ final class TasbihStore {
   /// The day key [totalToday] belongs to; a different day means it is stale.
   String? _totalDay;
 
+  /// The latest re-read of the stored total after a day change; [reset]
+  /// waits for it so a save never lands on a total about to be replaced.
+  Future<void> _reloading = Future<void>.value();
+  int _reloadGen = 0;
+
   /// Day key of the in-progress round's first bead; null while count is 0.
   String? _roundDay;
 
@@ -71,10 +76,11 @@ final class TasbihStore {
   Future<void> load() async {
     if (_totalDay != null) {
       rollOverDay();
+      await _reloading;
       return;
     }
     final today = _todayKey();
-    totalToday.value = await _readTotal(today);
+    totalToday.value = (await _readStored()).totalFor(today);
     _totalDay = today;
     await _loadLifetime();
     await _loadRound();
@@ -99,8 +105,10 @@ final class TasbihStore {
             count.value = c;
             _roundDay = day;
           } else {
+            // Clear first, as [reset] does: killed between the two writes,
+            // the round is lost rather than credited twice on next launch.
+            await _writeRound();
             await _creditLifetime(c);
-            _saveRound();
           }
         }
       }
@@ -110,44 +118,54 @@ final class TasbihStore {
   }
 
   // ponytail: one prefs write per bead; debounce if taps ever get heavy.
-  void _saveRound() => unawaited(
-    _prefs.setString(
-      _roundKey,
-      jsonEncode({
-        'count': count.value,
-        'target': target.value,
-        'day': _roundDay,
-      }),
-    ),
+  void _saveRound() => unawaited(_writeRound());
+
+  Future<void> _writeRound() => _prefs.setString(
+    _roundKey,
+    jsonEncode({
+      'count': count.value,
+      'target': target.value,
+      'day': _roundDay,
+    }),
   );
 
-  Future<int> _readTotal(String today) async {
+  /// The persisted total and the day it belongs to (null day: none stored).
+  Future<_StoredTotal> _readStored() async {
     final raw = await _prefs.getString(_key);
     if (raw == null) {
-      return 0;
+      return const _StoredTotal(null, 0);
     }
     try {
       final decoded = jsonDecode(raw);
       if (decoded is Map) {
         final map = decoded.cast<String, Object?>();
-        if (map['date'] == today && map['total'] is int) {
-          return map['total']! as int;
+        if (map['date'] case final String day when map['total'] is int) {
+          return _StoredTotal(day, map['total']! as int);
         }
       }
     } on FormatException {
       // Corrupt payload — start fresh.
     }
-    return 0;
+    return const _StoredTotal(null, 0);
   }
 
-  /// Zeroes [totalToday] once the day it was counted on has passed (the
-  /// store is app-scoped, so it can outlive midnight).
+  /// Follows the day [totalToday] belongs to (the store is app-scoped, so it
+  /// can outlive midnight; a city or time-zone switch can also step the day
+  /// back). On any change it re-reads that day's stored total rather than
+  /// assuming zero.
   void rollOverDay() {
     final today = _todayKey();
-    if (_totalDay != today) {
-      _totalDay = today;
-      totalToday.value = 0;
+    if (_totalDay == today) {
+      return;
     }
+    _totalDay = today;
+    totalToday.value = 0;
+    final gen = ++_reloadGen;
+    _reloading = _readStored().then((stored) {
+      if (gen == _reloadGen) {
+        totalToday.value = stored.totalFor(today);
+      }
+    });
   }
 
   Future<void> _loadLifetime() async {
@@ -235,15 +253,34 @@ final class TasbihStore {
     _saveRound();
     if (saveToHistory && round > 0) {
       rollOverDay();
+      await _reloading;
+      final today = _todayKey();
       // A round started before midnight is not part of today's total.
-      if (roundDay == null || roundDay == _todayKey()) {
+      if (roundDay == null || roundDay == today) {
         totalToday.value = totalToday.value + round;
-        await _prefs.setString(
-          _key,
-          jsonEncode({'date': _todayKey(), 'total': totalToday.value}),
-        );
+        final total = totalToday.value;
+        // ponytail: one stored day only — a day behind the stored one (zone
+        // switched back) keeps its total in memory rather than clobbering
+        // the later day's; store a per-day map if that ever matters.
+        final stored = await _readStored();
+        if (stored.day == null || stored.day!.compareTo(today) <= 0) {
+          await _prefs.setString(
+            _key,
+            jsonEncode({'date': today, 'total': total}),
+          );
+        }
       }
       await _creditLifetime(round);
     }
   }
+}
+
+/// The persisted today-total payload.
+final class _StoredTotal {
+  const _StoredTotal(this.day, this.total);
+
+  final String? day;
+  final int total;
+
+  int totalFor(String today) => day == today ? total : 0;
 }
