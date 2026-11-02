@@ -5,8 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// Guide §2/§4 and docs/REVIEW_FIX_PLAN.md Phase 5.1: layer and feature
 /// import rules. Every current offender is listed in [_baseline]; the list
 /// may only shrink. A violation is written as `'from -> to'`, where `to` is
-/// the imported file (`lib/...`), the package (`package:x`), or `GetIt` /
-/// `locator` for rule 6.
+/// the imported file (`lib/...`), the package (`package:x`), `GetIt` /
+/// `locator` for rule 6, or `dart:io` / `MethodChannel` / `EventChannel` /
+/// `BasicMessageChannel` for rule 8.
 void main() {
   test('no domain file imports Flutter', () {
     final offenders = [
@@ -59,12 +60,29 @@ const _pureCoreUtils = {
   'lib/core/utils/result.dart',
 };
 
-// `import` / `export` directives; `\s+` also spans multi-line statements.
+// `import` / `export` directives up to their `;` (multi-line statements and
+// conditional `if (dart.library.x) 'alt.dart'` URIs included).
 final _directive = RegExp(
-  r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''',
+  r'''^\s*(?:import|export)\s+(['"][^;]+);''',
   multiLine: true,
 );
+final _quoted = RegExp(r'''['"]([^'"]+)['"]''');
 final _serviceLocator = RegExp(r'\b(GetIt|locator)\b');
+final _platformChannel = RegExp(
+  r'\b(MethodChannel|EventChannel|BasicMessageChannel)\b',
+);
+
+/// Layer-less shared code (`lib/shared`, `lib/core` outside the composition
+/// roots, `lib/config`): held to presentation's platform-package rule and
+/// rule 6, since presentation imports it freely.
+bool _isShared(String path) =>
+    path.startsWith('lib/shared/') ||
+    path.startsWith('lib/core/') ||
+    path.startsWith('lib/config/');
+
+/// Code the platform-access rules (5 and 8) trust like a data layer: core
+/// storage plumbing that data sources build on.
+bool _isCoreStorage(String path) => path.startsWith('lib/core/storage/');
 
 /// `lib/features/<name>/...` → `<name>`, else null.
 String? _feature(String path) {
@@ -83,13 +101,25 @@ Set<String> _findViolations() {
     if (_isExempt(from)) continue;
     final source = file.readAsStringSync();
     // Allowlisted utils are held to the domain rules so they stay pure.
-    final inDomain =
-        from.contains('/domain/') || _pureCoreUtils.contains(from);
+    final inDomain = from.contains('/domain/') || _pureCoreUtils.contains(from);
     final inData = from.contains('/data/');
     final inPresentation = from.contains('/presentation/');
+    final inShared = _isShared(from);
+    final platformAllowed = inData || _isCoreStorage(from);
 
-    for (final m in _directive.allMatches(source)) {
-      final uri = m.group(1)!;
+    // Rule 8: platform channels and dart:io only in data/.
+    if (!platformAllowed) {
+      for (final m in _platformChannel.allMatches(source)) {
+        out.add('$from -> ${m.group(1)}');
+      }
+    }
+
+    final uris = [
+      for (final m in _directive.allMatches(source))
+        for (final q in _quoted.allMatches(m.group(1)!)) q.group(1)!,
+    ];
+    for (final uri in uris) {
+      if (uri == 'dart:io' && !platformAllowed) out.add('$from -> dart:io');
       if (uri.startsWith('dart:')) continue;
       const self = 'package:productive_muslim/';
       String? to; // resolved lib/ path; null for a third-party package
@@ -102,9 +132,11 @@ Set<String> _findViolations() {
       if (to == null) {
         final package = uri.substring('package:'.length).split('/').first;
         // Rule 1: domain imports no Flutter and no third-party package.
-        // Rule 5: presentation never touches storage/platform plugins.
+        // Rule 5: presentation (and shared code it imports) never touches
+        // storage/platform plugins.
         if (inDomain ||
-            (inPresentation && _platformPackages.contains(package))) {
+            ((inPresentation || (inShared && !platformAllowed)) &&
+                _platformPackages.contains(package))) {
           out.add('$from -> package:$package');
         }
         continue;
@@ -118,6 +150,8 @@ Set<String> _findViolations() {
       // Rules 2 and 3: data and presentation never import each other.
       if (inData && to.contains('/presentation/')) out.add('$from -> $to');
       if (inPresentation && to.contains('/data/')) out.add('$from -> $to');
+      // Rule 7: nor core storage plumbing (bundled_db_file, json_prefs).
+      if (inPresentation && _isCoreStorage(to)) out.add('$from -> $to');
       // Rule 4: another feature only through its domain/.
       final target = _feature(to);
       if (target != null &&
@@ -127,8 +161,8 @@ Set<String> _findViolations() {
       }
     }
 
-    // Rule 6: widgets get their dependencies passed in.
-    if (from.contains('/presentation/widgets/')) {
+    // Rule 6: widgets (and shared code) get their dependencies passed in.
+    if (from.contains('/presentation/widgets/') || inShared) {
       for (final m in _serviceLocator.allMatches(source)) {
         out.add('$from -> ${m.group(1)}');
       }
