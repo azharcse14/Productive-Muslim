@@ -85,7 +85,14 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         ..add(
           effect(() {
             _store.stats.value;
-            untracked(() => unawaited(badges.refresh()));
+            untracked(
+              () => unawaited(
+                badges.refresh().catchError((Object e) {
+                  // Badges keep their last totals; the next check-in retries.
+                  debugPrint('Badge refresh failed: $e');
+                }),
+              ),
+            );
           }),
         )
         ..add(
