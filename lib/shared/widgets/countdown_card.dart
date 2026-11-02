@@ -291,8 +291,10 @@ final class _RollingText extends StatelessWidget {
     return Semantics(
       label: text,
       child: ExcludeSemantics(
+        // Clock numerals read left-to-right even in RTL locales.
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          textDirection: TextDirection.ltr,
           children: [
             for (final ch in text.characters)
               AnimatedSwitcher(

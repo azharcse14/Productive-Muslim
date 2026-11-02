@@ -4,6 +4,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+/// Records the order of string writes.
+final class _RecordingPrefs extends InMemorySharedPreferencesAsync {
+  _RecordingPrefs() : super.empty();
+
+  final writes = <String>[];
+
+  @override
+  Future<bool> setString(
+    String key,
+    String value,
+    SharedPreferencesOptions options,
+  ) {
+    writes.add(key);
+    return super.setString(key, value, options);
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -243,5 +260,63 @@ void main() {
         expect(nextDay.lifetimeSessions.value, 1);
       },
     );
+
+    test(
+      'a day change in either direction re-reads that day, never clobbers',
+      () async {
+        var now = DateTime(2026, 11, 3, 9);
+        final store = makeStore(now: () => now);
+        await store.load();
+        for (var i = 0; i < 300; i++) {
+          store.tap();
+        }
+        await store.reset(saveToHistory: true);
+        expect(store.totalToday.value, 300);
+
+        // Manual city switched to a zone still on the 2nd.
+        now = DateTime(2026, 11, 2, 18);
+        store.rollOverDay();
+        await pumpEventQueue();
+        expect(store.totalToday.value, 0);
+        store
+          ..tap()
+          ..tap();
+        await store.reset(saveToHistory: true);
+        expect(store.totalToday.value, 2);
+
+        // Back on the 3rd: the 300 come back and the next save adds to them.
+        now = DateTime(2026, 11, 3, 9, 5);
+        store.rollOverDay();
+        await pumpEventQueue();
+        expect(store.totalToday.value, 300);
+        for (var i = 0; i < 33; i++) {
+          store.tap();
+        }
+        await store.reset(saveToHistory: true);
+        expect(store.totalToday.value, 333);
+
+        final restored = makeStore(now: () => now);
+        await restored.load();
+        expect(restored.totalToday.value, 333);
+      },
+    );
+
+    test('a stale round is cleared before it is credited', () async {
+      final prefs = _RecordingPrefs();
+      SharedPreferencesAsyncPlatform.instance = prefs;
+      final store = makeStore();
+      await store.load();
+      store
+        ..tap()
+        ..tap();
+      await pumpEventQueue();
+
+      prefs.writes.clear();
+      final nextDay = makeStore(now: () => DateTime(2026, 6, 13, 10));
+      await nextDay.load();
+      // Killed between the writes, the round must not be credited twice.
+      expect(prefs.writes, ['tasbih_round', 'tasbih_lifetime']);
+      expect(nextDay.lifetimeTotal.value, 2);
+    });
   });
 }

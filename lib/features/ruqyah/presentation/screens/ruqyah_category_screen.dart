@@ -31,8 +31,10 @@ final class RuqyahCategoryScreen extends StatelessWidget {
           ),
           itemCount: category.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-          itemBuilder: (context, index) =>
-              RuqyahCard(item: category.items[index]),
+          itemBuilder: (context, index) => RuqyahCard(
+            key: ValueKey(category.items[index].id),
+            item: category.items[index],
+          ),
         ),
       ),
     );

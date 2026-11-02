@@ -31,7 +31,10 @@ final class DuaCategoryScreen extends StatelessWidget {
           ),
           itemCount: category.duas.length,
           separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
-          itemBuilder: (context, index) => DuaCard(dua: category.duas[index]),
+          itemBuilder: (context, index) => DuaCard(
+            key: ValueKey(category.duas[index].id),
+            dua: category.duas[index],
+          ),
         ),
       ),
     );

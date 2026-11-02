@@ -7,7 +7,9 @@ import 'q_chip.dart';
 
 /// "×N" chip that counts recitations on tap up to [repeat] (long-press or
 /// the reset button clears it). A session counter — not persisted; a started
-/// count survives scrolling out of a lazy list.
+/// count survives scrolling out of a lazy list. Key it per passage (e.g.
+/// `ValueKey(id)`) so a count never moves to another passage when a list
+/// changes; a changed [repeat] restarts the count.
 final class QRepeatCounter extends StatefulWidget {
   const QRepeatCounter({required this.repeat, super.key});
 
@@ -23,6 +25,15 @@ final class _QRepeatCounterState extends State<QRepeatCounter>
 
   @override
   bool get wantKeepAlive => _count > 0;
+
+  @override
+  void didUpdateWidget(QRepeatCounter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.repeat != widget.repeat && _count > 0) {
+      _count = 0;
+      updateKeepAlive();
+    }
+  }
 
   void _increment() {
     if (_count >= widget.repeat) {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -129,8 +130,16 @@ final class AsmaQuizStore {
 
   Future<void> _recordBest() async {
     if (score.value > best.value) {
+      final previous = best.value;
       best.value = score.value;
-      await _prefs.setInt(_bestKey(mode.value), score.value);
+      try {
+        await _prefs.setInt(_bestKey(mode.value), score.value);
+      } on Object catch (e) {
+        // Called unawaited from the screen: never let it escape. Show the
+        // best that is actually stored.
+        debugPrint('Asma quiz best score save failed: $e');
+        best.value = previous;
+      }
     }
   }
 

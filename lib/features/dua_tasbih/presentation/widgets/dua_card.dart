@@ -86,7 +86,16 @@ final class DuaCard extends StatelessWidget {
                     ),
                     onPressed: () {
                       Haptics.selection();
-                      unawaited(favorites.toggle(dua.id));
+                      final messenger = ScaffoldMessenger.of(context);
+                      unawaited(
+                        favorites.toggle(dua.id).then((saved) {
+                          if (!saved) {
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(l10n.saveFailed)),
+                            );
+                          }
+                        }),
+                      );
                     },
                   );
                 },
@@ -120,7 +129,7 @@ final class DuaCard extends StatelessWidget {
           ],
           if (dua.repeat > 1) ...[
             const SizedBox(height: QSpace.s3),
-            QRepeatCounter(repeat: dua.repeat),
+            QRepeatCounter(key: ValueKey(dua.id), repeat: dua.repeat),
           ],
         ],
       ),

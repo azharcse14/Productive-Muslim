@@ -215,6 +215,35 @@ void main() {
       );
     });
 
+    testWidgets("today's total follows midnight while the screen is open", (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      var now = DateTime(2026, 6, 12, 23, 59);
+      final store = TasbihStore(
+        SharedPreferencesAsync(),
+        haptic: () {},
+        milestoneHaptic: () {},
+        now: () => now,
+      );
+      GetIt.I
+        ..unregister<TasbihStore>()
+        ..registerSingleton<TasbihStore>(store);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      store.tap();
+      await tester.runAsync(() => store.reset(saveToHistory: true));
+      await tester.pump();
+      expect(find.text('Today: 1 counted'), findsOneWidget);
+
+      now = DateTime(2026, 6, 13, 0, 1);
+      await tester.pump(const Duration(minutes: 1));
+      await tester.runAsync(pumpEventQueue);
+      await tester.pump();
+      expect(find.text('Today: 0 counted'), findsOneWidget);
+    });
+
     testWidgets('tap increments the displayed count', (tester) async {
       await tester.pumpWidget(_app(const TasbihScreen()));
       await tester.pump();

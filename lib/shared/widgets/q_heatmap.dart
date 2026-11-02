@@ -89,16 +89,14 @@ final class QHeatmap extends StatelessWidget {
       if (tap == null || level < 0) {
         return box;
       }
+      // Screen readers act per cell; touch goes through the grid-wide
+      // detector below so the gaps count too.
       return Semantics(
         button: true,
         label: cellLabel?.call(w, d),
         excludeSemantics: true,
         onTap: () => tap(w, d),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => tap(w, d),
-          child: box,
-        ),
+        child: box,
       );
     }
 
@@ -120,9 +118,41 @@ final class QHeatmap extends StatelessWidget {
       ],
     );
     // Static cells carry no per-day meaning; tappable ones label themselves.
-    final grid = cellLabel != null && onTap != null
+    Widget grid = cellLabel != null && onTap != null
         ? rows
         : ExcludeSemantics(child: rows);
+    final tap = onTap;
+    if (tap != null) {
+      // One detector over the whole grid: a 13dp cell is far below the 48dp
+      // touch minimum, so a tap anywhere (gaps included) picks the nearest.
+      final rtl = Directionality.of(context) == TextDirection.rtl;
+      grid = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        excludeFromSemantics: true,
+        onTapUp: (details) {
+          if (weeks.isEmpty) {
+            return;
+          }
+          final pitch = cellSize + gap;
+          final width = weeks.length * pitch - gap;
+          final x = rtl
+              ? width - details.localPosition.dx
+              : details.localPosition.dx;
+          final w = ((x + gap / 2) / pitch).floor().clamp(0, weeks.length - 1);
+          final week = weeks[w];
+          if (week.isEmpty) {
+            return;
+          }
+          final d = ((details.localPosition.dy + gap / 2) / pitch)
+              .floor()
+              .clamp(0, week.length - 1);
+          if (week[d] >= 0) {
+            tap(w, d);
+          }
+        },
+        child: grid,
+      );
+    }
     if (semanticLabel == null) {
       return grid;
     }

@@ -159,5 +159,22 @@ void main() {
       );
       expect(fraction.alignment, AlignmentDirectional.centerStart);
     });
+
+    testWidgets('numerals stay left-to-right under RTL', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(body: Center(child: _card(CountdownState.calm))),
+          ),
+        ),
+      );
+      // '01:24:36': the leading 0 sits left of the trailing 6.
+      expect(
+        tester.getCenter(find.text('0')).dx,
+        lessThan(tester.getCenter(find.text('6')).dx),
+      );
+    });
   });
 }

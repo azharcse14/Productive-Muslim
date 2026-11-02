@@ -62,5 +62,57 @@ void main() {
       );
       expect(QHeatmapCell.colorFor(ctx, 4), ProductiveMuslimColors.light.primary);
     });
+
+    testWidgets('a tap in a gap picks the nearest cell; cells keep labels', (
+      tester,
+    ) async {
+      final taps = <(int, int)>[];
+      await tester.pumpWidget(
+        _wrap(
+          QHeatmap(
+            weeks: const [
+              [0, 1, 2, 3, 4, 0, 1],
+              [2, 3, 4, 0, 1, 2, -1],
+            ],
+            onTap: (w, d) => taps.add((w, d)),
+            cellLabel: (w, d) => 'cell $w $d',
+          ),
+        ),
+      );
+      final origin = tester.getTopLeft(find.byType(QHeatmap));
+      // Pitch is 13 + 3.5. Just past cell (0, 0) into the gap on its right
+      // and below: still (0, 0). Just before cell (1, 1): (1, 1).
+      await tester.tapAt(origin + const Offset(14.5, 14.5));
+      await tester.tapAt(origin + const Offset(15.5, 15.5));
+      // Out-of-range cell (1, 6) stays inert.
+      await tester.tapAt(origin + const Offset(20, 6 * 16.5 + 5));
+      expect(taps, [(0, 0), (1, 1)]);
+
+      expect(find.bySemanticsLabel('cell 1 3'), findsOneWidget);
+    });
+
+    testWidgets('gap taps map to the mirrored column under RTL', (
+      tester,
+    ) async {
+      final taps = <(int, int)>[];
+      await tester.pumpWidget(
+        _wrap(
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: QHeatmap(
+              weeks: const [
+                [0, 0],
+                [0, 0],
+              ],
+              onTap: (w, d) => taps.add((w, d)),
+            ),
+          ),
+        ),
+      );
+      // Week 0 is drawn on the right under RTL.
+      final topRight = tester.getTopRight(find.byType(QHeatmap));
+      await tester.tapAt(topRight + const Offset(-14.5, 2));
+      expect(taps, [(0, 0)]);
+    });
   });
 }

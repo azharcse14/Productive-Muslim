@@ -4,6 +4,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+/// Prefs whose list writes fail (full disk, platform error).
+final class _FailingListPrefs extends InMemorySharedPreferencesAsync {
+  _FailingListPrefs() : super.empty();
+
+  @override
+  Future<bool> setStringList(
+    String key,
+    List<String> value,
+    SharedPreferencesOptions options,
+  ) => Future.error(StateError('disk full'));
+}
+
 void main() {
   setUp(() {
     SharedPreferencesAsyncPlatform.instance =
@@ -37,5 +49,14 @@ void main() {
 
     expect(second.loaded.value, isTrue);
     expect(second.ids.value, {'me_1', 'sl_1'});
+  });
+
+  test('a failed save rolls the toggle back and reports it', () async {
+    SharedPreferencesAsyncPlatform.instance = _FailingListPrefs();
+    final store = DuaFavoritesStore(SharedPreferencesAsync());
+    await store.load();
+
+    expect(await store.toggle('me_1'), isFalse);
+    expect(store.isFavorite('me_1'), isFalse);
   });
 }
