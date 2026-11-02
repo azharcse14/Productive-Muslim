@@ -114,13 +114,7 @@ final class PrayerTable extends StatelessWidget {
         color: q.surface,
         borderRadius: BorderRadius.circular(QRadius.lg),
         border: Border.all(color: q.line),
-        boxShadow: [
-          BoxShadow(
-            color: q.ink.withValues(alpha: 0.06),
-            offset: const Offset(0, 1),
-            blurRadius: 2,
-          ),
-        ],
+        boxShadow: q.e1,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(QRadius.lg),
@@ -192,6 +186,45 @@ double _textWidth(BuildContext context, String text) {
   return width;
 }
 
+/// Above this text scale a row's time range drops under the prayer name, so
+/// the range keeps its width when a jamaat column is set.
+bool _stacked(BuildContext context) =>
+    MediaQuery.textScalerOf(context).scale(1) > 1.3;
+
+/// The name column's width, grown with the text scale (up to where rows
+/// stack and the name gets the full width).
+double _nameWidth(BuildContext context, bool dense) =>
+    (dense ? 64 : 84) *
+    MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3);
+
+/// Name and time side by side, or stacked at large text ([_stacked]).
+Widget _nameAndTime(
+  BuildContext context, {
+  required bool dense,
+  required Widget name,
+  required Widget time,
+}) {
+  if (_stacked(context)) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: QSpace.s2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [name, time],
+        ),
+      ),
+    );
+  }
+  return Expanded(
+    child: Row(
+      children: [
+        SizedBox(width: _nameWidth(context, dense), child: name),
+        Expanded(child: time),
+      ],
+    ),
+  );
+}
+
 final _jamaatStyle = QType.num_(
   QType.caption,
 ).copyWith(fontVariations: const [FontVariation('wght', 600)]);
@@ -217,7 +250,10 @@ final class _HeaderRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SizedBox(width: 18 + 10 + (dense ? 64 : 84)),
+          SizedBox(
+            width:
+                18 + 10 + (_stacked(context) ? 0 : _nameWidth(context, dense)),
+          ),
           Expanded(child: Text(l10n.prayerTableTime, style: style)),
           SizedBox(
             width: jamaatWidth,
@@ -262,15 +298,14 @@ final class _SunriseRow extends StatelessWidget {
         children: [
           Icon(Icons.wb_sunny_outlined, size: 18, color: q.ink3),
           const SizedBox(width: 10),
-          SizedBox(
-            width: dense ? 64 : 84,
-            child: Text(
+          _nameAndTime(
+            context,
+            dense: dense,
+            name: Text(
               context.l10n.sunriseLabel,
               style: QType.caption.copyWith(color: q.ink3),
             ),
-          ),
-          Expanded(
-            child: Text(
+            time: Text(
               time,
               style: QType.num_(
                 QType.caption,
@@ -307,12 +342,15 @@ final class _SetJamaatButton extends StatelessWidget {
           children: [
             Icon(Icons.more_time, size: 17, color: q.primary),
             const SizedBox(width: 7),
-            Text(
-              context.l10n.setJamaat,
-              style: QType.titleSm.copyWith(
-                fontSize: dense ? 13 : 14,
-                color: q.primary,
-                fontVariations: const [FontVariation('wght', 600)],
+            Flexible(
+              child: Text(
+                context.l10n.setJamaat,
+                textAlign: TextAlign.center,
+                style: QType.titleSm.copyWith(
+                  fontSize: dense ? 13 : 14,
+                  color: q.primary,
+                  fontVariations: const [FontVariation('wght', 600)],
+                ),
               ),
             ),
           ],
@@ -377,7 +415,7 @@ final class _PrayerRow extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Container(
-          constraints: BoxConstraints(minHeight: dense ? 40 : 54),
+          constraints: BoxConstraints(minHeight: dense ? QTouch.minTarget : 54),
           // End inset is reduced by the check's 11dp hit-box overhang.
           padding: EdgeInsetsDirectional.only(
             start: dense ? 12 : 16,
@@ -395,9 +433,10 @@ final class _PrayerRow extends StatelessWidget {
                 pulsing: active,
               ),
               const SizedBox(width: 10),
-              SizedBox(
-                width: dense ? 64 : 84,
-                child: Text(
+              _nameAndTime(
+                context,
+                dense: dense,
+                name: Text(
                   name,
                   style: QType.titleSm.copyWith(
                     fontSize: dense ? 13.5 : null,
@@ -405,9 +444,7 @@ final class _PrayerRow extends StatelessWidget {
                     fontVariations: [FontVariation('wght', active ? 700 : 600)],
                   ),
                 ),
-              ),
-              Expanded(
-                child: Text(
+                time: Text(
                   range,
                   style: QType.num_(QType.caption).copyWith(
                     fontSize: dense ? 11.5 : 12.5,

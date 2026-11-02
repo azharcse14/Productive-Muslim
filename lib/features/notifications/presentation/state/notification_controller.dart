@@ -78,6 +78,14 @@ final class NotificationController {
   /// in-app inbox shows exactly what the OS will deliver.
   ReadonlySignal<NotificationPlan> get plan => _plan;
 
+  final _failed = signal(false);
+
+  /// True while the last reschedule failed (shown with a retry).
+  ReadonlySignal<bool> get rescheduleFailed => _failed;
+
+  /// Reschedules now, queued behind any run in flight.
+  Future<void> retry() => _rescheduleNow();
+
   Future<void> start() async {
     if (_started) {
       return;
@@ -183,11 +191,14 @@ final class NotificationController {
               .where((i) => i.kind != NotificationKind.keepAlive)
               .lastOrNull
               ?.at;
+          _failed.value = false;
         case FailureResult(:final failure):
           debugPrint('Notification reschedule failed: ${failure.message}');
+          _failed.value = true;
       }
     } on Object catch (e) {
       debugPrint('Notification reschedule failed: $e');
+      _failed.value = true;
     }
   }
 

@@ -129,8 +129,7 @@ final class _RingPainter extends CustomPainter {
       final painter = TextPainter(
         text: TextSpan(
           text: label,
-          style: QType.label.copyWith(
-            fontSize: 15,
+          style: QType.body.copyWith(
             fontWeight: FontWeight.w700,
             fontVariations: const [FontVariation('wght', 700)],
             color: i == 0 ? colors.urgent : colors.ink3,

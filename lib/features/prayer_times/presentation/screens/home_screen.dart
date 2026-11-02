@@ -13,6 +13,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_banner.dart';
+import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
@@ -551,8 +552,8 @@ final class _HomeScreenState extends State<HomeScreen> {
           return Semantics(
             button: true,
             onTapHint: l10n.countdownSeeDay,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: QPressable(
+              borderRadius: BorderRadius.circular(QRadius.xl),
               onTap: () => unawaited(
                 showDayTimelineSheet(
                   context,
@@ -608,20 +609,13 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Shown while Android denies exact alarms; tapping opens the OS consent.
-  Widget _exactAlarmBanner(BuildContext context) => Semantics(
-    button: true,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => unawaited(
-        _scheduler?.requestExactAlarmPermission().then(
-          (_) => _checkExactAlarms(),
-        ),
-      ),
-      child: QBanner(
-        text: context.l10n.prayerTimesExactAlarmBanner,
-        icon: Icons.alarm_outlined,
-        tone: context.q.warnSoft,
-        foreground: context.q.warn,
+  /// Same tone as the notification settings' banner.
+  Widget _exactAlarmBanner(BuildContext context) => QBanner(
+    text: context.l10n.prayerTimesExactAlarmBanner,
+    icon: Icons.alarm_outlined,
+    onTap: () => unawaited(
+      _scheduler?.requestExactAlarmPermission().then(
+        (_) => _checkExactAlarms(),
       ),
     ),
   );

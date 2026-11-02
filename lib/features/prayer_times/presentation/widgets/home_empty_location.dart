@@ -20,11 +20,12 @@ final class HomeEmptyLocation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = context.q;
+    // Scrolls at large text / short screens instead of overflowing.
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(QSpace.s8),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             QalbMark(size: 72, color: q.ink3, accent: q.primary),
             const SizedBox(height: QSpace.s5),

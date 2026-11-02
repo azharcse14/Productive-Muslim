@@ -366,87 +366,95 @@ final class _MonthTableCard extends StatelessWidget {
                     final isToday = day == today;
                     // Iftar of fasting day 20, 22, … begins odd night 21, 23, …
                     final oddNightEve = roza >= 20 && roza <= 28 && roza.isEven;
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: isToday ? q.primarySoft : null,
-                        borderRadius: BorderRadius.circular(QRadius.sm),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: QSpace.s2,
-                          vertical: QSpace.s2,
+                    // Not by colour alone: bold text and "Today" for readers.
+                    final todayWeight = isToday ? FontWeight.w700 : null;
+                    return Semantics(
+                      container: isToday,
+                      label: isToday ? l10n.todayTab : null,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: isToday ? q.primarySoft : null,
+                          borderRadius: BorderRadius.circular(QRadius.sm),
                         ),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 32,
-                              child: Text(
-                                LocaleDigits.localize(
-                                  '$roza',
-                                  locale.languageCode,
-                                ),
-                                style: QType.num_(QType.label).copyWith(
-                                  color: isToday ? q.onPrimarySoft : q.ink2,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                LocaleDigits.localize(
-                                  DateFormat.MMMd(
-                                    locale.toString(),
-                                  ).format(day),
-                                  locale.languageCode,
-                                ),
-                                style: QType.body.copyWith(
-                                  color: isToday ? q.onPrimarySoft : q.ink,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: QSpace.s2,
+                            vertical: QSpace.s2,
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 32,
+                                child: Text(
+                                  LocaleDigits.localize(
+                                    '$roza',
+                                    locale.languageCode,
+                                  ),
+                                  style: QType.num_(QType.label).copyWith(
+                                    color: isToday ? q.onPrimarySoft : q.ink2,
+                                    fontWeight: todayWeight,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                formatTime(sahri),
-                                textAlign: TextAlign.end,
-                                style: QType.num_(QType.body).copyWith(
-                                  color: isToday ? q.onPrimarySoft : q.ink,
+                              Expanded(
+                                child: Text(
+                                  LocaleDigits.localize(
+                                    DateFormat.MMMd(
+                                      locale.toString(),
+                                    ).format(day),
+                                    locale.languageCode,
+                                  ),
+                                  style: QType.body.copyWith(
+                                    color: isToday ? q.onPrimarySoft : q.ink,
+                                    fontWeight: todayWeight,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  if (oddNightEve) ...[
-                                    Tooltip(
-                                      message: l10n.oddNightBegins(
-                                        LocaleDigits.localize(
-                                          '${roza + 1}',
-                                          locale.languageCode,
+                              Expanded(
+                                child: Text(
+                                  formatTime(sahri),
+                                  textAlign: TextAlign.end,
+                                  style: QType.num_(QType.body).copyWith(
+                                    color: isToday ? q.onPrimarySoft : q.ink,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    if (oddNightEve) ...[
+                                      Tooltip(
+                                        message: l10n.oddNightBegins(
+                                          LocaleDigits.localize(
+                                            '${roza + 1}',
+                                            locale.languageCode,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.nightlight_round,
+                                          size: 14,
+                                          color: q.accent,
                                         ),
                                       ),
-                                      child: Icon(
-                                        Icons.nightlight_round,
-                                        size: 14,
-                                        color: q.accent,
+                                      const SizedBox(width: QSpace.s1),
+                                    ],
+                                    Flexible(
+                                      child: Text(
+                                        formatTime(iftar),
+                                        textAlign: TextAlign.end,
+                                        style: QType.num_(QType.body).copyWith(
+                                          color: isToday
+                                              ? q.onPrimarySoft
+                                              : q.ink,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: QSpace.s1),
                                   ],
-                                  Flexible(
-                                    child: Text(
-                                      formatTime(iftar),
-                                      textAlign: TextAlign.end,
-                                      style: QType.num_(QType.body).copyWith(
-                                        color: isToday
-                                            ? q.onPrimarySoft
-                                            : q.ink,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

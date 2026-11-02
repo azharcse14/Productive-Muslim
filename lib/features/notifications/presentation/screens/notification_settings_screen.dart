@@ -442,6 +442,22 @@ final class _NotificationSettingsScreenState
                 ),
               ),
               _GroupHeader(l10n.notifGroupDelivery),
+              if (_controller.rescheduleFailed.value) ...[
+                QBanner(
+                  text: l10n.notifRescheduleFailed,
+                  icon: Icons.error_outline,
+                  tone: q.warnSoft,
+                  foreground: q.warn,
+                ),
+                const SizedBox(height: QSpace.s2),
+                QButton(
+                  label: l10n.retry,
+                  kind: QButtonKind.ghost,
+                  small: true,
+                  onPressed: () => unawaited(_controller.retry()),
+                ),
+                const SizedBox(height: QSpace.s2),
+              ],
               QBanner(
                 text: _scheduledUntilText(context),
                 icon: Icons.event_available_outlined,
@@ -645,10 +661,14 @@ final class _TimeRow extends StatelessWidget {
                 onChanged(picked.hour * 60 + picked.minute);
               }
             },
-            child: SizedBox(
-              width: 84,
-              height: QTouch.minTarget,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: 84,
+                minHeight: QTouch.minTarget,
+              ),
               child: Center(
+                widthFactor: 1,
+                heightFactor: 1,
                 child: Text(
                   formatMinuteOfDay(minuteOfDay),
                   textAlign: TextAlign.center,
@@ -746,28 +766,48 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
   void _set(NotificationMatrix m) =>
       unawaited(widget.store.setNotifications(m));
 
-  Future<void> _requestBlock() async {
-    final l10n = context.l10n;
-    // Play policy: prominent disclosure before the accessibility settings.
+  Future<bool> _disclose(String title, String body, String action) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.focusDisclosureTitle),
-        content: Text(l10n.focusDisclosureBody),
+        title: Text(title),
+        content: Text(body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.focusContinue),
+            child: Text(action),
           ),
         ],
       ),
     );
-    if (ok ?? false) {
+    return ok ?? false;
+  }
+
+  Future<void> _requestBlock() async {
+    final l10n = context.l10n;
+    // Play policy: prominent disclosure before the accessibility settings.
+    if (await _disclose(
+      l10n.focusDisclosureTitle,
+      l10n.focusDisclosureBody,
+      l10n.focusContinue,
+    )) {
       await widget.focus.requestBlockPermission();
+    }
+  }
+
+  /// Explains why before opening the OS Do Not Disturb access screen.
+  Future<void> _requestSilence() async {
+    final l10n = context.l10n;
+    if (await _disclose(
+      l10n.focusSilenceDisclosureTitle,
+      l10n.focusSilenceDisclosureBody,
+      l10n.focusAllow,
+    )) {
+      await widget.focus.requestSilencePermission();
     }
   }
 
@@ -863,9 +903,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                           : (v) {
                               set(m.copyWith(jamaatFocus: v));
                               if (v && _android && !_canSilence.value) {
-                                unawaited(
-                                  widget.focus.requestSilencePermission(),
-                                );
+                                unawaited(_requestSilence());
                               }
                             },
                     ),
@@ -881,10 +919,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
                   ],
                   if (m.jamaatFocus) ...[
                     if (_android && !_canSilence.value)
-                      permission(
-                        l10n.focusPermSilence,
-                        widget.focus.requestSilencePermission,
-                      ),
+                      permission(l10n.focusPermSilence, _requestSilence),
                     _LeadRow(
                       label: l10n.focusLeadLabel,
                       minutes: m.jamaatFocusLead.inMinutes,

@@ -62,6 +62,8 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   late final AppLifecycleListener _lifecycle;
 
+  final _queryField = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +74,7 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _queryField.dispose();
     _lifecycle.dispose();
     _results.dispose();
     _searching.dispose();
@@ -296,11 +299,26 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     },
                   ),
                   const SizedBox(height: QSpace.s5),
-                  TextField(
-                    onChanged: _onQueryChanged,
-                    decoration: InputDecoration(
-                      hintText: l10n.locationSearchHint,
-                      prefixIcon: const Icon(Icons.search),
+                  ListenableBuilder(
+                    listenable: _queryField,
+                    builder: (context, _) => TextField(
+                      controller: _queryField,
+                      onChanged: _onQueryChanged,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: l10n.locationSearchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _queryField.text.isEmpty
+                            ? null
+                            : IconButton(
+                                tooltip: l10n.clearSearch,
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  _queryField.clear();
+                                  _onQueryChanged('');
+                                },
+                              ),
+                      ),
                     ),
                   ),
                 ],
@@ -309,7 +327,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
           ),
           SignalBuilder(
             builder: (context) {
-              if (_searching.value) {
+              final cities = _results.value;
+              // Keep showing the last results while the next search runs.
+              if (_searching.value && cities.isEmpty) {
                 return SliverPadding(
                   padding: const EdgeInsets.all(QSpace.s5),
                   sliver: SliverList.list(
@@ -322,7 +342,6 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                 );
               }
-              final cities = _results.value;
               if (_searchFailed.value) {
                 return SliverFillRemaining(
                   hasScrollBody: false,

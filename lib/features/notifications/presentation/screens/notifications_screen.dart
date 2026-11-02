@@ -40,6 +40,10 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
   final _permission = signal<NotificationPermission?>(null);
   late final AppLifecycleListener _lifecycle;
 
+  /// Bumped every minute, so a reminder that has fired drops off the list.
+  final _minute = signal(0);
+  late final Timer _ticker;
+
   @override
   void initState() {
     super.initState();
@@ -48,10 +52,15 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
       onResume: () => unawaited(_refreshPermission()),
     );
     unawaited(_refreshPermission());
+    _ticker = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _minute.value++,
+    );
   }
 
   @override
   void dispose() {
+    _ticker.cancel();
     _lifecycle.dispose();
     super.dispose();
   }
@@ -121,6 +130,7 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
             );
           }
           final matrix = _settings.settings.value.notifications;
+          _minute.value;
           final now = locator<ZonedClock>().nowAt(location);
           final until = now.add(const Duration(hours: 24));
           final items = [
@@ -160,7 +170,13 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
 
 /// Tab roots are switched to (`go`); anything else is pushed so back
 /// returns to the inbox.
-const _tabRoots = {'/home', '/quran', '/muhasaba', '/dua', '/more'};
+final _tabRoots = {
+  Routes.home.path,
+  Routes.quran.path,
+  Routes.muhasaba.path,
+  Routes.dua.path,
+  Routes.more.path,
+};
 
 final class _Tile extends StatelessWidget {
   const _Tile({required this.item, required this.matrix});

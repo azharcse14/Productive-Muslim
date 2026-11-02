@@ -93,8 +93,12 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
-        builder: (sheetContext) =>
-            _DaySheet(day: day, prayerDay: prayerDay, offsetDays: _offset),
+        builder: (sheetContext) => _DaySheet(
+          day: day,
+          prayerDay: prayerDay,
+          offsetDays: _offset,
+          noLocation: location == null,
+        ),
       ),
     );
   }
@@ -147,7 +151,11 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(QSpace.s5),
+          // 12dp sides: day cells reach 48dp at a 360dp width.
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpace.s3,
+            vertical: QSpace.s5,
+          ),
           children: [
             Row(
               children: [
@@ -350,8 +358,7 @@ final class _DayCell extends StatelessWidget {
     );
     return Semantics(
       button: true,
-      selected: isToday,
-      label: label,
+      label: isToday ? '${l10n.todayTab}, $label' : label,
       excludeSemantics: true,
       onTap: () => onTap(date),
       child: InkWell(
@@ -402,8 +409,11 @@ final class _DaySheet extends StatelessWidget {
     required this.day,
     required this.prayerDay,
     required this.offsetDays,
+    required this.noLocation,
   });
 
+  /// No location yet: say why there are no prayer times, with a link.
+  final bool noLocation;
   final DateTime day;
   final int offsetDays;
   final PrayerDay? prayerDay;
@@ -519,6 +529,25 @@ final class _DaySheet extends StatelessWidget {
                     ],
                   ),
                 ),
+            ] else if (noLocation) ...[
+              const SizedBox(height: QSpace.s4),
+              Text(
+                l10n.homeSetLocationBody,
+                style: QType.body.copyWith(color: q.ink2),
+              ),
+              const SizedBox(height: QSpace.s2),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.place_outlined),
+                  label: Text(l10n.homeSetLocationCta),
+                  onPressed: () {
+                    final router = GoRouter.of(context);
+                    Navigator.of(context).pop();
+                    unawaited(router.pushNamed(Routes.locationPicker.name));
+                  },
+                ),
+              ),
             ],
           ],
         ),

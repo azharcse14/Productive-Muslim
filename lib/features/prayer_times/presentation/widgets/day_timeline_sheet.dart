@@ -22,20 +22,29 @@ Future<void> showDayTimelineSheet(
   required String Function(DateTime) formatTime,
   List<SpecialWindow> forbidden = const [],
   bool jumuah = false,
-}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    builder: (_) => SignalBuilder(
-      builder: (_) => DayTimelineSheet(
-        day: day,
-        now: now(),
-        formatTime: formatTime,
-        forbidden: forbidden,
-        jumuah: jumuah,
+}) async {
+  // Floored to the minute: a 1s `now` rebuilds the sheet once a minute.
+  final minute = computed(() {
+    final t = now();
+    return DateTime(t.year, t.month, t.day, t.hour, t.minute);
+  });
+  try {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => SignalBuilder(
+        builder: (_) => DayTimelineSheet(
+          day: day,
+          now: minute.value,
+          formatTime: formatTime,
+          forbidden: forbidden,
+          jumuah: jumuah,
+        ),
       ),
-    ),
-  );
+    );
+  } finally {
+    minute.dispose();
+  }
 }
 
 enum _Tone { prayer, quiet, warn, now }

@@ -7,6 +7,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/kaaba_mark.dart';
+import '../../../../shared/widgets/q_pressable.dart';
 
 /// Compact tappable "glass" pill showing the qibla direction with an arrow
 /// that rotates toward the kaaba. Designed to sit in the corner of a tinted
@@ -91,12 +92,10 @@ final class QiblaMiniChip extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       label: context.l10n.qiblaTitle,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+      child: _tappable(
         // A full-size touch target; the pill keeps its corner position and
         // the extra hit area extends inward.
-        child: ConstrainedBox(
+        ConstrainedBox(
           constraints: const BoxConstraints(
             minWidth: QTouch.minTarget,
             minHeight: QTouch.minTarget,
@@ -118,4 +117,13 @@ final class QiblaMiniChip extends StatelessWidget {
       ),
     );
   }
+
+  Widget _tappable(Widget child) => switch (onTap) {
+    final onTap? => QPressable(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(QRadius.full),
+      child: child,
+    ),
+    null => child,
+  };
 }

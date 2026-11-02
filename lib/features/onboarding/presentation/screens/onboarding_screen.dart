@@ -41,6 +41,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pages = PageController();
   int _step = 0;
 
+  /// The notification prompt is up: Allow can't stack a second one.
+  bool _requesting = false;
+
   static const _stepCount = 6;
 
   @override
@@ -49,7 +52,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _go(int step) {
+  void _go(int target) {
+    // A double tap on the last step must not page past the end.
+    final step = target.clamp(0, _stepCount - 1);
     setState(() => _step = step);
     if (MediaQuery.disableAnimationsOf(context)) {
       _pages.jumpToPage(step);
@@ -61,13 +66,24 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _allowNotifications() async {
-    final status = await _scheduler.requestPermission();
-    // Azan on time needs exact alarms (Android 12+); ask right after the
-    // notification grant, while the user is already saying yes.
-    if (status == NotificationPermission.granted &&
-        defaultTargetPlatform == TargetPlatform.android &&
-        !await _scheduler.canScheduleExactAlarms()) {
-      await _scheduler.requestExactAlarmPermission();
+    if (_requesting) {
+      return;
+    }
+    setState(() => _requesting = true);
+    final NotificationPermission status;
+    try {
+      status = await _scheduler.requestPermission();
+      // Azan on time needs exact alarms (Android 12+); ask right after the
+      // notification grant, while the user is already saying yes.
+      if (status == NotificationPermission.granted &&
+          defaultTargetPlatform == TargetPlatform.android &&
+          !await _scheduler.canScheduleExactAlarms()) {
+        await _scheduler.requestExactAlarmPermission();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _requesting = false);
+      }
     }
     if (!mounted) {
       return;
@@ -356,6 +372,9 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     actions: SignalBuilder(
       builder: (context) => _nextButton(
+        label: _settings.location.value == null
+            ? context.l10n.homeSetLocationCta
+            : null,
         onTap: _settings.location.value == null
             ? () => context.pushNamed(Routes.locationPicker.name)
             : () {
@@ -448,9 +467,12 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     actions: Column(
       children: [
-        _nextButton(
+        QButton(
           label: context.l10n.onboardingNotifAllow,
-          onTap: () => unawaited(_allowNotifications()),
+          expand: true,
+          onPressed: _requesting
+              ? null
+              : () => unawaited(_allowNotifications()),
         ),
         const SizedBox(height: QSpace.s2),
         QButton(

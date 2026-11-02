@@ -112,14 +112,20 @@ final class _DetailCard extends StatelessWidget {
               ),
               const SizedBox(width: QSpace.s3),
               Expanded(
+                flex: 3,
                 child: Text(
                   l10n.specialTimeLabel(window.time),
                   style: QType.titleSm.copyWith(color: q.ink),
                 ),
               ),
-              Text(
-                range,
-                style: QType.num_(QType.caption).copyWith(color: q.ink2),
+              // Long label or large text: the range wraps instead of overflowing.
+              Flexible(
+                flex: 2,
+                child: Text(
+                  range,
+                  textAlign: TextAlign.end,
+                  style: QType.num_(QType.caption).copyWith(color: q.ink2),
+                ),
               ),
             ],
           ),

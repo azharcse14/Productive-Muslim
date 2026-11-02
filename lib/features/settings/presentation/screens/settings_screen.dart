@@ -258,6 +258,9 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                           icon: Icons.lock_outline,
                           title: l10n.appLockEnable,
                           subtitle: l10n.appLockEnableSub,
+                          // The whole row toggles, not just the switch.
+                          onTap: () =>
+                              unawaited(_toggleAppLock(!lock.enabled.value)),
                           trailing: Switch(
                             value: lock.enabled.value,
                             onChanged: (v) => unawaited(_toggleAppLock(v)),
@@ -270,6 +273,11 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.emoji_events_outlined,
                       title: l10n.settingShowAchievements,
                       subtitle: l10n.settingShowAchievementsSub,
+                      onTap: () => unawaited(
+                        _store.setShowAchievements(
+                          show: !settings.showAchievements,
+                        ),
+                      ),
                       trailing: Switch(
                         value: settings.showAchievements,
                         onChanged: (v) =>
@@ -281,6 +289,11 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.vibration,
                       title: l10n.settingHaptics,
                       subtitle: l10n.settingHapticsSub,
+                      onTap: () => unawaited(
+                        _store.setHapticsEnabled(
+                          enabled: !settings.hapticsEnabled,
+                        ),
+                      ),
                       trailing: Switch(
                         value: settings.hapticsEnabled,
                         onChanged: (v) =>

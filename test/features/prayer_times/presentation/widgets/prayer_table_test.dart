@@ -138,4 +138,41 @@ void main() {
     );
     handle.dispose();
   });
+
+  testWidgets('at 2x text with jamaat set, the range sits under the name', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(360, 1600),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: PrayerTable(
+                day: _day,
+                activePrayer: null,
+                jamaatTimes: {Prayer.dhuhr: DateTime(2026, 6, 12, 13, 30)},
+                formatTime: (t) => '${t.hour}:${t.minute}0',
+                onTogglePrayed: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final name = tester.getRect(find.text('Dhuhr'));
+    final range = tester.getRect(find.text('12:00\u00A0– 16:300'));
+    expect(range.top, greaterThanOrEqualTo(name.bottom));
+    expect(range.width, greaterThan(100));
+  });
 }

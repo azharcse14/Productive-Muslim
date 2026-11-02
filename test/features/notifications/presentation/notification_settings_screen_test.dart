@@ -88,11 +88,16 @@ final class _FakeScheduler implements NotificationScheduler {
   @override
   Future<void> openSystemSettings() async => settingsOpened = true;
 
+  /// Makes [reschedule] fail.
+  bool failReschedule = false;
+
   @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,
-  ) async => const Result.success(null);
+  ) async => failReschedule
+      ? const Result.failure(UnexpectedFailure('plugin'))
+      : const Result.success(null);
 
   @override
   Future<void> cancelAll() async {}
@@ -198,6 +203,28 @@ void main() {
       }
       expect(find.text('Azan'), findsNWidgets(5));
       expect(find.text('Off'), findsNWidgets(5));
+    });
+
+    testWidgets('a failed reschedule shows a banner and retry clears it', (
+      tester,
+    ) async {
+      final scheduler = _FakeScheduler()..failReschedule = true;
+      await _register(scheduler, settings: const AppSettings(location: _dhaka));
+      await tester.runAsync(_controller.retry);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final banner = find.text("Couldn't schedule reminders");
+      await tester.scrollUntilVisible(banner, 300);
+      expect(banner, findsOneWidget);
+      scheduler.failReschedule = false;
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Try again'));
+        // Let the queued run finish.
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await _controller.retry();
+      });
+      await tester.pump();
+      expect(banner, findsNothing);
     });
 
     testWidgets('changing a mode persists to settings', (tester) async {

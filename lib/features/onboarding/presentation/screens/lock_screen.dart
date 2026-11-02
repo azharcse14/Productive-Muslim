@@ -38,6 +38,9 @@ final class _LockScreenState extends State<LockScreen> {
   String? _firstPin;
   String? _error;
 
+  /// The device can prompt for a biometric; until known, the button shows.
+  bool _canBiometric = true;
+
   /// "Forgot PIN?" verified via the device lock: collect a new PIN. Lives
   /// in the store so leaving the app ends it.
   late bool _resetting =
@@ -75,6 +78,7 @@ final class _LockScreenState extends State<LockScreen> {
     }
     if (widget.mode != LockScreenMode.setup) {
       _syncCooldownTicker();
+      unawaited(_checkBiometric());
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           unawaited(_biometric());
@@ -93,17 +97,34 @@ final class _LockScreenState extends State<LockScreen> {
     }
   }
 
+  Future<void> _checkBiometric() async {
+    try {
+      final can = await _store.canUseBiometric();
+      if (mounted && can != _canBiometric) {
+        setState(() => _canBiometric = can);
+      }
+    } on Object catch (e) {
+      debugPrint('lock screen biometric check: $e');
+    }
+  }
+
   Future<void> _biometric() async {
     final l10n = context.l10n;
+    if (!_store.biometricEnabled.value) {
+      return;
+    }
     try {
       if (await _store.unlockWithBiometric(l10n.appLockBiometricReason)) {
         _verified();
+        return;
       }
     } on Object catch (e) {
       // Only the biometric plugin can throw here (lockout, no sensor):
-      // the PIN pad stays available, so fall back to it without a
-      // misleading storage message.
+      // fall back to the PIN pad, saying why, not a storage message.
       debugPrint('lock screen biometric: $e');
+    }
+    if (mounted) {
+      setState(() => _error = l10n.appLockBiometricUnavailable);
     }
   }
 
@@ -324,6 +345,7 @@ final class _LockScreenState extends State<LockScreen> {
       (true, _) => l10n.appLockConfirmPin,
     };
     final cooldown = _cooldownLeft;
+    final keyInk = cooldown == null ? q.ink : q.ink3;
     final message = cooldown != null
         ? l10n.appLockThrottled(_formatCooldown(context, cooldown))
         : _error;
@@ -433,20 +455,23 @@ final class _LockScreenState extends State<LockScreen> {
                                             height: 72,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: q.surface,
+                                              // Cooldown: keys look disabled.
+                                              color: cooldown == null
+                                                  ? q.surface
+                                                  : q.surface2,
                                               border: Border.all(color: q.line),
                                             ),
                                             child: Center(
                                               child: key == _backspace
                                                   ? Icon(
                                                       Icons.backspace_outlined,
-                                                      color: q.ink,
+                                                      color: keyInk,
                                                     )
                                                   : Text(
                                                       context.digits(key),
                                                       style: QType.num_(
                                                         QType.title,
-                                                      ).copyWith(color: q.ink),
+                                                      ).copyWith(color: keyInk),
                                                     ),
                                             ),
                                           ),
@@ -464,7 +489,8 @@ final class _LockScreenState extends State<LockScreen> {
                         spacing: QSpace.s2,
                         children: [
                           SignalBuilder(
-                            builder: (context) => _store.biometricEnabled.value
+                            builder: (context) =>
+                                _store.biometricEnabled.value && _canBiometric
                                 ? QButton(
                                     label: l10n.appLockUseBiometric,
                                     kind: QButtonKind.ghost,

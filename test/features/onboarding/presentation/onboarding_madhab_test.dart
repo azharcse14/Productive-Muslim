@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -30,6 +32,19 @@ final class _Repo implements SettingsRepository {
 }
 
 final class _NoopScheduler implements NotificationScheduler {
+  /// Holds the OS prompt open until completed.
+  final prompt = Completer<NotificationPermission>();
+  int prompts = 0;
+
+  @override
+  Future<NotificationPermission> requestPermission() {
+    prompts++;
+    return prompt.future;
+  }
+
+  @override
+  Future<bool> canScheduleExactAlarms() async => true;
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -49,13 +64,14 @@ Future<_Repo> _pumpToLocationStep(
   PrayerParams params = const PrayerParams(),
   bool rerun = false,
   LocationConfig location = _cairo,
+  _NoopScheduler? scheduler,
 }) async {
   final repo = _Repo(AppSettings(location: location, prayerParams: params));
   final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await store.load();
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
-    ..registerSingleton<NotificationScheduler>(_NoopScheduler());
+    ..registerSingleton<NotificationScheduler>(scheduler ?? _NoopScheduler());
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.light(),
@@ -140,5 +156,47 @@ void main() {
     );
     expect(find.text('Current location'), findsOneWidget);
     expect(find.text('Not set'), findsNothing);
+  });
+
+  testWidgets('a double tap on Allow asks once and moves one step', (
+    tester,
+  ) async {
+    final scheduler = _NoopScheduler();
+    await _pumpToLocationStep(tester, scheduler: scheduler);
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('Next').hitTestable());
+      await tester.pumpAndSettle();
+    }
+    final allow = find.text('Allow notifications').hitTestable();
+    await tester.tap(allow);
+    await tester.pump();
+    await tester.tap(allow, warnIfMissed: false);
+    await tester.pump();
+    scheduler.prompt.complete(NotificationPermission.granted);
+    await tester.pumpAndSettle();
+    expect(scheduler.prompts, 1);
+    expect(find.text('Bismillah'), findsOneWidget);
+  });
+
+  testWidgets('with no location the location step says Set location', (
+    tester,
+  ) async {
+    final repo = _Repo(const AppSettings());
+    final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
+    await store.load();
+    GetIt.I
+      ..registerSingleton<SettingsStore>(store)
+      ..registerSingleton<NotificationScheduler>(_NoopScheduler());
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const OnboardingScreen(),
+      ),
+    );
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Set location').hitTestable(), findsOneWidget);
   });
 }
