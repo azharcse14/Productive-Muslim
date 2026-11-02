@@ -19,18 +19,28 @@ import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
+import '../widgets/quran_unavailable.dart';
 import 'quran_reader_screen.dart';
 
 /// Quran tab (design §4.5): continue-reading resume card, surah search
 /// and the 114-surah index; rows open the reader.
-final class QuranScreen extends StatefulWidget {
+final class QuranScreen extends StatelessWidget {
   const QuranScreen({super.key});
 
   @override
-  State<QuranScreen> createState() => _QuranScreenState();
+  Widget build(BuildContext context) => locator.isRegistered<QuranStore>()
+      ? const _QuranIndex()
+      : const QuranUnavailable();
 }
 
-final class _QuranScreenState extends State<QuranScreen> {
+final class _QuranIndex extends StatefulWidget {
+  const _QuranIndex();
+
+  @override
+  State<_QuranIndex> createState() => _QuranIndexState();
+}
+
+final class _QuranIndexState extends State<_QuranIndex> {
   // App-scoped store — never disposed here.
   late final QuranStore _store = locator<QuranStore>();
 

@@ -2000,6 +2000,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t open the Quran text. Please try again.'**
   String get quranLoadError;
 
+  /// No description provided for @quranUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The Quran text couldn\'t be opened on this device. Restart the app, or reinstall it if this keeps happening.'**
+  String get quranUnavailable;
+
   /// No description provided for @copyLabel.
   ///
   /// In en, this message translates to:

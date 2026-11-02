@@ -594,6 +594,7 @@
   "chooseDate": "Choose a date",
   "goToToday": "Go to today",
   "quranLoadError": "Couldn't open the Quran text. Please try again.",
+  "quranUnavailable": "The Quran text couldn't be opened on this device. Restart the app, or reinstall it if this keeps happening.",
   "copyLabel": "Copy",
   "copiedLabel": "Copied",
   "bookmarksTitle": "Bookmarks",

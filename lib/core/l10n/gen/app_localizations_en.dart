@@ -1229,6 +1229,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t open the Quran text. Please try again.';
 
   @override
+  String get quranUnavailable =>
+      'The Quran text couldn\'t be opened on this device. Restart the app, or reinstall it if this keeps happening.';
+
+  @override
   String get copyLabel => 'Copy';
 
   @override

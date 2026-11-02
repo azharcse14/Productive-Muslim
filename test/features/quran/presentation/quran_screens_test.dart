@@ -554,4 +554,26 @@ void main() {
       expect(repo.storedLastRead?.ayah, greaterThan(1));
     });
   });
+
+  group('Quran DB unavailable', () {
+    // Startup unregisters QuranStore when quran.db fails to open.
+    setUp(() => GetIt.I.unregister<QuranStore>());
+
+    for (final screen in const [QuranScreen(), QuranReaderScreen(surahId: 1)]) {
+      testWidgets('${screen.runtimeType} shows the unavailable state', (
+        tester,
+      ) async {
+        await tester.pumpWidget(_app(screen));
+        await tester.pump();
+
+        expect(
+          find.text(
+            "The Quran text couldn't be opened on this device. Restart the "
+            'app, or reinstall it if this keeps happening.',
+          ),
+          findsOneWidget,
+        );
+      });
+    }
+  });
 }

@@ -1222,6 +1222,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quranLoadError => 'কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get quranUnavailable =>
+      'এই ডিভাইসে কুরআনের লেখা খোলা যায়নি। অ্যাপটি আবার চালু করুন, বারবার এমন হলে আবার ইনস্টল করুন।';
+
+  @override
   String get copyLabel => 'কপি করুন';
 
   @override
