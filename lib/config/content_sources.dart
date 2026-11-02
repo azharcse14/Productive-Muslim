@@ -8,6 +8,12 @@ abstract final class ContentSources {
   /// was built from), resolved 2026-10-29.
   static const hadithApiSha = 'df57907be35291c91ad6a6691180e22ca9920784';
 
+  /// fawazahmed0/quran-api (Unlicense) — HEAD of branch `1`, resolved
+  /// 2026-11-02; read only by `tool/quran_db_build.dart`. Every file the
+  /// tool reads is unchanged there since 2022-10-05, so this is the content
+  /// the bundled quran.db (built 2026-06-13 / 2026-10-29 from `@1`) used.
+  static const quranApiSha = '93e6f64925ae76273520d636fcaaf061129f2316';
+
   /// azharcse14/hadithbangla — HEAD of `main`, resolved 2026-10-29.
   static const hadithBanglaSha = '3de802c0bea9f0892ac47eb5903cb1498630b209';
 
