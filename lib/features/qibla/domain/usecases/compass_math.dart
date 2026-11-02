@@ -124,6 +124,33 @@ abstract final class CompassMath {
     return _norm360(math.atan2(-mxLevel, myLevel) * _rad2deg);
   }
 
+  /// Angle in degrees between the screen normal and straight up: 0 flat
+  /// screen-up, 90 upright, 180 flat screen-down. A zero vector (no
+  /// reading) counts as upright.
+  static double tiltDegrees({
+    required double ax,
+    required double ay,
+    required double az,
+  }) {
+    final g = math.sqrt(ax * ax + ay * ay + az * az);
+    if (g < 1e-6) {
+      return 90;
+    }
+    return math.acos((az / g).clamp(-1.0, 1.0)) * _rad2deg;
+  }
+
+  /// Tilt beyond which [tiltCompensatedHeading] is no longer trusted: its
+  /// roll = atan2(−ax, az) swings wildly as az → 0 (phone upright) and
+  /// flips past vertical. [isTooTilted] clears only below [flatEnoughDeg]
+  /// (hysteresis) so the prompt doesn't flicker at the edge.
+  static const maxTiltDeg = 60.0;
+  static const flatEnoughDeg = 50.0;
+
+  /// Whether a phone at [tiltDeg] must be held flatter, given whether it
+  /// [wasTilted] on the previous sample.
+  static bool isTooTilted(double tiltDeg, {bool wasTilted = false}) =>
+      tiltDeg > (wasTilted ? flatEnoughDeg : maxTiltDeg);
+
   static const _windPoints = [
     'N', 'NNE', 'NE', 'ENE', //
     'E', 'ESE', 'SE', 'SSE',

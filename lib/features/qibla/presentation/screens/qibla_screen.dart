@@ -123,17 +123,26 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                       QSpace.s5,
                       0,
                     ),
-                    child: Visibility(
-                      visible: status == QiblaStatus.calibrating,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: QBanner(
-                        text: l10n.qiblaCalibrate,
-                        icon: Icons.all_inclusive,
-                        tone: q.warnSoft,
-                        foreground: q.warn,
-                      ),
+                    child: SignalBuilder(
+                      builder: (context) {
+                        final tilted = _store.tooTilted.value;
+                        return Visibility(
+                          visible: tilted || status == QiblaStatus.calibrating,
+                          maintainSize: true,
+                          maintainAnimation: true,
+                          maintainState: true,
+                          child: QBanner(
+                            text: tilted
+                                ? l10n.qiblaHoldFlat
+                                : l10n.qiblaCalibrate,
+                            icon: tilted
+                                ? Icons.screen_rotation
+                                : Icons.all_inclusive,
+                            tone: q.warnSoft,
+                            foreground: q.warn,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Expanded(

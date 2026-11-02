@@ -932,6 +932,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaCalibrate => 'কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান';
 
   @override
+  String get qiblaHoldFlat => 'ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে';
+
+  @override
   String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
 
   @override

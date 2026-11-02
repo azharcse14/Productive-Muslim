@@ -1616,6 +1616,12 @@ abstract class AppLocalizations {
   /// **'Move your phone in a figure-8 to calibrate the compass'**
   String get qiblaCalibrate;
 
+  /// No description provided for @qiblaHoldFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone flat, screen facing up'**
+  String get qiblaHoldFlat;
+
   /// No description provided for @qiblaSensorUnavailable.
   ///
   /// In en, this message translates to:

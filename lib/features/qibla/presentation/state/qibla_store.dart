@@ -42,6 +42,10 @@ final class QiblaStore {
   /// 25–75 µT, so a reading hovering at a limit doesn't flicker the banner.
   late final needsCalibration = signal(false);
 
+  /// Phone held too far from flat for a trustworthy heading (see
+  /// [CompassMath.maxTiltDeg]): the heading holds, nothing reads aligned.
+  late final tooTilted = signal(false);
+
   /// Fires [sensorFailed] if the stream never emits (some devices just
   /// stay silent instead of erroring).
   final Duration firstEventTimeout;
@@ -94,7 +98,7 @@ final class QiblaStore {
 
   /// Aligned within ±3°, and stays so until beyond ±5° (hysteresis), so
   /// sensor jitter at the edge doesn't re-fire the haptic / live region.
-  /// Never while calibrating: the heading can't be trusted then.
+  /// Never while calibrating or tilted: the heading can't be trusted then.
   late final aligned = signal(false);
 
   void _updateAligned() {
@@ -102,6 +106,7 @@ final class QiblaStore {
     final b = bearing.value;
     aligned.value =
         !needsCalibration.value &&
+        !tooTilted.value &&
         h != null &&
         b != null &&
         CompassMath.isAligned(h, b, toleranceDeg: aligned.value ? 5 : 3);
@@ -119,9 +124,14 @@ final class QiblaStore {
         needsCalibration.value = needsCalibration.value
             ? magnitude < 25 || magnitude > 75
             : magnitude < 20 || magnitude > 80;
-        if (magnitude < 1) {
+        tooTilted.value = CompassMath.isTooTilted(
+          CompassMath.tiltDegrees(ax: v.ax, ay: v.ay, az: v.az),
+          wasTilted: tooTilted.value,
+        );
+        if (magnitude < 1 || tooTilted.value) {
           // No field at all (iOS sends zeros while uncalibrated): atan2(0, 0)
-          // would read as north. Keep the last heading instead.
+          // would read as north. Tilted: roll is unstable. Either way keep
+          // the last heading.
           _updateAligned();
           return;
         }

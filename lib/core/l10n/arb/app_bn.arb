@@ -253,6 +253,7 @@
   "qiblaHeading": "{degrees}° {cardinal}",
   "qiblaDistance": "কাবা শরীফ {km} কিমি দূরে",
   "qiblaCalibrate": "কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান",
+  "qiblaHoldFlat": "ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে",
   "qiblaSensorUnavailable": "এই ডিভাইসে কম্পাস সেন্সর নেই",
   "qiblaVerbalBearing": "কিবলা উত্তর থেকে {degrees}° {cardinal} দিকে",
   "qiblaFinding": "দিক খোঁজা হচ্ছে…",

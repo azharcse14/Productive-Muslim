@@ -935,6 +935,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Move your phone in a figure-8 to calibrate the compass';
 
   @override
+  String get qiblaHoldFlat => 'Hold your phone flat, screen facing up';
+
+  @override
   String get qiblaSensorUnavailable =>
       'Compass sensor unavailable on this device';
 
