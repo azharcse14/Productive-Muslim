@@ -190,6 +190,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
               ..where((t) => t.date.equals(code)))
             .go();
       } else {
+        final archived =
+            await (_db.select(_db.trackerItems)
+                  ..where((t) => t.id.equals(entry.itemId) & t.archived))
+                .getSingleOrNull();
+        if (archived != null) {
+          return const Result.failure(ArchivedTrackerFailure());
+        }
         // Back-filling before the item's creation day means it existed
         // then: move created_on back so that day counts it.
         await _db.customStatement(

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/domain/repositories/prayer_day_repository.dart';
@@ -151,6 +152,69 @@ void main() {
       DateTime(2026, 6, 21, 21, 21),
       DateTime(2026, 6, 22, 0, 31),
     ));
+    store.dispose();
+  });
+
+  test("the overnight row's jamaat comes from the mosque active at its "
+      'start, not the one active now', () async {
+    final store = await at(
+      DateTime(2026, 6, 21, 1),
+      mosqueState: const MosqueState(
+        profiles: [
+          MosqueProfile(
+            id: 'a',
+            name: 'A',
+            entries: {Prayer.isha: OffsetJamaat(Duration(minutes: 10))},
+          ),
+          MosqueProfile(
+            id: 'b',
+            name: 'B',
+            entries: {Prayer.isha: OffsetJamaat(Duration(minutes: 40))},
+          ),
+        ],
+        mode: ScheduleMode.auto,
+        // A until 00:45 (covers isha's 00:30 start), B after.
+        rules: [
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(0, 0),
+            end: ClockTime(0, 45),
+          ),
+        ],
+        defaultId: 'b',
+      ),
+    );
+    expect(store.mosqueResolution.value.profile?.id, 'b');
+    expect(store.rowJamaat.value[Prayer.isha], DateTime(2026, 6, 21, 0, 40));
+    // The countdown agrees: A's 00:40 has passed, so it targets the waqt
+    // end, not B's 01:10.
+    expect(store.countdownTarget.value?.at, DateTime(2026, 6, 21, 2, 50));
+    store.dispose();
+  });
+
+  test('a jamaat at or past its waqt end is left off the row', () async {
+    final store = await at(
+      DateTime(2026, 6, 21, 12),
+      mosqueState: const MosqueState(
+        profiles: [
+          MosqueProfile(
+            id: 'a',
+            name: 'A',
+            entries: {
+              // Asr ends at Maghrib 21:21: a stale summer 22:00 is dropped.
+              Prayer.asr: FixedJamaat(ClockTime(22, 0)),
+              Prayer.maghrib: FixedJamaat(ClockTime(21, 30)),
+            },
+          ),
+        ],
+        activeId: 'a',
+      ),
+    );
+    expect(store.rowJamaat.value.containsKey(Prayer.asr), isFalse);
+    expect(
+      store.rowJamaat.value[Prayer.maghrib],
+      DateTime(2026, 6, 21, 21, 30),
+    );
     store.dispose();
   });
 }

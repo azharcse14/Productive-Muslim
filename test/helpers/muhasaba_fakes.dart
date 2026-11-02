@@ -80,6 +80,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
   @override
   Future<Result<List<DailyEntry>>> entriesOn(DateTime date) async {
+    if (failEntriesRead) {
+      return const Result.failure(UnexpectedFailure('read failed'));
+    }
     final k = _key(date);
     return Result.success([
       for (final entry in entries_.entries)
@@ -87,6 +90,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
           DailyEntry(itemId: entry.key.$1, date: date, value: entry.value),
     ]);
   }
+
+  /// When true, [entriesOn] fails.
+  bool failEntriesRead = false;
 
   /// When set, the next [setEntry] waits on it and fails if it yields false.
   Completer<bool>? gate;
@@ -98,6 +104,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
       if (!await g.future) {
         return const Result.failure(UnexpectedFailure('save failed'));
       }
+    }
+    if (entry.value > 0 && (items_[entry.itemId]?.archived ?? false)) {
+      return const Result.failure(ArchivedTrackerFailure());
     }
     final key = (entry.itemId, _key(entry.date));
     if (entry.value <= 0) {

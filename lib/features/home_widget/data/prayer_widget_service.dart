@@ -76,7 +76,7 @@ final class PrayerWidgetService {
           if (d == null) break; // Keep the days consecutive.
           days.add(d);
         }
-        locationLabel = formatLocationName(location, Locale(code), l10n);
+        locationLabel = formatLocationName(location, l10n);
       } else {
         now = DateTime.now();
       }

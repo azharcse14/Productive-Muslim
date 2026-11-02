@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/utils/result.dart';
 import '../../domain/entities/daily_entry.dart';
 import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
@@ -256,7 +257,7 @@ final class MuhasabaStore {
       if ((entriesOn(day)[itemId] ?? 0) == clamped) {
         _put(day, itemId, previous);
       }
-      saveFailures.value++;
+      _reportSaveFailure(saved);
       return;
     }
     if (debounceStats && _statsDebounce > Duration.zero) {
@@ -275,30 +276,37 @@ final class MuhasabaStore {
     if (day.isAfter(_today())) {
       return;
     }
-    // An archived tracker takes no new entries (or it would keep streaks
-    // and badges alive). Asks the repository: callers may run pre-[load].
-    final active = await _repository.items();
-    if (!(active.valueOrNull ?? const <TrackerItem>[]).any(
-      (i) => i.id == itemId,
-    )) {
-      return;
-    }
     final existing = await _repository.entriesOn(day);
-    if ((existing.valueOrNull ?? const <DailyEntry>[]).any(
-      (e) => e.itemId == itemId && e.value > 0,
-    )) {
+    if (!existing.isSuccess) {
+      // Unknown current value: writing 1 could lower a count (sadaqah 3).
+      saveFailures.value++;
       return;
     }
+    if (existing.valueOrNull!.any((e) => e.itemId == itemId && e.value > 0)) {
+      return;
+    }
+    // An archived tracker is refused by the repository (callers may run
+    // pre-[load], so the store's item list can't be trusted here).
     final saved = await _repository.setEntry(
       DailyEntry(itemId: itemId, date: day, value: 1),
     );
     if (!saved.isSuccess) {
+      _reportSaveFailure(saved);
       return;
     }
     if (_days.value.containsKey(day)) {
       _put(day, itemId, 1);
     }
     await refreshStats();
+  }
+
+  /// Bumps [saveFailures] unless the write was refused for an archived
+  /// tracker (a rule, not an error the user should hear about).
+  void _reportSaveFailure(Result<void> saved) {
+    if (saved case FailureResult(failure: ArchivedTrackerFailure())) {
+      return;
+    }
+    saveFailures.value++;
   }
 
   /// Home's prayer check: toggles [salahId] on [day] (today, or yesterday

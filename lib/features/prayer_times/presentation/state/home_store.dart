@@ -198,10 +198,22 @@ final class HomeStore {
     () => _fridayDhuhrConfig.value?.jumuah != null,
   );
 
-  /// Each prayer row's jamaat moment: the overnight row's from its own
-  /// (yesterday's) waqt start, Friday's Dhuhr from the mosque active at that
-  /// Dhuhr (so the time matches the [jumuahToday] label), the rest from the
-  /// mosque active now. Recomputes only when a dependency flips.
+  /// The overnight waqt's jamaat config: the mosque active at its
+  /// (yesterday's) start, as notifications resolve it. Null otherwise.
+  late final _overnightConfig = computed<JamaatConfig?>(() {
+    final o = overnightRange.value;
+    return o == null
+        ? null
+        : resolveActiveMosque(_mosque.state.value, o.start).profile?.config ??
+              JamaatConfig.none;
+  });
+
+  /// Each prayer row's jamaat moment. The overnight row's comes from the
+  /// mosque active at its (yesterday's) waqt start, as notifications resolve
+  /// it; Friday's Dhuhr from the mosque active at that Dhuhr (matching
+  /// [jumuahToday]); the rest from the mosque active now. A jamaat at or
+  /// past its waqt's end is stale (e.g. a summer time in winter) and left
+  /// out, as the countdown and notifications do.
   late final rowJamaat = computed<Map<Prayer, DateTime>>(() {
     final day = prayerDay.value;
     if (day == null) {
@@ -209,15 +221,20 @@ final class HomeStore {
     }
     final current = jamaatConfig.value;
     final friday = _fridayDhuhrConfig.value;
-    return {
-      for (final prayer in Prayer.values)
-        if ((prayer == Prayer.dhuhr ? friday ?? current : current).timeFor(
-              prayer,
-              waqtRangeOf(prayer)!.$1,
-            )
-            case final t?)
-          prayer: t,
-    };
+    final overnight = overnightWaqt.value;
+    final rows = <Prayer, DateTime>{};
+    for (final prayer in Prayer.values) {
+      final (start, end) = waqtRangeOf(prayer)!;
+      final config = prayer == overnight
+          ? _overnightConfig.value!
+          : prayer == Prayer.dhuhr
+          ? friday ?? current
+          : current;
+      if (config.timeFor(prayer, start) case final t? when t.isBefore(end)) {
+        rows[prayer] = t;
+      }
+    }
+    return rows;
   });
 
   /// Sets a temporary override to [mosqueId] (auto mode), baselined to the
@@ -250,7 +267,9 @@ final class HomeStore {
     return resolveCountdownTarget(
       now: now.value,
       day: day,
-      jamaat: jamaatConfig.value,
+      // Before Fajr the active waqt is the overnight one: its jamaat comes
+      // from the mosque active at its start, matching its row.
+      jamaat: _overnightConfig.value ?? jamaatConfig.value,
       ramadanMode: ramadanMode.value,
     );
   });
@@ -260,25 +279,30 @@ final class HomeStore {
     () => prayerDay.value?.activeWaqtAt(now.value),
   );
 
+  /// From iftar (= Maghrib) to midnight. One switch for [nextSahriEnd] and
+  /// [sahriFastDay], so the card's fast day and sahri time flip together.
+  late final _afterIftar = computed(() {
+    final day = prayerDay.value;
+    return day != null && !now.value.isBefore(day.iftar);
+  });
+
   /// Today's sahri end until iftar, then tonight's (before tomorrow's Fajr).
   late final nextSahriEnd = computed<DateTime?>(() {
     final day = prayerDay.value;
     if (day == null) {
       return null;
     }
-    return now.value.isBefore(day.iftar)
-        ? day.sahriEnd
-        : day.fajrTomorrow.subtract(day.sahriSafety);
+    return _afterIftar.value
+        ? day.fajrTomorrow.subtract(day.sahriSafety)
+        : day.sahriEnd;
   });
 
   /// The day whose fast the sahri/iftar card is about: today until iftar,
   /// then tomorrow — from iftar the card shows tonight's sahri, which
-  /// opens tomorrow's fast (same switch as [nextSahriEnd]; iftar = Maghrib).
+  /// opens tomorrow's fast.
   late final sahriFastDay = computed<DateTime>(() {
     final d = dateKey.value;
-    return hijriAfterMaghrib.value == null
-        ? d
-        : DateTime(d.year, d.month, d.day + 1);
+    return _afterIftar.value ? DateTime(d.year, d.month, d.day + 1) : d;
   });
 
   /// Whether [sahriFastDay] is in Ramadan (offset-aware): no "sahri ends
