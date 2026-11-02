@@ -111,6 +111,9 @@ final class PrayerWidgetService {
         instantOf: location == null
             ? null
             : (wall) => _clock.utcInstantOf(location, wall),
+        // A location whose times failed is still set up: native shows the
+        // "open the app" state, and the retry below tries again.
+        configured: location != null,
       );
 
       if (days.firstOrNull case final day?) {
@@ -130,6 +133,9 @@ final class PrayerWidgetService {
           wait + const Duration(seconds: 1),
           () => unawaited(update()),
         );
+      } else if (location != null) {
+        // Today's times failed: retry rather than freeze until next open.
+        _boundary = Timer(retryAfterFailure, () => unawaited(update()));
       }
 
       await _bridge.push(payload);

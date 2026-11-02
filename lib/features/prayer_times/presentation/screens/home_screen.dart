@@ -556,14 +556,17 @@ final class _HomeScreenState extends State<HomeScreen> {
               onTap: () => unawaited(
                 showDayTimelineSheet(
                   context,
-                  day: day,
-                  now: () => _store.now.value,
-                  formatTime: (t) => formatHomeTime(context, t),
-                  jumuah: jumuah,
-                  forbidden: [
-                    for (final w in _store.specialWindows.value)
-                      if (w.kind == SpecialKind.forbidden) w,
-                  ],
+                  sheet: () => DayTimelineSheet(
+                    day: _store.prayerDay.value ?? day,
+                    now: _store.now.value,
+                    formatTime: (t) => formatHomeTime(context, t),
+                    jumuah: _store.jumuahToday.value,
+                    ramadan: _store.ramadanMode.value,
+                    forbidden: [
+                      for (final w in _store.specialWindows.value)
+                        if (w.kind == SpecialKind.forbidden) w,
+                    ],
+                  ),
                 ),
               ),
               child: CountdownCard(

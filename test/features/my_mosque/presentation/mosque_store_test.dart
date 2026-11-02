@@ -27,11 +27,37 @@ void main() {
       expect(repo.saves, 0);
       expect(repo.stored.profiles, [profile]);
 
-      // Once storage reads again, the next change lands on the real data.
+      await store.addProfile('Shop');
+      expect(repo.saves, 0);
+      expect(store.state.value.profiles.map((p) => p.name), ['Work', 'Shop']);
+
+      // Once storage reads again, every queued change replays onto the real
+      // data with the new one — none of the in-memory edits are lost.
       repo.failLoad = false;
       await store.addProfile('Office');
       expect(repo.saves, 1);
-      expect(repo.stored.profiles.map((p) => p.name), ['Home', 'Office']);
+      expect(repo.stored.profiles.map((p) => p.name), [
+        'Home',
+        'Work',
+        'Shop',
+        'Office',
+      ]);
+      expect(store.state.value, repo.stored);
+    });
+
+    test('a retried load replays changes made while unreadable', () async {
+      const profile = MosqueProfile(id: 'a', name: 'Home');
+      final repo = InMemoryMosqueRepository(
+        const MosqueState(profiles: [profile], activeId: 'a'),
+      )..failLoad = true;
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      await store.load();
+      await store.addProfile('Work');
+
+      repo.failLoad = false;
+      await store.load();
+      expect(repo.stored.profiles.map((p) => p.name), ['Home', 'Work']);
+      expect(store.readFailed.value, isFalse);
     });
 
     test('a failed save rolls the change back and is counted', () async {

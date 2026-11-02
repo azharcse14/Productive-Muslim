@@ -35,12 +35,25 @@ final class MosqueStore {
   /// Exposed so the screen shows a retry instead of an empty "add" state.
   late final readFailed = signal(false);
 
+  /// Changes made while [readFailed]; replayed in order onto the stored
+  /// state by the first [load] that succeeds, so none are lost.
+  final _pending = <MosqueState Function(MosqueState)>[];
+
   Future<void> load() async {
     final result = await _get();
-    result.fold((value) {
+    final loaded = result.fold((value) => value, (_) => null);
+    if (loaded == null) {
+      readFailed.value = true;
+    } else {
       readFailed.value = false;
-      state.value = value;
-    }, (_) => readFailed.value = true);
+      final pending = [..._pending];
+      _pending.clear();
+      state.value = pending.fold(loaded, (s, change) => change(s));
+      if (pending.isNotEmpty && !(await _save(state.value)).isSuccess) {
+        // Kept in memory (not rolled back): it is the user's data.
+        saveFailures.value++;
+      }
+    }
     _idCounter = state.value.profiles.length;
   }
 
@@ -176,20 +189,22 @@ final class MosqueStore {
     ),
   );
 
-  /// Applies [change] and saves. A function, not a value, so a change made
-  /// while storage was unreadable replays onto the real state once it loads.
+  /// Applies [change] and saves. A function, not a value, so every change
+  /// made while storage was unreadable replays onto the real state once it
+  /// loads (see [load]).
   Future<void> _update(
     MosqueState Function(MosqueState) change, {
     bool rollback = true,
   }) async {
     if (readFailed.value) {
+      _pending.add(change);
       await load();
       if (readFailed.value) {
-        // ponytail: still unreadable — saving would overwrite the stored
-        // mosques with defaults, so the change is in memory only.
+        // Still unreadable — saving would overwrite the stored mosques with
+        // defaults, so the change is in memory (and queued) only.
         state.value = change(state.value);
-        return;
       }
+      return;
     }
     final previous = state.value;
     final next = change(previous);

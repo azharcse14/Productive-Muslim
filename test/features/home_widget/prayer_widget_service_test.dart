@@ -4,17 +4,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/home_widget/data/prayer_widget_service.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
+import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
+import 'package:productive_muslim/features/prayer_times/domain/repositories/prayer_day_repository.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
+import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 
 import '../../helpers/mosque_fakes.dart';
@@ -49,6 +53,54 @@ final class _BrokenClock implements ZonedClock {
   @override
   DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
       throw StateError('no tz');
+}
+
+/// Returns [day] for the requested date, or a failure when [fail].
+final class _FakeDays implements PrayerDayRepository {
+  _FakeDays(this.day, {this.fail = false});
+
+  final PrayerDay Function(DateTime date) day;
+  final bool fail;
+
+  @override
+  Result<PrayerDay> prayerDay({
+    required LocationConfig location,
+    required PrayerParams params,
+    required DateTime date,
+  }) => fail
+      ? const Result.failure(UnexpectedFailure('boom'))
+      : Result.success(day(date));
+}
+
+PrayerDay _dayOn(DateTime d, {DateTime? fajrTomorrow}) => PrayerDay(
+  ishaYesterday: DateTime(d.year, d.month, d.day - 1, 20),
+  fajr: DateTime(d.year, d.month, d.day, 4),
+  sunrise: DateTime(d.year, d.month, d.day, 5, 30),
+  dhuhr: DateTime(d.year, d.month, d.day, 12),
+  asr: DateTime(d.year, d.month, d.day, 15, 30),
+  maghrib: DateTime(d.year, d.month, d.day, 18),
+  isha: DateTime(d.year, d.month, d.day, 19, 30),
+  fajrTomorrow: fajrTomorrow ?? DateTime(d.year, d.month, d.day + 1, 4),
+);
+
+/// Runs [service].update() and returns the delays of the timers it armed.
+Future<List<Duration>> _armedTimers(
+  PrayerWidgetService service,
+  List<Timer> created,
+) async {
+  final delays = <Duration>[];
+  await runZoned(
+    service.update,
+    zoneSpecification: ZoneSpecification(
+      createTimer: (self, parent, zone, duration, f) {
+        final t = parent.createTimer(zone, duration, f);
+        created.add(t);
+        delays.add(duration);
+        return t;
+      },
+    ),
+  );
+  return delays;
 }
 
 const _dhaka = ManualCityLocation(
@@ -144,5 +196,86 @@ void main() {
 
     expect(logs.single, contains('Home widget update failed'));
     expect(timers.map((t) => t.$1), [PrayerWidgetService.retryAfterFailure]);
+  });
+
+  group('boundary timer', () {
+    late List<Timer> timers;
+    Map<Object?, Object?>? pushed;
+    const channel = MethodChannel('com.productivemuslim.app/widget');
+
+    setUp(() {
+      timers = [];
+      pushed = null;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            pushed = call.arguments as Map<Object?, Object?>;
+            return null;
+          });
+    });
+    tearDown(() {
+      for (final t in timers) {
+        t.cancel();
+      }
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+    });
+
+    Future<PrayerWidgetService> service(
+      DateTime now,
+      PrayerDayRepository repo,
+    ) async => PrayerWidgetService(
+      getPrayerDay: GetPrayerDay(repo),
+      clock: _FixedClock(now),
+      settings: await makeSettingsStore(const AppSettings(location: _dhaka)),
+    );
+
+    const slack = Duration(seconds: 1);
+
+    test(
+      'arms for the next prayer start when it comes before midnight',
+      () async {
+        final s = await service(DateTime(2026, 6, 11, 10), _FakeDays(_dayOn));
+        expect(await _armedTimers(s, timers), [
+          const Duration(hours: 2) + slack,
+        ]);
+      },
+    );
+
+    test("after Isha it arms for midnight, not tomorrow's Fajr", () async {
+      final s = await service(DateTime(2026, 6, 11, 21), _FakeDays(_dayOn));
+      expect(await _armedTimers(s, timers), [const Duration(hours: 3) + slack]);
+    });
+
+    test(
+      'a past next start falls back to midnight (no zero-delay loop)',
+      () async {
+        // Bogus data: tomorrow's Fajr already behind now.
+        final s = await service(
+          DateTime(2026, 6, 11, 23),
+          _FakeDays(
+            (d) =>
+                _dayOn(d, fajrTomorrow: DateTime(d.year, d.month, d.day, 22)),
+          ),
+        );
+        expect(await _armedTimers(s, timers), [
+          const Duration(hours: 1) + slack,
+        ]);
+      },
+    );
+
+    test(
+      "today's times failing keeps the widget configured and retries",
+      () async {
+        final s = await service(
+          DateTime(2026, 6, 11, 10),
+          _FakeDays(_dayOn, fail: true),
+        );
+        expect(await _armedTimers(s, timers), [
+          PrayerWidgetService.retryAfterFailure,
+        ]);
+        expect(pushed?['widget_configured'], '1');
+        expect(pushed?['widget_schedule'], '');
+      },
+    );
   });
 }

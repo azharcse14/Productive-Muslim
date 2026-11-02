@@ -7,7 +7,9 @@ import '../entities/prayer_day.dart';
 /// exhaustive tests. Rules:
 ///
 /// 1. Ramadan overrides:
-///    - before sahri end → "Sahri ends in" (Fajr minus the safety margin)
+///    - before sahri end → "Sahri ends in" (Fajr minus the safety margin);
+///      after today's Isha that is tomorrow's sahri end, unless an Isha
+///      jamaat is still ahead
 ///    - Asr start → Maghrib → "Iftar in" (targets Maghrib)
 /// 2. Between waqts (sunrise→dhuhr gap) → next waqt start.
 /// 3. Inside a waqt, jamaat configured for it, still in the future AND
@@ -58,6 +60,18 @@ CountdownTarget resolveCountdownTarget({
       prayer: active.prayer,
       at: jamaatAt,
       windowStart: active.start,
+    );
+  }
+
+  // Ramadan, after today's Isha (before midnight): the night's next
+  // milestone is tomorrow's sahri end, not the Isha waqt end at Fajr.
+  final sahriTomorrow = day.fajrTomorrow.subtract(day.sahriSafety);
+  if (ramadanMode && !now.isBefore(day.isha) && now.isBefore(sahriTomorrow)) {
+    return CountdownTarget(
+      kind: CountdownKind.sahriEnd,
+      prayer: Prayer.fajr,
+      at: sahriTomorrow,
+      windowStart: day.isha,
     );
   }
 
