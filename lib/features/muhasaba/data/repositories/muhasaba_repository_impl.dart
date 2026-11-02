@@ -25,11 +25,26 @@ int _dayCount(DateTime start, DateTime end) =>
     ).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
     1;
 
+/// SQL fragment: day `e.date` falls in a finished archive span of item
+/// `i` (archived, later restored).
+const _inArchiveSpan =
+    'EXISTS (SELECT 1 FROM tracker_archive_spans s WHERE s.item_id = i.id '
+    'AND e.date >= s.start_on AND e.date < s.end_on)';
+
 /// SQL fragment: whether item `i` counts toward day `e.date` — it existed
-/// (created on/before) and was not yet archived that day.
+/// (created on/before), was not yet archived that day, and the day isn't
+/// in one of its past archive spans. Mirrored in Dart by [_countsOn].
 const _existedOnEntryDay =
     '(i.created_on IS NULL OR e.date >= i.created_on) '
-    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on))';
+    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on)) '
+    'AND NOT $_inArchiveSpan';
+
+/// Dart twin of [_existedOnEntryDay] (plus the known-kind check).
+bool _countsOn(TrackerItemRow r, List<ArchiveSpanRow> spans, int code) =>
+    TrackerKind.fromCode(r.kind) != null &&
+    (r.createdOn == null || r.createdOn! <= code) &&
+    (!r.archived || (r.archivedOn != null && code < r.archivedOn!)) &&
+    !spans.any((s) => s.itemId == r.id && code >= s.startOn && code < s.endOn);
 
 /// SQL fragment: item `i` has a kind this build knows — unknown kinds are
 /// hidden from the UI, so they count toward no completion either.
@@ -130,27 +145,46 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   @override
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     try {
-      if (!archived) {
-        // Seeded dormant (archived without an archived-on day, i.e. a
-        // default added by an update): it starts counting today, not from
-        // the seed day.
-        await (_db.update(_db.trackerItems)..where(
-              (t) =>
-                  t.id.equals(id) &
-                  t.archived.equals(true) &
-                  t.archivedOn.isNull(),
-            ))
-            .write(TrackerItemsCompanion(createdOn: Value(_todayCode)));
-      }
-      // Flag update only — entries are never deleted (hard product rule).
-      await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id))).write(
-        TrackerItemsCompanion(
-          archived: Value(archived),
-          // ponytail: one archived-on day; archive→restore→archive keeps
-          // only the latest span. Store spans if that history matters.
-          archivedOn: Value(archived ? _todayCode : null),
-        ),
-      );
+      final today = _todayCode;
+      // Flag/span updates only — entries are never deleted (hard product
+      // rule). A no-op when the item is already in the requested state.
+      await _db.transaction(() async {
+        final row =
+            await (_db.select(
+                  _db.trackerItems,
+                )..where((t) => t.id.equals(id) & t.archived.equals(!archived)))
+                .getSingleOrNull();
+        if (row == null) {
+          return;
+        }
+        if (!archived) {
+          final start = row.archivedOn;
+          if (start == null) {
+            // Seeded dormant (a default added by an update, never
+            // counted): it starts counting today, not from the seed day.
+            await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id)))
+                .write(TrackerItemsCompanion(createdOn: Value(today)));
+          } else if (start < today) {
+            // The archived days stay out of history; the days before keep
+            // counting. A same-day undo leaves no span.
+            await _db.trackerArchiveSpans.insertOnConflictUpdate(
+              TrackerArchiveSpansCompanion.insert(
+                itemId: id,
+                startOn: start,
+                endOn: today,
+              ),
+            );
+          }
+        }
+        await (_db.update(
+          _db.trackerItems,
+        )..where((t) => t.id.equals(id))).write(
+          TrackerItemsCompanion(
+            archived: Value(archived),
+            archivedOn: Value(archived ? today : null),
+          ),
+        );
+      });
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to set archived', e));
@@ -184,18 +218,22 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   Future<Result<void>> setEntry(DailyEntry entry) async {
     try {
       final code = _encodeDate(entry.date);
-      if (entry.value <= 0) {
-        await (_db.delete(_db.dailyEntries)
-              ..where((t) => t.itemId.equals(entry.itemId))
-              ..where((t) => t.date.equals(code)))
-            .go();
-      } else {
+      // One transaction: drift runs transactions one at a time in call
+      // order, so a quick on→off can't land its delete before the upsert.
+      final archived = await _db.transaction(() async {
+        if (entry.value <= 0) {
+          await (_db.delete(_db.dailyEntries)
+                ..where((t) => t.itemId.equals(entry.itemId))
+                ..where((t) => t.date.equals(code)))
+              .go();
+          return false;
+        }
         final archived =
             await (_db.select(_db.trackerItems)
                   ..where((t) => t.id.equals(entry.itemId) & t.archived))
                 .getSingleOrNull();
         if (archived != null) {
-          return const Result.failure(ArchivedTrackerFailure());
+          return true;
         }
         // Back-filling before the item's creation day means it existed
         // then: move created_on back so that day counts it.
@@ -211,6 +249,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
             value: entry.value,
           ),
         );
+        return false;
+      });
+      if (archived) {
+        return const Result.failure(ArchivedTrackerFailure());
       }
       return const Result.success(null);
     } on Object catch (e) {
@@ -229,19 +271,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final endCode = _encodeDate(end);
       final periodDays = _dayCount(start, end);
 
-      // Items that count on a given day (existed, not yet archived).
-      final spans = await _db.select(_db.trackerItems).get();
+      // Items that count on a given day (existed, not archived that day).
+      final rows = await _db.select(_db.trackerItems).get();
+      final spans = await _db.select(_db.trackerArchiveSpans).get();
       int countOn(DateTime day) {
         final code = _encodeDate(day);
-        return spans
-            .where(
-              (r) =>
-                  TrackerKind.fromCode(r.kind) != null &&
-                  (r.createdOn == null || r.createdOn! <= code) &&
-                  (!r.archived ||
-                      (r.archivedOn != null && code < r.archivedOn!)),
-            )
-            .length;
+        return rows.where((r) => _countsOn(r, spans, code)).length;
       }
 
       // a) Day completions: SQL fraction sums, calendar filled in Dart.
@@ -278,7 +313,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           : null;
 
       // b) Per-item aggregates over the range.
-      final itemStats = await _itemStats(start, end, periodDays);
+      final itemStats = await _itemStats(start, end, periodDays, spans);
 
       // c) Streaks: SQL day-has-done-item flags, walked in Dart. The scan
       // covers the whole history (one row per active day), so the best
@@ -404,7 +439,11 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'AND e.date BETWEEN ? AND ? '
           'GROUP BY e.date',
           variables: [Variable<int>(from), Variable<int>(to)],
-          readsFrom: {_db.dailyEntries, _db.trackerItems},
+          readsFrom: {
+            _db.dailyEntries,
+            _db.trackerItems,
+            _db.trackerArchiveSpans,
+          },
         )
         .get();
     return {
@@ -431,11 +470,13 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   }
 
   /// Per non-archived item: done-day count and value sum over the range;
-  /// the bar's denominator is the days the item existed within it.
+  /// the bar's denominator is the days the item counted within it (from
+  /// its creation, minus past archive spans).
   Future<List<ItemPeriodStats>> _itemStats(
     DateTime start,
     DateTime end,
     int periodDays,
+    List<ArchiveSpanRow> spans,
   ) async {
     final from = _encodeDate(start);
     final to = _encodeDate(end);
@@ -448,10 +489,15 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'FROM tracker_items i '
           'LEFT JOIN daily_entries e '
           'ON e.item_id = i.id AND e.date BETWEEN ? AND ? '
+          'AND NOT $_inArchiveSpan '
           'WHERE i.archived = 0 '
           'GROUP BY i.id ORDER BY i.sort_order',
           variables: [Variable<int>(from), Variable<int>(to)],
-          readsFrom: {_db.dailyEntries, _db.trackerItems},
+          readsFrom: {
+            _db.dailyEntries,
+            _db.trackerItems,
+            _db.trackerArchiveSpans,
+          },
         )
         .get();
     final stats = <ItemPeriodStats>[];
@@ -460,15 +506,27 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       if (kind == null) continue; // Unknown kind: hidden, like in items().
       final daysDone = row.read<int>('days_done');
       final isYesNo = kind == TrackerKind.yesNo;
+      final itemId = row.read<String>('item_id');
       final createdOn = row.readNullable<int>('created_on');
-      final existedDays = createdOn == null || createdOn <= from
-          ? periodDays
-          : createdOn > to
+      final firstDay = createdOn == null || createdOn <= from
+          ? start
+          : _decodeDate(createdOn);
+      var existedDays = createdOn != null && createdOn > to
           ? 0
-          : _dayCount(_decodeDate(createdOn), end);
+          : _dayCount(firstDay, end);
+      for (final s in spans) {
+        if (s.itemId != itemId || existedDays == 0) continue;
+        // Overlap of [start_on, end_on) with [firstDay, end].
+        final lo = _decodeDate(s.startOn);
+        final hi = _decodeDate(s.endOn);
+        final a = lo.isAfter(firstDay) ? lo : firstDay;
+        final b = DateTime(hi.year, hi.month, hi.day - 1);
+        final z = b.isBefore(end) ? b : end;
+        if (!a.isAfter(z)) existedDays -= _dayCount(a, z);
+      }
       stats.add(
         ItemPeriodStats(
-          itemId: row.read<String>('item_id'),
+          itemId: itemId,
           daysDone: daysDone,
           periodDays: existedDays,
           // yesNo totals are done-day counts, not raw value sums.

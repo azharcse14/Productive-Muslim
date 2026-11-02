@@ -368,9 +368,10 @@ void main() {
       },
     );
 
-    test('a tick made while its day is loading survives the load', () async {
+    test('a tick made while its day is re-read survives the read', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
-      // The read starts before the write, so it doesn't see it.
+      await store.selectDate(DateTime(2026, 6, 10));
+      // The re-read starts before the write, so it doesn't see it.
       final loading = store.selectDate(DateTime(2026, 6, 10));
       final saving = store.setValue('quran', 5);
       await loading;
@@ -403,6 +404,75 @@ void main() {
         expect(azkarDone(), 1);
       },
     );
+
+    test('a day whose read failed takes no blind writes', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      repo.entries_[('quran', 20260610)] = 50;
+      repo.failEntriesRead = true;
+      await store.selectDate(DateTime(2026, 6, 10));
+      final failures = store.saveFailures.value;
+      // The stepper's +1 from the 0 it shows must not overwrite 50.
+      await store.setValue('quran', store.valueOf('quran') + 1);
+      expect(repo.entries_[('quran', 20260610)], 50);
+      expect(store.saveFailures.value, failures + 1);
+      // Once reads work again, the refused tap re-reads the day.
+      repo.failEntriesRead = false;
+      await store.setValue('quran', store.valueOf('quran') + 1);
+      expect(repo.entries_[('quran', 20260610)], 50);
+      expect(store.valueOf('quran'), 50);
+      await store.setValue('quran', store.valueOf('quran') + 1);
+      expect(repo.entries_[('quran', 20260610)], 51);
+    });
+
+    test('a tap on a day not read yet reads it, then saves', () async {
+      var clock = DateTime(2026, 6, 12, 23, 50);
+      final (store, repo) = await makeMuhasabaStore(now: () => clock);
+      // Just after midnight, before any roll-over read the new today.
+      clock = DateTime(2026, 6, 13, 0, 5);
+      final failures = store.saveFailures.value;
+      await store.setValueOn('water', DateTime(2026, 6, 13), 2);
+      expect(repo.entries_[('water', 20260613)], 2);
+      expect(store.entriesOn(DateTime(2026, 6, 13))['water'], 2);
+      expect(store.saveFailures.value, failures);
+    });
+
+    test('overlapping loads share one run', () async {
+      final repo = InMemoryMuhasabaRepository();
+      final store = MuhasabaStore(repo, now: _fixedNow);
+      addTearDown(store.dispose);
+      await Future.wait([store.load(), store.load()]);
+      expect(repo.allItemsCalls, 1);
+      expect(store.loaded.value, isTrue);
+    });
+
+    test('a failed load is not "loaded" and retries on resume', () async {
+      final repo = InMemoryMuhasabaRepository()..failItemReads = true;
+      final store = MuhasabaStore(repo, now: _fixedNow);
+      addTearDown(store.dispose);
+      await store.load();
+      expect(store.loaded.value, isFalse);
+      repo.failItemReads = false;
+      await store.rollOverIfNewDay();
+      expect(store.loaded.value, isTrue);
+      expect(store.items.value, isNotEmpty);
+    });
+
+    test('failed stats and day reads retry on resume', () async {
+      final repo = InMemoryMuhasabaRepository()
+        ..failStats = true
+        ..failEntriesRead = true;
+      repo.entries_[('quran', 20260612)] = 5;
+      final store = MuhasabaStore(repo, now: _fixedNow);
+      addTearDown(store.dispose);
+      await store.load();
+      expect(store.stats.value, isNull);
+      repo
+        ..failStats = false
+        ..failEntriesRead = false;
+      await store.rollOverIfNewDay(); // same day: retries only
+      expect(store.stats.value, isNotNull);
+      expect(store.valueOf('quran'), 5);
+    });
 
     test('a failed save bumps saveFailures (the screen toasts it)', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);

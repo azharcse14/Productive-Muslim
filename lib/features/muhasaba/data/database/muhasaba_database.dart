@@ -46,8 +46,25 @@ class DailyEntries extends Table {
   Set<Column<Object>> get primaryKey => {itemId, date};
 }
 
+/// A finished archive span: the item didn't count on days
+/// [startOn, endOn) (archived, then restored). The open span of an item
+/// archived now is `TrackerItems.archivedOn`.
+@DataClassName('ArchiveSpanRow')
+class TrackerArchiveSpans extends Table {
+  TextColumn get itemId => text().references(TrackerItems, #id)();
+
+  /// yyyymmdd of the archive day (first day not counted).
+  IntColumn get startOn => integer()();
+
+  /// yyyymmdd of the restore day (counts again from this day).
+  IntColumn get endOn => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {itemId, startOn};
+}
+
 /// Drift/SQLite database backing the Muhasaba feature.
-@DriftDatabase(tables: [TrackerItems, DailyEntries])
+@DriftDatabase(tables: [TrackerItems, DailyEntries, TrackerArchiveSpans])
 final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// Takes a [QueryExecutor] so tests can inject `NativeDatabase.memory()`.
   MuhasabaDatabase(super.executor);
@@ -61,7 +78,7 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// `dart run drift_dev schema dump lib/features/muhasaba/data/database/muhasaba_database.dart drift_schemas/muhasaba/`
   /// `dart run drift_dev schema generate drift_schemas/muhasaba/ test/features/muhasaba/data/generated/`
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -89,6 +106,11 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
           'UPDATE tracker_items SET archived_on = ? WHERE archived = 1',
           [today],
         );
+      }
+      if (from < 3) {
+        // Nothing to backfill: past restores weren't recorded, and an
+        // item archived now keeps archived_on as its open span's start.
+        await m.createTable(trackerArchiveSpans);
       }
     },
   );

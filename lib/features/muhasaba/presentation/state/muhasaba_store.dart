@@ -67,6 +67,9 @@ final class MuhasabaStore {
   /// ticks whatever date the Muhasaba tab is back-filling.
   late final _days = signal(const <DateTime, Map<String, int>>{});
 
+  /// Days whose last read failed (their values are unknown).
+  final _failedDays = <DateTime>{};
+
   /// itemId → value for [selectedDate].
   late final entries = computed(
     () => _days.value[selectedDate.value] ?? const <String, int>{},
@@ -107,30 +110,54 @@ final class MuhasabaStore {
     return DateTime(n.year, n.month, n.day);
   }
 
-  Future<void> load() async {
+  /// The running [load], shared by overlapping callers (start-up, resume).
+  Future<void>? _loading;
+
+  Future<void> load() => _loading ??= _load().whenComplete(() {
+    _loading = null;
+  });
+
+  Future<void> _load() async {
     if (await _prefs?.getBool(_welcomeKey) ?? false) {
       welcomeDismissed.value = true;
     }
-    await _repository.seedDefaults();
-    await _reloadItems();
+    // App-scoped store outlives midnight: re-check the day on every resume
+    // (which also retries a failed load or read).
+    _lifecycle ??= AppLifecycleListener(
+      onResume: () => unawaited(rollOverIfNewDay()),
+    );
+    // Without the tracker list there is nothing to show: [loaded] stays
+    // false (screens keep their skeletons) until a resume retries.
+    final seeded = (await _repository.seedDefaults()).isSuccess;
+    if (!seeded || !await _reloadItems()) {
+      return;
+    }
     _day = _today();
     await selectDate(_day!);
     await _loadYesterday();
     await refreshStats();
     loaded.value = true;
-    // App-scoped store outlives midnight: re-check the day on every resume.
-    _lifecycle ??= AppLifecycleListener(
-      onResume: () => unawaited(rollOverIfNewDay()),
-    );
   }
 
   /// Follows the calendar after midnight: if [selectedDate] was "today" it
   /// moves to the new today (a back-filled past date stays put), and the
-  /// dashboard/streak are recomputed. No-op on the same day.
+  /// dashboard/streak are recomputed. On the same day it only retries what
+  /// failed to load earlier.
   Future<void> rollOverIfNewDay() async {
+    if (!loaded.value) {
+      return load();
+    }
     final previous = _day;
     final today = _today();
-    if (previous == null || previous == today) {
+    if (previous == today) {
+      for (final day in {selectedDate.value, today}) {
+        if (!_days.value.containsKey(day)) {
+          await _loadDay(day);
+        }
+      }
+      if (stats.value == null) {
+        await refreshStats();
+      }
       return;
     }
     _day = today;
@@ -149,13 +176,20 @@ final class MuhasabaStore {
     return _loadDay(DateTime(t.year, t.month, t.day - 1));
   }
 
+  /// Reads [day] into the cache. A failed read leaves the day as it was —
+  /// never cached as empty: its values are unknown, and [_setOn] refuses
+  /// writes to such a day (a stepper's +1 from a fake 0 would overwrite
+  /// the stored value).
   Future<void> _loadDay(DateTime day) async {
     final before = _days.value[day];
     final result = await _repository.entriesOn(day);
-    final fresh = {
-      for (final e in result.valueOrNull ?? const <DailyEntry>[])
-        e.itemId: e.value,
-    };
+    final list = result.valueOrNull;
+    if (list == null) {
+      _failedDays.add(day);
+      return;
+    }
+    _failedDays.remove(day);
+    final fresh = {for (final e in list) e.itemId: e.value};
     // A _put landed mid-read (the read may predate its write): keep the
     // keys it changed rather than the possibly stale DB values.
     final current = _days.value[day];
@@ -184,9 +218,13 @@ final class MuhasabaStore {
     _days.value = {..._days.value, day: map};
   }
 
-  Future<void> _reloadItems() async {
+  /// False (lists untouched) when the read failed.
+  Future<bool> _reloadItems() async {
     final all = await _repository.items(includeArchived: true);
-    final list = all.valueOrNull ?? const <TrackerItem>[];
+    final list = all.valueOrNull;
+    if (list == null) {
+      return false;
+    }
     items.value = [
       for (final i in list)
         if (!i.archived) i,
@@ -195,6 +233,7 @@ final class MuhasabaStore {
       for (final i in list)
         if (i.archived) i,
     ];
+    return true;
   }
 
   bool get selectedIsToday => selectedDate.value == _today();
@@ -225,9 +264,6 @@ final class MuhasabaStore {
     if (d.isAfter(_today())) {
       return;
     }
-    if (!_days.value.containsKey(d)) {
-      await _loadDay(d);
-    }
     await _setOn(itemId, d, value, debounceStats: true);
   }
 
@@ -244,6 +280,18 @@ final class MuhasabaStore {
         DefaultTrackers.salahIds.contains(itemId) &&
         (_lockedSalahOn?.call(day) ?? const <String>{}).contains(itemId)) {
       return;
+    }
+    // A day not read yet (e.g. a fresh today just after midnight) is read
+    // first. One whose read failed showed values that aren't real, so
+    // [value] may be built on a fake 0: don't write it, re-read so the
+    // retry starts from the stored value.
+    if (!_days.value.containsKey(day)) {
+      final readFailed = _failedDays.contains(day);
+      await _loadDay(day);
+      if (readFailed || !_days.value.containsKey(day)) {
+        saveFailures.value++;
+        return;
+      }
     }
     final clamped = value < 0 ? 0 : value;
     final previous = entriesOn(day)[itemId] ?? 0;

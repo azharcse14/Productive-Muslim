@@ -16,10 +16,21 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   final entries_ = <(String, int), int>{};
   int seeds = 0;
 
+  /// When true, seedDefaults and items fail (as a locked DB would).
+  bool failItemReads = false;
+
+  /// When true, [periodStats] fails.
+  bool failStats = false;
+
+  static const _readFailed = UnexpectedFailure('read failed');
+
   static int _key(DateTime d) => d.year * 10000 + d.month * 100 + d.day;
 
   @override
   Future<Result<void>> seedDefaults() async {
+    if (failItemReads) {
+      return const Result.failure(_readFailed);
+    }
     final upgrade = items_.isNotEmpty;
     if (!upgrade) {
       seeds++;
@@ -37,6 +48,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   Future<Result<List<TrackerItem>>> items({
     bool includeArchived = false,
   }) async {
+    if (failItemReads) {
+      return const Result.failure(_readFailed);
+    }
     if (includeArchived) allItemsCalls++;
     final list =
         items_.values.where((i) => includeArchived || !i.archived).toList()
@@ -134,6 +148,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     if (statsGate case final g?) {
       statsGate = null;
       await g.future;
+    }
+    if (failStats) {
+      return const Result.failure(_readFailed);
     }
     final active = items_.values.where((i) => !i.archived).toList();
     final days = <DayCompletion>[];

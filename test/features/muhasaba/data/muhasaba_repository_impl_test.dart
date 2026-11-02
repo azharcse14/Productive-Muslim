@@ -132,17 +132,24 @@ void main() {
       await unwrap(repo.seedDefaults()); // Dec 31: health arrives archived
       final health = DefaultTrackers.healthIds.first;
       final first = DefaultTrackers.items().first.id;
+      final second = DefaultTrackers.items()[1].id;
+      await unwrap(repo.upsertItem(DefaultTrackers.items()[1]));
       await unwrap(repo.setArchived(first, archived: true));
 
       now = DateTime(2026, 6, 10);
       await unwrap(repo.setArchived(health, archived: false));
       await unwrap(repo.setArchived(first, archived: false));
+      // Archived and restored the same day (an undo): keeps its start.
+      await unwrap(repo.setArchived(second, archived: true));
+      await unwrap(repo.setArchived(second, archived: false));
       Future<int?> createdOn(String id) async => (await (db.select(
         db.trackerItems,
       )..where((t) => t.id.equals(id))).getSingle()).createdOn;
       expect(await createdOn(health), 20260610);
-      // One the user archived keeps its original start.
-      expect(await createdOn(first), isNot(20260610));
+      // One the user archived keeps its original start (the archived
+      // days become a span instead).
+      expect(await createdOn(first), 20251231);
+      expect(await createdOn(second), 20251231);
     });
   });
 
@@ -215,6 +222,95 @@ void main() {
       entries = await unwrap(repo.entriesOn(date));
       expect(entries.single.value, 1);
     });
+
+    test('restoring keeps the archived span out of past days', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
+      // Jun 10: a archived; Jun 11 only b, done (100%); Jun 12 a restored.
+      now = DateTime(2026, 6, 10);
+      await unwrap(repo.setArchived('a', archived: true));
+      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 11), 1)));
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.setArchived('a', archived: false));
+      final stats = await unwrap(
+        repo.periodStats(
+          start: DateTime(2026, 6, 11),
+          end: DateTime(2026, 6, 12),
+          today: DateTime(2026, 6, 12),
+        ),
+      );
+      expect(stats.days.first.completion, 1);
+    });
+
+    test('a long history survives a 1-day archive', () async {
+      now = DateTime(2025, 8);
+      await unwrap(repo.upsertItem(_item('quran', sortOrder: 0)));
+      // 300 days logged: Aug 1 2025 .. May 27 2026.
+      for (var i = 0; i < 300; i++) {
+        await unwrap(
+          repo.setEntry(_entry('quran', DateTime(2025, 8, 1 + i), 1)),
+        );
+      }
+      now = DateTime(2026, 6, 10);
+      await unwrap(repo.setArchived('quran', archived: true));
+      now = DateTime(2026, 6, 11);
+      await unwrap(repo.setArchived('quran', archived: false));
+      final year = await unwrap(
+        repo.periodStats(
+          start: DateTime(2025, 8),
+          end: DateTime(2026, 5, 27),
+          today: DateTime(2026, 6, 11),
+        ),
+      );
+      expect(year.days.every((d) => d.completion == 1), isTrue);
+      expect(year.completion, 1);
+      expect(year.items.single.daysDone, 300);
+      expect(year.items.single.periodDays, 300);
+      // Jun 10 (archived) isn't counted at 0; the per-item bar leaves it
+      // out of its denominator too.
+      final week = await unwrap(
+        repo.periodStats(
+          start: DateTime(2026, 6, 10),
+          end: DateTime(2026, 6, 11),
+          today: DateTime(2026, 6, 11),
+        ),
+      );
+      expect(week.items.single.periodDays, 1);
+    });
+
+    test('archive/restore twice records two spans', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
+      Future<void> archiveOn(int day, {required bool archived}) {
+        now = DateTime(2026, 6, day);
+        return unwrap(repo.setArchived('a', archived: archived));
+      }
+
+      await archiveOn(2, archived: true);
+      await archiveOn(4, archived: false);
+      await archiveOn(6, archived: true);
+      await archiveOn(7, archived: false);
+      final spans = await db.select(db.trackerArchiveSpans).get();
+      expect([
+        for (final s in spans) (s.startOn, s.endOn),
+      ], unorderedEquals([(20260602, 20260604), (20260606, 20260607)]));
+      for (final d in [1, 2, 3, 4, 5, 6, 7]) {
+        await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, d), 1)));
+      }
+      final stats = await unwrap(
+        repo.periodStats(
+          start: DateTime(2026, 6),
+          end: DateTime(2026, 6, 7),
+          today: DateTime(2026, 6, 7),
+        ),
+      );
+      // b done every day; a (nothing logged) counts only outside spans.
+      expect(
+        [for (final d in stats.days) d.completion],
+        [0.5, 1, 1, 0.5, 0.5, 1, 0.5],
+      );
+      expect(stats.items.firstWhere((i) => i.itemId == 'a').periodDays, 4);
+    });
   });
 
   group('setEntry / entriesOn', () {
@@ -254,6 +350,17 @@ void main() {
       await unwrap(repo.setEntry(_entry('a', date, 0)));
       entries = await unwrap(repo.entriesOn(date));
       expect(entries, isEmpty);
+    });
+
+    test('a quick on→off lands in call order (off wins)', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      final date = DateTime(2026, 6, 12);
+      // Not awaited in between, as two fast taps from the store.
+      final on = repo.setEntry(_entry('a', date, 1));
+      final off = repo.setEntry(_entry('a', date, 0));
+      await unwrap(on);
+      await unwrap(off);
+      expect(await unwrap(repo.entriesOn(date)), isEmpty);
     });
 
     test('entriesOn isolates dates', () async {
