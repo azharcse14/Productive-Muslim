@@ -35,9 +35,9 @@ void main() {
   }
 
   test('English credits name every bundled source', () {
-    final arb = jsonDecode(
-      File(files.first).readAsStringSync(),
-    ) as Map<String, dynamic>;
+    final arb =
+        jsonDecode(File(files.first).readAsStringSync())
+            as Map<String, dynamic>;
     // Source names are proper nouns written in the credits screen itself.
     final credits =
         '${arb['creditsQuranText']} '
@@ -52,6 +52,32 @@ void main() {
       'GeoNames',
     ]) {
       expect(credits, contains(name));
+    }
+  });
+
+  test(
+    'credits claim no license for Pickthall and no hardcoded qualifiers',
+    () {
+      final screen = File(
+        'lib/features/settings/presentation/screens/credits_screen.dart',
+      ).readAsStringSync();
+      expect(screen, isNot(contains('public domain')));
+      expect(screen, isNot(contains('(Unlicense)')));
+    },
+  );
+
+  test('both ARBs credit the bundled Asmaul Husna and Tibb an-Nabawi', () {
+    for (final path in files) {
+      final arb =
+          jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
+      for (final key in [
+        'creditsAsmaulHusnaSource',
+        'creditsTibbNabawiSource',
+        'creditsBnHadithNawawiMalik',
+        'creditsUnlicense',
+      ]) {
+        expect(arb[key], isA<String>(), reason: '$path $key');
+      }
     }
   });
 }

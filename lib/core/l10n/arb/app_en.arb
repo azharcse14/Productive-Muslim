@@ -1593,5 +1593,31 @@
   "creditsGroupFonts": "Fonts",
   "creditsFontsUi": "Interface",
   "creditsFontQuran": "Quran script",
-  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item."
+  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item.",
+  "creditsUnlicense": "{source} (Unlicense, public-domain dedication)",
+  "@creditsUnlicense": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsBnHadithSixBooks": "Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah: {source}",
+  "@creditsBnHadithSixBooks": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsBnHadithNawawiMalik": "40 Hadith Nawawi, Muwatta Malik: {source}",
+  "@creditsBnHadithNawawiMalik": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsAsmaulHusnaSource": "Compiled for this app; source of the meanings not recorded",
+  "creditsTibbNabawiSource": "Compiled for this app from Bukhari, Muslim, the Sunan and Qur'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app"
 }

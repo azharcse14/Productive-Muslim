@@ -3455,4 +3455,27 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsReferences =>
       'দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।';
+
+  @override
+  String creditsUnlicense(String source) {
+    return '$source (Unlicense, পাবলিক ডোমেইনে উৎসর্গিত)';
+  }
+
+  @override
+  String creditsBnHadithSixBooks(String source) {
+    return 'সহিহ বুখারি, সহিহ মুসলিম, সুনানে আবু দাউদ, জামে তিরমিজি, সুনানে নাসায়ি, সুনানে ইবনে মাজাহ: $source';
+  }
+
+  @override
+  String creditsBnHadithNawawiMalik(String source) {
+    return '৪০ হাদিস নববি, মুয়াত্তা মালিক: $source';
+  }
+
+  @override
+  String get creditsAsmaulHusnaSource =>
+      'এই অ্যাপের জন্য সংকলিত; অর্থগুলোর সূত্র লিপিবদ্ধ নেই';
+
+  @override
+  String get creditsTibbNabawiSource =>
+      'এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা';
 }

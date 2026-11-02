@@ -5197,6 +5197,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duas, ruqyah and the hadith of the day cite their source on each item.'**
   String get creditsReferences;
+
+  /// No description provided for @creditsUnlicense.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} (Unlicense, public-domain dedication)'**
+  String creditsUnlicense(String source);
+
+  /// No description provided for @creditsBnHadithSixBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah: {source}'**
+  String creditsBnHadithSixBooks(String source);
+
+  /// No description provided for @creditsBnHadithNawawiMalik.
+  ///
+  /// In en, this message translates to:
+  /// **'40 Hadith Nawawi, Muwatta Malik: {source}'**
+  String creditsBnHadithNawawiMalik(String source);
+
+  /// No description provided for @creditsAsmaulHusnaSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiled for this app; source of the meanings not recorded'**
+  String get creditsAsmaulHusnaSource;
+
+  /// No description provided for @creditsTibbNabawiSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app'**
+  String get creditsTibbNabawiSource;
 }
 
 class _AppLocalizationsDelegate

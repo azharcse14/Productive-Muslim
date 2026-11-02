@@ -3472,4 +3472,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditsReferences =>
       'Duas, ruqyah and the hadith of the day cite their source on each item.';
+
+  @override
+  String creditsUnlicense(String source) {
+    return '$source (Unlicense, public-domain dedication)';
+  }
+
+  @override
+  String creditsBnHadithSixBooks(String source) {
+    return 'Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah: $source';
+  }
+
+  @override
+  String creditsBnHadithNawawiMalik(String source) {
+    return '40 Hadith Nawawi, Muwatta Malik: $source';
+  }
+
+  @override
+  String get creditsAsmaulHusnaSource =>
+      'Compiled for this app; source of the meanings not recorded';
+
+  @override
+  String get creditsTibbNabawiSource =>
+      'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app';
 }
