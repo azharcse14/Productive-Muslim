@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart'
@@ -24,20 +25,45 @@ final class AppLockStore {
     this._biometric, {
     DateTime Function()? now,
     Duration Function()? elapsed,
+    BootClock? bootClock,
   }) : _now = now ?? DateTime.now,
-       _elapsed = elapsed ?? (now == null ? _stopwatch() : _since(now));
+       _injectedElapsed = elapsed ?? (now == null ? null : _since(now)),
+       _bootClock = bootClock;
 
   final AppLockStorage _source;
   final BiometricAuth _biometric;
   final DateTime Function() _now;
+  final Duration Function()? _injectedElapsed;
+  final BootClock? _bootClock;
 
-  /// Monotonic time since construction — immune to wall-clock changes.
-  /// Tests that inject only [now] get it derived from that clock.
-  final Duration Function() _elapsed;
+  /// Last [BootClock] reading, advanced in-process by [_sinceBootBase]
+  /// between readings (that stopwatch pauses in deep sleep, so it can only
+  /// lag the boot clock — stricter, never looser; [_syncBootClock] catches
+  /// it up on resume and before each PIN check).
+  Duration _bootBase = Duration.zero;
+  final _sinceBootBase = Stopwatch()..start();
 
-  static Duration Function() _stopwatch() {
-    final watch = Stopwatch()..start();
-    return () => watch.elapsed;
+  /// Monotonic time since boot — immune to wall-clock changes. Tests inject
+  /// it ([elapsed]); those that inject only [now] get it from that clock.
+  Duration _elapsed() =>
+      _injectedElapsed?.call() ?? _bootBase + _sinceBootBase.elapsed;
+
+  Future<void> _syncBootClock() async {
+    final clock = _bootClock;
+    if (clock == null) {
+      return;
+    }
+    try {
+      final boot = await clock.sinceBoot();
+      if (boot > _elapsed()) {
+        _bootBase = boot;
+        _sinceBootBase.reset();
+      }
+    } on Object catch (e) {
+      // Stopwatch only: lags across sleep, and a restart reads as a
+      // reboot (full remainder) — stricter, so just logged.
+      debugPrint('app lock: boot clock unavailable: $e');
+    }
   }
 
   static Duration Function() _since(DateTime Function() now) {
@@ -73,14 +99,10 @@ final class AppLockStore {
 
   var _failedAttempts = 0;
 
-  /// Current cooldown: its length and start on both clocks. Time served is
-  /// the larger of the two — the monotonic clock pauses while the device
-  /// sleeps, and a clock set backwards must not stretch the wait.
-  /// ponytail: a clock set forward skips the current wait (as killing the
-  /// app does); escalation still holds. Boot-time clock if that matters.
+  /// Current cooldown: its length and start on the boot clock only, so
+  /// moving the wall clock either way neither skips nor stretches it.
   Duration? _cooldownSpan;
   Duration _cooldownStartMono = Duration.zero;
-  DateTime? _cooldownStartWall;
   DateTime? _backgroundedAt;
   Duration _backgroundedAtMono = Duration.zero;
   AppLifecycleListener? _lifecycle;
@@ -111,30 +133,35 @@ final class AppLockStore {
   /// Time left on the PIN cooldown, or null when entry is allowed.
   Duration? cooldownRemaining() {
     final span = _cooldownSpan;
-    final startWall = _cooldownStartWall;
-    if (lockedUntil.value == null || span == null || startWall == null) {
+    if (lockedUntil.value == null || span == null) {
       return null;
     }
-    final mono = _elapsed() - _cooldownStartMono;
-    final wall = _now().difference(startWall);
-    final left = span - (wall > mono ? wall : mono);
+    final served = _elapsed() - _cooldownStartMono;
+    final left = served.isNegative ? span : span - served;
     return left > Duration.zero ? left : null;
   }
 
-  /// Starts (or clears) a cooldown of [span] on both clocks.
+  /// Starts (or clears) a cooldown of [span] from now on the boot clock.
   void _startCooldown(Duration? span) {
     _cooldownSpan = span;
     _cooldownStartMono = _elapsed();
-    _cooldownStartWall = _now();
     lockedUntil.value = span == null ? null : _now().add(span);
   }
 
+  PinCooldown? get _persistedCooldown {
+    final span = _cooldownSpan;
+    return span == null
+        ? null
+        : (startedAtBoot: _cooldownStartMono, left: span);
+  }
+
   Future<void> load() async {
+    await _syncBootClock();
     final state = await _source.read();
     enabled.value = state.enabled;
     biometricEnabled.value = state.biometric;
     locked.value = state.enabled;
-    final ({int failedAttempts, DateTime? lockedUntil}) throttle;
+    final ({int failedAttempts, PinCooldown? cooldown}) throttle;
     try {
       throttle = await _source.readThrottle();
     } on Object {
@@ -146,16 +173,35 @@ final class AppLockStore {
     }
     _failedAttempts = throttle.failedAttempts;
     // Resume the persisted cooldown, clamped to the longest this attempt
-    // count can earn — a clock set backwards can't stretch it.
-    final until = throttle.lockedUntil;
+    // count can earn. Served time counts only on the same boot: a boot
+    // clock below the recorded start means a reboot (or an unknown start),
+    // and then the whole remainder is due again.
+    final saved = throttle.cooldown;
     final cap = cooldownFor(_failedAttempts);
-    if (until == null || cap == null) {
+    if (saved == null || cap == null) {
       _startCooldown(null);
-    } else {
-      final left = until.difference(_now());
-      _startCooldown(left <= Duration.zero ? null : (left > cap ? cap : left));
+      return;
+    }
+    final start = saved.startedAtBoot;
+    final now = _elapsed();
+    final served = start != null && now >= start ? now - start : Duration.zero;
+    final left = saved.left - served;
+    _startCooldown(left <= Duration.zero ? null : (left > cap ? cap : left));
+    if (start == null || now < start) {
+      // Re-anchor on this boot, or a later restart would measure from the
+      // old boot's start.
+      try {
+        await _persistThrottle();
+      } on Object catch (e) {
+        debugPrint('app lock: cooldown not re-anchored: $e');
+      }
     }
   }
+
+  Future<void> _persistThrottle() => _source.writeThrottle(
+    failedAttempts: _failedAttempts,
+    cooldown: _persistedCooldown,
+  );
 
   /// Starts watching app lifecycle for background re-locking. Call once.
   void watchLifecycle() {
@@ -176,6 +222,8 @@ final class AppLockStore {
           obscured.value = true;
         }
       case AppLifecycleState.resumed:
+        // The in-process stopwatch paused if the device slept.
+        unawaited(_syncBootClock());
         // Before any early break: an inactive→resumed blip (shade, dialog)
         // never backgrounded, but it did set the cover.
         obscured.value = false;
@@ -251,11 +299,15 @@ final class AppLockStore {
   /// future) — the PIN is not even checked.
   /// Also false, unchecked, while another attempt is still in flight.
   Future<bool> unlockWithPin(String pin) async {
-    if (_pinInFlight || cooldownRemaining() != null) {
+    if (_pinInFlight) {
       return false;
     }
     _pinInFlight = true;
     try {
+      await _syncBootClock();
+      if (cooldownRemaining() != null) {
+        return false;
+      }
       final ok = await _source.verify(pin);
       if (ok) {
         await _unlock();
@@ -263,10 +315,7 @@ final class AppLockStore {
       }
       _failedAttempts++;
       _startCooldown(cooldownFor(_failedAttempts));
-      await _source.writeThrottle(
-        failedAttempts: _failedAttempts,
-        lockedUntil: lockedUntil.value,
-      );
+      await _persistThrottle();
       return false;
     } finally {
       _pinInFlight = false;
@@ -358,7 +407,7 @@ final class AppLockStore {
     }
     _failedAttempts = 0;
     _startCooldown(null);
-    await _source.writeThrottle(failedAttempts: 0, lockedUntil: null);
+    await _persistThrottle();
   }
 
   void dispose() => _lifecycle?.dispose();

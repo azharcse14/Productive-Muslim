@@ -86,4 +86,35 @@ void main() {
     expect(keychain.keys, ['app_lock_v1']);
     expect(await legacy.getString('app_lock_v1'), isNull);
   });
+
+  test('boot clock reads the platform milliseconds since boot', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const channel = MethodChannel('com.productivemuslim.app/boot_clock');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => call.method == 'sinceBootMs' ? 90061 : null,
+    );
+    expect(
+      await const PlatformBootClock().sinceBoot(),
+      const Duration(milliseconds: 90061),
+    );
+  });
+
+  test('throttle round-trips its boot-clock cooldown', () async {
+    final source = AppLockDataSource(_MapPrefs());
+    await source.writeThrottle(
+      failedAttempts: 6,
+      cooldown: (
+        startedAtBoot: const Duration(seconds: 7),
+        left: const Duration(seconds: 60),
+      ),
+    );
+    final read = await source.readThrottle();
+    expect(read.failedAttempts, 6);
+    expect(read.cooldown?.startedAtBoot, const Duration(seconds: 7));
+    expect(read.cooldown?.left, const Duration(seconds: 60));
+  });
 }

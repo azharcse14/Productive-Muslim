@@ -18,6 +18,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         // Jamaat focus: undo a session a force-stop left running (DND on).
         JamaatFocus.resume(this)
+        BootClock.register(flutterEngine.dartExecutor.binaryMessenger)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             channelName

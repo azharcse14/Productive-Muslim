@@ -156,7 +156,13 @@ Future<void> setupLocator() async {
           : AppLockDataSource(SharedPreferencesAsync()),
     )
     ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
-    ..registerLazySingleton(() => AppLockStore(locator(), locator()));
+    ..registerLazySingleton(
+      () => AppLockStore(
+        locator(),
+        locator(),
+        bootClock: const PlatformBootClock(),
+      ),
+    );
 
   // ---- muhasaba ----
   locator

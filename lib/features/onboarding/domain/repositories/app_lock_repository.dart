@@ -5,11 +5,22 @@ abstract interface class AppLockStorage {
   Future<void> enable(String pin, {required bool biometric});
   Future<bool> verify(String pin);
   Future<void> disable();
-  Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle();
+  Future<({int failedAttempts, PinCooldown? cooldown})> readThrottle();
   Future<void> writeThrottle({
     required int failedAttempts,
-    required DateTime? lockedUntil,
+    required PinCooldown? cooldown,
   });
+}
+
+/// A running wrong-PIN cooldown on the [BootClock]: started at
+/// `startedAtBoot` (null = unknown, e.g. a pre-boot-clock record) with
+/// `left` still to serve from then. Wall time is never trusted for it.
+typedef PinCooldown = ({Duration? startedAtBoot, Duration left});
+
+/// Time since the device booted, counting deep sleep, unaffected by wall
+/// clock changes. Restarts near zero after a reboot.
+abstract interface class BootClock {
+  Future<Duration> sinceBoot();
 }
 
 /// Biometric seam so the store is testable without the plugin.

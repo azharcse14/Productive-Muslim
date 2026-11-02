@@ -124,31 +124,47 @@ final class AppLockDataSource implements AppLockStorage {
 
   /// Wrong-PIN throttle state, persisted so an app restart can't reset it.
   @override
-  Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() async {
+  Future<({int failedAttempts, PinCooldown? cooldown})> readThrottle() async {
     await _ready();
     final raw = await _prefs.getString(_throttleKey);
     if (raw == null) {
-      return (failedAttempts: 0, lockedUntil: null);
+      return (failedAttempts: 0, cooldown: null);
     }
     final map = _decode(raw) ?? const {};
-    final until = map['untilMs'];
     final failed = map['failed'];
-    final untilMs = until is num ? until.toInt() : null;
+    final boot = map['bootStartMs'];
+    final left = map['leftMs'];
+    // Records written before the boot clock carry a wall-clock 'untilMs':
+    // read as unknown-boot, so the store asks for the whole remainder.
+    final until = map['untilMs'];
+    final PinCooldown? cooldown = left is num
+        ? (
+            startedAtBoot: boot is num
+                ? Duration(milliseconds: boot.toInt())
+                : null,
+            left: Duration(milliseconds: left.toInt()),
+          )
+        : until is num
+        ? (
+            startedAtBoot: null,
+            left: DateTime.fromMillisecondsSinceEpoch(
+              until.toInt(),
+            ).difference(DateTime.now()),
+          )
+        : null;
     return (
       failedAttempts: failed is num ? failed.toInt() : 0,
-      lockedUntil: untilMs == null
-          ? null
-          : DateTime.fromMillisecondsSinceEpoch(untilMs),
+      cooldown: cooldown,
     );
   }
 
   @override
   Future<void> writeThrottle({
     required int failedAttempts,
-    required DateTime? lockedUntil,
+    required PinCooldown? cooldown,
   }) async {
     await _ready();
-    if (failedAttempts == 0 && lockedUntil == null) {
+    if (failedAttempts == 0 && cooldown == null) {
       await _prefs.remove(_throttleKey);
       return;
     }
@@ -156,7 +172,10 @@ final class AppLockDataSource implements AppLockStorage {
       _throttleKey,
       jsonEncode({
         'failed': failedAttempts,
-        'untilMs': lockedUntil?.millisecondsSinceEpoch,
+        if (cooldown != null) ...{
+          'bootStartMs': cooldown.startedAtBoot?.inMilliseconds,
+          'leftMs': cooldown.left.inMilliseconds,
+        },
       }),
     );
   }
@@ -182,4 +201,22 @@ final class KeychainPrefs extends SharedPreferencesAsync {
   @override
   Future<void> remove(String key) =>
       _channel.invokeMethod<void>('remove', {'key': key});
+}
+
+/// [BootClock] over the platform's boot-elapsed clock: Android
+/// `SystemClock.elapsedRealtime()` (`BootClock.kt`), iOS
+/// `CLOCK_MONOTONIC` (AppDelegate). Both count deep sleep.
+final class PlatformBootClock implements BootClock {
+  const PlatformBootClock();
+
+  static const _channel = MethodChannel('com.productivemuslim.app/boot_clock');
+
+  @override
+  Future<Duration> sinceBoot() async {
+    final ms = await _channel.invokeMethod<int>('sinceBootMs');
+    if (ms == null) {
+      throw StateError('boot clock returned nothing');
+    }
+    return Duration(milliseconds: ms);
+  }
 }

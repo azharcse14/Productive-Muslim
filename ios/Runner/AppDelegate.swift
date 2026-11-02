@@ -50,6 +50,18 @@ import WidgetKit
       name: "com.productivemuslim.app/keychain",
       binaryMessenger: registrar.messenger()
     ).setMethodCallHandler(LockKeychain.handle)
+    // App lock's PIN cooldown clock. Darwin's CLOCK_MONOTONIC counts sleep
+    // (systemUptime does not) and ignores wall-clock changes.
+    FlutterMethodChannel(
+      name: "com.productivemuslim.app/boot_clock",
+      binaryMessenger: registrar.messenger()
+    ).setMethodCallHandler { call, result in
+      if call.method == "sinceBootMs" {
+        result(Int(clock_gettime_nsec_np(CLOCK_MONOTONIC) / 1_000_000))
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    }
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()
