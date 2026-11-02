@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:intl/intl.dart';
 
@@ -45,6 +46,9 @@ final class PrayerWidgetService {
   /// Fires [update] at the next prayer start or midnight, whichever first,
   /// so the snapshot doesn't go stale while the app stays open.
   Timer? _boundary;
+
+  /// Retry delay when an update fails before its boundary timer is armed.
+  static const retryAfterFailure = Duration(minutes: 15);
 
   /// Recomputes the snapshot for the configured location and locale and
   /// repaints the widget. Safe to call on app open, resume, and on any
@@ -129,8 +133,14 @@ final class PrayerWidgetService {
       }
 
       await _bridge.push(payload);
-    } on Object {
+    } on Object catch (e) {
       // Best-effort: never let a widget update surface as an app error.
+      debugPrint('Home widget update failed: $e');
+      // Failed before arming the boundary: retry later rather than leave
+      // the widget frozen until the next app open.
+      if (!(_boundary?.isActive ?? false)) {
+        _boundary = Timer(retryAfterFailure, () => unawaited(update()));
+      }
     }
   }
 }

@@ -200,6 +200,8 @@ final class _HomeScreenState extends State<HomeScreen> {
         unawaited(_checkExactAlarms());
       },
     );
+    // The store starts on the slow tick; Home on screen wants per-second.
+    _syncTicker();
     unawaited(_checkExactAlarms());
     _dayWatcher = effect(() {
       _store.dateKey.value;
@@ -557,7 +559,6 @@ final class _HomeScreenState extends State<HomeScreen> {
                   day: day,
                   now: () => _store.now.value,
                   formatTime: (t) => formatHomeTime(context, t),
-                  activePrayer: _store.activeWaqt.value?.prayer,
                   jumuah: jumuah,
                   forbidden: [
                     for (final w in _store.specialWindows.value)
@@ -668,6 +669,7 @@ final class _HomeScreenState extends State<HomeScreen> {
         final muhasaba = _muhasaba;
         final resolution = _store.mosqueResolution.value;
         final profiles = _store.mosqueProfiles.value;
+        final archived = {for (final i in muhasaba.archivedItems.value) i.id};
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
@@ -677,6 +679,10 @@ final class _HomeScreenState extends State<HomeScreen> {
           formatTime: (t) => formatHomeTime(context, t),
           dense: compact,
           locked: _store.lockedPrayers.value,
+          untracked: {
+            for (final prayer in Prayer.values)
+              if (archived.contains('salah_${prayer.name}')) prayer,
+          },
           onLockedTap: (_) => _showLockedToast(context),
           onSetJamaat: () => context.pushNamed(Routes.myMosque.name),
           mosqueName: resolution.profile?.name,

@@ -39,7 +39,9 @@ final class HomeStore {
        _settings = settings,
        _mosque = mosque {
     now = signal(_wallNow());
-    resume();
+    // Slow until Home shows and resumes it: other screens (e.g. a cold
+    // start into Muhasaba) create the store but need only the day flip.
+    pause();
     // Expire a temporary mosque override once the schedule crosses into a
     // different window (the auto target no longer matches its baseline) or
     // its day ends. Resolution ignores it either way; this just tidies up.
@@ -268,8 +270,15 @@ final class HomeStore {
       now: now.value,
       day: day,
       // Before Fajr the active waqt is the overnight one: its jamaat comes
-      // from the mosque active at its start, matching its row.
-      jamaat: _overnightConfig.value ?? jamaatConfig.value,
+      // from the mosque active at its start, matching its row. Friday's
+      // Dhuhr counts to the Jumu'ah of the mosque active at that Dhuhr —
+      // the same one the row, label and notifications use.
+      jamaat:
+          _overnightConfig.value ??
+          (activeWaqt.value?.prayer == Prayer.dhuhr
+              ? _fridayDhuhrConfig.value
+              : null) ??
+          jamaatConfig.value,
       ramadanMode: ramadanMode.value,
     );
   });

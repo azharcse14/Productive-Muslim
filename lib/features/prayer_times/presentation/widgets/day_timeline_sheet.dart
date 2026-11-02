@@ -20,7 +20,6 @@ Future<void> showDayTimelineSheet(
   required PrayerDay day,
   required DateTime Function() now,
   required String Function(DateTime) formatTime,
-  Prayer? activePrayer,
   List<SpecialWindow> forbidden = const [],
   bool jumuah = false,
 }) {
@@ -32,7 +31,6 @@ Future<void> showDayTimelineSheet(
         day: day,
         now: now(),
         formatTime: formatTime,
-        activePrayer: activePrayer,
         forbidden: forbidden,
         jumuah: jumuah,
       ),
@@ -43,14 +41,14 @@ Future<void> showDayTimelineSheet(
 enum _Tone { prayer, quiet, warn, now }
 
 /// The day on a vertical timeline rail: sahri end, the five waqts, sunrise,
-/// the [forbidden] windows and a "Now" marker, in time order. The active
-/// prayer is emphasised. Purely presentational.
+/// the [forbidden] windows and a "Now" marker, in time order. The waqt
+/// [now] falls in is emphasised — only when it is one of [day]'s rows (not
+/// yesterday's Isha running past midnight). Purely presentational.
 final class DayTimelineSheet extends StatelessWidget {
   const DayTimelineSheet({
     required this.day,
     required this.now,
     required this.formatTime,
-    this.activePrayer,
     this.forbidden = const [],
     this.jumuah = false,
     super.key,
@@ -65,9 +63,6 @@ final class DayTimelineSheet extends StatelessWidget {
   /// Formats a wall-clock instant in the user's locale/digits.
   final String Function(DateTime) formatTime;
 
-  /// The waqt the clock is currently inside, or null.
-  final Prayer? activePrayer;
-
   /// Today's forbidden (makruh) windows.
   final List<SpecialWindow> forbidden;
 
@@ -75,6 +70,10 @@ final class DayTimelineSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final l10n = context.l10n;
+    final activePrayer = switch (day.activeWaqtAt(now)) {
+      final a? when a.start == day.startOf(a.prayer) => a.prayer,
+      _ => null,
+    };
     final rows =
         <
           ({DateTime at, String label, String time, _Tone tone, Prayer? prayer})

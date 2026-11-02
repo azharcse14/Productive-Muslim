@@ -436,6 +436,17 @@ void main() {
       },
     );
 
+    testHomeWidgets('an archived salah tracker has no check on the table', (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      await GetIt.I<MuhasabaStore>().setArchived('salah_asr', archived: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final table = tester.widget<PrayerTable>(find.byType(PrayerTable));
+      expect(table.untracked, {Prayer.asr});
+    });
+
     testHomeWidgets('before fajr, isha is checkable and files yesterday', (
       tester,
     ) async {

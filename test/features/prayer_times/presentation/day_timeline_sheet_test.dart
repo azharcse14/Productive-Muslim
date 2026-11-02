@@ -75,7 +75,6 @@ void main() {
           day: _sampleDay(),
           now: DateTime(2026, 6, 14, 13),
           formatTime: _fmt,
-          activePrayer: Prayer.dhuhr,
         ),
       ),
     );
@@ -112,5 +111,52 @@ void main() {
     expect(y('Midday (zawal)'), lessThan(y('Dhuhr')));
     expect(y('Dhuhr'), lessThan(y('Now')));
     expect(y('Now'), lessThan(y('Asr')));
+  });
+
+  // The active row's label is drawn in ink, the others in ink2.
+  Color? labelColor(WidgetTester tester, String label) =>
+      tester.widget<Text>(find.text(label)).style?.color;
+
+  testWidgets('the highlight follows the clock across a waqt boundary', (
+    tester,
+  ) async {
+    var now = DateTime(2026, 6, 14, 16, 44);
+    late StateSetter setNow;
+    await tester.pumpWidget(
+      _app(
+        StatefulBuilder(
+          builder: (context, setState) {
+            setNow = setState;
+            return DayTimelineSheet(
+              day: _sampleDay(),
+              now: now,
+              formatTime: _fmt,
+            );
+          },
+        ),
+      ),
+    );
+    final active = labelColor(tester, 'Dhuhr');
+    expect(labelColor(tester, 'Asr'), isNot(active));
+
+    setNow(() => now = DateTime(2026, 6, 14, 16, 46));
+    await tester.pump();
+    expect(labelColor(tester, 'Asr'), active);
+    expect(labelColor(tester, 'Dhuhr'), isNot(active));
+  });
+
+  testWidgets("after midnight, tonight's Isha is not highlighted", (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        DayTimelineSheet(
+          day: _sampleDay(),
+          now: DateTime(2026, 6, 14, 2), // yesterday's Isha still running
+          formatTime: _fmt,
+        ),
+      ),
+    );
+    expect(labelColor(tester, 'Isha'), labelColor(tester, 'Fajr'));
   });
 }

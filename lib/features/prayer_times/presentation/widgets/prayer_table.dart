@@ -26,6 +26,7 @@ final class PrayerTable extends StatelessWidget {
     this.prayed = const {},
     this.onTogglePrayed,
     this.locked = const {},
+    this.untracked = const {},
     this.onLockedTap,
     this.onPrayerTap,
     this.mosqueName,
@@ -61,6 +62,10 @@ final class PrayerTable extends StatelessWidget {
 
   /// Prayers whose waqt hasn't started yet — check affordance disabled.
   final Set<Prayer> locked;
+
+  /// Prayers whose Muhasaba tracker is archived — no check affordance (the
+  /// repository refuses new entries for an archived tracker).
+  final Set<Prayer> untracked;
 
   /// Tapping a locked prayer's affordance (e.g. to explain why it's off).
   final void Function(Prayer)? onLockedTap;
@@ -149,6 +154,7 @@ final class PrayerTable extends StatelessWidget {
                 dense: dense,
                 done: prayed.contains(prayer),
                 locked: locked.contains(prayer),
+                untracked: untracked.contains(prayer),
                 onLockedTap: onLockedTap == null
                     ? null
                     : () => onLockedTap!(prayer),
@@ -328,6 +334,7 @@ final class _PrayerRow extends StatelessWidget {
     required this.dense,
     required this.done,
     required this.locked,
+    required this.untracked,
     this.onToggleDone,
     this.onLockedTap,
     this.onTap,
@@ -352,6 +359,7 @@ final class _PrayerRow extends StatelessWidget {
   final bool dense;
   final bool done;
   final bool locked;
+  final bool untracked;
   final VoidCallback? onToggleDone;
   final VoidCallback? onLockedTap;
   final VoidCallback? onTap;
@@ -424,7 +432,10 @@ final class _PrayerRow extends StatelessWidget {
               ),
               // The 48dp hit boxes below carry their own 11dp side inset, so
               // the visual 26dp circle sits where it did with a 10dp gap.
-              if (locked)
+              if (untracked)
+                // Keeps the jamaat column aligned with the other rows.
+                const SizedBox(width: _HitBox.size)
+              else if (locked)
                 // Waqt hasn't started — no check yet; a tap explains why.
                 // container: its own node, not merged into the row's tap node.
                 Semantics(
