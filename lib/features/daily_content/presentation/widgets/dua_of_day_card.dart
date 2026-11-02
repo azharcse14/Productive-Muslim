@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_text_size.dart';
 import '../../../../shared/widgets/q_card.dart';
 
 /// Home card: the "Dua of the day". Purely presentational — the day's dua is
@@ -12,6 +14,7 @@ final class DuaOfDayCard extends StatelessWidget {
     required this.arabic,
     required this.translation,
     required this.reference,
+    this.transliteration,
     this.onTap,
     super.key,
   });
@@ -19,6 +22,10 @@ final class DuaOfDayCard extends StatelessWidget {
   final String arabic;
   final String translation;
   final String reference;
+
+  /// Spoken instead of the Arabic (a non-Arabic TTS garbles it); without
+  /// it the Arabic is tagged for an Arabic voice.
+  final String? transliteration;
 
   /// Opens the dua collection when set; the card isn't tappable when null.
   final VoidCallback? onTap;
@@ -56,11 +63,21 @@ final class DuaOfDayCard extends StatelessWidget {
             // Full width, so a short line still starts at the right edge.
             SizedBox(
               width: double.infinity,
-              child: Text(
-                arabic,
-                textAlign: TextAlign.start,
-                textDirection: TextDirection.rtl,
-                style: QType.quran(22).copyWith(color: q.ink),
+              // Rebuilds when the reader text size changes.
+              child: SignalBuilder(
+                builder: (context) => Text(
+                  arabic,
+                  textAlign: TextAlign.start,
+                  textDirection: TextDirection.rtl,
+                  semanticsLabel: transliteration,
+                  locale: transliteration == null ? const Locale('ar') : null,
+                  // Sized by the reader setting, so the system text scale
+                  // must not multiply it again.
+                  textScaler: TextScaler.noScaling,
+                  style: QType.quran(
+                    arabicBodySize(context),
+                  ).copyWith(color: q.ink),
+                ),
               ),
             ),
             const SizedBox(height: QSpace.s3),

@@ -18,6 +18,8 @@ import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_chip.dart';
+import '../../../../shared/widgets/q_empty_state.dart';
+import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_heatmap.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
@@ -203,8 +205,15 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             ),
             Expanded(
               child: SignalBuilder(
-                builder: (context) =>
-                    _tab == 0 ? _todayView(context) : _dashboardView(context),
+                builder: (context) => _store.loadFailed.value
+                    ? QErrorRetry(
+                        message: l10n.dataLoadFailed,
+                        retryLabel: l10n.retry,
+                        onRetry: () => unawaited(_store.load()),
+                      )
+                    : _tab == 0
+                    ? _todayView(context)
+                    : _dashboardView(context),
               ),
             ),
           ],
@@ -281,17 +290,13 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             ),
             const SizedBox(height: QSpace.s3),
             for (final item in archived) ...[
-              Opacity(
-                opacity: 0.55,
-                child: TrackerRow(
-                  item: item,
-                  value: _store.valueOf(item.id),
-                  displayName: _nameOf(l10n, item),
-                  onChanged: null,
-                  onEdit: () => unawaited(
-                    showItemEditor(context, _store, existing: item),
-                  ),
-                ),
+              TrackerRow(
+                item: item,
+                value: _store.valueOf(item.id),
+                displayName: _nameOf(l10n, item),
+                onChanged: null,
+                onEdit: () =>
+                    unawaited(showItemEditor(context, _store, existing: item)),
               ),
               const SizedBox(height: QSpace.s3),
             ],
@@ -631,7 +636,6 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
 
   Widget _dashboardView(BuildContext context) {
     final l10n = context.l10n;
-    final q = context.q;
     final stats = _store.stats.value;
     return ListView(
       padding: const EdgeInsets.all(QSpace.s5),
@@ -655,14 +659,16 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           ]
         else if (stats.items.every((i) => i.totalValue == 0) &&
             stats.completion == 0)
-          Padding(
-            padding: const EdgeInsets.all(QSpace.s8),
-            child: Center(
-              child: Text(
-                l10n.emptyRange,
-                textAlign: TextAlign.center,
-                style: QType.body.copyWith(color: q.ink2),
-              ),
+          QEmptyState(
+            icon: Icons.insights_outlined,
+            body: l10n.emptyRange,
+            action: QButton(
+              label: l10n.goToToday,
+              small: true,
+              onPressed: () => setState(() {
+                _tab = 0;
+                _cascadePlayed = true;
+              }),
             ),
           )
         else ...[
@@ -847,6 +853,13 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 if (level > 0) const SizedBox(width: 3.5),
                 QHeatmapCell(level: level),
               ],
+              const SizedBox(width: QSpace.s2),
+              Flexible(
+                child: Text(
+                  l10n.heatmapLegendAllDone,
+                  style: QType.caption.copyWith(color: q.ink2),
+                ),
+              ),
             ],
           ),
         ],
@@ -880,19 +893,12 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                 const SizedBox(width: QSpace.s3),
                 Expanded(
                   flex: 2,
-                  child: ClipRRect(
+                  child: LinearProgressIndicator(
+                    value: it.completion,
+                    minHeight: 6,
                     borderRadius: BorderRadius.circular(QRadius.full),
-                    child: Container(
-                      height: 6,
-                      color: q.surface2,
-                      child: FractionallySizedBox(
-                        alignment: AlignmentDirectional.centerStart,
-                        widthFactor: it.completion,
-                        child: ColoredBox(
-                          color: TrackerVisuals.colorOf(q, item.colorIndex),
-                        ),
-                      ),
-                    ),
+                    backgroundColor: q.surface2,
+                    color: TrackerVisuals.colorOf(q, item.colorIndex),
                   ),
                 ),
                 const SizedBox(width: QSpace.s3),

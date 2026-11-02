@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderAbstractViewport;
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -118,12 +120,9 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
   }
 
   void _openNextSurah() {
-    unawaited(
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => QuranReaderScreen(surahId: widget.surahId + 1),
-        ),
-      ),
+    context.pushReplacementNamed(
+      Routes.quranReader.name,
+      pathParameters: {'surah': '${widget.surahId + 1}'},
     );
   }
 
@@ -414,6 +413,7 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
       textAlign: TextAlign.center,
       textDirection: TextDirection.rtl,
+      locale: const Locale('ar'),
       textScaler: TextScaler.noScaling,
       style: QType.quran(
         readerArabicSize(context),

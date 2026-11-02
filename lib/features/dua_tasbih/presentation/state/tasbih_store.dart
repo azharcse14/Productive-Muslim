@@ -26,6 +26,7 @@ final class TasbihStore {
   /// stats only (that day's total is gone) and never to today's total.
   static const _roundKey = 'tasbih_round';
   static const _lifetimeKey = 'tasbih_lifetime';
+  static const _phraseKey = 'tasbih_phrase';
 
   final SharedPreferencesAsync _prefs;
   final void Function() _haptic;
@@ -58,6 +59,15 @@ final class TasbihStore {
   /// Pulses true the moment [count] reaches [target] (screen scale pulse).
   late final milestone = signal(false);
 
+  /// The chosen dhikr phrase id (the screen owns the list and validates
+  /// it); null until [load] or [setPhrase]. Persisted.
+  late final phrase = signal<String?>(null);
+
+  Future<void> setPhrase(String id) {
+    phrase.value = id;
+    return _prefs.setString(_phraseKey, id);
+  }
+
   static void _defaultTapHaptic() => Haptics.light();
 
   static void _defaultMilestoneHaptic() => Haptics.medium();
@@ -80,6 +90,7 @@ final class TasbihStore {
       return;
     }
     final today = _todayKey();
+    phrase.value ??= await _prefs.getString(_phraseKey);
     totalToday.value = (await _readStored()).totalFor(today);
     _totalDay = today;
     await _loadLifetime();

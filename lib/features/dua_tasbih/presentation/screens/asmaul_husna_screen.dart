@@ -143,12 +143,16 @@ final class _AsmaRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: QSpace.s3),
-            Text(
-              name.arabic,
-              textDirection: TextDirection.rtl,
-              // A non-Arabic TTS garbles raw Arabic glyphs.
-              semanticsLabel: name.transliteration,
-              style: QType.quran(22).copyWith(color: q.ink),
+            // Flexible: wraps instead of overflowing at large text sizes.
+            Flexible(
+              child: Text(
+                name.arabic,
+                textDirection: TextDirection.rtl,
+                softWrap: true,
+                // A non-Arabic TTS garbles raw Arabic glyphs.
+                semanticsLabel: name.transliteration,
+                style: QType.quran(22).copyWith(color: q.ink),
+              ),
             ),
           ],
         ),

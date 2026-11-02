@@ -8,6 +8,7 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_confirm_discard.dart';
+import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/entities/tracker_item.dart';
@@ -123,9 +124,27 @@ final class _ItemEditorState extends State<_ItemEditor> {
       return;
     }
     setState(() => _saving = true);
-    _closeOrReport(
-      await widget.store.setArchived(existing.id, archived: !existing.archived),
-    );
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final store = widget.store;
+    final archiving = !existing.archived;
+    final saved = await store.setArchived(existing.id, archived: archiving);
+    _closeOrReport(saved);
+    if (saved && archiving) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.trackerArchivedToast),
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () =>
+                  unawaited(store.setArchived(existing.id, archived: false)),
+            ),
+          ),
+        );
+    }
   }
 
   /// Closes on success; on failure keeps the sheet (and its edits) open
@@ -171,7 +190,11 @@ final class _ItemEditorState extends State<_ItemEditor> {
               if (!_nameLocked) ...[
                 TextField(
                   controller: _name,
-                  decoration: InputDecoration(hintText: l10n.trackerNameHint),
+                  maxLength: 40,
+                  decoration: InputDecoration(
+                    labelText: l10n.trackerNameLabel,
+                    hintText: l10n.trackerNameHint,
+                  ),
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: QSpace.s4),
@@ -199,14 +222,15 @@ final class _ItemEditorState extends State<_ItemEditor> {
               if (_kind != TrackerKind.yesNo) ...[
                 Text(l10n.targetLabel, style: context.text.labelSmall),
                 const SizedBox(height: QSpace.s2),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: QSpace.s2,
                   children: [
                     _TargetStepper(
                       value: _target,
                       step: _kind == TrackerKind.duration ? 5 : 1,
                       onChanged: (v) => setState(() => _target = v),
                     ),
-                    const SizedBox(width: QSpace.s2),
                     Text(
                       _kind == TrackerKind.duration
                           ? l10n.targetMinutesSuffix
@@ -221,10 +245,10 @@ final class _ItemEditorState extends State<_ItemEditor> {
                 spacing: QSpace.s2,
                 runSpacing: QSpace.s2,
                 children: [
-                  for (final (i, entry) in TrackerVisuals.icons.entries.indexed)
+                  for (final entry in TrackerVisuals.icons.entries)
                     _PickCircle(
                       selected: _icon == entry.key,
-                      label: l10n.muhasabaIconOption(i + 1),
+                      label: l10n.muhasabaIconName(entry.key),
                       child: Icon(
                         entry.value,
                         size: 19,
@@ -241,7 +265,7 @@ final class _ItemEditorState extends State<_ItemEditor> {
                   for (final (i, color) in TrackerVisuals.palette(q).indexed)
                     _PickCircle(
                       selected: _colorIndex == i,
-                      label: l10n.muhasabaColorOption(i + 1),
+                      label: l10n.muhasabaColorName(_colorKeys[i]),
                       fill: color,
                       onTap: () => setState(() => _colorIndex = i),
                     ),
@@ -255,7 +279,13 @@ final class _ItemEditorState extends State<_ItemEditor> {
                 ),
                 const SizedBox(height: QSpace.s3),
               ],
-              Row(
+              // Wraps under large text instead of overflowing.
+              Wrap(
+                alignment: _isEdit
+                    ? WrapAlignment.spaceBetween
+                    : WrapAlignment.end,
+                spacing: QSpace.s2,
+                runSpacing: QSpace.s2,
                 children: [
                   if (_isEdit)
                     QButton(
@@ -267,7 +297,6 @@ final class _ItemEditorState extends State<_ItemEditor> {
                       icon: Icons.inventory_2_outlined,
                       onPressed: _saving ? null : () => unawaited(_archive()),
                     ),
-                  const Spacer(),
                   QButton(
                     label: l10n.save,
                     small: true,
@@ -283,6 +312,9 @@ final class _ItemEditorState extends State<_ItemEditor> {
   }
 }
 
+/// `muhasabaColorName` keys, in [TrackerVisuals.palette] order.
+const _colorKeys = ['teal', 'honey', 'green', 'brown', 'deepTeal', 'grey'];
+
 final class _TargetStepper extends StatelessWidget {
   const _TargetStepper({
     required this.value,
@@ -293,6 +325,21 @@ final class _TargetStepper extends StatelessWidget {
   final int? value;
   final int step;
   final ValueChanged<int?> onChanged;
+
+  Future<void> _typeValue(BuildContext context) async {
+    final typed = await showNumberDialog(
+      context,
+      title: context.l10n.targetLabel,
+      hint: context.l10n.trackerValueInvalid,
+      actionLabel: context.l10n.save,
+      min: 0,
+      max: 100000,
+      initial: value,
+    );
+    if (typed != null) {
+      onChanged(typed == 0 ? null : typed);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -313,13 +360,30 @@ final class _TargetStepper extends StatelessWidget {
                 ? null
                 : () => onChanged(value! - step <= 0 ? null : value! - step),
           ),
-          // A floor, not a fixed width: big text or long numbers grow it.
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 44),
-            child: Text(
-              value == null ? '—' : context.digits('$value'),
-              textAlign: TextAlign.center,
-              style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+          Semantics(
+            button: true,
+            label: l10n.targetLabel,
+            value: value == null ? null : context.digits('$value'),
+            onTapHint: l10n.a11yTypeValue,
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: () => unawaited(_typeValue(context)),
+              // A floor, not a fixed width: big text or long numbers grow it.
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: 44,
+                  minHeight: QTouch.minTarget,
+                ),
+                child: Center(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: Text(
+                    value == null ? '—' : context.digits('$value'),
+                    textAlign: TextAlign.center,
+                    style: QType.num_(QType.titleSm).copyWith(color: q.ink),
+                  ),
+                ),
+              ),
             ),
           ),
           QStepButton(

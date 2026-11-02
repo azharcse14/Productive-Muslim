@@ -75,8 +75,33 @@ final class _FastingScreenState extends State<FastingScreen> {
       }
       return;
     }
+    if (!mounted) {
+      return;
+    }
+    // Logging is one tap too: confirm it, with an undo.
+    if (!wasLogged && _store.isLogged(date)) {
+      final code = Localizations.localeOf(context).languageCode;
+      _snack(
+        SnackBar(
+          content: Text(
+            context.l10n.fastingLoggedOn(
+              LocaleDigits.localize(DateFormat.MMMEd(code).format(date), code),
+            ),
+          ),
+          persist: false,
+          action: SnackBarAction(
+            label: context.l10n.undo,
+            onPressed: () {
+              if (_store.isLogged(date)) {
+                unawaited(_toggle(date));
+              }
+            },
+          ),
+        ),
+      );
+    }
     // Un-logging is one tap on a filled cell: make it recoverable.
-    if (wasLogged && mounted) {
+    if (wasLogged) {
       _snack(
         SnackBar(
           content: Text(context.l10n.fastingUnlogged),
@@ -498,28 +523,38 @@ final class _StatsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: QSpace.s4),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: QHeatmap(
-              weeks: weeks,
-              semanticLabel: l10n.fastingHeatmapLabel(stats.thisMonth),
-              highlight: (todayCell ~/ 7, todayCell % 7),
-              cellLabel: (w, d) {
-                final date = dateAt(w, d);
-                if (date == null) {
-                  return '';
-                }
-                return LocaleDigits.localize(
-                  '${DateFormat.MMMEd(code).format(date)}: '
-                  '${isLogged(date) ? l10n.fastingFasted : l10n.notYet}',
-                  code,
-                );
-              },
-              onTap: (w, d) {
-                if (dateAt(w, d) case final date?) {
-                  onDayTap(date);
-                }
-              },
+          // A month calendar: one row per week, day numbers in the cells.
+          Semantics(
+            container: true,
+            label: l10n.fastingHeatmapLabel(stats.thisMonth),
+            child: Column(
+              children: [
+                for (var w = 0; w < weeks.length; w++)
+                  Row(
+                    children: [
+                      for (var d = 0; d < 7; d++)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: switch (dateAt(w, d)) {
+                              null => const SizedBox.shrink(),
+                              final date => _DayCell(
+                                day: n(date.day),
+                                logged: isLogged(date),
+                                today: w * 7 + d == todayCell,
+                                label: LocaleDigits.localize(
+                                  '${DateFormat.MMMEd(code).format(date)}: '
+                                  '${isLogged(date) ? l10n.fastingFasted : l10n.notYet}',
+                                  code,
+                                ),
+                                onTap: () => onDayTap(date),
+                              ),
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: QSpace.s2),
@@ -528,14 +563,14 @@ final class _StatsCard extends StatelessWidget {
             style: QType.caption.copyWith(color: q.ink3),
           ),
           const SizedBox(height: QSpace.s3),
-          Row(
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: QSpace.s2,
+            runSpacing: QSpace.s1,
             children: [
               Text(l10n.notYet, style: QType.caption.copyWith(color: q.ink2)),
-              const SizedBox(width: QSpace.s2),
               const QHeatmapCell(level: 0),
-              const SizedBox(width: 3.5),
               const QHeatmapCell(level: 4),
-              const SizedBox(width: QSpace.s2),
               Text(
                 l10n.fastingFasted,
                 style: QType.caption.copyWith(color: q.ink2),
@@ -543,6 +578,57 @@ final class _StatsCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// One day of the month grid: its number, filled when a fast is logged.
+final class _DayCell extends StatelessWidget {
+  const _DayCell({
+    required this.day,
+    required this.logged,
+    required this.today,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String day;
+  final bool logged;
+  final bool today;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final q = context.q;
+    final radius = BorderRadius.circular(QRadius.sm);
+    return Semantics(
+      button: true,
+      selected: logged,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: logged ? q.primary : q.surface2,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: today ? BorderSide(color: q.ink, width: 2) : BorderSide.none,
+        ),
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Center(
+              child: Text(
+                day,
+                style: QType.num_(
+                  QType.caption,
+                ).copyWith(color: logged ? q.onPrimary : q.ink2),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

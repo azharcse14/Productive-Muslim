@@ -129,12 +129,6 @@ final class _DuaScreenState extends State<DuaScreen> {
         child: SignalBuilder(
           builder: (context) {
             final categories = _store.categories.value;
-            final favoriteIds = _favorites.ids.value;
-            final favoriteDuas = <Dua>[
-              for (final category in categories)
-                for (final dua in category.duas)
-                  if (favoriteIds.contains(dua.id)) dua,
-            ];
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -198,7 +192,19 @@ final class _DuaScreenState extends State<DuaScreen> {
                     ],
                   ),
                 const SizedBox(height: QSpace.s4),
-                _FavoritesSection(duas: favoriteDuas),
+                // Its own builder: a heart tap rebuilds only this section.
+                SignalBuilder(
+                  builder: (context) {
+                    final favoriteIds = _favorites.ids.value;
+                    return _FavoritesSection(
+                      duas: [
+                        for (final category in _store.categories.value)
+                          for (final dua in category.duas)
+                            if (favoriteIds.contains(dua.id)) dua,
+                      ],
+                    );
+                  },
+                ),
               ]),
             );
           },
@@ -259,6 +265,8 @@ final class _FeatureCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: title,
+      onTap: onTap,
+      excludeSemantics: true,
       child: QCard(
         onTap: onTap,
         padding: const EdgeInsets.all(QSpace.s4),

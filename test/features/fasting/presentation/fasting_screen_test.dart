@@ -56,6 +56,19 @@ void main() {
       expect(find.text('Logged for today'), findsOneWidget);
     });
 
+    testWidgets('logging a fast toasts it with an undo', (tester) async {
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Log today'));
+      await tester.pumpAndSettle();
+      expect(find.text('Logged Mon, Jun 15'), findsOneWidget);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(GetIt.I<FastingStore>().isLogged(DateTime(2026, 6, 15)), isFalse);
+    });
+
     testWidgets('tapping a past heatmap day logs it as qaza', (tester) async {
       await tester.pumpWidget(_app(const FastingScreen()));
       await tester.pumpAndSettle();

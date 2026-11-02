@@ -174,7 +174,15 @@ final class _BookCard extends StatelessWidget {
     final englishOnly = languageCode == 'bn' && !book.bnAvailable;
     return Semantics(
       button: true,
-      label: book.titleFor(languageCode),
+      label: [
+        book.titleFor(languageCode),
+        if (book.authorFor(languageCode).isNotEmpty)
+          book.authorFor(languageCode),
+        subtitle,
+        if (englishOnly) l10n.hadithEnglishOnly,
+      ].join(', '),
+      onTap: onTap,
+      excludeSemantics: true,
       child: QCard(
         onTap: onTap,
         padding: const EdgeInsets.all(QSpace.s4),

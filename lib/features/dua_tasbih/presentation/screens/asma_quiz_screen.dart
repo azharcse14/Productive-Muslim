@@ -249,6 +249,8 @@ final class _QuestionView extends StatelessWidget {
                 promptText,
                 textAlign: TextAlign.center,
                 textDirection: showMeaningAsPrompt ? null : TextDirection.rtl,
+                // The Arabic name is spoken by an Arabic voice.
+                locale: showMeaningAsPrompt ? null : const Locale('ar'),
                 style: showMeaningAsPrompt
                     ? QType.title.copyWith(color: q.ink)
                     : QType.quran(40).copyWith(color: q.ink),
@@ -358,10 +360,14 @@ final class _OptionTile extends StatelessWidget {
               ),
               if (arabic != null) ...[
                 const SizedBox(width: QSpace.s2),
-                Text(
-                  arabic!,
-                  textDirection: TextDirection.rtl,
-                  style: QType.quran(22).copyWith(color: fg),
+                Flexible(
+                  child: Text(
+                    arabic!,
+                    textDirection: TextDirection.rtl,
+                    softWrap: true,
+                    locale: const Locale('ar'),
+                    style: QType.quran(22).copyWith(color: fg),
+                  ),
                 ),
               ],
               if (mark != null) ...[

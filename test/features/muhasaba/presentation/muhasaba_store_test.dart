@@ -451,9 +451,11 @@ void main() {
       addTearDown(store.dispose);
       await store.load();
       expect(store.loaded.value, isFalse);
+      expect(store.loadFailed.value, isTrue);
       repo.failItemReads = false;
       await store.rollOverIfNewDay();
       expect(store.loaded.value, isTrue);
+      expect(store.loadFailed.value, isFalse);
       expect(store.items.value, isNotEmpty);
     });
 

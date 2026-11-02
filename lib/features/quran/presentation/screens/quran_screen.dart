@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -19,7 +21,6 @@ import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
-import 'quran_reader_screen.dart';
 
 /// Quran tab (design §4.5): continue-reading resume card, surah search
 /// and the 114-surah index; rows open the reader.
@@ -83,13 +84,21 @@ final class _QuranScreenState extends State<QuranScreen> {
 
   void _openReader(int surahId, {int? initialAyah}) {
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) =>
-              QuranReaderScreen(surahId: surahId, initialAyah: initialAyah),
-        ),
-      ),
+      initialAyah == null
+          ? context.pushNamed(
+              Routes.quranReader.name,
+              pathParameters: {'surah': '$surahId'},
+            )
+          : context.pushNamed(
+              Routes.quranAyah.name,
+              pathParameters: {'surah': '$surahId', 'ayah': '$initialAyah'},
+            ),
     );
+  }
+
+  void _removeBookmark(int id) {
+    _removedBookmark.value = id;
+    unawaited(_store.toggleBookmark(id));
   }
 
   void _showBookmarks() {
@@ -174,10 +183,7 @@ final class _QuranScreenState extends State<QuranScreen> {
                       if (_store.positionOf(id) case final position?)
                         Dismissible(
                           key: ValueKey(id),
-                          onDismissed: (_) {
-                            _removedBookmark.value = id;
-                            unawaited(_store.toggleBookmark(id));
-                          },
+                          onDismissed: (_) => _removeBookmark(id),
                           child: FutureBuilder(
                             future: _previewAyahs.putIfAbsent(
                               position.surah,
@@ -213,9 +219,14 @@ final class _QuranScreenState extends State<QuranScreen> {
                                 subtitle: preview == null
                                     ? reference
                                     : '$reference · $preview',
-                                trailing: Icon(
-                                  Icons.chevron_right,
-                                  color: q.ink3,
+                                // The swipe has a visible, labelled twin.
+                                trailing: IconButton(
+                                  tooltip: l10n.bookmarkRemoveTooltip,
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: q.ink3,
+                                  ),
+                                  onPressed: () => _removeBookmark(id),
                                 ),
                                 onTap: () {
                                   Navigator.of(context).pop();
