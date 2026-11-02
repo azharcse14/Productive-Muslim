@@ -67,51 +67,44 @@ void main() {
     ];
     for (final id in ids) {
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
-          'ara-$id',
-        ]),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
+            ['ara-$id']),
         greaterThan(0),
         reason: 'ara-$id missing',
       );
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
-          'eng-$id',
-        ]),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
+            ['eng-$id']),
         greaterThan(0),
         reason: 'eng-$id missing',
       );
     }
   });
 
-  test(
-    'Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
-    () {
-      final ar = blob(
-        'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
-        ['ara-bukhari'],
-      );
-      expect(ar, isNotEmpty);
-      final first = (ar.first as Map)['t'] as String;
-      expect(first.trim(), isNotEmpty);
-      expect((ar.first as Map)['n'], 1); // first hadith number
+  test('Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
+      () {
+    final ar = blob(
+      'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
+      ['ara-bukhari'],
+    );
+    expect(ar, isNotEmpty);
+    final first = (ar.first as Map)['t'] as String;
+    expect(first.trim(), isNotEmpty);
+    expect((ar.first as Map)['n'], 1); // first hadith number
 
-      expect(
-        scalar(
-          'SELECT COUNT(*) FROM hadith_bn_section '
-          'WHERE book_id = ? AND section = 1',
-          ['bukhari'],
-        ),
-        greaterThan(0),
-      );
-    },
-  );
+    expect(
+      scalar('SELECT COUNT(*) FROM hadith_bn_section '
+          'WHERE book_id = ? AND section = 1', ['bukhari']),
+      greaterThan(0),
+    );
+  });
 
   test('catalog section counts match the hadith actually bundled', () {
-    final catalog =
-        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
-            as Map<String, dynamic>;
-    for (final book
-        in (catalog['books'] as List<dynamic>).cast<Map<String, dynamic>>()) {
+    final catalog = jsonDecode(
+      File('assets/data/hadith_books.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    for (final book in (catalog['books'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()) {
       final sections = [
         for (final s in book['sections'] as List<dynamic>)
           ('hadith_section', 'edition', book['edition_ar'], s),
@@ -121,10 +114,8 @@ void main() {
       for (final (table, keyColumn, key, s) in sections) {
         final section = s as Map<String, dynamic>;
         expect(
-          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?', [
-            key,
-            section['n'],
-          ]).length,
+          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?',
+              [key, section['n']]).length,
           section['count'],
           reason: '$table $key §${section['n']}',
         );
@@ -201,7 +192,9 @@ void main() {
         );
         final expected = <int>{
           for (final h in data.cast<Map<String, dynamic>>())
-            int.tryParse(leading.stringMatch(h['r'] as String? ?? '') ?? '') ??
+            int.tryParse(
+                  leading.stringMatch(h['r'] as String? ?? '') ?? '',
+                ) ??
                 h['n'] as int,
         };
         final listed = <int>{
