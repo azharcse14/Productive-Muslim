@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart' show MethodChannel;
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/services.dart'
+    show MethodChannel, MissingPluginException, PlatformException;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/repositories/app_lock_repository.dart';
@@ -218,5 +220,23 @@ final class PlatformBootClock implements BootClock {
       throw StateError('boot clock returned nothing');
     }
     return Duration(milliseconds: ms);
+  }
+}
+
+/// Android [SecureScreen]: FLAG_SECURE via MainActivity's `secure` channel.
+final class AndroidSecureScreen implements SecureScreen {
+  const AndroidSecureScreen();
+
+  static const _channel = MethodChannel('com.productivemuslim.app/secure');
+
+  @override
+  Future<void> setSecure({required bool on}) async {
+    try {
+      await _channel.invokeMethod<void>('setSecure', on);
+    } on PlatformException catch (e) {
+      debugPrint('app lock: FLAG_SECURE not set: $e');
+    } on MissingPluginException catch (e) {
+      debugPrint('app lock: FLAG_SECURE not set: $e');
+    }
   }
 }

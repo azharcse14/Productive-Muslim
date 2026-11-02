@@ -48,6 +48,13 @@ AppLockStore _store({
   elapsed: elapsed,
 );
 
+final class _FakeSecureScreen implements SecureScreen {
+  final calls = <bool>[];
+
+  @override
+  Future<void> setSecure({required bool on}) async => calls.add(on);
+}
+
 final class _FakeBootClock implements BootClock {
   _FakeBootClock(this.value);
 
@@ -500,6 +507,21 @@ void main() {
       final again = _store(now: () => clock, elapsed: () => boot);
       await again.load();
       expect(again.cooldownRemaining(), const Duration(seconds: 18));
+    });
+
+    test('secure screen follows the lock being on', () async {
+      final secure = _FakeSecureScreen();
+      final store = AppLockStore(
+        AppLockDataSource(SharedPreferencesAsync()),
+        _FakeBiometric(),
+        secureScreen: secure,
+      );
+      await store.load();
+      store.watchLifecycle();
+      await store.enable('1234', biometric: false);
+      await store.disable();
+      store.dispose();
+      expect(secure.calls, [false, true, false]);
     });
 
     test('the boot clock is read on load and before each PIN check', () async {

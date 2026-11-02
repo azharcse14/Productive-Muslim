@@ -161,6 +161,10 @@ Future<void> setupLocator() async {
         locator(),
         locator(),
         bootClock: const PlatformBootClock(),
+        // iOS is covered by the root overlay (AppLockStore.obscured).
+        secureScreen: defaultTargetPlatform == TargetPlatform.android
+            ? const AndroidSecureScreen()
+            : null,
       ),
     );
 

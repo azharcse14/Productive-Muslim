@@ -26,7 +26,9 @@ final class AppLockStore {
     DateTime Function()? now,
     Duration Function()? elapsed,
     BootClock? bootClock,
+    SecureScreen? secureScreen,
   }) : _now = now ?? DateTime.now,
+       _secureScreen = secureScreen,
        _injectedElapsed = elapsed ?? (now == null ? null : _since(now)),
        _bootClock = bootClock;
 
@@ -35,6 +37,8 @@ final class AppLockStore {
   final DateTime Function() _now;
   final Duration Function()? _injectedElapsed;
   final BootClock? _bootClock;
+  final SecureScreen? _secureScreen;
+  EffectCleanup? _secureEffect;
 
   /// Last [BootClock] reading, advanced in-process by [_sinceBootBase]
   /// between readings (that stopwatch pauses in deep sleep, so it can only
@@ -204,8 +208,15 @@ final class AppLockStore {
   );
 
   /// Starts watching app lifecycle for background re-locking. Call once.
+  /// Also keeps [SecureScreen] in step with [enabled].
   void watchLifecycle() {
     _lifecycle ??= AppLifecycleListener(onStateChange: onLifecycleChanged);
+    final secure = _secureScreen;
+    if (secure != null) {
+      _secureEffect ??= effect(
+        () => unawaited(secure.setSecure(on: enabled.value)),
+      );
+    }
   }
 
   /// Lifecycle hook (public for tests): remembers when the app left the
@@ -410,5 +421,8 @@ final class AppLockStore {
     await _persistThrottle();
   }
 
-  void dispose() => _lifecycle?.dispose();
+  void dispose() {
+    _lifecycle?.dispose();
+    _secureEffect?.call();
+  }
 }

@@ -17,6 +17,13 @@ abstract interface class AppLockStorage {
 /// `left` still to serve from then. Wall time is never trusted for it.
 typedef PinCooldown = ({Duration? startedAtBoot, Duration left});
 
+/// Keeps the app's window out of screenshots and the recents thumbnail
+/// while the lock is on (Android FLAG_SECURE).
+abstract interface class SecureScreen {
+  /// Best-effort: never throws.
+  Future<void> setSecure({required bool on});
+}
+
 /// Time since the device booted, counting deep sleep, unaffected by wall
 /// clock changes. Restarts near zero after a reboot.
 abstract interface class BootClock {

@@ -117,4 +117,22 @@ void main() {
     expect(read.cooldown?.startedAtBoot, const Duration(seconds: 7));
     expect(read.cooldown?.left, const Duration(seconds: 60));
   });
+
+  test('FLAG_SECURE failure is logged, not thrown', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    const channel = MethodChannel('com.productivemuslim.app/secure');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final calls = <Object?>[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call.arguments);
+      throw PlatformException(code: 'no-window');
+    });
+    await const AndroidSecureScreen().setSecure(on: true);
+    expect(calls, [true]);
+    // No handler at all (another platform / engine): also swallowed.
+    messenger.setMockMethodCallHandler(channel, null);
+    await const AndroidSecureScreen().setSecure(on: false);
+  });
 }
