@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,27 +20,61 @@ import '../state/settings_store.dart';
 /// More tab — every secondary destination, grouped (Worship / Tools / You)
 /// rather than one long list. Ramadan rises to the top while it's in
 /// season. In debug builds it also links to the widget gallery.
-final class MoreScreen extends StatelessWidget {
+final class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
+
+  @override
+  State<MoreScreen> createState() => _MoreScreenState();
+}
+
+final class _MoreScreenState extends State<MoreScreen> {
+  final _settings = locator<SettingsStore>();
+
+  /// The tab stays alive in the shell: re-read the day each minute so
+  /// Ramadan rises (and drops after Eid) without a restart.
+  final _minute = signal(0);
+  late final Timer _ticker;
+
+  /// Only notifies on change, so the minute tick rebuilds nothing until
+  /// the season flips.
+  late final _inRamadan = computed(() {
+    _minute.value;
+    // Today at the user's location, like every other "today" in the app.
+    final location = _settings.location.value;
+    final now = location == null
+        ? DateTime.now()
+        : locator<ZonedClock>().nowAt(location);
+    return RamadanUtils.isRamadan(
+      HijriDate.fromGregorian(
+        now,
+        offsetDays: _settings.settings.value.hijriOffsetDays,
+      ),
+    );
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _minute.value++,
+    );
+  }
+
+  @override
+  void dispose() {
+    _ticker.cancel();
+    _inRamadan.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => SignalBuilder(builder: _build);
 
   Widget _build(BuildContext context) {
     final l10n = context.l10n;
-    final settings = locator<SettingsStore>();
-    final showAchievements = settings.settings.value.showAchievements;
-    // Today at the user's location, like every other "today" in the app.
-    final location = settings.location.value;
-    final now = location == null
-        ? DateTime.now()
-        : locator<ZonedClock>().nowAt(location);
-    final inRamadan = RamadanUtils.isRamadan(
-      HijriDate.fromGregorian(
-        now,
-        offsetDays: settings.settings.value.hijriOffsetDays,
-      ),
-    );
+    final showAchievements = _settings.settings.value.showAchievements;
+    final inRamadan = _inRamadan.value;
     final ramadan = _Entry(
       Icons.nightlight_outlined,
       l10n.ramadanTitle,

@@ -94,8 +94,16 @@ final class _LockScreenState extends State<LockScreen> {
   }
 
   Future<void> _biometric() async {
-    if (await _store.unlockWithBiometric(context.l10n.appLockBiometricReason)) {
-      _verified();
+    final l10n = context.l10n;
+    try {
+      if (await _store.unlockWithBiometric(l10n.appLockBiometricReason)) {
+        _verified();
+      }
+    } on Object catch (e) {
+      // Only the biometric plugin can throw here (lockout, no sensor):
+      // the PIN pad stays available, so fall back to it without a
+      // misleading storage message.
+      debugPrint('lock screen biometric: $e');
     }
   }
 
