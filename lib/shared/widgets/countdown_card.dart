@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/theme/productive_muslim_colors.dart';
 import '../../core/theme/productive_muslim_tokens.dart';
@@ -42,7 +42,7 @@ final class CountdownCard extends StatelessWidget {
   /// Time-of-day tint applied to the calm state's background (see [SkyPhase]).
   final SkyPhase skyPhase;
 
-  /// Optional widget pinned to the card's top-right corner. Built with the
+  /// Optional widget at the end of the eyebrow row (top-end corner). Built with the
   /// card's current foreground color so it can tint itself to match the
   /// active state (e.g. the home qibla indicator).
   final Widget Function(Color foreground)? corner;
@@ -74,7 +74,7 @@ final class CountdownCard extends StatelessWidget {
   ({Color bg, Color fg, Color sub, Color bar, Color ring}) _colors(
     ProductiveMuslimColors q,
   ) {
-    const none = Color(0x00000000);
+    const none = Colors.transparent;
     return switch (state) {
       CountdownState.calm => (
         bg: q.surface,
@@ -148,18 +148,7 @@ final class CountdownCard extends StatelessWidget {
         gradient: gradient,
         borderRadius: BorderRadius.circular(QRadius.xl),
         border: Border.all(color: c.ring),
-        boxShadow: [
-          BoxShadow(
-            color: context.q.ink.withValues(alpha: 0.06),
-            offset: const Offset(0, 1),
-            blurRadius: 2,
-          ),
-          BoxShadow(
-            color: context.q.ink.withValues(alpha: 0.07),
-            offset: const Offset(0, 4),
-            blurRadius: 14,
-          ),
-        ],
+        boxShadow: context.q.e1,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(QRadius.xl),
@@ -169,103 +158,112 @@ final class CountdownCard extends StatelessWidget {
           child: Stack(
             children: [
               MotifBackground(color: c.fg, opacity: 0.055, cell: 120),
-              Semantics(
-                container: true,
-                label: semanticLabel ?? '$eyebrow $big. $sub',
-                excludeSemantics: true,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        // Keeps the eyebrow clear of the corner chip.
-                        // ponytail: fixed reserve sized for the qibla chip;
-                        // measure the corner if a wider one is added.
-                        padding: EdgeInsetsDirectional.only(
-                          end: corner == null ? 0 : 88,
-                        ),
-                        child: Text(
-                          eyebrow.toUpperCase(),
-                          style: QType.overline.copyWith(color: c.sub),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: compact ? 5 : 8,
-                          bottom: compact ? 4 : 6,
-                        ),
-                        // Shrinks rather than wrapping mid-digits at large text
-                        // sizes on narrow phones.
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: AlignmentDirectional.centerStart,
-                          child: _RollingText(
-                            big,
-                            style: QType.countdown.copyWith(
-                              fontSize: numeralSize,
-                              color: c.fg,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  QSpace.s6,
+                  QSpace.s5,
+                  QSpace.s6,
+                  QSpace.s5,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Eyebrow and corner share a row, so a long eyebrow or
+                    // a large text size wraps instead of running under it.
+                    Row(
+                      children: [
+                        Expanded(
+                          // One spoken node for eyebrow, numeral and caption;
+                          // the rest of the card is excluded below. The
+                          // corner stays outside so it keeps its own action.
+                          child: Semantics(
+                            container: true,
+                            label: semanticLabel ?? '$eyebrow $big. $sub',
+                            excludeSemantics: true,
+                            child: Text(
+                              eyebrow.toUpperCase(),
+                              style: QType.overline.copyWith(color: c.sub),
                             ),
                           ),
                         ),
-                      ),
-                      Text(
-                        sub,
-                        style: QType.caption.copyWith(
-                          fontSize: 12.5,
-                          color: c.sub,
-                        ),
-                      ),
-                      SizedBox(height: compact ? 10 : 16),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(3),
-                        child: SizedBox(
-                          height: 5,
-                          width: double.infinity,
-                          child: ColoredBox(
-                            color: c.fg.withValues(alpha: 0.14),
-                            child: FractionallySizedBox(
-                              alignment: AlignmentDirectional.centerStart,
-                              widthFactor: progress.clamp(0, 1),
-                              child: ColoredBox(color: c.bar),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (footer.isNotEmpty) ...[
-                        SizedBox(height: compact ? 8 : 12),
-                        Wrap(
-                          spacing: QSpace.s4,
-                          runSpacing: QSpace.s1,
-                          children: [
-                            for (final item in footer)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(item.icon, size: 14, color: c.sub),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    item.text,
-                                    style: QType.num_(
-                                      QType.caption,
-                                    ).copyWith(color: c.sub),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
+                        if (corner != null) ...[
+                          const SizedBox(width: QSpace.s2),
+                          corner!(c.fg),
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+                    ExcludeSemantics(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: compact ? QSpace.s1 : QSpace.s2,
+                              bottom: compact ? QSpace.s1 : QSpace.s2,
+                            ),
+                            // Shrinks rather than wrapping mid-digits at large
+                            // text sizes on narrow phones.
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerStart,
+                              child: _RollingText(
+                                big,
+                                style: QType.countdown.copyWith(
+                                  fontSize: numeralSize,
+                                  color: c.fg,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            sub,
+                            style: QType.captionLg.copyWith(color: c.sub),
+                          ),
+                          SizedBox(height: compact ? QSpace.s2 : QSpace.s4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: SizedBox(
+                              height: 5,
+                              width: double.infinity,
+                              child: ColoredBox(
+                                color: c.fg.withValues(alpha: 0.14),
+                                child: FractionallySizedBox(
+                                  alignment: AlignmentDirectional.centerStart,
+                                  widthFactor: progress.clamp(0, 1),
+                                  child: ColoredBox(color: c.bar),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (footer.isNotEmpty) ...[
+                            SizedBox(height: compact ? QSpace.s2 : QSpace.s3),
+                            Wrap(
+                              spacing: QSpace.s4,
+                              runSpacing: QSpace.s1,
+                              children: [
+                                for (final item in footer)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(item.icon, size: 14, color: c.sub),
+                                      const SizedBox(width: QSpace.s1),
+                                      Text(
+                                        item.text,
+                                        style: QType.num_(
+                                          QType.caption,
+                                        ).copyWith(color: c.sub),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              // Last, so it sits above the text column and keeps its taps.
-              if (corner != null)
-                PositionedDirectional(
-                  top: compact ? 12 : 16,
-                  end: compact ? 12 : 16,
-                  child: corner!(c.fg),
-                ),
             ],
           ),
         ),

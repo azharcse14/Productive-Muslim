@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
-import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -61,12 +59,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
   }
 
   String _formatTime(BuildContext context, ClockTime time) {
-    final locale = Localizations.localeOf(context);
-    final dt = DateTime(2026, 1, 1, time.hour, time.minute);
-    return LocaleDigits.localize(
-      DateFormat.jm(locale.toString()).format(dt),
-      locale.languageCode,
-    );
+    return context.clockTime(DateTime(2026, 1, 1, time.hour, time.minute));
   }
 
   Future<void> _addProfile() async {
@@ -257,7 +250,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
           if (_store.readFailed.value) {
             return QErrorRetry(
               message: l10n.mosqueLoadError,
-              retryLabel: l10n.hadithRetry,
+              retryLabel: l10n.retry,
               onRetry: () => unawaited(_store.load()),
             );
           }

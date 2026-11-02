@@ -8,7 +8,7 @@ import 'q_pressable.dart';
 final class QCard extends StatelessWidget {
   const QCard({
     required this.child,
-    this.padding = const EdgeInsets.all(18),
+    this.padding = const EdgeInsets.all(QSpace.s5),
     this.tone,
     this.radius = QRadius.lg,
     this.onTap,
@@ -33,18 +33,7 @@ final class QCard extends StatelessWidget {
       color: tone ?? q.surface,
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(color: q.line),
-      boxShadow: [
-        BoxShadow(
-          color: q.ink.withValues(alpha: 0.06),
-          offset: const Offset(0, 1),
-          blurRadius: 2,
-        ),
-        BoxShadow(
-          color: q.ink.withValues(alpha: 0.07),
-          offset: const Offset(0, 4),
-          blurRadius: 14,
-        ),
-      ],
+      boxShadow: q.e1,
     );
     final content = ClipRRect(
       borderRadius: BorderRadius.circular(radius),

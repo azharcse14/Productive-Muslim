@@ -2580,9 +2580,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithLoadError => 'Couldn\'t load this. Please try again.';
 
   @override
-  String get hadithRetry => 'Try again';
-
-  @override
   String get hadithSourceNote =>
       'Source: fawazahmed0/hadith-api (public domain)';
 
@@ -3465,4 +3462,92 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditsReferences =>
       'Duas, ruqyah and the hadith of the day cite their source on each item.';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String numberRangeError(String min, String max) {
+    return 'Enter $min–$max';
+  }
+
+  @override
+  String get appLockBiometricUnavailable =>
+      'Biometric unavailable — use your PIN';
+
+  @override
+  String get ageAsOfBeforeBirth => 'As-of date is before the birth date';
+
+  @override
+  String get trackerArchivedToast => 'Archived';
+
+  @override
+  String get heatmapLegendAllDone => 'All done';
+
+  @override
+  String muhasabaIconName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'mosque': 'Mosque',
+      'book': 'Book',
+      'beads': 'Prayer beads',
+      'heart': 'Heart',
+      'moon': 'Moon',
+      'sun': 'Sun',
+      'spark': 'Sparkle',
+      'food': 'Food',
+      'water': 'Water',
+      'walk': 'Walking',
+      'bed': 'Sleep',
+      'star': 'Star',
+      'speech': 'Conversation',
+      'hands': 'Giving',
+      'people': 'People',
+      'globe': 'Globe',
+      'library': 'Reading',
+      'shield': 'Shield',
+      'healing': 'Healing',
+      'eye': 'Eye',
+      'protect': 'Protection',
+      'other': 'Icon',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String muhasabaColorName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'teal': 'Teal',
+      'honey': 'Honey',
+      'green': 'Green',
+      'brown': 'Brown',
+      'deepTeal': 'Deep teal',
+      'grey': 'Grey',
+      'other': 'Color',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get unitKg => 'kg';
+
+  @override
+  String get trackerNameLabel => 'Name';
+
+  @override
+  String fastingLoggedOn(String date) {
+    return 'Logged $date';
+  }
+
+  @override
+  String get focusSilenceDisclosureTitle => 'Do Not Disturb access';
+
+  @override
+  String get focusSilenceDisclosureBody =>
+      'Productive Muslim uses Do Not Disturb access only for jamaat focus: to silence the phone when a session starts and restore your previous setting when it ends. It does not read, collect or share your notifications.';
+
+  @override
+  String get notifRescheduleFailed => 'Couldn\'t schedule reminders';
+
+  @override
+  String get bookmarkRemoveTooltip => 'Remove bookmark';
 }

@@ -7,10 +7,10 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
-import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../state/ruqyah_store.dart';
 import '../widgets/ruqyah_card.dart';
 
@@ -68,7 +68,7 @@ final class _TibbNabawiScreenState extends State<TibbNabawiScreen> {
                 if (_store.failed.value && items.isEmpty)
                   QErrorRetry(
                     message: l10n.ruqyahLoadError,
-                    retryLabel: l10n.hadithRetry,
+                    retryLabel: l10n.retry,
                     onRetry: () => unawaited(_store.load()),
                   )
                 else if (!_store.loaded.value)

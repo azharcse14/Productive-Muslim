@@ -6,9 +6,9 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
-import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../state/hadith_store.dart';
 import '../widgets/hadith_list_card.dart';
 
@@ -60,7 +60,7 @@ final class _HadithDetailScreenState extends State<HadithDetailScreen> {
               // A failed load isn't "not found" — the id may well exist.
               (null, true) when _store.failed.value => QErrorRetry(
                 message: l10n.hadithTopicsLoadError,
-                retryLabel: l10n.hadithRetry,
+                retryLabel: l10n.retry,
                 onRetry: () => unawaited(_store.load()),
               ),
               (null, true) => Center(child: Text(l10n.hadithNotFound)),

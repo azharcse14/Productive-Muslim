@@ -72,15 +72,7 @@ final class QSegControl extends StatelessWidget {
                             ? q.surface
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(QRadius.sm),
-                        boxShadow: i == activeIndex
-                            ? [
-                                BoxShadow(
-                                  color: q.ink.withValues(alpha: 0.07),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 6,
-                                ),
-                              ]
-                            : null,
+                        boxShadow: i == activeIndex ? q.e1 : null,
                       ),
                       // Shrink rather than break a word mid-glyph at
                       // large text scales.

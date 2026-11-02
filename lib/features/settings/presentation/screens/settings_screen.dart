@@ -9,15 +9,15 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
 import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
-import '../../../quran/presentation/state/quran_store.dart';
-import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
 import '../../domain/usecases/regional_defaults.dart';
@@ -83,7 +83,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
           return ListView(
             padding: const EdgeInsets.all(QSpace.s5),
             children: [
-              _GroupHeader(l10n.groupCalculation),
+              QSectionHeader(l10n.groupCalculation),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -164,7 +164,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              _GroupHeader(l10n.groupAdvanced),
+              QSectionHeader(l10n.groupAdvanced),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -178,7 +178,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _pickHighLat(params.highLatitudeRule),
                 ),
               ),
-              _GroupHeader(l10n.groupNotifications),
+              QSectionHeader(l10n.groupNotifications),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -198,7 +198,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                       context.pushNamed(Routes.notificationSettings.name),
                 ),
               ),
-              _GroupHeader(l10n.groupAppearance),
+              QSectionHeader(l10n.groupAppearance),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -233,20 +233,17 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     // Same sheet as the Quran reader's; dua/hadith/ruqyah
                     // Arabic follows it too.
-                    if (locator.isRegistered<QuranStore>()) ...[
-                      const Divider(),
-                      QListRow(
-                        icon: Icons.format_size,
-                        title: l10n.readerFontSize,
-                        trailing: Icon(Icons.chevron_right, color: q.ink3),
-                        onTap: () =>
-                            unawaited(showReaderSettingsSheet(context)),
-                      ),
-                    ],
+                    const Divider(),
+                    QListRow(
+                      icon: Icons.format_size,
+                      title: l10n.readerFontSize,
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => unawaited(showReaderSettingsSheet(context)),
+                    ),
                   ],
                 ),
               ),
-              _GroupHeader(l10n.groupPrivacy),
+              QSectionHeader(l10n.groupPrivacy),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -300,7 +297,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              _GroupHeader(l10n.groupAbout),
+              QSectionHeader(l10n.groupAbout),
               QCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: QSpace.s4,
@@ -524,22 +521,6 @@ final class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-}
-
-final class _GroupHeader extends StatelessWidget {
-  const _GroupHeader(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsetsDirectional.only(
-      top: QSpace.s6,
-      bottom: QSpace.s3,
-      start: QSpace.s1,
-    ),
-    child: Text(title.toUpperCase(), style: context.text.labelSmall),
-  );
 }
 
 /// A control below the [QListRow] above it, aligned with its text.

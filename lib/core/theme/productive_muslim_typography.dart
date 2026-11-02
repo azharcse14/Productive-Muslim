@@ -41,6 +41,13 @@ abstract final class QType {
   static final body = _base(15, 1.5, 400);
   static final label = _base(13, 1.35, 600);
   static final caption = _base(11.5, 1.4, 500);
+
+  /// Slightly larger caption for banner and countdown sub-lines.
+  static final captionLg = _base(12.5, 1.4, 500);
+
+  /// QButton / FilledButton label (52dp pill) and its small (40dp) variant.
+  static final button = _base(15.5, 1.3, 600);
+  static final buttonSm = _base(14, 1.3, 600);
   static final overline = _base(11, 1.2, 700, spacing: 1.4);
 
   /// Countdown hero numeral: 56px·700, −1.5 tracking, tabular numerals.

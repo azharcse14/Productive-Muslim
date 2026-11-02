@@ -110,7 +110,7 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                 if (_store.failed.value && categories.isEmpty)
                   QErrorRetry(
                     message: l10n.ruqyahLoadError,
-                    retryLabel: l10n.hadithRetry,
+                    retryLabel: l10n.retry,
                     onRetry: () => unawaited(_store.load()),
                   )
                 else

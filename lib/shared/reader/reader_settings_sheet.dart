@@ -1,28 +1,31 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../config/app_config.dart';
-import '../../../../core/theme/productive_muslim_tokens.dart';
-import '../../../../core/theme/productive_muslim_typography.dart';
-import '../../../../core/utils/locale_digits.dart';
-import '../../../../shared/extensions/context_ext.dart';
-import '../state/quran_store.dart';
+import '../../config/app_config.dart';
+import '../../core/theme/productive_muslim_tokens.dart';
+import '../../core/theme/productive_muslim_typography.dart';
+import '../extensions/context_ext.dart';
+import 'reader_text_size.dart';
 
 /// Reading-settings sheet: the Arabic size slider (shared by the Quran
 /// reader and the dua/hadith/ruqyah screens, whose Arabic follows it via
-/// [arabicBodySize]) and, in the Quran reader, the translation toggle.
+/// [arabicBodySize]) plus any [extras] below it (the Quran reader's
+/// translation toggle). Built inside a SignalBuilder, so [extras] may read
+/// signals. No-op without a [ReaderTextSizeScope].
 Future<void> showReaderSettingsSheet(
   BuildContext context, {
-  bool showTranslationToggle = false,
+  List<Widget> Function(BuildContext context)? extras,
   VoidCallback? onFontChangeStart,
   VoidCallback? onFontChanged,
-}) {
-  final store = GetIt.I<QuranStore>();
+}) async {
+  final textSize = ReaderTextSizeScope.maybeOf(context);
+  if (textSize == null) {
+    return;
+  }
   final l10n = context.l10n;
-  return showModalBottomSheet<void>(
+  await showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (sheetContext) => SafeArea(
@@ -36,7 +39,7 @@ Future<void> showReaderSettingsSheet(
         child: SignalBuilder(
           builder: (context) {
             final q = context.q;
-            final size = store.readerFontSize.value;
+            final size = textSize.size.value;
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,30 +57,16 @@ Future<void> showReaderSettingsSheet(
                                   AppConfig.quranFontSizeMin) /
                               AppConfig.quranFontSizeStep)
                           .round(),
-                  label: LocaleDigits.localize(
-                    '${size.round()}',
-                    Localizations.localeOf(context).languageCode,
-                  ),
+                  label: context.digits('${size.round()}'),
                   // Persist once on release, not on every tick.
                   onChangeStart: (_) => onFontChangeStart?.call(),
                   onChanged: (value) {
-                    unawaited(store.setReaderFontSize(value, persist: false));
+                    unawaited(textSize.set(value, persist: false));
                     onFontChanged?.call();
                   },
-                  onChangeEnd: (value) =>
-                      unawaited(store.setReaderFontSize(value)),
+                  onChangeEnd: (value) => unawaited(textSize.set(value)),
                 ),
-                if (showTranslationToggle)
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      l10n.showTranslation,
-                      style: QType.titleSm.copyWith(color: q.ink),
-                    ),
-                    value: store.showTranslation.value,
-                    onChanged: (value) =>
-                        unawaited(store.setShowTranslation(value: value)),
-                  ),
+                ...?extras?.call(context),
               ],
             );
           },
@@ -88,25 +77,19 @@ Future<void> showReaderSettingsSheet(
 }
 
 /// App-bar action opening [showReaderSettingsSheet] (text size only).
-/// Hidden when the Quran store isn't available (DB failed to open).
+/// Hidden without a [ReaderTextSizeScope].
 final class ReaderSettingsAction extends StatelessWidget {
   const ReaderSettingsAction({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (!GetIt.I.isRegistered<QuranStore>()) {
+    if (ReaderTextSizeScope.maybeOf(context) == null) {
       return const SizedBox.shrink();
     }
     return IconButton(
       tooltip: context.l10n.readerSettings,
       icon: const Icon(Icons.text_fields),
-      onPressed: () {
-        final store = GetIt.I<QuranStore>();
-        if (!store.loaded.value) {
-          unawaited(store.load());
-        }
-        unawaited(showReaderSettingsSheet(context));
-      },
+      onPressed: () => unawaited(showReaderSettingsSheet(context)),
     );
   }
 }

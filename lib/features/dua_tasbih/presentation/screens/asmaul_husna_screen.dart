@@ -77,7 +77,7 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
             if (_store.failed.value && names.isEmpty) {
               return QErrorRetry(
                 message: l10n.asmaLoadError,
-                retryLabel: l10n.hadithRetry,
+                retryLabel: l10n.retry,
                 onRetry: () => unawaited(_store.load()),
               );
             }

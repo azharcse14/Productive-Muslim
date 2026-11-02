@@ -46,16 +46,18 @@ final class QChip extends StatelessWidget {
             child: Center(
               widthFactor: 1,
               child: AnimatedContainer(
-                duration: QMotion.fast,
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : QMotion.fast,
                 curve: QMotion.ease,
                 constraints: const BoxConstraints(minHeight: 36),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: QSpace.s4),
                 decoration: BoxDecoration(
                   color: active ? q.primary : q.surface,
                   borderRadius: BorderRadius.circular(QRadius.full),
                   border: Border.all(
-                    color: active ? q.primary : q.line,
+                    color: active ? q.primary : q.lineStrong,
                     width: 1.5,
                   ),
                 ),

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../extensions/context_ext.dart';
 
@@ -37,7 +37,7 @@ final class QHeatmapCell extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: level < 0 ? const Color(0x00000000) : colorFor(context, level),
+        color: level < 0 ? Colors.transparent : colorFor(context, level),
         borderRadius: BorderRadius.circular(3.5),
         border: outlined ? Border.all(color: context.q.ink, width: 1.5) : null,
       ),

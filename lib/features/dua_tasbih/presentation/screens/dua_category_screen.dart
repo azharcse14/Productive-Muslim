@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
-import '../../../quran/presentation/widgets/reader_settings_sheet.dart';
+import '../../../../shared/reader/reader_settings_sheet.dart';
 import '../../domain/entities/dua.dart';
 import '../widgets/dua_card.dart';
 

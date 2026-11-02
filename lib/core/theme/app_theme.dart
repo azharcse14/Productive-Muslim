@@ -26,10 +26,16 @@ abstract final class AppTheme {
       onPrimary: q.onPrimary,
       primaryContainer: q.primarySoft,
       onPrimaryContainer: q.onPrimarySoft,
-      secondary: q.accent,
-      onSecondary: q.onAccent,
-      secondaryContainer: q.accentSoft,
-      onSecondaryContainer: q.onAccentSoft,
+      // Honey is for celebrations only — Material's secondary/tertiary roles
+      // (selected chips, nav indicators, …) stay in the calm families.
+      secondary: q.onPrimarySoft,
+      onSecondary: q.primarySoft,
+      secondaryContainer: q.primarySoft,
+      onSecondaryContainer: q.onPrimarySoft,
+      tertiary: q.ok,
+      onTertiary: q.okSoft,
+      tertiaryContainer: q.okSoft,
+      onTertiaryContainer: q.ok,
       error: q.urgent,
       onError: q.urgentSoft,
       errorContainer: q.urgentSoft,
@@ -111,12 +117,47 @@ abstract final class AppTheme {
         errorStyle: QType.caption.copyWith(color: q.urgent),
         prefixIconColor: q.ink2,
         suffixIconColor: q.ink2,
-        border: _field(q.line, 1.5),
-        enabledBorder: _field(q.line, 1.5),
+        border: _field(q.lineStrong, 1.5),
+        enabledBorder: _field(q.lineStrong, 1.5),
         focusedBorder: _field(q.primary, 2),
         errorBorder: _field(q.urgent, 1.5),
         focusedErrorBorder: _field(q.urgent, 2),
         disabledBorder: _field(q.line, 1),
+      ),
+      // Stock FilledButton matches QButton primary: 52dp teal pill.
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: q.primary,
+          foregroundColor: q.onPrimary,
+          minimumSize: const Size(64, 52),
+          padding: const EdgeInsets.symmetric(horizontal: QSpace.s6),
+          shape: const StadiumBorder(),
+          textStyle: QType.button,
+        ),
+      ),
+      // Stock ListTile / SwitchListTile match QListRow.
+      listTileTheme: ListTileThemeData(
+        minTileHeight: 56,
+        minVerticalPadding: 10,
+        iconColor: q.ink2,
+        textColor: q.ink,
+        titleTextStyle: QType.titleSm.copyWith(color: q.ink),
+        subtitleTextStyle: QType.caption.copyWith(color: q.ink2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(QRadius.md),
+        ),
+      ),
+      // Stock chips match QChip: pill, strong outline when unselected.
+      chipTheme: ChipThemeData(
+        shape: const StadiumBorder(),
+        side: WidgetStateBorderSide.resolveWith(
+          (states) => BorderSide(
+            color: states.contains(WidgetState.selected)
+                ? q.primary
+                : q.lineStrong,
+            width: 1.5,
+          ),
+        ),
       ),
       // Inverse bar: ink fill with page-colored text in both themes.
       snackBarTheme: SnackBarThemeData(

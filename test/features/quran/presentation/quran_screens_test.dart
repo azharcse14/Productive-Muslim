@@ -11,6 +11,7 @@ import 'package:productive_muslim/features/quran/domain/repositories/quran_repos
 import 'package:productive_muslim/features/quran/presentation/screens/quran_reader_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/screens/quran_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 import 'package:productive_muslim/shared/widgets/q_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -153,6 +154,8 @@ Widget _app(Widget home) => MaterialApp(
   theme: AppTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
+  builder: (context, child) =>
+      ReaderTextSizeScope(textSize: ReaderTextSize(), child: child!),
   home: home,
 );
 

@@ -365,7 +365,7 @@ final class _QuranScreenState extends State<QuranScreen> {
     if (_store.failed.value) {
       return QErrorRetry(
         message: l10n.quranLoadError,
-        retryLabel: l10n.hadithRetry,
+        retryLabel: l10n.retry,
         onRetry: () => unawaited(_store.load()),
       );
     }

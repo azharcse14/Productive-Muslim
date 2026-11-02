@@ -3806,12 +3806,6 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load this. Please try again.'**
   String get hadithLoadError;
 
-  /// No description provided for @hadithRetry.
-  ///
-  /// In en, this message translates to:
-  /// **'Try again'**
-  String get hadithRetry;
-
   /// No description provided for @hadithSourceNote.
   ///
   /// In en, this message translates to:
@@ -5185,6 +5179,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duas, ruqyah and the hadith of the day cite their source on each item.'**
   String get creditsReferences;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retry;
+
+  /// No description provided for @numberRangeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {min}–{max}'**
+  String numberRangeError(String min, String max);
+
+  /// No description provided for @appLockBiometricUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric unavailable — use your PIN'**
+  String get appLockBiometricUnavailable;
+
+  /// No description provided for @ageAsOfBeforeBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'As-of date is before the birth date'**
+  String get ageAsOfBeforeBirth;
+
+  /// No description provided for @trackerArchivedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get trackerArchivedToast;
+
+  /// No description provided for @heatmapLegendAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All done'**
+  String get heatmapLegendAllDone;
+
+  /// No description provided for @muhasabaIconName.
+  ///
+  /// In en, this message translates to:
+  /// **'{key, select, mosque{Mosque} book{Book} beads{Prayer beads} heart{Heart} moon{Moon} sun{Sun} spark{Sparkle} food{Food} water{Water} walk{Walking} bed{Sleep} star{Star} speech{Conversation} hands{Giving} people{People} globe{Globe} library{Reading} shield{Shield} healing{Healing} eye{Eye} protect{Protection} other{Icon}}'**
+  String muhasabaIconName(String key);
+
+  /// No description provided for @muhasabaColorName.
+  ///
+  /// In en, this message translates to:
+  /// **'{key, select, teal{Teal} honey{Honey} green{Green} brown{Brown} deepTeal{Deep teal} grey{Grey} other{Color}}'**
+  String muhasabaColorName(String key);
+
+  /// No description provided for @unitKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get unitKg;
+
+  /// No description provided for @trackerNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get trackerNameLabel;
+
+  /// No description provided for @fastingLoggedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged {date}'**
+  String fastingLoggedOn(String date);
+
+  /// No description provided for @focusSilenceDisclosureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do Not Disturb access'**
+  String get focusSilenceDisclosureTitle;
+
+  /// No description provided for @focusSilenceDisclosureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Productive Muslim uses Do Not Disturb access only for jamaat focus: to silence the phone when a session starts and restore your previous setting when it ends. It does not read, collect or share your notifications.'**
+  String get focusSilenceDisclosureBody;
+
+  /// No description provided for @notifRescheduleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t schedule reminders'**
+  String get notifRescheduleFailed;
+
+  /// No description provided for @bookmarkRemoveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get bookmarkRemoveTooltip;
 }
 
 class _AppLocalizationsDelegate

@@ -156,7 +156,7 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
             if (_loadFailed) {
               return QErrorRetry(
                 message: l10n.dataLoadFailed,
-                retryLabel: l10n.hadithRetry,
+                retryLabel: l10n.retry,
                 onRetry: _load,
               );
             }

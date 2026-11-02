@@ -9,6 +9,7 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
+import '../../../../shared/widgets/q_section_header.dart';
 import '../../../nearby_mosques/domain/external_launcher.dart';
 
 /// Tanzil's terms ask apps to name the source and link to tanzil.net.
@@ -102,14 +103,7 @@ final class _Group extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Padding(
-        padding: const EdgeInsetsDirectional.only(
-          top: QSpace.s6,
-          bottom: QSpace.s3,
-          start: QSpace.s1,
-        ),
-        child: Text(title.toUpperCase(), style: context.text.labelSmall),
-      ),
+      QSectionHeader(title),
       QCard(
         padding: const EdgeInsets.symmetric(
           horizontal: QSpace.s4,

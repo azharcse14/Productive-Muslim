@@ -95,7 +95,12 @@ void main() {
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('tea'));
+    // Built lazily below the summary card; scroll it into the tree.
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('tea'));
     await tester.pumpAndSettle();
@@ -215,7 +220,12 @@ void main() {
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
-    await tester.ensureVisible(find.text('tea'));
+    // Built lazily below the summary card; scroll it into the tree.
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.drag(find.text('tea'), const Offset(-600, 0));
     await tester.pumpAndSettle();
@@ -260,7 +270,12 @@ void main() {
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('tea'));
+    // Built lazily below the summary card; scroll it into the tree.
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     prefs.fail = true;
     await tester.drag(find.text('tea'), const Offset(-600, 0));
@@ -345,7 +360,12 @@ void main() {
     await tester.ensureVisible(find.widgetWithText(QChip, 'Show all'));
     await tester.tap(find.widgetWithText(QChip, 'Show all'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('tea'));
+    // Built lazily below the summary card; scroll it into the tree.
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('tea'), findsOneWidget);
   });
 

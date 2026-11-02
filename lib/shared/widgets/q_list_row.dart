@@ -46,7 +46,7 @@ final class QListRow extends StatelessWidget {
                 height: 38,
                 decoration: BoxDecoration(
                   color: iconTone ?? q.primarySoft,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(QRadius.sm),
                 ),
                 child: Icon(icon, size: 19, color: q.onPrimarySoft),
               ),

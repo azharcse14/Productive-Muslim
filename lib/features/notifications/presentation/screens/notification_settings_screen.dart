@@ -96,11 +96,8 @@ final class _NotificationSettingsScreenState
   static final _android = defaultTargetPlatform == TargetPlatform.android;
 
   String _formatMinuteOfDay(BuildContext context, int minuteOfDay) {
-    final locale = Localizations.localeOf(context);
-    final dt = DateTime(2000, 1, 1, minuteOfDay ~/ 60, minuteOfDay % 60);
-    return LocaleDigits.localize(
-      DateFormat.jm(locale.toString()).format(dt),
-      locale.languageCode,
+    return context.clockTime(
+      DateTime(2000, 1, 1, minuteOfDay ~/ 60, minuteOfDay % 60),
     );
   }
 
@@ -775,11 +772,7 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
   }
 
   String _time(BuildContext context, DateTime at) {
-    final locale = Localizations.localeOf(context);
-    return LocaleDigits.localize(
-      DateFormat.jm(locale.toString()).format(at),
-      locale.languageCode,
-    );
+    return context.clockTime(at);
   }
 
   @override

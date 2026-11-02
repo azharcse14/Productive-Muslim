@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart'
     show TargetPlatform, debugPrint, defaultTargetPlatform;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart' show AppLifecycleListener, WidgetsBinding;
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:signals/signals.dart';
@@ -96,9 +96,10 @@ import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
+import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../utils/haptics.dart';
-import '../utils/locale_digits.dart';
+import '../utils/time_format.dart';
 
 /// Global service locator. The ONLY place registrations happen
 /// (guide §4 — single composition root). Widgets never call
@@ -216,7 +217,11 @@ Future<void> setupLocator() async {
         currentLocation: () => locator<SettingsStore>().location.value,
         formatTime: (dt) {
           final code = locator<SettingsStore>().settings.value.localeCode;
-          return LocaleDigits.localize(DateFormat.jm(code).format(dt), code);
+          return formatClockTime(
+            dt,
+            locale: code,
+            use24h: PlatformDispatcher.instance.alwaysUse24HourFormat,
+          );
         },
         onTap: _onNotificationTap,
       ),
@@ -270,7 +275,17 @@ Future<void> setupLocator() async {
     )
     ..registerLazySingleton(
       () => QuranStore(locator(), SharedPreferencesAsync()),
-    );
+    )
+    // Arabic text size for the Quran reader and dua/hadith/ruqyah; its own
+    // store so it works even if the Quran DB fails to open.
+    ..registerLazySingleton(() {
+      final prefs = SharedPreferencesAsync();
+      const key = 'quran_font_size';
+      return ReaderTextSize(
+        read: () => prefs.getDouble(key),
+        write: (size) => prefs.setDouble(key, size),
+      );
+    });
 
   // ---- dua & tasbih ----
   locator
@@ -402,6 +417,7 @@ Future<void> setupLocator() async {
     load('Dua favorites', locator<DuaFavoritesStore>().load),
     load('Fasting', locator<FastingStore>().load),
     load('Tasbih', locator<TasbihStore>().load),
+    load('Reader text size', locator<ReaderTextSize>().load),
   ]);
   lock.watchLifecycle();
   // Home resolves QuranStore on its first build, so the DB must be ready.
@@ -411,8 +427,8 @@ Future<void> setupLocator() async {
   } on Object catch (e) {
     quranOpened = false;
     // Unregistered so every isRegistered<QuranStore>() caller (Home's
-    // continue-reading card, arabicBodySize() in each dua/hadith/ruqyah
-    // card) takes its fallback instead of throwing on resolve.
+    // continue-reading card) takes its fallback instead of throwing on
+    // resolve.
     // ponytail: the Quran and achievements screens still throw on resolve;
     // give them an "unavailable" state if this shows up in the wild.
     await locator.unregister<QuranStore>();

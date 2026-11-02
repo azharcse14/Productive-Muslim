@@ -1229,7 +1229,6 @@
     "placeholders": { "grade": { "type": "String" } }
   },
   "hadithLoadError": "Couldn't load this. Please try again.",
-  "hadithRetry": "Try again",
   "hadithSourceNote": "Source: fawazahmed0/hadith-api (public domain)",
   "hadithSourceNoteBn": "Bengali source: hadithbangla project",
   "hadithEnglishOnly": "English only",
@@ -1591,5 +1590,24 @@
   "creditsGroupFonts": "Fonts",
   "creditsFontsUi": "Interface",
   "creditsFontQuran": "Quran script",
-  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item."
+  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item.",
+  "retry": "Try again",
+  "numberRangeError": "Enter {min}–{max}",
+  "@numberRangeError": {"placeholders": {"min": {"type": "String"}, "max": {"type": "String"}}},
+  "appLockBiometricUnavailable": "Biometric unavailable — use your PIN",
+  "ageAsOfBeforeBirth": "As-of date is before the birth date",
+  "trackerArchivedToast": "Archived",
+  "heatmapLegendAllDone": "All done",
+  "muhasabaIconName": "{key, select, mosque{Mosque} book{Book} beads{Prayer beads} heart{Heart} moon{Moon} sun{Sun} spark{Sparkle} food{Food} water{Water} walk{Walking} bed{Sleep} star{Star} speech{Conversation} hands{Giving} people{People} globe{Globe} library{Reading} shield{Shield} healing{Healing} eye{Eye} protect{Protection} other{Icon}}",
+  "@muhasabaIconName": {"placeholders": {"key": {"type": "String"}}},
+  "muhasabaColorName": "{key, select, teal{Teal} honey{Honey} green{Green} brown{Brown} deepTeal{Deep teal} grey{Grey} other{Color}}",
+  "@muhasabaColorName": {"placeholders": {"key": {"type": "String"}}},
+  "unitKg": "kg",
+  "trackerNameLabel": "Name",
+  "fastingLoggedOn": "Logged {date}",
+  "@fastingLoggedOn": {"placeholders": {"date": {"type": "String"}}},
+  "focusSilenceDisclosureTitle": "Do Not Disturb access",
+  "focusSilenceDisclosureBody": "Productive Muslim uses Do Not Disturb access only for jamaat focus: to silence the phone when a session starts and restore your previous setting when it ends. It does not read, collect or share your notifications.",
+  "notifRescheduleFailed": "Couldn't schedule reminders",
+  "bookmarkRemoveTooltip": "Remove bookmark"
 }

@@ -104,7 +104,7 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
             if (_store.failed.value && books.isEmpty) {
               return QErrorRetry(
                 message: l10n.hadithLoadError,
-                retryLabel: l10n.hadithRetry,
+                retryLabel: l10n.retry,
                 onRetry: () => unawaited(_store.load()),
               );
             }

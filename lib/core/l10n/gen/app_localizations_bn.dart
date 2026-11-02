@@ -2572,9 +2572,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithLoadError => 'লোড করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
-  String get hadithRetry => 'আবার চেষ্টা করুন';
-
-  @override
   String get hadithSourceNote =>
       'সূত্র: fawazahmed0/hadith-api (পাবলিক ডোমেইন)';
 
@@ -3448,4 +3445,92 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsReferences =>
       'দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।';
+
+  @override
+  String get retry => 'আবার চেষ্টা করুন';
+
+  @override
+  String numberRangeError(String min, String max) {
+    return '$min–$max এর মধ্যে লিখুন';
+  }
+
+  @override
+  String get appLockBiometricUnavailable =>
+      'বায়োমেট্রিক ব্যবহার করা যাচ্ছে না — আপনার পিন দিন';
+
+  @override
+  String get ageAsOfBeforeBirth => 'নির্বাচিত তারিখটি জন্ম তারিখের আগে';
+
+  @override
+  String get trackerArchivedToast => 'আর্কাইভ করা হয়েছে';
+
+  @override
+  String get heatmapLegendAllDone => 'সব সম্পন্ন';
+
+  @override
+  String muhasabaIconName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'mosque': 'মসজিদ',
+      'book': 'বই',
+      'beads': 'তাসবিহ',
+      'heart': 'হৃদয়',
+      'moon': 'চাঁদ',
+      'sun': 'সূর্য',
+      'spark': 'ঝলক',
+      'food': 'খাবার',
+      'water': 'পানি',
+      'walk': 'হাঁটা',
+      'bed': 'ঘুম',
+      'star': 'তারা',
+      'speech': 'কথোপকথন',
+      'hands': 'দান',
+      'people': 'মানুষ',
+      'globe': 'পৃথিবী',
+      'library': 'পড়াশোনা',
+      'shield': 'ঢাল',
+      'healing': 'আরোগ্য',
+      'eye': 'চোখ',
+      'protect': 'সুরক্ষা',
+      'other': 'আইকন',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String muhasabaColorName(String key) {
+    String _temp0 = intl.Intl.selectLogic(key, {
+      'teal': 'টিল',
+      'honey': 'মধু রং',
+      'green': 'সবুজ',
+      'brown': 'বাদামি',
+      'deepTeal': 'গাঢ় টিল',
+      'grey': 'ধূসর',
+      'other': 'রং',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get unitKg => 'কেজি';
+
+  @override
+  String get trackerNameLabel => 'নাম';
+
+  @override
+  String fastingLoggedOn(String date) {
+    return '$date রেকর্ড হয়েছে';
+  }
+
+  @override
+  String get focusSilenceDisclosureTitle => 'ডু নট ডিস্টার্ব অ্যাক্সেস';
+
+  @override
+  String get focusSilenceDisclosureBody =>
+      'Productive Muslim ডু নট ডিস্টার্ব অ্যাক্সেস শুধু জামাত ফোকাসের জন্য ব্যবহার করে: সেশন শুরু হলে ফোন সাইলেন্ট করতে আর শেষ হলে আগের সেটিং ফিরিয়ে দিতে। আপনার নোটিফিকেশন পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
+
+  @override
+  String get notifRescheduleFailed => 'রিমাইন্ডার নির্ধারণ করা যায়নি';
+
+  @override
+  String get bookmarkRemoveTooltip => 'বুকমার্ক সরান';
 }
