@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -33,6 +36,19 @@ final class _FixedClock implements ZonedClock {
   @override
   DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
       real.utcInstantOf(location, wall);
+}
+
+final class _BrokenClock implements ZonedClock {
+  @override
+  DateTime nowAt(LocationConfig location) => throw StateError('no tz');
+
+  @override
+  DateTime instantAt(LocationConfig location, DateTime instant) =>
+      throw StateError('no tz');
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      throw StateError('no tz');
 }
 
 const _dhaka = ManualCityLocation(
@@ -95,5 +111,38 @@ void main() {
 
     await service.update();
     expect(pushed!['widget_strips'], isNot(contains("Jumu'ah")));
+  });
+
+  test('a failed update is logged and retried later', () async {
+    final logs = <String?>[];
+    final original = debugPrint;
+    debugPrint = (message, {wrapWidth}) => logs.add(message);
+    addTearDown(() => debugPrint = original);
+    final timers = <(Duration, Timer)>[];
+    addTearDown(() {
+      for (final (_, t) in timers) {
+        t.cancel();
+      }
+    });
+
+    final clock = _BrokenClock();
+    final service = PrayerWidgetService(
+      getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
+      clock: clock,
+      settings: await makeSettingsStore(const AppSettings(location: _dhaka)),
+    );
+    await runZoned(
+      service.update,
+      zoneSpecification: ZoneSpecification(
+        createTimer: (self, parent, zone, duration, f) {
+          final t = parent.createTimer(zone, duration, f);
+          timers.add((duration, t));
+          return t;
+        },
+      ),
+    );
+
+    expect(logs.single, contains('Home widget update failed'));
+    expect(timers.map((t) => t.$1), [PrayerWidgetService.retryAfterFailure]);
   });
 }

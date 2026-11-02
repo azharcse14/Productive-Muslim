@@ -89,6 +89,30 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('an untracked prayer shows no check', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: PrayerTable(
+            day: _day,
+            activePrayer: Prayer.dhuhr,
+            jamaatTimes: const {},
+            formatTime: (t) => '${t.hour}:${t.minute}',
+            untracked: const {Prayer.asr},
+            onTogglePrayed: (_) {},
+          ),
+        ),
+      ),
+    );
+    expect(find.bySemanticsLabel('Mark Asr as prayed'), findsNothing);
+    expect(find.bySemanticsLabel('Mark Dhuhr as prayed'), findsOneWidget);
+    handle.dispose();
+  });
+
   testWidgets('labels are localized (bn)', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
