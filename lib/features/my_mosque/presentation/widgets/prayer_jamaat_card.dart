@@ -145,10 +145,14 @@ final class PrayerJamaatCard extends StatelessWidget {
                         _setOffset(picked);
                       }
                     },
-                    child: SizedBox(
-                      width: 64,
-                      height: QTouch.minTarget,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 64,
+                        minHeight: QTouch.minTarget,
+                      ),
                       child: Center(
+                        widthFactor: 1,
+                        heightFactor: 1,
                         child: Text(
                           l10n.minutesShort(offset.inMinutes),
                           textAlign: TextAlign.center,

@@ -80,6 +80,7 @@ final class SpecialTimeRow extends StatelessWidget {
               ),
               const SizedBox(width: QSpace.s2),
               Expanded(
+                flex: 3,
                 child: Text(
                   '${active ? l10n.specialNow : l10n.specialNext}: '
                   '${l10n.specialTimeLabel(window.time)}',
@@ -90,9 +91,14 @@ final class SpecialTimeRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: QSpace.s2),
-              Text(
-                range,
-                style: QType.num_(QType.caption).copyWith(color: q.ink2),
+              // Long label or large text: the range wraps instead of overflowing.
+              Flexible(
+                flex: 2,
+                child: Text(
+                  range,
+                  textAlign: TextAlign.end,
+                  style: QType.num_(QType.caption).copyWith(color: q.ink2),
+                ),
               ),
               if (onTap != null)
                 Icon(Icons.chevron_right, size: 20, color: q.ink3),

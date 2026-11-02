@@ -57,7 +57,7 @@ final class HomeHeader extends StatelessWidget {
                     button: true,
                     child: InkWell(
                       onTap: onLocationTap,
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(QRadius.full),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
                           minHeight: QTouch.minTarget,
@@ -84,7 +84,6 @@ final class HomeHeader extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: QType.titleSm.copyWith(
-                                    fontSize: 15.5,
                                     color: q.ink,
                                     fontVariations: const [
                                       FontVariation('wght', 700),

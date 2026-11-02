@@ -9,6 +9,7 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_form.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../domain/usecases/inheritance_calculator.dart';
@@ -200,17 +201,21 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             const SizedBox(height: QSpace.s4),
 
             // Parent toggles.
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidFather, style: QType.body),
-              value: _father,
-              onChanged: (v) => _edit(() => _father = v),
+            QListRow(
+              title: l10n.faraidFather,
+              onTap: () => _edit(() => _father = !_father),
+              trailing: Switch(
+                value: _father,
+                onChanged: (v) => _edit(() => _father = v),
+              ),
             ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidMother, style: QType.body),
-              value: _mother,
-              onChanged: (v) => _edit(() => _mother = v),
+            QListRow(
+              title: l10n.faraidMother,
+              onTap: () => _edit(() => _mother = !_mother),
+              trailing: Switch(
+                value: _mother,
+                onChanged: (v) => _edit(() => _mother = v),
+              ),
             ),
             const SizedBox(height: QSpace.s2),
 
@@ -241,11 +246,13 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
             const SizedBox(height: QSpace.s2),
             // Out-of-scope heirs: answering yes skips the distribution
             // rather than give a wrong radd / "unallocated" answer.
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidOtherRelatives, style: QType.body),
-              value: _otherRelatives,
-              onChanged: (v) => _edit(() => _otherRelatives = v),
+            QListRow(
+              title: l10n.faraidOtherRelatives,
+              onTap: () => _edit(() => _otherRelatives = !_otherRelatives),
+              trailing: Switch(
+                value: _otherRelatives,
+                onChanged: (v) => _edit(() => _otherRelatives = v),
+              ),
             ),
             const SizedBox(height: QSpace.s4),
 

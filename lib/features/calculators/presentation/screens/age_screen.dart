@@ -6,6 +6,7 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -103,6 +104,10 @@ final class _AgeScreenState extends State<AgeScreen> {
     final l10n = context.l10n;
     final q = context.q;
     final birthDate = _birthDate;
+    // An as-of date picked first can sit before a later-picked birth date.
+    final beforeBirth =
+        birthDate != null &&
+        DateUtils.dateOnly(_asOf).isBefore(DateUtils.dateOnly(birthDate));
     return Scaffold(
       appBar: AppBar(title: Text(l10n.ageTitle)),
       body: SafeArea(
@@ -125,12 +130,21 @@ final class _AgeScreenState extends State<AgeScreen> {
               value: _formatDate(context, _asOf),
               onTap: _pickAsOf,
             ),
+            if (beforeBirth) ...[
+              const SizedBox(height: QSpace.s3),
+              QBanner(
+                text: l10n.ageAsOfBeforeBirth,
+                icon: Icons.error_outline,
+                tone: q.warnSoft,
+                foreground: q.warn,
+              ),
+            ],
             const SizedBox(height: QSpace.s4),
             QButton(
               label: l10n.ageCalculate,
               icon: Icons.calculate_outlined,
               expand: true,
-              onPressed: birthDate == null ? null : _calculate,
+              onPressed: birthDate == null || beforeBirth ? null : _calculate,
             ),
             if (_result case final AgeResult result) ...[
               const SizedBox(height: QSpace.s4),

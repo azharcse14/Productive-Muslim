@@ -89,6 +89,47 @@ void main() {
     expect(store.locked.value, isTrue);
   });
 
+  testWidgets('a failing biometric says so and the PIN pad stays', (
+    tester,
+  ) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final store = AppLockStore(
+      AppLockDataSource(SharedPreferencesAsync()),
+      _BrokenBiometric(),
+    );
+    await tester.runAsync(() async {
+      await store.enable('1234', biometric: true);
+      await store.load();
+    });
+    GetIt.I.registerSingleton<AppLockStore>(store);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Biometric unavailable — use your PIN'), findsOneWidget);
+  });
+
+  testWidgets('no biometric hardware hides the biometric button', (
+    tester,
+  ) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final store = AppLockStore(
+      AppLockDataSource(SharedPreferencesAsync()),
+      FakeBiometric(),
+    );
+    await tester.runAsync(() async {
+      await store.enable('1234', biometric: true);
+      await store.load();
+    });
+    GetIt.I.registerSingleton<AppLockStore>(store);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.pump();
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    expect(find.text(l10n.appLockUseBiometric), findsNothing);
+  });
+
   testWidgets('throttled: shows remaining time and ignores digits', (
     tester,
   ) async {

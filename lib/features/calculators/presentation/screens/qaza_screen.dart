@@ -10,6 +10,7 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_form.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/qaza_calculator.dart';
@@ -127,6 +128,13 @@ final class _QazaScreenState extends State<QazaScreen> {
     );
   }
 
+  // Any input change clears the result, so it never shows numbers from
+  // different inputs.
+  void _setWitr(bool v) => setState(() {
+    _includeWitr = v;
+    _result = null;
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -160,23 +168,11 @@ final class _QazaScreenState extends State<QazaScreen> {
             ),
             const SizedBox(height: QSpace.s3),
             QCard(
-              padding: EdgeInsets.zero,
-              child: Material(
-                type: MaterialType.transparency,
-                child: SwitchListTile.adaptive(
-                  value: _includeWitr,
-                  // Any input change clears the result, so it never shows
-                  // numbers from different inputs.
-                  onChanged: (v) => setState(() {
-                    _includeWitr = v;
-                    _result = null;
-                  }),
-                  title: Text(
-                    l10n.qazaIncludeWitr,
-                    style: QType.body.copyWith(color: q.ink),
-                  ),
-                  activeThumbColor: q.primary,
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: QSpace.s4),
+              child: QListRow(
+                title: l10n.qazaIncludeWitr,
+                onTap: () => _setWitr(!_includeWitr),
+                trailing: Switch(value: _includeWitr, onChanged: _setWitr),
               ),
             ),
             const SizedBox(height: QSpace.s3),

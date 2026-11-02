@@ -58,8 +58,7 @@ void main() {
     });
 
     testWidgets('Witr defaults on for Hanafi, off otherwise', (tester) async {
-      bool witr() =>
-          tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value;
+      bool witr() => tester.widget<Switch>(find.byType(Switch)).value;
       await tester.pumpWidget(_app());
       await tester.pump();
       expect(witr(), isTrue);
