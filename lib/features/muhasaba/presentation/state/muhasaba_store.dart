@@ -67,6 +67,9 @@ final class MuhasabaStore {
   /// ticks whatever date the Muhasaba tab is back-filling.
   late final _days = signal(const <DateTime, Map<String, int>>{});
 
+  /// Days whose last read failed (their values are unknown).
+  final _failedDays = <DateTime>{};
+
   /// itemId → value for [selectedDate].
   late final entries = computed(
     () => _days.value[selectedDate.value] ?? const <String, int>{},
@@ -107,7 +110,14 @@ final class MuhasabaStore {
     return DateTime(n.year, n.month, n.day);
   }
 
-  Future<void> load() async {
+  /// The running [load], shared by overlapping callers (start-up, resume).
+  Future<void>? _loading;
+
+  Future<void> load() => _loading ??= _load().whenComplete(() {
+    _loading = null;
+  });
+
+  Future<void> _load() async {
     if (await _prefs?.getBool(_welcomeKey) ?? false) {
       welcomeDismissed.value = true;
     }
@@ -168,15 +178,17 @@ final class MuhasabaStore {
 
   /// Reads [day] into the cache. A failed read leaves the day as it was —
   /// never cached as empty: its values are unknown, and [_setOn] refuses
-  /// writes to an unknown day (a stepper's +1 from a fake 0 would
-  /// overwrite the stored value).
+  /// writes to such a day (a stepper's +1 from a fake 0 would overwrite
+  /// the stored value).
   Future<void> _loadDay(DateTime day) async {
     final before = _days.value[day];
     final result = await _repository.entriesOn(day);
     final list = result.valueOrNull;
     if (list == null) {
+      _failedDays.add(day);
       return;
     }
+    _failedDays.remove(day);
     final fresh = {for (final e in list) e.itemId: e.value};
     // A _put landed mid-read (the read may predate its write): keep the
     // keys it changed rather than the possibly stale DB values.
@@ -252,8 +264,6 @@ final class MuhasabaStore {
     if (d.isAfter(_today())) {
       return;
     }
-    // [value] came from the caller's view of the day: if that day isn't
-    // loaded, [_setOn] loads it and asks for a retry.
     await _setOn(itemId, d, value, debounceStats: true);
   }
 
@@ -271,13 +281,17 @@ final class MuhasabaStore {
         (_lockedSalahOn?.call(day) ?? const <String>{}).contains(itemId)) {
       return;
     }
-    // The day's stored values are unknown (not loaded, or its read
-    // failed), so [value] may be built on a 0 that isn't real: don't write
-    // it. Re-read so the retry starts from the stored value.
+    // A day not read yet (e.g. a fresh today just after midnight) is read
+    // first. One whose read failed showed values that aren't real, so
+    // [value] may be built on a fake 0: don't write it, re-read so the
+    // retry starts from the stored value.
     if (!_days.value.containsKey(day)) {
+      final readFailed = _failedDays.contains(day);
       await _loadDay(day);
-      saveFailures.value++;
-      return;
+      if (readFailed || !_days.value.containsKey(day)) {
+        saveFailures.value++;
+        return;
+      }
     }
     final clamped = value < 0 ? 0 : value;
     final previous = entriesOn(day)[itemId] ?? 0;

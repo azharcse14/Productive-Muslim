@@ -945,11 +945,282 @@ class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
   }
 }
 
+class $TrackerArchiveSpansTable extends TrackerArchiveSpans
+    with TableInfo<$TrackerArchiveSpansTable, ArchiveSpanRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrackerArchiveSpansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tracker_items (id)',
+    ),
+  );
+  static const VerificationMeta _startOnMeta = const VerificationMeta(
+    'startOn',
+  );
+  @override
+  late final GeneratedColumn<int> startOn = GeneratedColumn<int>(
+    'start_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endOnMeta = const VerificationMeta('endOn');
+  @override
+  late final GeneratedColumn<int> endOn = GeneratedColumn<int>(
+    'end_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [itemId, startOn, endOn];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tracker_archive_spans';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArchiveSpanRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('start_on')) {
+      context.handle(
+        _startOnMeta,
+        startOn.isAcceptableOrUnknown(data['start_on']!, _startOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startOnMeta);
+    }
+    if (data.containsKey('end_on')) {
+      context.handle(
+        _endOnMeta,
+        endOn.isAcceptableOrUnknown(data['end_on']!, _endOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endOnMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {itemId, startOn};
+  @override
+  ArchiveSpanRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveSpanRow(
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      )!,
+      startOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_on'],
+      )!,
+      endOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_on'],
+      )!,
+    );
+  }
+
+  @override
+  $TrackerArchiveSpansTable createAlias(String alias) {
+    return $TrackerArchiveSpansTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveSpanRow extends DataClass implements Insertable<ArchiveSpanRow> {
+  final String itemId;
+
+  /// yyyymmdd of the archive day (first day not counted).
+  final int startOn;
+
+  /// yyyymmdd of the restore day (counts again from this day).
+  final int endOn;
+  const ArchiveSpanRow({
+    required this.itemId,
+    required this.startOn,
+    required this.endOn,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['item_id'] = Variable<String>(itemId);
+    map['start_on'] = Variable<int>(startOn);
+    map['end_on'] = Variable<int>(endOn);
+    return map;
+  }
+
+  TrackerArchiveSpansCompanion toCompanion(bool nullToAbsent) {
+    return TrackerArchiveSpansCompanion(
+      itemId: Value(itemId),
+      startOn: Value(startOn),
+      endOn: Value(endOn),
+    );
+  }
+
+  factory ArchiveSpanRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveSpanRow(
+      itemId: serializer.fromJson<String>(json['itemId']),
+      startOn: serializer.fromJson<int>(json['startOn']),
+      endOn: serializer.fromJson<int>(json['endOn']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'itemId': serializer.toJson<String>(itemId),
+      'startOn': serializer.toJson<int>(startOn),
+      'endOn': serializer.toJson<int>(endOn),
+    };
+  }
+
+  ArchiveSpanRow copyWith({String? itemId, int? startOn, int? endOn}) =>
+      ArchiveSpanRow(
+        itemId: itemId ?? this.itemId,
+        startOn: startOn ?? this.startOn,
+        endOn: endOn ?? this.endOn,
+      );
+  ArchiveSpanRow copyWithCompanion(TrackerArchiveSpansCompanion data) {
+    return ArchiveSpanRow(
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      startOn: data.startOn.present ? data.startOn.value : this.startOn,
+      endOn: data.endOn.present ? data.endOn.value : this.endOn,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveSpanRow(')
+          ..write('itemId: $itemId, ')
+          ..write('startOn: $startOn, ')
+          ..write('endOn: $endOn')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(itemId, startOn, endOn);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveSpanRow &&
+          other.itemId == this.itemId &&
+          other.startOn == this.startOn &&
+          other.endOn == this.endOn);
+}
+
+class TrackerArchiveSpansCompanion extends UpdateCompanion<ArchiveSpanRow> {
+  final Value<String> itemId;
+  final Value<int> startOn;
+  final Value<int> endOn;
+  final Value<int> rowid;
+  const TrackerArchiveSpansCompanion({
+    this.itemId = const Value.absent(),
+    this.startOn = const Value.absent(),
+    this.endOn = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TrackerArchiveSpansCompanion.insert({
+    required String itemId,
+    required int startOn,
+    required int endOn,
+    this.rowid = const Value.absent(),
+  }) : itemId = Value(itemId),
+       startOn = Value(startOn),
+       endOn = Value(endOn);
+  static Insertable<ArchiveSpanRow> custom({
+    Expression<String>? itemId,
+    Expression<int>? startOn,
+    Expression<int>? endOn,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (itemId != null) 'item_id': itemId,
+      if (startOn != null) 'start_on': startOn,
+      if (endOn != null) 'end_on': endOn,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TrackerArchiveSpansCompanion copyWith({
+    Value<String>? itemId,
+    Value<int>? startOn,
+    Value<int>? endOn,
+    Value<int>? rowid,
+  }) {
+    return TrackerArchiveSpansCompanion(
+      itemId: itemId ?? this.itemId,
+      startOn: startOn ?? this.startOn,
+      endOn: endOn ?? this.endOn,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (startOn.present) {
+      map['start_on'] = Variable<int>(startOn.value);
+    }
+    if (endOn.present) {
+      map['end_on'] = Variable<int>(endOn.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrackerArchiveSpansCompanion(')
+          ..write('itemId: $itemId, ')
+          ..write('startOn: $startOn, ')
+          ..write('endOn: $endOn, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MuhasabaDatabase extends GeneratedDatabase {
   _$MuhasabaDatabase(QueryExecutor e) : super(e);
   $MuhasabaDatabaseManager get managers => $MuhasabaDatabaseManager(this);
   late final $TrackerItemsTable trackerItems = $TrackerItemsTable(this);
   late final $DailyEntriesTable dailyEntries = $DailyEntriesTable(this);
+  late final $TrackerArchiveSpansTable trackerArchiveSpans =
+      $TrackerArchiveSpansTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -957,6 +1228,7 @@ abstract class _$MuhasabaDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     trackerItems,
     dailyEntries,
+    trackerArchiveSpans,
   ];
 }
 
@@ -1010,6 +1282,27 @@ final class $$TrackerItemsTableReferences
     ).filter((f) => f.itemId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_dailyEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TrackerArchiveSpansTable, List<ArchiveSpanRow>>
+  _trackerArchiveSpansRefsTable(_$MuhasabaDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.trackerArchiveSpans,
+        aliasName: 'tracker_items__id__tracker_archive_spans__item_id',
+      );
+
+  $$TrackerArchiveSpansTableProcessedTableManager get trackerArchiveSpansRefs {
+    final manager = $$TrackerArchiveSpansTableTableManager(
+      $_db,
+      $_db.trackerArchiveSpans,
+    ).filter((f) => f.itemId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _trackerArchiveSpansRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -1096,6 +1389,31 @@ class $$TrackerItemsTableFilterComposer
           }) => $$DailyEntriesTableFilterComposer(
             $db: $db,
             $table: $db.dailyEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> trackerArchiveSpansRefs(
+    Expression<bool> Function($$TrackerArchiveSpansTableFilterComposer f) f,
+  ) {
+    final $$TrackerArchiveSpansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.trackerArchiveSpans,
+      getReferencedColumn: (t) => t.itemId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TrackerArchiveSpansTableFilterComposer(
+            $db: $db,
+            $table: $db.trackerArchiveSpans,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1243,6 +1561,32 @@ class $$TrackerItemsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> trackerArchiveSpansRefs<T extends Object>(
+    Expression<T> Function($$TrackerArchiveSpansTableAnnotationComposer a) f,
+  ) {
+    final $$TrackerArchiveSpansTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.trackerArchiveSpans,
+          getReferencedColumn: (t) => t.itemId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TrackerArchiveSpansTableAnnotationComposer(
+                $db: $db,
+                $table: $db.trackerArchiveSpans,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$TrackerItemsTableTableManager
@@ -1258,7 +1602,10 @@ class $$TrackerItemsTableTableManager
           $$TrackerItemsTableUpdateCompanionBuilder,
           (TrackerItemRow, $$TrackerItemsTableReferences),
           TrackerItemRow,
-          PrefetchHooks Function({bool dailyEntriesRefs})
+          PrefetchHooks Function({
+            bool dailyEntriesRefs,
+            bool trackerArchiveSpansRefs,
+          })
         > {
   $$TrackerItemsTableTableManager(
     _$MuhasabaDatabase db,
@@ -1332,41 +1679,66 @@ class $$TrackerItemsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TrackerItemsTable, TrackerItemRow>(table),
                   $$TrackerItemsTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({dailyEntriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (dailyEntriesRefs) db.dailyEntries],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (dailyEntriesRefs)
-                    await $_getPrefetchedData<
-                      TrackerItemRow,
-                      $TrackerItemsTable,
-                      DailyEntryRow
-                    >(
-                      currentTable: table,
-                      referencedTable: $$TrackerItemsTableReferences
-                          ._dailyEntriesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$TrackerItemsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).dailyEntriesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.itemId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({dailyEntriesRefs = false, trackerArchiveSpansRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (dailyEntriesRefs) db.dailyEntries,
+                    if (trackerArchiveSpansRefs) db.trackerArchiveSpans,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (dailyEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          TrackerItemRow,
+                          $TrackerItemsTable,
+                          DailyEntryRow,
+                          $DailyEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TrackerItemsTableReferences
+                              ._dailyEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TrackerItemsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).dailyEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'item_id',
+                          typedResults: items,
+                        ),
+                      if (trackerArchiveSpansRefs)
+                        await $_getPrefetchedDataByColumns<
+                          TrackerItemRow,
+                          $TrackerItemsTable,
+                          ArchiveSpanRow,
+                          $TrackerArchiveSpansTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TrackerItemsTableReferences
+                              ._trackerArchiveSpansRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TrackerItemsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).trackerArchiveSpansRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'item_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1383,7 +1755,10 @@ typedef $$TrackerItemsTableProcessedTableManager =
       $$TrackerItemsTableUpdateCompanionBuilder,
       (TrackerItemRow, $$TrackerItemsTableReferences),
       TrackerItemRow,
-      PrefetchHooks Function({bool dailyEntriesRefs})
+      PrefetchHooks Function({
+        bool dailyEntriesRefs,
+        bool trackerArchiveSpansRefs,
+      })
     >;
 typedef $$DailyEntriesTableCreateCompanionBuilder =
     DailyEntriesCompanion Function({
@@ -1603,7 +1978,7 @@ class $$DailyEntriesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$DailyEntriesTable, DailyEntryRow>(table),
                   $$DailyEntriesTableReferences(db, table, e),
                 ),
               )
@@ -1667,6 +2042,305 @@ typedef $$DailyEntriesTableProcessedTableManager =
       DailyEntryRow,
       PrefetchHooks Function({bool itemId})
     >;
+typedef $$TrackerArchiveSpansTableCreateCompanionBuilder =
+    TrackerArchiveSpansCompanion Function({
+      required String itemId,
+      required int startOn,
+      required int endOn,
+      Value<int> rowid,
+    });
+typedef $$TrackerArchiveSpansTableUpdateCompanionBuilder =
+    TrackerArchiveSpansCompanion Function({
+      Value<String> itemId,
+      Value<int> startOn,
+      Value<int> endOn,
+      Value<int> rowid,
+    });
+
+final class $$TrackerArchiveSpansTableReferences
+    extends
+        BaseReferences<
+          _$MuhasabaDatabase,
+          $TrackerArchiveSpansTable,
+          ArchiveSpanRow
+        > {
+  $$TrackerArchiveSpansTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $TrackerItemsTable _itemIdTable(_$MuhasabaDatabase db) => db
+      .trackerItems
+      .createAlias('tracker_archive_spans__item_id__tracker_items__id');
+
+  $$TrackerItemsTableProcessedTableManager get itemId {
+    final $_column = $_itemColumn<String>('item_id')!;
+
+    final manager = $$TrackerItemsTableTableManager(
+      $_db,
+      $_db.trackerItems,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_itemIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TrackerArchiveSpansTableFilterComposer
+    extends Composer<_$MuhasabaDatabase, $TrackerArchiveSpansTable> {
+  $$TrackerArchiveSpansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get startOn => $composableBuilder(
+    column: $table.startOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endOn => $composableBuilder(
+    column: $table.endOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TrackerItemsTableFilterComposer get itemId {
+    final $$TrackerItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemId,
+      referencedTable: $db.trackerItems,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TrackerItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.trackerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TrackerArchiveSpansTableOrderingComposer
+    extends Composer<_$MuhasabaDatabase, $TrackerArchiveSpansTable> {
+  $$TrackerArchiveSpansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get startOn => $composableBuilder(
+    column: $table.startOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endOn => $composableBuilder(
+    column: $table.endOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TrackerItemsTableOrderingComposer get itemId {
+    final $$TrackerItemsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemId,
+      referencedTable: $db.trackerItems,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TrackerItemsTableOrderingComposer(
+            $db: $db,
+            $table: $db.trackerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TrackerArchiveSpansTableAnnotationComposer
+    extends Composer<_$MuhasabaDatabase, $TrackerArchiveSpansTable> {
+  $$TrackerArchiveSpansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get startOn =>
+      $composableBuilder(column: $table.startOn, builder: (column) => column);
+
+  GeneratedColumn<int> get endOn =>
+      $composableBuilder(column: $table.endOn, builder: (column) => column);
+
+  $$TrackerItemsTableAnnotationComposer get itemId {
+    final $$TrackerItemsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemId,
+      referencedTable: $db.trackerItems,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TrackerItemsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.trackerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TrackerArchiveSpansTableTableManager
+    extends
+        RootTableManager<
+          _$MuhasabaDatabase,
+          $TrackerArchiveSpansTable,
+          ArchiveSpanRow,
+          $$TrackerArchiveSpansTableFilterComposer,
+          $$TrackerArchiveSpansTableOrderingComposer,
+          $$TrackerArchiveSpansTableAnnotationComposer,
+          $$TrackerArchiveSpansTableCreateCompanionBuilder,
+          $$TrackerArchiveSpansTableUpdateCompanionBuilder,
+          (ArchiveSpanRow, $$TrackerArchiveSpansTableReferences),
+          ArchiveSpanRow,
+          PrefetchHooks Function({bool itemId})
+        > {
+  $$TrackerArchiveSpansTableTableManager(
+    _$MuhasabaDatabase db,
+    $TrackerArchiveSpansTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrackerArchiveSpansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrackerArchiveSpansTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$TrackerArchiveSpansTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> itemId = const Value.absent(),
+                Value<int> startOn = const Value.absent(),
+                Value<int> endOn = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerArchiveSpansCompanion(
+                itemId: itemId,
+                startOn: startOn,
+                endOn: endOn,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String itemId,
+                required int startOn,
+                required int endOn,
+                Value<int> rowid = const Value.absent(),
+              }) => TrackerArchiveSpansCompanion.insert(
+                itemId: itemId,
+                startOn: startOn,
+                endOn: endOn,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TrackerArchiveSpansTable, ArchiveSpanRow>(table),
+                  $$TrackerArchiveSpansTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({itemId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (itemId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.itemId,
+                                referencedTable:
+                                    $$TrackerArchiveSpansTableReferences
+                                        ._itemIdTable(db),
+                                referencedColumn:
+                                    $$TrackerArchiveSpansTableReferences
+                                        ._itemIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TrackerArchiveSpansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MuhasabaDatabase,
+      $TrackerArchiveSpansTable,
+      ArchiveSpanRow,
+      $$TrackerArchiveSpansTableFilterComposer,
+      $$TrackerArchiveSpansTableOrderingComposer,
+      $$TrackerArchiveSpansTableAnnotationComposer,
+      $$TrackerArchiveSpansTableCreateCompanionBuilder,
+      $$TrackerArchiveSpansTableUpdateCompanionBuilder,
+      (ArchiveSpanRow, $$TrackerArchiveSpansTableReferences),
+      ArchiveSpanRow,
+      PrefetchHooks Function({bool itemId})
+    >;
 
 class $MuhasabaDatabaseManager {
   final _$MuhasabaDatabase _db;
@@ -1675,4 +2349,6 @@ class $MuhasabaDatabaseManager {
       $$TrackerItemsTableTableManager(_db, _db.trackerItems);
   $$DailyEntriesTableTableManager get dailyEntries =>
       $$DailyEntriesTableTableManager(_db, _db.dailyEntries);
+  $$TrackerArchiveSpansTableTableManager get trackerArchiveSpans =>
+      $$TrackerArchiveSpansTableTableManager(_db, _db.trackerArchiveSpans);
 }

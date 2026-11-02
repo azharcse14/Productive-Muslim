@@ -14,10 +14,29 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('a fresh database matches the exported v2 schema', () async {
-    final schema = await verifier.schemaAt(2);
+  test('a fresh database matches the exported v3 schema', () async {
+    final schema = await verifier.schemaAt(3);
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
+    await db.close();
+  });
+
+  test('v2 -> v3 adds archive spans; an archived item stays open', () async {
+    final schema = await verifier.schemaAt(2);
+    schema.rawDatabase.execute(
+      "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
+      "is_default, archived, sort_order, created_on, archived_on) VALUES "
+      "('quran', 'q', 0, 'm', 0, 1, 1, 0, 20250801, 20260610), "
+      "('dhikr', 'd', 0, 'm', 0, 1, 0, 1, 20250801, NULL)",
+    );
+    final db = MuhasabaDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 3);
+    expect(await db.select(db.trackerArchiveSpans).get(), isEmpty);
+    final quran = await (db.select(
+      db.trackerItems,
+    )..where((t) => t.id.equals('quran'))).getSingle();
+    expect(quran.archivedOn, 20260610);
+    expect(quran.createdOn, 20250801);
     await db.close();
   });
 

@@ -424,6 +424,27 @@ void main() {
       expect(repo.entries_[('quran', 20260610)], 51);
     });
 
+    test('a tap on a day not read yet reads it, then saves', () async {
+      var clock = DateTime(2026, 6, 12, 23, 50);
+      final (store, repo) = await makeMuhasabaStore(now: () => clock);
+      // Just after midnight, before any roll-over read the new today.
+      clock = DateTime(2026, 6, 13, 0, 5);
+      final failures = store.saveFailures.value;
+      await store.setValueOn('water', DateTime(2026, 6, 13), 2);
+      expect(repo.entries_[('water', 20260613)], 2);
+      expect(store.entriesOn(DateTime(2026, 6, 13))['water'], 2);
+      expect(store.saveFailures.value, failures);
+    });
+
+    test('overlapping loads share one run', () async {
+      final repo = InMemoryMuhasabaRepository();
+      final store = MuhasabaStore(repo, now: _fixedNow);
+      addTearDown(store.dispose);
+      await Future.wait([store.load(), store.load()]);
+      expect(repo.allItemsCalls, 1);
+      expect(store.loaded.value, isTrue);
+    });
+
     test('a failed load is not "loaded" and retries on resume', () async {
       final repo = InMemoryMuhasabaRepository()..failItemReads = true;
       final store = MuhasabaStore(repo, now: _fixedNow);
