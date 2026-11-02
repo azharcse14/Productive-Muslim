@@ -45,6 +45,30 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
   /// The estate text didn't parse as a finite, non-negative number.
   bool _estateInvalid = false;
 
+  /// Input differs from the defaults, so back would lose it.
+  bool get _dirty =>
+      _estate.text.isNotEmpty ||
+      _spouse != _Spouse.none ||
+      _wives != 1 ||
+      _father ||
+      _mother ||
+      _sons + _daughters + _brothers + _sisters > 0 ||
+      _otherRelatives;
+
+  void _clear() => _edit(() {
+    _estate.clear();
+    _estateInvalid = false;
+    _spouse = _Spouse.none;
+    _wives = 1;
+    _father = false;
+    _mother = false;
+    _sons = 0;
+    _daughters = 0;
+    _brothers = 0;
+    _sisters = 0;
+    _otherRelatives = false;
+  });
+
   @override
   void dispose() {
     _estate.dispose();
@@ -126,6 +150,9 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     );
   }
 
+  /// No estate value entered: every amount is 0, so show shares only.
+  bool get _noEstate => _result?.shares.every((s) => s.amount == 0) ?? true;
+
   String _heirName(BuildContext context, String key) {
     final l10n = context.l10n;
     return switch (key) {
@@ -146,224 +173,249 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
     final l10n = context.l10n;
     final q = context.q;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.faraidTitle)),
-      body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            Text(
-              l10n.faraidSubtitle,
-              style: QType.body.copyWith(color: q.ink2),
+    return QDiscardGuard(
+      dirty: _dirty,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.faraidTitle),
+          actions: [
+            TextButton(
+              onPressed: _dirty ? _clear : null,
+              child: Text(l10n.calcClear),
             ),
-            const SizedBox(height: QSpace.s4),
-
-            // Estate value.
-            TextField(
-              controller: _estate,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+          ],
+        ),
+        body: SafeArea(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              Text(
+                l10n.faraidSubtitle,
+                style: QType.body.copyWith(color: q.ink2),
               ),
-              inputFormatters: QInputFormat.decimal,
-              textInputAction: TextInputAction.done,
-              onTapOutside: unfocusOnTapOutside,
-              onChanged: (_) => _edit(() => _estateInvalid = false),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(
-                labelText: l10n.faraidEstate,
-                helperText: l10n.faraidEstateHelper,
-                helperMaxLines: 2,
-                errorText: _estateInvalid ? l10n.faraidInvalidNumber : null,
-              ),
-            ),
-            const SizedBox(height: QSpace.s4),
+              const SizedBox(height: QSpace.s4),
 
-            // Spouse selector.
-            Text(l10n.faraidSpouse, style: QType.label.copyWith(color: q.ink2)),
-            const SizedBox(height: QSpace.s2),
-            QSegControl(
-              options: [l10n.faraidNone, l10n.faraidHusband, l10n.faraidWife],
-              activeIndex: _spouse.index,
-              onChanged: (i) => _edit(() => _spouse = _Spouse.values[i]),
-            ),
-            if (_spouse == _Spouse.wife) ...[
-              const SizedBox(height: QSpace.s3),
+              // Estate value.
+              TextField(
+                controller: _estate,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: QInputFormat.decimal,
+                textInputAction: TextInputAction.done,
+                onTapOutside: unfocusOnTapOutside,
+                onChanged: (_) => _edit(() => _estateInvalid = false),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                decoration: InputDecoration(
+                  labelText: l10n.faraidEstate,
+                  helperText: l10n.faraidEstateHelper,
+                  helperMaxLines: 2,
+                  errorText: _estateInvalid ? l10n.faraidInvalidNumber : null,
+                ),
+              ),
+              const SizedBox(height: QSpace.s4),
+
+              // Spouse selector.
+              Text(
+                l10n.faraidSpouse,
+                style: QType.label.copyWith(color: q.ink2),
+              ),
+              const SizedBox(height: QSpace.s2),
+              QSegControl(
+                options: [l10n.faraidNone, l10n.faraidHusband, l10n.faraidWife],
+                activeIndex: _spouse.index,
+                onChanged: (i) => _edit(() => _spouse = _Spouse.values[i]),
+              ),
+              if (_spouse == _Spouse.wife) ...[
+                const SizedBox(height: QSpace.s3),
+                _Stepper(
+                  label: l10n.faraidWives,
+                  value: _wives,
+                  min: 1,
+                  max: 4,
+                  onChanged: (v) => _edit(() => _wives = v),
+                ),
+              ],
+              const SizedBox(height: QSpace.s4),
+
+              // Parent toggles.
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.faraidFather, style: QType.body),
+                value: _father,
+                onChanged: (v) => _edit(() => _father = v),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.faraidMother, style: QType.body),
+                value: _mother,
+                onChanged: (v) => _edit(() => _mother = v),
+              ),
+              const SizedBox(height: QSpace.s2),
+
+              // Count steppers.
               _Stepper(
-                label: l10n.faraidWives,
-                value: _wives,
-                min: 1,
-                max: 4,
-                onChanged: (v) => _edit(() => _wives = v),
+                label: l10n.faraidSons,
+                value: _sons,
+                onChanged: (v) => _edit(() => _sons = v),
               ),
-            ],
-            const SizedBox(height: QSpace.s4),
+              const SizedBox(height: QSpace.s2),
+              _Stepper(
+                label: l10n.faraidDaughters,
+                value: _daughters,
+                onChanged: (v) => _edit(() => _daughters = v),
+              ),
+              const SizedBox(height: QSpace.s2),
+              _Stepper(
+                label: l10n.faraidBrothers,
+                value: _brothers,
+                onChanged: (v) => _edit(() => _brothers = v),
+              ),
+              const SizedBox(height: QSpace.s2),
+              _Stepper(
+                label: l10n.faraidSisters,
+                value: _sisters,
+                onChanged: (v) => _edit(() => _sisters = v),
+              ),
+              const SizedBox(height: QSpace.s2),
+              // Out-of-scope heirs: answering yes skips the distribution
+              // rather than give a wrong radd / "unallocated" answer.
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.faraidOtherRelatives, style: QType.body),
+                value: _otherRelatives,
+                onChanged: (v) => _edit(() => _otherRelatives = v),
+              ),
+              const SizedBox(height: QSpace.s4),
 
-            // Parent toggles.
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidFather, style: QType.body),
-              value: _father,
-              onChanged: (v) => _edit(() => _father = v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidMother, style: QType.body),
-              value: _mother,
-              onChanged: (v) => _edit(() => _mother = v),
-            ),
-            const SizedBox(height: QSpace.s2),
+              QButton(
+                label: l10n.faraidCalculate,
+                icon: Icons.calculate_outlined,
+                expand: true,
+                onPressed: _calculate,
+              ),
 
-            // Count steppers.
-            _Stepper(
-              label: l10n.faraidSons,
-              value: _sons,
-              onChanged: (v) => _edit(() => _sons = v),
-            ),
-            const SizedBox(height: QSpace.s2),
-            _Stepper(
-              label: l10n.faraidDaughters,
-              value: _daughters,
-              onChanged: (v) => _edit(() => _daughters = v),
-            ),
-            const SizedBox(height: QSpace.s2),
-            _Stepper(
-              label: l10n.faraidBrothers,
-              value: _brothers,
-              onChanged: (v) => _edit(() => _brothers = v),
-            ),
-            const SizedBox(height: QSpace.s2),
-            _Stepper(
-              label: l10n.faraidSisters,
-              value: _sisters,
-              onChanged: (v) => _edit(() => _sisters = v),
-            ),
-            const SizedBox(height: QSpace.s2),
-            // Out-of-scope heirs: answering yes skips the distribution
-            // rather than give a wrong radd / "unallocated" answer.
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.faraidOtherRelatives, style: QType.body),
-              value: _otherRelatives,
-              onChanged: (v) => _edit(() => _otherRelatives = v),
-            ),
-            const SizedBox(height: QSpace.s4),
+              if (_result case final InheritanceResult result
+                  when result.outOfScope) ...[
+                const SizedBox(height: QSpace.s4),
+                QBanner(
+                  key: _resultKey,
+                  text: l10n.faraidOutOfScope,
+                  tone: q.warnSoft,
+                  foreground: q.ink,
+                ),
+              ] else if (_result case final InheritanceResult result) ...[
+                const SizedBox(height: QSpace.s4),
+                QCard(
+                  key: _resultKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final s in result.shares)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: QSpace.s3),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  s.heirKey == 'unallocated'
+                                      ? l10n.faraidUnallocated(
+                                          _noEstate
+                                              ? _percent(context, s.fraction)
+                                              : _money(context, s.amount),
+                                        )
+                                      : context.digits(
+                                          '${_heirName(context, s.heirKey)}'
+                                          '${s.count > 1 ? ' ×${s.count}' : ''}'
+                                          ' · ${_basisLabel(context, s.basis)}',
+                                        ),
+                                  style: QType.body.copyWith(color: q.ink),
+                                ),
+                              ),
+                              if (s.heirKey != 'unallocated') ...[
+                                const SizedBox(width: QSpace.s3),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    // No estate: the share (after 'awl /
+                                    // radd) is the answer; money is all 0.
+                                    if (_noEstate)
+                                      Text(
+                                        _percent(context, s.fraction),
+                                        style: QType.num_(
+                                          QType.titleSm,
+                                        ).copyWith(color: q.ink),
+                                      )
+                                    else ...[
+                                      Text(
+                                        _money(context, s.amount),
+                                        style: QType.num_(
+                                          QType.titleSm,
+                                        ).copyWith(color: q.ink),
+                                      ),
+                                      Text(
+                                        _percent(context, s.fraction),
+                                        style: QType.num_(
+                                          QType.caption,
+                                        ).copyWith(color: q.ink2),
+                                      ),
+                                    ],
+                                    if (s.count > 1 && !_noEstate)
+                                      Text(
+                                        l10n.faraidPerHead(
+                                          _money(context, s.amount / s.count),
+                                        ),
+                                        style: QType.num_(
+                                          QType.caption,
+                                        ).copyWith(color: q.ink2),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      if (result.isAwl)
+                        QBanner(
+                          text: l10n.faraidAwlNote,
+                          tone: q.warnSoft,
+                          foreground: q.ink,
+                        ),
+                      if (result.isRadd)
+                        QBanner(
+                          text: l10n.faraidRaddNote,
+                          tone: q.primarySoft,
+                          foreground: q.onPrimarySoft,
+                        ),
+                      if (result.note == 'umariyyatayn')
+                        QBanner(
+                          text: l10n.faraidUmariyyataynNote,
+                          tone: q.primarySoft,
+                          foreground: q.onPrimarySoft,
+                        ),
+                      if (result.note == 'unallocated')
+                        QBanner(
+                          text: l10n.faraidUnallocatedNote,
+                          tone: q.warnSoft,
+                          foreground: q.ink,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
 
-            QButton(
-              label: l10n.faraidCalculate,
-              icon: Icons.calculate_outlined,
-              expand: true,
-              onPressed: _calculate,
-            ),
-
-            if (_result case final InheritanceResult result
-                when result.outOfScope) ...[
               const SizedBox(height: QSpace.s4),
               QBanner(
-                key: _resultKey,
-                text: l10n.faraidOutOfScope,
+                text: l10n.faraidDisclaimer,
+                icon: Icons.warning_amber_rounded,
                 tone: q.warnSoft,
                 foreground: q.ink,
               ),
-            ] else if (_result case final InheritanceResult result) ...[
-              const SizedBox(height: QSpace.s4),
-              QCard(
-                key: _resultKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final s in result.shares)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: QSpace.s3),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                s.heirKey == 'unallocated'
-                                    ? l10n.faraidUnallocated(
-                                        _money(context, s.amount),
-                                      )
-                                    : context.digits(
-                                        '${_heirName(context, s.heirKey)}'
-                                        '${s.count > 1 ? ' ×${s.count}' : ''}'
-                                        ' · ${_basisLabel(context, s.basis)}',
-                                      ),
-                                style: QType.body.copyWith(color: q.ink),
-                              ),
-                            ),
-                            if (s.heirKey != 'unallocated') ...[
-                              const SizedBox(width: QSpace.s3),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    _money(context, s.amount),
-                                    style: QType.num_(
-                                      QType.titleSm,
-                                    ).copyWith(color: q.ink),
-                                  ),
-                                  // The share after 'awl / radd — the
-                                  // answer even with no estate entered.
-                                  Text(
-                                    _percent(context, s.fraction),
-                                    style: QType.num_(
-                                      QType.caption,
-                                    ).copyWith(color: q.ink2),
-                                  ),
-                                  if (s.count > 1)
-                                    Text(
-                                      l10n.faraidPerHead(
-                                        _money(context, s.amount / s.count),
-                                      ),
-                                      style: QType.num_(
-                                        QType.caption,
-                                      ).copyWith(color: q.ink2),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    if (result.isAwl)
-                      QBanner(
-                        text: l10n.faraidAwlNote,
-                        tone: q.warnSoft,
-                        foreground: q.ink,
-                      ),
-                    if (result.isRadd)
-                      QBanner(
-                        text: l10n.faraidRaddNote,
-                        tone: q.primarySoft,
-                        foreground: q.onPrimarySoft,
-                      ),
-                    if (result.note == 'umariyyatayn')
-                      QBanner(
-                        text: l10n.faraidUmariyyataynNote,
-                        tone: q.primarySoft,
-                        foreground: q.onPrimarySoft,
-                      ),
-                    if (result.note == 'unallocated')
-                      QBanner(
-                        text: l10n.faraidUnallocatedNote,
-                        tone: q.warnSoft,
-                        foreground: q.ink,
-                      ),
-                  ],
-                ),
-              ),
             ],
-
-            const SizedBox(height: QSpace.s4),
-            QBanner(
-              text: l10n.faraidDisclaimer,
-              icon: Icons.warning_amber_rounded,
-              tone: q.warnSoft,
-              foreground: q.ink,
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
-import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/bangla_date.dart';
@@ -14,9 +12,11 @@ import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/islamic_dates.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
+import '../../../../shared/widgets/q_hijri_offset.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
+import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -93,8 +93,12 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
-        builder: (sheetContext) =>
-            _DaySheet(day: day, prayerDay: prayerDay, offsetDays: _offset),
+        builder: (sheetContext) => _DaySheet(
+          day: day,
+          prayerDay: prayerDay,
+          offsetDays: _offset,
+          hasLocation: location != null,
+        ),
       ),
     );
   }
@@ -147,7 +151,11 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(QSpace.s5),
+          // Narrow sides: 7 day cells stay >= 48dp wide on a 360dp phone.
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpace.s2,
+            vertical: QSpace.s5,
+          ),
           children: [
             Row(
               children: [
@@ -172,26 +180,12 @@ final class _CalendarScreenState extends State<CalendarScreen> {
                         textAlign: TextAlign.center,
                         style: QType.caption.copyWith(color: q.ink2),
                       ),
-                      if (_offset != 0)
-                        // Tapping jumps to the setting that shifts it.
-                        InkWell(
-                          borderRadius: BorderRadius.circular(QRadius.sm),
-                          onTap: () => context.goNamed(Routes.settings.name),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: QSpace.s1,
-                            ),
-                            child: Text(
-                              _digits(
-                                context,
-                                '${l10n.hijriAdjustedBy(l10n.hijriOffsetValue(_offset.abs(), _offset > 0 ? '+' : '−'))}'
-                                ' · ${l10n.hijriAdjustChange}',
-                              ),
-                              textAlign: TextAlign.center,
-                              style: QType.caption.copyWith(color: q.primary),
-                            ),
-                          ),
-                        ),
+                      QHijriOffsetLink(
+                        offset: _offset,
+                        min: AppSettings.minHijriOffset,
+                        max: AppSettings.maxHijriOffset,
+                        onChanged: _settings.setHijriOffset,
+                      ),
                     ],
                   ),
                 ),
@@ -204,58 +198,81 @@ final class _CalendarScreenState extends State<CalendarScreen> {
               ],
             ),
             const SizedBox(height: QSpace.s3),
-            _MonthGrid(
-              month: _month,
-              today: _today,
-              offsetDays: _offset,
-              onDayTap: (day) => _openDaySheet(context, day),
+            // Horizontal swipe flips the month (next = toward reading end).
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                final v = details.primaryVelocity ?? 0;
+                if (v.abs() < 200) {
+                  return;
+                }
+                final rtl = Directionality.of(context) == TextDirection.rtl;
+                _shiftMonth((v < 0) != rtl ? 1 : -1);
+              },
+              child: _MonthGrid(
+                month: _month,
+                today: _today,
+                offsetDays: _offset,
+                onDayTap: (day) => _openDaySheet(context, day),
+              ),
             ),
             if (events.isNotEmpty) ...[
               const SizedBox(height: QSpace.s5),
               for (final (event, date) in events)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: QSpace.s3),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: q.accent,
-                          shape: BoxShape.circle,
+                InkWell(
+                  borderRadius: BorderRadius.circular(QRadius.sm),
+                  onTap: () => _openDaySheet(context, date),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: QSpace.s3,
+                      vertical: QSpace.s3,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: q.accent,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: QSpace.s3),
-                      Expanded(
-                        child: Text(
-                          l10n.islamicDayName(event.name),
-                          style: QType.titleSm.copyWith(color: q.ink),
+                        const SizedBox(width: QSpace.s3),
+                        Expanded(
+                          child: Text(
+                            l10n.islamicDayName(event.name),
+                            style: QType.titleSm.copyWith(color: q.ink),
+                          ),
                         ),
-                      ),
-                      Text(
-                        _digits(
-                          context,
-                          DateFormat.MMMd(locale.toString()).format(date),
+                        Text(
+                          _digits(
+                            context,
+                            DateFormat.MMMd(locale.toString()).format(date),
+                          ),
+                          style: QType.num_(
+                            QType.label,
+                          ).copyWith(color: q.ink2),
                         ),
-                        style: QType.num_(QType.label).copyWith(color: q.ink2),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
             ] else
               const SizedBox.shrink(),
             if (hasOddNights)
-              Row(
-                children: [
-                  const _OddNightRing(),
-                  const SizedBox(width: QSpace.s3),
-                  Expanded(
-                    child: Text(
-                      l10n.laylatulQadrOddNights,
-                      style: QType.caption.copyWith(color: q.ink2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: QSpace.s3),
+                child: Row(
+                  children: [
+                    const _OddNightRing(),
+                    const SizedBox(width: QSpace.s3),
+                    Expanded(
+                      child: Text(
+                        l10n.laylatulQadrOddNights,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
           ],
         ),
@@ -345,12 +362,13 @@ final class _DayCell extends StatelessWidget {
         if (event != null) l10n.islamicDayName(event.name),
         if (oddNightEve && event == null)
           l10n.oddNightBegins('${hijri.day + 1}'),
+        // Announced as "today", not as a "selected" state.
+        if (isToday) l10n.todayTab,
       ].join(', '),
       language,
     );
     return Semantics(
       button: true,
-      selected: isToday,
       label: label,
       excludeSemantics: true,
       onTap: () => onTap(date),
@@ -402,11 +420,13 @@ final class _DaySheet extends StatelessWidget {
     required this.day,
     required this.prayerDay,
     required this.offsetDays,
+    required this.hasLocation,
   });
 
   final DateTime day;
   final int offsetDays;
   final PrayerDay? prayerDay;
+  final bool hasLocation;
 
   String _digits(BuildContext context, String text) =>
       LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
@@ -523,6 +543,12 @@ final class _DaySheet extends StatelessWidget {
                     ],
                   ),
                 ),
+            ] else if (!hasLocation) ...[
+              const SizedBox(height: QSpace.s4),
+              Text(
+                l10n.calendarSetLocationHint,
+                style: QType.body.copyWith(color: q.ink2),
+              ),
             ],
           ],
         ),

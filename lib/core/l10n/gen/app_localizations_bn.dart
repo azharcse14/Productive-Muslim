@@ -3448,4 +3448,53 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsReferences =>
       'দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।';
+
+  @override
+  String get hijriAdjustLink => 'হিজরি তারিখ সমন্বয় করুন';
+
+  @override
+  String get calcClear => 'মুছুন';
+
+  @override
+  String get calcSameCurrency => 'সব পরিমাণ একই মুদ্রায় লিখুন।';
+
+  @override
+  String get zakatRowZakatable => 'যাকাতযোগ্য সম্পদ';
+
+  @override
+  String get ramadanColDay => 'রোজা';
+
+  @override
+  String get ramadanColDate => 'তারিখ';
+
+  @override
+  String ramadanRowA11y(String roza, String date, String sahri, String iftar) {
+    return 'রোজা $roza, $date, সাহরি শেষ $sahri, ইফতার $iftar';
+  }
+
+  @override
+  String get sahriEndsTomorrow => 'আগামীকাল সাহরি শেষ';
+
+  @override
+  String ramadanDaysLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'আর $countString দিন বাকি',
+      zero: 'শেষ রোজা',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanTableEmpty =>
+      'এই অবস্থানের জন্য সাহরি ও ইফতারের সময় হিসাব করা যায়নি।';
+
+  @override
+  String get calendarSetLocationHint =>
+      'নামাজের সময় দেখতে আপনার অবস্থান সেট করুন।';
 }

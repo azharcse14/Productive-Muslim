@@ -1591,5 +1591,18 @@
   "creditsGroupFonts": "Fonts",
   "creditsFontsUi": "Interface",
   "creditsFontQuran": "Quran script",
-  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item."
+  "creditsReferences": "Duas, ruqyah and the hadith of the day cite their source on each item.",
+  "hijriAdjustLink": "Adjust Hijri date",
+  "calcClear": "Clear",
+  "calcSameCurrency": "Enter all amounts in the same currency.",
+  "zakatRowZakatable": "Zakatable wealth",
+  "ramadanColDay": "Day",
+  "ramadanColDate": "Date",
+  "ramadanRowA11y": "Roza {roza}, {date}, Sahri ends {sahri}, Iftar {iftar}",
+  "@ramadanRowA11y": {"placeholders": {"roza": {"type": "String"}, "date": {"type": "String"}, "sahri": {"type": "String"}, "iftar": {"type": "String"}}},
+  "sahriEndsTomorrow": "Sahri ends tomorrow",
+  "ramadanDaysLeft": "{count, plural, =0{Last fast} =1{1 day left} other{{count} days left}}",
+  "@ramadanDaysLeft": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "ramadanTableEmpty": "Sahri and iftar times couldn't be calculated for this location.",
+  "calendarSetLocationHint": "Set your location to see prayer times."
 }

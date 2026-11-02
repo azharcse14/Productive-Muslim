@@ -26,5 +26,19 @@ void main() {
       expect(find.text('Date of birth'), findsOneWidget);
       expect(find.text('As of date'), findsOneWidget);
     });
+
+    testWidgets('birth date cannot be picked after the as-of date', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.tap(find.text('Date of birth'));
+      await tester.pumpAndSettle();
+      final picker = tester.widget<DatePickerDialog>(
+        find.byType(DatePickerDialog),
+      );
+      final now = DateTime.now();
+      expect(picker.lastDate, DateTime(now.year, now.month, now.day));
+    });
   });
 }

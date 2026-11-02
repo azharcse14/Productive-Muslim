@@ -8,6 +8,7 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_form.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/age_calculator.dart';
 import '../widgets/date_field.dart';
@@ -26,13 +27,21 @@ final class _AgeScreenState extends State<AgeScreen> {
   DateTime? _birthDate;
   DateTime _asOf = DateTime.now();
   AgeResult? _result;
+  final _resultKey = GlobalKey();
+
+  void _clear() => setState(() {
+    _birthDate = null;
+    _asOf = DateTime.now();
+    _result = null;
+  });
 
   Future<void> _pickBirthDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _birthDate ?? DateTime(2000),
+      initialDate: _clampTo(_birthDate ?? DateTime(2000), _asOf),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      // Birth can't come after the "as of" date (nor after today).
+      lastDate: _clampTo(DateTime.now(), _asOf),
     );
     if (picked != null) {
       setState(() {
@@ -41,6 +50,9 @@ final class _AgeScreenState extends State<AgeScreen> {
       });
     }
   }
+
+  static DateTime _clampTo(DateTime date, DateTime latest) =>
+      date.isAfter(latest) ? latest : date;
 
   Future<void> _pickAsOf() async {
     // An age can't be measured before birth.
@@ -71,6 +83,7 @@ final class _AgeScreenState extends State<AgeScreen> {
         hijriOffsetDays: locator<SettingsStore>().hijriOffsetDays.value,
       );
     });
+    revealAfterFrame(context, _resultKey);
   }
 
   String _number(BuildContext context, int value) {
@@ -104,7 +117,15 @@ final class _AgeScreenState extends State<AgeScreen> {
     final q = context.q;
     final birthDate = _birthDate;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ageTitle)),
+      appBar: AppBar(
+        title: Text(l10n.ageTitle),
+        actions: [
+          TextButton(
+            onPressed: birthDate != null || _result != null ? _clear : null,
+            child: Text(l10n.calcClear),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(QSpace.s5),
@@ -135,6 +156,7 @@ final class _AgeScreenState extends State<AgeScreen> {
             if (_result case final AgeResult result) ...[
               const SizedBox(height: QSpace.s4),
               QCard(
+                key: _resultKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

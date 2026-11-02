@@ -123,4 +123,39 @@ void main() {
     expect(find.textContaining('Zakat due'), findsNothing);
     expect(find.text('Gold nisab (87.48 g)'), findsNothing);
   });
+
+  testWidgets('result shows the zakatable wealth total', (tester) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.enterText(field(l10n.zakatSilverPrice), '1');
+    await tester.enterText(field(l10n.zakatCash), '1000');
+    await tester.enterText(field(l10n.zakatDebts), '400');
+    await calculate(tester);
+
+    expect(find.text(l10n.zakatRowZakatable), findsOneWidget);
+    expect(find.text('600'), findsOneWidget);
+    expect(find.text(l10n.calcSameCurrency), findsOneWidget);
+  });
+
+  testWidgets('back with input confirms; Clear empties the form', (
+    tester,
+  ) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    final clear = find.widgetWithText(TextButton, l10n.calcClear);
+    expect(tester.widget<TextButton>(clear).onPressed, isNull);
+
+    await tester.enterText(field(l10n.zakatCash), '1000');
+    await tester.pump();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.editorDiscardTitle), findsOneWidget);
+    await tester.tap(find.text(l10n.cancel));
+    await tester.pumpAndSettle();
+
+    await tester.tap(clear);
+    await tester.pump();
+    expect(find.text('1000'), findsNothing);
+    expect(tester.widget<TextButton>(clear).onPressed, isNull);
+  });
 }

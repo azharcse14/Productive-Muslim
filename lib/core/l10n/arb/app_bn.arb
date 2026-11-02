@@ -977,5 +977,16 @@
   "creditsGroupFonts": "ফন্ট",
   "creditsFontsUi": "ইন্টারফেস",
   "creditsFontQuran": "কুরআনের লিপি",
-  "creditsReferences": "দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।"
+  "creditsReferences": "দোয়া, রুকইয়াহ ও দিনের হাদিসের প্রতিটিতে সূত্র উল্লেখ করা আছে।",
+  "hijriAdjustLink": "হিজরি তারিখ সমন্বয় করুন",
+  "calcClear": "মুছুন",
+  "calcSameCurrency": "সব পরিমাণ একই মুদ্রায় লিখুন।",
+  "zakatRowZakatable": "যাকাতযোগ্য সম্পদ",
+  "ramadanColDay": "রোজা",
+  "ramadanColDate": "তারিখ",
+  "ramadanRowA11y": "রোজা {roza}, {date}, সাহরি শেষ {sahri}, ইফতার {iftar}",
+  "sahriEndsTomorrow": "আগামীকাল সাহরি শেষ",
+  "ramadanDaysLeft": "{count, plural, =0{শেষ রোজা} other{আর {count} দিন বাকি}}",
+  "ramadanTableEmpty": "এই অবস্থানের জন্য সাহরি ও ইফতারের সময় হিসাব করা যায়নি।",
+  "calendarSetLocationHint": "নামাজের সময় দেখতে আপনার অবস্থান সেট করুন।"
 }
