@@ -49,20 +49,32 @@ final class _ZakatScreenState extends State<ZakatScreen> {
   /// those grams would otherwise silently count as zero wealth.
   Set<TextEditingController> _unpriced = {};
 
+  late final _controllers = [
+    _cash,
+    _bank,
+    _gold,
+    _silver,
+    _business,
+    _investments,
+    _owed,
+    _debts,
+    _goldPrice,
+    _silverPrice,
+  ];
+
+  /// Any typed input, which back would otherwise lose silently.
+  bool get _dirty => _controllers.any((c) => c.text.isNotEmpty);
+
+  void _clear() {
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+    _edit();
+  }
+
   @override
   void dispose() {
-    for (final controller in [
-      _cash,
-      _bank,
-      _gold,
-      _silver,
-      _business,
-      _investments,
-      _owed,
-      _debts,
-      _goldPrice,
-      _silverPrice,
-    ]) {
+    for (final controller in _controllers) {
       controller.dispose();
     }
     super.dispose();
@@ -152,138 +164,173 @@ final class _ZakatScreenState extends State<ZakatScreen> {
       (l10n.zakatOwed, _owed),
       (l10n.zakatDebts, _debts),
     ];
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.zakatTitle)),
-      body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            for (final (label, controller) in fields)
-              Padding(
-                padding: const EdgeInsets.only(bottom: QSpace.s3),
-                child: TextField(
-                  controller: controller,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  inputFormatters: QInputFormat.decimal,
-                  textInputAction: controller == fields.last.$2
-                      ? TextInputAction.done
-                      : TextInputAction.next,
-                  onTapOutside: unfocusOnTapOutside,
-                  onChanged: (_) => _edit(),
-                  style: QType.num_(QType.body).copyWith(color: q.ink),
-                  decoration: InputDecoration(
-                    labelText: label,
-                    errorText: _invalid.contains(controller)
-                        ? l10n.zakatInvalidNumber
-                        : _needSilverPrice && controller == _silverPrice
-                        ? l10n.zakatNeedSilverPrice
-                        : _unpriced.contains(controller)
-                        ? l10n.zakatNeedMetalPrice
-                        : null,
-                    errorMaxLines: 2,
-                  ),
-                ),
-              ),
-            const SizedBox(height: QSpace.s2),
-            // The price fields sit at the top, likely scrolled away.
-            if (_needSilverPrice || _unpriced.isNotEmpty) ...[
-              QBanner(
-                text: _needSilverPrice
-                    ? l10n.zakatNeedSilverPrice
-                    : l10n.zakatNeedMetalPrice,
-                tone: q.primarySoft,
-                foreground: q.onPrimarySoft,
+    return QDiscardGuard(
+      dirty: _dirty,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.zakatTitle),
+          actions: [
+            TextButton(
+              onPressed: _dirty ? _clear : null,
+              child: Text(l10n.calcClear),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              Text(
+                l10n.calcSameCurrency,
+                style: QType.caption.copyWith(color: q.ink2),
               ),
               const SizedBox(height: QSpace.s3),
-            ],
-            QButton(
-              label: l10n.zakatCalculate,
-              icon: Icons.calculate_outlined,
-              expand: true,
-              onPressed: () => _calculate([for (final f in fields) f.$2]),
-            ),
-            if (_result case final ZakatResult result) ...[
-              const SizedBox(height: QSpace.s4),
-              QCard(
-                key: _resultKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.zakatNisab(
-                        _formatAmount(context, result.nisabThreshold),
-                      ),
-                      style: QType.body.copyWith(color: q.ink2),
+              for (final (label, controller) in fields)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: QSpace.s3),
+                  child: TextField(
+                    controller: controller,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
-                    Text(
-                      _goldNisab
-                          ? l10n.zakatNisabGold(
-                              _formatAmount(
-                                context,
-                                ZakatCalculator.nisabGoldGrams,
-                              ),
-                            )
-                          : l10n.zakatNisabSilver(
-                              _formatAmount(
-                                context,
-                                ZakatCalculator.nisabSilverGrams,
-                              ),
-                            ),
-                      style: QType.caption.copyWith(color: q.ink2),
+                    inputFormatters: QInputFormat.decimal,
+                    textInputAction: controller == fields.last.$2
+                        ? TextInputAction.done
+                        : TextInputAction.next,
+                    onTapOutside: unfocusOnTapOutside,
+                    onChanged: (_) => _edit(),
+                    style: QType.num_(QType.body).copyWith(color: q.ink),
+                    decoration: InputDecoration(
+                      labelText: label,
+                      errorText: _invalid.contains(controller)
+                          ? l10n.zakatInvalidNumber
+                          : _needSilverPrice && controller == _silverPrice
+                          ? l10n.zakatNeedSilverPrice
+                          : _unpriced.contains(controller)
+                          ? l10n.zakatNeedMetalPrice
+                          : null,
+                      errorMaxLines: 2,
                     ),
-                    const SizedBox(height: QSpace.s3),
-                    for (final (label, amount) in [
-                      (l10n.zakatRowCash, result.cashTotal),
-                      (l10n.zakatRowMetals, result.metalsValue),
-                      (l10n.zakatRowBusiness, result.businessTotal),
-                      (
-                        l10n.zakatRowDebts,
-                        result.totalWealth - result.zakatableWealth,
-                      ),
-                    ])
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: QSpace.s1),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                label,
-                                style: QType.body.copyWith(color: q.ink2),
-                              ),
-                            ),
-                            Text(
-                              _formatAmount(context, amount),
-                              style: QType.num_(
-                                QType.body,
-                              ).copyWith(color: q.ink),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: QSpace.s3),
-                    if (result.isPayable)
-                      Text(
-                        l10n.zakatDue(_formatAmount(context, result.zakatDue)),
-                        style: QType.num_(QType.title).copyWith(color: q.ok),
-                      )
-                    else
-                      // Neutral tone on purpose: being below nisab is not
-                      // a failure state.
-                      QBanner(
-                        text: l10n.zakatNotPayable,
-                        tone: q.primarySoft,
-                        foreground: q.onPrimarySoft,
-                      ),
-                  ],
+                  ),
                 ),
+              const SizedBox(height: QSpace.s2),
+              // The price fields sit at the top, likely scrolled away.
+              if (_needSilverPrice || _unpriced.isNotEmpty) ...[
+                QBanner(
+                  text: _needSilverPrice
+                      ? l10n.zakatNeedSilverPrice
+                      : l10n.zakatNeedMetalPrice,
+                  tone: q.primarySoft,
+                  foreground: q.onPrimarySoft,
+                ),
+                const SizedBox(height: QSpace.s3),
+              ],
+              QButton(
+                label: l10n.zakatCalculate,
+                icon: Icons.calculate_outlined,
+                expand: true,
+                onPressed: () => _calculate([for (final f in fields) f.$2]),
               ),
+              if (_result case final ZakatResult result) ...[
+                const SizedBox(height: QSpace.s4),
+                QCard(
+                  key: _resultKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.zakatNisab(
+                          _formatAmount(context, result.nisabThreshold),
+                        ),
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                      Text(
+                        _goldNisab
+                            ? l10n.zakatNisabGold(
+                                _formatAmount(
+                                  context,
+                                  ZakatCalculator.nisabGoldGrams,
+                                ),
+                              )
+                            : l10n.zakatNisabSilver(
+                                _formatAmount(
+                                  context,
+                                  ZakatCalculator.nisabSilverGrams,
+                                ),
+                              ),
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                      for (final (label, amount) in [
+                        (l10n.zakatRowCash, result.cashTotal),
+                        (l10n.zakatRowMetals, result.metalsValue),
+                        (l10n.zakatRowBusiness, result.businessTotal),
+                        (
+                          l10n.zakatRowDebts,
+                          result.totalWealth - result.zakatableWealth,
+                        ),
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: QSpace.s1),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  label,
+                                  style: QType.body.copyWith(color: q.ink2),
+                                ),
+                              ),
+                              Text(
+                                _formatAmount(context, amount),
+                                style: QType.num_(
+                                  QType.body,
+                                ).copyWith(color: q.ink),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const Divider(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.zakatRowZakatable,
+                              style: QType.titleSm.copyWith(color: q.ink),
+                            ),
+                          ),
+                          Text(
+                            _formatAmount(context, result.zakatableWealth),
+                            style: QType.num_(
+                              QType.titleSm,
+                            ).copyWith(color: q.ink),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                      if (result.isPayable)
+                        Text(
+                          l10n.zakatDue(
+                            _formatAmount(context, result.zakatDue),
+                          ),
+                          style: QType.num_(QType.title).copyWith(color: q.ok),
+                        )
+                      else
+                        // Neutral tone on purpose: being below nisab is not
+                        // a failure state.
+                        QBanner(
+                          text: l10n.zakatNotPayable,
+                          tone: q.primarySoft,
+                          foreground: q.onPrimarySoft,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: QSpace.s4),
+              QBanner(text: l10n.zakatDisclaimer),
             ],
-            const SizedBox(height: QSpace.s4),
-            QBanner(text: l10n.zakatDisclaimer),
-          ],
+          ),
         ),
       ),
     );

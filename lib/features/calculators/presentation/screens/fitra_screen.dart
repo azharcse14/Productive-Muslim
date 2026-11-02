@@ -38,6 +38,18 @@ final class _FitraScreenState extends State<FitraScreen> {
   /// Fields that are empty, unparseable or out of range; shown as errors.
   Set<TextEditingController> _invalid = {};
 
+  /// Input differs from the defaults, so back would lose it.
+  bool get _dirty =>
+      _price.text.isNotEmpty ||
+      _staple != FitraStaple.wheat ||
+      LocaleDigits.toAscii(_people.text) != '1';
+
+  void _clear() => _edit(() {
+    _price.clear();
+    _people.text = context.digits('1');
+    _staple = FitraStaple.wheat;
+  });
+
   @override
   void dispose() {
     _price.dispose();
@@ -112,116 +124,134 @@ final class _FitraScreenState extends State<FitraScreen> {
       FitraStaple.dates,
       FitraStaple.raisins,
     ];
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.fitraTitle)),
-      body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            Text(l10n.fitraSubtitle, style: QType.body.copyWith(color: q.ink2)),
-            const SizedBox(height: QSpace.s4),
-            QBanner(text: l10n.fitraBeforeEid),
-            const SizedBox(height: QSpace.s3),
-            QBanner(text: l10n.fitraInfo, icon: Icons.rice_bowl_outlined),
-            if (!_hanafi) ...[
-              const SizedBox(height: QSpace.s3),
-              QBanner(
-                text: l10n.fitraHanafiOnly,
-                icon: Icons.warning_amber_rounded,
-                tone: q.warnSoft,
-                foreground: q.ink,
-              ),
-            ],
-            const SizedBox(height: QSpace.s4),
-            DropdownButtonFormField<FitraStaple>(
-              initialValue: _staple,
-              decoration: InputDecoration(labelText: l10n.fitraStaple),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              items: [
-                for (final staple in staples)
-                  DropdownMenuItem(
-                    value: staple,
-                    child: Text(_stapleLabel(context, staple)),
-                  ),
-              ],
-              onChanged: (value) {
-                if (value != null) _edit(() => _staple = value);
-              },
+    return QDiscardGuard(
+      dirty: _dirty,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.fitraTitle),
+          actions: [
+            TextButton(
+              onPressed: _dirty ? _clear : null,
+              child: Text(l10n.calcClear),
             ),
-            const SizedBox(height: QSpace.s3),
-            TextField(
-              controller: _price,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+          ],
+        ),
+        body: SafeArea(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              Text(
+                l10n.fitraSubtitle,
+                style: QType.body.copyWith(color: q.ink2),
               ),
-              inputFormatters: QInputFormat.decimal,
-              textInputAction: TextInputAction.next,
-              onTapOutside: unfocusOnTapOutside,
-              onChanged: (_) => _edit(() {}),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(
-                labelText: l10n.fitraPricePerKg,
-                errorText: _invalid.contains(_price)
-                    ? l10n.fitraPriceInvalid
-                    : null,
-              ),
-            ),
-            const SizedBox(height: QSpace.s3),
-            TextField(
-              controller: _people,
-              keyboardType: TextInputType.number,
-              inputFormatters: QInputFormat.digits,
-              textInputAction: TextInputAction.done,
-              onTapOutside: unfocusOnTapOutside,
-              onChanged: (_) => _edit(() {}),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(
-                labelText: l10n.fitraPeople,
-                errorText: _invalid.contains(_people)
-                    ? l10n.fitraPeopleInvalid
-                    : null,
-              ),
-            ),
-            const SizedBox(height: QSpace.s4),
-            QButton(
-              label: l10n.fitraCalculate,
-              icon: Icons.calculate_outlined,
-              expand: true,
-              onPressed: _calculate,
-            ),
-            if (_result case final FitraResult result) ...[
               const SizedBox(height: QSpace.s4),
-              QCard(
-                key: _resultKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.fitraPerPerson(
-                        _formatAmount(context, result.perPersonAmount),
-                      ),
-                      style: QType.body.copyWith(color: q.ink2),
+              QBanner(text: l10n.fitraBeforeEid),
+              const SizedBox(height: QSpace.s3),
+              QBanner(text: l10n.fitraInfo, icon: Icons.rice_bowl_outlined),
+              if (!_hanafi) ...[
+                const SizedBox(height: QSpace.s3),
+                QBanner(
+                  text: l10n.fitraHanafiOnly,
+                  icon: Icons.warning_amber_rounded,
+                  tone: q.warnSoft,
+                  foreground: q.ink,
+                ),
+              ],
+              const SizedBox(height: QSpace.s4),
+              DropdownButtonFormField<FitraStaple>(
+                // Re-created on Clear so it shows the reset staple.
+                key: ValueKey(_staple),
+                initialValue: _staple,
+                decoration: InputDecoration(labelText: l10n.fitraStaple),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                items: [
+                  for (final staple in staples)
+                    DropdownMenuItem(
+                      value: staple,
+                      child: Text(_stapleLabel(context, staple)),
                     ),
-                    const SizedBox(height: QSpace.s3),
-                    Text(
-                      l10n.fitraTotal(
-                        _formatAmount(context, result.totalAmount),
-                      ),
-                      style: QType.num_(QType.title).copyWith(color: q.ok),
-                    ),
-                    const SizedBox(height: QSpace.s3),
-                    Text(
-                      l10n.fitraWeightNote(
-                        _formatAmount(context, result.weightKgPerPerson),
-                      ),
-                      style: QType.caption.copyWith(color: q.ink2),
-                    ),
-                  ],
+                ],
+                onChanged: (value) {
+                  if (value != null) _edit(() => _staple = value);
+                },
+              ),
+              const SizedBox(height: QSpace.s3),
+              TextField(
+                controller: _price,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: QInputFormat.decimal,
+                textInputAction: TextInputAction.next,
+                onTapOutside: unfocusOnTapOutside,
+                onChanged: (_) => _edit(() {}),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                decoration: InputDecoration(
+                  labelText: l10n.fitraPricePerKg,
+                  helperText: l10n.calcSameCurrency,
+                  helperMaxLines: 2,
+                  errorText: _invalid.contains(_price)
+                      ? l10n.fitraPriceInvalid
+                      : null,
                 ),
               ),
+              const SizedBox(height: QSpace.s3),
+              TextField(
+                controller: _people,
+                keyboardType: TextInputType.number,
+                inputFormatters: QInputFormat.digits,
+                textInputAction: TextInputAction.done,
+                onTapOutside: unfocusOnTapOutside,
+                onChanged: (_) => _edit(() {}),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                decoration: InputDecoration(
+                  labelText: l10n.fitraPeople,
+                  errorText: _invalid.contains(_people)
+                      ? l10n.fitraPeopleInvalid
+                      : null,
+                ),
+              ),
+              const SizedBox(height: QSpace.s4),
+              QButton(
+                label: l10n.fitraCalculate,
+                icon: Icons.calculate_outlined,
+                expand: true,
+                onPressed: _calculate,
+              ),
+              if (_result case final FitraResult result) ...[
+                const SizedBox(height: QSpace.s4),
+                QCard(
+                  key: _resultKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.fitraPerPerson(
+                          _formatAmount(context, result.perPersonAmount),
+                        ),
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                      Text(
+                        l10n.fitraTotal(
+                          _formatAmount(context, result.totalAmount),
+                        ),
+                        style: QType.num_(QType.title).copyWith(color: q.ok),
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                      Text(
+                        l10n.fitraWeightNote(
+                          _formatAmount(context, result.weightKgPerPerson),
+                        ),
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

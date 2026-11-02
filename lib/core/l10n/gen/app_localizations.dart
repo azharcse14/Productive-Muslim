@@ -5311,6 +5311,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove bookmark'**
   String get bookmarkRemoveTooltip;
+
+  /// No description provided for @hijriAdjustLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust Hijri date'**
+  String get hijriAdjustLink;
+
+  /// No description provided for @calcClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get calcClear;
+
+  /// No description provided for @calcSameCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter all amounts in the same currency.'**
+  String get calcSameCurrency;
+
+  /// No description provided for @zakatRowZakatable.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakatable wealth'**
+  String get zakatRowZakatable;
+
+  /// No description provided for @ramadanColDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get ramadanColDay;
+
+  /// No description provided for @ramadanColDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get ramadanColDate;
+
+  /// No description provided for @ramadanRowA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Roza {roza}, {date}, Sahri ends {sahri}, Iftar {iftar}'**
+  String ramadanRowA11y(String roza, String date, String sahri, String iftar);
+
+  /// No description provided for @sahriEndsTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri ends tomorrow'**
+  String get sahriEndsTomorrow;
+
+  /// No description provided for @ramadanDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Last fast} =1{1 day left} other{{count} days left}}'**
+  String ramadanDaysLeft(int count);
+
+  /// No description provided for @ramadanTableEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Sahri and iftar times couldn\'t be calculated for this location.'**
+  String get ramadanTableEmpty;
+
+  /// No description provided for @calendarSetLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your location to see prayer times.'**
+  String get calendarSetLocationHint;
 }
 
 class _AppLocalizationsDelegate

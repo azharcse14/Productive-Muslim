@@ -30,8 +30,9 @@ final class _QazaScreenState extends State<QazaScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   // Witr is wajib for Hanafis, so it starts on for them.
-  late bool _includeWitr =
+  late final bool _witrDefault =
       locator<SettingsStore>().prayerParams.value.madhab == Madhab.hanafi;
+  late bool _includeWitr = _witrDefault;
   final _madeUp = TextEditingController();
   final _excluded = TextEditingController();
 
@@ -43,6 +44,25 @@ final class _QazaScreenState extends State<QazaScreen> {
 
   /// "Days to exclude per month" isn't a whole number in 0..30.
   bool _excludedInvalid = false;
+
+  /// Input differs from the defaults, so back would lose it.
+  bool get _dirty =>
+      _startDate != null ||
+      _endDate != null ||
+      _includeWitr != _witrDefault ||
+      _madeUp.text.isNotEmpty ||
+      _excluded.text.isNotEmpty;
+
+  void _clear() => setState(() {
+    _startDate = null;
+    _endDate = null;
+    _includeWitr = _witrDefault;
+    _madeUp.clear();
+    _excluded.clear();
+    _madeUpInvalid = false;
+    _excludedInvalid = false;
+    _result = null;
+  });
 
   @override
   void dispose() {
@@ -139,141 +159,157 @@ final class _QazaScreenState extends State<QazaScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final q = context.q;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.qazaTitle)),
-      body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.all(QSpace.s5),
-          children: [
-            Text(l10n.qazaSubtitle, style: QType.body.copyWith(color: q.ink2)),
-            const SizedBox(height: QSpace.s4),
-            DateField(
-              label: l10n.qazaStartDate,
-              value: _startDate == null
-                  ? l10n.qazaSelectDate
-                  : _formatDate(context, _startDate!),
-              hasValue: _startDate != null,
-              helperText: l10n.qazaStartHelper,
-              onTap: () => _pickDate(isStart: true),
+    return QDiscardGuard(
+      dirty: _dirty,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.qazaTitle),
+          actions: [
+            TextButton(
+              onPressed: _dirty ? _clear : null,
+              child: Text(l10n.calcClear),
             ),
-            const SizedBox(height: QSpace.s3),
-            DateField(
-              label: l10n.qazaEndDate,
-              value: _endDate == null
-                  ? l10n.qazaSelectDate
-                  : _formatDate(context, _endDate!),
-              hasValue: _endDate != null,
-              onTap: () => _pickDate(isStart: false),
-            ),
-            const SizedBox(height: QSpace.s3),
-            QCard(
-              padding: const EdgeInsets.symmetric(horizontal: QSpace.s4),
-              child: QListRow(
-                title: l10n.qazaIncludeWitr,
-                onTap: () => _setWitr(!_includeWitr),
-                trailing: Switch(value: _includeWitr, onChanged: _setWitr),
+          ],
+        ),
+        body: SafeArea(
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(QSpace.s5),
+            children: [
+              Text(
+                l10n.qazaSubtitle,
+                style: QType.body.copyWith(color: q.ink2),
               ),
-            ),
-            const SizedBox(height: QSpace.s3),
-            TextField(
-              controller: _madeUp,
-              keyboardType: TextInputType.number,
-              inputFormatters: QInputFormat.digits,
-              textInputAction: TextInputAction.next,
-              onTapOutside: unfocusOnTapOutside,
-              onChanged: (_) => setState(() {
-                _result = null;
-                _madeUpInvalid = false;
-              }),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(
-                labelText: l10n.qazaAlreadyMadeUp,
-                errorText: _madeUpInvalid ? l10n.qazaInvalidNumber : null,
-              ),
-            ),
-            const SizedBox(height: QSpace.s3),
-            TextField(
-              controller: _excluded,
-              keyboardType: TextInputType.number,
-              inputFormatters: QInputFormat.digits,
-              textInputAction: TextInputAction.done,
-              onTapOutside: unfocusOnTapOutside,
-              onChanged: (_) => setState(() {
-                _result = null;
-                _excludedInvalid = false;
-              }),
-              style: QType.num_(QType.body).copyWith(color: q.ink),
-              decoration: InputDecoration(
-                labelText: l10n.qazaExcludePerMonth,
-                helperText: l10n.qazaExcludeHelper,
-                helperMaxLines: 2,
-                errorText: _excludedInvalid ? l10n.qazaExcludeInvalid : null,
-              ),
-            ),
-            const SizedBox(height: QSpace.s4),
-            QButton(
-              label: l10n.qazaCalculate,
-              icon: Icons.calculate_outlined,
-              expand: true,
-              onPressed: _startDate == null || _endDate == null || _inverted
-                  ? null
-                  : _calculate,
-            ),
-            if (_inverted) ...[
-              const SizedBox(height: QSpace.s3),
-              QBanner(
-                text: l10n.qazaEndBeforeStart,
-                tone: q.warnSoft,
-                foreground: q.ink,
-              ),
-            ],
-            const SizedBox(height: QSpace.s4),
-            QBanner(text: l10n.qazaNote),
-            if (_result case final QazaResult result) ...[
               const SizedBox(height: QSpace.s4),
+              DateField(
+                label: l10n.qazaStartDate,
+                value: _startDate == null
+                    ? l10n.qazaSelectDate
+                    : _formatDate(context, _startDate!),
+                hasValue: _startDate != null,
+                helperText: l10n.qazaStartHelper,
+                onTap: () => _pickDate(isStart: true),
+              ),
+              const SizedBox(height: QSpace.s3),
+              DateField(
+                label: l10n.qazaEndDate,
+                value: _endDate == null
+                    ? l10n.qazaSelectDate
+                    : _formatDate(context, _endDate!),
+                hasValue: _endDate != null,
+                onTap: () => _pickDate(isStart: false),
+              ),
+              const SizedBox(height: QSpace.s3),
               QCard(
-                key: _resultKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.qazaDays(_formatCount(context, result.days)),
-                      style: QType.body.copyWith(color: q.ink2),
-                    ),
-                    if (result.excludedDays > 0) ...[
+                padding: const EdgeInsets.symmetric(horizontal: QSpace.s4),
+                child: QListRow(
+                  title: l10n.qazaIncludeWitr,
+                  onTap: () => _setWitr(!_includeWitr),
+                  trailing: Switch(value: _includeWitr, onChanged: _setWitr),
+                ),
+              ),
+              const SizedBox(height: QSpace.s3),
+              TextField(
+                controller: _madeUp,
+                keyboardType: TextInputType.number,
+                inputFormatters: QInputFormat.digits,
+                textInputAction: TextInputAction.next,
+                onTapOutside: unfocusOnTapOutside,
+                onChanged: (_) => setState(() {
+                  _result = null;
+                  _madeUpInvalid = false;
+                }),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                decoration: InputDecoration(
+                  labelText: l10n.qazaAlreadyMadeUp,
+                  errorText: _madeUpInvalid ? l10n.qazaInvalidNumber : null,
+                ),
+              ),
+              const SizedBox(height: QSpace.s3),
+              TextField(
+                controller: _excluded,
+                keyboardType: TextInputType.number,
+                inputFormatters: QInputFormat.digits,
+                textInputAction: TextInputAction.done,
+                onTapOutside: unfocusOnTapOutside,
+                onChanged: (_) => setState(() {
+                  _result = null;
+                  _excludedInvalid = false;
+                }),
+                style: QType.num_(QType.body).copyWith(color: q.ink),
+                decoration: InputDecoration(
+                  labelText: l10n.qazaExcludePerMonth,
+                  helperText: l10n.qazaExcludeHelper,
+                  helperMaxLines: 2,
+                  errorText: _excludedInvalid ? l10n.qazaExcludeInvalid : null,
+                ),
+              ),
+              const SizedBox(height: QSpace.s4),
+              QButton(
+                label: l10n.qazaCalculate,
+                icon: Icons.calculate_outlined,
+                expand: true,
+                onPressed: _startDate == null || _endDate == null || _inverted
+                    ? null
+                    : _calculate,
+              ),
+              if (_inverted) ...[
+                const SizedBox(height: QSpace.s3),
+                QBanner(
+                  text: l10n.qazaEndBeforeStart,
+                  tone: q.warnSoft,
+                  foreground: q.ink,
+                ),
+              ],
+              if (_result case final QazaResult result) ...[
+                const SizedBox(height: QSpace.s4),
+                QCard(
+                  key: _resultKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.qazaDays(_formatCount(context, result.days)),
+                        style: QType.body.copyWith(color: q.ink2),
+                      ),
+                      if (result.excludedDays > 0) ...[
+                        const SizedBox(height: QSpace.s2),
+                        Text(
+                          l10n.qazaExcludedDays(
+                            _formatCount(context, result.excludedDays),
+                          ),
+                          style: QType.body.copyWith(color: q.ink2),
+                        ),
+                      ],
                       const SizedBox(height: QSpace.s2),
                       Text(
-                        l10n.qazaExcludedDays(
-                          _formatCount(context, result.excludedDays),
+                        l10n.qazaPerPrayer(
+                          _formatCount(context, result.perPrayer),
                         ),
                         style: QType.body.copyWith(color: q.ink2),
                       ),
-                    ],
-                    const SizedBox(height: QSpace.s2),
-                    Text(
-                      l10n.qazaPerPrayer(
-                        _formatCount(context, result.perPrayer),
-                      ),
-                      style: QType.body.copyWith(color: q.ink2),
-                    ),
-                    if (result.witr > 0) ...[
-                      const SizedBox(height: QSpace.s2),
+                      if (result.witr > 0) ...[
+                        const SizedBox(height: QSpace.s2),
+                        Text(
+                          l10n.qazaWitr(_formatCount(context, result.witr)),
+                          style: QType.body.copyWith(color: q.ink2),
+                        ),
+                      ],
+                      const SizedBox(height: QSpace.s4),
                       Text(
-                        l10n.qazaWitr(_formatCount(context, result.witr)),
-                        style: QType.body.copyWith(color: q.ink2),
+                        l10n.qazaTotal(
+                          _formatCount(context, result.totalMissed),
+                        ),
+                        style: QType.num_(QType.title).copyWith(color: q.ink),
                       ),
                     ],
-                    const SizedBox(height: QSpace.s4),
-                    Text(
-                      l10n.qazaTotal(_formatCount(context, result.totalMissed)),
-                      style: QType.num_(QType.title).copyWith(color: q.ok),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
+              const SizedBox(height: QSpace.s4),
+              QBanner(text: l10n.qazaNote),
             ],
-          ],
+          ),
         ),
       ),
     );

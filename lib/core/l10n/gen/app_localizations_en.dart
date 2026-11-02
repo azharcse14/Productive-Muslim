@@ -3575,4 +3575,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookmarkRemoveTooltip => 'Remove bookmark';
+
+  @override
+  String get hijriAdjustLink => 'Adjust Hijri date';
+
+  @override
+  String get calcClear => 'Clear';
+
+  @override
+  String get calcSameCurrency => 'Enter all amounts in the same currency.';
+
+  @override
+  String get zakatRowZakatable => 'Zakatable wealth';
+
+  @override
+  String get ramadanColDay => 'Day';
+
+  @override
+  String get ramadanColDate => 'Date';
+
+  @override
+  String ramadanRowA11y(String roza, String date, String sahri, String iftar) {
+    return 'Roza $roza, $date, Sahri ends $sahri, Iftar $iftar';
+  }
+
+  @override
+  String get sahriEndsTomorrow => 'Sahri ends tomorrow';
+
+  @override
+  String ramadanDaysLeft(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString days left',
+      one: '1 day left',
+      zero: 'Last fast',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanTableEmpty =>
+      'Sahri and iftar times couldn\'t be calculated for this location.';
+
+  @override
+  String get calendarSetLocationHint =>
+      'Set your location to see prayer times.';
 }

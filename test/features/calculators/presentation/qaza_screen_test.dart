@@ -70,5 +70,25 @@ void main() {
       await tester.pump();
       expect(witr(), isFalse);
     });
+
+    testWidgets('typed input guards back and Clear empties it', (tester) async {
+      tester.view
+        ..physicalSize = const Size(800, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '5');
+      await tester.pump();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Discard your changes?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(TextButton, 'Clear'));
+      await tester.pump();
+      expect(find.text('5'), findsNothing);
+    });
   });
 }

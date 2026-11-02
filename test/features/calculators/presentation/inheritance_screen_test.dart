@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/inheritance_screen.dart';
+import 'package:productive_muslim/shared/widgets/q_card.dart';
 
 Widget _app() => MaterialApp(
   theme: AppTheme.light(),
@@ -88,6 +89,13 @@ void main() {
       expect(find.text('12.5%'), findsOneWidget);
       expect(find.text('58.33%'), findsOneWidget);
       expect(find.text('29.17%'), findsOneWidget);
+      // No estate: the percentage is the headline, no row of zero money.
+      expect(
+        find.descendant(of: find.byType(QCard), matching: find.text('0')),
+        findsNothing,
+      );
+      final pct = tester.widget<Text>(find.text('12.5%'));
+      expect(pct.style?.fontSize, greaterThan(14));
     });
 
     testWidgets('husband only shows an unallocated row', (tester) async {
@@ -165,6 +173,28 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('300,000'), findsOneWidget);
       expect(find.text('150,000 each'), findsOneWidget);
+    });
+
+    testWidgets('back with input asks before discarding; Clear resets', (
+      tester,
+    ) async {
+      _useTallSurface(tester);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final clear = find.widgetWithText(TextButton, 'Clear');
+      expect(tester.widget<TextButton>(clear).onPressed, isNull);
+
+      await tester.tap(find.text('Husband'));
+      await tester.pumpAndSettle();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Discard your changes?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(clear);
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextButton>(clear).onPressed, isNull);
     });
   });
 }

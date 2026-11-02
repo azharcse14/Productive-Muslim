@@ -14,10 +14,12 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_hijri_offset.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../../prayer_times/presentation/screens/home_formatting.dart'
     show formatCountdown;
+import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
 import '../state/ramadan_store.dart';
@@ -70,7 +72,14 @@ final class _RamadanScreenState extends State<RamadanScreen> {
               padding: const EdgeInsets.all(QSpace.s5),
               children: [
                 _RozaCounterCard(store: _store),
-                const SizedBox(height: QSpace.s4),
+                // Roza count and the table follow the Hijri offset.
+                QHijriOffsetLink(
+                  offset: _settings.hijriOffsetDays.value,
+                  min: AppSettings.minHijriOffset,
+                  max: AppSettings.maxHijriOffset,
+                  onChanged: _settings.setHijriOffset,
+                ),
+                const SizedBox(height: QSpace.s2),
                 if (!hasLocation)
                   QCard(
                     child: Column(
@@ -193,6 +202,16 @@ final class _RozaCounterCard extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: QSpace.s2),
+              Text(
+                LocaleDigits.localize(
+                  l10n.ramadanDaysLeft(
+                    total - rozaDay < 0 ? 0 : total - rozaDay,
+                  ),
+                  language,
+                ),
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
             ],
           ),
         );
@@ -245,16 +264,18 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
         if (i < 0) {
           return const SizedBox.shrink();
         }
-        final (_, sahri, iftar, _) = rows[i];
+        final (_, todaySahri, iftar, _) = rows[i];
         final now = widget.now();
-        final (label, target) = now.isBefore(sahri)
-            ? (l10n.countdownSahriEnds, sahri)
+        // After iftar, today's sahri is past: show tomorrow's instead.
+        final next = now.isBefore(iftar) ? null : widget.store.rowAfter(today);
+        final sahri = next?.$2 ?? todaySahri;
+        final (label, target) = now.isBefore(todaySahri)
+            ? (l10n.countdownSahriEnds, todaySahri)
             : now.isBefore(iftar)
             ? (l10n.countdownIftarIn, iftar)
-            : switch (widget.store.rowAfter(today)) {
-                final next? => (l10n.countdownSahriEnds, next.$2),
-                null => (null, null),
-              };
+            : next != null
+            ? (l10n.countdownSahriEnds, next.$2)
+            : (null, null);
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +300,10 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
               const SizedBox(height: QSpace.s2),
               Row(
                 children: [
-                  time(l10n.sahriEndsLabel, sahri),
+                  time(
+                    next == null ? l10n.sahriEndsLabel : l10n.sahriEndsTomorrow,
+                    sahri,
+                  ),
                   time(l10n.iftarLabel, iftar),
                 ],
               ),
@@ -311,6 +335,8 @@ final class _MonthTableCard extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     final locale = Localizations.localeOf(context);
+    // Roza-number column grows with the text size instead of clipping.
+    final dayWidth = 40 * context.textGrowth;
     return QCard(
       padding: const EdgeInsets.symmetric(
         horizontal: QSpace.s4,
@@ -338,8 +364,19 @@ final class _MonthTableCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: QSpace.s2),
                 child: Row(
                   children: [
-                    const SizedBox(width: 32),
-                    const Expanded(child: SizedBox.shrink()),
+                    SizedBox(
+                      width: dayWidth,
+                      child: Text(
+                        l10n.ramadanColDay,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        l10n.ramadanColDate,
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ),
                     Expanded(
                       child: Text(
                         l10n.sahriEndsLabel,
@@ -358,6 +395,14 @@ final class _MonthTableCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: QSpace.s2),
+              if (rows.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(QSpace.s2),
+                  child: Text(
+                    l10n.ramadanTableEmpty,
+                    style: QType.body.copyWith(color: q.ink2),
+                  ),
+                ),
               // Inline rows (no nested scroller), so today's highlighted row
               // is reachable with the page scroll like everything else.
               for (final (day, sahri, iftar, roza) in rows)
@@ -366,11 +411,33 @@ final class _MonthTableCard extends StatelessWidget {
                     final isToday = day == today;
                     // Iftar of fasting day 20, 22, … begins odd night 21, 23, …
                     final oddNightEve = roza >= 20 && roza <= 28 && roza.isEven;
-                    // Not by colour alone: bold text and "Today" for readers.
-                    final todayWeight = isToday ? FontWeight.w700 : null;
+                    // Past days recede; today is highlighted.
+                    final ink = isToday
+                        ? q.onPrimarySoft
+                        : day.isBefore(today)
+                        ? q.ink3
+                        : q.ink;
+                    final language = locale.languageCode;
+                    final a11y = [
+                      l10n.ramadanRowA11y(
+                        LocaleDigits.localize('$roza', language),
+                        LocaleDigits.localize(
+                          DateFormat.MMMMd(locale.toString()).format(day),
+                          language,
+                        ),
+                        formatTime(sahri),
+                        formatTime(iftar),
+                      ),
+                      if (oddNightEve)
+                        l10n.oddNightBegins(
+                          LocaleDigits.localize('${roza + 1}', language),
+                        ),
+                      if (isToday) l10n.todayTab,
+                    ].join(', ');
                     return Semantics(
-                      container: isToday,
-                      label: isToday ? l10n.todayTab : null,
+                      container: true,
+                      label: a11y,
+                      excludeSemantics: true,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: isToday ? q.primarySoft : null,
@@ -384,7 +451,7 @@ final class _MonthTableCard extends StatelessWidget {
                           child: Row(
                             children: [
                               SizedBox(
-                                width: 32,
+                                width: dayWidth,
                                 child: Text(
                                   LocaleDigits.localize(
                                     '$roza',
@@ -392,7 +459,6 @@ final class _MonthTableCard extends StatelessWidget {
                                   ),
                                   style: QType.num_(QType.label).copyWith(
                                     color: isToday ? q.onPrimarySoft : q.ink2,
-                                    fontWeight: todayWeight,
                                   ),
                                 ),
                               ),
@@ -404,19 +470,16 @@ final class _MonthTableCard extends StatelessWidget {
                                     ).format(day),
                                     locale.languageCode,
                                   ),
-                                  style: QType.body.copyWith(
-                                    color: isToday ? q.onPrimarySoft : q.ink,
-                                    fontWeight: todayWeight,
-                                  ),
+                                  style: QType.body.copyWith(color: ink),
                                 ),
                               ),
                               Expanded(
                                 child: Text(
                                   formatTime(sahri),
                                   textAlign: TextAlign.end,
-                                  style: QType.num_(QType.body).copyWith(
-                                    color: isToday ? q.onPrimarySoft : q.ink,
-                                  ),
+                                  style: QType.num_(
+                                    QType.body,
+                                  ).copyWith(color: ink),
                                 ),
                               ),
                               Expanded(
@@ -443,11 +506,9 @@ final class _MonthTableCard extends StatelessWidget {
                                       child: Text(
                                         formatTime(iftar),
                                         textAlign: TextAlign.end,
-                                        style: QType.num_(QType.body).copyWith(
-                                          color: isToday
-                                              ? q.onPrimarySoft
-                                              : q.ink,
-                                        ),
+                                        style: QType.num_(
+                                          QType.body,
+                                        ).copyWith(color: ink),
                                       ),
                                     ),
                                   ],
