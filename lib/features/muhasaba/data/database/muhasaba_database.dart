@@ -27,6 +27,10 @@ class TrackerItems extends Table {
   /// on); null while active.
   IntColumn get archivedOn => integer().nullable()();
 
+  /// yyyymmdd of the real creation day — [createdOn] before any
+  /// back-fill lowered it, so clearing those entries can raise it back.
+  IntColumn get addedOn => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -78,7 +82,7 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// `dart run drift_dev schema dump lib/features/muhasaba/data/database/muhasaba_database.dart drift_schemas/muhasaba/`
   /// `dart run drift_dev schema generate drift_schemas/muhasaba/ test/features/muhasaba/data/generated/`
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -91,8 +95,9 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
         await m.addColumn(trackerItems, trackerItems.archivedOn);
         // Conservative backfill (keeps past % as close to before as
         // possible): custom items start at their first entry, every
-        // other item at the earliest entry overall (≈ install day);
-        // already-archived items stop counting from today.
+        // other item at the earliest entry overall (≈ install day).
+        // Already-archived items never count (archived_on = created_on):
+        // v1 left them out of every day, past ones included.
         final now = DateTime.now();
         final today = now.year * 10000 + now.month * 100 + now.day;
         await customStatement(
@@ -103,14 +108,19 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
           [today],
         );
         await customStatement(
-          'UPDATE tracker_items SET archived_on = ? WHERE archived = 1',
-          [today],
+          'UPDATE tracker_items SET archived_on = created_on WHERE archived = 1',
         );
       }
       if (from < 3) {
         // Nothing to backfill: past restores weren't recorded, and an
         // item archived now keeps archived_on as its open span's start.
         await m.createTable(trackerArchiveSpans);
+      }
+      if (from < 4) {
+        // Back-fills already applied can't be told apart: their lowered
+        // created_on becomes the creation day.
+        await m.addColumn(trackerItems, trackerItems.addedOn);
+        await customStatement('UPDATE tracker_items SET added_on = created_on');
       }
     },
   );

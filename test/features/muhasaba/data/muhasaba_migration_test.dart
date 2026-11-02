@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/muhasaba/data/database/muhasaba_database.dart';
+import 'package:productive_muslim/features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
 
 import 'generated/schema.dart';
 
@@ -14,14 +15,32 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('a fresh database matches the exported v3 schema', () async {
-    final schema = await verifier.schemaAt(3);
+  test('a fresh database matches the exported v4 schema', () async {
+    final schema = await verifier.schemaAt(4);
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     await db.close();
   });
 
-  test('v2 -> v3 adds archive spans; an archived item stays open', () async {
+  test('v3 -> v4 copies created_on into added_on', () async {
+    final schema = await verifier.schemaAt(3);
+    schema.rawDatabase.execute(
+      "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
+      "is_default, archived, sort_order, created_on, archived_on) VALUES "
+      "('quran', 'q', 0, 'm', 0, 1, 0, 0, 20250801, NULL), "
+      "('old', 'o', 0, 'm', 0, 1, 0, 1, NULL, NULL)",
+    );
+    final db = MuhasabaDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 4);
+    final rows = {
+      for (final r in await db.select(db.trackerItems).get()) r.id: r,
+    };
+    expect(rows['quran']!.addedOn, 20250801);
+    expect(rows['old']!.addedOn, isNull);
+    await db.close();
+  });
+
+  test('v2 -> v4 adds archive spans; an archived item stays open', () async {
     final schema = await verifier.schemaAt(2);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -30,7 +49,7 @@ void main() {
       "('dhikr', 'd', 0, 'm', 0, 1, 0, 1, 20250801, NULL)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 3);
+    await verifier.migrateAndValidate(db, 4);
     expect(await db.select(db.trackerArchiveSpans).get(), isEmpty);
     final quran = await (db.select(
       db.trackerItems,
@@ -41,7 +60,7 @@ void main() {
   });
 
   test(
-    'v1 -> v2 adds created/archived days with a conservative backfill',
+    'v1 -> v4 directly: conservative backfill, past completion unchanged',
     () async {
       final schema = await verifier.schemaAt(1);
       final raw = schema.rawDatabase;
@@ -53,10 +72,11 @@ void main() {
       );
       raw.execute(
         "INSERT INTO daily_entries (item_id, date, value) VALUES "
-        "('salah_fajr', 20260301, 1), ('custom_1', 20260505, 1)",
+        "('salah_fajr', 20260301, 1), ('custom_1', 20260505, 1), "
+        "('salah_fajr', 20260601, 1)",
       );
       final db = MuhasabaDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(db, 2);
+      await verifier.migrateAndValidate(db, 4);
       final rows = {
         for (final r in await db.select(db.trackerItems).get()) r.id: r,
       };
@@ -64,7 +84,19 @@ void main() {
       expect(rows['salah_fajr']!.createdOn, 20260301);
       expect(rows['salah_fajr']!.archivedOn, isNull);
       expect(rows['custom_1']!.createdOn, 20260505);
-      expect(rows['custom_1']!.archivedOn, isNotNull);
+      // Archived in v1 -> never counted (as v1 left it out of every day).
+      expect(rows['custom_1']!.archivedOn, 20260505);
+      expect(rows['custom_1']!.addedOn, 20260505);
+
+      // v1 completion: archived custom_1 left out of both sides.
+      final stats = await MuhasabaRepositoryImpl(db).periodStats(
+        start: DateTime(2026, 5, 5),
+        end: DateTime(2026, 6),
+        today: DateTime(2026, 6),
+      );
+      final days = stats.valueOrNull!.days;
+      expect(days.first.completion, 0, reason: 'May 5: fajr not done');
+      expect(days.last.completion, 1, reason: 'Jun 1: fajr done = 100%');
       await db.close();
     },
   );

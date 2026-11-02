@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/utils/result.dart';
 import '../../../dua_tasbih/presentation/state/tasbih_store.dart';
 import '../../../fasting/presentation/state/fasting_store.dart';
 import '../../../muhasaba/domain/entities/tracker_item.dart';
@@ -24,12 +25,12 @@ final class AchievementStore {
     QuranStore? quran,
     FastingStore? fasting,
     DateTime Function()? now,
-  })  : _muhasaba = muhasaba,
-        _tasbih = tasbih,
-        _quran = quran,
-        _fasting = fasting,
-        _prefs = prefs,
-        _now = now ?? DateTime.now;
+  }) : _muhasaba = muhasaba,
+       _tasbih = tasbih,
+       _quran = quran,
+       _fasting = fasting,
+       _prefs = prefs,
+       _now = now ?? DateTime.now;
 
   static const _seenKey = 'achievements_seen';
 
@@ -49,11 +50,13 @@ final class AchievementStore {
   late final seen = signal(const <String>{});
 
   /// Evaluated catalog — recomputes whenever [stats] changes.
-  late final progress =
-      computed(() => AchievementEvaluator.evaluate(stats.value));
+  late final progress = computed(
+    () => AchievementEvaluator.evaluate(stats.value),
+  );
 
-  late final unlockedCount =
-      computed(() => progress.value.where((p) => p.unlocked).length);
+  late final unlockedCount = computed(
+    () => progress.value.where((p) => p.unlocked).length,
+  );
 
   late final totalCount = computed(() => progress.value.length);
 
@@ -80,7 +83,10 @@ final class AchievementStore {
     try {
       final decoded = jsonDecode(raw);
       if (decoded is List) {
-        seen.value = {for (final id in decoded) if (id is String) id};
+        seen.value = {
+          for (final id in decoded)
+            if (id is String) id,
+        };
       }
     } on FormatException {
       // Corrupt payload — start fresh.
@@ -92,8 +98,10 @@ final class AchievementStore {
   Future<void>? _refreshing;
   var _refreshAgain = false;
 
-  /// Re-evaluates badges. Single-flight: calls during a run collapse into
-  /// one trailing run, so rapid check-ins don't stack 10-year scans.
+  /// Re-evaluates badges; completes with the read's [Failure] as error
+  /// when a source can't be read. Single-flight: calls during a run
+  /// collapse into one trailing run, so rapid check-ins don't stack
+  /// 10-year scans.
   Future<void> refresh() {
     if (_refreshing != null) {
       _refreshAgain = true;
@@ -127,13 +135,15 @@ final class AchievementStore {
     if (quran != null && !quran.loaded.value) {
       await quran.load();
     }
+    // A failed read throws (stats untouched) rather than evaluating empty
+    // data: badges would read locked, then "newly unlocked" on recovery.
+    Future<T> read<T>(Future<Result<T>> result) async =>
+        (await result).fold((value) => value, (f) => throw f);
     // Distinct done dates per badge family, archived items included.
-    Future<Set<DateTime>> doneOn(Set<String> ids) async =>
-        (await _muhasaba.doneDates(ids)).valueOrNull ?? const {};
+    Future<Set<DateTime>> doneOn(Set<String> ids) =>
+        read(_muhasaba.doneDates(ids));
     // Streaks too: archiving a tracker must not re-lock streak badges.
-    final allItems = (await _muhasaba.items(includeArchived: true))
-            .valueOrNull ??
-        const [];
+    final allItems = await read(_muhasaba.items(includeArchived: true));
     final streaks = streaksOf(
       await doneOn({for (final i in allItems) i.id}),
       _today(),
@@ -166,7 +176,10 @@ final class AchievementStore {
   /// Current and best run of consecutive [days]. The current run may end
   /// yesterday: today still counts until it passes empty.
   @visibleForTesting
-  static ({int current, int best}) streaksOf(Set<DateTime> days, DateTime today) {
+  static ({int current, int best}) streaksOf(
+    Set<DateTime> days,
+    DateTime today,
+  ) {
     final keys = {for (final d in days) DateTime(d.year, d.month, d.day)};
     var cursor = DateTime(today.year, today.month, today.day);
     if (!keys.contains(cursor)) {

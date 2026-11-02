@@ -84,7 +84,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           for (final item in DefaultTrackers.items())
             _toCompanion(
               upgrade ? item.copyWith(archived: true) : item,
-            ).copyWith(createdOn: Value(_todayCode)),
+            ).copyWith(
+              createdOn: Value(_todayCode),
+              addedOn: Value(_todayCode),
+            ),
         ], mode: InsertMode.insertOrIgnore),
       );
       return const Result.success(null);
@@ -113,9 +116,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   @override
   Future<Result<void>> upsertItem(TrackerItem item) async {
     try {
-      // created_on is stamped on first insert only; edits keep it.
+      // created/added days are stamped on first insert only; edits keep
+      // them.
       await _db.trackerItems.insertOne(
-        _toCompanion(item).copyWith(createdOn: Value(_todayCode)),
+        _toCompanion(
+          item,
+        ).copyWith(createdOn: Value(_todayCode), addedOn: Value(_todayCode)),
         onConflict: DoUpdate((_) => _toCompanion(item)),
       );
       return const Result.success(null);
@@ -162,8 +168,14 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           if (start == null) {
             // Seeded dormant (a default added by an update, never
             // counted): it starts counting today, not from the seed day.
-            await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id)))
-                .write(TrackerItemsCompanion(createdOn: Value(today)));
+            await (_db.update(
+              _db.trackerItems,
+            )..where((t) => t.id.equals(id))).write(
+              TrackerItemsCompanion(
+                createdOn: Value(today),
+                addedOn: Value(today),
+              ),
+            );
           } else if (start < today) {
             // The archived days stay out of history; the days before keep
             // counting. A same-day undo leaves no span.
@@ -226,28 +238,30 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
                 ..where((t) => t.itemId.equals(entry.itemId))
                 ..where((t) => t.date.equals(code)))
               .go();
-          return false;
+        } else {
+          final archived =
+              await (_db.select(_db.trackerItems)
+                    ..where((t) => t.id.equals(entry.itemId) & t.archived))
+                  .getSingleOrNull();
+          if (archived != null) {
+            return true;
+          }
+          await _db.dailyEntries.insertOnConflictUpdate(
+            DailyEntriesCompanion.insert(
+              itemId: entry.itemId,
+              date: code,
+              value: entry.value,
+            ),
+          );
         }
-        final archived =
-            await (_db.select(_db.trackerItems)
-                  ..where((t) => t.id.equals(entry.itemId) & t.archived))
-                .getSingleOrNull();
-        if (archived != null) {
-          return true;
-        }
-        // Back-filling before the item's creation day means it existed
-        // then: move created_on back so that day counts it.
+        // An entry before the creation day means the item existed then:
+        // created_on follows the earliest entry, never past the real
+        // creation day — so clearing a back-fill raises it back.
         await _db.customStatement(
-          'UPDATE tracker_items SET created_on = ? '
-          'WHERE id = ? AND created_on > ?',
-          [code, entry.itemId, code],
-        );
-        await _db.dailyEntries.insertOnConflictUpdate(
-          DailyEntriesCompanion.insert(
-            itemId: entry.itemId,
-            date: code,
-            value: entry.value,
-          ),
+          'UPDATE tracker_items SET created_on = MIN(added_on, COALESCE( '
+          '(SELECT MIN(date) FROM daily_entries WHERE item_id = ?), added_on)) '
+          'WHERE id = ? AND added_on IS NOT NULL',
+          [entry.itemId, entry.itemId],
         );
         return false;
       });
@@ -359,8 +373,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         _encodeDate(prevStart),
         _encodeDate(prevEnd),
       );
+      // Null only when no tracker counted then; an empty window is 0%.
       double? previousCompletion;
-      if (prevSums.isNotEmpty && periodDays > 0) {
+      if (periodDays > 0) {
         var total = 0.0;
         var counted = 0;
         for (var i = 0; i < periodDays; i++) {

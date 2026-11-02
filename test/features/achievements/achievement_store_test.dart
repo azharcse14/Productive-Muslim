@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/achievements/presentation/state/achievement_store.dart';
 import 'package:productive_muslim/features/fasting/presentation/state/fasting_store.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
@@ -66,6 +67,44 @@ void main() {
       expect(repo.allItemsCalls, 2, reason: 'first run + one trailing run');
     },
   );
+
+  test('a failed read fails refresh and keeps the last totals', () async {
+    final repo = InMemoryMuhasabaRepository();
+    await repo.seedDefaults();
+    await repo.setEntry(
+      DailyEntry(itemId: 'salah_fajr', date: DateTime(2026, 6, 9), value: 1),
+    );
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      now: () => DateTime(2026, 6, 10),
+    );
+    await store.load();
+    final before = store.stats.value;
+    final unlocked = store.unlockedCount.value;
+    expect(before.salahDaysDone, 1);
+
+    repo.failItemReads = true;
+    await expectLater(store.refresh(), throwsA(isA<Failure>()));
+    expect(store.stats.value, same(before), reason: 'not zeroed');
+    expect(store.unlockedCount.value, unlocked);
+
+    // Recovery: a later refresh succeeds again.
+    repo.failItemReads = false;
+    await store.refresh();
+    expect(store.stats.value.salahDaysDone, 1);
+  });
+
+  test('a failed first load leaves the store not loaded', () async {
+    final repo = InMemoryMuhasabaRepository()..failItemReads = true;
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      now: () => DateTime(2026, 6, 10),
+    );
+    await expectLater(store.load(), throwsA(isA<Failure>()));
+    expect(store.loaded.value, isFalse);
+  });
 
   test('streaksOf: runs, gaps, and a current run ending yesterday', () {
     DateTime d(int day) => DateTime(2026, 6, day);

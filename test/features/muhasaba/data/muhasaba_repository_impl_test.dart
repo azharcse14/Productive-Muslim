@@ -489,19 +489,24 @@ void main() {
       },
     );
 
-    test('previousCompletion: null without prior data, then correct', () async {
-      await seedScenario();
-      var result = await stats();
-      expect(result.previousCompletion, isNull);
+    test(
+      'previousCompletion: 0 for an empty prior week, then correct',
+      () async {
+        await seedScenario();
+        var result = await stats();
+        // Trackers existed (created Dec 31) but nothing was logged: 0%.
+        expect(result.previousCompletion, 0);
+        // (No tracker in the prior week stays null: see "no items at all".)
 
-      // Prior week (May 30 - Jun 5): a done May 31 (1/3), b=50 on
-      // Jun 2 (0.5/3). Mean over 7 days = (1/3 + 1/6) / 7.
-      await unwrap(repo.setEntry(_entry('a', DateTime(2026, 5, 31), 1)));
-      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 2), 50)));
-      result = await stats();
-      expect(result.previousCompletion, isNotNull);
-      expect(result.previousCompletion, closeTo((1 / 3 + 1 / 6) / 7, 0.01));
-    });
+        // Prior week (May 30 - Jun 5): a done May 31 (1/3), b=50 on
+        // Jun 2 (0.5/3). Mean over 7 days = (1/3 + 1/6) / 7.
+        await unwrap(repo.setEntry(_entry('a', DateTime(2026, 5, 31), 1)));
+        await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 2), 50)));
+        result = await stats();
+        expect(result.previousCompletion, isNotNull);
+        expect(result.previousCompletion, closeTo((1 / 3 + 1 / 6) / 7, 0.01));
+      },
+    );
 
     test('trendCompletion leaves out a today with nothing logged', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
@@ -582,6 +587,30 @@ void main() {
       final byId = {for (final s in result.items) s.itemId: s};
       expect(byId['a']!.periodDays, 3);
       expect(byId['b']!.periodDays, 1);
+    });
+
+    test('clearing a back-fill restores the creation day', () async {
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 10), 1)));
+      final before = await stats();
+      final twoYearsBack = DateTime(2024, 6, 10);
+      await unwrap(repo.setEntry(_entry('a', twoYearsBack, 1)));
+      await unwrap(repo.setEntry(_entry('a', twoYearsBack, 0)));
+      final after = await stats();
+      expect(
+        [for (final d in after.days) d.completion],
+        [for (final d in before.days) d.completion],
+      );
+      expect(after.completion, before.completion);
+      expect(after.items.single.periodDays, before.items.single.periodDays);
+      final row = await db.select(db.trackerItems).getSingle();
+      expect(row.createdOn, 20260610, reason: 'earliest remaining entry');
+
+      // Clearing that one too: back to the real creation day.
+      await unwrap(repo.setEntry(_entry('a', DateTime(2026, 6, 10), 0)));
+      final row2 = await db.select(db.trackerItems).getSingle();
+      expect(row2.createdOn, 20260612);
     });
 
     test(
