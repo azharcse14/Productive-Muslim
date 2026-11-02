@@ -234,27 +234,43 @@ void main() {
           : {for (final h in decodeEditionBlob(data)) h.referenceNumber};
     }
 
-    test('every bundled number opens a chapter that contains it', () {
-      for (final book in books) {
-        for (final lang in ['en', 'bn']) {
-          final bn = book.usesBanglaSource(lang);
-          final sections = book.sectionsFor(lang);
-          final held = [for (final s in sections) numbersIn(book, s, bn)];
-          for (final numbers in held) {
-            for (final n in numbers) {
-              // Same first-match rule as HadithSectionsScreen._goToNumber.
-              final i = sections.indexWhere((s) => s.holds(n));
-              expect(
-                i >= 0 && held[i].contains(n),
-                isTrue,
-                reason:
-                    '${book.id} $lang: $n opens '
-                    '${i < 0 ? 'nothing' : 'section ${sections[i].number}'}',
-              );
+    test(
+      'every chapter holding a number is offered for it, and only those',
+      () {
+        for (final book in books) {
+          for (final lang in ['en', 'bn']) {
+            final bn = book.usesBanglaSource(lang);
+            final sections = book.sectionsFor(lang);
+            final held = [for (final s in sections) numbersIn(book, s, bn)];
+            for (final numbers in held) {
+              for (final n in numbers) {
+                // Same rule as HadithSectionsScreen._goToNumber: every section
+                // that holds(n) is offered (chooser when more than one).
+                final offered = [
+                  for (var i = 0; i < sections.length; i++)
+                    if (sections[i].holds(n)) i,
+                ];
+                final containing = [
+                  for (var i = 0; i < sections.length; i++)
+                    if (held[i].contains(n)) i,
+                ];
+                expect(
+                  offered,
+                  containing,
+                  reason:
+                      '${book.id} $lang: $n offers sections '
+                      '${[for (final i in offered) sections[i].number]}',
+                );
+              }
             }
           }
         }
-      }
+      },
+    );
+
+    test('Sahih Muslim 274 offers both chapters holding its variants', () {
+      final muslim = books.firstWhere((b) => b.id == 'muslim');
+      expect(muslim.sections.where((s) => s.holds(274)).length, 2);
     });
 
     test('Tirmidhi 2160 opens the chapter that holds it', () {

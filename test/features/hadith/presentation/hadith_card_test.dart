@@ -80,5 +80,36 @@ void main() {
     expect(isSahihGrade('দুর্বল হাদিস'), isFalse);
     expect(isSahihGrade('Shadh, Sahih'), isFalse);
     expect(isSahihGrade('সহিহ মওকুফ শায'), isFalse);
+    expect(isSahihGrade('Munkar Sahih'), isFalse);
+    expect(isSahihGrade("Sahih Isnaad, Da'if Matn"), isFalse);
+    expect(isSahihGrade('Batil Sahih'), isFalse);
+  });
+
+  testWidgets('GradeChip translates every word, punctuation kept', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
+          body: Column(
+            children: [
+              GradeChip(grade: 'Sahih - Agreed Upon'),
+              GradeChip(grade: 'Shadh, Sahih'),
+              GradeChip(grade: 'Mursal Sanad Matn Batil Malool'),
+              GradeChip(grade: 'সহিহ হাদিস'),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('সহিহ - মুত্তাফাকুন আলাইহি'), findsOneWidget);
+    expect(find.text('শায, সহিহ'), findsOneWidget);
+    expect(find.text("মুরসাল সনদ মতন বাতিল মা'লুল"), findsOneWidget);
+    expect(find.text('সহিহ হাদিস'), findsOneWidget);
   });
 }

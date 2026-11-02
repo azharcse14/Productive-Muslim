@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../config/app_config.dart';
+import '../../../../core/utils/result.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../../domain/repositories/quran_repository.dart';
@@ -77,8 +79,16 @@ final class QuranStore {
   /// Records the reading position; the reader calls this as ayahs become
   /// visible, so the Quran tab can offer "continue reading".
   Future<void> markRead(QuranPosition position) async {
+    final previous = lastRead.value;
     lastRead.value = position;
-    await _repository.setLastRead(position);
+    final result = await _repository.setLastRead(position);
+    if (result case FailureResult(:final failure)) {
+      debugPrint('Quran last-read save failed: ${failure.message}');
+      // Keep memory in step with the DB, unless a newer mark landed since.
+      if (lastRead.value == position) {
+        lastRead.value = previous;
+      }
+    }
   }
 
   Future<void> toggleBookmark(int ayahId) async {

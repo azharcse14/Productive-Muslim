@@ -93,14 +93,18 @@ final class GradeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final l10n = context.l10n;
-    // English-source grades ("Hasan Sahih", "Daif Isnaad") are translated
-    // word by word; unknown words (and Bengali-source grades) pass through.
+    // English-source grades ("Hasan Sahih", "Shadh, Sahih") are translated
+    // word by word, keeping punctuation around a word; unknown words (and
+    // Bengali-source grades) pass through.
     final label = [
       for (final word in grade.split(' '))
-        switch (l10n.hadithGradeWord(word.toLowerCase())) {
-          '—' => word,
-          final localized => localized,
-        },
+        if (_wordParts.firstMatch(word) case final m?)
+          switch (l10n.hadithGradeWord(m[2]!.toLowerCase())) {
+            '—' => word,
+            final localized => '${m[1]}$localized${m[3]}',
+          }
+        else
+          word,
     ].join(' ');
     final color = isSahihGrade(grade) ? q.ok : q.ink2;
     return Container(
@@ -120,11 +124,37 @@ final class GradeChip extends StatelessWidget {
   }
 }
 
+/// Leading punctuation, the word, trailing punctuation ("Shadh," → "Shadh").
+final _wordParts = RegExp(
+  r'^([^\p{L}\p{M}\p{N}]*)(.*?)([^\p{L}\p{M}\p{N}]*)$',
+  unicode: true,
+);
+
+/// Qualifiers that weaken a grading even next to "sahih".
+const _weakening = [
+  'shadh',
+  'munkar',
+  'daif',
+  "da'if",
+  'mawdu',
+  'batil',
+  'malool',
+  "ma'lul",
+  'শায',
+  'মুনকার',
+  'যঈফ',
+  'দুর্বল',
+  'জাল',
+  'বাতিল',
+  'মা\'লুল',
+];
+
 /// True when [grade] is a plain sahih grading (en or bn). Mixed gradings
-/// that also say shadh ("Shadh, Sahih", "সহিহ মওকুফ শায") stay neutral.
+/// with a weakening qualifier ("Shadh, Sahih", "সহিহ মওকুফ শায",
+/// "Munkar Sahih") stay neutral.
 bool isSahihGrade(String grade) {
   final g = grade.toLowerCase();
-  if (g.contains('shadh') || g.contains('শায')) {
+  if (_weakening.any(g.contains)) {
     return false;
   }
   return g.contains('sahih') || g.contains('সহিহ');

@@ -92,15 +92,8 @@ final class _QuranReaderScreenState extends State<QuranReaderScreen> {
         _jumpToIndex(index);
       }
     }
-    // A surah that fits on screen never scrolls, so record it as read once
-    // laid out.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted &&
-          _controller.hasClients &&
-          _controller.position.maxScrollExtent == 0) {
-        _markRead();
-      }
-    });
+    // No auto-record for a surah that fits on screen: opening a short surah
+    // to recite must not overwrite the long one the user is reading.
   }
 
   Future<void> _goToAyah() async {

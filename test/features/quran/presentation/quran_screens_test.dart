@@ -444,13 +444,16 @@ void main() {
       expect(repo.storedLastRead, isNull);
     });
 
-    testWidgets('a surah that fits on screen is recorded without a scroll', (
+    testWidgets('opening a surah that fits on screen keeps the last read', (
       tester,
     ) async {
+      repo.storedLastRead = const QuranPosition(2, 2);
       // Aal-i-Imraan has a single ayah here.
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 3)));
       await tester.pumpAndSettle();
-      expect(repo.storedLastRead, const QuranPosition(3, 1));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      expect(repo.storedLastRead, const QuranPosition(2, 2));
     });
 
     testWidgets('go to ayah accepts localized digits and jumps there', (
