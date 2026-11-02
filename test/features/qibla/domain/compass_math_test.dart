@@ -296,4 +296,36 @@ void main() {
       }
     });
   });
+
+  group('tilt', () {
+    test('tiltDegrees: flat 0, upright 90, face down 180', () {
+      expect(CompassMath.tiltDegrees(ax: 0, ay: 0, az: 9.81), closeTo(0, 1e-9));
+      expect(
+        CompassMath.tiltDegrees(ax: 0, ay: 9.81, az: 0),
+        closeTo(90, 1e-9),
+      );
+      expect(
+        CompassMath.tiltDegrees(ax: 9.81, ay: 0, az: 0),
+        closeTo(90, 1e-9),
+      );
+      expect(
+        CompassMath.tiltDegrees(ax: 0, ay: 0, az: -9.81),
+        closeTo(180, 1e-9),
+      );
+      const s45 = 9.81 * math.sqrt1_2;
+      expect(
+        CompassMath.tiltDegrees(ax: 0, ay: s45, az: s45),
+        closeTo(45, 1e-9),
+      );
+      expect(CompassMath.tiltDegrees(ax: 0, ay: 0, az: 0), 90);
+    });
+
+    test('isTooTilted: beyond 60°, clears only below 50°', () {
+      expect(CompassMath.isTooTilted(59), isFalse);
+      expect(CompassMath.isTooTilted(61), isTrue);
+      expect(CompassMath.isTooTilted(55, wasTilted: true), isTrue);
+      expect(CompassMath.isTooTilted(49, wasTilted: true), isFalse);
+      expect(CompassMath.isTooTilted(170), isTrue);
+    });
+  });
 }

@@ -127,6 +127,26 @@ void main() {
       expect(find.text('Turn 20° right'), findsOneWidget);
     });
 
+    testWidgets('tilted phone shows the hold-flat prompt', (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      Visibility banner() => tester.widget<Visibility>(
+        find.ancestor(
+          of: find.textContaining(RegExp('figure-8|Hold your phone flat')),
+          matching: find.byType(Visibility),
+        ),
+      );
+      expect(banner().visible, isFalse);
+      GetIt.I<QiblaStore>().tooTilted.value = true;
+      await tester.pump();
+      expect(
+        find.text('Hold your phone flat, screen facing up'),
+        findsOneWidget,
+      );
+      expect(banner().visible, isTrue);
+    });
+
     testWidgets('sensor failure falls back to the verbal bearing', (
       tester,
     ) async {

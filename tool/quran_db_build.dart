@@ -7,7 +7,7 @@
 //     requested ara-quranuthmanihaf1 edition ships undotted text on the CDN,
 //     so the closest fully-vowelled equivalent is used instead).
 //   * English — eng-mohammedmarmadu (Mohammed Marmaduke William Pickthall,
-//     public domain, via Tanzil).
+//     via Tanzil; license unverified, see DEPENDENCIES.md).
 //   * Bangla  — ben-muhiuddinkhan (Muhiuddin Khan, via Tanzil).
 // Per-edition attribution lines are printed on success — record them in the
 // About/credits screen (see DEPENDENCIES.md).
@@ -20,9 +20,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:productive_muslim/config/content_sources.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-const _cdn = 'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1';
+const _cdn =
+    'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@${ContentSources.quranApiSha}';
 const _arabicUrl = '$_cdn/editions/ara-quransimple.json';
 const _englishUrl = '$_cdn/editions/eng-mohammedmarmadu.json';
 const _banglaUrl = '$_cdn/editions/ben-muhiuddinkhan.json';
@@ -49,13 +51,16 @@ Future<void> main() async {
     final dbPath = '${tmp.path}/quran.db';
     _buildDatabase(dbPath, chapters, arabic, english, bangla);
 
-    final out = File('assets/data/quran.db')..parent.createSync(recursive: true);
+    final out = File('assets/data/quran.db')
+      ..parent.createSync(recursive: true);
     File(dbPath).copySync(out.path);
 
     stdout
-      ..writeln('Wrote ${chapters.length} surahs / ${arabic.length} ayahs to '
-          '${out.path} '
-          '(${(out.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB)')
+      ..writeln(
+        'Wrote ${chapters.length} surahs / ${arabic.length} ayahs to '
+        '${out.path} '
+        '(${(out.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB)',
+      )
       ..writeln('Attribution (surface in the credits screen):');
     for (final line in _attributionLines) {
       stdout.writeln('  $line');
@@ -92,7 +97,8 @@ class _Chapter {
 _Verses _downloadVerses(String url, String path) {
   stdout.writeln('Downloading $url …');
   _run('curl', ['-sfL', '--retry', '3', '-o', path, url]);
-  final json = jsonDecode(File(path).readAsStringSync()) as Map<String, Object?>;
+  final json =
+      jsonDecode(File(path).readAsStringSync()) as Map<String, Object?>;
   final verses = <(int, int), String>{};
   for (final entry in json['quran']! as List<Object?>) {
     final verse = entry! as Map<String, Object?>;
@@ -105,7 +111,8 @@ _Verses _downloadVerses(String url, String path) {
 List<_Chapter> _downloadChapters(String path) {
   stdout.writeln('Downloading $_infoUrl …');
   _run('curl', ['-sfL', '--retry', '3', '-o', path, _infoUrl]);
-  final json = jsonDecode(File(path).readAsStringSync()) as Map<String, Object?>;
+  final json =
+      jsonDecode(File(path).readAsStringSync()) as Map<String, Object?>;
   final chapters = <_Chapter>[];
   for (final entry in json['chapters']! as List<Object?>) {
     final chapter = entry! as Map<String, Object?>;
@@ -169,8 +176,10 @@ void _validate(
   for (final chapter in chapters) {
     final actual = perSurah[chapter.id] ?? 0;
     if (actual != chapter.ayahCount) {
-      _fail('Surah ${chapter.id}: metadata says ${chapter.ayahCount} ayahs, '
-          'Arabic edition has $actual');
+      _fail(
+        'Surah ${chapter.id}: metadata says ${chapter.ayahCount} ayahs, '
+        'Arabic edition has $actual',
+      );
     }
   }
 }

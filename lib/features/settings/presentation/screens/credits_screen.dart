@@ -49,21 +49,36 @@ final class CreditsScreen extends StatelessWidget {
             (
               l10n.creditsArabicText,
               'Tanzil Quran Text (Simple), Tanzil.net · '
-                  'fawazahmed0/quran-api (Unlicense)',
+                  '${l10n.creditsUnlicense('fawazahmed0/quran-api')}',
             ),
+            // No license claimed: unverified (docs/DEPENDENCIES.md).
             (
               l10n.creditsEnTranslation,
               'Mohammed Marmaduke William Pickthall, “The Meaning of the '
-                  'Glorious Koran” (public domain) · Tanzil.net',
+                  'Glorious Koran” · Tanzil.net',
             ),
             (l10n.creditsBnTranslation, 'Muhiuddin Khan · Tanzil.net'),
           ]),
           _Group(l10n.hadithTitle, [
-            (l10n.creditsHadithText, 'fawazahmed0/hadith-api (Unlicense)'),
-            (l10n.creditsBnTranslation, 'azharcse14/hadithbangla'),
+            (
+              l10n.creditsHadithText,
+              l10n.creditsUnlicense('fawazahmed0/hadith-api'),
+            ),
+            (
+              l10n.creditsBnTranslation,
+              l10n.creditsBnHadithSixBooks('azharcse14/hadithbangla'),
+            ),
+            (
+              l10n.creditsBnTranslation,
+              l10n.creditsBnHadithNawawiMalik(
+                l10n.creditsUnlicense('fawazahmed0/hadith-api'),
+              ),
+            ),
+            (l10n.tibbNabawiTitle, l10n.creditsTibbNabawiSource),
           ]),
-          _Group(l10n.duaTitle, const [
+          _Group(l10n.duaTitle, [
             ('Hisnul Muslim', 'aminurdev/dua-ruqya-server'),
+            (l10n.asmaulHusnaTitle, l10n.creditsAsmaulHusnaSource),
           ]),
           _Group(l10n.creditsGroupPlaces, [
             (l10n.creditsPrayerCalc, l10n.creditsPrayerCalcValue),

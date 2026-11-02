@@ -172,6 +172,9 @@ void main() {
         'hadithbangla',
         'GeoNames',
         'KFGQPC',
+        'Muwatta Malik',
+        'Asmaul Husna',
+        'Tibb an-Nabawi',
       ]) {
         expect(find.textContaining(source), findsWidgets, reason: source);
       }

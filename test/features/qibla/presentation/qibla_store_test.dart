@@ -45,6 +45,19 @@ final class _FakeSensors implements CompassSensorSource {
       controller.add((ax: 0, ay: 0, az: 9.81, mx: 0, my: microTesla, mz: 0));
 
   void emitError() => controller.addError(StateError('no sensor'));
+
+  /// Phone pointing [deg] but held upright (gravity along +y, az ≈ 0).
+  void emitUpright(double deg) {
+    final rad = deg * math.pi / 180;
+    controller.add((
+      ax: 0.3,
+      ay: 9.8,
+      az: 0.05,
+      mx: -30 * math.sin(rad),
+      my: 30 * math.cos(rad),
+      mz: -35,
+    ));
+  }
 }
 
 final class _InMemoryRepo implements SettingsRepository {
@@ -237,6 +250,30 @@ void main() {
       }
       expect(store.aligned.value, isFalse);
       expect(haptics.length, 1);
+      store.dispose();
+    });
+
+    test('held upright: heading holds, never aligned, no haptic', () async {
+      final (store, sensors, haptics) = await _make();
+      final bearing = store.bearing.value! - store.declination.value;
+      sensors.emitHeading(bearing + 90);
+      await Future<void>.delayed(Duration.zero);
+      final before = store.heading.value;
+      for (var i = 0; i < 60; i++) {
+        sensors.emitUpright(bearing);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.tooTilted.value, isTrue);
+      expect(store.heading.value, before);
+      expect(store.aligned.value, isFalse);
+      expect(haptics, isEmpty);
+      // Laid flat again: tracking resumes.
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.tooTilted.value, isFalse);
+      expect(store.aligned.value, isTrue);
       store.dispose();
     });
 

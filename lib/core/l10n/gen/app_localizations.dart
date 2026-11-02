@@ -1646,6 +1646,12 @@ abstract class AppLocalizations {
   /// **'Move your phone in a figure-8 to calibrate the compass'**
   String get qiblaCalibrate;
 
+  /// No description provided for @qiblaHoldFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone flat, screen facing up'**
+  String get qiblaHoldFlat;
+
   /// No description provided for @qiblaSensorUnavailable.
   ///
   /// In en, this message translates to:
@@ -2035,6 +2041,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the Quran text. Please try again.'**
   String get quranLoadError;
+
+  /// No description provided for @quranUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The Quran text couldn\'t be opened on this device. Restart the app, or reinstall it if this keeps happening.'**
+  String get quranUnavailable;
 
   /// No description provided for @copyLabel.
   ///
@@ -5377,6 +5389,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set your location to see prayer times.'**
   String get calendarSetLocationHint;
+
+  /// No description provided for @creditsUnlicense.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} (Unlicense, public-domain dedication)'**
+  String creditsUnlicense(String source);
+
+  /// No description provided for @creditsBnHadithSixBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah: {source}'**
+  String creditsBnHadithSixBooks(String source);
+
+  /// No description provided for @creditsBnHadithNawawiMalik.
+  ///
+  /// In en, this message translates to:
+  /// **'40 Hadith Nawawi, Muwatta Malik: {source}'**
+  String creditsBnHadithNawawiMalik(String source);
+
+  /// No description provided for @creditsAsmaulHusnaSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiled for this app; source of the meanings not recorded'**
+  String get creditsAsmaulHusnaSource;
+
+  /// No description provided for @creditsTibbNabawiSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app'**
+  String get creditsTibbNabawiSource;
 }
 
 class _AppLocalizationsDelegate

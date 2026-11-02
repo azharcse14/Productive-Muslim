@@ -258,6 +258,7 @@
   "qiblaHeading": "{degrees}° {cardinal}",
   "qiblaDistance": "কাবা শরীফ {km} কিমি দূরে",
   "qiblaCalibrate": "কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান",
+  "qiblaHoldFlat": "ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে",
   "qiblaSensorUnavailable": "এই ডিভাইসে কম্পাস সেন্সর নেই",
   "qiblaRetry": "আবার চেষ্টা করুন",
   "qiblaVerbalBearing": "কিবলা উত্তর থেকে {degrees}° {cardinal} দিকে",
@@ -323,6 +324,7 @@
   "chooseDate": "তারিখ বেছে নিন",
   "goToToday": "আজকের দিনে যান",
   "quranLoadError": "কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।",
+  "quranUnavailable": "এই ডিভাইসে কুরআনের লেখা খোলা যায়নি। অ্যাপটি আবার চালু করুন, বারবার এমন হলে আবার ইনস্টল করুন।",
   "copyLabel": "কপি করুন",
   "copiedLabel": "কপি হয়েছে",
   "bookmarksTitle": "বুকমার্ক",
@@ -1009,5 +1011,10 @@
   "sahriEndsTomorrow": "আগামীকাল সাহরি শেষ",
   "ramadanDaysLeft": "{count, plural, =0{শেষ রোজা} other{আর {count} দিন বাকি}}",
   "ramadanTableEmpty": "এই অবস্থানের জন্য সাহরি ও ইফতারের সময় হিসাব করা যায়নি।",
-  "calendarSetLocationHint": "নামাজের সময় দেখতে আপনার অবস্থান সেট করুন।"
+  "calendarSetLocationHint": "নামাজের সময় দেখতে আপনার অবস্থান সেট করুন।",
+  "creditsUnlicense": "{source} (Unlicense, পাবলিক ডোমেইনে উৎসর্গিত)",
+  "creditsBnHadithSixBooks": "সহিহ বুখারি, সহিহ মুসলিম, সুনানে আবু দাউদ, জামে তিরমিজি, সুনানে নাসায়ি, সুনানে ইবনে মাজাহ: {source}",
+  "creditsBnHadithNawawiMalik": "৪০ হাদিস নববি, মুয়াত্তা মালিক: {source}",
+  "creditsAsmaulHusnaSource": "এই অ্যাপের জন্য সংকলিত; অর্থগুলোর সূত্র লিপিবদ্ধ নেই",
+  "creditsTibbNabawiSource": "এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা"
 }

@@ -1,9 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show MethodChannel;
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -21,21 +18,7 @@ Future<void> main() async {
   await setupLocator();
   // Schedule the notification window; never blocks first frame.
   unawaited(locator<NotificationController>().start());
-  _secureWhileLocked();
   runApp(const ProductiveMuslimApp());
-}
-
-/// Android: FLAG_SECURE while app lock is on, so the recents thumbnail
-/// (and screenshots) stay blank. iOS is covered by the root overlay.
-void _secureWhileLocked() {
-  if (defaultTargetPlatform != TargetPlatform.android) {
-    return;
-  }
-  const channel = MethodChannel('com.productivemuslim.app/secure');
-  final lock = locator<AppLockStore>();
-  effect(() {
-    unawaited(channel.invokeMethod<void>('setSecure', lock.enabled.value));
-  });
 }
 
 /// Root widget: themed, localized, routed. Theme mode and locale are

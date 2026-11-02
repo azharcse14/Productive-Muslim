@@ -952,6 +952,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Move your phone in a figure-8 to calibrate the compass';
 
   @override
+  String get qiblaHoldFlat => 'Hold your phone flat, screen facing up';
+
+  @override
   String get qiblaSensorUnavailable =>
       'Compass sensor unavailable on this device';
 
@@ -1247,6 +1250,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get quranLoadError =>
       'Couldn\'t open the Quran text. Please try again.';
+
+  @override
+  String get quranUnavailable =>
+      'The Quran text couldn\'t be opened on this device. Restart the app, or reinstall it if this keeps happening.';
 
   @override
   String get copyLabel => 'Copy';
@@ -3625,4 +3632,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get calendarSetLocationHint =>
       'Set your location to see prayer times.';
+
+  @override
+  String creditsUnlicense(String source) {
+    return '$source (Unlicense, public-domain dedication)';
+  }
+
+  @override
+  String creditsBnHadithSixBooks(String source) {
+    return 'Bukhari, Muslim, Abu Dawud, Tirmidhi, Nasai, Ibn Majah: $source';
+  }
+
+  @override
+  String creditsBnHadithNawawiMalik(String source) {
+    return '40 Hadith Nawawi, Muwatta Malik: $source';
+  }
+
+  @override
+  String get creditsAsmaulHusnaSource =>
+      'Compiled for this app; source of the meanings not recorded';
+
+  @override
+  String get creditsTibbNabawiSource =>
+      'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app';
 }

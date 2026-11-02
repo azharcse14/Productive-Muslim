@@ -949,6 +949,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaCalibrate => 'কম্পাস ক্যালিব্রেট করতে ফোনটি ৮-আকৃতিতে ঘোরান';
 
   @override
+  String get qiblaHoldFlat => 'ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে';
+
+  @override
   String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
 
   @override
@@ -1240,6 +1243,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get quranLoadError => 'কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get quranUnavailable =>
+      'এই ডিভাইসে কুরআনের লেখা খোলা যায়নি। অ্যাপটি আবার চালু করুন, বারবার এমন হলে আবার ইনস্টল করুন।';
 
   @override
   String get copyLabel => 'কপি করুন';
@@ -3607,4 +3614,27 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get calendarSetLocationHint =>
       'নামাজের সময় দেখতে আপনার অবস্থান সেট করুন।';
+
+  @override
+  String creditsUnlicense(String source) {
+    return '$source (Unlicense, পাবলিক ডোমেইনে উৎসর্গিত)';
+  }
+
+  @override
+  String creditsBnHadithSixBooks(String source) {
+    return 'সহিহ বুখারি, সহিহ মুসলিম, সুনানে আবু দাউদ, জামে তিরমিজি, সুনানে নাসায়ি, সুনানে ইবনে মাজাহ: $source';
+  }
+
+  @override
+  String creditsBnHadithNawawiMalik(String source) {
+    return '৪০ হাদিস নববি, মুয়াত্তা মালিক: $source';
+  }
+
+  @override
+  String get creditsAsmaulHusnaSource =>
+      'এই অ্যাপের জন্য সংকলিত; অর্থগুলোর সূত্র লিপিবদ্ধ নেই';
+
+  @override
+  String get creditsTibbNabawiSource =>
+      'এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা';
 }

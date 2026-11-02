@@ -48,6 +48,22 @@ AppLockStore _store({
   elapsed: elapsed,
 );
 
+final class _FakeSecureScreen implements SecureScreen {
+  final calls = <bool>[];
+
+  @override
+  Future<void> setSecure({required bool on}) async => calls.add(on);
+}
+
+final class _FakeBootClock implements BootClock {
+  _FakeBootClock(this.value);
+
+  Duration value;
+
+  @override
+  Future<Duration> sinceBoot() async => value;
+}
+
 /// Biometric fake whose prompt drives lifecycle events mid-auth, like the
 /// real OS sheet does on some platforms.
 final class _PromptingBiometric extends _FakeBiometric {
@@ -81,20 +97,20 @@ final class _FlakyStorage implements AppLockStorage {
   Future<void> disable() => _inner.disable();
 
   @override
-  Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() =>
+  Future<({int failedAttempts, PinCooldown? cooldown})> readThrottle() =>
       _inner.readThrottle();
 
   @override
   Future<void> writeThrottle({
     required int failedAttempts,
-    required DateTime? lockedUntil,
+    required PinCooldown? cooldown,
   }) {
     if (failWrites) {
       throw StateError('disk full');
     }
     return _inner.writeThrottle(
       failedAttempts: failedAttempts,
-      lockedUntil: lockedUntil,
+      cooldown: cooldown,
     );
   }
 }
@@ -398,21 +414,18 @@ void main() {
       );
     });
 
-    test(
-      'cooldown keeps running while the device sleeps (monotonic paused)',
-      () async {
-        const mono = Duration.zero; // monotonic clock frozen during sleep
-        final store = _store(now: () => clock, elapsed: () => mono);
-        await store.enable('1234', biometric: false);
-        await store.load();
-        for (var i = 0; i < 5; i++) {
-          await store.unlockWithPin('0000');
-        }
-        expect(await store.unlockWithPin('1234'), isFalse);
-        clock = clock.add(const Duration(seconds: 30)); // wall time passes
-        expect(await store.unlockWithPin('1234'), isTrue);
-      },
-    );
+    test('cooldown runs on the boot clock (counts sleep)', () async {
+      var boot = const Duration(hours: 3);
+      final store = _store(now: () => clock, elapsed: () => boot);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      expect(await store.unlockWithPin('1234'), isFalse);
+      boot += const Duration(seconds: 30); // e.g. 30s asleep
+      expect(await store.unlockWithPin('1234'), isTrue);
+    });
 
     test(
       'a clock set backwards in-process cannot stretch the cooldown',
@@ -430,33 +443,124 @@ void main() {
       },
     );
 
-    test('accepted trade-off: a clock set forward ends the current wait, '
-        'but the next wrong PIN still escalates', () async {
-      const mono = Duration.zero;
-      final store = _store(now: () => clock, elapsed: () => mono);
+    test('a clock set forward does not end the wait', () async {
+      const boot = Duration(hours: 3);
+      final store = _store(now: () => clock, elapsed: () => boot);
       await store.enable('1234', biometric: false);
       await store.load();
       for (var i = 0; i < 5; i++) {
         await store.unlockWithPin('0000');
       }
       clock = clock.add(const Duration(days: 1));
-      expect(store.cooldownRemaining(), isNull);
-      await store.unlockWithPin('0000'); // 6th wrong → 60s
-      expect(store.cooldownRemaining(), const Duration(seconds: 60));
+      expect(store.cooldownRemaining(), const Duration(seconds: 30));
+      expect(await store.unlockWithPin('1234'), isFalse);
     });
 
-    test('a restart resumes the persisted remainder', () async {
-      final store = _store(now: () => clock);
+    test('a clock set forward plus a restart does not end the wait', () async {
+      const boot = Duration(hours: 3);
+      final store = _store(now: () => clock, elapsed: () => boot);
       await store.enable('1234', biometric: false);
       await store.load();
       for (var i = 0; i < 5; i++) {
         await store.unlockWithPin('0000');
       }
-      clock = clock.add(const Duration(seconds: 10));
-      final restarted = _store(now: () => clock);
+      clock = clock.add(const Duration(days: 1));
+      final restarted = _store(now: () => clock, elapsed: () => boot);
+      await restarted.load();
+      expect(restarted.cooldownRemaining(), const Duration(seconds: 30));
+    });
+
+    test('a restart resumes the persisted remainder', () async {
+      var boot = const Duration(hours: 3);
+      final store = _store(now: () => clock, elapsed: () => boot);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      boot += const Duration(seconds: 10);
+      final restarted = _store(now: () => clock, elapsed: () => boot);
       await restarted.load();
       expect(restarted.cooldownRemaining(), const Duration(seconds: 20));
     });
+
+    test('after a reboot the whole remainder is due again, and a later '
+        'restart measures from the new boot', () async {
+      var boot = const Duration(hours: 3);
+      final store = _store(now: () => clock, elapsed: () => boot);
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      boot += const Duration(seconds: 10);
+      final sameBoot = _store(now: () => clock, elapsed: () => boot);
+      await sameBoot.load();
+      expect(sameBoot.cooldownRemaining(), const Duration(seconds: 20));
+
+      boot = const Duration(seconds: 5); // rebooted: clock below the start
+      final rebooted = _store(now: () => clock, elapsed: () => boot);
+      await rebooted.load();
+      expect(rebooted.cooldownRemaining(), const Duration(seconds: 30));
+
+      boot += const Duration(seconds: 12);
+      final again = _store(now: () => clock, elapsed: () => boot);
+      await again.load();
+      expect(again.cooldownRemaining(), const Duration(seconds: 18));
+    });
+
+    test('secure screen follows the lock being on', () async {
+      final secure = _FakeSecureScreen();
+      final store = AppLockStore(
+        AppLockDataSource(SharedPreferencesAsync()),
+        _FakeBiometric(),
+        secureScreen: secure,
+      );
+      await store.load();
+      store.watchLifecycle();
+      await store.enable('1234', biometric: false);
+      await store.disable();
+      store.dispose();
+      expect(secure.calls, [false, true, false]);
+    });
+
+    test('the boot clock is read on load and before each PIN check', () async {
+      final bootClock = _FakeBootClock(const Duration(hours: 3));
+      final store = AppLockStore(
+        AppLockDataSource(SharedPreferencesAsync()),
+        _FakeBiometric(),
+        bootClock: bootClock,
+      );
+      await store.enable('1234', biometric: false);
+      await store.load();
+      for (var i = 0; i < 5; i++) {
+        await store.unlockWithPin('0000');
+      }
+      expect(await store.unlockWithPin('1234'), isFalse);
+      // Slept 30s: the in-process stopwatch barely moved, the boot clock did.
+      bootClock.value += const Duration(seconds: 31);
+      expect(await store.unlockWithPin('1234'), isTrue);
+    });
+
+    test(
+      'a pre-boot-clock (wall time) record still owes its remainder',
+      () async {
+        await SharedPreferencesAsync().setString(
+          'app_lock_throttle_v1',
+          jsonEncode({
+            'failed': 5,
+            'untilMs': DateTime.now()
+                .add(const Duration(seconds: 20))
+                .millisecondsSinceEpoch,
+          }),
+        );
+        final store = _store(elapsed: () => const Duration(hours: 3));
+        await store.load();
+        final left = store.cooldownRemaining();
+        expect(left, isNotNull);
+        expect(left! > const Duration(seconds: 15), isTrue);
+      },
+    );
 
     test('a clock set backwards cannot stretch a persisted cooldown', () async {
       final store = _store(now: () => clock);

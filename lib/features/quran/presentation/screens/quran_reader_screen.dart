@@ -24,6 +24,7 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
+import '../widgets/quran_unavailable.dart';
 
 /// Ayah-card extent guess for the first index→offset jump, before any card
 /// has been measured. The jump then refines itself (see `_jumpToIndex`).
@@ -32,7 +33,7 @@ const _estimatedCardExtent = 180.0;
 /// Surah reader (design §4.5): ayah cards with the Uthmanic HAFS script at
 /// an independent user scale, per-ayah bookmark/copy actions, a scroll
 /// progress bar under the app bar and a reading-settings sheet.
-final class QuranReaderScreen extends StatefulWidget {
+final class QuranReaderScreen extends StatelessWidget {
   const QuranReaderScreen({required this.surahId, this.initialAyah, super.key});
 
   final int surahId;
@@ -41,10 +42,22 @@ final class QuranReaderScreen extends StatefulWidget {
   final int? initialAyah;
 
   @override
-  State<QuranReaderScreen> createState() => _QuranReaderScreenState();
+  Widget build(BuildContext context) => locator.isRegistered<QuranStore>()
+      ? _QuranReader(surahId: surahId, initialAyah: initialAyah)
+      : const QuranUnavailable();
 }
 
-final class _QuranReaderScreenState extends State<QuranReaderScreen> {
+final class _QuranReader extends StatefulWidget {
+  const _QuranReader({required this.surahId, this.initialAyah});
+
+  final int surahId;
+  final int? initialAyah;
+
+  @override
+  State<_QuranReader> createState() => _QuranReaderState();
+}
+
+final class _QuranReaderState extends State<_QuranReader> {
   // App-scoped store — never disposed here.
   late final QuranStore _store = locator<QuranStore>();
 

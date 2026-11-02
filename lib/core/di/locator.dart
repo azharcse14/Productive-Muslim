@@ -157,7 +157,17 @@ Future<void> setupLocator() async {
           : AppLockDataSource(SharedPreferencesAsync()),
     )
     ..registerLazySingleton<BiometricAuth>(LocalAuthBiometric.new)
-    ..registerLazySingleton(() => AppLockStore(locator(), locator()));
+    ..registerLazySingleton(
+      () => AppLockStore(
+        locator(),
+        locator(),
+        bootClock: const PlatformBootClock(),
+        // iOS is covered by the root overlay (AppLockStore.obscured).
+        secureScreen: defaultTargetPlatform == TargetPlatform.android
+            ? const AndroidSecureScreen()
+            : null,
+      ),
+    );
 
   // ---- muhasaba ----
   locator
@@ -346,7 +356,8 @@ Future<void> setupLocator() async {
     () => AchievementStore(
       muhasaba: locator(),
       tasbih: locator<TasbihStore>(),
-      quran: locator<QuranStore>(),
+      // Unregistered when quran.db failed to open (see the startup below).
+      quran: locator.isRegistered<QuranStore>() ? locator() : null,
       fasting: locator<FastingStore>(),
       now: _wallNow,
       prefs: SharedPreferencesAsync(),
@@ -421,16 +432,12 @@ Future<void> setupLocator() async {
   ]);
   lock.watchLifecycle();
   // Home resolves QuranStore on its first build, so the DB must be ready.
-  var quranOpened = true;
   try {
     await quranReady;
   } on Object catch (e) {
-    quranOpened = false;
     // Unregistered so every isRegistered<QuranStore>() caller (Home's
-    // continue-reading card) takes its fallback instead of throwing on
-    // resolve.
-    // ponytail: the Quran and achievements screens still throw on resolve;
-    // give them an "unavailable" state if this shows up in the wild.
+    // continue-reading card, the Quran tab and reader, AchievementStore)
+    // takes its fallback instead of throwing on resolve.
     await locator.unregister<QuranStore>();
     debugPrint('Quran database unavailable: $e');
   }
@@ -439,13 +446,11 @@ Future<void> setupLocator() async {
   // history) and the home-screen widget sync start once it is drawn. Badge
   // consumers react to the store's signals as it lands.
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (quranOpened) {
-      unawaited(
-        locator<AchievementStore>().load().catchError((Object e) {
-          debugPrint('Achievements unavailable: $e');
-        }),
-      );
-    }
+    unawaited(
+      locator<AchievementStore>().load().catchError((Object e) {
+        debugPrint('Achievements unavailable: $e');
+      }),
+    );
     _startWidgetUpdates();
   });
 }
