@@ -456,3 +456,85 @@ The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and 
 - [ ] **Manual QA.** No device run has been done yet. Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
 - [ ] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
 - [ ] **Muhasaba Today swipe.** The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
+
+---
+
+## UX review follow-ups — 2026-11-02 (second pass)
+
+A second, end-user UX review ran across all features. Three fix branches were merged into
+`master` via `integrate/ux-review`: `fix/ux-shell-notif-settings`, `fix/ux-prayer-mosque-qibla`
+and `fix/ux-ramadan-calendar-calc`. Where they overlapped with the earlier `fix/ui-features-*`
+merge, the version already on master was kept (QBanner `onTap`, prayer-table `_nameAndTime`,
+`rescheduleFailed`, `l10n.retry`, `QListRow` switch rows, `context.clockTime`). Still open:
+
+### 5 failing tests on master after this merge (fix first)
+
+All come from the overlap with `fix/ui-features-*`: our tests expect the dropped variant.
+- [ ] `home_screen_test.dart`: "exact-alarm banner has a visible button and a dismiss" (× dropped; delete or rewrite for `onTap`).
+- [ ] `home_screen_test.dart`: "nearby mosques action says it opens Maps".
+- [ ] `age_screen_test.dart`: "an as-of date before the birth date blocks Calculate" (rewritten in the merge; picker flow needs checking).
+- [ ] `my_mosque_screen_test.dart`: "mode segments and the minute value name their prayer" (minute-value `Semantics` dropped in favour of master's `ConstrainedBox`).
+- [ ] `notification_settings_screen_test.dart`: "a failed reschedule shows a banner and retry clears it" (two versions of the same test merged).
+
+### Unmerged WIP branches (stopped mid-gate, never gated)
+
+Both branches start from `feb94c9`, so they predate `fix/ui-features-b`, which already fixed
+many of the same findings. Don't merge them as they are. Take only what's still missing, on a
+fresh branch from `master`.
+
+- [ ] **`fix/ux-quran-hadith-dua`** (`b900a57`). Still missing on master:
+  - Bangla surah-search hint: name in English/Arabic, or a number.
+  - `2:255` jump from the surah search.
+  - Bookmarks sheet: build rows with `ListView.builder`, and undo for more than the last removal.
+  - Tasbih:
+    - "Today" count includes the round in progress.
+    - Optional auto-start of the next round at the target.
+    - Asks to save or reset when the phrase is changed mid-round.
+  - Hadith: search relabelled "Search topics", and a favourite toggle.
+  - Duas: favourites shown above the category grid, with undo when one is removed.
+  - Quran screen: an "unavailable" state when `quran.db` fails (see the `ponytail:` note in `locator.dart`).
+  - Reader:
+    - The font slider's semantics formatter.
+    - "Go to ayah" updates "Continue reading".
+    - "Ayah {n}" on the resume card.
+    - The medallion text uses `FittedBox`.
+  - Other screens:
+    - Tibb Nabawi list built with `ListView.builder`.
+    - The Asma sheet scrolls.
+    - The Asma quiz confirms before back.
+  - Keep the screen on in Tasbih and the Quran reader (native flag, no package).
+- [ ] **`fix/ux-muhasaba-trackers`** (`eb9eee3`). Still missing on master:
+  - Fasting: prev/next month so past months' fasts can be logged; a snackbar when a future or Eid day is tapped.
+  - Muhasaba:
+    - Tapping a yes/no row toggles it.
+    - The archive explanation text is corrected.
+    - The duration dialog shows its unit, and durations display as "8 h" / "1 h 30 min".
+  - Health: add or edit weight for past days.
+  - Editor sheets (tracker, expense): a close/Cancel button.
+  - Expense category rows: button semantics.
+  - Achievement card semantics.
+  - Achievements screen guard when `QuranStore` is unregistered.
+  - Expense: a clearer message for amounts that must be whole numbers.
+
+### Owner-approved features (not started)
+
+- [ ] **Muhasaba dashboard custom date range** (design brief §4.7, `showDateRangePicker`).
+- [ ] **Quran juz tab + per-ayah share** (design brief §4.5).
+- [ ] **Expense decimal amounts + currency.** Amounts move to minor units; needs a storage
+  migration (follow the schema-change rules in CLAUDE.md if the expense table is in the muhasaba DB).
+- [ ] **Full hadith DB search** across all bundled collections, not only curated topics.
+
+### Smaller open items from the merged branches
+
+- [ ] **Home exact-alarm banner.** It can't be dismissed. The second pass's × was dropped in
+  favour of master's tappable banner. Add a persisted "don't remind" setting if users ask for it.
+- [ ] **Battery optimisation.** The button opens app info; the direct
+  `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` list needs a new platform channel.
+- [ ] **Persistent badge-unlock toast.** It only fires while Muhasaba is open; it belongs in the app shell.
+- [ ] **Owner decisions:**
+  - Bengali date in calendar cells (design handoff §13).
+  - Bengali surah names, which need a licensed source.
+  - Settings lives under the More branch while Qibla/Calendar are root routes (bottom bar
+    shows on one, not the other).
+- [ ] **Full `flutter test` passes on a quiet machine.** During the parallel runs some tap tests
+  failed under load and passed when rerun alone.
