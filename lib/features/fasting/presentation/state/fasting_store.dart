@@ -28,6 +28,11 @@ final class FastingStore {
   static const _qazaKey = 'fasting_qaza_v1';
   static const _qazaOwedKey = 'fasting_qaza_owed';
 
+  /// Qaza days already logged when the owed number was last set; progress
+  /// counts only the rest. Absent (data from before the baseline existed)
+  /// = empty, so every qaza day counts — the progress users already saw.
+  static const _qazaBaselineKey = 'fasting_qaza_baseline_v1';
+
   final SharedPreferencesAsync _prefs;
   final DateTime Function() _now;
 
@@ -43,6 +48,17 @@ final class FastingStore {
 
   /// Optional number of qaza fasts the user says they owe (null = unset).
   late final qazaOwed = signal<int?>(null);
+
+  /// Qaza days logged before the owed number was set (see [qazaDone]).
+  late final qazaBaseline = signal(const <int>{});
+
+  /// Qaza fasts made up against [qazaOwed]: those logged since it was set
+  /// (every qaza day while no owed number is set).
+  late final qazaDone = computed(
+    () => qazaOwed.value == null
+        ? qaza.value.length
+        : qaza.value.difference(qazaBaseline.value).length,
+  );
 
   static int _stamp(DateTime d) => d.year * 10000 + d.month * 100 + d.day;
 
@@ -75,6 +91,13 @@ final class FastingStore {
         };
       }
       qazaOwed.value = await _prefs.getInt(_qazaOwedKey);
+      final storedBaseline = await _prefs.getStringList(_qazaBaselineKey);
+      if (storedBaseline != null) {
+        qazaBaseline.value = {
+          for (final s in storedBaseline)
+            if (int.tryParse(s) case final v?) v,
+        };
+      }
       loaded.value = true;
     } on Object {
       _loading = null;
@@ -161,21 +184,33 @@ final class FastingStore {
     }
   }
 
-  /// Sets (or clears, with null / 0) the number of qaza fasts owed.
+  /// Sets (or clears, with null / 0) the number of qaza fasts owed. Setting
+  /// it restarts progress: qaza days already logged count as before it.
   Future<void> setQazaOwed(int? owed) async {
     await load();
     final value = owed == null || owed <= 0 ? null : owed;
+    final baseline = value == null ? const <int>{} : qaza.value;
     final previous = qazaOwed.value;
+    final previousBaseline = qazaBaseline.value;
     qazaOwed.value = value;
+    qazaBaseline.value = baseline;
     try {
+      // Baseline first: a failed owed write then leaves the old owed number
+      // with a fresh baseline — progress restarts, nothing over-counts (a
+      // baseline without an owed number is ignored, see [qazaDone]).
       if (value == null) {
+        await _prefs.remove(_qazaBaselineKey);
         await _prefs.remove(_qazaOwedKey);
       } else {
+        await _prefs.setStringList(_qazaBaselineKey, [
+          for (final v in baseline) v.toString(),
+        ]);
         await _prefs.setInt(_qazaOwedKey, value);
       }
     } on Object {
       if (qazaOwed.value == value) {
         qazaOwed.value = previous;
+        qazaBaseline.value = previousBaseline;
       }
       rethrow;
     }
@@ -215,20 +250,21 @@ final class FastingStore {
       final year = stamp ~/ 10000;
       final month = (stamp ~/ 100) % 100;
       final day = stamp % 100;
-      if (year == t.year && month == t.month) {
-        thisMonth++;
-      }
       final hijri = HijriDate.fromGregorian(
         DateTime(year, month, day),
         offsetDays: offset,
       );
+      // Nafl only, like the card's labels: Ramadan days are the obligatory
+      // fast; qaza days are make-ups (counted by the qaza card).
+      if (hijri.month == HijriDate.ramadanMonth || qaza.value.contains(stamp)) {
+        continue;
+      }
+      nafl++;
+      if (year == t.year && month == t.month) {
+        thisMonth++;
+      }
       if (hijri.year == h.year && hijri.month == h.month) {
         thisHijri++;
-      }
-      // Ramadan days are the obligatory fast; qaza days are make-ups.
-      if (hijri.month != HijriDate.ramadanMonth &&
-          !qaza.value.contains(stamp)) {
-        nafl++;
       }
     }
     return FastingStats(

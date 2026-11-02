@@ -85,8 +85,14 @@ void main() {
         'fasting_qaza_owed',
       );
       final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 6, 10), asQaza: true);
       await expectLater(s.setQazaOwed(5), throwsStateError);
       expect(s.qazaOwed.value, isNull);
+      // The baseline did reach disk; with no owed number it's ignored.
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.qazaDone.value, 1);
     });
 
     test('logging ignores time-of-day', () async {
@@ -121,6 +127,20 @@ void main() {
       expect(stats.thisMonth, 2);
       expect(stats.thisHijriMonth, greaterThanOrEqualTo(1));
     });
+
+    test('every count is nafl-only: qaza and Ramadan days stay out', () async {
+      final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 6, 11), asQaza: true);
+      await s.toggle(DateTime(2026, 6, 12));
+      var stats = s.stats();
+      expect((stats.total, stats.thisMonth, stats.thisHijriMonth), (1, 1, 1));
+
+      now = DateTime(2026, 3, 10); // ~21 Ramadan 1447
+      await s.toggle(DateTime(2026, 3, 2)); // ~13 Ramadan: obligatory
+      stats = s.stats();
+      expect((stats.thisMonth, stats.thisHijriMonth), (0, 0));
+    });
   });
 
   group('FastingStore — qaza', () {
@@ -152,6 +172,50 @@ void main() {
         expect(fresh.qazaOwed.value, isNull);
       },
     );
+
+    test('qaza progress counts only days logged since owed was set', () async {
+      final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 6, 10), asQaza: true);
+      await s.toggle(DateTime(2026, 6, 11), asQaza: true);
+      await s.setQazaOwed(5);
+      expect(s.qazaDone.value, 0, reason: 'made up before the count was set');
+      await s.toggle(DateTime(2026, 6, 12), asQaza: true);
+      expect(s.qazaDone.value, 1);
+
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.qazaDone.value, 1);
+      // Re-setting restarts progress; clearing counts every qaza day again.
+      await fresh.setQazaOwed(4);
+      expect(fresh.qazaDone.value, 0);
+      await fresh.setQazaOwed(null);
+      expect(fresh.qazaDone.value, 3);
+    });
+
+    test(
+      'owed set before the baseline existed counts every qaza day',
+      () async {
+        final prefs = SharedPreferencesAsync();
+        await prefs.setStringList('fasting_log_v1', ['20260610', '20260611']);
+        await prefs.setStringList('fasting_qaza_v1', ['20260610', '20260611']);
+        await prefs.setInt('fasting_qaza_owed', 5);
+        final s = store();
+        await s.load();
+        expect(s.qazaDone.value, 2);
+      },
+    );
+
+    test('a failed baseline write rolls owed and baseline back', () async {
+      SharedPreferencesAsyncPlatform.instance = _KeyFailingPrefs(
+        'fasting_qaza_baseline_v1',
+      );
+      final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 6, 10), asQaza: true);
+      await expectLater(s.setQazaOwed(5), throwsStateError);
+      expect((s.qazaOwed.value, s.qazaDone.value), (null, 1));
+    });
 
     test('heatmapDate maps cells to days of the month', () {
       final s = store();

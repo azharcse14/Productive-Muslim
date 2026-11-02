@@ -179,6 +179,7 @@ final class _FastingScreenState extends State<FastingScreen> {
             _store.logged.value;
             _store.qaza.value;
             _store.qazaOwed.value;
+            _store.qazaDone.value;
             // Home's day signal flips at midnight, so "today" follows it.
             if (locator.isRegistered<HomeStore>()) {
               locator<HomeStore>().dateKey.value;
@@ -236,7 +237,7 @@ final class _FastingScreenState extends State<FastingScreen> {
                 ],
                 const SizedBox(height: QSpace.s4),
                 _QazaCard(
-                  done: _store.qaza.value.length,
+                  done: _store.qazaDone.value,
                   owed: _store.qazaOwed.value,
                   onSetOwed: () => unawaited(_setOwed(context)),
                 ),
@@ -526,7 +527,13 @@ final class _StatsCard extends StatelessWidget {
           // A month calendar: one row per week, day numbers in the cells.
           Semantics(
             container: true,
-            label: l10n.fastingHeatmapLabel(stats.thisMonth),
+            // Counts every logged fast this month, not just nafl ones.
+            label: l10n.fastingHeatmapLabel(
+              [
+                for (var w = 0; w < weeks.length; w++)
+                  for (var d = 0; d < 7; d++) dateAt(w, d),
+              ].whereType<DateTime>().where(isLogged).length,
+            ),
             child: Column(
               children: [
                 for (var w = 0; w < weeks.length; w++)
