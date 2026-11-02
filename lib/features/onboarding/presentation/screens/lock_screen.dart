@@ -100,10 +100,10 @@ final class _LockScreenState extends State<LockScreen> {
         _verified();
       }
     } on Object catch (e) {
+      // Only the biometric plugin can throw here (lockout, no sensor):
+      // the PIN pad stays available, so fall back to it without a
+      // misleading storage message.
       debugPrint('lock screen biometric: $e');
-      if (mounted) {
-        setState(() => _error = l10n.appLockStorageError);
-      }
     }
   }
 

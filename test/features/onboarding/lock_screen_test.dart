@@ -63,7 +63,7 @@ final class _BrokenBiometric implements BiometricAuth {
 void main() {
   tearDown(() => GetIt.I.reset());
 
-  testWidgets('a failing biometric prompt explains instead of throwing', (
+  testWidgets('a failing biometric prompt falls back to the PIN quietly', (
     tester,
   ) async {
     SharedPreferencesAsyncPlatform.instance =
@@ -80,9 +80,11 @@ void main() {
     await tester.pumpWidget(_app());
     await tester.pump(); // fires the auto biometric prompt
     await tester.pump();
+    // No uncaught error (the test would fail), no misleading PIN-storage
+    // message, and the gate stays locked for the PIN.
     expect(
-      tester.widget<Text>(find.byKey(const ValueKey('lock-message'))).data,
-      lookupAppLocalizations(const Locale('en')).appLockStorageError,
+      find.text(lookupAppLocalizations(const Locale('en')).appLockStorageError),
+      findsNothing,
     );
     expect(store.locked.value, isTrue);
   });
