@@ -1,39 +1,55 @@
 package com.productivemuslim.app
 
+import android.media.AudioManager
+
 /**
  * The pure decisions behind [JamaatFocus]: no Context, so JVM unit tests
  * cover them (FocusPlanTest). A window is (start, end) in epoch ms;
  * end = -1 means "until the user ends it". [Window.key] names the jamaat
  * (prayer day + prayer, from Dart) so a re-sent plan that moves it is still
  * recognised as the same session; 0 = unknown (older stored plans).
+ * [Window.endLabel] is the end as the app shows it (app language, city
+ * clock), formatted by Dart; empty = format it here.
  */
 object FocusPlan {
-    data class Window(val start: Long, val end: Long, val key: Long = 0L)
+    data class Window(
+        val start: Long,
+        val end: Long,
+        val key: Long = 0L,
+        val endLabel: String = "",
+    )
 
     /** A "until I end it" session may start this late (alarm delayed, phone off). */
     const val MANUAL_GRACE_MS = 30 * 60 * 1000L
 
-    /** Windows from the Dart plan ([[start, end, key?], …]); malformed entries dropped. */
+    /** Windows from the Dart plan ([[start, end, key?, endLabel?], …]); malformed entries dropped. */
     fun fromArgs(windows: Any?): List<Window> =
         (windows as? List<*>).orEmpty().mapNotNull { w ->
             val list = w as? List<*> ?: return@mapNotNull null
             val from = (list.getOrNull(0) as? Number)?.toLong() ?: return@mapNotNull null
             val to = (list.getOrNull(1) as? Number)?.toLong() ?: return@mapNotNull null
-            Window(from, to, (list.getOrNull(2) as? Number)?.toLong() ?: 0L)
+            Window(
+                from,
+                to,
+                (list.getOrNull(2) as? Number)?.toLong() ?: 0L,
+                list.getOrNull(3) as? String ?: "",
+            )
         }
 
     fun encode(windows: List<Window>): String =
-        windows.joinToString(";") { "${it.start},${it.end},${it.key}" }
+        windows.joinToString(";") {
+            "${it.start},${it.end},${it.key},${it.endLabel.replace(Regex("[,;]"), " ")}"
+        }
 
-    /** Stored "start,end[,key];…"; corrupt entries dropped, never thrown. */
+    /** Stored "start,end[,key[,endLabel]];…"; corrupt entries dropped, never thrown. */
     fun parse(raw: String?): List<Window> =
         raw.orEmpty().split(';').mapNotNull {
             val parts = it.split(',')
-            if (parts.size !in 2..3) return@mapNotNull null
+            if (parts.size !in 2..4) return@mapNotNull null
             val from = parts[0].toLongOrNull() ?: return@mapNotNull null
             val to = parts[1].toLongOrNull() ?: return@mapNotNull null
-            val key = if (parts.size == 3) parts[2].toLongOrNull() ?: return@mapNotNull null else 0L
-            Window(from, to, key)
+            val key = if (parts.size >= 3) parts[2].toLongOrNull() ?: return@mapNotNull null else 0L
+            Window(from, to, key, parts.getOrNull(3).orEmpty())
         }
 
     /**
@@ -90,7 +106,8 @@ object FocusPlan {
     )
 
     /**
-     * Never covered: this app ([own]), the shade, calls, the dialer, the
+     * Never covered: this app ([own]), the shade, calls (any OEM in-call UI,
+     * "….incallui", even when another app is the default dialer), the dialer, the
      * keyboard ([ime] = "pkg/.Service"), alarm apps ([clocks]) — and Settings,
      * the package installer and Play, so the user can always turn the service
      * off or uninstall (Play accessibility policy).
@@ -103,5 +120,13 @@ object FocusPlan {
         clocks: Set<String>,
     ): Boolean =
         pkg == own || pkg in SYSTEM || pkg == dialer || pkg in clocks ||
-            ime?.startsWith("$pkg/") == true
+            pkg.endsWith(".incallui") || ime?.startsWith("$pkg/") == true
+
+    /**
+     * A call is ringing or running ([AudioManager.getMode]: no permission,
+     * unlike TelecomManager.isInCall's READ_PHONE_STATE): no cover then, so
+     * whichever app shows the call is never hidden.
+     */
+    fun inCall(audioMode: Int): Boolean = audioMode == AudioManager.MODE_RINGTONE ||
+        audioMode == AudioManager.MODE_IN_CALL || audioMode == AudioManager.MODE_IN_COMMUNICATION
 }

@@ -1,5 +1,6 @@
 package com.productivemuslim.app
 
+import android.media.AudioManager
 import com.productivemuslim.app.FocusPlan.MANUAL_GRACE_MS
 import com.productivemuslim.app.FocusPlan.Window
 import org.junit.Assert.assertEquals
@@ -73,8 +74,8 @@ class FocusPlanTest {
     @Test
     fun malformedStoredEntriesAreSkipped() {
         assertEquals(
-            listOf(w(1, 2), w(6, 7, key = 8), w(3, -1)),
-            FocusPlan.parse("1,2;x,4;5;;6,7,8;3,-1;9,;1,2,y;1,2,3,4"),
+            listOf(w(1, 2), w(6, 7, key = 8), w(3, -1), Window(1, 2, 3, "4 PM")),
+            FocusPlan.parse("1,2;x,4;5;;6,7,8;3,-1;9,;1,2,y;1,2,3,4 PM;1,2,3,4,5"),
         )
         assertEquals(emptyList<Window>(), FocusPlan.parse(""))
         assertEquals(emptyList<Window>(), FocusPlan.parse(null))
@@ -85,12 +86,20 @@ class FocusPlanTest {
         val parsed = FocusPlan.fromArgs(
             listOf(
                 listOf(1, 2L), listOf(3.0), "x", listOf("4", 5), null,
-                listOf(6L, -1), listOf(7L, 8L, 202606151L),
+                listOf(6L, -1), listOf(7L, 8L, 202606151L), listOf(9L, 10L, 1L, "১:২০ PM"),
             )
         )
-        assertEquals(listOf(w(1, 2), w(6, -1), w(7, 8, key = 202606151)), parsed)
+        assertEquals(
+            listOf(w(1, 2), w(6, -1), w(7, 8, key = 202606151), Window(9, 10, 1, "১:২০ PM")),
+            parsed,
+        )
         assertEquals(parsed, FocusPlan.parse(FocusPlan.encode(parsed)))
         assertEquals(emptyList<Window>(), FocusPlan.fromArgs("nope"))
+        // A label can't break the stored format.
+        assertEquals(
+            listOf(Window(1, 2, 3, "a b c")),
+            FocusPlan.parse(FocusPlan.encode(listOf(Window(1, 2, 3, "a,b;c")))),
+        )
     }
 
     private fun allowed(pkg: String) = FocusPlan.allowed(
@@ -110,6 +119,10 @@ class FocusPlanTest {
         assertTrue(allowed("com.google.android.dialer"))
         assertTrue(allowed("com.google.android.inputmethod.latin"))
         assertTrue(allowed("com.google.android.deskclock"))
+        // OEM in-call screens, though another app is the default dialer.
+        assertTrue(allowed("com.samsung.android.incallui"))
+        assertTrue(allowed("com.android.incallui"))
+        assertFalse(allowed("com.example.notincallui"))
         assertFalse(allowed("com.instagram.android"))
         // Prefix of the IME package is not the IME.
         assertFalse(allowed("com.google.android.inputmethod"))
@@ -118,6 +131,14 @@ class FocusPlanTest {
     @Test
     fun allowlistWithoutDialerOrKeyboard() {
         assertFalse(FocusPlan.allowed("com.x", "own", dialer = null, ime = null, clocks = emptySet()))
+    }
+
+    @Test
+    fun noCoverWhileACallRingsOrRuns() {
+        assertTrue(FocusPlan.inCall(AudioManager.MODE_RINGTONE))
+        assertTrue(FocusPlan.inCall(AudioManager.MODE_IN_CALL))
+        assertTrue(FocusPlan.inCall(AudioManager.MODE_IN_COMMUNICATION))
+        assertFalse(FocusPlan.inCall(AudioManager.MODE_NORMAL))
     }
 
     @Test

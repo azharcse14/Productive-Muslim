@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:productive_muslim/features/notifications/data/jamaat_focus_bridge.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_focus_windows.dart';
@@ -29,6 +30,8 @@ const _texts = NotificationTexts(
   prayerNames: {},
 );
 
+DateTime _same(DateTime wall) => wall;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('com.productivemuslim.app/focus');
@@ -37,7 +40,11 @@ void main() {
 
   /// Schedules with block + nafs on against a native side that does or
   /// doesn't have the blocking service; returns the 'schedule' arguments.
-  Future<Map<Object?, Object?>> scheduled({required Object? blocking}) async {
+  Future<Map<Object?, Object?>> scheduled({
+    required Object? blocking,
+    NotificationTexts texts = _texts,
+    DateTime Function(DateTime wall) toUtc = _same,
+  }) async {
     Map<Object?, Object?>? sent;
     messenger.setMockMethodCallHandler(channel, (call) async {
       if (call.method == 'isBlockingAvailable') {
@@ -63,8 +70,8 @@ void main() {
       strict: false,
       nafs: true,
       nafsDuration: const Duration(minutes: 5),
-      texts: _texts,
-      toUtc: (wall) => wall,
+      texts: texts,
+      toUtc: toUtc,
     );
     return sent!;
   }
@@ -95,5 +102,43 @@ void main() {
         202610292,
       ],
     ]);
+  });
+
+  test('the end goes as the app shows it: app language, wall clock', () async {
+    await initializeDateFormatting('en');
+    const en = NotificationTexts(
+      azanTitle: '',
+      azanBody: '',
+      jamaatTitle: '',
+      jamaatBody: '',
+      sahriTitle: '',
+      sahriBody: '',
+      iftarTitle: '',
+      iftarBody: '',
+      muhasabaTitle: '',
+      muhasabaBody: '',
+      dailyReminderTitle: '',
+      dailyReminderBody: '',
+      dailyReminderRoute: '/hadith',
+      keepAliveTitle: '',
+      keepAliveBody: '',
+      markAsPrayedAction: '',
+      channelAzanName: '',
+      channelRemindersName: '',
+      channelSilentName: '',
+      channelBeepName: '',
+      prayerNames: {},
+      localeCode: 'en',
+    );
+    final args = await scheduled(
+      blocking: true,
+      texts: en,
+      // The city is UTC+6: the instant moves, the label keeps 1:20 PM.
+      toUtc: (wall) => wall.subtract(const Duration(hours: 6)),
+    );
+    final window = (args['windows']! as List<Object?>).single! as List<Object?>;
+    expect(window, hasLength(4));
+    expect(window[1], DateTime.utc(2026, 10, 29, 7, 20).millisecondsSinceEpoch);
+    expect(window[3], matches(RegExp(r'^1:20\sPM$')));
   });
 }

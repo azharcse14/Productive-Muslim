@@ -27,6 +27,8 @@ final class NotificationTexts {
     required this.channelSilentName,
     required this.channelBeepName,
     required this.prayerNames,
+    this.channelDailyName = '',
+    this.localeCode = '',
     this.focusTitle = '',
     this.focusBody = '',
     this.focusLockBody = '',
@@ -66,6 +68,14 @@ final class NotificationTexts {
   final String channelRemindersName;
   final String channelSilentName;
   final String channelBeepName;
+
+  /// Daily content + muhasaba channel; empty falls back to
+  /// [channelRemindersName].
+  final String channelDailyName;
+
+  /// App language code (e.g. 'bn'), for times formatted outside the
+  /// scheduler (the native focus session end). Empty = unknown.
+  final String localeCode;
 
   /// Jamaat focus: [focusTitle]/[focusBody] are the iOS nudge; the lock
   /// texts are Android's lock screen + ongoing notification, titled

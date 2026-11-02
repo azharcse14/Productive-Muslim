@@ -224,6 +224,8 @@ final class NotificationController {
       channelRemindersName: l10n.channelReminders,
       channelSilentName: l10n.channelSilent,
       channelBeepName: l10n.channelBeep,
+      channelDailyName: l10n.notifGroupDaily,
+      localeCode: _settings.settings.value.localeCode,
       focusTitle: l10n.notifFocusTitle('{prayer}'),
       focusBody: l10n.notifFocusBody,
       focusLockBody: l10n.focusLockBody,

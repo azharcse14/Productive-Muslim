@@ -471,4 +471,32 @@ void main() {
       InterruptionLevel.active,
     );
   });
+
+  test('content nudges are default urgency on their own channel', () async {
+    final jamaat = NotificationItem(
+      kind: NotificationKind.jamaat,
+      prayer: Prayer.asr,
+      at: at,
+    );
+    final ayah = NotificationItem(
+      kind: NotificationKind.dailyAyah,
+      at: at.add(const Duration(hours: 1)),
+    );
+    final muhasaba = NotificationItem(
+      kind: NotificationKind.muhasabaEvening,
+      at: at.add(const Duration(hours: 2)),
+    );
+    await scheduler.reschedule([jamaat, ayah, muhasaba], _texts);
+    final urgent = plugin.scheduled[jamaat.id]!;
+    expect(urgent.android!.channelId, 'productive_muslim_reminders');
+    expect(urgent.android!.importance, Importance.high);
+    expect(urgent.iOS!.interruptionLevel, InterruptionLevel.timeSensitive);
+    for (final item in [ayah, muhasaba]) {
+      final d = plugin.scheduled[item.id]!;
+      expect(d.android!.channelId, 'productive_muslim_daily');
+      expect(d.android!.importance, Importance.defaultImportance);
+      expect(d.android!.priority, Priority.defaultPriority);
+      expect(d.iOS!.interruptionLevel, InterruptionLevel.active);
+    }
+  });
 }
