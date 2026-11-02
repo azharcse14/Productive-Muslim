@@ -96,6 +96,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
   @override
   Future<Result<void>> setEntry(DailyEntry entry) async {
+    if (entry.value > 0 && (storedItems[entry.itemId]?.archived ?? false)) {
+      return const Result.failure(ArchivedTrackerFailure());
+    }
     final day = _d(entry.date);
     final byDate = storedEntries.putIfAbsent(entry.itemId, () => {});
     if (entry.value <= 0) {

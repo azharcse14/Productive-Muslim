@@ -167,9 +167,8 @@ final class _HomeScreenState extends State<HomeScreen> {
       }
       // Times just changed under the user: say why.
       final l10n = context.l10n;
-      final locale = Localizations.localeOf(context);
-      final before = formatLocationName(saved, locale, l10n);
-      final after = formatLocationName(moved, locale, l10n);
+      final before = formatLocationName(saved, l10n);
+      final after = formatLocationName(moved, l10n);
       if (after != before) {
         ScaffoldMessenger.of(context)
           ..clearSnackBars()
@@ -421,7 +420,7 @@ final class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     HomeHeader(
                       greeting: greetingFor(l10n, _store.daypart.value),
-                      locationName: formatLocationName(location, locale, l10n),
+                      locationName: formatLocationName(location, l10n),
                       dates: _headerDates(l10n, locale),
                       onLocationTap: () =>
                           context.pushNamed(Routes.locationPicker.name),

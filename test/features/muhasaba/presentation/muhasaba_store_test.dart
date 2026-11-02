@@ -316,6 +316,37 @@ void main() {
       expect(store.archivedItems.value.map((i) => i.id), ['sadaqah']);
     });
 
+    test('no write path files an archived tracker, and none toasts', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setArchived('salah_isha', archived: true);
+      await store.setArchived('sadaqah', archived: true);
+      final day = DateTime(2026, 6, 12);
+      await store.togglePrayerOn('salah_isha', day);
+      await store.setValueOn('sadaqah', day, 2);
+      await store.setValue('sadaqah', 3);
+      expect(repo.entries_.containsKey(('salah_isha', 20260612)), isFalse);
+      expect(repo.entries_.containsKey(('sadaqah', 20260612)), isFalse);
+      expect(store.entriesOn(day), isNot(contains('salah_isha')));
+      expect(store.saveFailures.value, 0);
+    });
+
+    test('a failed markDoneOn bumps saveFailures', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      repo.gate = Completer<bool>()..complete(false);
+      await store.markDoneOn('salah_fajr', DateTime(2026, 6, 12));
+      expect(repo.entries_.containsKey(('salah_fajr', 20260612)), isFalse);
+      expect(store.saveFailures.value, 1);
+    });
+
+    test('markDoneOn never overwrites a value it could not read', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      await store.setValue('sadaqah', 3);
+      repo.failEntriesRead = true;
+      await store.markDoneOn('sadaqah', DateTime(2026, 6, 12));
+      expect(repo.entries_[('sadaqah', 20260612)], 3);
+      expect(store.saveFailures.value, 1);
+    });
+
     test('markDoneOn ignores a date after today', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
       await store.markDoneOn('salah_fajr', DateTime(2026, 6, 13));

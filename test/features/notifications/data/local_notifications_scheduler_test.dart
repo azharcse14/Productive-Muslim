@@ -9,6 +9,7 @@ import 'package:productive_muslim/features/settings/data/datasources/timezone_cl
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:timezone/timezone.dart';
@@ -139,12 +140,41 @@ const _dhaka = ManualCityLocation(
   ),
 );
 
+/// Wall clock = UTC + [offset], for any location (a device whose zone moves).
+final class _ShiftClock implements ZonedClock {
+  _ShiftClock(this.offset);
+
+  Duration offset;
+
+  @override
+  DateTime nowAt(LocationConfig location) =>
+      instantAt(location, DateTime.now());
+
+  @override
+  DateTime instantAt(LocationConfig location, DateTime instant) {
+    final w = instant.toUtc().add(offset);
+    return DateTime(w.year, w.month, w.day, w.hour, w.minute, w.second);
+  }
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) => DateTime.utc(
+    wall.year,
+    wall.month,
+    wall.day,
+    wall.hour,
+    wall.minute,
+    wall.second,
+  ).subtract(offset);
+}
+
 void main() {
   setUpAll(TimezoneClock.initialize);
 
   late _FakePlugin plugin;
   late LocalNotificationsScheduler scheduler;
   setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
     plugin = _FakePlugin();
     scheduler = LocalNotificationsScheduler(
       clock: TimezoneClock(),
@@ -214,6 +244,42 @@ void main() {
       expect(plugin.cancelled, {stale.id, dropped.id});
       expect(plugin.pending, {overdue.id, kept.id});
       expect(plugin.scheduled.keys, {kept.id});
+    },
+  );
+
+  test(
+    'after a zone change, overdue is read on the clock the ids were planned in',
+    () async {
+      // GPS: the device zone moves Dhaka (+6) → Bangkok (+7) between runs.
+      final clock = _ShiftClock(const Duration(hours: 6));
+      LocalNotificationsScheduler build() => LocalNotificationsScheduler(
+        clock: clock,
+        currentLocation: () => const GpsLocation(latitude: 0, longitude: 0),
+        formatTime: (_) => '',
+        plugin: plugin,
+      );
+      await build().reschedule([azan(Prayer.fajr)], _texts);
+      // A Dhaka azan due in 20 min: on Bangkok's clock it would look
+      // 40 min overdue and survive the 1h grace.
+      final oldAzan = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.maghrib,
+        at: clock.nowAt(_dhaka).add(const Duration(minutes: 20)),
+      );
+      // Due 10 min ago in Dhaka, not fired yet: the grace still keeps it.
+      final justDue = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.asr,
+        at: clock.nowAt(_dhaka).subtract(const Duration(minutes: 10)),
+      );
+      plugin.pending.addAll([oldAzan.id, justDue.id]);
+      clock.offset = const Duration(hours: 7);
+
+      // A fresh instance: the planned offset survives a cold start.
+      await build().reschedule([azan(Prayer.isha)], _texts);
+
+      expect(plugin.cancelled, contains(oldAzan.id));
+      expect(plugin.pending, contains(justDue.id));
     },
   );
 

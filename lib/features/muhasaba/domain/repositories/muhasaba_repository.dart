@@ -23,7 +23,9 @@ abstract interface class MuhasabaRepository {
 
   Future<Result<List<DailyEntry>>> entriesOn(DateTime date);
 
-  /// Upsert by (itemId, date); value 0 removes the row.
+  /// Upsert by (itemId, date); value 0 removes the row. A positive value
+  /// for an archived tracker is refused with [ArchivedTrackerFailure]: it
+  /// takes no new entries (or it would keep streaks and badges alive).
   Future<Result<void>> setEntry(DailyEntry entry);
 
   /// Aggregates for [start]..[end] inclusive (date-only), with streaks
@@ -38,4 +40,10 @@ abstract interface class MuhasabaRepository {
   /// All-time distinct dates on which any of [itemIds] was completed,
   /// archived items included (achievements count every logged day).
   Future<Result<Set<DateTime>>> doneDates(Set<String> itemIds);
+}
+
+/// [MuhasabaRepository.setEntry] refused a value for an archived tracker.
+/// Expected, not an error: callers drop the write without telling the user.
+final class ArchivedTrackerFailure extends Failure {
+  const ArchivedTrackerFailure() : super('Tracker is archived');
 }

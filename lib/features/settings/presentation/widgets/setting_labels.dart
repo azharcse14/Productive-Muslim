@@ -10,19 +10,67 @@ const asrMadhabChoices = [Madhab.hanafi, Madhab.shafi];
 /// [m] as one of [asrMadhabChoices].
 Madhab asrMadhabOf(Madhab m) => m == Madhab.hanafi ? m : Madhab.shafi;
 
-/// The saved location as Home names it; only `null` is "not set". A GPS
-/// fix with no bundled city nearby has an empty name: "Current location".
-// ponytail: mirrors prayer_times' formatLocationName minus its Bangla
-// city-name map; settings may not import another feature's presentation.
-String locationLabel(LocationConfig? location, AppLocalizations l10n) =>
-    switch (location) {
-      null => l10n.settingLocationNotSet,
-      ManualCityLocation(:final city)
-          when l10n.localeName == 'bn' && (city.nameBn ?? '').isNotEmpty =>
-        city.nameBn!,
-      final LocationConfig l when l.displayName.isEmpty => l10n.locationCurrent,
-      final LocationConfig l => l.displayName,
-    };
+/// The saved location's name in [l10n]'s language; only `null` is "not
+/// set". A GPS fix with no bundled city nearby has an empty name: "Current
+/// location". In Bangla a manual city uses its Bangla name, and a raw
+/// (geocoded) name has well-known place names translated. Home, the widget,
+/// Settings and Onboarding all name the location through this.
+String locationLabel(LocationConfig? location, AppLocalizations l10n) {
+  if (location == null) {
+    return l10n.settingLocationNotSet;
+  }
+  final bn = l10n.localeName == 'bn';
+  if (location case ManualCityLocation(
+    :final city,
+  ) when bn && (city.nameBn ?? '').isNotEmpty) {
+    return city.nameBn!;
+  }
+  final raw = location.displayName;
+  if (raw.isEmpty) {
+    return l10n.locationCurrent;
+  }
+  if (!bn) {
+    return raw;
+  }
+  // Whole words only: "SA" must not hit "USA".
+  return raw.replaceAllMapped(
+    _bnPlaceName,
+    (m) => _bnPlaceNames[m[0]] ?? m[0]!,
+  );
+}
+
+final _bnPlaceName = RegExp(
+  _bnPlaceNames.keys.map((k) => '\\b${RegExp.escape(k)}\\b').join('|'),
+);
+
+const _bnPlaceNames = <String, String>{
+  'Dhaka': 'ঢাকা',
+  'Chittagong': 'চট্টগ্রাম',
+  'Chattogram': 'চট্টগ্রাম',
+  'Sylhet': 'সিলেট',
+  'Rajshahi': 'রাজশাহী',
+  'Khulna': 'খুলনা',
+  'Barisal': 'বরিশাল',
+  'Barishal': 'বরিশাল',
+  'Rangpur': 'রংপুর',
+  'Mymensingh': 'ময়মনসিংহ',
+  'Comilla': 'কুমিল্লা',
+  'Cumilla': 'কুমিল্লা',
+  'Gazipur': 'গাজীপুর',
+  'Narayanganj': 'নারায়ণগঞ্জ',
+  'Bogra': 'বগুড়া',
+  'Bogura': 'বগুড়া',
+  'Pabna': 'পাবনা',
+  'Jessore': 'যশোর',
+  'Jashore': 'যশোর',
+  'Cox\'s Bazar': 'কক্সবাজার',
+  'Coxs Bazar': 'কক্সবাজার',
+  'Makkah': 'মক্কা',
+  'Madinah': 'মদিনা',
+  'BD': 'বাংলাদেশ',
+  'Bangladesh': 'বাংলাদেশ',
+  'SA': 'সৌদি আরব',
+};
 
 /// Maps settings enums to localized labels (no hardcoded strings in
 /// widgets — guide §6).

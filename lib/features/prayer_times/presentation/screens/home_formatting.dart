@@ -122,65 +122,7 @@ CountdownState countdownCardState(CountdownUrgency urgency) =>
       CountdownUrgency.iftar => CountdownState.iftar,
     };
 
-String formatLocationName(
-  LocationConfig? location,
-  Locale locale,
-  AppLocalizations l10n,
-) {
-  if (location == null) {
-    return l10n.locationCurrent;
-  }
-
-  if (location is ManualCityLocation) {
-    final city = location.city;
-    if (locale.languageCode == 'bn' &&
-        city.nameBn != null &&
-        city.nameBn!.isNotEmpty) {
-      return city.nameBn!;
-    }
-  }
-
-  final rawName = location.displayName;
-  if (rawName.isEmpty) {
-    return l10n.locationCurrent;
-  }
-
-  if (locale.languageCode != 'bn') {
-    return rawName;
-  }
-
-  const cityMap = <String, String>{
-    'Dhaka': 'ঢাকা',
-    'Chittagong': 'চট্টগ্রাম',
-    'Chattogram': 'চট্টগ্রাম',
-    'Sylhet': 'সিলেট',
-    'Rajshahi': 'রাজশাহী',
-    'Khulna': 'খুলনা',
-    'Barisal': 'বরিশাল',
-    'Barishal': 'বরিশাল',
-    'Rangpur': 'রংপুর',
-    'Mymensingh': 'ময়মনসিংহ',
-    'Comilla': 'কুমিল্লা',
-    'Cumilla': 'কুমিল্লা',
-    'Gazipur': 'গাজীপুর',
-    'Narayanganj': 'নারায়ণগঞ্জ',
-    'Bogra': 'বগুড়া',
-    'Bogura': 'বগুড়া',
-    'Pabna': 'পাবনা',
-    'Jessore': 'যশোর',
-    'Jashore': 'যশোর',
-    'Cox\'s Bazar': 'কক্সবাজার',
-    'Coxs Bazar': 'কক্সবাজার',
-    'Makkah': 'মক্কা',
-    'Madinah': 'মদিনা',
-    'BD': 'বাংলাদেশ',
-    'Bangladesh': 'বাংলাদেশ',
-    'SA': 'সৌদি আরব',
-  };
-
-  var translated = rawName;
-  for (final entry in cityMap.entries) {
-    translated = translated.replaceAll(entry.key, entry.value);
-  }
-  return translated;
-}
+/// Home's location name: [locationLabel], except a missing location reads
+/// "Current location" (Home shows that while the first GPS fix resolves).
+String formatLocationName(LocationConfig? location, AppLocalizations l10n) =>
+    location == null ? l10n.locationCurrent : locationLabel(location, l10n);

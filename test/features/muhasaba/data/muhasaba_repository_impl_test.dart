@@ -6,6 +6,7 @@ import 'package:productive_muslim/features/muhasaba/data/repositories/muhasaba_r
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
+import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba_repository.dart';
 
 void main() {
   late MuhasabaDatabase db;
@@ -217,6 +218,27 @@ void main() {
   });
 
   group('setEntry / entriesOn', () {
+    test('an archived tracker refuses new values but can be cleared', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      final date = DateTime(2026, 6, 12);
+      await unwrap(repo.setEntry(_entry('a', date, 1)));
+      await unwrap(repo.setArchived('a', archived: true));
+
+      final refused = await repo.setEntry(_entry('a', date, 3));
+      expect(
+        refused,
+        isA<FailureResult<void>>().having(
+          (r) => r.failure,
+          'failure',
+          isA<ArchivedTrackerFailure>(),
+        ),
+      );
+      expect((await unwrap(repo.entriesOn(date))).single.value, 1);
+
+      await unwrap(repo.setEntry(_entry('a', date, 0)));
+      expect(await unwrap(repo.entriesOn(date)), isEmpty);
+    });
+
     test('upsert, overwrite, delete-on-zero', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       final date = DateTime(2026, 6, 12);
