@@ -30,6 +30,8 @@ const _legacyKeys = [
 ///    the app") instead of stale times.
 ///
 /// [instantOf] maps a location wall-clock time to its real instant.
+/// [configured] defaults to "[days] is non-empty"; pass true when a location
+/// exists but its times failed, so native shows "open the app", not setup.
 WidgetPayload buildWidgetPayload({
   required List<PrayerDay> days,
   required String nextPrayerLabel,
@@ -41,7 +43,9 @@ WidgetPayload buildWidgetPayload({
   String staleTitle = '',
   String staleHint = '',
   DateTime Function(DateTime wall)? instantOf,
+  bool? configured,
 }) {
+  final isConfigured = configured ?? days.isNotEmpty;
   final toInstant = instantOf ?? (DateTime wall) => wall;
   int millis(DateTime wall) => toInstant(wall).millisecondsSinceEpoch;
   String line(Prayer prayer, DateTime at) =>
@@ -73,9 +77,9 @@ WidgetPayload buildWidgetPayload({
 
   return {
     for (final key in _legacyKeys) key: '',
-    'widget_configured': days.isEmpty ? '0' : '1',
+    'widget_configured': isConfigured ? '1' : '0',
     'widget_label': nextPrayerLabel,
-    'widget_location': days.isEmpty ? '' : locationLabel,
+    'widget_location': isConfigured ? locationLabel : '',
     'widget_schedule': schedule,
     'widget_strips': days.map(stripLine).join('\n'),
     'widget_setup_action': setupAction,

@@ -6,6 +6,7 @@ import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_d
 import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/day_timeline_sheet.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 Widget _app(Widget child) => MaterialApp(
   theme: AppTheme.light(),
@@ -158,5 +159,75 @@ void main() {
       ),
     );
     expect(labelColor(tester, 'Isha'), labelColor(tester, 'Fajr'));
+  });
+
+  testWidgets('"Sahri ends" shows only in Ramadan', (tester) async {
+    final base = _sampleDay();
+    // The repository always adds a minute of margin, so sahri != fajr.
+    final day = PrayerDay(
+      fajr: base.fajr,
+      sunrise: base.sunrise,
+      dhuhr: base.dhuhr,
+      asr: base.asr,
+      maghrib: base.maghrib,
+      isha: base.isha,
+      fajrTomorrow: base.fajrTomorrow,
+      ishaYesterday: base.ishaYesterday,
+      sahriSafety: const Duration(minutes: 1),
+    );
+    Widget sheet({required bool ramadan}) => _app(
+      DayTimelineSheet(
+        day: day,
+        now: DateTime(2026, 6, 14, 13),
+        formatTime: _fmt,
+        ramadan: ramadan,
+      ),
+    );
+    await tester.pumpWidget(sheet(ramadan: false));
+    expect(find.text('Sahri ends'), findsNothing);
+    await tester.pumpWidget(sheet(ramadan: true));
+    expect(find.text('Sahri ends'), findsOneWidget);
+  });
+
+  testWidgets('an open sheet follows the live day past midnight', (
+    tester,
+  ) async {
+    final today = _sampleDay();
+    final tomorrow = PrayerDay(
+      fajr: DateTime(2026, 6, 15, 4, 6),
+      sunrise: DateTime(2026, 6, 15, 5, 21),
+      dhuhr: DateTime(2026, 6, 15, 12, 31),
+      asr: DateTime(2026, 6, 15, 16, 46),
+      maghrib: DateTime(2026, 6, 15, 19, 11),
+      isha: DateTime(2026, 6, 15, 20, 41),
+      fajrTomorrow: DateTime(2026, 6, 16, 4, 7),
+      ishaYesterday: today.isha,
+    );
+    final day = signal(today);
+    final now = signal(DateTime(2026, 6, 14, 23, 59));
+    await tester.pumpWidget(
+      _app(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showDayTimelineSheet(
+              context,
+              now: () => now.value,
+              sheet: (now) =>
+                  DayTimelineSheet(day: day.value, now: now, formatTime: _fmt),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(find.text('12:30'), findsOneWidget);
+
+    now.value = DateTime(2026, 6, 15, 0, 1);
+    day.value = tomorrow;
+    await tester.pump();
+    expect(find.text('12:30'), findsNothing);
+    expect(find.text('12:31'), findsOneWidget);
   });
 }

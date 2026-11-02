@@ -13,15 +13,14 @@ import 'special_times_card.dart';
 
 /// Opens [DayTimelineSheet] as a modal bottom sheet (theme supplies the
 /// 24pt top radius and surface background — no shape override here).
-/// [now] is read inside a [SignalBuilder], so passing a signal's value
-/// (e.g. `() => store.now.value`) keeps the "Now" marker moving while open.
+/// [sheet] runs inside a [SignalBuilder] and gets [now] floored to the minute:
+/// build it from live signals (the store's day) so the rail rolls over at
+/// midnight and the "Now"
+/// marker keeps moving while open — nothing is captured at open time.
 Future<void> showDayTimelineSheet(
   BuildContext context, {
-  required PrayerDay day,
   required DateTime Function() now,
-  required String Function(DateTime) formatTime,
-  List<SpecialWindow> forbidden = const [],
-  bool jumuah = false,
+  required DayTimelineSheet Function(DateTime now) sheet,
 }) async {
   // Floored to the minute: a 1s `now` rebuilds the sheet once a minute.
   final minute = computed(() {
@@ -32,15 +31,7 @@ Future<void> showDayTimelineSheet(
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => SignalBuilder(
-        builder: (_) => DayTimelineSheet(
-          day: day,
-          now: minute.value,
-          formatTime: formatTime,
-          forbidden: forbidden,
-          jumuah: jumuah,
-        ),
-      ),
+      builder: (_) => SignalBuilder(builder: (_) => sheet(minute.value)),
     );
   } finally {
     minute.dispose();
@@ -60,8 +51,13 @@ final class DayTimelineSheet extends StatelessWidget {
     required this.formatTime,
     this.forbidden = const [],
     this.jumuah = false,
+    this.ramadan = false,
     super.key,
   });
+
+  /// Ramadan mode: the "Sahri ends" row is shown (outside Ramadan it would
+  /// be noise a minute before Fajr).
+  final bool ramadan;
 
   /// A Jumu'ah time is set, so Friday's Dhuhr reads "Jumu'ah".
   final bool jumuah;
@@ -87,8 +83,7 @@ final class DayTimelineSheet extends StatelessWidget {
         <
           ({DateTime at, String label, String time, _Tone tone, Prayer? prayer})
         >[
-          // With no safety margin sahri ends at Fajr, already on the rail.
-          if (day.sahriEnd != day.fajr)
+          if (ramadan)
             (
               at: day.sahriEnd,
               label: l10n.sahriEndsLabel,

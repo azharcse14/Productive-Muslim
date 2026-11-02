@@ -156,6 +156,59 @@ void main() {
       expect(t.prayer, Prayer.maghrib);
     });
 
+    test('after isha, before midnight, targets tomorrow\'s sahri end', () {
+      final t = _resolve(DateTime(2026, 6, 12, 22), ramadan: true);
+      expect(t.kind, CountdownKind.sahriEnd);
+      expect(t.prayer, Prayer.fajr);
+      expect(t.at, _day.fajrTomorrow);
+      expect(t.windowStart, _day.isha);
+      // Exactly at isha start too.
+      expect(_resolve(_day.isha, ramadan: true).kind, CountdownKind.sahriEnd);
+      // Outside Ramadan it is still the isha waqt end.
+      expect(_resolve(DateTime(2026, 6, 12, 22)).kind, CountdownKind.waqtEnd);
+    });
+
+    test('after isha the safety margin applies to tomorrow\'s sahri', () {
+      final day = PrayerDay(
+        ishaYesterday: _day.ishaYesterday,
+        fajr: _day.fajr,
+        sunrise: _day.sunrise,
+        dhuhr: _day.dhuhr,
+        asr: _day.asr,
+        maghrib: _day.maghrib,
+        isha: _day.isha,
+        fajrTomorrow: _day.fajrTomorrow,
+        sahriSafety: const Duration(minutes: 10),
+      );
+      final t = resolveCountdownTarget(
+        now: DateTime(2026, 6, 12, 23, 59),
+        day: day,
+        jamaat: JamaatConfig.none,
+        ramadanMode: true,
+      );
+      expect(t.kind, CountdownKind.sahriEnd);
+      expect(t.at, DateTime(2026, 6, 13, 3, 34));
+    });
+
+    test('after isha a future isha jamaat still wins over sahri', () {
+      const jamaat = JamaatConfig({
+        Prayer.isha: OffsetJamaat(Duration(minutes: 15)),
+      });
+      final t = _resolve(
+        DateTime(2026, 6, 12, 20, 20),
+        jamaat: jamaat,
+        ramadan: true,
+      );
+      expect(t.kind, CountdownKind.jamaat);
+      expect(t.prayer, Prayer.isha);
+      final after = _resolve(
+        DateTime(2026, 6, 12, 20, 31),
+        jamaat: jamaat,
+        ramadan: true,
+      );
+      expect(after.kind, CountdownKind.sahriEnd);
+    });
+
     test('morning (post-fajr) Ramadan is normal logic', () {
       final t = _resolve(DateTime(2026, 6, 12, 4), ramadan: true);
       expect(t.kind, CountdownKind.waqtEnd);

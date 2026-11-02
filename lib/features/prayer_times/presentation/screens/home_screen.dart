@@ -397,8 +397,7 @@ final class _HomeScreenState extends State<HomeScreen> {
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
-              if (!_exactAlarms)
-                _section(_exactAlarmBanner(context)),
+              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -561,14 +560,18 @@ final class _HomeScreenState extends State<HomeScreen> {
               onTap: () => unawaited(
                 showDayTimelineSheet(
                   context,
-                  day: day,
                   now: () => _store.now.value,
-                  formatTime: (t) => formatHomeTime(context, t),
-                  jumuah: jumuah,
-                  forbidden: [
-                    for (final w in _store.specialWindows.value)
-                      if (w.kind == SpecialKind.forbidden) w,
-                  ],
+                  sheet: (now) => DayTimelineSheet(
+                    day: _store.prayerDay.value ?? day,
+                    now: now,
+                    formatTime: (t) => formatHomeTime(context, t),
+                    jumuah: _store.jumuahToday.value,
+                    ramadan: _store.ramadanMode.value,
+                    forbidden: [
+                      for (final w in _store.specialWindows.value)
+                        if (w.kind == SpecialKind.forbidden) w,
+                    ],
+                  ),
                 ),
               ),
               child: CountdownCard(
