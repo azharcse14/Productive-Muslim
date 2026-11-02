@@ -111,26 +111,43 @@ final class MuhasabaStore {
     if (await _prefs?.getBool(_welcomeKey) ?? false) {
       welcomeDismissed.value = true;
     }
-    await _repository.seedDefaults();
-    await _reloadItems();
+    // App-scoped store outlives midnight: re-check the day on every resume
+    // (which also retries a failed load or read).
+    _lifecycle ??= AppLifecycleListener(
+      onResume: () => unawaited(rollOverIfNewDay()),
+    );
+    // Without the tracker list there is nothing to show: [loaded] stays
+    // false (screens keep their skeletons) until a resume retries.
+    final seeded = (await _repository.seedDefaults()).isSuccess;
+    if (!seeded || !await _reloadItems()) {
+      return;
+    }
     _day = _today();
     await selectDate(_day!);
     await _loadYesterday();
     await refreshStats();
     loaded.value = true;
-    // App-scoped store outlives midnight: re-check the day on every resume.
-    _lifecycle ??= AppLifecycleListener(
-      onResume: () => unawaited(rollOverIfNewDay()),
-    );
   }
 
   /// Follows the calendar after midnight: if [selectedDate] was "today" it
   /// moves to the new today (a back-filled past date stays put), and the
-  /// dashboard/streak are recomputed. No-op on the same day.
+  /// dashboard/streak are recomputed. On the same day it only retries what
+  /// failed to load earlier.
   Future<void> rollOverIfNewDay() async {
+    if (!loaded.value) {
+      return load();
+    }
     final previous = _day;
     final today = _today();
-    if (previous == null || previous == today) {
+    if (previous == today) {
+      for (final day in {selectedDate.value, today}) {
+        if (!_days.value.containsKey(day)) {
+          await _loadDay(day);
+        }
+      }
+      if (stats.value == null) {
+        await refreshStats();
+      }
       return;
     }
     _day = today;
@@ -149,13 +166,18 @@ final class MuhasabaStore {
     return _loadDay(DateTime(t.year, t.month, t.day - 1));
   }
 
+  /// Reads [day] into the cache. A failed read leaves the day as it was —
+  /// never cached as empty: its values are unknown, and [_setOn] refuses
+  /// writes to an unknown day (a stepper's +1 from a fake 0 would
+  /// overwrite the stored value).
   Future<void> _loadDay(DateTime day) async {
     final before = _days.value[day];
     final result = await _repository.entriesOn(day);
-    final fresh = {
-      for (final e in result.valueOrNull ?? const <DailyEntry>[])
-        e.itemId: e.value,
-    };
+    final list = result.valueOrNull;
+    if (list == null) {
+      return;
+    }
+    final fresh = {for (final e in list) e.itemId: e.value};
     // A _put landed mid-read (the read may predate its write): keep the
     // keys it changed rather than the possibly stale DB values.
     final current = _days.value[day];
@@ -184,9 +206,13 @@ final class MuhasabaStore {
     _days.value = {..._days.value, day: map};
   }
 
-  Future<void> _reloadItems() async {
+  /// False (lists untouched) when the read failed.
+  Future<bool> _reloadItems() async {
     final all = await _repository.items(includeArchived: true);
-    final list = all.valueOrNull ?? const <TrackerItem>[];
+    final list = all.valueOrNull;
+    if (list == null) {
+      return false;
+    }
     items.value = [
       for (final i in list)
         if (!i.archived) i,
@@ -195,6 +221,7 @@ final class MuhasabaStore {
       for (final i in list)
         if (i.archived) i,
     ];
+    return true;
   }
 
   bool get selectedIsToday => selectedDate.value == _today();
@@ -225,9 +252,8 @@ final class MuhasabaStore {
     if (d.isAfter(_today())) {
       return;
     }
-    if (!_days.value.containsKey(d)) {
-      await _loadDay(d);
-    }
+    // [value] came from the caller's view of the day: if that day isn't
+    // loaded, [_setOn] loads it and asks for a retry.
     await _setOn(itemId, d, value, debounceStats: true);
   }
 
@@ -243,6 +269,14 @@ final class MuhasabaStore {
     if (value > 0 &&
         DefaultTrackers.salahIds.contains(itemId) &&
         (_lockedSalahOn?.call(day) ?? const <String>{}).contains(itemId)) {
+      return;
+    }
+    // The day's stored values are unknown (not loaded, or its read
+    // failed), so [value] may be built on a 0 that isn't real: don't write
+    // it. Re-read so the retry starts from the stored value.
+    if (!_days.value.containsKey(day)) {
+      await _loadDay(day);
+      saveFailures.value++;
       return;
     }
     final clamped = value < 0 ? 0 : value;

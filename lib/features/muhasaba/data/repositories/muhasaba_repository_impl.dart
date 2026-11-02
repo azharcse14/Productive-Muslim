@@ -131,14 +131,18 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   Future<Result<void>> setArchived(String id, {required bool archived}) async {
     try {
       if (!archived) {
-        // Seeded dormant (archived without an archived-on day, i.e. a
-        // default added by an update): it starts counting today, not from
-        // the seed day.
+        // A restored item starts counting today, so neither the archived
+        // span nor (for a dormant default added by an update) the days
+        // since the seed count it at 0. A same-day undo has no such gap
+        // and keeps its start.
+        // ponytail: one created/archived span per item, so a restore also
+        // drops the pre-archive days from its completion (entries kept).
+        // Store spans if that history matters.
         await (_db.update(_db.trackerItems)..where(
               (t) =>
                   t.id.equals(id) &
                   t.archived.equals(true) &
-                  t.archivedOn.isNull(),
+                  (t.archivedOn.isNull() | t.archivedOn.isNotValue(_todayCode)),
             ))
             .write(TrackerItemsCompanion(createdOn: Value(_todayCode)));
       }
@@ -146,8 +150,6 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       await (_db.update(_db.trackerItems)..where((t) => t.id.equals(id))).write(
         TrackerItemsCompanion(
           archived: Value(archived),
-          // ponytail: one archived-on day; archive→restore→archive keeps
-          // only the latest span. Store spans if that history matters.
           archivedOn: Value(archived ? _todayCode : null),
         ),
       );
@@ -184,18 +186,22 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   Future<Result<void>> setEntry(DailyEntry entry) async {
     try {
       final code = _encodeDate(entry.date);
-      if (entry.value <= 0) {
-        await (_db.delete(_db.dailyEntries)
-              ..where((t) => t.itemId.equals(entry.itemId))
-              ..where((t) => t.date.equals(code)))
-            .go();
-      } else {
+      // One transaction: drift runs transactions one at a time in call
+      // order, so a quick on→off can't land its delete before the upsert.
+      final archived = await _db.transaction(() async {
+        if (entry.value <= 0) {
+          await (_db.delete(_db.dailyEntries)
+                ..where((t) => t.itemId.equals(entry.itemId))
+                ..where((t) => t.date.equals(code)))
+              .go();
+          return false;
+        }
         final archived =
             await (_db.select(_db.trackerItems)
                   ..where((t) => t.id.equals(entry.itemId) & t.archived))
                 .getSingleOrNull();
         if (archived != null) {
-          return const Result.failure(ArchivedTrackerFailure());
+          return true;
         }
         // Back-filling before the item's creation day means it existed
         // then: move created_on back so that day counts it.
@@ -211,6 +217,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
             value: entry.value,
           ),
         );
+        return false;
+      });
+      if (archived) {
+        return const Result.failure(ArchivedTrackerFailure());
       }
       return const Result.success(null);
     } on Object catch (e) {
