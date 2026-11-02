@@ -417,6 +417,16 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     // bundled file (android/app/src/main/res/raw + iOS bundle) wired via
     // `sound:` on a NEW channel id (Android channels are immutable).
     final beep = item.kind == NotificationKind.azan && item.beepOnly;
+    // Content nudges aren't time-critical: no heads-up, no iOS
+    // time-sensitive break-through (azan, jamaat, sahri, iftar keep it).
+    final daily = switch (item.kind) {
+      NotificationKind.muhasabaEvening ||
+      NotificationKind.dailyReminder ||
+      NotificationKind.dailyAyah ||
+      NotificationKind.dailyHadith => true,
+      _ => false,
+    };
+    final normal = beep || daily;
     final (channelId, channelName, sound) = switch (item.kind) {
       NotificationKind.azan when item.silent => (
         'productive_muslim_silent',
@@ -440,6 +450,15 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         t.keepAliveTitle,
         false,
       ),
+      // Default-importance channel of its own: an existing channel's
+      // importance can't be lowered, so these left 'reminders' (high).
+      _ when daily => (
+        'productive_muslim_daily',
+        t.channelDailyName.isEmpty
+            ? t.channelRemindersName
+            : t.channelDailyName,
+        true,
+      ),
       _ => ('productive_muslim_reminders', t.channelRemindersName, true),
     };
     return NotificationDetails(
@@ -448,10 +467,10 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         channelName,
         importance: quiet
             ? Importance.low
-            : (beep ? Importance.defaultImportance : Importance.high),
+            : (normal ? Importance.defaultImportance : Importance.high),
         priority: quiet
             ? Priority.low
-            : (beep ? Priority.defaultPriority : Priority.high),
+            : (normal ? Priority.defaultPriority : Priority.high),
         playSound: sound,
         enableVibration: !beep,
         category: AndroidNotificationCategory.reminder,
@@ -476,7 +495,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         presentSound: sound,
         interruptionLevel: quiet
             ? InterruptionLevel.passive
-            : beep
+            : normal
             ? InterruptionLevel.active
             : InterruptionLevel.timeSensitive,
       ),

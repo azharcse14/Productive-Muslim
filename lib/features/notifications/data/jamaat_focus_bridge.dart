@@ -1,4 +1,7 @@
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
+import '../../../core/utils/locale_digits.dart';
 
 import '../domain/entities/notification_texts.dart';
 import '../domain/repositories/jamaat_focus_control.dart';
@@ -45,6 +48,9 @@ final class JamaatFocusBridge implements JamaatFocusControl {
             else
               -1,
             w.key,
+            // Session end as the app shows it (app language, city wall
+            // clock): the native lock text uses it over the device's own.
+            if (_endLabel(w.end, texts.localeCode) case final label?) label,
           ],
       ],
       'title': texts.channelFocusName,
@@ -55,6 +61,24 @@ final class JamaatFocusBridge implements JamaatFocusControl {
       'nafs.title': texts.nafsLockTitle,
       'nafs.bodyUntil': texts.nafsLockBodyUntil,
     });
+  }
+
+  /// [end] (wall clock) as the app formats times; null when unknown or the
+  /// locale's date data isn't loaded — native then formats it itself.
+  static String? _endLabel(DateTime? end, String localeCode) {
+    if (end == null || localeCode.isEmpty) {
+      return null;
+    }
+    try {
+      return LocaleDigits.localize(
+        DateFormat.jm(localeCode).format(end),
+        localeCode,
+      );
+    } on ArgumentError {
+      return null;
+    } on Exception {
+      return null; // LocaleDataException: date symbols not initialized
+    }
   }
 
   /// [toWall] converts the native end instant to the location wall clock

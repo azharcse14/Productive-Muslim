@@ -19,6 +19,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -70,6 +71,9 @@ object JamaatFocus {
 
     // kind of the running session: "jamaat" or "nafs" (own texts, always blocks).
     private const val KIND = "kind"
+
+    // The running jamaat session's end as the app shows it (from Dart).
+    private const val UNTIL_LABEL = "untilLabel"
 
     private fun prefs(c: Context): SharedPreferences =
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -163,8 +167,8 @@ object JamaatFocus {
         val w = FocusPlan.running(windows(c), p.getLong("lastStart", 0L), p.getLong("lastKey", 0L))
             ?: return
         val end = if (w.end > 0) w.end else -1L
-        if (end != until) {
-            p.edit().putLong(ACTIVE_UNTIL, end).apply()
+        if (end != until || w.endLabel != p.getString(UNTIL_LABEL, "")) {
+            p.edit().putLong(ACTIVE_UNTIL, end).putString(UNTIL_LABEL, w.endLabel).apply()
             showOngoing(c) // its text names the end time
         }
     }
@@ -182,7 +186,7 @@ object JamaatFocus {
         }
         if (until == 0L) {
             FocusPlan.due(windows(c), now, p.getLong("lastStart", 0L), p.getLong("lastKey", 0L))
-                ?.let { start(c, it.start, it.end, it.key) }
+                ?.let { start(c, it) }
             until = p.getLong(ACTIVE_UNTIL, 0L)
         }
         arm(c, FocusPlan.nextAlarm(windows(c), until, now))
@@ -201,16 +205,18 @@ object JamaatFocus {
         }
     }
 
-    private fun start(c: Context, start: Long, end: Long, key: Long) {
+    private fun start(c: Context, w: FocusPlan.Window) {
         val nm = nm(c)
+        clocks = null // apps installed since the last session count too
         // DND already on (Bedtime, the user's own) is left alone: we neither
         // loosen it nor take it over, so stop() never restores the wrong state.
         val silence = nm.isNotificationPolicyAccessGranted &&
             nm.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
         prefs(c).edit()
-            .putLong(ACTIVE_UNTIL, if (end > 0) end else -1L)
-            .putLong("lastStart", start)
-            .putLong("lastKey", key)
+            .putLong(ACTIVE_UNTIL, if (w.end > 0) w.end else -1L)
+            .putString(UNTIL_LABEL, w.endLabel)
+            .putLong("lastStart", w.start)
+            .putLong("lastKey", w.key)
             .putString(KIND, "jamaat")
             .putBoolean("sessionStrict", prefs(c).getBoolean("strict", false))
             .putBoolean("silenced", silence)
@@ -238,7 +244,8 @@ object JamaatFocus {
                 p.getInt("prevFilter", NotificationManager.INTERRUPTION_FILTER_ALL)
             )
         }
-        p.edit().putLong(ACTIVE_UNTIL, 0L).putBoolean("silenced", false).remove(KIND).apply()
+        p.edit().putLong(ACTIVE_UNTIL, 0L).putBoolean("silenced", false).remove(KIND)
+            .remove(UNTIL_LABEL).apply()
         nm.cancel(NOTIFICATION_ID)
         JamaatFocusActivity.current?.get()?.finish()
         JamaatFocusService.current?.get()?.syncShake()
@@ -248,9 +255,11 @@ object JamaatFocus {
     fun lockNafs(c: Context) {
         if (isActive(c) || !nafsEnabled(c) || !blockingAvailable(c)) return
         val minutes = prefs(c).getInt("nafsMinutes", 5).coerceAtLeast(1)
+        clocks = null
         prefs(c).edit()
             .putLong(ACTIVE_UNTIL, System.currentTimeMillis() + minutes * 60_000L)
             .putString(KIND, "nafs")
+            .remove(UNTIL_LABEL) // Dart can't know a shake's end: formatted here
             .putBoolean("sessionStrict", true)
             .putBoolean("silenced", false)
             .apply()
@@ -315,7 +324,9 @@ object JamaatFocus {
     fun body(c: Context): String {
         val until = prefs(c).getLong(ACTIVE_UNTIL, 0L)
         return if (until > 0) {
-            text(c, "bodyUntil").replace("{time}", DateFormat.getTimeFormat(c).format(Date(until)))
+            val time = prefs(c).getString(UNTIL_LABEL, "").orEmpty()
+                .ifEmpty { DateFormat.getTimeFormat(c).format(Date(until)) }
+            text(c, "bodyUntil").replace("{time}", time)
         } else {
             text(c, "body")
         }
@@ -368,6 +379,11 @@ object JamaatFocus {
     }
 
     fun showLock(c: Context) {
+        // A call's screen is never covered (any dialer or OEM in-call UI);
+        // the next app switch after the call brings the cover back.
+        if (FocusPlan.inCall((c.getSystemService(Context.AUDIO_SERVICE) as AudioManager).mode)) {
+            return
+        }
         try {
             c.startActivity(
                 Intent(c, JamaatFocusActivity::class.java)
@@ -378,7 +394,7 @@ object JamaatFocus {
         }
     }
 
-    // Installed apps rarely change mid-process: resolve once.
+    // Resolved once per session (start() clears it), not per window event.
     private var clocks: Set<String>? = null
 
     /**
