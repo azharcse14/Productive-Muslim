@@ -47,11 +47,19 @@ final class HadithSectionsScreen extends StatelessWidget {
     if (number == null || !context.mounted) {
       return;
     }
-    final section = sections.where((s) => s.holds(number)).firstOrNull;
-    if (section == null) {
+    final matches = sections.where((s) => s.holds(number)).toList();
+    if (matches.isEmpty) {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.hadithNumberNotFound)),
       );
+      return;
+    }
+    // Lettered variants can span chapters (Sahih Muslim 274a–k in one,
+    // 274l–m in another): let the user pick instead of hiding the rest.
+    final section = matches.length == 1
+        ? matches.single
+        : await _pickSection(context, number, matches);
+    if (section == null || !context.mounted) {
       return;
     }
     unawaited(
@@ -62,6 +70,58 @@ final class HadithSectionsScreen extends StatelessWidget {
             section: section,
             focusNumber: number,
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<HadithSection?> _pickSection(
+    BuildContext context,
+    int number,
+    List<HadithSection> matches,
+  ) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return showModalBottomSheet<HadithSection>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                QSpace.s5,
+                QSpace.s5,
+                QSpace.s5,
+                QSpace.s2,
+              ),
+              child: Text(
+                sheetContext.l10n.hadithNumberInChapters(
+                  LocaleDigits.localize('$number', languageCode),
+                ),
+                style: QType.title.copyWith(color: sheetContext.q.ink),
+              ),
+            ),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final section in matches)
+                    ListTile(
+                      leading: Text(
+                        LocaleDigits.localize(
+                          '${section.number}',
+                          languageCode,
+                        ),
+                      ),
+                      title: Text(section.name),
+                      onTap: () => Navigator.of(sheetContext).pop(section),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

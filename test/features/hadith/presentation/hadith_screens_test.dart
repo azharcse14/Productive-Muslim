@@ -316,6 +316,81 @@ void main() {
       expect(find.text('Muslim 9'), findsNothing);
     });
 
+    testWidgets('a number split across chapters lets the user pick one', (
+      tester,
+    ) async {
+      // Sahih Muslim 274a–k sit in one chapter, 274l–m in a later one.
+      const split = HadithBook(
+        id: 'muslim',
+        en: 'Sahih Muslim',
+        bn: '',
+        author: 'Imam Muslim',
+        kind: 'sahih',
+        total: 7563,
+        editionAr: 'ara-muslim',
+        editionEn: 'eng-muslim',
+        editionBn: 'ben-muslim',
+        sections: [
+          HadithSection(
+            number: 2,
+            name: 'Purification',
+            first: 1,
+            last: 9,
+            refs: [(223, 274)],
+          ),
+          HadithSection(
+            number: 3,
+            name: 'Menstruation',
+            first: 10,
+            last: 19,
+            refs: [(275, 300)],
+          ),
+          HadithSection(
+            number: 4,
+            name: 'Prayers',
+            first: 20,
+            last: 29,
+            refs: [(274, 274)],
+          ),
+        ],
+      );
+      await _register();
+      await tester.pumpWidget(_app(const HadithSectionsScreen(book: split)));
+
+      Future<void> goTo(String number) async {
+        await tester.tap(find.byTooltip('Go to hadith number'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), number);
+        await tester.tap(find.text('Go'));
+        await tester.pumpAndSettle();
+      }
+
+      await goTo('274');
+      expect(find.text('Hadith 274 is split across chapters'), findsOneWidget);
+      expect(find.byType(HadithSectionScreen), findsNothing);
+      await tester.tap(find.widgetWithText(ListTile, 'Prayers'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<HadithSectionScreen>(find.byType(HadithSectionScreen))
+            .section
+            .name,
+        'Prayers',
+      );
+
+      // A number in one chapter still opens directly.
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await goTo('280');
+      expect(
+        tester
+            .widget<HadithSectionScreen>(find.byType(HadithSectionScreen))
+            .section
+            .name,
+        'Menstruation',
+      );
+    });
+
     testWidgets('a failed fetch shows the retry affordance', (tester) async {
       await _register(failSection: true);
       await tester.pumpWidget(

@@ -67,44 +67,51 @@ void main() {
     ];
     for (final id in ids) {
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
-            ['ara-$id']),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
+          'ara-$id',
+        ]),
         greaterThan(0),
         reason: 'ara-$id missing',
       );
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
-            ['eng-$id']),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
+          'eng-$id',
+        ]),
         greaterThan(0),
         reason: 'eng-$id missing',
       );
     }
   });
 
-  test('Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
-      () {
-    final ar = blob(
-      'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
-      ['ara-bukhari'],
-    );
-    expect(ar, isNotEmpty);
-    final first = (ar.first as Map)['t'] as String;
-    expect(first.trim(), isNotEmpty);
-    expect((ar.first as Map)['n'], 1); // first hadith number
+  test(
+    'Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
+    () {
+      final ar = blob(
+        'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
+        ['ara-bukhari'],
+      );
+      expect(ar, isNotEmpty);
+      final first = (ar.first as Map)['t'] as String;
+      expect(first.trim(), isNotEmpty);
+      expect((ar.first as Map)['n'], 1); // first hadith number
 
-    expect(
-      scalar('SELECT COUNT(*) FROM hadith_bn_section '
-          'WHERE book_id = ? AND section = 1', ['bukhari']),
-      greaterThan(0),
-    );
-  });
+      expect(
+        scalar(
+          'SELECT COUNT(*) FROM hadith_bn_section '
+          'WHERE book_id = ? AND section = 1',
+          ['bukhari'],
+        ),
+        greaterThan(0),
+      );
+    },
+  );
 
   test('catalog section counts match the hadith actually bundled', () {
-    final catalog = jsonDecode(
-      File('assets/data/hadith_books.json').readAsStringSync(),
-    ) as Map<String, dynamic>;
-    for (final book in (catalog['books'] as List<dynamic>)
-        .cast<Map<String, dynamic>>()) {
+    final catalog =
+        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final book
+        in (catalog['books'] as List<dynamic>).cast<Map<String, dynamic>>()) {
       final sections = [
         for (final s in book['sections'] as List<dynamic>)
           ('hadith_section', 'edition', book['edition_ar'], s),
@@ -114,8 +121,10 @@ void main() {
       for (final (table, keyColumn, key, s) in sections) {
         final section = s as Map<String, dynamic>;
         expect(
-          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?',
-              [key, section['n']]).length,
+          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?', [
+            key,
+            section['n'],
+          ]).length,
           section['count'],
           reason: '$table $key §${section['n']}',
         );
@@ -192,9 +201,7 @@ void main() {
         );
         final expected = <int>{
           for (final h in data.cast<Map<String, dynamic>>())
-            int.tryParse(
-                  leading.stringMatch(h['r'] as String? ?? '') ?? '',
-                ) ??
+            int.tryParse(leading.stringMatch(h['r'] as String? ?? '') ?? '') ??
                 h['n'] as int,
         };
         final listed = <int>{
@@ -234,27 +241,43 @@ void main() {
           : {for (final h in decodeEditionBlob(data)) h.referenceNumber};
     }
 
-    test('every bundled number opens a chapter that contains it', () {
-      for (final book in books) {
-        for (final lang in ['en', 'bn']) {
-          final bn = book.usesBanglaSource(lang);
-          final sections = book.sectionsFor(lang);
-          final held = [for (final s in sections) numbersIn(book, s, bn)];
-          for (final numbers in held) {
-            for (final n in numbers) {
-              // Same first-match rule as HadithSectionsScreen._goToNumber.
-              final i = sections.indexWhere((s) => s.holds(n));
-              expect(
-                i >= 0 && held[i].contains(n),
-                isTrue,
-                reason:
-                    '${book.id} $lang: $n opens '
-                    '${i < 0 ? 'nothing' : 'section ${sections[i].number}'}',
-              );
+    test(
+      'every chapter holding a number is offered for it, and only those',
+      () {
+        for (final book in books) {
+          for (final lang in ['en', 'bn']) {
+            final bn = book.usesBanglaSource(lang);
+            final sections = book.sectionsFor(lang);
+            final held = [for (final s in sections) numbersIn(book, s, bn)];
+            for (final numbers in held) {
+              for (final n in numbers) {
+                // Same rule as HadithSectionsScreen._goToNumber: every section
+                // that holds(n) is offered (chooser when more than one).
+                final offered = [
+                  for (var i = 0; i < sections.length; i++)
+                    if (sections[i].holds(n)) i,
+                ];
+                final containing = [
+                  for (var i = 0; i < sections.length; i++)
+                    if (held[i].contains(n)) i,
+                ];
+                expect(
+                  offered,
+                  containing,
+                  reason:
+                      '${book.id} $lang: $n offers sections '
+                      '${[for (final i in offered) sections[i].number]}',
+                );
+              }
             }
           }
         }
-      }
+      },
+    );
+
+    test('Sahih Muslim 274 offers both chapters holding its variants', () {
+      final muslim = books.firstWhere((b) => b.id == 'muslim');
+      expect(muslim.sections.where((s) => s.holds(274)).length, 2);
     });
 
     test('Tirmidhi 2160 opens the chapter that holds it', () {

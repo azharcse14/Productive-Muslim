@@ -16,6 +16,7 @@ final class _GatedRepo implements QuranRepository {
   final stored = <int>{};
   Completer<void>? readGate;
   final writes = <Completer<bool>>[];
+  bool failLastRead = false;
 
   @override
   Future<Result<List<Surah>>> surahs() async {
@@ -47,8 +48,9 @@ final class _GatedRepo implements QuranRepository {
   }
 
   @override
-  Future<Result<void>> setLastRead(QuranPosition position) async =>
-      const Result.success(null);
+  Future<Result<void>> setLastRead(QuranPosition position) async => failLastRead
+      ? const Result.failure(UnexpectedFailure('write failed'))
+      : const Result.success(null);
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async =>
@@ -105,5 +107,12 @@ void main() {
     // DB: the failed add never happened, the remove flipped it → {7}.
     expect(repo.stored, {7});
     expect(store.bookmarks.value, {7});
+  });
+
+  test('a failed last-read save rolls memory back', () async {
+    await store.markRead(const QuranPosition(2, 200));
+    repo.failLastRead = true;
+    await store.markRead(const QuranPosition(108, 3));
+    expect(store.lastRead.value, const QuranPosition(2, 200));
   });
 }

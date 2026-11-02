@@ -3089,6 +3089,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithNumberNotFound => 'এই কিতাবে এই নম্বরের কোনো হাদিস নেই';
 
   @override
+  String hadithNumberInChapters(String number) {
+    return '$number নম্বর হাদিস একাধিক অধ্যায়ে আছে';
+  }
+
+  @override
   String hadithGradeWord(String word) {
     String _temp0 = intl.Intl.selectLogic(word, {
       'sahih': 'সহিহ',
@@ -3105,6 +3110,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'munkar': 'মুনকার',
       'mawdu': 'জাল',
       'mutawatir': 'মুতাওয়াতির',
+      'agreed': 'মুত্তাফাকুন',
+      'upon': 'আলাইহি',
+      'mursal': 'মুরসাল',
+      'matn': 'মতন',
+      'sanad': 'সনদ',
+      'batil': 'বাতিল',
+      'malool': 'মা\'লুল',
       'other': '—',
     });
     return '$_temp0';

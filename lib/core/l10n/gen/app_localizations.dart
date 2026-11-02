@@ -4580,10 +4580,16 @@ abstract class AppLocalizations {
   /// **'No hadith with that number in this book'**
   String get hadithNumberNotFound;
 
+  /// Title of the sheet to pick a chapter when one hadith number's variants span several chapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith {number} is split across chapters'**
+  String hadithNumberInChapters(String number);
+
   /// One word of an English-source hadith grade; other{—} means pass the word through unchanged.
   ///
   /// In en, this message translates to:
-  /// **'{word, select, sahih{Sahih} hasan{Hasan} daif{Da\'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} other{—}}'**
+  /// **'{word, select, sahih{Sahih} hasan{Hasan} daif{Da\'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} agreed{Agreed} upon{Upon} mursal{Mursal} matn{Matn} sanad{Sanad} batil{Batil} malool{Malool} other{—}}'**
   String hadithGradeWord(String word);
 
   /// No description provided for @fastingSaveFailed.

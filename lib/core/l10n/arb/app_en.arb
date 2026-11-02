@@ -1456,7 +1456,14 @@
   "hadithGoToNumber": "Go to hadith number",
   "hadithNumberHint": "Hadith number",
   "hadithNumberNotFound": "No hadith with that number in this book",
-  "hadithGradeWord": "{word, select, sahih{Sahih} hasan{Hasan} daif{Da'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} other{—}}",
+  "hadithNumberInChapters": "Hadith {number} is split across chapters",
+  "@hadithNumberInChapters": {
+    "description": "Title of the sheet to pick a chapter when one hadith number's variants span several chapters.",
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "hadithGradeWord": "{word, select, sahih{Sahih} hasan{Hasan} daif{Da'if} very{Very} isnaad{Isnaad} mauquf{Mauquf} muquf{Mauquf} maqtu{Maqtu} lighairihi{li-Ghayrihi} hadith{Hadith} shadh{Shadh} munkar{Munkar} mawdu{Mawdu} mutawatir{Mutawatir} agreed{Agreed} upon{Upon} mursal{Mursal} matn{Matn} sanad{Sanad} batil{Batil} malool{Malool} other{—}}",
   "@hadithGradeWord": {
     "description": "One word of an English-source hadith grade; other{—} means pass the word through unchanged.",
     "placeholders": {

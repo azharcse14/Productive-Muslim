@@ -3104,6 +3104,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hadithNumberNotFound => 'No hadith with that number in this book';
 
   @override
+  String hadithNumberInChapters(String number) {
+    return 'Hadith $number is split across chapters';
+  }
+
+  @override
   String hadithGradeWord(String word) {
     String _temp0 = intl.Intl.selectLogic(word, {
       'sahih': 'Sahih',
@@ -3120,6 +3125,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'munkar': 'Munkar',
       'mawdu': 'Mawdu',
       'mutawatir': 'Mutawatir',
+      'agreed': 'Agreed',
+      'upon': 'Upon',
+      'mursal': 'Mursal',
+      'matn': 'Matn',
+      'sanad': 'Sanad',
+      'batil': 'Batil',
+      'malool': 'Malool',
       'other': '—',
     });
     return '$_temp0';
