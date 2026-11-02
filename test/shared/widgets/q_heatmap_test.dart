@@ -5,9 +5,9 @@ import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
 import 'package:productive_muslim/shared/widgets/q_heatmap.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-  theme: AppTheme.light(),
-  home: Scaffold(body: Center(child: child)),
-);
+      theme: AppTheme.light(),
+      home: Scaffold(body: Center(child: child)),
+    );
 
 void main() {
   group('QHeatmap', () {
@@ -25,9 +25,8 @@ void main() {
       expect(find.byType(QHeatmapCell), findsNWidgets(14));
     });
 
-    testWidgets('level 0 is surface-2 — neutral, never a shame color', (
-      tester,
-    ) async {
+    testWidgets('level 0 is surface-2 — neutral, never a shame color',
+        (tester) async {
       late BuildContext ctx;
       await tester.pumpWidget(
         _wrap(
@@ -61,11 +60,9 @@ void main() {
           ),
         ),
       );
-      expect(
-        QHeatmapCell.colorFor(ctx, 4),
-        ProductiveMuslimColors.light.primary,
-      );
+      expect(QHeatmapCell.colorFor(ctx, 4), ProductiveMuslimColors.light.primary);
     });
+
     testWidgets('a tap in a gap picks the nearest cell; cells keep labels', (
       tester,
     ) async {
