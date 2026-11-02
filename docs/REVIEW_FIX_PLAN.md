@@ -437,3 +437,22 @@ Write a short design for each in the report. Don't implement until approved.
 - Tests added; `flutter test` count before → after; `flutter analyze` result
 - Manual QA still needed
 - Open questions, and anything in this plan that turned out to be wrong
+
+---
+
+## UI review follow-ups — 2026-11-02
+
+The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and `fix/ui-features-b`, all merged into `master`. What is still open:
+
+- [ ] **Full `flutter test` on merged master.** Each feature branch passed the full suite, but nobody has run it on the merge result. The merge was urgent, so only `flutter analyze` and the l10n diff were checked.
+- [ ] **Home dua-of-the-day transliteration.** In `prayer_times/presentation/screens/home_screen.dart`, pass `transliteration: dua.transliterationFor(code)` to `DuaOfDayCard` so the screen reader gets a `semanticsLabel`.
+- [ ] **Ruqyah categories still use `MaterialPageRoute`.** Add a named route in `app_router.dart` and use `context.pushNamed`.
+- [ ] **Remove dead ARB keys.** `muhasabaIconOption` and `muhasabaColorOption` are no longer used; delete them from en and bn.
+- [ ] **Owner to confirm these behaviour changes:**
+  - The calendar screen's side padding went from 20dp to 12dp, to get 48dp day cells.
+  - `QCard`'s default padding went from 18 to 20.
+  - The lock screen now shows "Biometric unavailable" even when the user cancels the biometric prompt.
+  - The prayer table puts the time range on a second line when text is scaled above 1.3x.
+- [ ] **Manual QA.** No device run has been done yet. Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
+- [ ] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
+- [ ] **Muhasaba Today swipe.** The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
