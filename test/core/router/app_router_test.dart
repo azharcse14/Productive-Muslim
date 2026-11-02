@@ -127,6 +127,28 @@ void main() {
       expect(find.text('Quran'), findsNWidgets(2));
     });
 
+    testHomeWidgets('system back on a tab root returns to Home, not exit',
+        (tester) async {
+      final router = buildRouter();
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Quran'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/quran');
+      // true = handled in-app (the OS would exit on false).
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/home');
+    });
+
     testHomeWidgets('tab state persists across switches (indexed stack)',
         (tester) async {
       await tester.pumpWidget(_app());

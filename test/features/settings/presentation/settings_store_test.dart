@@ -58,6 +58,8 @@ void main() {
       expect(store.settings.value.themeMode, AppThemeMode.light);
       expect(repo.stored.localeCode, 'bn');
       expect(repo.stored.themeMode, AppThemeMode.light);
+      // Only the unpersisted change counted as a failure.
+      expect(store.saveFailures.value, 1);
     });
 
     test('load pulls persisted settings into the signal', () async {

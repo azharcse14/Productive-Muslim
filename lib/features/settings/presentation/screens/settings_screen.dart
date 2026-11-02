@@ -52,10 +52,31 @@ final class _SettingsScreenState extends State<SettingsScreen> {
       onResume: () => unawaited(_refreshPermission()),
     );
     unawaited(_refreshPermission());
+    _watchSaveFailures();
+  }
+
+  EffectCleanup? _stopSaveWatch;
+
+  /// Snackbar per failed save, from the topmost settings screen only.
+  void _watchSaveFailures() {
+    var seen = _store.saveFailures.peek();
+    _stopSaveWatch = effect(() {
+      final failures = _store.saveFailures.value;
+      if (failures == seen) {
+        return;
+      }
+      seen = failures;
+      if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      }
+    });
   }
 
   @override
   void dispose() {
+    _stopSaveWatch?.call();
     _lifecycle.dispose();
     super.dispose();
   }

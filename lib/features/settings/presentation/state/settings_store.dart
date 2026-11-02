@@ -22,6 +22,10 @@ final class SettingsStore {
   late final settings = signal(const AppSettings());
   late final loaded = signal(false);
 
+  /// Bumped whenever a change fails to persist, so open settings screens
+  /// can say so (setters are mostly fire-and-forget).
+  late final saveFailures = signal(0);
+
   /// Storage couldn't be read: [settings] holds defaults, not the user's
   /// data, so saving them would clobber whatever is stored.
   bool _readFailed = false;
@@ -127,9 +131,17 @@ final class SettingsStore {
 
   /// Applies [change] to the current settings and saves. [change] is a
   /// function, not a value, so a change made while storage was unreadable
-  /// can be replayed onto the real settings once they load. Fails when the
-  /// change couldn't be persisted.
+  /// can be replayed onto the real settings once they load. Fails (and
+  /// bumps [saveFailures]) when the change couldn't be persisted.
   Future<Result<void>> _update(AppSettings Function(AppSettings) change) async {
+    final result = await _apply(change);
+    if (!result.isSuccess) {
+      saveFailures.value++;
+    }
+    return result;
+  }
+
+  Future<Result<void>> _apply(AppSettings Function(AppSettings) change) async {
     if (_readFailed) {
       // Retry the read first so [change] lands on the user's settings,
       // not on the defaults kept after the failed load.

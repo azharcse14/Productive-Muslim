@@ -77,7 +77,8 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
       // notification grant, while the user is already saying yes.
       if (status == NotificationPermission.granted &&
           defaultTargetPlatform == TargetPlatform.android &&
-          !await _scheduler.canScheduleExactAlarms()) {
+          !await _scheduler.canScheduleExactAlarms() &&
+          await _primeExactAlarms()) {
         await _scheduler.requestExactAlarmPermission();
       }
     } finally {
@@ -94,6 +95,34 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     }
     _go(_step + 1);
+  }
+
+  /// Says why the system "Alarms & reminders" page is about to open,
+  /// instead of jumping there unannounced. True to go on.
+  Future<bool> _primeExactAlarms() async {
+    if (!mounted) {
+      return false;
+    }
+    final l10n = context.l10n;
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: const Icon(Icons.alarm_outlined),
+        title: Text(l10n.onboardingExactAlarmTitle),
+        content: Text(l10n.onboardingExactAlarmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.onboardingNotifSkip),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.notifExactAlarmCta),
+          ),
+        ],
+      ),
+    );
+    return go ?? false;
   }
 
   Future<void> _finish() async {
@@ -351,20 +380,50 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     child: SignalBuilder(
       builder: (context) {
         final location = _settings.location.value;
+        final l10n = context.l10n;
+        final chevron = Icon(Icons.chevron_right, color: context.q.ink3);
+        // Both paths on the step; the picker runs either (GPS fallbacks,
+        // city search) so the logic lives in one place.
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             QCard(
               padding: const EdgeInsets.symmetric(
                 horizontal: QSpace.s4,
                 vertical: QSpace.s2,
               ),
-              child: QListRow(
-                icon: Icons.place_outlined,
-                title: locationLabel(location, context.l10n),
-                subtitle: context.l10n.locationPrimingBody,
-                trailing: Icon(Icons.chevron_right, color: context.q.ink3),
-                onTap: () => context.pushNamed(Routes.locationPicker.name),
+              child: Column(
+                children: [
+                  QListRow(
+                    icon: Icons.my_location_outlined,
+                    title: l10n.locationUseGps,
+                    subtitle: l10n.locationUseGpsSub,
+                    trailing: chevron,
+                    onTap: () => context.pushNamed(
+                      Routes.locationPicker.name,
+                      queryParameters: const {'gps': '1'},
+                    ),
+                  ),
+                  QListRow(
+                    icon: Icons.search,
+                    title: l10n.locationChooseCity,
+                    trailing: chevron,
+                    onTap: () => context.pushNamed(Routes.locationPicker.name),
+                  ),
+                ],
               ),
+            ),
+            if (location != null) ...[
+              const SizedBox(height: QSpace.s3),
+              QBanner(
+                text: locationLabel(location, l10n),
+                icon: Icons.place_outlined,
+              ),
+            ],
+            const SizedBox(height: QSpace.s3),
+            Text(
+              l10n.locationPrimingBody,
+              style: QType.caption.copyWith(color: context.q.ink2),
             ),
           ],
         );

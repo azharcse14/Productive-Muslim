@@ -187,6 +187,7 @@ final class NotificationController {
           _lastRunAt = _now();
           _lastGrants = grants;
           _plan.value = plan;
+          _failed.value = false;
           _scheduledUntil.value = plan
               .where((i) => i.kind != NotificationKind.keepAlive)
               .lastOrNull

@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -705,6 +706,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifSettingsTitle => 'Notifications';
 
   @override
+  String get notifSettingsScreenTitle => 'Notification settings';
+
+  @override
   String get notifOffInSystem => 'Off in system settings';
 
   @override
@@ -720,6 +724,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifExactAlarmCta => 'Allow exact alarms';
+
+  @override
+  String get onboardingExactAlarmTitle => 'One more permission';
+
+  @override
+  String get onboardingExactAlarmBody =>
+      'So azan arrives at the exact minute, Android needs \"Alarms & reminders\" allowed. On the next screen, switch it on for Productive Muslim, then come back.';
 
   @override
   String get notifBatteryHint =>
@@ -813,7 +824,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifDailyDuaBody => 'Today\'s dua is ready — tap to read it.';
 
   @override
-  String get notificationsTitle => 'Notifications';
+  String get notificationsTitle => 'Upcoming notifications';
+
+  @override
+  String get notifRescheduleFailed =>
+      'Couldn\'t schedule your notifications, so reminders may not arrive. Please try again.';
 
   @override
   String get notificationsEmptyTitle => 'No notifications';
@@ -1530,18 +1545,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday':
-          'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
-      'whiteDays':
-          'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
-      'ashura':
-          'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
-      'arafah':
-          'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
-      'dhulHijjah':
-          'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
-      'shawwal':
-          'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
+      'mondayThursday': 'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
+      'whiteDays': 'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
+      'ashura': 'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
+      'arafah': 'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
+      'dhulHijjah': 'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
+      'shawwal': 'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
     });
     return '$_temp0';
@@ -3544,9 +3553,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get focusSilenceDisclosureBody =>
       'Productive Muslim uses Do Not Disturb access only for jamaat focus: to silence the phone when a session starts and restore your previous setting when it ends. It does not read, collect or share your notifications.';
-
-  @override
-  String get notifRescheduleFailed => 'Couldn\'t schedule reminders';
 
   @override
   String get bookmarkRemoveTooltip => 'Remove bookmark';

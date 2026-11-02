@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -702,6 +703,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifSettingsTitle => 'নোটিফিকেশন';
 
   @override
+  String get notifSettingsScreenTitle => 'নোটিফিকেশন সেটিংস';
+
+  @override
   String get notifOffInSystem => 'সিস্টেম সেটিংসে বন্ধ';
 
   @override
@@ -717,6 +721,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get notifExactAlarmCta => 'এক্সাক্ট অ্যালার্ম অনুমতি দিন';
+
+  @override
+  String get onboardingExactAlarmTitle => 'আরেকটি অনুমতি';
+
+  @override
+  String get onboardingExactAlarmBody =>
+      'আজান যেন ঠিক মিনিটে আসে, সেজন্য অ্যান্ড্রয়েডে \"অ্যালার্ম ও রিমাইন্ডার\" অনুমতি দিতে হয়। পরের স্ক্রিনে প্রোডাক্টিভ মুসলিমের জন্য এটি চালু করে ফিরে আসুন।';
 
   @override
   String get notifBatteryHint =>
@@ -810,7 +821,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notifDailyDuaBody => 'আজকের দোয়া প্রস্তুত — পড়তে ট্যাপ করুন।';
 
   @override
-  String get notificationsTitle => 'নোটিফিকেশন';
+  String get notificationsTitle => 'আসন্ন নোটিফিকেশন';
+
+  @override
+  String get notifRescheduleFailed =>
+      'নোটিফিকেশন নির্ধারণ করা যায়নি, তাই রিমাইন্ডার নাও আসতে পারে। আবার চেষ্টা করুন।';
 
   @override
   String get notificationsEmptyTitle => 'কোনো নোটিফিকেশন নেই';
@@ -1521,16 +1536,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday':
-          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays':
-          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura':
-          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah':
-          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'dhulHijjah': 'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',
@@ -3527,9 +3538,6 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get focusSilenceDisclosureBody =>
       'Productive Muslim ডু নট ডিস্টার্ব অ্যাক্সেস শুধু জামাত ফোকাসের জন্য ব্যবহার করে: সেশন শুরু হলে ফোন সাইলেন্ট করতে আর শেষ হলে আগের সেটিং ফিরিয়ে দিতে। আপনার নোটিফিকেশন পড়া, সংগ্রহ বা শেয়ার করা হয় না।';
-
-  @override
-  String get notifRescheduleFailed => 'রিমাইন্ডার নির্ধারণ করা যায়নি';
 
   @override
   String get bookmarkRemoveTooltip => 'বুকমার্ক সরান';
