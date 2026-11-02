@@ -151,4 +151,16 @@ class FocusPlanTest {
         assertEquals(w(5_000, 6_000), FocusPlan.running(windows, 5_000, 0))
         assertNull(FocusPlan.running(windows, 4_000, 0))
     }
+
+    @Test
+    fun anEndedOrUnrecordedSessionMustStop() {
+        // Past its end (end alarm lost to a force-stop): stop, restoring DND.
+        assertTrue(FocusPlan.mustStop(until = 2_000, silenced = true, now = 2_000))
+        assertFalse(FocusPlan.mustStop(until = 2_000, silenced = true, now = 1_999))
+        // No session recorded but DND still ours: restore it.
+        assertTrue(FocusPlan.mustStop(until = 0, silenced = true, now = 1_000))
+        assertFalse(FocusPlan.mustStop(until = 0, silenced = false, now = 1_000))
+        // Until the user ends it: never on its own.
+        assertFalse(FocusPlan.mustStop(until = -1, silenced = true, now = Long.MAX_VALUE))
+    }
 }

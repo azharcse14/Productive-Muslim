@@ -176,7 +176,7 @@ object JamaatFocus {
         val now = System.currentTimeMillis()
         val p = prefs(c)
         var until = p.getLong(ACTIVE_UNTIL, 0L)
-        if (until > 0 && now >= until) {
+        if (FocusPlan.mustStop(until, p.getBoolean("silenced", false), now)) {
             stop(c)
             until = 0L
         }
@@ -186,6 +186,19 @@ object JamaatFocus {
             until = p.getLong(ACTIVE_UNTIL, 0L)
         }
         arm(c, FocusPlan.nextAlarm(windows(c), until, now))
+    }
+
+    /**
+     * Process start (app open, boot, app update). A force-stop cancels the
+     * end alarm and the ongoing notification while DND stays on: end a
+     * session that is over (restoring DND), else re-arm its end and re-post
+     * the notification.
+     */
+    fun resume(c: Context) {
+        tick(c)
+        if (prefs(c).getLong(ACTIVE_UNTIL, 0L) != 0L) {
+            showOngoing(c)
+        }
     }
 
     private fun start(c: Context, start: Long, end: Long, key: Long) {
@@ -202,7 +215,7 @@ object JamaatFocus {
             .putBoolean("sessionStrict", prefs(c).getBoolean("strict", false))
             .putBoolean("silenced", silence)
             .putInt("prevFilter", nm.currentInterruptionFilter)
-            .apply()
+            .commit() // on disk before DND goes on: a kill can't orphan it
         if (silence) {
             nm.setInterruptionFilter(SILENT)
         }
@@ -399,8 +412,10 @@ class JamaatFocusReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == JamaatFocus.ACTION_END) {
             JamaatFocus.end(context)
-        } else {
+        } else if (intent.action == JamaatFocus.ACTION_TICK) {
             JamaatFocus.tick(context)
+        } else {
+            JamaatFocus.resume(context) // boot / app update
         }
     }
 }

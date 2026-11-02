@@ -75,6 +75,7 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
     }
     scheduled[id] = notificationDetails;
     titles[id] = title;
+    pending.add(id);
   }
 
   // No platform implementation: exact alarms read as allowed.
@@ -252,36 +253,94 @@ void main() {
     () async {
       // GPS: the device zone moves Dhaka (+6) → Bangkok (+7) between runs.
       final clock = _ShiftClock(const Duration(hours: 6));
+      var now = DateTime.now().toUtc();
       LocalNotificationsScheduler build() => LocalNotificationsScheduler(
         clock: clock,
         currentLocation: () => const GpsLocation(latitude: 0, longitude: 0),
         formatTime: (_) => '',
         plugin: plugin,
+        now: () => now,
       );
-      await build().reschedule([azan(Prayer.fajr)], _texts);
-      // A Dhaka azan due in 20 min: on Bangkok's clock it would look
-      // 40 min overdue and survive the 1h grace.
+      final dhakaNow = clock.instantAt(_dhaka, now);
+      // A Dhaka azan due 5 min after the second run: on Bangkok's clock
+      // it would look 55 min overdue and survive the 1h grace.
       final oldAzan = NotificationItem(
         kind: NotificationKind.azan,
         prayer: Prayer.maghrib,
-        at: clock.nowAt(_dhaka).add(const Duration(minutes: 20)),
+        at: dhakaNow.add(const Duration(minutes: 20)),
       );
-      // Due 10 min ago in Dhaka, not fired yet: the grace still keeps it.
+      // Due 10 min before the second run, not fired yet: the grace keeps it.
       final justDue = NotificationItem(
         kind: NotificationKind.azan,
         prayer: Prayer.asr,
-        at: clock.nowAt(_dhaka).subtract(const Duration(minutes: 10)),
+        at: dhakaNow.add(const Duration(minutes: 5)),
       );
-      plugin.pending.addAll([oldAzan.id, justDue.id]);
+      await build().reschedule([oldAzan, justDue], _texts);
+      now = now.add(const Duration(minutes: 15));
       clock.offset = const Duration(hours: 7);
 
-      // A fresh instance: the planned offset survives a cold start.
+      // A fresh instance: the fire times survive a cold start.
       await build().reschedule([azan(Prayer.isha)], _texts);
 
       expect(plugin.cancelled, contains(oldAzan.id));
       expect(plugin.pending, contains(justDue.id));
     },
   );
+
+  group('across a DST change (America/New_York)', () {
+    const newYork = ManualCityLocation(
+      City(
+        name: 'New York',
+        countryCode: 'US',
+        latitude: 40.7128,
+        longitude: -74.006,
+        timezone: 'America/New_York',
+      ),
+    );
+    late DateTime now;
+    LocalNotificationsScheduler build() => LocalNotificationsScheduler(
+      clock: TimezoneClock(),
+      currentLocation: () => newYork,
+      formatTime: (_) => '',
+      plugin: plugin,
+      now: () => now,
+    );
+
+    test('fall-back: a switched-off azan still due is cancelled', () async {
+      // Sat 23:00 EDT (-4); clocks fall back Sun 02:00 → 01:00 EST (-5).
+      now = DateTime.utc(2026, 11, 1, 3);
+      final fajr = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.fajr,
+        at: DateTime(2026, 11, 1, 5, 50), // EST = 10:50 UTC
+      );
+      await build().reschedule([fajr], _texts);
+
+      // Sun 05:10 EST: the user switches Fajr's azan off.
+      now = DateTime.utc(2026, 11, 1, 10, 10);
+      await build().reschedule([], _texts);
+
+      expect(plugin.cancelled, contains(fajr.id));
+    });
+
+    test('spring-forward: a just-due alarm is left to fire', () async {
+      // Sat 23:00 EST (-5); clocks spring forward Sun 02:00 → 03:00 EDT.
+      now = DateTime.utc(2026, 3, 8, 4);
+      final fajr = NotificationItem(
+        kind: NotificationKind.azan,
+        prayer: Prayer.fajr,
+        at: DateTime(2026, 3, 8, 6), // EDT = 10:00 UTC
+      );
+      await build().reschedule([fajr], _texts);
+
+      // Sun 06:10 EDT: due 10 min ago, deferred by Android, not fired yet.
+      now = DateTime.utc(2026, 3, 8, 10, 10);
+      await build().reschedule([], _texts);
+
+      expect(plugin.cancelled, isNot(contains(fajr.id)));
+      expect(plugin.pending, contains(fajr.id));
+    });
+  });
 
   test(
     'one failing item still schedules the rest; only all-failed fails',

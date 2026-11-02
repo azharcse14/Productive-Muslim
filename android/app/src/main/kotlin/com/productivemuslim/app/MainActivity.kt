@@ -16,6 +16,8 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // Jamaat focus: undo a session a force-stop left running (DND on).
+        JamaatFocus.resume(this)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             channelName
