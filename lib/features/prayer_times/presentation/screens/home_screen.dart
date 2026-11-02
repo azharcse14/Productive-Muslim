@@ -98,6 +98,11 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// Android 12+: false while exact alarms are denied (azan may run late).
   bool _exactAlarms = true;
 
+  /// The exact-alarm banner was closed. Session-only: persisting it needs a
+  /// settings field (settings feature).
+  // ponytail: session-only dismiss; add an AppSettings flag to persist it.
+  bool _exactAlarmDismissed = false;
+
   /// The 1s tick runs only while the app is shown AND Home is on screen
   /// (not under another shell tab or a pushed route).
   bool _appShown = true;
@@ -381,19 +386,23 @@ final class _HomeScreenState extends State<HomeScreen> {
             final compact = MediaQuery.sizeOf(context).height < 700;
             final locale = Localizations.localeOf(context);
             final location = _store.location.value;
-            final sahriIftar = _section(_sahriIftarSection(context, day));
-            // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
-            // sits right under the countdown; otherwise under the table.
-            // After iftar the card is about tomorrow's fast.
             final ramadan = _store.sahriInRamadan.value;
-            // Outside Ramadan sahri/iftar only matters on a day being fasted.
+            // Outside Ramadan and not fasting: a compact row.
             final fasting =
                 ramadan ||
                 (_fasting?.isLogged(_store.sahriFastDay.value) ?? false);
+            final sahriIftar = _section(
+              _sahriIftarSection(context, day, compact: !fasting),
+            );
+            // Ramadan (offset-aware): sahri/iftar is the day's focus, so it
+            // sits right under the countdown; otherwise under the table.
+            // After iftar the card is about tomorrow's fast.
+            // Always shown (design brief): compact unless fasting.
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
-              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
+              if (!_exactAlarms && !_exactAlarmDismissed)
+                _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -403,7 +412,7 @@ final class _HomeScreenState extends State<HomeScreen> {
               // by the times they qualify, not below the fold.
               if (shows(HomeCard.specialTimes))
                 _section(_specialTimesSection(context)),
-              if (!ramadan && fasting) sahriIftar,
+              if (!ramadan) sahriIftar,
               if (shows(HomeCard.muhasaba)) _section(_muhasabaSection(context)),
               if (_quran case final quran? when shows(HomeCard.continueReading))
                 _section(_continueReadingSection(context, quran, locale)),
@@ -607,23 +616,20 @@ final class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Shown while Android denies exact alarms; tapping opens the OS consent.
-  Widget _exactAlarmBanner(BuildContext context) => Semantics(
-    button: true,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => unawaited(
-        _scheduler?.requestExactAlarmPermission().then(
-          (_) => _checkExactAlarms(),
-        ),
-      ),
-      child: QBanner(
-        text: context.l10n.prayerTimesExactAlarmBanner,
-        icon: Icons.alarm_outlined,
-        tone: context.q.warnSoft,
-        foreground: context.q.warn,
+  /// Shown while Android denies exact alarms: a button opens the OS
+  /// consent; × hides it for this session.
+  Widget _exactAlarmBanner(BuildContext context) => QBanner(
+    text: context.l10n.prayerTimesExactAlarmBanner,
+    icon: Icons.alarm_outlined,
+    tone: context.q.warnSoft,
+    foreground: context.q.warn,
+    actionLabel: context.l10n.notifExactAlarmCta,
+    onAction: () => unawaited(
+      _scheduler?.requestExactAlarmPermission().then(
+        (_) => _checkExactAlarms(),
       ),
     ),
+    onDismiss: () => setState(() => _exactAlarmDismissed = true),
   );
 
   /// Tools hub: shortcuts to features that aren't a bottom-nav tab and
@@ -636,6 +642,7 @@ final class _HomeScreenState extends State<HomeScreen> {
         QuickAction(
           icon: Icons.mosque_outlined,
           label: l10n.nearbyMosquesLabel,
+          externalHint: l10n.nearbyMosquesHint,
           onTap: () => _openNearbyMosques(context),
         ),
         QuickAction(
@@ -743,7 +750,11 @@ final class _HomeScreenState extends State<HomeScreen> {
 
   /// Before iftar: today's sahri end and iftar. After: tonight's sahri
   /// alone — today's iftar has passed and tomorrow's isn't computed here.
-  Widget _sahriIftarSection(BuildContext context, PrayerDay day) {
+  Widget _sahriIftarSection(
+    BuildContext context,
+    PrayerDay day, {
+    required bool compact,
+  }) {
     final sahri = _store.nextSahriEnd.value ?? day.sahriEnd;
     final tonight = sahri != day.sahriEnd;
     return SahriIftarCard(
@@ -752,6 +763,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           : context.l10n.sahriEndsLabel,
       sahriEnd: formatHomeTime(context, sahri),
       iftar: tonight ? null : formatHomeTime(context, day.iftar),
+      compact: compact,
     );
   }
 

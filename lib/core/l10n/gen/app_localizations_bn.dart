@@ -493,6 +493,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get setJamaat => 'জামাতের সময় সেট করুন';
 
   @override
+  String get editJamaat => 'জামাতের সময় বদলান';
+
+  @override
   String get switchMosqueTitle => 'জামাতের মসজিদ';
 
   @override
@@ -933,6 +936,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
+
+  @override
+  String get qiblaRetry => 'আবার চেষ্টা করুন';
 
   @override
   String qiblaVerbalBearing(String degrees, String cardinal) {
@@ -2618,11 +2624,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'পরবর্তী নামাজ';
 
   @override
-  String get nearbyMosquesLabel => 'মসজিদ';
+  String get nearbyMosquesLabel => 'কাছের মসজিদ';
+
+  @override
+  String get nearbyMosquesHint => 'ম্যাপে খুলবে';
 
   @override
   String get nearbyMosquesLaunchError =>
-      'ম্যাপ খোলা গেল না। একটি ম্যাপ অ্যাপ ইনস্টল আছে কিনা দেখুন।';
+      'ম্যাপ খোলা গেল না। একটি ম্যাপ অ্যাপ ইনস্টল আছে কিনা বা ইন্টারনেট চালু আছে কিনা দেখুন।';
 
   @override
   String get nearbyMosquesLocationError =>
@@ -2996,7 +3005,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get prayerTimesExactAlarmBanner =>
-      'আজান দেরিতে আসতে পারে। সঠিক সময়ের অ্যালার্ম চালু করতে ট্যাপ করুন।';
+      'সঠিক সময়ের অ্যালার্ম ছাড়া আজান দেরিতে আসতে পারে।';
 
   @override
   String qiblaCompassPoint(String point) {
@@ -3379,6 +3388,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get mosqueLoadError =>
       'আপনার মসজিদগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get mosqueRetry => 'আবার চেষ্টা করুন';
+
+  @override
+  String jamaatCleared(String prayer) {
+    return '$prayer-এর জামাতের সময় সরানো হয়েছে';
+  }
 
   @override
   String get jamaatOffsetHint => 'ওয়াক্ত শুরুর কত মিনিট পর (১–৬০)';

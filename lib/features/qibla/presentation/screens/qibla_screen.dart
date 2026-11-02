@@ -111,6 +111,12 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                         _digits(context, bearing.round().toString()),
                         _point(context, bearing),
                       ),
+                action: QButton(
+                  label: l10n.qiblaRetry,
+                  icon: Icons.refresh,
+                  kind: QButtonKind.tonal,
+                  onPressed: _store.retry,
+                ),
               ),
               QiblaStatus.calibrating || QiblaStatus.ready => Column(
                 children: [

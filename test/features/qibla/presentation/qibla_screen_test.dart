@@ -28,6 +28,16 @@ final class _ErrorSensors implements CompassSensorSource {
   Stream<SensorVectors> vectors() => Stream.error(StateError('no sensor'));
 }
 
+/// Errors on the first subscription, then works (never emits).
+final class _FlakySensors implements CompassSensorSource {
+  int subscriptions = 0;
+
+  @override
+  Stream<SensorVectors> vectors() => ++subscriptions == 1
+      ? Stream.error(StateError('no sensor'))
+      : const Stream.empty();
+}
+
 final class _InMemoryRepo implements SettingsRepository {
   _InMemoryRepo(this.stored);
 
@@ -130,6 +140,20 @@ void main() {
       // Verbal fallback mentions the bearing degrees from north.
       expect(find.textContaining('from north'), findsOneWidget);
       expect(find.byType(CompassDial), findsNothing);
+    });
+
+    testWidgets('"Try again" re-subscribes after a sensor failure', (
+      tester,
+    ) async {
+      final sensors = _FlakySensors();
+      await _register(withLocation: true, sensors: sensors);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text('Try again'), findsOneWidget);
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      expect(sensors.subscriptions, 2);
+      expect(find.byType(CompassDial), findsOneWidget);
     });
   });
 }

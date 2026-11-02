@@ -497,6 +497,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setJamaat => 'Set jamaat time';
 
   @override
+  String get editJamaat => 'Edit jamaat';
+
+  @override
   String get switchMosqueTitle => 'Jamaat mosque';
 
   @override
@@ -937,6 +940,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qiblaSensorUnavailable =>
       'Compass sensor unavailable on this device';
+
+  @override
+  String get qiblaRetry => 'Try again';
 
   @override
   String qiblaVerbalBearing(String degrees, String cardinal) {
@@ -2625,11 +2631,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'Next prayer';
 
   @override
-  String get nearbyMosquesLabel => 'Mosques';
+  String get nearbyMosquesLabel => 'Nearby mosques';
+
+  @override
+  String get nearbyMosquesHint => 'Opens in Maps';
 
   @override
   String get nearbyMosquesLaunchError =>
-      'Couldn\'t open Maps. Make sure a maps app is installed.';
+      'Couldn\'t open Maps. Make sure a maps app is installed or you\'re online.';
 
   @override
   String get nearbyMosquesLocationError =>
@@ -3010,7 +3019,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prayerTimesExactAlarmBanner =>
-      'Azan may arrive late. Tap to allow exact alarms.';
+      'Azan may arrive late without exact alarms.';
 
   @override
   String qiblaCompassPoint(String point) {
@@ -3396,6 +3405,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mosqueLoadError =>
       'Couldn\'t load your mosques. Please try again.';
+
+  @override
+  String get mosqueRetry => 'Try again';
+
+  @override
+  String jamaatCleared(String prayer) {
+    return '$prayer jamaat removed';
+  }
 
   @override
   String get jamaatOffsetHint => 'Minutes after waqt starts (1–60)';

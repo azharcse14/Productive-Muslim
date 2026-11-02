@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
@@ -111,6 +112,72 @@ void main() {
     expect(find.bySemanticsLabel('Mark Asr as prayed'), findsNothing);
     expect(find.bySemanticsLabel('Mark Dhuhr as prayed'), findsOneWidget);
     handle.dispose();
+  });
+
+  testWidgets('foot CTA reads "Edit jamaat" once any jamaat is set', (
+    tester,
+  ) async {
+    Widget table(Map<Prayer, DateTime> jamaat) => MaterialApp(
+      theme: AppTheme.light(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: PrayerTable(
+          day: _day,
+          activePrayer: null,
+          jamaatTimes: jamaat,
+          formatTime: (t) => '${t.hour}:${t.minute}',
+          onSetJamaat: () {},
+        ),
+      ),
+    );
+    await tester.pumpWidget(table(const {}));
+    expect(find.text('Set jamaat time'), findsOneWidget);
+    await tester.pumpWidget(table({Prayer.fajr: DateTime(2026, 6, 12, 4)}));
+    expect(find.text('Edit jamaat'), findsOneWidget);
+    expect(find.text('Set jamaat time'), findsNothing);
+  });
+
+  testWidgets('dense rows keep a 48dp minimum height', (tester) async {
+    await pump(tester, dense: true);
+    final row = find.ancestor(
+      of: find.text('Fajr'),
+      matching: find.byType(GestureDetector),
+    );
+    expect(tester.getSize(row.first).height, greaterThanOrEqualTo(48));
+  });
+
+  testWidgets('a long Bangla name at large text stays on one line', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('bn'),
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: Scaffold(
+            body: PrayerTable(
+              day: _day,
+              activePrayer: null,
+              jamaatTimes: const {},
+              formatTime: (t) => '',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final name = tester.renderObject<RenderParagraph>(find.text('মাগরিব'));
+    final lines = name
+        .getBoxesForSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 'মাগরিব'.length),
+        )
+        .map((box) => box.top)
+        .toSet();
+    expect(lines, hasLength(1));
   });
 
   testWidgets('labels are localized (bn)', (tester) async {

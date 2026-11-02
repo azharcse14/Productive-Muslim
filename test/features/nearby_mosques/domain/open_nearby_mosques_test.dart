@@ -7,9 +7,12 @@ import 'package:productive_muslim/features/settings/domain/repositories/location
 import 'package:productive_muslim/features/settings/domain/usecases/get_current_location.dart';
 
 final class _FakeLauncher implements ExternalLauncher {
-  _FakeLauncher({this.result = true});
+  _FakeLauncher({this.result = true, this.geo = true});
 
   final bool result;
+
+  /// Whether a `geo:` URI is accepted (false: no maps app, e.g. iOS).
+  final bool geo;
   Uri? launched;
   int launches = 0;
 
@@ -17,7 +20,7 @@ final class _FakeLauncher implements ExternalLauncher {
   Future<bool> launch(Uri uri) async {
     launches++;
     launched = uri;
-    return result;
+    return result && (geo || uri.scheme != 'geo');
   }
 }
 
@@ -57,7 +60,7 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(repo.called, isFalse, reason: 'saved location short-circuits GPS');
-      expect(launcher.launched.toString(), contains('@23.78,90.41'));
+      expect(launcher.launched.toString(), 'geo:23.78,90.41?q=mosque');
     });
 
     test('falls back to a live GPS fix when no location is saved', () async {
@@ -75,7 +78,7 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(repo.called, isTrue);
-      expect(launcher.launched.toString(), contains('@21.42,39.82'));
+      expect(launcher.launched.toString(), 'geo:21.42,39.82?q=mosque');
     });
 
     test('propagates the location failure when GPS cannot resolve', () async {
@@ -112,6 +115,24 @@ void main() {
       final result = await usecase();
 
       expect(result.fold((_) => null, (f) => f), isA<MapsLaunchFailed>());
+    });
+
+    test('falls back to the web URL when no app takes geo:', () async {
+      final launcher = _FakeLauncher(geo: false);
+      final usecase = OpenNearbyMosques(
+        currentLocation: () => const GpsLocation(latitude: 1, longitude: 2),
+        getCurrentLocation: GetCurrentLocation(
+          _FakeLocationRepository(const Result.failure(LocationUnavailable())),
+        ),
+        launcher: launcher,
+      );
+
+      final result = await usecase();
+
+      expect(result.isSuccess, isTrue);
+      expect(launcher.launches, 2);
+      expect(launcher.launched!.scheme, 'https');
+      expect(launcher.launched.toString(), contains('@1,2,15z'));
     });
 
     test('a repeat call while one is in flight joins it', () async {

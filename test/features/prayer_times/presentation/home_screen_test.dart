@@ -20,6 +20,7 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_prof
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/screens/home_screen.dart';
@@ -159,6 +160,24 @@ final class _OneHadithRepo implements HadithRepository {
   ]);
 }
 
+/// Exact alarms denied until requested; nothing else is used by Home.
+final class _DeniedAlarmsScheduler implements NotificationScheduler {
+  bool granted = false;
+  int requests = 0;
+
+  @override
+  Future<bool> canScheduleExactAlarms() async => granted;
+
+  @override
+  Future<void> requestExactAlarmPermission() async {
+    requests++;
+    granted = true;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 /// Tall viewport so the whole (lazy) home list is laid out at once.
 void _tall(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 5000);
@@ -185,6 +204,44 @@ void main() {
       await tester.pump();
       expect(find.text('Where are you?'), findsOneWidget);
       expect(find.text('Set location'), findsOneWidget);
+    });
+
+    testHomeWidgets('exact-alarm banner has a visible button and a dismiss', (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      final scheduler = _DeniedAlarmsScheduler();
+      GetIt.I.registerSingleton<NotificationScheduler>(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      const banner = 'Azan may arrive late without exact alarms.';
+      expect(find.text(banner), findsOneWidget);
+      await tester.tap(find.text('Allow exact alarms'));
+      await tester.pump();
+      await tester.pump();
+      expect(scheduler.requests, 1);
+      expect(find.text(banner), findsNothing);
+
+      // Denied again: × hides it for the session.
+      scheduler.granted = false;
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text(banner), findsOneWidget);
+      await tester.tap(find.byTooltip('Close'));
+      await tester.pump();
+      expect(find.text(banner), findsNothing);
+    });
+
+    testHomeWidgets('nearby mosques action says it opens Maps', (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      final row = tester.widget<QuickActionsRow>(find.byType(QuickActionsRow));
+      final mosques = row.actions.first;
+      expect(mosques.label, 'Nearby mosques');
+      expect(mosques.externalHint, 'Opens in Maps');
+      expect(find.byIcon(Icons.open_in_new), findsOneWidget);
     });
 
     testHomeWidgets("with a Jumu'ah time, Friday's Dhuhr reads Jumu'ah", (
@@ -250,8 +307,11 @@ void main() {
       // placeholder and the table carries a single "Set jamaat" CTA at its foot.
       expect(find.text('—'), findsNWidgets(5));
       expect(find.text('Set jamaat time'), findsOneWidget);
-      // Outside Ramadan and not fasting: no sahri/iftar card.
-      expect(find.byType(SahriIftarCard, skipOffstage: false), findsNothing);
+      // Outside Ramadan and not fasting: still shown, as a compact row.
+      final meal = tester.widget<SahriIftarCard>(
+        find.byType(SahriIftarCard, skipOffstage: false),
+      );
+      expect(meal.compact, isTrue);
     });
 
     testHomeWidgets('shows the next special window as one compact row', (
@@ -481,9 +541,10 @@ void main() {
         await tester.pump();
         expect(find.text('JAMAAT IN'), findsOneWidget);
         // Fajr + Maghrib have a jamaat time; the other 3 rows (dhuhr/asr/isha)
-        // show the em-dash placeholder. The "Set jamaat" CTA stays at the foot.
+        // show the em-dash placeholder. The foot CTA now reads "Edit jamaat".
         expect(find.text('—'), findsNWidgets(3));
-        expect(find.text('Set jamaat time'), findsOneWidget);
+        expect(find.text('Set jamaat time'), findsNothing);
+        expect(find.text('Edit jamaat'), findsOneWidget);
         // Maghrib got the default +5 offset from addProfile.
         expect(find.textContaining('4:30'), findsWidgets);
       },
@@ -540,6 +601,11 @@ void main() {
         await tester.pumpWidget(_app());
         await tester.pump();
         final table = tester.getRect(find.byType(PrayerTable));
+        // A fasted day gets the full card, not the compact row.
+        expect(
+          tester.widget<SahriIftarCard>(find.byType(SahriIftarCard)).compact,
+          isFalse,
+        );
         final meal = tester.getRect(find.byType(SahriIftarCard));
         final muhasaba = tester.getRect(find.byType(HomeMuhasabaCard));
         expect(meal.top, greaterThan(table.bottom));

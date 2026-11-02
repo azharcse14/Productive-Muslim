@@ -71,6 +71,8 @@ final class PrayerJamaatCard extends StatelessWidget {
           // large text scales.
           const SizedBox(height: QSpace.s2),
           QSegControl(
+            // Five cards share these options: say which prayer.
+            semanticsPrefix: l10n.prayerLabel(prayer),
             options: [
               l10n.jamaatModeNone,
               l10n.jamaatModeOffset,
@@ -130,31 +132,38 @@ final class PrayerJamaatCard extends StatelessWidget {
                         : null,
                   ),
                   // ±5 nudges; tapping the value types an exact minute.
-                  InkWell(
-                    borderRadius: BorderRadius.circular(QRadius.sm),
-                    onTap: () async {
-                      final picked = await showNumberDialog(
-                        context,
-                        title: stepperLabel,
-                        hint: l10n.jamaatOffsetHint,
-                        actionLabel: l10n.save,
-                        max: _maxOffset,
-                        initial: offset.inMinutes,
-                      );
-                      if (picked != null) {
-                        _setOffset(picked);
-                      }
-                    },
-                    child: SizedBox(
-                      width: 64,
-                      height: QTouch.minTarget,
-                      child: Center(
-                        child: Text(
-                          l10n.minutesShort(offset.inMinutes),
-                          textAlign: TextAlign.center,
-                          style: QType.num_(
-                            QType.label,
-                          ).copyWith(color: q.primary),
+                  Semantics(
+                    button: true,
+                    label:
+                        '$stepperLabel: ${l10n.minutesShort(offset.inMinutes)}',
+                    hint: l10n.jamaatOffsetHint,
+                    excludeSemantics: true,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(QRadius.sm),
+                      onTap: () async {
+                        final picked = await showNumberDialog(
+                          context,
+                          title: stepperLabel,
+                          hint: l10n.jamaatOffsetHint,
+                          actionLabel: l10n.save,
+                          max: _maxOffset,
+                          initial: offset.inMinutes,
+                        );
+                        if (picked != null) {
+                          _setOffset(picked);
+                        }
+                      },
+                      child: SizedBox(
+                        width: 64,
+                        height: QTouch.minTarget,
+                        child: Center(
+                          child: Text(
+                            l10n.minutesShort(offset.inMinutes),
+                            textAlign: TextAlign.center,
+                            style: QType.num_(
+                              QType.label,
+                            ).copyWith(color: q.primary),
+                          ),
                         ),
                       ),
                     ),

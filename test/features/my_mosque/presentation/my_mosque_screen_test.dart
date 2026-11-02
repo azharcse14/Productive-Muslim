@@ -121,6 +121,58 @@ void main() {
       );
     });
 
+    testWidgets('choosing None clears the jamaat with an undo', (tester) async {
+      await register(
+        const MosqueState(
+          profiles: [
+            MosqueProfile(
+              id: 'a',
+              name: 'Home',
+              entries: {Prayer.fajr: OffsetJamaat(Duration(minutes: 20))},
+            ),
+          ],
+          activeId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('None').first); // fajr row
+      await tester.pump();
+      expect(
+        repo.stored.profiles.single.entries[Prayer.fajr],
+        const NoJamaat(),
+      );
+      expect(find.text('Fajr jamaat removed'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1)); // snackbar in
+      await tester.tap(find.text('Undo'));
+      await tester.pump();
+      expect(
+        repo.stored.profiles.single.entries[Prayer.fajr],
+        const OffsetJamaat(Duration(minutes: 20)),
+      );
+    });
+
+    testWidgets('mode segments and the minute value name their prayer', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await register(
+        const MosqueState(
+          profiles: [
+            MosqueProfile(
+              id: 'a',
+              name: 'Home',
+              entries: {Prayer.asr: OffsetJamaat(Duration(minutes: 10))},
+            ),
+          ],
+          activeId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      expect(find.bySemanticsLabel('Fajr: None'), findsOneWidget);
+      expect(find.bySemanticsLabel('Asr Jamaat: 10 min'), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('jamaat card: Maghrib offset defaults to +5, steps by 5', (
       tester,
     ) async {

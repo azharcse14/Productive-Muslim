@@ -21,5 +21,10 @@ void main() {
       final uri = NearbyMosquesUrl.build(latitude: -1.5, longitude: 100.0);
       expect(uri.toString(), contains('@-1.5,100,15z'));
     });
+
+    test('geo: form searches mosques at the coordinate', () {
+      final uri = NearbyMosquesUrl.buildGeo(latitude: -1.5, longitude: 100.0);
+      expect(uri.toString(), 'geo:-1.5,100?q=mosque');
+    });
   });
 }

@@ -112,6 +112,29 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
       );
   }
 
+  /// "None" wipes a fixed time or offset in one tap, so offer a brief undo.
+  void _setEntry(MosqueProfile profile, Prayer prayer, JamaatEntry entry) {
+    final previous = profile.entries[prayer] ?? const NoJamaat();
+    unawaited(_store.setEntry(profile.id, prayer, entry));
+    if (entry is! NoJamaat || previous is NoJamaat) {
+      return;
+    }
+    final l10n = context.l10n;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.jamaatCleared(l10n.prayerLabel(prayer))),
+          persist: false,
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () =>
+                unawaited(_store.setEntry(profile.id, prayer, previous)),
+          ),
+        ),
+      );
+  }
+
   Future<void> _deleteProfile(MosqueProfile profile) async {
     final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
@@ -124,7 +147,12 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(l10n.cancel),
           ),
+          // Destructive: error-colored.
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(l10n.delete),
           ),
@@ -257,7 +285,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
           if (_store.readFailed.value) {
             return QErrorRetry(
               message: l10n.mosqueLoadError,
-              retryLabel: l10n.hadithRetry,
+              retryLabel: l10n.mosqueRetry,
               onRetry: () => unawaited(_store.load()),
             );
           }
@@ -330,8 +358,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                       active.entries[prayer] ?? const NoJamaat(),
                     ),
                     formatTime: (t) => _formatTime(context, t),
-                    onChanged: (entry) =>
-                        unawaited(_store.setEntry(active.id, prayer, entry)),
+                    onChanged: (entry) => _setEntry(active, prayer, entry),
                     onPickTime: () => unawaited(_pickFixedTime(active, prayer)),
                   ),
                   const SizedBox(height: QSpace.s3),

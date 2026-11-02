@@ -171,7 +171,12 @@ final class PrayerTable extends StatelessWidget {
                 ),
             ],
             if (onSetJamaat != null)
-              _SetJamaatButton(dense: dense, onTap: onSetJamaat!),
+              _SetJamaatButton(
+                dense: dense,
+                // Once any jamaat is set the CTA edits rather than sets.
+                label: jamaatTimes.isEmpty ? l10n.setJamaat : l10n.editJamaat,
+                onTap: onSetJamaat!,
+              ),
           ],
         ),
       ),
@@ -264,9 +269,14 @@ final class _SunriseRow extends StatelessWidget {
           const SizedBox(width: 10),
           SizedBox(
             width: dense ? 64 : 84,
-            child: Text(
-              context.l10n.sunriseLabel,
-              style: QType.caption.copyWith(color: q.ink3),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                context.l10n.sunriseLabel,
+                maxLines: 1,
+                style: QType.caption.copyWith(color: q.ink3),
+              ),
             ),
           ),
           Expanded(
@@ -286,9 +296,14 @@ final class _SunriseRow extends StatelessWidget {
 /// A single centered "Set jamaat" CTA pinned to the foot of the table
 /// (replaces the per-row affordance) → opens the My Mosque jamaat editor.
 final class _SetJamaatButton extends StatelessWidget {
-  const _SetJamaatButton({required this.dense, required this.onTap});
+  const _SetJamaatButton({
+    required this.dense,
+    required this.label,
+    required this.onTap,
+  });
 
   final bool dense;
+  final String label;
   final VoidCallback onTap;
 
   @override
@@ -308,7 +323,7 @@ final class _SetJamaatButton extends StatelessWidget {
             Icon(Icons.more_time, size: 17, color: q.primary),
             const SizedBox(width: 7),
             Text(
-              context.l10n.setJamaat,
+              label,
               style: QType.titleSm.copyWith(
                 fontSize: dense ? 13 : 14,
                 color: q.primary,
@@ -377,7 +392,8 @@ final class _PrayerRow extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Container(
-          constraints: BoxConstraints(minHeight: dense ? 40 : 54),
+          // Dense still keeps the 48dp minimum touch target.
+          constraints: BoxConstraints(minHeight: dense ? QTouch.minTarget : 54),
           // End inset is reduced by the check's 11dp hit-box overhang.
           padding: EdgeInsetsDirectional.only(
             start: dense ? 12 : 16,
@@ -397,12 +413,21 @@ final class _PrayerRow extends StatelessWidget {
               const SizedBox(width: 10),
               SizedBox(
                 width: dense ? 64 : 84,
-                child: Text(
-                  name,
-                  style: QType.titleSm.copyWith(
-                    fontSize: dense ? 13.5 : null,
-                    color: fg ?? q.ink,
-                    fontVariations: [FontVariation('wght', active ? 700 : 600)],
+                // Shrinks (never wraps) long names, e.g. Bangla at a large
+                // text scale.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    name,
+                    maxLines: 1,
+                    style: QType.titleSm.copyWith(
+                      fontSize: dense ? 13.5 : null,
+                      color: fg ?? q.ink,
+                      fontVariations: [
+                        FontVariation('wght', active ? 700 : 600),
+                      ],
+                    ),
                   ),
                 ),
               ),
