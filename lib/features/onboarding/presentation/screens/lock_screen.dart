@@ -94,8 +94,16 @@ final class _LockScreenState extends State<LockScreen> {
   }
 
   Future<void> _biometric() async {
-    if (await _store.unlockWithBiometric(context.l10n.appLockBiometricReason)) {
-      _verified();
+    final l10n = context.l10n;
+    try {
+      if (await _store.unlockWithBiometric(l10n.appLockBiometricReason)) {
+        _verified();
+      }
+    } on Object catch (e) {
+      debugPrint('lock screen biometric: $e');
+      if (mounted) {
+        setState(() => _error = l10n.appLockStorageError);
+      }
     }
   }
 

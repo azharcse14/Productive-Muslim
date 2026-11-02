@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
+    show TargetPlatform, debugPrint, defaultTargetPlatform;
 import 'package:flutter/widgets.dart'
     show AppLifecycleListener, AppLifecycleState;
 import 'package:signals_flutter/signals_flutter.dart';
@@ -258,8 +258,7 @@ final class AppLockStore {
     try {
       final ok = await _source.verify(pin);
       if (ok) {
-        await _resetThrottle();
-        locked.value = false;
+        await _unlock();
         return true;
       }
       _failedAttempts++;
@@ -281,8 +280,7 @@ final class AppLockStore {
     }
     final ok = await _duringAuth(() => _biometric.authenticate(reason));
     if (ok) {
-      await _resetThrottle();
-      locked.value = false;
+      await _unlock();
     }
     return ok;
   }
@@ -339,6 +337,18 @@ final class AppLockStore {
         }
       }
       _awayDuringAuth = false;
+    }
+  }
+
+  /// Proven owner: unlock before saving, so a storage error can't leave
+  /// the user shut out. A failed write keeps the old persisted count —
+  /// stricter after a restart, never looser — so it is only logged.
+  Future<void> _unlock() async {
+    locked.value = false;
+    try {
+      await _resetThrottle();
+    } on Object catch (e) {
+      debugPrint('app lock: throttle reset not saved: $e');
     }
   }
 

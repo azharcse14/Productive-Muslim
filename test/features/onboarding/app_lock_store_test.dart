@@ -62,6 +62,43 @@ final class _PromptingBiometric extends _FakeBiometric {
   }
 }
 
+/// Real prefs storage whose throttle writes fail once [failWrites] is set.
+final class _FlakyStorage implements AppLockStorage {
+  final _inner = AppLockDataSource(SharedPreferencesAsync());
+  bool failWrites = false;
+
+  @override
+  Future<({bool enabled, bool biometric})> read() => _inner.read();
+
+  @override
+  Future<void> enable(String pin, {required bool biometric}) =>
+      _inner.enable(pin, biometric: biometric);
+
+  @override
+  Future<bool> verify(String pin) => _inner.verify(pin);
+
+  @override
+  Future<void> disable() => _inner.disable();
+
+  @override
+  Future<({int failedAttempts, DateTime? lockedUntil})> readThrottle() =>
+      _inner.readThrottle();
+
+  @override
+  Future<void> writeThrottle({
+    required int failedAttempts,
+    required DateTime? lockedUntil,
+  }) {
+    if (failWrites) {
+      throw StateError('disk full');
+    }
+    return _inner.writeThrottle(
+      failedAttempts: failedAttempts,
+      lockedUntil: lockedUntil,
+    );
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -433,6 +470,28 @@ void main() {
       await restarted.load();
       // Clamped to the 30s this attempt count earns, not a year.
       expect(restarted.cooldownRemaining(), const Duration(seconds: 30));
+    });
+
+    test('a failed throttle reset still unlocks (PIN and biometric), and '
+        'the persisted count survives', () async {
+      final storage = _FlakyStorage();
+      final store = AppLockStore(storage, _FakeBiometric(), now: () => clock);
+      await store.enable('1234', biometric: true);
+      await store.load();
+      await store.unlockWithPin('0000');
+      storage.failWrites = true;
+      expect(await store.unlockWithPin('1234'), isTrue);
+      expect(store.locked.value, isFalse);
+
+      final fresh = AppLockStore(storage, _FakeBiometric(), now: () => clock);
+      await fresh.load();
+      expect(await fresh.unlockWithBiometric('reason'), isTrue);
+      expect(fresh.locked.value, isFalse);
+      // The unsaved reset never loosens throttling after a restart.
+      storage.failWrites = false;
+      final restarted = AppLockStore(storage, _FakeBiometric());
+      await restarted.load();
+      expect(restarted.attemptsBeforeCooldown, AppLockStore.freeAttempts - 1);
     });
 
     test('a correct PIN resets the attempt count', () async {

@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/onboarding/data/app_lock_data_source.dart';
+import 'package:productive_muslim/features/onboarding/domain/repositories/app_lock_repository.dart';
 import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,8 +44,48 @@ Future<void> _enter(WidgetTester tester, String pin) async {
   }
 }
 
+/// Biometric hardware whose prompt fails with a platform error.
+final class _BrokenBiometric implements BiometricAuth {
+  @override
+  Future<bool> canAuthenticate() async => true;
+
+  @override
+  Future<bool> authenticate(String reason) =>
+      Future.error(StateError('sensor gone'));
+
+  @override
+  Future<bool> canUseDeviceLock() async => true;
+
+  @override
+  Future<bool> authenticateWithDeviceLock(String reason) async => false;
+}
+
 void main() {
   tearDown(() => GetIt.I.reset());
+
+  testWidgets('a failing biometric prompt explains instead of throwing', (
+    tester,
+  ) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final store = AppLockStore(
+      AppLockDataSource(SharedPreferencesAsync()),
+      _BrokenBiometric(),
+    );
+    await tester.runAsync(() async {
+      await store.enable('1234', biometric: true);
+      await store.load();
+    });
+    GetIt.I.registerSingleton<AppLockStore>(store);
+    await tester.pumpWidget(_app());
+    await tester.pump(); // fires the auto biometric prompt
+    await tester.pump();
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('lock-message'))).data,
+      lookupAppLocalizations(const Locale('en')).appLockStorageError,
+    );
+    expect(store.locked.value, isTrue);
+  });
 
   testWidgets('throttled: shows remaining time and ignores digits', (
     tester,
