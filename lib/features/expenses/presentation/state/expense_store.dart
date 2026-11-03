@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:ui' show Locale, PlatformDispatcher;
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -59,8 +61,17 @@ final class ExpenseStore {
     this._prefs, {
     DateTime Function()? now,
     Future<void> Function(DateTime date)? onSadaqah,
+    Locale Function()? deviceLocale,
   }) : _now = now ?? DateTime.now,
-       _onSadaqah = onSadaqah;
+       _onSadaqah = onSadaqah,
+       _deviceLocale =
+           deviceLocale ?? (() => PlatformDispatcher.instance.locale);
+
+  /// The device's locale (region included), for the default currency.
+  final Locale Function() _deviceLocale;
+
+  /// Pre-decimal data was found on load — all of it was taka.
+  bool _hadLegacyData = false;
 
   static const _key = 'expenses_v1';
 
@@ -73,6 +84,8 @@ final class ExpenseStore {
   /// Budgets in minor units. The whole-unit v1 keys are copied (×100) once,
   /// guarded by [_minorUnitsKey], and never written again — so a re-run
   /// after a crash mid-migration recomputes from the untouched v1 values.
+  /// (So a budget edited after downgrading to a pre-decimal build is
+  /// ignored on re-upgrade; downgrades aren't supported.)
   static const _budgetKey = 'expense_budget_v2';
   static const _categoryBudgetKey = 'expense_category_budgets_v2';
   static const _legacyBudgetKey = 'expense_budget_v1';
@@ -97,8 +110,8 @@ final class ExpenseStore {
   /// Per-category monthly limits (for sadaqah, a goal); absent = none.
   late final categoryBudgets = signal(const <ExpenseCategory, int>{});
 
-  /// ISO 4217 code chosen by the user; null = [defaultCurrency] of the
-  /// device locale.
+  /// ISO 4217 code of the expense amounts; null until [ensureCurrency]
+  /// stores the default.
   late final currency = signal<String?>(null);
 
   /// Offered in the currency picker (any stored code still displays).
@@ -107,24 +120,56 @@ final class ExpenseStore {
     'TRY', 'CAD', 'AUD',
   ];
 
-  /// BDT for Bangla; otherwise what `intl` maps [localeTag] to (USD when
-  /// it doesn't know the locale).
-  static String defaultCurrency(String localeTag) {
-    if (localeTag == 'bn' ||
-        localeTag.startsWith('bn-') ||
-        localeTag.startsWith('bn_')) {
+  /// Device region → currency, for the picker's currencies.
+  static const _regionCurrency = {
+    'BD': 'BDT', 'US': 'USD', 'GB': 'GBP', 'SA': 'SAR', 'AE': 'AED', //
+    'IN': 'INR', 'PK': 'PKR', 'MY': 'MYR', 'ID': 'IDR', 'TR': 'TRY',
+    'CA': 'CAD', 'AU': 'AUD', 'DE': 'EUR', 'FR': 'EUR', 'IT': 'EUR',
+    'ES': 'EUR', 'NL': 'EUR', 'BE': 'EUR', 'AT': 'EUR', 'IE': 'EUR',
+    'PT': 'EUR', 'FI': 'EUR', 'GR': 'EUR',
+  };
+
+  /// Default currency: the device region's, else BDT for a Bangla app,
+  /// else what `intl` maps the device locale to, else USD.
+  static String currencyFor(Locale device, String appLanguage) {
+    if (_regionCurrency[device.countryCode?.toUpperCase()] case final c?) {
+      return c;
+    }
+    if (appLanguage == 'bn' || device.languageCode == 'bn') {
       return 'BDT';
     }
     try {
-      return NumberFormat.simpleCurrency(locale: localeTag).currencyName ??
+      return NumberFormat.simpleCurrency(
+            locale: device.toLanguageTag(),
+          ).currencyName ??
           'USD';
     } on ArgumentError {
       return 'USD';
     }
   }
 
-  /// [minor] as [currencyCode] money in [languageCode]'s digits; decimals
-  /// only when there are cents ("৳১,২৫০", "US$12.50").
+  /// Stores the default currency once, so the symbol on stored amounts
+  /// never changes with the device or app language: BDT if pre-decimal
+  /// (taka) data was found, else [currencyFor]. Best-effort: an unsaved
+  /// default still shows and is retried next time.
+  Future<void> ensureCurrency(String appLanguage) async {
+    await load();
+    if (currency.value != null) {
+      return;
+    }
+    final code = _hadLegacyData
+        ? 'BDT'
+        : currencyFor(_deviceLocale(), appLanguage);
+    currency.value = code;
+    try {
+      await _prefs.setString(_currencyKey, code);
+    } on Object catch (e) {
+      debugPrint('Expense currency not saved: $e');
+    }
+  }
+
+  /// [minor] as [currencyCode] money in [languageCode]'s digits, always
+  /// with 2 decimals (the stored precision) so amounts line up.
   static String formatAmount(
     int minor,
     String currencyCode,
@@ -133,7 +178,7 @@ final class ExpenseStore {
     final f = NumberFormat.simpleCurrency(
       locale: languageCode,
       name: currencyCode,
-      decimalDigits: minor % 100 == 0 ? 0 : 2,
+      decimalDigits: 2,
     );
     return LocaleDigits.localize(f.format(minor / 100), languageCode);
   }
@@ -221,20 +266,26 @@ final class ExpenseStore {
         }
       }
     }
+    // Newly kept records are stored before any rewrite of [_key] below
+    // drops them from it, so neither write failing can lose one.
+    if (unreadable.length != before) {
+      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+    }
     // Retry the kept records; any that read now rejoin the list.
     final recovered = <Expense>[];
     for (final raw in [...unreadable]) {
       try {
-        recovered.add(
-          Expense.fromJson(jsonDecode(raw) as Map<String, dynamic>),
-        );
+        final map = jsonDecode(raw) as Map<String, dynamic>;
+        recovered.add(Expense.fromJson(map));
+        legacy |= !map.containsKey('amountMinor');
         unreadable.remove(raw);
       } on Object {
         // Still unreadable — keep it.
       }
     }
+    _hadLegacyData = legacy;
     entries.value = _persisted = read;
-    if (recovered.isNotEmpty || legacy) {
+    if (recovered.isNotEmpty) {
       var list = read;
       for (final e in recovered) {
         // Already back under another id (a retried load whose earlier
@@ -244,12 +295,20 @@ final class ExpenseStore {
         }
       }
       await _save(list);
-    }
-    // Only after the recovered records are saved: shortening this list
-    // first would lose them if that save failed.
-    if (unreadable.length != before || recovered.isNotEmpty) {
+      // Only after the recovered records are saved: shortening this list
+      // first would lose them if that save failed.
       await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+    } else if (legacy) {
+      try {
+        await _save(read); // rewrite in minor units
+      } on Object catch (e) {
+        // Best-effort: the converted list is shown, fromJson reads either
+        // format, and the next save writes the new one.
+        debugPrint('Expense minor-units rewrite deferred: $e');
+      }
     }
+    // Blocking, unlike the rewrite above: until the marker is stored, every
+    // load re-copies v1x100 - which would overwrite a v2 budget set since.
     if (await _prefs.getBool(_minorUnitsKey) != true) {
       await _migrateBudgets();
     }
@@ -285,10 +344,11 @@ final class ExpenseStore {
   /// skipped (no category budgets, as before) but stays stored.
   Future<void> _migrateBudgets() async {
     final budget = await _prefs.getInt(_legacyBudgetKey);
+    final categories = await _prefs.getString(_legacyCategoryBudgetKey);
+    _hadLegacyData |= budget != null || categories != null;
     if (budget != null) {
       await _prefs.setInt(_budgetKey, budget * 100);
     }
-    final categories = await _prefs.getString(_legacyCategoryBudgetKey);
     if (categories != null) {
       try {
         final old = jsonDecode(categories) as Map<String, dynamic>;

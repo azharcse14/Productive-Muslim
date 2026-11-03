@@ -51,20 +51,25 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// The log couldn't be read; the screen offers a retry.
   bool _loadFailed = false;
 
+  /// App language for the default currency; read once dependencies exist.
+  String? _language;
+
   @override
-  void initState() {
-    super.initState();
-    if (!_store.loaded.value) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_language == null) {
+      _language = Localizations.localeOf(context).languageCode;
       _load();
     }
   }
 
+  /// Loads (a no-op once loaded) and stores the default currency if none.
   void _load() {
     if (_loadFailed) {
       setState(() => _loadFailed = false);
     }
     unawaited(
-      _store.load().catchError((Object _) {
+      _store.ensureCurrency(_language!).catchError((Object _) {
         if (mounted) {
           setState(() => _loadFailed = true);
         }
@@ -464,15 +469,9 @@ void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   unawaited(undo.closed.then((_) => undoShowing = false));
 }
 
-/// The chosen expense currency, else the default: BDT in Bangla, otherwise
-/// the device locale's.
+/// The expense currency ([ExpenseStore.ensureCurrency] sets it on load).
 String _currencyOf(BuildContext context, ExpenseStore store) =>
-    store.currency.value ??
-    ExpenseStore.defaultCurrency(
-      Localizations.localeOf(context).languageCode == 'bn'
-          ? 'bn'
-          : WidgetsBinding.instance.platformDispatcher.locale.toLanguageTag(),
-    );
+    store.currency.value ?? 'USD';
 
 /// Picks the expense currency from [ExpenseStore.commonCurrencies] (plus
 /// the current one if it isn't listed).

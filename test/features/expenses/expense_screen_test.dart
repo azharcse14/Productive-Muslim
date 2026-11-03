@@ -26,7 +26,8 @@ base class _SlowPrefs extends InMemorySharedPreferencesAsync {
   }
 }
 
-Widget _app() => MaterialApp(
+Widget _app({Locale? locale}) => MaterialApp(
+  locale: locale,
   theme: AppTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
@@ -37,10 +38,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ExpenseStore store;
 
-  void register() {
+  void register({Locale device = const Locale('en', 'US')}) {
     store = ExpenseStore(
       SharedPreferencesAsync(),
       now: () => DateTime(2026, 10, 26, 10),
+      deviceLocale: () => device,
     );
     GetIt.I.registerSingleton<ExpenseStore>(store);
   }
@@ -48,9 +50,16 @@ void main() {
   setUp(() {
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
+    // Pinned: the default currency (USD here) follows the device locale.
+    TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+        const Locale('en', 'US');
   });
 
-  tearDown(() => GetIt.I.reset());
+  tearDown(() {
+    TestWidgetsFlutterBinding.instance.platformDispatcher
+        .clearLocaleTestValue();
+    return GetIt.I.reset();
+  });
 
   testWidgets('double-tapping Save adds once and keeps the screen', (
     tester,
@@ -133,7 +142,7 @@ void main() {
     await add(5000, DateTime(2026, 10, 25));
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    expect(find.text(r'$30 more than this time last month'), findsOneWidget);
+    expect(find.text(r'$30.00 more than this time last month'), findsOneWidget);
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Yesterday'), findsOneWidget);
   });
@@ -250,6 +259,27 @@ void main() {
     await tester.tap(find.text('lunch'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(TextField, '12.50'), findsOneWidget);
+  });
+
+  testWidgets('Bangla on a BD phone shows taka in Bangla digits', (
+    tester,
+  ) async {
+    register(device: const Locale('bn', 'BD'));
+    await store.add(amount: 1250, category: ExpenseCategory.need, note: 'x');
+    await tester.pumpWidget(_app(locale: const Locale('bn')));
+    await tester.pumpAndSettle();
+    expect(store.currency.value, 'BDT');
+    final amount = find.descendant(
+      of: find.widgetWithText(ListTile, 'x'),
+      matching: find.textContaining('১২.৫০'),
+    );
+    await tester.scrollUntilVisible(
+      find.text('x'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(amount, findsOneWidget);
+    expect(tester.widget<Text>(amount).data, contains('৳'));
   });
 
   testWidgets('the currency picker switches the display currency', (

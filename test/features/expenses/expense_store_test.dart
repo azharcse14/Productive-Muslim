@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show Locale;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/expenses/presentation/state/expense_store.dart';
@@ -10,8 +11,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final now = DateTime(2026, 10, 26, 10);
-  ExpenseStore store() =>
-      ExpenseStore(SharedPreferencesAsync(), now: () => now);
+  ExpenseStore store({Locale device = const Locale('en', 'US')}) =>
+      ExpenseStore(
+        SharedPreferencesAsync(),
+        now: () => now,
+        deviceLocale: () => device,
+      );
 
   setUp(() {
     SharedPreferencesAsyncPlatform.instance =
@@ -235,18 +240,62 @@ void main() {
     expect(ExpenseStore.amountText(1205), '12.05');
     expect(ExpenseStore.amountText(1200), '12');
     expect(ExpenseStore.formatAmount(1250, 'USD', 'en'), r'$12.50');
-    expect(ExpenseStore.formatAmount(120000, 'USD', 'en'), r'$1,200');
+    expect(ExpenseStore.formatAmount(120000, 'USD', 'en'), r'$1,200.00');
     expect(ExpenseStore.formatAmount(1250, 'BDT', 'bn'), contains('১২.৫০'));
     expect(ExpenseStore.formatAmount(1250, 'BDT', 'bn'), contains('৳'));
     expect(ExpenseStore.formatAmount(1250, 'EUR', 'en'), contains('€'));
   });
 
-  test('defaultCurrency: BDT for Bangla, else the locale\'s', () {
-    expect(ExpenseStore.defaultCurrency('bn'), 'BDT');
-    expect(ExpenseStore.defaultCurrency('bn-IN'), 'BDT');
-    expect(ExpenseStore.defaultCurrency('en-US'), 'USD');
-    expect(ExpenseStore.defaultCurrency('en-GB'), 'GBP');
-    expect(ExpenseStore.defaultCurrency('xx-YY'), 'USD');
+  test('currencyFor: region, then Bangla, then intl, then USD', () {
+    String f(Locale l, [String app = 'en']) => ExpenseStore.currencyFor(l, app);
+    expect(f(const Locale('en', 'BD')), 'BDT', reason: 'intl says USD');
+    expect(f(const Locale('bn', 'IN')), 'INR', reason: 'region first');
+    expect(f(const Locale('en', 'DE')), 'EUR');
+    expect(f(const Locale('en')), 'USD');
+    expect(f(const Locale('en'), 'bn'), 'BDT');
+    expect(f(const Locale('bn')), 'BDT');
+    expect(f(const Locale('ja', 'JP')), 'JPY', reason: 'via intl');
+    expect(f(const Locale('xx', 'YY')), 'USD');
+  });
+
+  group('ensureCurrency', () {
+    test('stores the device-region default once (en-BD → BDT)', () async {
+      final s = store(device: const Locale('en', 'BD'));
+      await s.ensureCurrency('en');
+      expect(s.currency.value, 'BDT');
+      // Persisted: a later device/app language change doesn't move it.
+      final fresh = store();
+      await fresh.ensureCurrency('en');
+      expect(fresh.currency.value, 'BDT');
+    });
+
+    test('a chosen currency is kept', () async {
+      final s = store();
+      await s.setCurrency('SAR');
+      final fresh = store(device: const Locale('en', 'BD'));
+      await fresh.ensureCurrency('bn');
+      expect(fresh.currency.value, 'SAR');
+    });
+
+    test('pre-decimal data means taka, whatever the device', () async {
+      await SharedPreferencesAsync().setString('expenses_v1', '[$good]');
+      final s = store();
+      await s.ensureCurrency('en');
+      expect(s.currency.value, 'BDT');
+    });
+
+    test('a legacy budget alone also means taka', () async {
+      await SharedPreferencesAsync().setInt('expense_budget_v1', 50);
+      final s = store();
+      await s.ensureCurrency('en');
+      expect(s.currency.value, 'BDT');
+    });
+
+    test('no legacy data: device default (en-US → USD)', () async {
+      final s = store();
+      await s.ensureCurrency('en');
+      expect(s.currency.value, 'USD');
+    });
   });
 
   test('currency persists across loads', () async {
@@ -315,6 +364,45 @@ void main() {
       expect(
         await prefs.getString('expenses_v1_unreadable_records'),
         contains('not json'),
+      );
+    });
+
+    for (final failing in [1, 2]) {
+      test('write $failing failing during load loses no record', () async {
+        final prefs = _FlakyPrefs();
+        SharedPreferencesAsyncPlatform.instance = prefs;
+        const opts = SharedPreferencesOptions();
+        await prefs.setString('expenses_v1', '[$good,$zakat]', opts);
+        prefs.failOnWrite = prefs.writes + failing;
+        try {
+          await store().load();
+        } on StateError {
+          // The first write failing fails the load (retried next time).
+        }
+        final both =
+            '${await prefs.getString('expenses_v1', opts)}'
+            '${await prefs.getString('expenses_v1_unreadable_records', opts)}';
+        expect(both, contains('zakat'));
+        expect(both, contains('"id":1'));
+      });
+    }
+
+    test('a failed legacy rewrite still shows converted amounts', () async {
+      final prefs = _FlakyPrefs();
+      SharedPreferencesAsyncPlatform.instance = prefs;
+      await prefs.setString(
+        'expenses_v1',
+        '[$good]',
+        const SharedPreferencesOptions(),
+      );
+      prefs.failWriteCount = 1;
+      final s = store();
+      await s.load();
+      expect(s.entries.value.single.amount, 500);
+      await s.add(amount: 1, category: ExpenseCategory.need);
+      expect(
+        await prefs.getString('expenses_v1', const SharedPreferencesOptions()),
+        allOf(contains('"amountMinor":500'), isNot(contains('"amount"'))),
       );
     });
 
@@ -670,6 +758,10 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
   int failReads = 0;
   bool failWrites = false;
 
+  /// setString calls so far; the one numbered [failOnWrite] throws.
+  int writes = 0;
+  int? failOnWrite;
+
   /// Fails this many upcoming writes of [failKey], asynchronously like a
   /// platform call.
   int failWriteCount = 0;
@@ -690,7 +782,7 @@ base class _FlakyPrefs extends InMemorySharedPreferencesAsync {
     String value,
     SharedPreferencesOptions options,
   ) {
-    if (failWrites) {
+    if (failWrites || ++writes == failOnWrite) {
       throw StateError('disk full');
     }
     if (failWriteCount > 0 && key == failKey) {
