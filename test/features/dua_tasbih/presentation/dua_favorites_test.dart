@@ -106,8 +106,38 @@ void main() {
         find.text('Tap the heart on any dua to save it here'),
         findsNothing,
       );
+      // Saved duas sit above the category grid.
+      expect(
+        tester.getTopLeft(find.text('In the name of Allah')).dy,
+        lessThan(tester.getTopLeft(find.byType(GridView)).dy),
+      );
     },
   );
+
+  testWidgets('removing a favorite offers undo', (tester) async {
+    await favoritesStore.toggle('me_1');
+    await tester.pumpWidget(_app(const DuaCategoryScreenHost()));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.favorite));
+    await tester.pump();
+    expect(favoritesStore.isFavorite('me_1'), isFalse);
+    expect(find.text('Removed from favorites'), findsOneWidget);
+
+    await tester.pumpAndSettle(); // let the snackbar slide in
+    await tester.tap(find.text('Undo'));
+    await tester.pump();
+    expect(favoritesStore.isFavorite('me_1'), isTrue);
+  });
+
+  testWidgets('adding a favorite shows no undo', (tester) async {
+    await tester.pumpWidget(_app(const DuaCategoryScreenHost()));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.favorite_border));
+    await tester.pump();
+    expect(find.byType(SnackBar), findsNothing);
+  });
 }
 
 /// Minimal host that renders a single [DuaCard] for the heart-toggle test.
