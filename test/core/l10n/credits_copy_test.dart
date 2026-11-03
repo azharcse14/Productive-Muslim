@@ -38,9 +38,12 @@ void main() {
     final arb =
         jsonDecode(File(files.first).readAsStringSync())
             as Map<String, dynamic>;
-    // Source names are proper nouns written in the credits screen itself.
+    // Source names are proper nouns written in the credits screen itself;
+    // translator names come from l10n (shared with the ayah share text).
     final credits =
         '${arb['creditsQuranText']} '
+        '${arb['shareTranslatorPickthall']} '
+        '${arb['shareTranslatorMuhiuddinKhan']} '
         '${File('lib/features/settings/presentation/screens/credits_screen.dart').readAsStringSync()}';
     for (final name in [
       'Tanzil',

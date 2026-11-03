@@ -54,10 +54,13 @@ final class CreditsScreen extends StatelessWidget {
             // No license claimed: unverified (docs/DEPENDENCIES.md).
             (
               l10n.creditsEnTranslation,
-              'Mohammed Marmaduke William Pickthall, “The Meaning of the '
+              '${l10n.shareTranslatorPickthall}, “The Meaning of the '
                   'Glorious Koran” · Tanzil.net',
             ),
-            (l10n.creditsBnTranslation, 'Muhiuddin Khan · Tanzil.net'),
+            (
+              l10n.creditsBnTranslation,
+              '${l10n.shareTranslatorMuhiuddinKhan} · Tanzil.net',
+            ),
           ]),
           _Group(l10n.hadithTitle, [
             (
