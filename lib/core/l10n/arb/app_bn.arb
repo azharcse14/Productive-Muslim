@@ -420,6 +420,7 @@
       "month": { "type": "String" }
     }
   },
+  "expenseCurrency": "মুদ্রা",
   "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
   "fastingKindName": "{id, select, mondayThursday{সোম ও বৃহস্পতিবার} whiteDays{আইয়ামে বীজ (শুভ্র দিন)} ashura{আশুরা} arafah{আরাফার দিন} dhulHijjah{জিলহজের প্রথম নয় দিন} shawwal{শাওয়ালের ছয় রোজা} other{{id}}}",
   "@fastingKindName": {
@@ -794,7 +795,7 @@
   "expenseDeleted": "খরচ মুছে ফেলা হয়েছে",
   "expenseUndo": "ফিরিয়ে আনুন",
   "expenseSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-  "expenseAmountInvalid": "০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)",
+  "expenseAmountInvalid": "০-এর বেশি পরিমাণ লিখুন, দশমিকের পরে সর্বোচ্চ ২ ঘর (যেমন ২৫০ বা ১২.৫০)",
   "expenseBudget": "মাসিক বাজেট",
   "expenseBudgetClear": "বাজেট মুছুন",
   "expenseBudgetLeft": "{budget} এর মধ্যে {left} বাকি",

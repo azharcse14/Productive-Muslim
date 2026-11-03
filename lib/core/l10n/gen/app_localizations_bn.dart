@@ -1552,6 +1552,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get expenseCurrency => 'মুদ্রা';
+
+  @override
   String get fastingUpcomingTitle => 'আসন্ন প্রস্তাবিত রোজা';
 
   @override
@@ -2746,7 +2749,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseAmountInvalid =>
-      '০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)';
+      '০-এর বেশি পরিমাণ লিখুন, দশমিকের পরে সর্বোচ্চ ২ ঘর (যেমন ২৫০ বা ১২.৫০)';
 
   @override
   String get expenseBudget => 'মাসিক বাজেট';

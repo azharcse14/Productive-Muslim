@@ -85,7 +85,7 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(store.budget.value, 5000);
+    expect(store.budget.value, 500000, reason: 'minor units');
   });
 
   testWidgets('editor Delete removes the entry and Undo restores it', (
@@ -127,13 +127,13 @@ void main() {
       note: 'n$amount',
       date: date,
     );
-    await add(100, DateTime(2026, 9, 10));
-    await add(500, DateTime(2026, 9, 28)); // after "now"'s day: not counted
-    await add(80, DateTime(2026, 10, 26, 9));
-    await add(50, DateTime(2026, 10, 25));
+    await add(10000, DateTime(2026, 9, 10));
+    await add(50000, DateTime(2026, 9, 28)); // after "now"'s day: not counted
+    await add(8000, DateTime(2026, 10, 26, 9));
+    await add(5000, DateTime(2026, 10, 25));
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    expect(find.text('30 more than this time last month'), findsOneWidget);
+    expect(find.text(r'$30 more than this time last month'), findsOneWidget);
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Yesterday'), findsOneWidget);
   });
@@ -198,11 +198,11 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    final added = store.entries.value.firstWhere((e) => e.amount == 50);
+    final added = store.entries.value.firstWhere((e) => e.amount == 5000);
     expect((added.note, added.category), ('Gift', ExpenseCategory.family));
   });
 
-  testWidgets('a decimal amount shows an error instead of silently failing', (
+  testWidgets('three decimals show an error instead of silently failing', (
     tester,
   ) async {
     register();
@@ -210,12 +210,61 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).first, '150.50');
+    await tester.enterText(find.byType(TextField).first, '150.505');
     await tester.pump();
     expect(
-      find.text('Enter a whole number above 0, without decimals (e.g. 250)'),
+      find.text(
+        'Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)',
+      ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('entering 12.50 saves 1250 minor units and shows \$12.50', (
+    tester,
+  ) async {
+    register();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '12.50');
+    await tester.enterText(find.byType(TextField).at(1), 'lunch');
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(store.entries.value.single.amount, 1250);
+    await tester.scrollUntilVisible(
+      find.text('lunch'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'lunch'),
+        matching: find.text(r'$12.50'),
+      ),
+      findsOneWidget,
+    );
+    // Editing shows it back as typed.
+    await tester.tap(find.text('lunch'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextField, '12.50'), findsOneWidget);
+  });
+
+  testWidgets('the currency picker switches the display currency', (
+    tester,
+  ) async {
+    register();
+    await store.add(amount: 1250, category: ExpenseCategory.need);
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Currency'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('EUR'));
+    await tester.pumpAndSettle();
+    expect(store.currency.value, 'EUR');
+    expect(find.text('€12.50'), findsWidgets);
   });
 
   testWidgets('swipe deletes; the Undo SnackBar restores and does not linger', (

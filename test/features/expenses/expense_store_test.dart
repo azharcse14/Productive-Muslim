@@ -208,12 +208,157 @@ void main() {
     expect(s.entries.value.map((e) => e.amount), containsAll([100, 50]));
   });
 
-  test('parseAmount: localized digits and grouping; rejects bad input', () {
-    expect(ExpenseStore.parseAmount('১,২০০'), 1200);
-    expect(ExpenseStore.parseAmount('150.50'), isNull);
+  test('parseAmount: minor units from decimals, digits, separators', () {
+    expect(ExpenseStore.parseAmount('১,২০০'), 120000);
+    expect(ExpenseStore.parseAmount('150.50'), 15050);
+    expect(ExpenseStore.parseAmount('12.5'), 1250);
+    expect(ExpenseStore.parseAmount('12,50'), 1250, reason: 'decimal comma');
+    expect(ExpenseStore.parseAmount('১২.৫০'), 1250);
+    expect(ExpenseStore.parseAmount('1,234.56'), 123456);
+    expect(ExpenseStore.parseAmount('1.234,56'), 123456);
+    expect(ExpenseStore.parseAmount('.5'), 50);
+    expect(ExpenseStore.parseAmount('12.'), 1200);
+    expect(ExpenseStore.parseAmount(' 0.01 '), 1);
+    expect(ExpenseStore.parseAmount('1.005'), isNull, reason: '3 decimals');
     expect(ExpenseStore.parseAmount('0'), isNull);
-    expect(ExpenseStore.parseAmount('9999999999999'), isNull);
+    expect(ExpenseStore.parseAmount('0.00'), isNull);
+    expect(ExpenseStore.parseAmount('.'), isNull);
+    expect(ExpenseStore.parseAmount('-5'), isNull);
+    expect(ExpenseStore.parseAmount('999999999999.99'), ExpenseStore.maxAmount);
+    expect(ExpenseStore.parseAmount('1000000000000'), isNull);
+    expect(ExpenseStore.parseAmount('9' * 30), isNull);
     expect(ExpenseStore.parseAmount('0x10'), isNull, reason: 'no hex');
+  });
+
+  test('amountText and formatAmount', () {
+    expect(ExpenseStore.amountText(1250), '12.50');
+    expect(ExpenseStore.amountText(1205), '12.05');
+    expect(ExpenseStore.amountText(1200), '12');
+    expect(ExpenseStore.formatAmount(1250, 'USD', 'en'), r'$12.50');
+    expect(ExpenseStore.formatAmount(120000, 'USD', 'en'), r'$1,200');
+    expect(ExpenseStore.formatAmount(1250, 'BDT', 'bn'), contains('১২.৫০'));
+    expect(ExpenseStore.formatAmount(1250, 'BDT', 'bn'), contains('৳'));
+    expect(ExpenseStore.formatAmount(1250, 'EUR', 'en'), contains('€'));
+  });
+
+  test('defaultCurrency: BDT for Bangla, else the locale\'s', () {
+    expect(ExpenseStore.defaultCurrency('bn'), 'BDT');
+    expect(ExpenseStore.defaultCurrency('bn-IN'), 'BDT');
+    expect(ExpenseStore.defaultCurrency('en-US'), 'USD');
+    expect(ExpenseStore.defaultCurrency('en-GB'), 'GBP');
+    expect(ExpenseStore.defaultCurrency('xx-YY'), 'USD');
+  });
+
+  test('currency persists across loads', () async {
+    final s = store();
+    await s.load();
+    expect(s.currency.value, isNull);
+    await s.setCurrency('SAR');
+    final fresh = store();
+    await fresh.load();
+    expect(fresh.currency.value, 'SAR');
+  });
+
+  group('minor-units migration', () {
+    test('legacy records and budgets are ×100, idempotently', () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('expenses_v1', '[$good]');
+      await prefs.setInt('expense_budget_v1', 5000);
+      await prefs.setString(
+        'expense_category_budgets_v1',
+        jsonEncode({'want': 700}),
+      );
+      for (var i = 0; i < 2; i++) {
+        final s = store();
+        await s.load();
+        expect(s.entries.value.single.amount, 500);
+        expect(s.budget.value, 500000);
+        expect(s.categoryBudgets.value, {ExpenseCategory.want: 70000});
+      }
+      final stored = jsonDecode((await prefs.getString('expenses_v1'))!);
+      expect(stored, [containsPair('amountMinor', 500)]);
+      expect((stored as List).single, isNot(contains('amount')));
+      // The v1 budgets are kept as they were.
+      expect(await prefs.getInt('expense_budget_v1'), 5000);
+    });
+
+    test('a crash before the marker re-runs from v1, not ×10000', () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setInt('expense_budget_v1', 50);
+      await store().load();
+      await prefs.remove('expense_minor_units_migrated');
+      final s = store();
+      await s.load();
+      expect(s.budget.value, 5000);
+    });
+
+    test('a cleared budget stays cleared after reload', () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setInt('expense_budget_v1', 50);
+      final s = store();
+      await s.setBudget(null);
+      final fresh = store();
+      await fresh.load();
+      expect(fresh.budget.value, isNull);
+    });
+
+    test('a corrupt payload is kept untouched', () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('expenses_v1', '[{not json');
+      await prefs.setString('expense_category_budgets_v1', '{bad');
+      final s = store();
+      await s.load();
+      expect(s.entries.value, isEmpty);
+      expect(s.categoryBudgets.value, isEmpty);
+      expect(await prefs.getString('expenses_v1'), '[{not json');
+      expect(await prefs.getString('expense_category_budgets_v1'), '{bad');
+      expect(
+        await prefs.getString('expenses_v1_unreadable_records'),
+        contains('not json'),
+      );
+    });
+
+    test('a legacy record recovered later is converted too', () async {
+      final prefs = SharedPreferencesAsync();
+      const legacy =
+          '{"id":4,"amount":12,"category":"want",'
+          '"date":"2026-10-04T10:00:00.000","note":"old"}';
+      await prefs.setString(
+        'expenses_v1_unreadable_records',
+        '[${jsonEncode(legacy)}]',
+      );
+      final s = store();
+      await s.load();
+      expect(s.entries.value.single.amount, 1200);
+    });
+  });
+
+  test('CSV: old whole-number and new decimal files both import', () async {
+    final s = store();
+    const old =
+        'date,category,amount,note\n'
+        '2026-10-01T10:00:00.000,need,120,"rice"';
+    const decimal =
+        'date,category,amount,note\n'
+        '2026-10-02T10:00:00.000,want,12.50,"tea"';
+    expect(await s.importCsv(old), 1);
+    expect(await s.importCsv(decimal), 1);
+    expect(s.entries.value.map((e) => e.amount), [1250, 12000]);
+    final csv = await s.toCsv();
+    expect(csv, contains(',need,120,'));
+    expect(csv, contains(',want,12.50,'));
+    expect(await s.importCsv(csv), 0, reason: 'same entries');
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final restored = store();
+    expect(await restored.importCsv(csv), 2);
+    expect(restored.entries.value.map((e) => e.amount), [1250, 12000]);
+    expect(
+      await restored.importCsv(
+        'date,category,amount,note\n2026-10-03T10:00:00.000,need,1.005,""',
+      ),
+      isNull,
+    );
   });
 
   test('restore puts a removed entry back unchanged', () async {
@@ -395,7 +540,7 @@ void main() {
             )
             as List<dynamic>;
     expect(s.entries.value.map((e) => e.amount).toSet(), {
-      for (final j in stored) (j as Map)['amount'],
+      for (final j in stored) (j as Map)['amountMinor'],
     }, reason: 'UI shows what is stored');
     expect(stored, hasLength(2));
   });
@@ -407,15 +552,16 @@ void main() {
     );
     final s = store();
     await s.load();
-    expect(s.categoryBudgets.value, {ExpenseCategory.need: 5000});
+    // Migrated to minor units, the unknown one included.
+    expect(s.categoryBudgets.value, {ExpenseCategory.need: 500000});
     await s.setCategoryBudget(ExpenseCategory.want, 700);
     expect(
       jsonDecode(
         (await SharedPreferencesAsync().getString(
-          'expense_category_budgets_v1',
+          'expense_category_budgets_v2',
         ))!,
       ),
-      {'need': 5000, 'zakat': 100, 'want': 700},
+      {'need': 500000, 'zakat': 10000, 'want': 700},
     );
   });
 

@@ -2480,6 +2480,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}'**
   String fastingHeatmapLabel(int count, String month);
 
+  /// No description provided for @expenseCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get expenseCurrency;
+
   /// No description provided for @fastingUpcomingTitle.
   ///
   /// In en, this message translates to:
@@ -4109,7 +4115,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseAmountInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a whole number above 0, without decimals (e.g. 250)'**
+  /// **'Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)'**
   String get expenseAmountInvalid;
 
   /// No description provided for @expenseBudget.
