@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Share FileProvider (AndroidManifest): only cache/share/, where
+     PlatformShareSheet writes the image it shares. -->
+<paths>
+    <cache-path name="share" path="share/" />
+</paths>

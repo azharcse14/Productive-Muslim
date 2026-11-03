@@ -22,9 +22,12 @@ import '../../../prayer_times/presentation/screens/home_formatting.dart'
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
+import '../../../share/domain/share_sheet.dart';
+import '../../domain/repositories/fast_log.dart';
 import '../../domain/usecases/ramadan_utils.dart';
 import '../state/eid_announcement_store.dart';
 import '../state/ramadan_store.dart';
+import '../widgets/ramadan_share_card.dart';
 
 /// Ramadan hub (design §4.x): roza counter, sahri & iftar month table,
 /// zakat calculator entry, and the fitra reminder.
@@ -44,6 +47,49 @@ final class _RamadanScreenState extends State<RamadanScreen> {
     _settings,
     now: _wallNow,
   );
+
+  bool _sharing = false;
+
+  /// Renders the 4:5 progress card off-screen and hands the PNG to the OS
+  /// share sheet. Fasting log and share sheet resolve on the first tap.
+  Future<void> _shareProgress(BuildContext context) async {
+    final rozaDay = _store.rozaDay.value;
+    if (_sharing || rozaDay == null) {
+      return;
+    }
+    _sharing = true;
+    try {
+      final l10n = context.l10n;
+      final language = Localizations.localeOf(context).languageCode;
+      final total = _store.ramadanLength.value;
+      final png = await renderShareCard(
+        context,
+        RamadanShareCard(
+          rozaDay: rozaDay,
+          total: total,
+          fastsLogged: _store.fastsLogged(locator<IsDayFasted>()),
+          hijri: _store.hijriToday.value,
+          date: _store.today.value,
+        ),
+      );
+      await locator<ShareSheet>().shareImage(
+        png,
+        LocaleDigits.localize(
+          l10n.ramadanShareText(l10n.rozaDayOf(rozaDay, total)),
+          language,
+        ),
+      );
+    } on Object catch (e) {
+      debugPrint('ramadan share: card not rendered: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.ramadanShareFailed)),
+        );
+      }
+    } finally {
+      _sharing = false;
+    }
+  }
 
   DateTime _wallNow() {
     final location = _settings.location.value;
@@ -74,7 +120,10 @@ final class _RamadanScreenState extends State<RamadanScreen> {
             return ListView(
               padding: const EdgeInsets.all(QSpace.s5),
               children: [
-                _RozaCounterCard(store: _store),
+                _RozaCounterCard(
+                  store: _store,
+                  onShare: () => unawaited(_shareProgress(context)),
+                ),
                 EidAnnouncementCard(store: _store, eid: _eid),
                 // Roza count and the table follow the Hijri offset.
                 QHijriOffsetLink(
@@ -145,9 +194,10 @@ final class _RamadanScreenState extends State<RamadanScreen> {
 }
 
 final class _RozaCounterCard extends StatelessWidget {
-  const _RozaCounterCard({required this.store});
+  const _RozaCounterCard({required this.store, required this.onShare});
 
   final RamadanStore store;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +265,14 @@ final class _RozaCounterCard extends StatelessWidget {
                   language,
                 ),
                 style: QType.caption.copyWith(color: q.ink2),
+              ),
+              const SizedBox(height: QSpace.s4),
+              QButton(
+                label: l10n.ramadanShareProgress,
+                icon: Icons.share_outlined,
+                kind: QButtonKind.tonal,
+                small: true,
+                onPressed: onShare,
               ),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../../settings/presentation/state/settings_store.dart';
+import '../../domain/repositories/fast_log.dart';
 import '../../domain/usecases/ramadan_utils.dart';
 
 /// One row of the Ramadan month table: the Gregorian civil day plus its
@@ -114,6 +115,19 @@ final class RamadanStore {
   /// when that day's times failed to compute (the table skips it).
   RamadanRow? rowAfter(DateTime day) =>
       _rowByDay.value[DateTime(day.year, day.month, day.day + 1)];
+
+  /// Days of the current Ramadan, up to today, that [isFasted] reports as
+  /// logged — 0 outside Ramadan.
+  int fastsLogged(IsDayFasted isFasted) {
+    if (!isRamadan.value) {
+      return 0;
+    }
+    final t = today.value;
+    return RamadanUtils.gregorianDaysOf(
+      nextRamadan.value.$1,
+      offsetDays: _offset.value,
+    ).where((day) => !day.isAfter(t) && isFasted(day)).length;
+  }
 
   void dispose() => _ticker.cancel();
 }

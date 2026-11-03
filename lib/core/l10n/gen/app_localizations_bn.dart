@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1593,6 +1592,38 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
 
   @override
+  String get ramadanShareProgress => 'অগ্রগতি শেয়ার করুন';
+
+  @override
+  String get ramadanShareHeading => 'আমার রমজান, আলহামদুলিল্লাহ';
+
+  @override
+  String ramadanShareFastsLogged(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countStringটি রোজা রেকর্ড হয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanShareBlessing => 'আল্লাহ কবুল করুন · تقبل الله';
+
+  @override
+  String ramadanShareText(String progress) {
+    return 'রমজান, $progress — আলহামদুলিল্লাহ। · প্রোডাক্টিভ মুসলিম';
+  }
+
+  @override
+  String get ramadanShareFailed =>
+      'শেয়ারের ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
 
   @override
@@ -1634,12 +1665,16 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday':
+          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays':
+          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura':
+          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah': 'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'dhulHijjah':
+          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',
