@@ -34,7 +34,7 @@ const _attributionLines = [
   'Quran text: Tanzil Quran Text (Simple), Tanzil.net — '
       'via fawazahmed0/quran-api (Unlicense)',
   'English translation: Mohammed Marmaduke William Pickthall, '
-      '"The Meaning of the Glorious Koran" (public domain) — via Tanzil.net',
+      '"The Meaning of the Glorious Koran" (license unverified) — via Tanzil.net',
   'Bangla translation: Muhiuddin Khan — via Tanzil.net',
 ];
 
