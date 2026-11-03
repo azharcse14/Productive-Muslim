@@ -333,6 +333,25 @@ void main() {
       expect(oneDay.contains(DateTime(2026, 7, 4)), isTrue);
       expect(oneDay.contains(DateTime(2026, 7, 5)), isFalse);
     });
+
+    test('documented Feb 29 gaps', () {
+      const leapDayOnly = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 2, day: 29),
+        end: (month: 2, day: 29),
+      );
+      expect(leapDayOnly.contains(DateTime(2028, 2, 29)), isTrue);
+      for (final d in [DateTime(2027, 2, 28), DateTime(2027, 3)]) {
+        expect(leapDayOnly.contains(d), isFalse); // never in a common year
+      }
+      const marToFeb28 = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 3, day: 1),
+        end: (month: 2, day: 28),
+      );
+      expect(marToFeb28.contains(DateTime(2028, 2, 28)), isTrue);
+      expect(marToFeb28.contains(DateTime(2028, 2, 29)), isFalse);
+    });
   });
 
   group('seasons in resolution', () {
@@ -347,10 +366,21 @@ void main() {
       final r = resolveActiveMosque(base, DateTime(2026, 12, 10, 9));
       expect(r.profile, _b);
       expect(r.reason, MosqueReason.season);
+      expect(r.season, winter);
     });
 
     test('outside the season the default applies', () {
       final r = resolveActiveMosque(base, DateTime(2026, 7, 10, 9));
+      expect(r.profile, _a);
+      expect(r.reason, MosqueReason.defaultMosque);
+      expect(r.season, isNull);
+    });
+
+    test('without a default, the fallback is labelled as such', () {
+      final r = resolveActiveMosque(
+        base.withDefault(null),
+        DateTime(2026, 7, 10, 9),
+      );
       expect(r.profile, _a);
       expect(r.reason, MosqueReason.fallback);
     });

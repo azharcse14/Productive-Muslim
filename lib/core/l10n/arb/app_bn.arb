@@ -797,6 +797,7 @@
   "mosqueSeasonReasonSeason": "মৌসুম {range}",
   "mosqueSeasonReasonDefault": "ডিফল্ট মসজিদ",
   "mosqueSeasonReasonOverride": "সাময়িক পরিবর্তন",
+  "mosqueSeasonReasonFallback": "কোনো নিয়ম, মৌসুম বা ডিফল্ট প্রযোজ্য নয়",
   "nearbyMosquesHint": "ম্যাপে খুলবে",
   "nearbyMosquesLaunchError": "ম্যাপ খোলা গেল না। একটি ম্যাপ অ্যাপ ইনস্টল আছে কিনা বা ইন্টারনেট চালু আছে কিনা দেখুন।",
   "nearbyMosquesLocationError": "কাছের মসজিদ খুঁজতে আগে আপনার অবস্থান সেট করুন।",

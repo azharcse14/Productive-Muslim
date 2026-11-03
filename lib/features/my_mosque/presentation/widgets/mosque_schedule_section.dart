@@ -27,13 +27,13 @@ final class MosqueScheduleSection extends StatelessWidget {
     required this.onRuleChanged,
     required this.onDefaultChanged,
     required this.onPickRuleTime,
-    required this.now,
+    required this.resolution,
     required this.onAddSeason,
     required this.onSeasonChanged,
   });
 
-  /// The moment the "active now" line resolves for.
-  final DateTime now;
+  /// The mosque active now (at the location's wall clock) and why.
+  final MosqueResolution resolution;
   final VoidCallback onAddSeason;
 
   /// Edits the season at an index; a null season removes it.
@@ -173,24 +173,18 @@ final class MosqueScheduleSection extends StatelessWidget {
   /// The "active now" line (mosque and why), or null with no profiles.
   String? _activeNow(BuildContext context) {
     final l10n = context.l10n;
-    final r = resolveActiveMosque(state, now);
+    final r = resolution;
     final profile = r.profile;
     if (profile == null) {
       return null;
     }
-    final why = switch (r.reason) {
-      MosqueReason.rule => l10n.mosqueSeasonReasonRule,
-      MosqueReason.season => l10n.mosqueSeasonReasonSeason(
-        _range(
-          context,
-          state.seasons.firstWhere(
-            (s) => s.mosqueId == profile.id && s.contains(now),
-          ),
-        ),
-      ),
-      MosqueReason.override => l10n.mosqueSeasonReasonOverride,
-      MosqueReason.manual ||
-      MosqueReason.fallback => l10n.mosqueSeasonReasonDefault,
+    final why = switch ((r.reason, r.season)) {
+      (MosqueReason.season, final MosqueSeason s) =>
+        l10n.mosqueSeasonReasonSeason(_range(context, s)),
+      (MosqueReason.rule, _) => l10n.mosqueSeasonReasonRule,
+      (MosqueReason.override, _) => l10n.mosqueSeasonReasonOverride,
+      (MosqueReason.defaultMosque, _) => l10n.mosqueSeasonReasonDefault,
+      _ => l10n.mosqueSeasonReasonFallback,
     };
     return l10n.mosqueSeasonActiveNow(profile.name, why);
   }
@@ -220,43 +214,51 @@ final class _SeasonCard extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     final months = DateFormat.MMM(Localizations.localeOf(context).toString());
-    Widget picker(MonthDay value, ValueChanged<MonthDay> set) => Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        DropdownButton<int>(
-          value: value.month,
-          underline: const SizedBox.shrink(),
-          items: [
-            for (var m = 1; m <= 12; m++)
-              DropdownMenuItem(
-                value: m,
-                child: Text(months.format(DateTime(2024, m))),
-              ),
-          ],
-          onChanged: (m) {
-            if (m != null) {
-              // Keep the day valid for the new month (Jan 31 → Feb 29).
-              final max = MosqueSeason.maxDay(m);
-              set((month: m, day: value.day > max ? max : value.day));
-            }
-          },
-        ),
-        const SizedBox(width: QSpace.s2),
-        DropdownButton<int>(
-          value: value.day,
-          underline: const SizedBox.shrink(),
-          items: [
-            for (var d = 1; d <= MosqueSeason.maxDay(value.month); d++)
-              DropdownMenuItem(value: d, child: Text(context.digits('$d'))),
-          ],
-          onChanged: (d) {
-            if (d != null) {
-              set((month: value.month, day: d));
-            }
-          },
-        ),
-      ],
-    );
+    Widget picker(MonthDay value, MonthDay other, ValueChanged<MonthDay> set) {
+      // No Feb 29 – Feb 29 season: it would never apply in common years.
+      int maxFor(int month) =>
+          month == 2 && other == (month: 2, day: 29) && value != other
+          ? 28
+          : MosqueSeason.maxDay(month);
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButton<int>(
+            value: value.month,
+            underline: const SizedBox.shrink(),
+            items: [
+              for (var m = 1; m <= 12; m++)
+                DropdownMenuItem(
+                  value: m,
+                  child: Text(months.format(DateTime(2024, m))),
+                ),
+            ],
+            onChanged: (m) {
+              if (m != null) {
+                // Keep the day valid for the new month (Jan 31 → Feb 29).
+                final max = maxFor(m);
+                set((month: m, day: value.day > max ? max : value.day));
+              }
+            },
+          ),
+          const SizedBox(width: QSpace.s2),
+          DropdownButton<int>(
+            value: value.day,
+            underline: const SizedBox.shrink(),
+            items: [
+              for (var d = 1; d <= maxFor(value.month); d++)
+                DropdownMenuItem(value: d, child: Text(context.digits('$d'))),
+            ],
+            onChanged: (d) {
+              if (d != null) {
+                set((month: value.month, day: d));
+              }
+            },
+          ),
+        ],
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(QSpace.s3),
       decoration: BoxDecoration(
@@ -295,12 +297,20 @@ final class _SeasonCard extends StatelessWidget {
                 l10n.scheduleFrom,
                 style: QType.caption.copyWith(color: q.ink2),
               ),
-              picker(season.start, (d) => onChanged(season.copyWith(start: d))),
+              picker(
+                season.start,
+                season.end,
+                (d) => onChanged(season.copyWith(start: d)),
+              ),
               Text(
                 l10n.scheduleTo,
                 style: QType.caption.copyWith(color: q.ink2),
               ),
-              picker(season.end, (d) => onChanged(season.copyWith(end: d))),
+              picker(
+                season.end,
+                season.start,
+                (d) => onChanged(season.copyWith(end: d)),
+              ),
             ],
           ),
         ],

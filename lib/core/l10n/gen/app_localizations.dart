@@ -4124,6 +4124,12 @@ abstract class AppLocalizations {
   /// **'temporary switch'**
   String get mosqueSeasonReasonOverride;
 
+  /// No description provided for @mosqueSeasonReasonFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'no rule, season or default applies'**
+  String get mosqueSeasonReasonFallback;
+
   /// No description provided for @nearbyMosquesHint.
   ///
   /// In en, this message translates to:

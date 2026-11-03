@@ -16,7 +16,10 @@ enum MosqueReason {
   /// A [MosqueSeason] covering today's date.
   season,
 
-  /// The default mosque (or, failing that, the selection / first profile).
+  /// The default mosque.
+  defaultMosque,
+
+  /// No rule, season or default applies: the selection / first profile.
   fallback,
 }
 
@@ -27,7 +30,12 @@ final class MosqueResolution {
     this.profile,
     this.isOverride = false,
     this.reason = MosqueReason.fallback,
+    this.season,
   });
+
+  /// The season that decided [profile] when [reason] is
+  /// [MosqueReason.season]; otherwise null.
+  final MosqueSeason? season;
 
   /// The resolved profile, or null when there are none.
   final MosqueProfile? profile;
@@ -49,10 +57,11 @@ final class MosqueResolution {
       other.profile == profile &&
       other.mode == mode &&
       other.isOverride == isOverride &&
-      other.reason == reason;
+      other.reason == reason &&
+      other.season == season;
 
   @override
-  int get hashCode => Object.hash(profile, mode, isOverride, reason);
+  int get hashCode => Object.hash(profile, mode, isOverride, reason, season);
 }
 
 MosqueProfile? _byId(MosqueState state, String? id) {
@@ -70,24 +79,27 @@ MosqueProfile? _byId(MosqueState state, String? id) {
 /// Precedence: first matching time-of-day rule, then first season covering
 /// [now]'s date (the day's base mosque), then the default, the manual
 /// selection, the first profile.
-(String?, MosqueReason) _resolveAuto(MosqueState state, DateTime now) {
+(String?, MosqueReason, MosqueSeason?) _resolveAuto(
+  MosqueState state,
+  DateTime now,
+) {
   for (final rule in state.rules) {
     if (_byId(state, rule.mosqueId) != null && rule.matches(now)) {
-      return (rule.mosqueId, MosqueReason.rule);
+      return (rule.mosqueId, MosqueReason.rule, null);
     }
   }
   for (final season in state.seasons) {
     if (_byId(state, season.mosqueId) != null && season.contains(now)) {
-      return (season.mosqueId, MosqueReason.season);
+      return (season.mosqueId, MosqueReason.season, season);
     }
   }
   if (_byId(state, state.defaultId) != null) {
-    return (state.defaultId, MosqueReason.fallback);
+    return (state.defaultId, MosqueReason.defaultMosque, null);
   }
   if (_byId(state, state.activeId) != null) {
-    return (state.activeId, MosqueReason.fallback);
+    return (state.activeId, MosqueReason.fallback, null);
   }
-  return (state.profiles.firstOrNull?.id, MosqueReason.fallback);
+  return (state.profiles.firstOrNull?.id, MosqueReason.fallback, null);
 }
 
 /// The mosque the schedule alone resolves to at [now], ignoring any override.
@@ -113,7 +125,7 @@ MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
       reason: MosqueReason.manual,
     );
   }
-  final (autoId, reason) = _resolveAuto(state, now);
+  final (autoId, reason, season) = _resolveAuto(state, now);
   final override = state.activeOverride;
   if (override != null &&
       override.baselineAutoId == autoId &&
@@ -130,5 +142,6 @@ MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
     mode: state.mode,
     profile: _byId(state, autoId),
     reason: reason,
+    season: season,
   );
 }

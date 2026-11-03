@@ -103,6 +103,9 @@ final class MosqueSeason {
 
   /// Whether [date]'s month/day lies in the range. In a common year a
   /// Feb 29 end still includes Feb 28 and a Feb 29 start begins on Mar 1.
+  /// Two edge cases follow: a single-day Feb 29 season never applies in a
+  /// common year (the editor doesn't offer it), and Mar 1 – Feb 28 leaves
+  /// Feb 29 of a leap year uncovered.
   bool contains(DateTime date) {
     int key(MonthDay d) => d.month * 100 + d.day;
     final k = date.month * 100 + date.day;

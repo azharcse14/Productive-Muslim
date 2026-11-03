@@ -1316,6 +1316,7 @@
   },
   "mosqueSeasonReasonDefault": "default mosque",
   "mosqueSeasonReasonOverride": "temporary switch",
+  "mosqueSeasonReasonFallback": "no rule, season or default applies",
   "nearbyMosquesHint": "Opens in Maps",
   "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed or you're online.",
   "nearbyMosquesLocationError": "Set your location first to find nearby mosques.",

@@ -2759,6 +2759,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get mosqueSeasonReasonOverride => 'সাময়িক পরিবর্তন';
 
   @override
+  String get mosqueSeasonReasonFallback =>
+      'কোনো নিয়ম, মৌসুম বা ডিফল্ট প্রযোজ্য নয়';
+
+  @override
   String get nearbyMosquesHint => 'ম্যাপে খুলবে';
 
   @override

@@ -2767,6 +2767,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mosqueSeasonReasonOverride => 'temporary switch';
 
   @override
+  String get mosqueSeasonReasonFallback => 'no rule, season or default applies';
+
+  @override
   String get nearbyMosquesHint => 'Opens in Maps';
 
   @override
