@@ -11,6 +11,7 @@ import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/islamic_dates.dart';
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_hijri_offset.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
@@ -48,7 +49,7 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       locator<HomeStore>().dateKey.value;
     }
     final location = _settings.location.value;
-    final now = location == null ? DateTime.now() : _clock.nowAt(location);
+    final now = location == null ? floatingNow() : _clock.nowAt(location);
     return DateTime(now.year, now.month, now.day);
   }
 

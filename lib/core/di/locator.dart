@@ -110,6 +110,7 @@ import '../router/app_router.dart';
 import '../utils/haptics.dart';
 import '../utils/hijri_date.dart';
 import '../utils/time_format.dart';
+import '../utils/wall_time.dart';
 
 /// Global service locator. The ONLY place registrations happen
 /// (guide §4 — single composition root). Widgets never call
@@ -591,7 +592,7 @@ void _onNotificationTap(String? payload, String? actionId) {
 DateTime _wallNow() {
   final location = locator<SettingsStore>().location.value;
   return location == null
-      ? DateTime.now()
+      ? floatingNow()
       : locator<ZonedClock>().nowAt(location);
 }
 

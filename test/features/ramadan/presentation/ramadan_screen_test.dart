@@ -41,8 +41,16 @@ final class _FixedClock implements ZonedClock {
   final DateTime now;
   final _real = TimezoneClock();
 
+  // Floating wall time, like TimezoneClock.
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => DateTime.utc(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>

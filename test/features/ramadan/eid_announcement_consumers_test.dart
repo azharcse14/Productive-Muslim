@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
@@ -47,7 +48,7 @@ final class _FixedClock implements ZonedClock {
   final _real = TimezoneClock();
 
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => now.floating;
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>

@@ -4,6 +4,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../my_mosque/domain/entities/mosque_profile.dart';
 import '../../../my_mosque/domain/entities/mosque_schedule.dart';
@@ -34,10 +35,12 @@ final class HomeStore {
     required ZonedClock clock,
     required SettingsStore settings,
     required MosqueStore mosque,
+    DateTime Function()? utcNow,
   }) : _getPrayerDay = getPrayerDay,
        _clock = clock,
        _settings = settings,
-       _mosque = mosque {
+       _mosque = mosque,
+       _utcNow = utcNow ?? _deviceUtcNow {
     now = signal(_wallNow());
     // Slow until Home shows and resumes it: other screens (e.g. a cold
     // start into Muhasaba) create the store but need only the day flip.
@@ -64,6 +67,12 @@ final class HomeStore {
   final ZonedClock _clock;
   final SettingsStore _settings;
   final MosqueStore _mosque;
+  final DateTime Function() _utcNow;
+
+  static DateTime _deviceUtcNow() => DateTime.now().toUtc();
+
+  /// The device's real instant read with the last [now] tick.
+  late DateTime _nowUtc;
 
   /// Wall clock at the configured location, ticked every second.
   late final Signal<DateTime> now;
@@ -92,8 +101,9 @@ final class HomeStore {
   }
 
   DateTime _wallNow() {
+    _nowUtc = _utcNow();
     final location = _settings.location.value;
-    return location == null ? DateTime.now() : _clock.nowAt(location);
+    return location == null ? floatingNow() : _clock.nowAt(location);
   }
 
   /// The configured location (null until setup).
@@ -397,7 +407,17 @@ final class HomeStore {
     if (day == null) {
       return const [];
     }
-    return resolveSpecialWindows(day, preFajr: _preFajr.value);
+    return resolveSpecialWindows(
+      day,
+      preFajr: _preFajr.value,
+      zone: switch (location.value) {
+        final loc? => (
+          instantOf: (wall) => _clock.utcInstantOf(loc, wall),
+          wallOf: (instant) => _clock.instantAt(loc, instant),
+        ),
+        null => null,
+      },
+    );
   });
 
   /// The special window the clock is currently inside, or null. A value
@@ -435,19 +455,33 @@ final class HomeStore {
     if (target == null) {
       return Duration.zero;
     }
-    // Through real instants: a manual city's wall times are plain local
-    // DateTimes, so subtracting them directly would pick up the device's
-    // DST shift instead of the city's.
-    // ponytail: a city wall time inside the device's spring-forward gap is
-    // still shifted an hour at construction; wall times would need their
-    // own zone-free type to fix that.
-    final r = target.remainingAt(now.value, instantOf.value);
+    // Through real instants: wall times are floating, so subtracting them
+    // directly would miss the location's own DST shift.
+    final r = target.remainingAt(now.value, instantOf.value, _nowInstant());
     return r.isNegative ? Duration.zero : r;
   });
 
   late final progress = computed(
-    () => countdownTarget.value?.progressAt(now.value, instantOf.value) ?? 0.0,
+    () =>
+        countdownTarget.value?.progressAt(
+          now.value,
+          instantOf.value,
+          _nowInstant(),
+        ) ??
+        0.0,
   );
+
+  /// [now]'s real instant (null until setup): the device instant read with
+  /// it, so the location's repeated fall-back hour isn't guessed.
+  DateTime? _nowInstant() => switch (location.value) {
+    final loc? => nowInstant(
+      now.value,
+      deviceUtc: _nowUtc,
+      instantOf: (wall) => _clock.utcInstantOf(loc, wall),
+      wallOf: (instant) => _clock.instantAt(loc, instant),
+    ),
+    null => null,
+  };
 
   /// Wall time → real instant at the location (null until setup).
   late final instantOf = computed<DateTime Function(DateTime)?>(() {

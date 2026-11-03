@@ -41,7 +41,7 @@ void main() {
   void register({Locale device = const Locale('en', 'US')}) {
     store = ExpenseStore(
       SharedPreferencesAsync(),
-      now: () => DateTime(2026, 10, 26, 10),
+      now: () => DateTime.utc(2026, 10, 26, 10),
       deviceLocale: () => device,
     );
     GetIt.I.registerSingleton<ExpenseStore>(store);
@@ -136,10 +136,13 @@ void main() {
       note: 'n$amount',
       date: date,
     );
-    await add(10000, DateTime(2026, 9, 10));
-    await add(50000, DateTime(2026, 9, 28)); // after "now"'s day: not counted
-    await add(8000, DateTime(2026, 10, 26, 9));
-    await add(5000, DateTime(2026, 10, 25));
+    await add(10000, DateTime.utc(2026, 9, 10));
+    await add(
+      50000,
+      DateTime.utc(2026, 9, 28),
+    ); // after "now"'s day: not counted
+    await add(8000, DateTime.utc(2026, 10, 26, 9));
+    await add(5000, DateTime.utc(2026, 10, 25));
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     expect(find.text(r'$30.00 more than this time last month'), findsOneWidget);
@@ -155,13 +158,13 @@ void main() {
     // TZ=America/New_York to exercise it).
     store = ExpenseStore(
       SharedPreferencesAsync(),
-      now: () => DateTime(2026, 3, 9, 10),
+      now: () => DateTime.utc(2026, 3, 9, 10),
     );
     GetIt.I.registerSingleton<ExpenseStore>(store);
     await store.add(
       amount: 50,
       category: ExpenseCategory.want,
-      date: DateTime(2026, 3, 8, 12),
+      date: DateTime.utc(2026, 3, 8, 12),
     );
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -332,7 +335,7 @@ void main() {
       amount: 2,
       category: ExpenseCategory.want,
       note: 'lower',
-      date: DateTime(2026, 10, 2),
+      date: DateTime.utc(2026, 10, 2),
     );
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -473,7 +476,7 @@ void main() {
   testWidgets('a new entry is stamped when saved, not when the sheet opened', (
     tester,
   ) async {
-    var clock = DateTime(2026, 10, 26, 10);
+    var clock = DateTime.utc(2026, 10, 26, 10);
     store = ExpenseStore(SharedPreferencesAsync(), now: () => clock);
     GetIt.I.registerSingleton<ExpenseStore>(store);
     await tester.pumpWidget(_app());
@@ -482,10 +485,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, '120');
     await tester.pump();
-    clock = DateTime(2026, 10, 26, 10, 45);
+    clock = DateTime.utc(2026, 10, 26, 10, 45);
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    expect(store.entries.value.single.date, DateTime(2026, 10, 26, 10, 45));
+    expect(store.entries.value.single.date, DateTime.utc(2026, 10, 26, 10, 45));
   });
 
   testWidgets('re-dating an evening entry to today never lands after now', (
@@ -496,7 +499,7 @@ void main() {
       amount: 80,
       category: ExpenseCategory.want,
       note: 'tea',
-      date: DateTime(2026, 10, 25, 21, 30),
+      date: DateTime.utc(2026, 10, 25, 21, 30),
     );
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -515,7 +518,38 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    expect(store.entries.value.single.date, DateTime(2026, 10, 26, 10));
+    expect(store.entries.value.single.date, DateTime.utc(2026, 10, 26, 10));
+  });
+
+  testWidgets('re-dating a morning entry to today keeps its wall time', (
+    tester,
+  ) async {
+    register(); // now = Oct 26, 10:00 (floating)
+    await store.add(
+      amount: 80,
+      category: ExpenseCategory.want,
+      note: 'tea',
+      date: DateTime.utc(2026, 10, 25, 8),
+    );
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('tea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.calendar_today_outlined));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('26'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    // Not clamped by a device-offset comparison, and stored floating.
+    expect(store.entries.value.single.date, DateTime.utc(2026, 10, 26, 8));
   });
 
   testWidgets('the editor close button asks before dropping an amount', (

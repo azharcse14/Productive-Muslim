@@ -857,13 +857,16 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       context: context,
       initialDate: _date.isAfter(now) ? now : _date,
       // An imported entry may predate 2000; the picker asserts on it.
-      firstDate: _date.isBefore(DateTime(2000)) ? _date : DateTime(2000),
+      firstDate: _date.isBefore(DateTime.utc(2000))
+          ? _date
+          : DateTime.utc(2000),
       lastDate: now,
     );
     if (picked != null) {
       // Keep the time of day so same-day entries stay in entry order —
       // but never past now (re-dating an evening entry to today).
-      final kept = DateTime(
+      // Floating, like every wall time (see `ZonedClock`).
+      final kept = DateTime.utc(
         picked.year,
         picked.month,
         picked.day,

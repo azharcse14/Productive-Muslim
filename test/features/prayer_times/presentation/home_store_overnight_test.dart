@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
@@ -43,7 +44,7 @@ final class _FixedClock implements ZonedClock {
   final _real = TimezoneClock();
 
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => now.floating;
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
@@ -63,15 +64,15 @@ final class _LateIshaDays implements PrayerDayRepository {
     required DateTime date,
   }) => Result.success(
     PrayerDay(
-      maghribYesterday: DateTime(2026, 6, 20, 21, 20),
-      ishaYesterday: DateTime(2026, 6, 21, 0, 30),
-      fajr: DateTime(2026, 6, 21, 2, 50),
-      sunrise: DateTime(2026, 6, 21, 4, 43),
-      dhuhr: DateTime(2026, 6, 21, 13, 2),
-      asr: DateTime(2026, 6, 21, 17, 25),
-      maghrib: DateTime(2026, 6, 21, 21, 21),
-      isha: DateTime(2026, 6, 22, 0, 31),
-      fajrTomorrow: DateTime(2026, 6, 22, 2, 51),
+      maghribYesterday: DateTime.utc(2026, 6, 20, 21, 20),
+      ishaYesterday: DateTime.utc(2026, 6, 21, 0, 30),
+      fajr: DateTime.utc(2026, 6, 21, 2, 50),
+      sunrise: DateTime.utc(2026, 6, 21, 4, 43),
+      dhuhr: DateTime.utc(2026, 6, 21, 13, 2),
+      asr: DateTime.utc(2026, 6, 21, 17, 25),
+      maghrib: DateTime.utc(2026, 6, 21, 21, 21),
+      isha: DateTime.utc(2026, 6, 22, 0, 31),
+      fajrTomorrow: DateTime.utc(2026, 6, 22, 2, 51),
     ),
   );
 }
@@ -108,7 +109,7 @@ void main() {
   test(
     "before a past-midnight isha, yesterday's maghrib is checkable",
     () async {
-      final store = await at(DateTime(2026, 6, 21, 0, 10));
+      final store = await at(DateTime.utc(2026, 6, 21, 0, 10));
       expect(store.activeWaqt.value?.prayer, Prayer.maghrib);
       expect(store.overnightWaqt.value, Prayer.maghrib);
       expect(store.lockedPrayers.value, isNot(contains(Prayer.maghrib)));
@@ -119,7 +120,7 @@ void main() {
   );
 
   test("once it starts, yesterday's isha is the overnight waqt", () async {
-    final store = await at(DateTime(2026, 6, 21, 1));
+    final store = await at(DateTime.utc(2026, 6, 21, 1));
     expect(store.overnightWaqt.value, Prayer.isha);
     expect(store.lockedPrayers.value, isNot(contains(Prayer.isha)));
     expect(store.salahDate(Prayer.isha), DateTime(2026, 6, 20));
@@ -129,7 +130,7 @@ void main() {
 
   test("the overnight row's jamaat and range are yesterday's", () async {
     final store = await at(
-      DateTime(2026, 6, 21, 1),
+      DateTime.utc(2026, 6, 21, 1),
       mosqueState: const MosqueState(
         profiles: [
           MosqueProfile(
@@ -143,14 +144,17 @@ void main() {
     );
     // Yesterday's isha 00:30 → today's fajr 02:50, not tonight's 00:31 → …
     expect(store.waqtRangeOf(Prayer.isha), (
-      DateTime(2026, 6, 21, 0, 30),
-      DateTime(2026, 6, 21, 2, 50),
+      DateTime.utc(2026, 6, 21, 0, 30),
+      DateTime.utc(2026, 6, 21, 2, 50),
     ));
-    expect(store.rowJamaat.value[Prayer.isha], DateTime(2026, 6, 21, 0, 40));
+    expect(
+      store.rowJamaat.value[Prayer.isha],
+      DateTime.utc(2026, 6, 21, 0, 40),
+    );
     // Other rows keep today's window.
     expect(store.waqtRangeOf(Prayer.maghrib), (
-      DateTime(2026, 6, 21, 21, 21),
-      DateTime(2026, 6, 22, 0, 31),
+      DateTime.utc(2026, 6, 21, 21, 21),
+      DateTime.utc(2026, 6, 22, 0, 31),
     ));
     store.dispose();
   });
@@ -158,7 +162,7 @@ void main() {
   test("the overnight row's jamaat comes from the mosque active at its "
       'start, not the one active now', () async {
     final store = await at(
-      DateTime(2026, 6, 21, 1),
+      DateTime.utc(2026, 6, 21, 1),
       mosqueState: const MosqueState(
         profiles: [
           MosqueProfile(
@@ -185,16 +189,19 @@ void main() {
       ),
     );
     expect(store.mosqueResolution.value.profile?.id, 'b');
-    expect(store.rowJamaat.value[Prayer.isha], DateTime(2026, 6, 21, 0, 40));
+    expect(
+      store.rowJamaat.value[Prayer.isha],
+      DateTime.utc(2026, 6, 21, 0, 40),
+    );
     // The countdown agrees: A's 00:40 has passed, so it targets the waqt
     // end, not B's 01:10.
-    expect(store.countdownTarget.value?.at, DateTime(2026, 6, 21, 2, 50));
+    expect(store.countdownTarget.value?.at, DateTime.utc(2026, 6, 21, 2, 50));
     store.dispose();
   });
 
   test('a jamaat at or past its waqt end is left off the row', () async {
     final store = await at(
-      DateTime(2026, 6, 21, 12),
+      DateTime.utc(2026, 6, 21, 12),
       mosqueState: const MosqueState(
         profiles: [
           MosqueProfile(
@@ -213,7 +220,7 @@ void main() {
     expect(store.rowJamaat.value.containsKey(Prayer.asr), isFalse);
     expect(
       store.rowJamaat.value[Prayer.maghrib],
-      DateTime(2026, 6, 21, 21, 30),
+      DateTime.utc(2026, 6, 21, 21, 30),
     );
     store.dispose();
   });

@@ -40,7 +40,7 @@ final class _FixedClock implements ZonedClock {
   final _real = TimezoneClock();
 
   @override
-  DateTime nowAt(LocationConfig location) => DateTime(2026, 11, 2, 10);
+  DateTime nowAt(LocationConfig location) => DateTime.utc(2026, 11, 2, 10);
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
