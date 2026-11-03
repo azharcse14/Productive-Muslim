@@ -56,16 +56,21 @@ void main() {
     () async {
       await SharedPreferencesAsync().setStringList('dua_favorites_v1', [
         'tv_safar',
-        'me_1',
+        'dua_safar',
       ]);
       final store = DuaFavoritesStore(SharedPreferencesAsync());
       await store.load();
 
-      expect(store.ids.value, {'dua_safar', 'me_1'});
+      expect(store.ids.value, {'dua_safar'});
 
       await store.toggle('dua_safar');
+      expect(
+        await SharedPreferencesAsync().getStringList('dua_favorites_v1'),
+        isEmpty,
+      );
+      await store.toggle('dua_safar');
       expect(await SharedPreferencesAsync().getStringList('dua_favorites_v1'), [
-        'me_1',
+        'dua_safar',
       ]);
     },
   );

@@ -328,7 +328,7 @@
           "id": "hm_5_12_110",
           "ar": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيْمِ",
           "tr": "Subhanallahi wa bi'hamdihi, sub'hanallahil 'adhim",
-          "en": "Glory be to Allah and His is the praise, (and) Allah, the Greatest is free from imperfection",
+          "en": "Glory be to Allah and His is the praise, Allah, the Greatest is free from imperfection",
           "bn": "আমরা আল্লাহ্‌ তা’আলার প্রশংসাসহ তাঁর পবিত্রতা ঘোষণা করছি, মহান আল্লাহ্‌ অতীব পবিত্র",
           "ref": "Bukhari: 6682",
           "repeat": 1,
@@ -775,6 +775,18 @@
       "icon": "food",
       "duas": [
         {
+          "id": "bismillah_food",
+          "ar": "بِسْمِ اللَّهِ",
+          "tr": "Bismillāh",
+          "trBn": "বিসমিল্লা-হ",
+          "en": "In the name of Allah. (If you forgot at the start, say: Bismillāhi awwalahu wa ākhirah — “In the name of Allah at its beginning and its end.”)",
+          "bn": "আল্লাহর নামে। (শুরুতে ভুলে গেলে বলবে: বিসমিল্লাহি আওয়ালাহু ওয়া আখিরাহু — শুরু ও শেষে আল্লাহর নামে)",
+          "ref": "Bukhari 5376 (say Bismillah before eating). If forgotten at the start, say: بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ — Abu Dawud 3767 (Sahih, al-Albani), Tirmidhi 1858",
+          "repeat": 1,
+          "titleEn": "Beginning and forgetting Bismillah",
+          "titleBn": "খাবারের শুরুতে ও ভুলে গেলে"
+        },
+        {
           "id": "fd_bismillah_forgot",
           "ar": "بِسْمِ اللَّهِ فِي أَوَّلِهِ وَآخِرِهِ",
           "tr": "Bismillahi fi awwalihi wa akhirih",
@@ -823,18 +835,6 @@
           "bn": "তৃষ্ণা দূর হয়েছে, শিরাগুলো সিক্ত হয়েছে এবং আল্লাহ চাইলে সওয়াব নিশ্চিত হয়েছে। (ইফতারের সময় বলতে হয়)",
           "ref": "Abu Dawud 2/306",
           "repeat": 1
-        },
-        {
-          "id": "bismillah_food",
-          "ar": "بِسْمِ اللَّهِ",
-          "tr": "Bismillāh",
-          "trBn": "বিসমিল্লা-হ",
-          "en": "In the name of Allah. (If you forgot at the start, say: Bismillāhi awwalahu wa ākhirah — “In the name of Allah at its beginning and its end.”)",
-          "bn": "আল্লাহর নামে। (শুরুতে ভুলে গেলে বলবে: বিসমিল্লাহি আওয়ালাহু ওয়া আখিরাহু — শুরু ও শেষে আল্লাহর নামে)",
-          "ref": "Bukhari 5376 (say Bismillah before eating). If forgotten at the start, say: بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ — Abu Dawud 3767 (Sahih, al-Albani), Tirmidhi 1858",
-          "repeat": 1,
-          "titleEn": "Beginning and forgetting Bismillah",
-          "titleBn": "খাবারের শুরুতে ও ভুলে গেলে"
         }
       ]
     },
@@ -842,6 +842,18 @@
       "id": "home",
       "icon": "walk",
       "duas": [
+        {
+          "id": "bismillah_tawakkaltu",
+          "ar": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+          "tr": "Bismillāhi tawakkaltu ʿalallāh, lā ḥawla wa lā quwwata illā billāh.",
+          "trBn": "বিসমিল্লা-হি, তাওয়াক্কালতু ‘আলাল্লা-হি, লা- ‘হাওলা ওয়ালা- ক্বুওয়্যাতা ইল্লা- বিল্লা-হ",
+          "en": "In the name of Allah, I rely upon Allah; there is no might nor power except with Allah.",
+          "bn": "আল্লাহর নামে, আমি আল্লাহর উপর ভরসা করলাম; আল্লাহ ছাড়া কোনো শক্তি ও ক্ষমতা নেই।",
+          "ref": "Abu Dawud 5095 (Sahih, al-Albani), Tirmidhi 3426 — you are guided, sufficed and protected; Shaytan withdraws",
+          "repeat": 1,
+          "titleEn": "On leaving the home",
+          "titleBn": "ঘর থেকে বের হওয়ার সময়"
+        },
         {
           "id": "hm_8_17_155",
           "ar": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ اَللَّـهُمَّ إِنَّا نَعُوذُ بِكَ مِنْ أَنْ نَزِلَّ أَوْ نَضِلَّ أَوْ نَظْلِمَ أَوْ نُظْلَمَ أَوْ نَجْهَلَ أَوْ يُجْهَلَ عَلَيْنَا",
@@ -891,18 +903,6 @@
           "ref": "[1] Abu Dawud 5096 — Hasan per Ibn Baz; Da'if per al-Albani (broken chain)\n[2] Muslim 2018 — mentioning Allah's name on entering the home (general, not this wording)",
           "repeat": 1,
           "trBn": "বিসমিল্লা-হি ওয়ালাজনা, ওয়াবিস্‌মিল্লা-হি খারাজনা, ওয়া ‘আলাল্লা-হি রাব্বিনা তাওয়াক্কালনা"
-        },
-        {
-          "id": "bismillah_tawakkaltu",
-          "ar": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
-          "tr": "Bismillāhi tawakkaltu ʿalallāh, lā ḥawla wa lā quwwata illā billāh.",
-          "trBn": "বিসমিল্লা-হি, তাওয়াক্কালতু ‘আলাল্লা-হি, লা- ‘হাওলা ওয়ালা- ক্বুওয়্যাতা ইল্লা- বিল্লা-হ",
-          "en": "In the name of Allah, I rely upon Allah; there is no might nor power except with Allah.",
-          "bn": "আল্লাহর নামে, আমি আল্লাহর উপর ভরসা করলাম; আল্লাহ ছাড়া কোনো শক্তি ও ক্ষমতা নেই।",
-          "ref": "Abu Dawud 5095 (Sahih, al-Albani), Tirmidhi 3426 — you are guided, sufficed and protected; Shaytan withdraws",
-          "repeat": 1,
-          "titleEn": "On leaving the home",
-          "titleBn": "ঘর থেকে বের হওয়ার সময়"
         }
       ]
     },
@@ -921,10 +921,22 @@
           "repeat": 1
         },
         {
+          "id": "dua_safar",
+          "ar": "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ، اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ",
+          "tr": "Allahu akbar, Allahu akbar, Allahu akbar, subhanal-ladhi sakhkhara lana hadha wa ma kunna lahu muqrinin, wa inna ila rabbina lamunqalibun, Allahumma inna nas'aluka fi safarina hadhal-birra wat-taqwa, wa minal-'amali ma tarda, Allahumma hawwin 'alayna safarana hadha watwi 'anna bu'dah, Allahumma antas-sahibu fis-safari wal-khalifatu fil-ahl, Allahumma inni a'udhu bika min wa'tha'is-safar, wa ka'abatil-manzar, wa su'il-munqalabi fil-mali wal-ahl",
+          "trBn": "আল্লা-হু আকবার, আল্লা-হু আকবার, আল্লা-হু আকবার, সুব‘হা-নাল্লাযী সাখখারা লানা- হা-যা- ওয়ামা- কুন্না- লাহূ মুক্বরিনীন, ওয়া ইন্না- ইলা- রাব্বিনা- লামুনক্বালিবূন, আল্লা-হুম্মা ইন্না- নাস’আলুকা ফী সাফারিনা- হা-যাল বিররা ওয়াত তাক্বওয়া-, ওয়া মিনাল ‘আমালি মা- তারদ্বা-, আল্লা-হুম্মা হাউওয়িন ‘আলাইনা- সাফারানা- হা-যা- ওয়াত্বওয়ি ‘আন্না- বু‘দাহ, আল্লা-হুম্মা আনতাস সা-‘হিবু ফিস সাফারি ওয়াল খালীফাতু ফিল আহল, আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিন ওয়া‘ছা-’ইস সাফারি, ওয়া কা’আ-বাতিল মানযারি, ওয়া সূ’ইল মুনক্বালাবি ফিল মা-লি ওয়াল আহল",
+          "en": "Allah is the Greatest (three times). Glory is to Him who subjected this to us, and we could never have done so by ourselves, and indeed to our Lord we shall return. O Allah, we ask You in this journey of ours for righteousness and piety, and for deeds that please You. O Allah, make this journey easy for us and fold up its distance. O Allah, You are the Companion on the journey and the Guardian of the family. O Allah, I seek refuge in You from the hardship of travel, from a distressing sight, and from an ill return in wealth and family.",
+          "bn": "আল্লাহ সবচেয়ে বড় (তিনবার)। পবিত্র ও মহান তিনি, যিনি এটিকে আমাদের বশীভূত করে দিয়েছেন, অথচ আমরা একে বশ করতে সক্ষম ছিলাম না। আর নিশ্চয়ই আমরা আমাদের রবের কাছেই প্রত্যাবর্তনকারী। হে আল্লাহ! আমরা আমাদের এই সফরে আপনার কাছে নেকি ও তাকওয়া এবং এমন আমল চাই যাতে আপনি সন্তুষ্ট হন। হে আল্লাহ! আমাদের এই সফর সহজ করে দিন এবং এর দূরত্ব সংকুচিত করে দিন। হে আল্লাহ! আপনিই সফরের সঙ্গী এবং পরিবারের অভিভাবক। হে আল্লাহ! আমি আপনার আশ্রয় চাই সফরের কষ্ট থেকে, কষ্টদায়ক দৃশ্য থেকে এবং সম্পদ ও পরিবারে মন্দ প্রত্যাবর্তন থেকে।",
+          "ref": "Muslim 1342 (Ibn Umar) — recited when setting out on a journey (includes Qur'an 43:13-14). On returning, say it again and add: آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ",
+          "repeat": 1,
+          "titleEn": "The supplication of travel",
+          "titleBn": "সফরের দোয়া"
+        },
+        {
           "id": "tv_stopping_place",
           "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
           "tr": "A'udhu bikalimatillahit-tammati min sharri ma khalaq",
-          "trBn": "আ‘ঊযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি মিন শাররি মা- খালাক্ব",
+          "trBn": "আ‘উযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি মিন শাররি মা- খালাক্ব",
           "en": "I seek refuge in the perfect words of Allah from the evil of what He has created. (Said when stopping at a place during a journey.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে তাঁর সৃষ্টির অনিষ্ট থেকে আশ্রয় চাই। (সফরে কোথাও অবতরণ করলে বলতে হয়)",
           "ref": "Muslim 4/2080",
@@ -939,18 +951,6 @@
           "bn": "আমরা প্রত্যাবর্তনকারী, তাওবাকারী, ইবাদতকারী এবং আমাদের রবের প্রশংসাকারী। (সফর থেকে ফেরার সময় বলতে হয়)",
           "ref": "Bukhari 7/163; Muslim 2/980",
           "repeat": 1
-        },
-        {
-          "id": "dua_safar",
-          "ar": "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ، اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ",
-          "tr": "Allahu akbar, Allahu akbar, Allahu akbar, subhanal-ladhi sakhkhara lana hadha wa ma kunna lahu muqrinin, wa inna ila rabbina lamunqalibun, Allahumma inna nas'aluka fi safarina hadhal-birra wat-taqwa, wa minal-'amali ma tarda, Allahumma hawwin 'alayna safarana hadha watwi 'anna bu'dah, Allahumma antas-sahibu fis-safari wal-khalifatu fil-ahl, Allahumma inni a'udhu bika min wa'tha'is-safar, wa ka'abatil-manzar, wa su'il-munqalabi fil-mali wal-ahl",
-          "trBn": "আল্লা-হু আকবার, আল্লা-হু আকবার, আল্লা-হু আকবার, সুব‘হা-নাল্লাযী সাখখারা লানা- হা-যা- ওয়ামা- কুন্না- লাহূ মুক্বরিনীন, ওয়া ইন্না- ইলা- রাব্বিনা- লামুনক্বালিবূন, আল্লা-হুম্মা ইন্না- নাস’আলুকা ফী সাফারিনা- হা-যাল বিররা ওয়াত তাক্বওয়া-, ওয়া মিনাল ‘আমালি মা- তারদ্বা-, আল্লা-হুম্মা হাউওয়িন ‘আলাইনা- সাফারানা- হা-যা- ওয়াত্বওয়ি ‘আন্না- বু‘দাহ, আল্লা-হুম্মা আনতাস সা-‘হিবু ফিস সাফারি ওয়াল খালীফাতু ফিল আহল, আল্লা-হুম্মা ইন্নী আ‘ঊযু বিকা মিন ওয়া‘ছা-’ইস সাফারি, ওয়া কা’আ-বাতিল মানযারি, ওয়া সূ’ইল মুনক্বালাবি ফিল মা-লি ওয়াল আহল",
-          "en": "Allah is the Greatest (three times). Glory is to Him who subjected this to us, and we could never have done so by ourselves, and indeed to our Lord we shall return. O Allah, we ask You in this journey of ours for righteousness and piety, and for deeds that please You. O Allah, make this journey easy for us and fold up its distance. O Allah, You are the Companion on the journey and the Guardian of the family. O Allah, I seek refuge in You from the hardship of travel, from a distressing sight, and from an ill return in wealth and family.",
-          "bn": "আল্লাহ সবচেয়ে বড় (তিনবার)। পবিত্র ও মহান তিনি, যিনি এটিকে আমাদের বশীভূত করে দিয়েছেন, অথচ আমরা একে বশ করতে সক্ষম ছিলাম না। আর নিশ্চয়ই আমরা আমাদের রবের কাছেই প্রত্যাবর্তনকারী। হে আল্লাহ! আমরা আমাদের এই সফরে আপনার কাছে নেকি ও তাকওয়া এবং এমন আমল চাই যাতে আপনি সন্তুষ্ট হন। হে আল্লাহ! আমাদের এই সফর সহজ করে দিন এবং এর দূরত্ব সংকুচিত করে দিন। হে আল্লাহ! আপনিই সফরের সঙ্গী এবং পরিবারের অভিভাবক। হে আল্লাহ! আমি আপনার আশ্রয় চাই সফরের কষ্ট থেকে, কষ্টদায়ক দৃশ্য থেকে এবং সম্পদ ও পরিবারে মন্দ প্রত্যাবর্তন থেকে।",
-          "ref": "Muslim 1342 (Ibn Umar) — recited when setting out on a journey (includes Qur'an 43:13-14). On returning, say it again and add: آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ",
-          "repeat": 1,
-          "titleEn": "The supplication of travel",
-          "titleBn": "সফরের দোয়া"
         }
       ]
     },
@@ -1052,7 +1052,7 @@
           "id": "audhu_ma'tham_maghram",
           "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الْمَحْيَا وَفِتْنَةِ الْمَمَاتِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْمَأْثَمِ وَالْمَغْرَمِ",
           "tr": "Allāhumma innī aʿūdhu bika min ʿadhābil-qabr, wa aʿūdhu bika min fitnatil-masīḥid-dajjāl, wa aʿūdhu bika min fitnatil-maḥyā wa fitnatil-mamāt. Allāhumma innī aʿūdhu bika minal-ma'thami wal-maghram.",
-          "trBn": "আল্লা-হুম্মা ইন্নী আ‘ঊযু বিকা মিন ‘আযা-বিল ক্বাবরি, ওয়া আ‘ঊযু বিকা মিন ফিতনাতিল মাসী‘হিদ দাজ্জা-লি, ওয়া আ‘ঊযু বিকা মিন ফিতনাতিল মা‘হইয়া- ওয়া ফিতনাতিল মামা-ত, আল্লা-হুম্মা ইন্নী আ‘ঊযু বিকা মিনাল মা’ছামি ওয়াল মাগরাম",
+          "trBn": "আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিন ‘আযা-বিল ক্বাবরি, ওয়া আ‘উযু বিকা মিন ফিতনাতিল মাসী‘হিদ দাজ্জা-লি, ওয়া আ‘উযু বিকা মিন ফিতনাতিল মা‘হইয়া- ওয়া ফিতনাতিল মামা-ত, আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিনাল মা’ছামি ওয়াল মাগরাম",
           "en": "O Allah, I seek refuge in You from the punishment of the grave, I seek refuge in You from the trial of the False Messiah (ad-Dajjal), and I seek refuge in You from the trials of life and death. O Allah, I seek refuge in You from sin and from debt.",
           "bn": "হে আল্লাহ, আমি আপনার কাছে আশ্রয় চাই কবরের আযাব থেকে, আশ্রয় চাই মাসীহ দাজ্জালের ফিতনা থেকে এবং আশ্রয় চাই জীবন ও মৃত্যুর ফিতনা থেকে। হে আল্লাহ, আমি আপনার কাছে আশ্রয় চাই পাপ থেকে এবং ঋণ থেকে।",
           "ref": "Bukhari 832, Muslim 589 — recited in the prayer before the salam",
@@ -1110,7 +1110,7 @@
           "id": "ds_hamm_hazan",
           "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ",
           "tr": "Allahumma inni a'udhu bika minal-hammi wal-hazan, wal-'ajzi wal-kasal, wal-bukhli wal-jubn, wa dala'id-dayni wa ghalabatir-rijal",
-          "trBn": "আল্লা-হুম্মা ইন্নী আ‘ঊযু বিকা মিনাল হাম্মি ওয়াল ‘হাঝানি, ওয়াল ‘আজঝি ওয়াল কাসালি, ওয়াল বুখলি ওয়াল জুবনি, ওয়া দ্বালা‘ইদ দাইনি ওয়া গালাবাতির রিজা-ল",
+          "trBn": "আল্লা-হুম্মা ইন্নী আ‘উযু বিকা মিনাল হাম্মি ওয়াল ‘হাঝানি, ওয়াল ‘আজঝি ওয়াল কাসালি, ওয়াল বুখলি ওয়াল জুবনি, ওয়া দ্বালা‘ইদ দাইনি ওয়া গালাবাতির রিজা-ল",
           "en": "O Allah, I seek refuge in You from worry and grief, from incapacity and laziness, from miserliness and cowardice, and from the burden of debt and the oppression of men.",
           "bn": "হে আল্লাহ! আমি আপনার আশ্রয় চাই দুশ্চিন্তা ও দুঃখ থেকে, অক্ষমতা ও অলসতা থেকে, কৃপণতা ও কাপুরুষতা থেকে এবং ঋণের বোঝা ও মানুষের প্রাধান্য থেকে।",
           "ref": "Bukhari 7/158",
@@ -1290,7 +1290,7 @@
           "id": "we_wind",
           "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا",
           "tr": "Allahumma inni as'aluka khayraha, wa a'udhu bika min sharriha",
-          "trBn": "আল্লা-হুম্মা ইন্নী আস’আলুকা খাইরাহা-, ওয়া আ‘ঊযু বিকা মিন শাররিহা-",
+          "trBn": "আল্লা-হুম্মা ইন্নী আস’আলুকা খাইরাহা-, ওয়া আ‘উযু বিকা মিন শাররিহা-",
           "en": "O Allah, I ask You for its good, and I seek refuge in You from its evil. (Said when the wind blows strongly.)",
           "bn": "হে আল্লাহ! আমি আপনার কাছে এর কল্যাণ প্রার্থনা করছি এবং এর অনিষ্ট থেকে আপনার আশ্রয় চাই। (প্রবল বাতাস বইলে বলতে হয়)",
           "ref": "Abu Dawud 4/326; Ibn Majah 2/1228",
@@ -1374,7 +1374,7 @@
           "id": "gr_anta_rabbi",
           "ar": "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
           "tr": "Allahumma ma asbaha bi min ni'matin aw bi-ahadin min khalqika faminka wahdaka la sharika lak, falakal-hamdu wa lakash-shukr",
-          "trBn": "আল্লা-হুম্মা মা- আসবা‘হা বী- মিন নি‘মাতিন আউ বিআ‘হাদিন মিন খালক্বিকা ফামিনকা ওয়া‘হদাকা লা- শারীকা লাকা, ফালাকাল ‘হামদু ওয়া লাকাশ শুকর",
+          "trBn": "আল্লা-হুম্মা মা- আসবা‘হা বী মিন নি‘মাতিন আও বিআ‘হাদিন মিন খালক্বিকা ফামিনকা ওয়া‘হদাকা লা- শারীকা লাকা, ফালাকাল ‘হামদু ওয়া লাকাশ শুকর",
           "en": "O Allah, whatever blessing has come to me or to any of Your creation this morning is from You alone, without partner; so to You is all praise and to You is all thanks. (Said in the morning.)",
           "bn": "হে আল্লাহ! সকালে আমার কাছে বা আপনার কোনো সৃষ্টির কাছে যে নিয়ামত এসেছে তা কেবল আপনারই কাছ থেকে, আপনি একক, আপনার কোনো শরিক নেই; অতএব সকল প্রশংসা আপনার এবং সকল শুকরিয়া আপনার। (সকালে বলতে হয়)",
           "ref": "Abu Dawud 5073 — Da'if per al-Albani and al-Arna'ut; Hasan per Ibn Baz. «أَوْ بِأَحَدٍ مِنْ خَلْقِكَ» is not in Abu Dawud's wording (it is in the Hisnul Muslim version, from al-Nasa'i's 'Amal al-Yawm wa'l-Layla). In the evening say «مَا أَمْسَى بِي»",
@@ -1390,7 +1390,7 @@
           "id": "pr_muawwidhat_note",
           "ar": "قُلْ هُوَ اللَّهُ أَحَدٌ ... قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ... قُلْ أَعُوذُ بِرَبِّ النَّاسِ",
           "tr": "Surah al-Ikhlas, Surah al-Falaq, and Surah an-Nas (recited three times each)",
-          "trBn": "ক্বুল হুওয়াল্লা-হু আ‘হাদ ... ক্বুল আ‘ঊযু বিরাব্বিল ফালাক্ব ... ক্বুল আ‘ঊযু বিরাব্বিন না-স",
+          "trBn": "ক্বুল হুওয়াল্লা-হু আ‘হাদ ... ক্বুল আ‘উযু বিরাব্বিল ফালাক্ব ... ক্বুল আ‘উযু বিরাব্বিন না-স",
           "en": "Recite Surah al-Ikhlas, Surah al-Falaq and Surah an-Nas, three times each, morning and evening for protection.",
           "bn": "সকাল-সন্ধ্যায় হেফাজতের জন্য সূরা আল-ইখলাস, সূরা আল-ফালাক ও সূরা আন-নাস তিনবার করে পাঠ করুন।",
           "ref": "Abu Dawud 4/322; Tirmidhi 5/567",
@@ -1400,7 +1400,7 @@
           "id": "pr_kalimatillah",
           "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
           "tr": "A'udhu bikalimatillahit-tammati min sharri ma khalaq",
-          "trBn": "আ‘ঊযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি মিন শাররি মা- খালাক্ব",
+          "trBn": "আ‘উযু বিকালিমা-তিল্লা-হিত তা-ম্মা-তি মিন শাররি মা- খালাক্ব",
           "en": "I seek refuge in the perfect words of Allah from the evil of what He has created. (Recited three times in the evening for protection.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে তাঁর সৃষ্টির অনিষ্ট থেকে আশ্রয় চাই। (সন্ধ্যায় হেফাজতের জন্য তিনবার পাঠ করা হয়)",
           "ref": "Muslim 2709 (no count); three times in the evening: Tirmidhi 3604 (Hasan)",
@@ -1410,7 +1410,7 @@
           "id": "pr_audhu_bikalimat_children",
           "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
           "tr": "A'udhu bikalimatillahit-tammah min kulli shaytanin wa hammah, wa min kulli 'aynin lammah",
-          "trBn": "আ‘ঊযু বিকালিমা-তিল্লা-হিত তা-ম্মাতি মিন কুল্লি শাইত্বা-নিন ওয়া হা-ম্মাহ, ওয়া মিন কুল্লি ‘আইনিল লা-ম্মাহ",
+          "trBn": "আ‘উযু বিকালিমা-তিল্লা-হিত তা-ম্মাতি মিন কুল্লি শাইত্বা-নিন ওয়া হা-ম্মাহ, ওয়া মিন কুল্লি ‘আইনিল লা-ম্মাহ",
           "en": "I seek refuge in the perfect words of Allah from every devil and every poisonous creature, and from every evil eye. (Said for protection.)",
           "bn": "আমি আল্লাহর পরিপূর্ণ কালিমাসমূহের মাধ্যমে আশ্রয় চাই প্রত্যেক শয়তান ও বিষাক্ত প্রাণী থেকে এবং প্রত্যেক বদনজর থেকে। (হেফাজতের জন্য বলতে হয়)",
           "ref": "Bukhari 3371 — the Prophet ﷺ recited it over al-Hasan and al-Husain; when reciting over children say أُعِيذُكُمَا (two) / أُعِيذُكَ (one) (Abu Dawud 4737, Tirmidhi 2060)",
@@ -1485,7 +1485,7 @@
           "trBn": "লা- ইলা-হা ইল্লাল্লা-হু ওয়া‘হদাহূ লা- শারীকা লাহূ, লাহুল মুলকু ওয়া লাহুল ‘হামদু, ইউ‘হয়ী ওয়া ইউমীতু ওয়া হুওয়া ‘হাইয়্যুল লা- ইয়ামূতু, বিইয়াদিহিল খাইরু ওয়া হুওয়া ‘আলা- কুল্লি শাই’ইন ক্বাদীর",
           "en": "There is no god but Allah alone, without partner. To Him belongs the dominion and to Him is all praise. He gives life and causes death, and He is Living and never dies. In His hand is all good, and He is able to do all things. (Said when entering the marketplace.)",
           "bn": "আল্লাহ ছাড়া কোনো সত্য উপাস্য নেই, তিনি একক, তাঁর কোনো শরিক নেই। রাজত্ব তাঁরই এবং প্রশংসাও তাঁরই। তিনি জীবন দান করেন ও মৃত্যু ঘটান, তিনি চিরঞ্জীব, কখনো মৃত্যুবরণ করেন না। সকল কল্যাণ তাঁরই হাতে এবং তিনি সবকিছুর উপর ক্ষমতাবান। (বাজারে প্রবেশের সময় বলতে হয়)",
-          "ref": "Tirmidhi 3428 — Hasan per al-Albani and Ahmad Shakir, Da'if per Zubair Ali Zai; also Ibn Majah 2235 — Hasan per al-Albani, Da'if per Zubair Ali Zai and Shu'ayb al-Arna'ut",
+          "ref": "Tirmidhi 3428 — Hasan per al-Albani and Ahmad Shakir, Da'if per Zubair Ali Zai; also Ibn Majah 2235 — Hasan per al-Albani, Da'if per Zubair Ali Zai, very weak per Shu'ayb al-Arna'ut",
           "repeat": 1
         },
         {
@@ -1532,7 +1532,7 @@
           "bn": "হে আল্লাহ্‌, এ পরিপূর্ণ আহ্বান এবং প্রতিষ্ঠিত সালাতের মালিক, আপনি মুহাম্মাদ (ﷺ)-কে ওসীলা (নৈকট্য) এবং মহা মর্যাদা দান করুন এবং তাকে সম্মানিত অবস্থানে উন্নীত করুন, যার প্রতিশ্রুতি আপনি তাঁকে দিয়েছেন।",
           "ref": "Bukhari: 614",
           "repeat": 1,
-          "trBn": "আল্লা-হুম্মা, রাব্বা হা-যিহিদ দা‘অ্‌ওয়াতিত তা-ম্মাতি ওয়াস স্বালা-তিল ক্বা-য়িমাহ, আ-তি মু‘হাম্মাদানিল ওয়াসীলাতা ওয়াল ফাদ্বীলাতা, ওয়াব'আছহু মাক্বা-মাম মা‘হমুদানিল্‌লাযী ও‘য়াদতাহু"
+          "trBn": "আল্লা-হুম্মা, রাব্বা হা-যিহিদ দা‘অ্‌ওয়াতিত তা-ম্মাতি ওয়াস স্বালা-তিল ক্বা-য়িমাহ, আ-তি মু‘হাম্মাদানিল ওয়াসীলাতা ওয়াল ফাদ্বীলাতা, ওয়াব‘আছহু মাক্বা-মাম মা‘হমুদানিল্‌লাযী ওয়া‘আদতাহু"
         },
         {
           "id": "hm_10_23_168",
@@ -1542,7 +1542,7 @@
           "bn": "হে আল্লাহ্‌! আপনি ইমামদের সঠিক পথ প্রদর্শন করুন এবং মুআযযিনদের ক্ষমা করুন।",
           "ref": "Sahih (Albani). Abu Dawud: 517",
           "repeat": 1,
-          "trBn": "আল্লা-হুম্মা আরশিদিল আইম্মাতা ওয়াগ্‌ফির লিল্ মুওয়ায্যিনীন্"
+          "trBn": "আল্লা-হুম্মা আরশিদিল আইম্মাতা ওয়াগ্‌ফির লিল মু’আয্যিনীন"
         }
       ]
     },
