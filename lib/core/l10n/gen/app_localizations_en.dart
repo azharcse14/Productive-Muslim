@@ -9,6 +9,29 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get routeNotFound => 'This page isn\'t available.';
+
+  @override
+  String get lockMuhasabaOnly => 'Lock Muhasaba only';
+
+  @override
+  String get lockMuhasabaOnlySub =>
+      'The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app';
+
+  @override
+  String get lockMuhasabaLockedTitle => 'Muhasaba is locked';
+
+  @override
+  String get lockMuhasabaLockedBody =>
+      'Your daily record stays private. Unlock with your PIN to continue.';
+
+  @override
+  String get lockMuhasabaCardSub => 'Open Muhasaba to unlock';
+
+  @override
+  String get lockUnlockAction => 'Unlock';
+
+  @override
   String get quranJuzTabSurahs => 'Surahs';
 
   @override

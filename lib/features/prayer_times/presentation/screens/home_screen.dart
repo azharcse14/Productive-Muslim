@@ -13,6 +13,8 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_banner.dart';
+import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
@@ -31,6 +33,7 @@ import '../../../hadith/presentation/widgets/hadith_card.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../../../nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
+import '../../../onboarding/domain/repositories/app_lock_repository.dart';
 import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
@@ -64,7 +67,10 @@ import 'home_formatting.dart';
 /// table, sahri & iftar (under the countdown during Ramadan), then the
 /// daily cards. Compact adaptation below 700dp height.
 final class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({this.sectionLock, super.key});
+
+  /// Muhasaba section lock; while locked the summary card hides its data.
+  final SectionLockStatus? sectionLock;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -779,6 +785,16 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// Muhasaba (daily-deeds) summary.
   Widget _muhasabaSection(BuildContext context) => SignalBuilder(
     builder: (context) {
+      if (widget.sectionLock?.muhasabaLocked ?? false) {
+        return QCard(
+          child: QListRow(
+            icon: Icons.lock_outline,
+            title: context.l10n.lockMuhasabaLockedTitle,
+            subtitle: context.l10n.lockMuhasabaCardSub,
+            onTap: () => context.goNamed(Routes.muhasaba.name),
+          ),
+        );
+      }
       final stats = _muhasaba.stats.value;
       if (stats == null) {
         return const SizedBox.shrink();

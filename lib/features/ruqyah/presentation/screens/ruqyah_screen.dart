@@ -20,7 +20,6 @@ import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/ruqyah.dart';
 import '../state/ruqyah_store.dart';
 import '../widgets/ruqyah_card.dart';
-import 'ruqyah_category_screen.dart';
 
 /// Ruqyah landing: a short "how to" guidance card, then the category grid
 /// of authentic Qur'anic verses and prophetic supplications.
@@ -41,15 +40,6 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
     if (!_store.loaded.value) {
       unawaited(_store.load());
     }
-  }
-
-  void _open(Widget screen) {
-    Haptics.selection();
-    unawaited(
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
-    );
   }
 
   @override
@@ -132,8 +122,15 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                           subtitle: context.digits(
                             l10n.ruqyahCount(category.items.length),
                           ),
-                          onTap: () =>
-                              _open(RuqyahCategoryScreen(category: category)),
+                          onTap: () {
+                            Haptics.selection();
+                            unawaited(
+                              context.pushNamed(
+                                Routes.ruqyahCategory.name,
+                                pathParameters: {'id': category.id},
+                              ),
+                            );
+                          },
                         ),
                     ],
                   ),

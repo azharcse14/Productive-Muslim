@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -20,17 +22,11 @@ import '../../domain/entities/dua.dart';
 import '../state/dua_favorites_store.dart';
 import '../state/dua_store.dart';
 import '../widgets/dua_card.dart';
-import 'asmaul_husna_screen.dart';
-import 'dua_category_screen.dart';
-import 'tasbih_screen.dart';
 
 /// Dua & Tasbih landing (design §4.8): tasbih + Asmaul Husna feature cards
 /// up top, then the dua category grid.
 final class DuaScreen extends StatefulWidget {
-  const DuaScreen({super.key, this.openCategory});
-
-  /// Category id to open on arrival (deep link), e.g. 'salah'.
-  final String? openCategory;
+  const DuaScreen({super.key});
 
   @override
   State<DuaScreen> createState() => _DuaScreenState();
@@ -44,25 +40,11 @@ final class _DuaScreenState extends State<DuaScreen> {
   @override
   void initState() {
     super.initState();
-    final loading = _store.loaded.value ? null : _store.load();
-    if (loading != null) {
-      unawaited(loading);
-    }
-    if (widget.openCategory case final id?) {
-      unawaited(_openCategory(id, loading));
+    if (!_store.loaded.value) {
+      unawaited(_store.load());
     }
     if (!_favorites.loaded.value) {
       unawaited(_favorites.load());
-    }
-  }
-
-  Future<void> _openCategory(String id, Future<void>? loading) async {
-    await loading;
-    final category = _store.categories.value
-        .where((c) => c.id == id)
-        .firstOrNull;
-    if (category != null && mounted) {
-      _push(DuaCategoryScreen(category: category));
     }
   }
 
@@ -76,13 +58,9 @@ final class _DuaScreenState extends State<DuaScreen> {
     ];
   }
 
-  void _push(Widget screen) {
+  void _push(String name, [Map<String, String> pathParameters = const {}]) {
     Haptics.selection();
-    unawaited(
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
-    );
+    unawaited(context.pushNamed(name, pathParameters: pathParameters));
   }
 
   @override
@@ -157,7 +135,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                           size: 22,
                           color: context.q.onPrimarySoft,
                         ),
-                        onTap: () => _push(const TasbihScreen()),
+                        onTap: () => _push(Routes.tasbih.name),
                       ),
                     ),
                     const SizedBox(width: QSpace.s3),
@@ -165,7 +143,7 @@ final class _DuaScreenState extends State<DuaScreen> {
                       child: _FeatureCard(
                         title: l10n.asmaulHusnaTitle,
                         icon: Star8(color: context.q.onPrimarySoft, size: 22),
-                        onTap: () => _push(const AsmaulHusnaScreen()),
+                        onTap: () => _push(Routes.asmaulHusna.name),
                       ),
                     ),
                   ],
@@ -210,8 +188,9 @@ final class _DuaScreenState extends State<DuaScreen> {
                           subtitle: context.digits(
                             l10n.duaCount(category.duas.length),
                           ),
-                          onTap: () =>
-                              _push(DuaCategoryScreen(category: category)),
+                          onTap: () => _push(Routes.duaCategory.name, {
+                            'id': category.id,
+                          }),
                         ),
                     ],
                   ),

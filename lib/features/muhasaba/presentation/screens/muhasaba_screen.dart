@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
-import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -25,7 +23,6 @@ import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
-import '../../../achievements/presentation/state/achievement_store.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/presentation/state/settings_store.dart';
@@ -57,10 +54,6 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
 
   final _effects = <EffectCleanup>[];
 
-  /// Badge ids already pending when this screen started watching; only
-  /// ids beyond these get a toast. Null until achievements have loaded.
-  Set<String>? _knownNewBadges;
-
   @override
   void initState() {
     super.initState();
@@ -74,45 +67,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         }
       }),
     );
-    final showBadges =
-        locator.isRegistered<AchievementStore>() &&
-        locator.isRegistered<SettingsStore>() &&
-        locator<SettingsStore>().settings.peek().showAchievements;
-    if (showBadges) {
-      final badges = locator<AchievementStore>();
-      _effects
-        // Re-evaluate badges on every check-in, whichever tab is open.
-        ..add(
-          effect(() {
-            _store.stats.value;
-            untracked(
-              () => unawaited(
-                badges.refresh().catchError((Object e) {
-                  // Badges keep their last totals; the next check-in retries.
-                  debugPrint('Badge refresh failed: $e');
-                }),
-              ),
-            );
-          }),
-        )
-        ..add(
-          effect(() {
-            final ids = {for (final a in badges.newlyUnlocked.value) a.id};
-            if (!badges.loaded.value) {
-              return;
-            }
-            final known = _knownNewBadges;
-            _knownNewBadges = ids;
-            if (known == null) {
-              return;
-            }
-            final fresh = ids.difference(known);
-            if (fresh.isNotEmpty) {
-              untracked(() => _badgeToast(fresh.first));
-            }
-          }),
-        );
-    }
+    // Badge re-evaluation and unlock toasts live in the app shell
+    // (BadgeUnlockListener), so they work on every tab.
   }
 
   @override
@@ -136,21 +92,6 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-  }
-
-  void _badgeToast(String id) {
-    if (!mounted) {
-      return;
-    }
-    final l10n = context.l10n;
-    Haptics.medium();
-    _snack(
-      l10n.achievementUnlockedToast(l10n.achievementName(id)),
-      action: SnackBarAction(
-        label: l10n.achievementsView,
-        onPressed: () => context.pushNamed(Routes.achievements.name),
-      ),
-    );
   }
 
   String _nameOf(AppLocalizations l10n, TrackerItem item) =>

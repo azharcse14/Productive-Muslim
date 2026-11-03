@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_screen.dart';
@@ -40,11 +43,49 @@ void main() {
       expect(find.text('1 passages'), findsOneWidget);
     });
 
+    testWidgets('a category tile opens its named route (back returns)', (
+      tester,
+    ) async {
+      final router = GoRouter(
+        initialLocation: Routes.ruqyah.path,
+        routes: [
+          GoRoute(
+            path: Routes.ruqyah.path,
+            builder: (_, _) => const RuqyahScreen(),
+            routes: ruqyahRoutes(),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('Protection'));
+      await tester.pumpAndSettle();
+      final id = GetIt.I<RuqyahStore>().categories.value.first.id;
+      expect(router.state.uri.path, '/ruqyah/category/$id');
+      expect(find.byType(RuqyahCategoryScreen), findsOneWidget);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, Routes.ruqyah.path);
+    });
+
+    testWidgets('an unknown category id shows not available', (tester) async {
+      await tester.pumpWidget(_app(const RuqyahCategoryScreen(id: 'nope')));
+      await tester.pump();
+      expect(find.text("This page isn't available."), findsOneWidget);
+    });
+
     testWidgets('category detail shows title, arabic, translation, reference', (
       tester,
     ) async {
       final category = GetIt.I<RuqyahStore>().categories.value.first;
-      await tester.pumpWidget(_app(RuqyahCategoryScreen(category: category)));
+      await tester.pumpWidget(_app(RuqyahCategoryScreen(id: category.id)));
       await tester.pump();
       expect(find.text('Ayatul Kursi'), findsOneWidget);
       expect(find.text('اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ'), findsOneWidget);

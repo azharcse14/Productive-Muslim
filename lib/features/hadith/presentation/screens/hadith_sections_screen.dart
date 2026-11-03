@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -10,7 +12,6 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../domain/entities/hadith_book.dart';
-import 'hadith_section_screen.dart';
 
 /// The chapters/sections of one [HadithBook].
 final class HadithSectionsScreen extends StatelessWidget {
@@ -18,13 +19,13 @@ final class HadithSectionsScreen extends StatelessWidget {
 
   final HadithBook book;
 
-  void _open(BuildContext context, HadithSection section) {
+  void _open(BuildContext context, HadithSection section, {int? focus}) {
     Haptics.selection();
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => HadithSectionScreen(book: book, section: section),
-        ),
+      context.pushNamed(
+        Routes.hadithSection.name,
+        pathParameters: {'book': book.id, 'section': '${section.number}'},
+        queryParameters: {'n': ?focus?.toString()},
       ),
     );
   }
@@ -62,17 +63,7 @@ final class HadithSectionsScreen extends StatelessWidget {
     if (section == null || !context.mounted) {
       return;
     }
-    unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => HadithSectionScreen(
-            book: book,
-            section: section,
-            focusNumber: number,
-          ),
-        ),
-      ),
-    );
+    _open(context, section, focus: number);
   }
 
   Future<HadithSection?> _pickSection(

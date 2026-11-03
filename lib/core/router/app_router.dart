@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../features/achievements/presentation/screens/achievements_screen.dart';
+import '../../features/achievements/presentation/state/achievement_store.dart';
+import '../../features/achievements/presentation/widgets/badge_unlock_listener.dart';
 import '../../features/calculators/presentation/screens/age_screen.dart';
 import '../../features/calculators/presentation/screens/calculators_screen.dart';
 import '../../features/calculators/presentation/screens/fitra_screen.dart';
@@ -15,18 +17,26 @@ import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/domain/entities/dua.dart';
 import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/asmaul_husna_screen.dart';
+import '../../features/dua_tasbih/presentation/screens/dua_category_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
+import '../../features/dua_tasbih/presentation/screens/tasbih_screen.dart';
 import '../../features/expenses/presentation/screens/expense_screen.dart';
 import '../../features/fasting/presentation/screens/fasting_screen.dart';
+import '../../features/hadith/presentation/screens/hadith_book_route.dart';
+import '../../features/hadith/presentation/screens/hadith_books_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_detail_screen.dart';
 import '../../features/hadith/presentation/screens/hadith_screen.dart';
+import '../../features/hadith/presentation/screens/hadith_search_screen.dart';
+import '../../features/hadith/presentation/screens/hadith_topic_screen.dart';
 import '../../features/health/presentation/screens/health_screen.dart';
 import '../../features/muhasaba/presentation/screens/muhasaba_screen.dart';
+import '../../features/muhasaba/presentation/state/muhasaba_store.dart';
 import '../../features/my_mosque/presentation/screens/my_mosque_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/onboarding/presentation/screens/lock_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/screens/section_lock_gate.dart';
 import '../../features/onboarding/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/state/app_lock_store.dart';
 import '../../features/prayer_times/domain/entities/special_time.dart';
@@ -38,6 +48,7 @@ import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/ramadan/presentation/screens/zakat_screen.dart';
+import '../../features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_screen.dart';
 import '../../features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
 import '../../features/settings/presentation/screens/credits_screen.dart';
@@ -58,11 +69,19 @@ import 'routes.dart';
 /// cold start only. Later (background) re-locks are covered by the root
 /// [LockOverlay] instead, so the navigation stack, tab
 /// state and pushed pages survive the lock.
+///
+/// The bottom bar shows on the five tab roots only: every secondary page
+/// is full-screen on the root navigator, whether it is a top-level route
+/// (Qibla, Calendar, …) or nested under a tab's path for deep links
+/// (Settings, the Quran reader, dua categories), which then keeps that
+/// tab's state underneath.
 GoRouter buildRouter() {
   // Set once the lock gate has been passed; from then on the router never
   // redirects to /lock again.
   var lockGatePassed = false;
+  final root = GlobalKey<NavigatorState>();
   return GoRouter(
+    navigatorKey: root,
     initialLocation: Routes.splash.path,
     refreshListenable: _RouterRefresh(),
     // An unknown path (a stale notification payload, an old deep link)
@@ -127,7 +146,8 @@ GoRouter buildRouter() {
               GoRoute(
                 name: Routes.home.name,
                 path: Routes.home.path,
-                builder: (context, state) => const HomeScreen(),
+                builder: (context, state) =>
+                    HomeScreen(sectionLock: locator<AppLockStore>()),
               ),
             ],
           ),
@@ -141,6 +161,7 @@ GoRouter buildRouter() {
                   GoRoute(
                     name: Routes.quranAyah.name,
                     path: Routes.quranAyah.path,
+                    parentNavigatorKey: root,
                     // Out-of-range / non-numeric surah → back to the index.
                     redirect: (context, state) => switch (int.tryParse(
                       state.pathParameters['surah'] ?? '',
@@ -158,6 +179,7 @@ GoRouter buildRouter() {
                   GoRoute(
                     name: Routes.quranReader.name,
                     path: Routes.quranReader.path,
+                    parentNavigatorKey: root,
                     // Out-of-range / non-numeric surah → back to the index.
                     redirect: (context, state) => switch (int.tryParse(
                       state.pathParameters['surah'] ?? '',
@@ -178,7 +200,8 @@ GoRouter buildRouter() {
               GoRoute(
                 name: Routes.muhasaba.name,
                 path: Routes.muhasaba.path,
-                builder: (context, state) => const MuhasabaScreen(),
+                builder: (context, state) =>
+                    const SectionLockGate(child: MuhasabaScreen()),
               ),
             ],
           ),
@@ -187,16 +210,19 @@ GoRouter buildRouter() {
               GoRoute(
                 name: Routes.dua.name,
                 path: Routes.dua.path,
-                // ?category= opens that category (focus end notification);
-                // keyed so the same tab re-opens it on a new link.
-                builder: (context, state) =>
+                // ?category= (focus end notification payloads) opens that
+                // category, with the Dua tab beneath it.
+                redirect: (context, state) =>
                     switch (state.uri.queryParameters['category']) {
-                      null => const DuaScreen(),
-                      final category => DuaScreen(
-                        key: ValueKey(state.uri.toString()),
-                        openCategory: category,
-                      ),
+                      final id? when state.uri.path == Routes.dua.path =>
+                        state.namedLocation(
+                          Routes.duaCategory.name,
+                          pathParameters: {'id': id},
+                        ),
+                      _ => null,
                     },
+                builder: (context, state) => const DuaScreen(),
+                routes: duaRoutes(root),
               ),
             ],
           ),
@@ -210,11 +236,13 @@ GoRouter buildRouter() {
                   GoRoute(
                     name: Routes.settings.name,
                     path: Routes.settings.path,
+                    parentNavigatorKey: root,
                     builder: (context, state) => const SettingsScreen(),
                     routes: [
                       GoRoute(
                         name: Routes.credits.name,
                         path: Routes.credits.path,
+                        parentNavigatorKey: root,
                         builder: (context, state) => const CreditsScreen(),
                       ),
                     ],
@@ -306,19 +334,13 @@ GoRouter buildRouter() {
         name: Routes.hadith.name,
         path: Routes.hadith.path,
         builder: (context, state) => const HadithScreen(),
-        routes: [
-          GoRoute(
-            name: Routes.hadithItem.name,
-            path: Routes.hadithItem.path,
-            builder: (context, state) =>
-                HadithDetailScreen(id: state.pathParameters['id'] ?? ''),
-          ),
-        ],
+        routes: hadithRoutes(),
       ),
       GoRoute(
         name: Routes.ruqyah.name,
         path: Routes.ruqyah.path,
         builder: (context, state) => const RuqyahScreen(),
+        routes: ruqyahRoutes(),
       ),
       GoRoute(
         name: Routes.asmaulHusna.name,
@@ -407,6 +429,89 @@ GoRouter buildRouter() {
   );
 }
 
+/// Dua tab sub-pages, full-screen on the [root] navigator.
+List<RouteBase> duaRoutes(GlobalKey<NavigatorState> root) => [
+  GoRoute(
+    name: Routes.duaCategory.name,
+    path: Routes.duaCategory.path,
+    parentNavigatorKey: root,
+    builder: (context, state) =>
+        DuaCategoryScreen(id: state.pathParameters['id']!),
+  ),
+  GoRoute(
+    name: Routes.tasbih.name,
+    path: Routes.tasbih.path,
+    parentNavigatorKey: root,
+    builder: (context, state) => const TasbihScreen(),
+  ),
+];
+
+/// Hadith sub-pages: everything is addressed by id, the screens resolve
+/// it through their stores.
+List<RouteBase> hadithRoutes() => [
+  GoRoute(
+    name: Routes.hadithItem.name,
+    path: Routes.hadithItem.path,
+    builder: (context, state) =>
+        HadithDetailScreen(id: state.pathParameters['id'] ?? ''),
+  ),
+  GoRoute(
+    name: Routes.hadithTopic.name,
+    path: Routes.hadithTopic.path,
+    builder: (context, state) =>
+        HadithTopicScreen(id: state.pathParameters['topic']!),
+  ),
+  GoRoute(
+    name: Routes.hadithBooks.name,
+    path: Routes.hadithBooks.path,
+    builder: (context, state) => const HadithBooksScreen(),
+    routes: [
+      // Before ':book', or "search" would read as a book id.
+      GoRoute(
+        name: Routes.hadithSearch.name,
+        path: Routes.hadithSearch.path,
+        builder: (context, state) => const HadithSearchScreen(),
+      ),
+      GoRoute(
+        name: Routes.hadithBook.name,
+        path: Routes.hadithBook.path,
+        builder: (context, state) =>
+            HadithBookRoute(bookId: state.pathParameters['book']!),
+        routes: [
+          GoRoute(
+            name: Routes.hadithSection.name,
+            path: Routes.hadithSection.path,
+            // A non-numeric chapter → that book's chapter list.
+            redirect: (context, state) =>
+                int.tryParse(state.pathParameters['section'] ?? '') == null
+                ? state.namedLocation(
+                    Routes.hadithBook.name,
+                    pathParameters: {'book': state.pathParameters['book']!},
+                  )
+                : null,
+            builder: (context, state) => HadithBookRoute(
+              bookId: state.pathParameters['book']!,
+              section: int.parse(state.pathParameters['section']!),
+              languageCode: state.uri.queryParameters['lang'],
+              focusNumber: int.tryParse(state.uri.queryParameters['n'] ?? ''),
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+];
+
+/// Ruqyah sub-pages.
+List<RouteBase> ruqyahRoutes() => [
+  GoRoute(
+    name: Routes.ruqyahCategory.name,
+    path: Routes.ruqyahCategory.path,
+    builder: (context, state) =>
+        RuqyahCategoryScreen(id: state.pathParameters['id']!),
+  ),
+];
+
 /// Query parameter carrying the pre-lock location through the PIN gate.
 const _lockFromParam = 'from';
 
@@ -489,7 +594,7 @@ final class QShellScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     // System back on another tab's root returns to Home instead of
     // exiting the app; only Home's root lets the OS close it.
-    return PopScope(
+    final scaffold = PopScope(
       canPop: shell.currentIndex == 0,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
@@ -502,6 +607,17 @@ final class QShellScaffold extends StatelessWidget {
             shell.goBranch(index, initialLocation: index == shell.currentIndex),
         body: shell,
       ),
+    );
+    // Badge unlock toasts show on every tab, once each.
+    if (!locator.isRegistered<AchievementStore>() ||
+        !locator.isRegistered<MuhasabaStore>()) {
+      return scaffold;
+    }
+    return BadgeUnlockListener(
+      store: locator<AchievementStore>(),
+      enabled: () => locator<SettingsStore>().settings.value.showAchievements,
+      watchActivity: () => locator<MuhasabaStore>().stats.value,
+      child: scaffold,
     );
   }
 }

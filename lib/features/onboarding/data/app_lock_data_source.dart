@@ -22,6 +22,7 @@ final class AppLockDataSource implements AppLockStorage {
 
   static const _key = 'app_lock_v1';
   static const _throttleKey = 'app_lock_throttle_v1';
+  static const _scopeKey = 'app_lock_scope_v1';
 
   final SharedPreferencesAsync _prefs;
   final SharedPreferencesAsync? _legacy;
@@ -122,6 +123,19 @@ final class AppLockDataSource implements AppLockStorage {
   Future<void> disable() async {
     await _ready();
     await _prefs.remove(_key);
+    await _prefs.remove(_scopeKey);
+  }
+
+  @override
+  Future<LockScope> readScope() async {
+    await _ready();
+    return LockScope.fromCode(await _prefs.getString(_scopeKey));
+  }
+
+  @override
+  Future<void> writeScope(LockScope scope) async {
+    await _ready();
+    await _prefs.setString(_scopeKey, scope.code);
   }
 
   /// Wrong-PIN throttle state, persisted so an app restart can't reset it.

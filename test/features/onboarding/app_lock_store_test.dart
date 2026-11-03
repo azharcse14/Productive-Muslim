@@ -113,6 +113,12 @@ final class _FlakyStorage implements AppLockStorage {
       cooldown: cooldown,
     );
   }
+
+  @override
+  Future<LockScope> readScope() => _inner.readScope();
+
+  @override
+  Future<void> writeScope(LockScope scope) => _inner.writeScope(scope);
 }
 
 void main() {
@@ -695,6 +701,61 @@ void main() {
         PinResetAuth.failed,
       );
       expect(await store.unlockWithPin('1234'), isTrue);
+    });
+  });
+
+  group('Muhasaba-only scope', () {
+    test('locks only the section, persisted across restarts', () async {
+      final store = _store();
+      await store.enable('1234', biometric: false);
+      await store.setScope(LockScope.muhasaba);
+      expect(store.muhasabaLocked, isFalse); // this session stays open
+
+      final restarted = _store();
+      await restarted.load();
+      expect(restarted.scope.value, LockScope.muhasaba);
+      expect(restarted.locked.value, isFalse);
+      expect(restarted.lockedNow, isFalse);
+      expect(restarted.muhasabaLocked, isTrue);
+
+      expect(await restarted.unlockWithPin('1234'), isTrue);
+      expect(restarted.muhasabaLocked, isFalse);
+    });
+
+    test('backgrounding past the grace period re-locks the section', () async {
+      var clock = DateTime(2026);
+      final store = _store(now: () => clock);
+      await store.enable('1234', biometric: false);
+      await store.setScope(LockScope.muhasaba);
+      store
+        ..onLifecycleChanged(AppLifecycleState.hidden)
+        ..onLifecycleChanged(AppLifecycleState.paused);
+      clock = clock.add(AppConfig.appLockGracePeriod);
+      store.onLifecycleChanged(AppLifecycleState.resumed);
+      expect(store.muhasabaLocked, isTrue);
+      expect(store.locked.value, isFalse);
+    });
+
+    test('an unknown stored scope reads as the whole app', () async {
+      final store = _store();
+      await store.enable('1234', biometric: false);
+      await SharedPreferencesAsync().setString('app_lock_scope_v1', 'future');
+      await store.load();
+      expect(store.scope.value, LockScope.app);
+      expect(store.locked.value, isTrue);
+      expect(LockScope.fromCode(null), LockScope.app);
+      expect(LockScope.fromCode('muhasaba'), LockScope.muhasaba);
+    });
+
+    test('turning the lock off forgets the scope', () async {
+      final store = _store();
+      await store.enable('1234', biometric: false);
+      await store.setScope(LockScope.muhasaba);
+      await store.disable();
+      await store.enable('5678', biometric: false);
+      await store.load();
+      expect(store.scope.value, LockScope.app);
+      expect(store.sectionLocked.value, isFalse);
     });
   });
 }

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -13,7 +15,6 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../domain/entities/hadith_search.dart';
 import '../state/hadith_search_store.dart';
-import 'hadith_section_screen.dart';
 
 /// Searches the full text of every bundled hadith collection; a result
 /// opens that hadith in its chapter.
@@ -50,15 +51,13 @@ final class _HadithSearchScreenState extends State<HadithSearchScreen> {
   void _open(HadithSearchHit hit) {
     Haptics.selection();
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => HadithSectionScreen(
-            book: hit.book,
-            section: hit.section,
-            focusNumber: hit.number,
-            languageCode: hit.languageCode,
-          ),
-        ),
+      context.pushNamed(
+        Routes.hadithSection.name,
+        pathParameters: {
+          'book': hit.book.id,
+          'section': '${hit.section.number}',
+        },
+        queryParameters: {'lang': hit.languageCode, 'n': '${hit.number}'},
       ),
     );
   }

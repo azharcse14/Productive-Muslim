@@ -5,9 +5,17 @@ abstract final class Routes {
   static const quran = (name: 'quran', path: '/quran');
   static const muhasaba = (name: 'muhasaba', path: '/muhasaba');
   static const dua = (name: 'dua', path: '/dua');
+
+  /// One dua category by id, under the Dua tab (`/dua/category/:id`).
+  static const duaCategory = (name: 'duaCategory', path: 'category/:id');
+
+  /// Full-screen tasbih counter, under the Dua tab.
+  static const tasbih = (name: 'tasbih', path: 'tasbih');
   static const more = (name: 'more', path: '/more');
 
-  /// Settings stack lives under the More branch.
+  /// Settings stack: under the More branch's path (deep links switch to
+  /// that tab), shown full-screen on the root navigator like every other
+  /// secondary page.
   static const settings = (name: 'settings', path: 'settings');
 
   /// Sources & licenses page, under Settings.
@@ -56,8 +64,22 @@ abstract final class Routes {
   /// One bundled hadith by id (the Home "Hadith of the day" card).
   static const hadithItem = (name: 'hadithItem', path: 'item/:id');
 
+  /// One curated hadith topic by id (`/hadith/topic/:topic`).
+  static const hadithTopic = (name: 'hadithTopic', path: 'topic/:topic');
+
+  /// Full collections: the book list, full-text search, one book's
+  /// chapters and one chapter (`/hadith/books/:book/:section`; optional
+  /// `?lang=` for the chapter list it is from and `?n=` to show one hadith).
+  static const hadithBooks = (name: 'hadithBooks', path: 'books');
+  static const hadithSearch = (name: 'hadithSearch', path: 'search');
+  static const hadithBook = (name: 'hadithBook', path: ':book');
+  static const hadithSection = (name: 'hadithSection', path: ':section');
+
   /// Ruqyah — Qur'anic & prophetic protection/healing (More tab).
   static const ruqyah = (name: 'ruqyah', path: '/ruqyah');
+
+  /// One ruqyah category by id (`/ruqyah/category/:id`).
+  static const ruqyahCategory = (name: 'ruqyahCategory', path: 'category/:id');
 
   /// The 99 names — reachable from More and the Dua tab.
   static const asmaulHusna = (name: 'asmaulHusna', path: '/asmaul-husna');

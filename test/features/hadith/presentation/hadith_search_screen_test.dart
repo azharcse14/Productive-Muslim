@@ -3,16 +3,22 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_search.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
-import 'package:productive_muslim/features/hadith/presentation/screens/hadith_search_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_books_store.dart';
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_search_store.dart';
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_section_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 const _section = HadithSection(
   number: 1,
@@ -98,16 +104,31 @@ Future<_FakeRepository> _pump(
   Completer<void>? hold,
 }) async {
   final repo = _FakeRepository(hold);
+  SharedPreferencesAsyncPlatform.instance =
+      InMemorySharedPreferencesAsync.empty();
   GetIt.I
     ..registerSingleton<HadithBookRepository>(repo)
+    ..registerSingleton<HadithBooksStore>(
+      HadithBooksStore(repo, SharedPreferencesAsync()),
+    )
     ..registerFactory<HadithSectionStore>(() => HadithSectionStore(repo))
     ..registerFactory<HadithSearchStore>(() => HadithSearchStore(repo));
+  // Opened at its real route, so a result opens through the router.
   await tester.pumpWidget(
-    MaterialApp(
+    MaterialApp.router(
       theme: AppTheme.light(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const HadithSearchScreen(),
+      routerConfig: GoRouter(
+        initialLocation: '/hadith/books/search',
+        routes: [
+          GoRoute(
+            path: Routes.hadith.path,
+            builder: (_, _) => const SizedBox(),
+            routes: hadithRoutes(),
+          ),
+        ],
+      ),
     ),
   );
   return repo;
