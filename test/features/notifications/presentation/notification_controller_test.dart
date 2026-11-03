@@ -70,6 +70,12 @@ final class _CountingScheduler implements NotificationScheduler {
   Future<void> openSystemSettings() async {}
 
   @override
+  Future<bool> isIgnoringBatteryOptimizations() async => true;
+
+  @override
+  Future<void> openBatteryOptimizationSettings() async {}
+
+  @override
   Future<Result<void>> reschedule(
     List<NotificationItem> items,
     NotificationTexts texts,

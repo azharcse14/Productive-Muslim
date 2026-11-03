@@ -141,6 +141,7 @@ object JamaatFocus {
             for (key in listOf(
                 "title", "body", "bodyUntil", "endAction", "channelName",
                 "nafs.title", "nafs.bodyUntil",
+                "clockPattern", "clockAm", "clockPm", "clockDigits", "clockZone",
             )) {
                 putString(key, args[key] as? String ?: "")
             }
@@ -324,8 +325,18 @@ object JamaatFocus {
     fun body(c: Context): String {
         val until = prefs(c).getLong(ACTIVE_UNTIL, 0L)
         return if (until > 0) {
-            val time = prefs(c).getString(UNTIL_LABEL, "").orEmpty()
-                .ifEmpty { DateFormat.getTimeFormat(c).format(Date(until)) }
+            val p = prefs(c)
+            // Dart's label, else the app's format (nafs: end set here), else the device's.
+            val time = p.getString(UNTIL_LABEL, "").orEmpty().ifEmpty {
+                FocusPlan.clockLabel(
+                    until,
+                    pattern = p.getString("clockPattern", "").orEmpty(),
+                    am = p.getString("clockAm", "").orEmpty(),
+                    pm = p.getString("clockPm", "").orEmpty(),
+                    digits = p.getString("clockDigits", "").orEmpty(),
+                    zone = p.getString("clockZone", "").orEmpty(),
+                ) ?: DateFormat.getTimeFormat(c).format(Date(until))
+            }
             text(c, "bodyUntil").replace("{time}", time)
         } else {
             text(c, "body")

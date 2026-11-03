@@ -2665,6 +2665,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'পরবর্তী নামাজ';
 
   @override
+  String get notifExactAlarmBannerDismiss => 'আর মনে করাবেন না';
+
+  @override
+  String get batteryOpenSettingsCta => 'ব্যাটারি সেটিংস খুলুন';
+
+  @override
+  String get batteryOptimizationOff =>
+      'প্রোডাক্টিভ মুসলিমের জন্য ব্যাটারি অপটিমাইজেশন বন্ধ, তাই রিমাইন্ডার সময়মতো আসবে।';
+
+  @override
   String get nearbyMosquesLabel => 'কাছের মসজিদ';
 
   @override

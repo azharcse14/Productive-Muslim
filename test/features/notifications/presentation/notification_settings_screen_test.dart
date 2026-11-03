@@ -93,6 +93,18 @@ final class _FakeScheduler implements NotificationScheduler {
   @override
   Future<void> openSystemSettings() async => settingsOpened = true;
 
+  bool batteryExempt = false;
+  bool batteryOpened = false;
+
+  @override
+  Future<bool> isIgnoringBatteryOptimizations() async => batteryExempt;
+
+  @override
+  Future<void> openBatteryOptimizationSettings() async {
+    batteryOpened = true;
+    batteryExempt = true;
+  }
+
   /// Makes [reschedule] fail.
   bool failReschedule = false;
 
@@ -412,17 +424,32 @@ void main() {
       expect(find.text("Couldn't save. Please try again."), findsOneWidget);
     });
 
-    testWidgets('Android: battery hint opens system settings', (tester) async {
+    testWidgets('Android: battery hint opens the optimization list, then '
+        'shows done on return', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       final scheduler = _FakeScheduler();
       await _register(scheduler);
       await tester.pumpWidget(_app());
       await tester.pump();
-      final open = find.text('Open settings');
+      final open = find.text('Open battery settings');
       await tester.scrollUntilVisible(open, 200);
       await tester.tap(open);
       await tester.pump();
-      expect(scheduler.settingsOpened, isTrue);
+      expect(scheduler.batteryOpened, isTrue);
+      expect(scheduler.settingsOpened, isFalse);
+      // Back from system settings: the resume listener re-checks.
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+      await tester.pump();
+      expect(open, findsNothing);
+      expect(
+        find.text(
+          'Battery optimization is off for Productive Muslim, so reminders '
+          'can arrive on time.',
+        ),
+        findsOneWidget,
+      );
       debugDefaultTargetPlatformOverride = null;
     });
 

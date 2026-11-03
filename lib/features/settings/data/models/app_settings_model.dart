@@ -73,6 +73,7 @@ abstract final class AppSettingsModel {
     'hapticsEnabled': s.hapticsEnabled,
     'hiddenHomeCards': [for (final c in s.hiddenHomeCards) c.name],
     'hijriOffsetDays': s.hijriOffsetDays,
+    'exactAlarmBannerDismissed': s.exactAlarmBannerDismissed,
   };
 
   /// [v] if it has type [T], else null — one wrong-typed field falls back
@@ -105,6 +106,9 @@ abstract final class AppSettingsModel {
       },
       hijriOffsetDays:
           _as<num>(map['hijriOffsetDays'])?.toInt() ?? defaults.hijriOffsetDays,
+      exactAlarmBannerDismissed:
+          _as<bool>(map['exactAlarmBannerDismissed']) ??
+          defaults.exactAlarmBannerDismissed,
     );
   }
 

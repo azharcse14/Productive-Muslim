@@ -3974,6 +3974,24 @@ abstract class AppLocalizations {
   /// **'Next prayer'**
   String get widgetNextPrayerLabel;
 
+  /// No description provided for @notifExactAlarmBannerDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t remind me'**
+  String get notifExactAlarmBannerDismiss;
+
+  /// No description provided for @batteryOpenSettingsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open battery settings'**
+  String get batteryOpenSettingsCta;
+
+  /// No description provided for @batteryOptimizationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery optimization is off for Productive Muslim, so reminders can arrive on time.'**
+  String get batteryOptimizationOff;
+
   /// No description provided for @nearbyMosquesLabel.
   ///
   /// In en, this message translates to:

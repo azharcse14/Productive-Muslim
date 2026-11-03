@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -25,6 +26,12 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   int cancelPendingCalls = 0;
   int initCalls = 0;
   NotificationAppLaunchDetails? launch;
+  FlutterLocalNotificationsPlatform? android;
+
+  @override
+  T? resolvePlatformSpecificImplementation<
+    T extends FlutterLocalNotificationsPlatform
+  >() => android is T ? android as T : null;
 
   @override
   Future<bool?> initialize({
@@ -90,6 +97,18 @@ final class _OffAndroid implements AndroidFlutterLocalNotificationsPlugin {
 
   @override
   Future<bool?> requestNotificationsPermission() async => false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// Records deleted channels.
+final class _ChannelAndroid implements AndroidFlutterLocalNotificationsPlugin {
+  final deleted = <String>[];
+
+  @override
+  Future<void> deleteNotificationChannel({required String channelId}) async =>
+      deleted.add(channelId);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -486,12 +505,17 @@ void main() {
       kind: NotificationKind.muhasabaEvening,
       at: at.add(const Duration(hours: 2)),
     );
-    await scheduler.reschedule([jamaat, ayah, muhasaba], _texts);
+    final focusEnd = NotificationItem(
+      kind: NotificationKind.focusEnd,
+      prayer: Prayer.asr,
+      at: at.add(const Duration(hours: 3)),
+    );
+    await scheduler.reschedule([jamaat, ayah, muhasaba, focusEnd], _texts);
     final urgent = plugin.scheduled[jamaat.id]!;
-    expect(urgent.android!.channelId, 'productive_muslim_reminders');
+    expect(urgent.android!.channelId, 'productive_muslim_alerts');
     expect(urgent.android!.importance, Importance.high);
     expect(urgent.iOS!.interruptionLevel, InterruptionLevel.timeSensitive);
-    for (final item in [ayah, muhasaba]) {
+    for (final item in [ayah, muhasaba, focusEnd]) {
       final d = plugin.scheduled[item.id]!;
       expect(d.android!.channelId, 'productive_muslim_daily');
       expect(d.android!.importance, Importance.defaultImportance);
@@ -499,4 +523,58 @@ void main() {
       expect(d.iOS!.interruptionLevel, InterruptionLevel.active);
     }
   });
+
+  test('first initialize deletes the legacy Android channel', () async {
+    final android = _ChannelAndroid();
+    plugin.android = android;
+    await scheduler.initialize(_texts);
+    expect(android.deleted, ['productive_muslim_reminders']);
+    // Later re-initializations (language change) don't repeat it.
+    await scheduler.initialize(
+      const NotificationTexts(
+        azanTitle: '',
+        azanBody: '',
+        jamaatTitle: '',
+        jamaatBody: '',
+        sahriTitle: '',
+        sahriBody: '',
+        iftarTitle: '',
+        iftarBody: '',
+        muhasabaTitle: '',
+        muhasabaBody: '',
+        dailyReminderTitle: '',
+        dailyReminderBody: '',
+        dailyReminderRoute: '/hadith',
+        keepAliveTitle: '',
+        keepAliveBody: '',
+        markAsPrayedAction: 'x',
+        channelAzanName: '',
+        channelRemindersName: '',
+        channelSilentName: '',
+        channelBeepName: '',
+        prayerNames: {},
+      ),
+    );
+    expect(android.deleted, hasLength(1));
+  });
+
+  test(
+    'battery exemption: Android asks the native side, others are exempt',
+    () async {
+      expect(await scheduler.isIgnoringBatteryOptimizations(), isTrue);
+      const channel = MethodChannel('com.productivemuslim.app/battery');
+      final messenger =
+          TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
+      final calls = <String>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call.method);
+        return call.method == 'isIgnoring' ? false : null;
+      });
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      plugin.android = _ChannelAndroid();
+      expect(await scheduler.isIgnoringBatteryOptimizations(), isFalse);
+      await scheduler.openBatteryOptimizationSettings();
+      expect(calls, ['isIgnoring', 'openSettings']);
+    },
+  );
 }
