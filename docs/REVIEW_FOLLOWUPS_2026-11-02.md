@@ -40,17 +40,17 @@ asked to merge without more test runs.
 
 ## Not done — needs owner, scholar or more work
 
-- [ ] **Manual-city DST gap** (`settings/data/datasources/timezone_clock.dart`): device-local
+- [x] **Manual-city DST gap** — fixed on `fix/manual-city-dst` (2026-11-03, `integrate/followups-2`): wall times are floating `DateTime.utc` app-wide, `utcInstantOf` only for targets, countdown from the real instant; suite also green under `TZ=America/New_York`. (`settings/data/datasources/timezone_clock.dart`): device-local
   `DateTime`s shift by 1h inside the device's spring-forward hour. The fix agent was stopped
   before reporting on it. Carrying wall times as `DateTime.utc(...)` touches prayer_times and
   notifications callers.
-- [ ] **29-day Ramadan.** In the tabular Hijri calendar, Ramadan is always 30 days. When people
+- [x] **29-day Ramadan.** — `feat/ramadan-29-bangla-cal` (2026-11-03, `integrate/followups-2`): per-year "Eid announced after 29 days" override. In the tabular Hijri calendar, Ramadan is always 30 days. When people
   observe 29 days, Eid shows as "Roza 30" and fasting can be logged on Eid. Needs a scholar and
   owner decision, for example an "Eid announced" switch.
-- [ ] **iOS entitlements.** `CODE_SIGN_ENTITLEMENTS` is missing from `project.pbxproj`, so azan
+- [~] **iOS entitlements.** — `Runner.entitlements` wired into the build configs and the Debug team pinned (2026-11-03, `integrate/followups-2`). Still needed: App Group + Time Sensitive capability enabled for the App ID in the Apple developer portal. `CODE_SIGN_ENTITLEMENTS` is missing from `project.pbxproj`, so azan
   `timeSensitive` and the App Group are not active. Needs Xcode and an Apple account
   (App Group provisioning).
-- [ ] **Suspected Quran translation typos.** Verify these against the Pickthall source; don't
+- [x] **Suspected Quran translation typos.** — both are in the upstream Tanzil Pickthall text; left unedited (religious-text rule). Owner decides whether to patch the build script. Verify these against the Pickthall source; don't
   edit them without the owner:
   - 3:1 "Alim. Lam. Mim" (should probably be "Alif").
   - 12:1 "These are verse…" (should probably be "verses").
@@ -61,12 +61,12 @@ asked to merge without more test runs.
   - Users already on schema v2/v3 keep the wrong `archived_on` for trackers that were archived in v1.
   - Trackers back-filled before v4 keep their lowered `created_on`. This can't be repaired
     without the true creation day.
-- [ ] **Muhasaba migration** uses `DateTime.now()` instead of the location wall clock (low).
-- [ ] **Old notification channel.** `productive_muslim_reminders` (high importance) remains in
+- [x] **Muhasaba migration** (fixed `d1ef66e`, location wall clock) used `DateTime.now()` instead of the location wall clock (low).
+- [x] **Old notification channel.** — retired on `fix/notif-native-followups` (2026-11-03, `integrate/followups-2`); its items moved to `productive_muslim_alerts` (custom user settings on the old channel are not carried over). `productive_muslim_reminders` (high importance) remains in
   system settings now that daily reminders use `productive_muslim_daily`. Delete it once
   installs have upgraded.
-- [ ] `focusEnd` notification: decide whether it should also be calmer (non-time-sensitive).
-- [ ] **Nafs focus sessions** still format the end time with the device locale and zone; the
+- [x] `focusEnd` notification: own default-importance channel `productive_muslim_focus_end`, iOS `active`. Was: decide whether it should also be calmer (non-time-sensitive).
+- [x] **Nafs focus sessions** — now formatted in the app locale and the location zone (device format if the zone is unknown). Was: still format the end time with the device locale and zone; the
   native side sets the end time when the session starts.
 
 ## Decided

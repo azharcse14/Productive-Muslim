@@ -446,7 +446,7 @@ The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and 
 
 - [x] **Full `flutter test` on merged master.** Each feature branch passed the full suite, but nobody has run it on the merge result. The merge was urgent, so only `flutter analyze` and the l10n diff were checked.
 - [x] **Home dua-of-the-day transliteration.** In `prayer_times/presentation/screens/home_screen.dart`, pass `transliteration: dua.transliterationFor(code)` to `DuaOfDayCard` so the screen reader gets a `semanticsLabel`.
-- [ ] **Ruqyah categories still use `MaterialPageRoute`.** Add a named route in `app_router.dart` and use `context.pushNamed`. (2026-11-03: left as is — dua and hadith sub-screens use the same `MaterialPageRoute` push; do all of them together or drop the item.)
+- [x] **Ruqyah categories still use `MaterialPageRoute`.** Done for ruqyah, dua and hadith on `feat/routes-shell-lock` (2026-11-03, `integrate/followups-2`). Add a named route in `app_router.dart` and use `context.pushNamed`. (2026-11-03: left as is — dua and hadith sub-screens use the same `MaterialPageRoute` push; do all of them together or drop the item.)
 - [x] **Remove dead ARB keys.** `muhasabaIconOption` and `muhasabaColorOption` are no longer used; delete them from en and bn.
 - [ ] **Owner to confirm these behaviour changes:**
   - The calendar screen's side padding went from 20dp to 12dp, to get 48dp day cells.
@@ -518,23 +518,23 @@ fresh branch from `master`.
 
 ### Owner-approved features (not started)
 
-- [ ] **Muhasaba dashboard custom date range** (design brief §4.7, `showDateRangePicker`).
-- [ ] **Quran juz tab + per-ayah share** (design brief §4.5).
-- [ ] **Expense decimal amounts + currency.** Amounts move to minor units; needs a storage
+- [x] **Muhasaba dashboard custom date range** (design brief §4.7, `showDateRangePicker`).
+- [x] **Quran juz tab + per-ayah share** (design brief §4.5).
+- [x] **Expense decimal amounts + currency.** Amounts move to minor units; needs a storage
   migration (follow the schema-change rules in CLAUDE.md if the expense table is in the muhasaba DB).
-- [ ] **Full hadith DB search** across all bundled collections, not only curated topics.
+- [x] **Full hadith DB search** across all bundled collections, not only curated topics.
 
 ### Smaller open items from the merged branches
 
-- [ ] **Home exact-alarm banner.** It can't be dismissed. The second pass's × was dropped in
+- [x] **Home exact-alarm banner.** (dismissible, persisted) It can't be dismissed. The second pass's × was dropped in
   favour of master's tappable banner. Add a persisted "don't remind" setting if users ask for it.
-- [ ] **Battery optimisation.** The button opens app info; the direct
+- [x] **Battery optimisation.** (direct list via a platform channel) The button opens app info; the direct
   `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` list needs a new platform channel.
-- [ ] **Persistent badge-unlock toast.** It only fires while Muhasaba is open; it belongs in the app shell.
+- [x] **Persistent badge-unlock toast.** (now in the app shell) It only fires while Muhasaba is open; it belongs in the app shell.
 - [ ] **Owner decisions:**
-  - Bengali date in calendar cells (design handoff §13).
+  - ~~Bengali date in calendar cells (design handoff §13).~~ Done `b5dbe37`.
   - Bengali surah names, which need a licensed source.
-  - Settings lives under the More branch while Qibla/Calendar are root routes (bottom bar
-    shows on one, not the other).
-- [ ] **Full `flutter test` passes on a quiet machine.** During the parallel runs some tap tests
+  - ~~Settings lives under the More branch while Qibla/Calendar are root routes (bottom bar
+    shows on one, not the other).~~ Done: bottom bar only on the five tab roots; every secondary page full-screen (design shows the bar on Settings/Calendar/Ramadan — owner may want those three in the More branch).
+- [x] **Full `flutter test` passes on a quiet machine.** 1560 green on `integrate/followups-2` with `-j 2`. During the parallel runs some tap tests
   failed under load and passed when rerun alone.
