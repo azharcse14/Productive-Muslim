@@ -90,6 +90,39 @@ final class HadithDatabase extends GeneratedDatabase {
     return rows.isNotEmpty;
   }
 
+  /// Every section blob of the given fawazahmed0 [editions], as
+  /// (edition, section, blob) — the search corpus source.
+  Future<List<(String, int, Uint8List)>> editionBlobs(List<String> editions) =>
+      _blobs('hadith_section', 'edition', editions);
+
+  /// Every hadithbangla section blob of [bookIds], as (bookId, section, blob).
+  Future<List<(String, int, Uint8List)>> banglaBlobs(List<String> bookIds) =>
+      _blobs('hadith_bn_section', 'book_id', bookIds);
+
+  Future<List<(String, int, Uint8List)>> _blobs(
+    String table,
+    String keyColumn,
+    List<String> keys,
+  ) async {
+    if (keys.isEmpty) {
+      return const [];
+    }
+    final marks = List.filled(keys.length, '?').join(', ');
+    final rows = await customSelect(
+      'SELECT $keyColumn AS k, section, data FROM $table '
+      'WHERE $keyColumn IN ($marks)',
+      variables: [for (final k in keys) Variable<String>(k)],
+    ).get();
+    return [
+      for (final r in rows)
+        (
+          r.read<String>('k'),
+          r.read<int>('section'),
+          r.read<Uint8List>('data'),
+        ),
+    ];
+  }
+
   /// The gzip blob of one hadithbangla [section] of [bookId], or null.
   Future<Uint8List?> banglaBlob(String bookId, int section) async {
     final rows = await customSelect(

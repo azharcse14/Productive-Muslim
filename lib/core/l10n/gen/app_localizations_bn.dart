@@ -1530,6 +1530,32 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get hadithSearchFullTooltip => 'সব হাদিসগ্রন্থে খুঁজুন';
+
+  @override
+  String get hadithSearchFullHint => 'হাদিসের লেখা বা নম্বর খুঁজুন';
+
+  @override
+  String get hadithSearchFullPrompt =>
+      'ইংরেজি বা বাংলায় সব হাদিসগ্রন্থে খুঁজুন, অথবা হাদিস নম্বর লিখুন।';
+
+  @override
+  String get hadithSearchFullNoResults =>
+      'কোনো হাদিস মেলেনি — অন্য শব্দ লিখে দেখুন';
+
+  @override
+  String hadithSearchFullShowingFirst(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'প্রথম $countStringটি ফলাফল দেখানো হচ্ছে';
+  }
+
+  @override
+  String get hadithSearchFullError => 'হাদিস খোঁজা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
 
   @override

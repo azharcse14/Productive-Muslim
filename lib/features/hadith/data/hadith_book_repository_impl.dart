@@ -1,10 +1,12 @@
 import '../../../config/app_config.dart';
 import '../../../core/utils/result.dart';
 import '../domain/entities/hadith_book.dart';
+import '../domain/entities/hadith_search.dart';
 import '../domain/repositories/hadith_book_repository.dart';
 import 'hadith_book_bundled_data_source.dart';
 import 'hadith_book_catalog_data_source.dart';
 import 'hadith_book_remote_data_source.dart';
+import 'hadith_search.dart';
 
 final class HadithBookRepositoryImpl implements HadithBookRepository {
   /// [bengaliHadith] false (or a bundled DB without the hadithbangla table)
@@ -78,7 +80,39 @@ final class HadithBookRepositoryImpl implements HadithBookRepository {
       final items = await _remote.fetchSection(book, section, languageCode);
       return Result.success(items);
     } on Object catch (e) {
-      return Result.failure(UnexpectedFailure('Hadith section fetch failed', e));
+      return Result.failure(
+        UnexpectedFailure('Hadith section fetch failed', e),
+      );
     }
   }
+
+  Future<HadithSearchCorpus>? _corpus;
+
+  @override
+  Future<Result<HadithSearchResults>> search(
+    String query,
+    String languageCode, {
+    int limit = hadithSearchLimit,
+  }) async {
+    try {
+      final corpus = await (_corpus ??= _loadCorpus());
+      return Result.success(
+        searchHadithCorpus(corpus, query, languageCode, limit: limit),
+      );
+    } on Object catch (e) {
+      _corpus = null; // retry the load next time
+      return Result.failure(UnexpectedFailure('Hadith search failed', e));
+    }
+  }
+
+  Future<HadithSearchCorpus> _loadCorpus() async {
+    final books = (await this.books()).valueOrNull;
+    if (books == null) {
+      throw StateError('Hadith catalog unavailable');
+    }
+    return _bundled.loadSearchCorpus(books);
+  }
+
+  @override
+  void releaseSearch() => _corpus = null;
 }

@@ -16,6 +16,7 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
+import 'hadith_search_screen.dart';
 import 'hadith_section_screen.dart';
 import 'hadith_sections_screen.dart';
 
@@ -85,7 +86,25 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
     final l10n = context.l10n;
     final languageCode = Localizations.localeOf(context).languageCode;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.hadithBooksTitle)),
+      appBar: AppBar(
+        title: Text(l10n.hadithBooksTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.hadithSearchFullTooltip,
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Haptics.selection();
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const HadithSearchScreen(),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {

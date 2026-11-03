@@ -1,8 +1,10 @@
 import 'dart:isolate';
+import 'dart:typed_data';
 
 import '../domain/entities/hadith_book.dart';
 import 'hadith_blob_codec.dart';
 import 'hadith_database.dart';
+import 'hadith_search.dart';
 import 'hadith_section_assembler.dart';
 
 /// Serves hadith section text from the bundled SQLite snapshot
@@ -34,6 +36,64 @@ final class HadithBookBundledDataSource {
 
   /// Whether the snapshot carries the hadithbangla Bengali text.
   Future<bool> hasBangla() async => (await _open).hasBanglaSections();
+
+  /// Decodes the English and Bangla text of [books] for search — what each
+  /// book's reader shows per language: English edition; hadithbangla when
+  /// the book uses it, else a distinct fawazahmed0 Bengali edition.
+  Future<HadithSearchCorpus> loadSearchCorpus(List<HadithBook> books) async {
+    final db = await _open;
+    final enIndex = {for (final (i, b) in books.indexed) b.editionEn: i};
+    final bnIndex = {
+      for (final (i, b) in books.indexed)
+        if (!b.usesBanglaSource('bn') &&
+            b.editionBn.isNotEmpty &&
+            b.editionBn != b.editionEn)
+          b.editionBn: i,
+    };
+    final enRows = await db.editionBlobs(enIndex.keys.toList());
+    final bnRows = await db.editionBlobs(bnIndex.keys.toList());
+    final hbRows = await db.hasBanglaSections()
+        ? await db.banglaBlobs([
+            for (final b in books)
+              if (b.usesBanglaSource('bn')) b.id,
+          ])
+        : const <(String, int, Uint8List)>[];
+    final idIndex = {for (final (i, b) in books.indexed) b.id: i};
+    final blobs =
+        <HadithSearchBlob>[
+          for (final (key, section, data) in enRows)
+            (
+              book: enIndex[key]!,
+              section: section,
+              bn: false,
+              bangla: false,
+              data: data,
+            ),
+          for (final (key, section, data) in bnRows)
+            (
+              book: bnIndex[key]!,
+              section: section,
+              bn: true,
+              bangla: false,
+              data: data,
+            ),
+          for (final (key, section, data) in hbRows)
+            (
+              book: idIndex[key]!,
+              section: section,
+              bn: true,
+              bangla: true,
+              data: data,
+            ),
+        ]..sort(
+          (a, b) => a.book != b.book
+              ? a.book.compareTo(b.book)
+              : a.section.compareTo(b.section),
+        );
+    // ~18 MB of gzip → ~30 M chars of JSON: decode off the UI thread.
+    final (:en, :bn) = await Isolate.run(() => decodeSearchBlobs(blobs));
+    return HadithSearchCorpus(books, en, bn);
+  }
 
   Future<List<BookHadith>> fetchSection(
     HadithBook book,

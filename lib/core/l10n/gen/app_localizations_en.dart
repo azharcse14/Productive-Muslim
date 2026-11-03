@@ -1539,6 +1539,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get hadithSearchFullTooltip => 'Search all collections';
+
+  @override
+  String get hadithSearchFullHint => 'Search hadith text or number';
+
+  @override
+  String get hadithSearchFullPrompt =>
+      'Search every collection in English or Bangla, or type a hadith number.';
+
+  @override
+  String get hadithSearchFullNoResults =>
+      'No hadith matches — try another word';
+
+  @override
+  String hadithSearchFullShowingFirst(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Showing the first $countString matches';
+  }
+
+  @override
+  String get hadithSearchFullError =>
+      'Couldn\'t search hadith. Please try again.';
+
+  @override
   String get fastingQazaSetOwed => 'Set number owed';
 
   @override
