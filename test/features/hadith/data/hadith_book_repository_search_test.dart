@@ -29,6 +29,9 @@ final class _FakeIndex implements HadithSearchIndex {
   bool closed = false;
 
   @override
+  bool alive = true;
+
+  @override
   Future<HadithRawResults> search(String query, String lang, int limit) async {
     if (failSearch) {
       throw StateError('query broke');
@@ -110,6 +113,23 @@ void main() {
     index.failSearch = false;
     expect((await r.search('x', 'en')).isSuccess, isTrue);
     expect(opens, hasLength(1));
+  });
+
+  test('a dead worker is dropped and the next search respawns', () async {
+    final r = repo();
+    final dead = _FakeIndex()
+      ..failSearch = true
+      ..alive = false;
+    final first = r.search('x', 'en');
+    await pumpEventQueue();
+    opens.single.complete(dead);
+    expect((await first).isSuccess, isFalse);
+
+    final second = r.search('x', 'en');
+    await pumpEventQueue();
+    expect(opens, hasLength(2));
+    opens.last.complete(_FakeIndex());
+    expect((await second).isSuccess, isTrue);
   });
 
   test('release then reopen reuses the in-flight load', () async {

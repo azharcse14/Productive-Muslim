@@ -127,7 +127,11 @@ final class HadithBookRepositoryImpl implements HadithBookRepository {
         truncated: raw.truncated,
       ));
     } on Object catch (e) {
-      // The corpus is fine; only this query failed.
+      // A live corpus is kept (only this query failed); a dead worker is
+      // dropped so the next search loads a fresh one.
+      if (!index.alive && identical(_search, loading)) {
+        _search = null;
+      }
       return Result.failure(UnexpectedFailure('Hadith search failed', e));
     }
   }

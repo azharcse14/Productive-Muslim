@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 import 'hadith_blob_codec.dart';
@@ -9,6 +11,10 @@ import 'hadith_search.dart';
 abstract interface class HadithSearchIndex {
   Future<HadithRawResults> search(String query, String languageCode, int limit);
 
+  /// False once the index can no longer answer (its isolate died); the
+  /// owner then drops it and loads a new one.
+  bool get alive;
+
   void close();
 }
 
@@ -17,25 +23,42 @@ abstract interface class HadithSearchIndex {
 /// decodes them once and keeps the corpus; each query sends back only the
 /// small hit records, so matching never runs on the UI thread.
 final class HadithSearchWorker implements HadithSearchIndex {
-  HadithSearchWorker._(this._isolate, this._requests);
+  HadithSearchWorker._(this._isolate, this._requests, this._died);
 
   final Isolate _isolate;
   final SendPort _requests;
+
+  /// Completes when the isolate exits (crash, kill or [close]).
+  final Future<void> _died;
+  var _alive = true;
 
   static Future<HadithSearchWorker> spawn(
     String dbPath,
     List<HadithSearchSource> sources,
   ) async {
     final ready = ReceivePort();
+    final died = Completer<void>();
+    // Uncaught errors are fatal, so the exit message covers every death.
+    final exit = RawReceivePort();
+    exit.handler = (Object? _) {
+      exit.close();
+      died.complete();
+    };
     try {
-      final isolate = await Isolate.spawn(_main, (
-        ready.sendPort,
-        dbPath,
-        sources,
-      ), onError: ready.sendPort);
-      final reply = await ready.first;
+      final isolate = await Isolate.spawn(
+        _main,
+        (ready.sendPort, dbPath, sources),
+        onError: ready.sendPort,
+        onExit: exit.sendPort,
+      );
+      final reply = await Future.any<Object?>([
+        ready.first,
+        died.future.then((_) => 'exited while loading'),
+      ]);
       if (reply is SendPort) {
-        return HadithSearchWorker._(isolate, reply);
+        final worker = HadithSearchWorker._(isolate, reply, died.future);
+        unawaited(died.future.then((_) => worker._alive = false));
+        return worker;
       }
       isolate.kill();
       throw StateError('Hadith search load failed: $reply');
@@ -45,22 +68,43 @@ final class HadithSearchWorker implements HadithSearchIndex {
   }
 
   @override
+  bool get alive => _alive;
+
+  /// Lets tests kill the isolate behind [close]'s back, like a crash.
+  @visibleForTesting
+  Isolate get isolate => _isolate;
+
+  @override
   Future<HadithRawResults> search(
     String query,
     String languageCode,
     int limit,
   ) async {
+    if (!_alive) {
+      throw StateError('Hadith search worker is gone');
+    }
     final reply = ReceivePort();
     try {
       _requests.send((query, languageCode, limit, reply.sendPort));
-      return await reply.first as HadithRawResults;
+      // A death mid-query fails it instead of waiting forever.
+      final result = await Future.any<Object?>([
+        reply.first,
+        _died.then((_) => null),
+      ]);
+      if (result is! HadithRawResults) {
+        throw StateError('Hadith search worker died');
+      }
+      return result;
     } finally {
       reply.close();
     }
   }
 
   @override
-  void close() => _isolate.kill();
+  void close() {
+    _alive = false;
+    _isolate.kill();
+  }
 
   static void _main((SendPort, String, List<HadithSearchSource>) args) {
     final (out, path, sources) = args;

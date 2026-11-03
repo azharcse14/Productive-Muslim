@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_bundled_data_source.dart';
@@ -226,6 +227,20 @@ void main() {
     final index = await _open(await _seed(withBangla: false), books);
     final hits = await _search(index, books, 'নামাজ', 'bn');
     expect([for (final h in hits) h.book.id], ['malik']);
+  });
+
+  test('a worker that dies fails searches instead of hanging', () async {
+    final worker = await HadithSearchWorker.spawn(
+      await _seed(),
+      hadithSearchSources(_books),
+    );
+    addTearDown(worker.close);
+    expect((await worker.search('prayer', 'en', 50)).hits, isNotEmpty);
+
+    worker.isolate.kill(priority: Isolate.immediate); // simulated crash
+    await expectLater(worker.search('prayer', 'en', 50), throwsStateError);
+    expect(worker.alive, isFalse);
+    await expectLater(worker.search('prayer', 'en', 50), throwsStateError);
   });
 
   test('a missing database fails the spawn', () async {
