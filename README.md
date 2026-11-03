@@ -30,7 +30,7 @@ flutter test           # must pass
 ## Platform Toolchain
 
 - **iOS/macOS:** Swift Package Manager **only** — no CocoaPods, no Podfile. Plugins must support SPM.
-- **Android:** latest Flutter-template toolchain — Gradle 9.1.0, AGP 9.0.1, Kotlin 2.3.20, Java 17. Re-sync with the Flutter template on every Flutter upgrade.
+- **Android:** latest Flutter-template toolchain — Gradle 9.8.2, AGP 9.0.1, Kotlin 2.3.20, Java 17. Re-sync with the Flutter template on every Flutter upgrade.
 
 ## Android release signing
 
