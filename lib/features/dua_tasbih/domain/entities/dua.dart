@@ -1,3 +1,13 @@
+/// Ids of duas removed as same-category duplicates, mapped to the entry that
+/// was kept. Ids are persisted (favorites), so a stored old id must still
+/// resolve.
+const duaIdAliases = <String, String>{
+  'fd_bismillah': 'bismillah_food',
+  'hm_8_17_154': 'bismillah_tawakkaltu',
+  'tv_safar': 'dua_safar',
+  'hm_5_13_112': 'mk_entering_market',
+};
+
 /// One supplication from the bundled collection.
 final class Dua {
   const Dua({

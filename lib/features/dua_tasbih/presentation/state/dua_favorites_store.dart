@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../domain/entities/dua.dart';
+
 /// Favorited dua ids, persisted as a string list under [_key].
 final class DuaFavoritesStore {
   DuaFavoritesStore(this._prefs);
@@ -13,11 +15,12 @@ final class DuaFavoritesStore {
   late final ids = signal(const <String>{});
   late final loaded = signal(false);
 
-  /// Restores persisted favorite ids.
+  /// Restores persisted favorite ids; ids of removed duplicate duas resolve
+  /// to the entry that was kept.
   Future<void> load() async {
     final stored = await _prefs.getStringList(_key);
     if (stored != null) {
-      ids.value = stored.toSet();
+      ids.value = {for (final id in stored) duaIdAliases[id] ?? id};
     }
     loaded.value = true;
   }
