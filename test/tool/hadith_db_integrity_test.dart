@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_catalog_data_source.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_database.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -45,8 +47,77 @@ void main() {
     return jsonDecode(utf8.decode(gzip.decode(data))) as List<dynamic>;
   }
 
-  test('schema version is 2', () {
-    expect(scalar('PRAGMA user_version'), 2);
+  test('schema version matches HadithDatabase.bundledVersion', () {
+    expect(scalar('PRAGMA user_version'), HadithDatabase.bundledVersion);
+  });
+
+  /// Every hadith of [edition] across all its sections.
+  List<RawHadith> all(String edition) => [
+    for (final row in db.select(
+      'SELECT data FROM hadith_section WHERE edition = ? ORDER BY section',
+      [edition],
+    ))
+      ...decodeEditionBlob(row.values.first! as List<int>),
+  ];
+
+  test('no upstream hadith is missing (section 0 included)', () {
+    // Entries per book in the pinned fawazahmed0 snapshot (@df57907,
+    // info.json `hadiths`, sections 0..N), less its section-0 entries that
+    // are empty in both Arabic and English (Bukhari 5, Muslim 196, Nasa'i
+    // 82, Malik 18). Non-empty section-0 hadith recovered: Bukhari 306,
+    // Muslim 148.
+    const expected = {
+      'bukhari': 7589 - 5,
+      'muslim': 7563 - 196,
+      'abudawud': 5274,
+      'tirmidhi': 3998,
+      'nasai': 5765 - 82,
+      'ibnmajah': 4343,
+      'malik': 1858 - 18,
+      'nawawi': 42,
+      'qudsi': 40,
+    };
+    for (final MapEntry(key: id, value: count) in expected.entries) {
+      for (final edition in ['ara-$id', 'eng-$id']) {
+        expect(all(edition), hasLength(count), reason: edition);
+      }
+    }
+    // Bengali fawazahmed0 editions bundled for books without hadithbangla
+    // (a CDN-throttled section once went missing silently).
+    expect(all('ben-malik'), hasLength(expected['malik']));
+    expect(all('ben-nawawi'), hasLength(expected['nawawi']));
+  });
+
+  test('Bukhari 832 and 5692 (cited by duas / tibb) are present', () {
+    for (final edition in ['ara-bukhari', 'eng-bukhari']) {
+      final byNumber = {for (final h in all(edition)) h.number: h};
+      for (final n in [832, 5692]) {
+        expect(byNumber[n]?.text, isNotEmpty, reason: '$edition $n');
+      }
+    }
+  });
+
+  test('no two hadith of a book show the same reference', () {
+    final editions = [
+      for (final row in db.select(
+        'SELECT DISTINCT edition FROM hadith_section',
+      ))
+        row.values.first! as String,
+    ];
+    for (final edition in editions) {
+      final seen = <String>{};
+      final dupes = [
+        for (final h in all(edition))
+          if (!seen.add(h.ref.isNotEmpty ? h.ref : '${h.number}'))
+            h.ref.isNotEmpty ? h.ref : '${h.number}',
+      ];
+      expect(dupes, isEmpty, reason: edition);
+    }
+    // Sub-narrations keep their sub-number (was a second "402").
+    expect(all('eng-bukhari').where((h) => h.number == 402).map((h) => h.ref), [
+      '',
+      '402.2',
+    ]);
   });
 
   test('has both section tables, populated', () {
@@ -67,44 +138,51 @@ void main() {
     ];
     for (final id in ids) {
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
-            ['ara-$id']),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
+          'ara-$id',
+        ]),
         greaterThan(0),
         reason: 'ara-$id missing',
       );
       expect(
-        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?',
-            ['eng-$id']),
+        scalar('SELECT COUNT(*) FROM hadith_section WHERE edition = ?', [
+          'eng-$id',
+        ]),
         greaterThan(0),
         reason: 'eng-$id missing',
       );
     }
   });
 
-  test('Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
-      () {
-    final ar = blob(
-      'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
-      ['ara-bukhari'],
-    );
-    expect(ar, isNotEmpty);
-    final first = (ar.first as Map)['t'] as String;
-    expect(first.trim(), isNotEmpty);
-    expect((ar.first as Map)['n'], 1); // first hadith number
+  test(
+    'Bukhari section 1 decodes to real Arabic hadith + has a bn chapter',
+    () {
+      final ar = blob(
+        'SELECT data FROM hadith_section WHERE edition = ? AND section = 1',
+        ['ara-bukhari'],
+      );
+      expect(ar, isNotEmpty);
+      final first = (ar.first as Map)['t'] as String;
+      expect(first.trim(), isNotEmpty);
+      expect((ar.first as Map)['n'], 1); // first hadith number
 
-    expect(
-      scalar('SELECT COUNT(*) FROM hadith_bn_section '
-          'WHERE book_id = ? AND section = 1', ['bukhari']),
-      greaterThan(0),
-    );
-  });
+      expect(
+        scalar(
+          'SELECT COUNT(*) FROM hadith_bn_section '
+          'WHERE book_id = ? AND section = 1',
+          ['bukhari'],
+        ),
+        greaterThan(0),
+      );
+    },
+  );
 
   test('catalog section counts match the hadith actually bundled', () {
-    final catalog = jsonDecode(
-      File('assets/data/hadith_books.json').readAsStringSync(),
-    ) as Map<String, dynamic>;
-    for (final book in (catalog['books'] as List<dynamic>)
-        .cast<Map<String, dynamic>>()) {
+    final catalog =
+        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final book
+        in (catalog['books'] as List<dynamic>).cast<Map<String, dynamic>>()) {
       final sections = [
         for (final s in book['sections'] as List<dynamic>)
           ('hadith_section', 'edition', book['edition_ar'], s),
@@ -114,8 +192,10 @@ void main() {
       for (final (table, keyColumn, key, s) in sections) {
         final section = s as Map<String, dynamic>;
         expect(
-          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?',
-              [key, section['n']]).length,
+          blob('SELECT data FROM $table WHERE $keyColumn = ? AND section = ?', [
+            key,
+            section['n'],
+          ]).length,
           section['count'],
           reason: '$table $key §${section['n']}',
         );
@@ -192,9 +272,7 @@ void main() {
         );
         final expected = <int>{
           for (final h in data.cast<Map<String, dynamic>>())
-            int.tryParse(
-                  leading.stringMatch(h['r'] as String? ?? '') ?? '',
-                ) ??
+            int.tryParse(leading.stringMatch(h['r'] as String? ?? '') ?? '') ??
                 h['n'] as int,
         };
         final listed = <int>{

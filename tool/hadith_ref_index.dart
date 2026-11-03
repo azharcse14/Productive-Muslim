@@ -1,5 +1,5 @@
-// Writes the numbers each section actually holds into
-// assets/data/hadith_books.json as `refs`: runs `[[from, to], …]` of the
+// Writes the number of hadith each section holds (`count`) and the numbers
+// it holds into assets/data/hadith_books.json as `refs`: runs `[[from, to], …]` of the
 // number a card shows — the whole-number part of the displayed reference
 // ("Sahih Muslim 17a" → 17), else the hadith number.
 //
@@ -55,11 +55,11 @@ void main() {
             continue;
           }
           final data = rows.first.values.first! as List<int>;
-          final runs = refRuns(
-            bn
-                ? [for (final h in decodeBanglaBlob(data)) h.number]
-                : [for (final h in decodeEditionBlob(data)) h.referenceNumber],
-          );
+          final numbers = bn
+              ? [for (final h in decodeBanglaBlob(data)) h.number]
+              : [for (final h in decodeEditionBlob(data)) h.referenceNumber];
+          final runs = refRuns(numbers);
+          section['count'] = numbers.length;
           section['refs'] = [
             for (final (from, to) in runs) [from, to],
           ];

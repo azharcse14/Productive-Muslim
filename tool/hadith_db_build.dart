@@ -5,6 +5,8 @@
 // Sources (snapshotted once, here, at build time):
 //   * Arabic + English — fawazahmed0/hadith-api (Unlicense), via the jsDelivr CDN:
 //       editions/{edition}/sections/{n}.min.json
+//     plus sections/0.min.json (hadith upstream gave no in-book reference)
+//     folded into their chapters via info.json — see [placeSectionZero].
 //     Editions: ara-{id}, eng-{id}; plus ben-{id} for books that no
 //     hadithbangla folder covers (40 Hadith Nawawi/Qudsi, Muwatta Malik).
 //   * Bengali — azharcse14/hadithbangla repo (per-chapter Bangla translation
@@ -44,13 +46,14 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// Bump together with [HadithDatabase.bundledVersion] to force a re-copy of the
 /// asset on the next app launch after the data changes.
-const _userVersion = 2;
+const _userVersion = 3;
 
 const _catalogPath = 'assets/data/hadith_books.json';
 const _outPath = 'assets/data/hadith.db';
 
 // Pinned revisions, shared with the app's online fallback.
 const _faBase = ContentSources.hadithApiEditionsBase;
+final _infoUrl = '${_faBase.substring(0, _faBase.lastIndexOf('/'))}/info.json';
 const _bnBase = ContentSources.hadithBanglaBase;
 
 const _attributionLines = [
@@ -72,6 +75,8 @@ Future<void> main(List<String> args) async {
   var faHadith = 0;
   var bnHadith = 0;
   try {
+    // Per-book section metadata + every hadith's in-book reference.
+    final info = jsonDecode((await _get(http, _infoUrl))!) as Map;
     _createSchema(db, bengali: bengali);
     final faStmt = db.prepare(
       'INSERT OR REPLACE INTO hadith_section(edition, section, data) '
@@ -90,8 +95,10 @@ Future<void> main(List<String> args) async {
         final sections = book['sections'] as List? ?? const [];
         final bnSections = book['sections_bn'] as List? ?? const [];
         final bnFolder = book['bn_folder'] as String? ?? '';
-        stdout.writeln('• $id — ${sections.length} sections'
-            '${bnFolder.isNotEmpty ? ', ${bnSections.length} bn chapters' : ''}');
+        stdout.writeln(
+          '• $id — ${sections.length} sections'
+          '${bnFolder.isNotEmpty ? ', ${bnSections.length} bn chapters' : ''}',
+        );
 
         // fawazahmed0: Arabic + English (always); Bengali edition only for
         // books no hadithbangla folder covers (so bn still has *something*).
@@ -99,23 +106,59 @@ Future<void> main(List<String> args) async {
         if (bnFolder.isEmpty) {
           editions.add('ben-$id');
         }
+        // Upstream files hadith lacking an in-book reference under section
+        // 0; fold them into the catalog section they belong to.
+        final zero = {
+          for (final edition in editions)
+            edition: await _rawSection(
+              http,
+              edition,
+              0,
+              tolerant: edition.startsWith('ben-'),
+            ),
+        };
+        final target = placeSectionZero(
+          (info[id] as Map).cast<String, Object?>(),
+          [...?zero['ara-$id'], ...?zero['eng-$id']],
+          {for (final s in sections) (s as Map)['n'] as int},
+        );
         for (final edition in editions) {
           // ben-* may not exist for a book (e.g. ben-qudsi) — tolerate that.
           final tolerant = edition.startsWith('ben-');
           for (final s in sections) {
             final n = (s as Map)['n'] as int;
-            final body = await _get(http,
-                '$_faBase/$edition/sections/$n.min.json',
-                tolerant: tolerant);
-            if (body == null) {
+            final base = n == 0
+                ? const <Map<String, Object?>>[]
+                : await _rawSection(http, edition, n, tolerant: tolerant);
+            if (base == null) {
               continue;
             }
-            final hadiths = _parseFa(body);
+            final hadiths = [
+              for (final entry in mergeByNumber(base, [
+                for (final h in zero[edition] ?? const <Map<String, Object?>>[])
+                  if (target[h['hadithnumber']] == n) h,
+              ]))
+                if (RawHadith.parse(entry) case final h?)
+                  entry.containsKey('arabicnumber')
+                      ? h
+                      // Only Sahih Muslim's section-0 hadith lack it: they
+                      // have no Abd al-Baqi number, so mark upstream's
+                      // internal one rather than pass it off as standard.
+                      : RawHadith(
+                          number: h.number,
+                          text: h.text,
+                          grade: h.grade,
+                          ref: '#${h.number}',
+                        ),
+            ];
             if (hadiths.isEmpty) {
               continue;
             }
-            faStmt.execute(
-                [edition, n, Uint8List.fromList(encodeEditionBlob(hadiths))]);
+            faStmt.execute([
+              edition,
+              n,
+              Uint8List.fromList(encodeEditionBlob(hadiths)),
+            ]);
             faHadith += hadiths.length;
           }
         }
@@ -124,8 +167,11 @@ Future<void> main(List<String> args) async {
         if (bnStmt != null && bnFolder.isNotEmpty) {
           for (final s in bnSections) {
             final n = (s as Map)['n'] as int;
-            final body = await _get(http, '$_bnBase/$bnFolder/Chapter/$n.json',
-                tolerant: true);
+            final body = await _get(
+              http,
+              '$_bnBase/$bnFolder/Chapter/$n.json',
+              tolerant: true,
+            );
             if (body == null) {
               continue;
             }
@@ -133,8 +179,11 @@ Future<void> main(List<String> args) async {
             if (hadiths.isEmpty) {
               continue;
             }
-            bnStmt.execute(
-                [id, n, Uint8List.fromList(encodeBanglaBlob(hadiths))]);
+            bnStmt.execute([
+              id,
+              n,
+              Uint8List.fromList(encodeBanglaBlob(hadiths)),
+            ]);
             bnHadith += hadiths.length;
           }
         }
@@ -156,8 +205,10 @@ Future<void> main(List<String> args) async {
   tmp.deleteSync(recursive: true);
 
   stdout
-    ..writeln('Wrote $faHadith ara/eng + $bnHadith bn hadith to ${out.path} '
-        '(${(out.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB)')
+    ..writeln(
+      'Wrote $faHadith ara/eng + $bnHadith bn hadith to ${out.path} '
+      '(${(out.lengthSync() / 1024 / 1024).toStringAsFixed(1)} MB)',
+    )
     ..writeln('Attribution (surface in the credits screen):');
   for (final line in _attributionLines) {
     if (!bengali && line.contains('hadithbangla')) {
@@ -187,16 +238,114 @@ void _createSchema(Database db, {required bool bengali}) {
       )''');
 }
 
-List<RawHadith> _parseFa(String body) {
-  final decoded = jsonDecode(body);
-  final entries = (decoded is Map ? decoded['hadiths'] : null);
-  if (entries is! List) {
-    return const [];
+/// The raw `hadiths[]` of one fawazahmed0 [edition] section; null on a
+/// tolerated miss.
+Future<List<Map<String, Object?>>?> _rawSection(
+  HttpClient http,
+  String edition,
+  int section, {
+  required bool tolerant,
+}) async {
+  final body = await _get(
+    http,
+    '$_faBase/$edition/sections/$section.min.json',
+    tolerant: tolerant,
+  );
+  if (body == null) {
+    return null;
   }
-  return [
-    for (final entry in entries)
-      if (RawHadith.parse(entry) case final h?) h,
-  ];
+  final decoded = jsonDecode(body);
+  final entries = decoded is Map ? decoded['hadiths'] : null;
+  return entries is List
+      ? [
+          for (final e in entries)
+            if (e is Map) e.cast<String, Object?>(),
+        ]
+      : const [];
+}
+
+/// Where each section-0 hadith of a book goes: hadithnumber → catalog
+/// section, from that book's [info] (upstream info.json entry).
+///
+/// fawazahmed0 files a hadith under section 0 when its source gave it no
+/// in-book reference (`reference.book == 0`). Two kinds:
+///  * section 0 is a real, named chapter (Muslim "Introduction", Ibn Majah
+///    "The Book of the Sunnah") and its `section_details` range holds the
+///    number → that chapter, section 0;
+///  * otherwise it is a stray from the main sequence → the section of the
+///    nearest preceding referenced hadith in upstream order (the following
+///    one when nothing precedes). A stray between two chapters stays with
+///    the one it follows: "the above tradition through another chain"
+///    always points back.
+/// Hadith empty in all of [entries] (the book's Arabic + English section 0)
+/// are left out — nothing to show. Throws when a target is not one of
+/// [catalogSections] rather than dropping the hadith.
+Map<num, int> placeSectionZero(
+  Map<String, Object?> info,
+  List<Map<String, Object?>> entries,
+  Set<int> catalogSections,
+) {
+  final metadata = (info['metadata']! as Map).cast<String, Object?>();
+  final names = (metadata['sections']! as Map).cast<String, Object?>();
+  final range = ((metadata['section_details']! as Map)['0'] as Map?)
+      ?.cast<String, Object?>();
+  final first = range?['hadithnumber_first'] as num? ?? 0;
+  final last = range?['hadithnumber_last'] as num? ?? 0;
+  final named = (names['0'] as String? ?? '').isNotEmpty && last > 0;
+
+  final upstream = (info['hadiths']! as List).cast<Map<String, Object?>>();
+  final index = {
+    for (final (i, h) in upstream.indexed) h['hadithnumber']! as num: i,
+  };
+  int bookOf(int i) =>
+      ((upstream[i]['reference']! as Map)['book']! as num).toInt();
+
+  final wanted = {
+    for (final h in entries)
+      if ((h['text'] as String? ?? '').trim().isNotEmpty)
+        h['hadithnumber']! as num,
+  };
+  final placed = <num, int>{};
+  for (final number in wanted) {
+    int? section;
+    if (named && first <= number && number <= last) {
+      section = 0;
+    } else {
+      final at =
+          index[number] ??
+          (throw StateError('section-0 hadith $number not in info.json'));
+      for (var i = at - 1; i >= 0 && section == null; i--) {
+        section = bookOf(i) == 0 ? null : bookOf(i);
+      }
+      for (var i = at + 1; i < upstream.length && section == null; i++) {
+        section = bookOf(i) == 0 ? null : bookOf(i);
+      }
+    }
+    if (section == null || !catalogSections.contains(section)) {
+      throw StateError(
+        'section-0 hadith $number → section $section, '
+        'which the catalog does not list',
+      );
+    }
+    placed[number] = section;
+  }
+  return placed;
+}
+
+/// [base] with each of [extra] inserted before the first entry with a
+/// larger hadithnumber (upstream order otherwise kept, so every edition of
+/// a section lines up the same way).
+List<Map<String, Object?>> mergeByNumber(
+  List<Map<String, Object?>> base,
+  List<Map<String, Object?>> extra,
+) {
+  final out = [...base];
+  for (final h in extra) {
+    final n = h['hadithnumber']! as num;
+    final at = out.indexWhere((e) => (e['hadithnumber']! as num) > n);
+    out.insert(at == -1 ? out.length : at, h);
+  }
+  return out;
 }
 
 List<BnHadith> _parseBn(String body) {
@@ -210,10 +359,18 @@ List<BnHadith> _parseBn(String body) {
   ];
 }
 
+/// jsDelivr answers 403 when throttling a ~1500-file run; back off
+/// 1, 4, 9 … 49 s (~2.5 min) before giving up.
+const _attempts = 8;
+
 /// GETs [url] with a few retries. Returns null on a tolerated 404 (a
 /// missing edition/chapter) or after exhausting retries when [tolerant].
-Future<String?> _get(HttpClient http, String url, {bool tolerant = false}) async {
-  for (var attempt = 1; attempt <= 4; attempt++) {
+Future<String?> _get(
+  HttpClient http,
+  String url, {
+  bool tolerant = false,
+}) async {
+  for (var attempt = 1; attempt <= _attempts; attempt++) {
     try {
       final req = await http.getUrl(Uri.parse(url));
       req.headers.set(HttpHeaders.acceptEncodingHeader, 'gzip');
@@ -231,14 +388,14 @@ Future<String?> _get(HttpClient http, String url, {bool tolerant = false}) async
       }
       return await res.transform(utf8.decoder).join();
     } on Object catch (e) {
-      if (attempt == 4) {
+      if (attempt == _attempts) {
         if (tolerant) {
           stderr.writeln('  ! skipped $url ($e)');
           return null;
         }
         rethrow;
       }
-      await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
+      await Future<void>.delayed(Duration(seconds: attempt * attempt));
     }
   }
   return null;
