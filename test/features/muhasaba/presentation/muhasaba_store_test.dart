@@ -185,6 +185,18 @@ void main() {
         DateTime(today.year, today.month, today.day + 3),
       );
       expect(store.range, (today, today));
+
+      // Over a year keeps the latest maxCustomDays days.
+      await store.setCustomRange(DateTime(today.year - 3), today);
+      expect(store.range, (
+        DateTime(
+          today.year,
+          today.month,
+          today.day - (MuhasabaStore.maxCustomDays - 1),
+        ),
+        today,
+      ));
+      expect(store.stats.value!.days.length, MuhasabaStore.maxCustomDays);
     });
 
     test('setValue bursts recompute stats once, after the debounce', () async {

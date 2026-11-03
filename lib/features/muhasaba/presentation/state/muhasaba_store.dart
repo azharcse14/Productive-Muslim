@@ -80,6 +80,20 @@ final class MuhasabaStore {
       _days.value[DateTime(day.year, day.month, day.day)] ??
       const <String, int>{};
 
+  /// Mean completion of the active items on [day] (0..1), from the cached
+  /// entries — independent of the dashboard [period]. Every active item
+  /// counts today, so for today this equals the SQL day completion.
+  /// Reactive.
+  double completionOn(DateTime day) {
+    final list = items.value;
+    if (list.isEmpty) {
+      return 0;
+    }
+    final values = entriesOn(day);
+    return list.fold(0.0, (sum, i) => sum + i.fractionOf(values[i.id] ?? 0)) /
+        list.length;
+  }
+
   late final period = signal(MuhasabaPeriod.week);
 
   /// The [MuhasabaPeriod.custom] range as picked (date-only, inclusive);
@@ -385,13 +399,17 @@ final class MuhasabaStore {
     await refreshStats();
   }
 
+  /// Longest custom range, in days (bounds the heatmap and day loops).
+  static const maxCustomDays = 366;
+
   /// Shows [start]..[end] (inclusive) on the dashboard. Days after today
-  /// are cut off (the range never extends into the future).
+  /// are cut off (the range never extends into the future); a span over
+  /// [maxCustomDays] keeps its last [maxCustomDays] days.
   Future<void> setCustomRange(DateTime start, DateTime end) async {
-    customRange.value = (
-      DateTime(start.year, start.month, start.day),
-      DateTime(end.year, end.month, end.day),
-    );
+    final e = DateTime(end.year, end.month, end.day);
+    final earliest = DateTime(e.year, e.month, e.day - (maxCustomDays - 1));
+    final s = DateTime(start.year, start.month, start.day);
+    customRange.value = (s.isBefore(earliest) ? earliest : s, e);
     period.value = MuhasabaPeriod.custom;
     await refreshStats();
   }

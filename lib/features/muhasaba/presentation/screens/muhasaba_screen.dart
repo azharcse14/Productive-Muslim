@@ -732,15 +732,22 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   Future<void> _pickRange(BuildContext context) async {
     // The store's clock (location wall time), not the device's; the range
     // can't reach past today.
+    // Spans over [MuhasabaStore.maxCustomDays] keep their latest days (the
+    // label shows the range actually used).
     final today = _store.today;
-    final (start, end) = _store.range;
+    final first = DateTime(today.year - 5);
+    DateTime clamp(DateTime d) =>
+        d.isBefore(first) ? first : (d.isAfter(today) ? today : d);
+    // The last custom pick, not the week/month currently shown.
+    final initial = switch (_store.customRange.value) {
+      (final s, final e) => DateTimeRange(start: clamp(s), end: clamp(e)),
+      null => null,
+    };
     final picked = await showDateRangePicker(
       context: context,
-      firstDate: DateTime(today.year - 5),
+      firstDate: first,
       lastDate: today,
-      initialDateRange: _store.customRange.value == null
-          ? null
-          : DateTimeRange(start: start, end: end),
+      initialDateRange: initial,
       helpText: context.l10n.muhasabaRangeChange,
     );
     if (picked != null) {
@@ -857,6 +864,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
 
     // Today is the last cell when the range reaches it (a custom range
     // may end earlier: no highlight then).
+    final dayFormat = DateFormat.MMMEd(locale.toString());
     final todayIndex = days.isNotEmpty && days.last.date == _store.today
         ? leading + days.length - 1
         : null;
@@ -880,7 +888,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
                   return '';
                 }
                 return LocaleDigits.localize(
-                  '${DateFormat.MMMEd(locale.toString()).format(day.date)}: '
+                  '${dayFormat.format(day.date)}: '
                   '${_percent(context, day.completion)}',
                   locale.languageCode,
                 );
