@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/features/dua_tasbih/domain/entities/dua.dart';
 
+import '../helpers/arabic.dart';
 import '../helpers/honorific.dart';
 
 /// Integrity checks for the bundled Dua collection and Asmaul Husna data
@@ -33,7 +35,9 @@ void main() {
       final raw = File('assets/data/asmaul_husna.json').readAsStringSync();
       final decoded = jsonDecode(raw) as List<Object?>;
       names = decoded
-          .map((Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>())
+          .map(
+            (Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+          )
           .toList();
     });
 
@@ -43,7 +47,11 @@ void main() {
 
     test('entries are sequentially numbered 1..99', () {
       for (var i = 0; i < names.length; i++) {
-        expect(names[i]['n'], i + 1, reason: 'entry at index $i must have n=${i + 1}');
+        expect(
+          names[i]['n'],
+          i + 1,
+          reason: 'entry at index $i must have n=${i + 1}',
+        );
       }
     });
 
@@ -51,7 +59,11 @@ void main() {
       for (final name in names) {
         for (final field in <String>['ar', 'tr', 'en', 'bn']) {
           final value = name[field];
-          expect(value, isA<String>(), reason: 'field "$field" of n=${name['n']} must be a string');
+          expect(
+            value,
+            isA<String>(),
+            reason: 'field "$field" of n=${name['n']} must be a string',
+          );
           expect(
             (value! as String).trim(),
             isNotEmpty,
@@ -65,6 +77,13 @@ void main() {
       expect(names.first['tr'], 'Ar-Rahman');
       expect(names.last['tr'], 'As-Sabur');
     });
+
+    test('tr, en and bn are unique so no quiz question is ambiguous', () {
+      for (final field in <String>['tr', 'en', 'bn']) {
+        final values = names.map((n) => (n[field]! as String).toLowerCase());
+        expect(values.toSet(), hasLength(names.length), reason: 'duplicate $field');
+      }
+    });
   });
 
   group('duas.json', () {
@@ -73,15 +92,18 @@ void main() {
 
     setUpAll(() {
       final raw = File('assets/data/duas.json').readAsStringSync();
-      final decoded =
-          (jsonDecode(raw) as Map<dynamic, dynamic>).cast<String, Object?>();
+      final decoded = (jsonDecode(raw) as Map<dynamic, dynamic>)
+          .cast<String, Object?>();
       categories = (decoded['categories']! as List<Object?>)
-          .map((Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>())
+          .map(
+            (Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+          )
           .toList();
       allDuas = categories
           .expand(
             (Map<String, Object?> c) => (c['duas']! as List<Object?>).map(
-              (Object? e) => (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+              (Object? e) =>
+                  (e as Map<dynamic, dynamic>).cast<String, Object?>(),
             ),
           )
           .toList();
@@ -176,15 +198,76 @@ void main() {
       }
     });
 
+    test('every dua has a Bangla transliteration', () {
+      for (final dua in allDuas) {
+        final trBn = dua['trBn'];
+        expect(
+          trBn is String && trBn.trim().isNotEmpty,
+          isTrue,
+          reason: 'dua "${dua['id']}" has no trBn',
+        );
+      }
+    });
+
+    test('no double spaces, stray line-end spaces or wrapped en/bn', () {
+      for (final dua in allDuas) {
+        dua.forEach((field, value) {
+          if (value is! String) {
+            return;
+          }
+          final where = 'dua "${dua['id']}" field "$field"';
+          expect(value.contains('  '), isFalse, reason: '$where: double space');
+          expect(
+            RegExp(r' \n|\n ').hasMatch(value),
+            isFalse,
+            reason: '$where: space at a line break',
+          );
+          expect(value, value.trim(), reason: '$where: outer whitespace');
+          if (field == 'en' || field == 'bn') {
+            expect(value.contains('\n'), isFalse, reason: '$where: newline');
+          }
+        });
+      }
+    });
+
+    test('no passage appears twice in one category', () {
+      for (final category in categories) {
+        final seen = <String, Object?>{};
+        for (final dua in category['duas']! as List<Object?>) {
+          final map = (dua! as Map<dynamic, dynamic>).cast<String, Object?>();
+          final key = bareArabic(map['ar']! as String);
+          expect(
+            seen[key],
+            isNull,
+            reason: '${category['id']}: ${map['id']} duplicates ${seen[key]}',
+          );
+          seen[key] = map['id'];
+        }
+      }
+    });
+
+    test('removed duplicate ids are gone and map to existing duas', () {
+      final ids = {for (final dua in allDuas) dua['id']};
+      duaIdAliases.forEach((removed, kept) {
+        expect(ids, isNot(contains(removed)), reason: removed);
+        expect(ids, contains(kept), reason: '$removed -> $kept');
+      });
+    });
+
     test('dua ids are unique across the whole collection', () {
       final ids = allDuas.map((Map<String, Object?> d) => d['id']).toList();
-      expect(ids.toSet(), hasLength(ids.length), reason: 'duplicate dua ids found');
+      expect(
+        ids.toSet(),
+        hasLength(ids.length),
+        reason: 'duplicate dua ids found',
+      );
     });
   });
 
   test('ﷺ in duas.json only follows the Prophet / Messenger / Muhammad', () {
-    final decoded =
-        jsonDecode(File('assets/data/duas.json').readAsStringSync());
+    final decoded = jsonDecode(
+      File('assets/data/duas.json').readAsStringSync(),
+    );
     expect(misplacedSalawat(decoded), isEmpty);
   });
 

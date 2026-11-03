@@ -8,19 +8,22 @@ enum IslamicDay {
   /// 10 Muharram.
   ashura,
 
-  /// 12 Rabi al-Awwal.
+  /// 12 Rabi' al-Awwal.
   mawlid,
 
-  /// 27 Rajab.
+  /// The night of 27 Rajab, marked on 26 Rajab — the day whose evening
+  /// starts it (see [laylatulQadr]).
   israMiraj,
 
-  /// 15 Shaban.
+  /// The night of 15 Sha'ban (Shab-e-Barat), marked on 14 Sha'ban — the day
+  /// whose evening starts it.
   nisfShaban,
 
   /// 1 Ramadan.
   ramadanStart,
 
-  /// The night of 27 Ramadan (the most commonly observed). An Islamic night
+  /// The night of 27 Ramadan, where Laylatul Qadr is most often sought (it is
+  /// sought in all the odd nights of the last ten). An Islamic night
   /// begins at sunset, so it is marked on 26 Ramadan — the day whose
   /// evening it starts.
   laylatulQadr,
@@ -32,7 +35,15 @@ enum IslamicDay {
   arafah,
 
   /// 10 Dhul-Hijjah.
-  eidAlAdha,
+  eidAlAdha;
+
+  /// A night observance: it begins at sunset of the day it is marked on.
+  bool get isNight =>
+      this == israMiraj || this == nisfShaban || this == laylatulQadr;
+
+  /// Scholars differ on the date and on marking it with special worship.
+  bool get scholarsDiffer =>
+      this == mawlid || this == israMiraj || this == nisfShaban;
 }
 
 /// A fixed hijri-calendar position (month + day) of an [IslamicDay].
@@ -59,8 +70,8 @@ abstract final class IslamicDates {
     IslamicDate(IslamicDay.hijriNewYear, 1, 1),
     IslamicDate(IslamicDay.ashura, 1, 10),
     IslamicDate(IslamicDay.mawlid, 3, 12),
-    IslamicDate(IslamicDay.israMiraj, 7, 27),
-    IslamicDate(IslamicDay.nisfShaban, 8, 15),
+    IslamicDate(IslamicDay.israMiraj, 7, 26),
+    IslamicDate(IslamicDay.nisfShaban, 8, 14),
     IslamicDate(IslamicDay.ramadanStart, 9, 1),
     IslamicDate(IslamicDay.laylatulQadr, 9, 26),
     IslamicDate(IslamicDay.eidAlFitr, 10, 1),

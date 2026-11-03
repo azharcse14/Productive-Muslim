@@ -53,12 +53,12 @@
     {
       "id": "h006",
       "topic": "character",
-      "grade": "Hasan",
+      "grade": "Sahih",
       "ar": "مِنْ حُسْنِ إِسْلَامِ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ",
       "en": "Part of the excellence of a person's Islam is his leaving that which does not concern him.",
       "bn": "মানুষের ইসলামের সৌন্দর্যের অন্যতম হলো, অনর্থক বিষয় পরিত্যাগ করা।",
       "narrator": "Abu Hurairah (RA)",
-      "ref": "An-Nawawi 12"
+      "ref": "An-Nawawi 12 (Jami at-Tirmidhi 2317) — Tirmidhi: gharib; Sahih per al-Albani"
     },
     {
       "id": "h007",
@@ -78,7 +78,7 @@
       "en": "Fear Allah wherever you are, and follow a bad deed with a good one to wipe it out.",
       "bn": "তুমি যেখানেই থাকো আল্লাহকে ভয় করো, আর মন্দ কাজের পর ভালো কাজ করো, তা মন্দকে মুছে দেবে।",
       "narrator": "Abu Dharr (RA)",
-      "ref": "An-Nawawi 18"
+      "ref": "An-Nawawi 18 (Jami at-Tirmidhi 1987) — Tirmidhi: hasan sahih; Hasan per al-Albani"
     },
     {
       "id": "h009",
@@ -133,12 +133,12 @@
     {
       "id": "h014",
       "topic": "charity",
-      "grade": "Hasan",
+      "grade": "Sahih",
       "ar": "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ",
       "en": "Your smiling in the face of your brother is charity for you.",
       "bn": "তোমার ভাইয়ের মুখের সামনে হাসিমুখে থাকাও তোমার জন্য সদকা।",
       "narrator": "Abu Dharr (RA)",
-      "ref": "Jami at-Tirmidhi 1956"
+      "ref": "Jami at-Tirmidhi 1956 — Tirmidhi: hasan gharib; Sahih per al-Albani"
     },
     {
       "id": "h015",
@@ -194,9 +194,9 @@
       "id": "h020",
       "topic": "worship",
       "grade": "Sahih",
-      "ar": "مَنْ بَنَى لِلَّهِ مَسْجِدًا بَنَى اللَّهُ لَهُ مِثْلَهُ فِي الْجَنَّةِ",
-      "en": "Whoever builds a mosque for Allah, Allah will build for him the like of it in Paradise.",
-      "bn": "যে ব্যক্তি আল্লাহর সন্তুষ্টির জন্য একটি মসজিদ নির্মাণ করে, আল্লাহ তার জন্য জান্নাতে অনুরূপ একটি ঘর নির্মাণ করেন।",
+      "ar": "مَنْ بَنَى مَسْجِدًا يَبْتَغِي بِهِ وَجْهَ اللَّهِ بَنَى اللَّهُ لَهُ مِثْلَهُ فِي الْجَنَّةِ",
+      "en": "Whoever builds a mosque seeking thereby the Face of Allah, Allah will build for him the like of it in Paradise.",
+      "bn": "যে ব্যক্তি আল্লাহর চেহারা (সন্তুষ্টি) কামনা করে একটি মসজিদ নির্মাণ করে, আল্লাহ জান্নাতে তার জন্য অনুরূপ (একটি ঘর) নির্মাণ করেন।",
       "narrator": "Uthman ibn Affan (RA)",
       "ref": "Sahih Bukhari 450"
     },
@@ -204,9 +204,9 @@
       "id": "h021",
       "topic": "mercy",
       "grade": "Sahih",
-      "ar": "بَشِّرُوا وَلَا تُنَفِّرُوا، وَيَسِّرُوا وَلَا تُعَسِّرُوا",
-      "en": "Give glad tidings and do not repel; make things easy and do not make them difficult.",
-      "bn": "তোমরা সুসংবাদ দাও, বিতৃষ্ণা সৃষ্টি করো না; সহজ করো, কঠিন করো না।",
+      "ar": "يَسِّرُوا وَلَا تُعَسِّرُوا، وَبَشِّرُوا وَلَا تُنَفِّرُوا",
+      "en": "Make things easy and do not make them difficult; give glad tidings and do not repel.",
+      "bn": "তোমরা সহজ করো, কঠিন করো না; সুসংবাদ দাও, বিতৃষ্ণা সৃষ্টি করো না।",
       "narrator": "Anas ibn Malik (RA)",
       "ref": "Sahih Bukhari 69"
     },
@@ -218,7 +218,7 @@
       "en": "Whoever does not thank people has not thanked Allah.",
       "bn": "যে মানুষের কৃতজ্ঞতা প্রকাশ করে না, সে আল্লাহরও কৃতজ্ঞতা প্রকাশ করে না।",
       "narrator": "Abu Hurairah (RA)",
-      "ref": "Jami at-Tirmidhi 1954"
+      "ref": "Jami at-Tirmidhi 1954 — Tirmidhi: hasan sahih; Sahih per al-Albani"
     },
     {
       "id": "h023",
@@ -285,7 +285,7 @@
       "topic": "charity",
       "grade": "Sahih",
       "ar": "مَنْ كَانَ فِي حَاجَةِ أَخِيهِ كَانَ اللَّهُ فِي حَاجَتِهِ",
-      "en": "Whoever fulfills the needs of his brother, Allah will fulfill his needs.",
+      "en": "Whoever is engaged in the need of his brother, Allah is engaged in his need.",
       "bn": "যে ব্যক্তি তার ভাইয়ের প্রয়োজন পূরণে নিয়োজিত থাকে, আল্লাহ তার প্রয়োজন পূরণে থাকেন।",
       "narrator": "Abdullah ibn Umar (RA)",
       "ref": "Sahih Bukhari 2442"
@@ -295,8 +295,8 @@
       "topic": "mercy",
       "grade": "Sahih",
       "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى",
-      "en": "O Allah, I ask You for guidance, piety, chastity and contentment.",
-      "bn": "হে আল্লাহ, আমি আপনার কাছে হিদায়াত, তাকওয়া, পবিত্রতা ও আত্মতৃপ্তি প্রার্থনা করছি।",
+      "en": "O Allah, I ask You for guidance, piety, chastity and freedom from want.",
+      "bn": "হে আল্লাহ, আমি আপনার কাছে হিদায়াত, তাকওয়া, পবিত্রতা ও অমুখাপেক্ষিতা প্রার্থনা করছি।",
       "narrator": "Abdullah ibn Mas'ud (RA)",
       "ref": "Sahih Muslim 2721"
     },
@@ -334,9 +334,9 @@
       "id": "h034",
       "topic": "worship",
       "grade": "Sahih",
-      "ar": "مَنْ حَجَّ فَلَمْ يَرْفُثْ وَلَمْ يَفْسُقْ رَجَعَ كَيَوْمِ وَلَدَتْهُ أُمُّهُ",
-      "en": "Whoever performs Hajj without obscenity or wrongdoing returns as on the day his mother bore him.",
-      "bn": "যে ব্যক্তি অশ্লীলতা ও পাপাচার ছাড়া হজ আদায় করে, সে এমনভাবে ফিরে আসে যেন তার মা তাকে সদ্য জন্ম দিয়েছেন।",
+      "ar": "مَنْ حَجَّ لِلَّهِ فَلَمْ يَرْفُثْ وَلَمْ يَفْسُقْ رَجَعَ كَيَوْمِ وَلَدَتْهُ أُمُّهُ",
+      "en": "Whoever performs Hajj for Allah and commits no obscenity or wrongdoing returns as on the day his mother bore him.",
+      "bn": "যে ব্যক্তি আল্লাহর জন্য হজ করে এবং অশ্লীলতা ও পাপাচারে লিপ্ত হয় না, সে এমনভাবে ফিরে আসে যেন তার মা তাকে সদ্য জন্ম দিয়েছেন।",
       "narrator": "Abu Hurairah (RA)",
       "ref": "Sahih Bukhari 1521"
     },
@@ -364,11 +364,11 @@
       "id": "h037",
       "topic": "worship",
       "grade": "Sahih",
-      "ar": "أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ",
+      "ar": "أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ",
       "en": "The most beloved deeds to Allah are the most consistent, even if they are few.",
       "bn": "আল্লাহর কাছে সর্বাধিক প্রিয় আমল হলো সেটিই, যা নিয়মিত করা হয়, যদিও তা পরিমাণে কম হয়।",
       "narrator": "Aisha (RA)",
-      "ref": "Sahih Bukhari 6464"
+      "ref": "Sahih Muslim 783"
     },
     {
       "id": "h038",
@@ -396,7 +396,7 @@
       "grade": "Sahih",
       "ar": "كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ",
       "en": "Be in this world as though you were a stranger or a traveler passing through.",
-      "bn": "তুমি দুনিয়াতে এমনভাবে থাকো, যেন তুমি একজন অপরিচিত পথিক অথবা পথ অতিক্রমকারী মুসাফির।",
+      "bn": "তুমি দুনিয়াতে এমনভাবে থাকো, যেন তুমি একজন প্রবাসী অথবা পথ অতিক্রমকারী মুসাফির।",
       "narrator": "Abdullah ibn Umar (RA)",
       "ref": "Sahih Bukhari 6416"
     }

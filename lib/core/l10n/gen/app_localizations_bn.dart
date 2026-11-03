@@ -9,6 +9,10 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String get asmaSourceListNote =>
+      'এখানে দেখানো ৯৯টি নাম জামে তিরমিজি ৩৫০৭-এর বর্ণনা থেকে নেওয়া বহুল প্রচলিত তালিকা (ওই বর্ণনায় আল-আহাদ নেই; সেখানে আল-ওয়াহিদের পরে আস-সামাদ)। আল-আলবানি ও অন্যরা এই বর্ণনাকে দুর্বল (যঈফ) বলেছেন, আর অনেক আলেমের মতে নামের তালিকাটি কোনো বর্ণনাকারীর সংযোজন। তবে আল্লাহর নিরানব্বইটি নাম আছে — এই হাদিসটি (সহিহ বুখারি ২৭৩৬) নিজে সহিহ।';
+
+  @override
   String get routeNotFound => 'এই পাতাটি পাওয়া যাচ্ছে না।';
 
   @override
@@ -511,7 +515,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'এই সময়গুলোতে নফল নামাজ এড়িয়ে চলুন। ছুটে যাওয়া ফরজ (যেমন আজকের আসর) তখনও পড়া যায়।';
+      'এই সময়গুলোতে নফল নামাজ পড়বেন না। তখন ছুটে যাওয়া ফরজের কাজা: হানাফি মাযহাবে সহিহ নয় (তবে সেদিনের নিজের আসর সূর্যাস্তের আগে আদায় করা যায়); অন্য মাযহাবগুলোতে জায়েজ।';
 
   @override
   String get naflTimesSubtitle => 'নফল নামাজ আদায়ের উত্তম সময়।';
@@ -544,7 +548,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialDetailIshraq =>
-      'সূর্য পুরোপুরি উঠে যাওয়ার অল্প পরে আদায় করা দুই রাকাত। যে ব্যক্তি জামাতে ফজর পড়ে সূর্যোদয় পর্যন্ত যিকিরে বসে থাকে এবং পরে দুই রাকাত পড়ে, সে একটি পূর্ণ হজ ও উমরার সওয়াব পায়।';
+      'সূর্য পুরোপুরি উঠে যাওয়ার অল্প পরে আদায় করা দুই রাকাত। যে ব্যক্তি জামাতে ফজর পড়ে সূর্যোদয় পর্যন্ত যিকিরে বসে থাকে এবং পরে দুই রাকাত পড়ে, সে একটি পূর্ণ হজ ও উমরার সওয়াব পায় (তিরমিজি ৫৮৬ — আলবানী হাসান বলেছেন; কিছু আলেম দুর্বল বলেছেন)।';
 
   @override
   String get specialDetailDuha =>
@@ -1697,7 +1701,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
       'dhulHijjah':
-          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+          'এমন কোনো দিন নেই যেদিনের নেক আমল আল্লাহর কাছে এই দশ দিনের আমলের চেয়ে বেশি প্রিয় (বুখারি ৯৬৯, আবু দাউদ ২৪৩৮, তিরমিজি ৭৫৭) — রোজাও এমন একটি আমল। আয়েশা (রা.) নবীজি ﷺ-কে এই দিনগুলোতে রোজা রাখতে দেখেননি (মুসলিম ১১৭৬); তাঁর আরেক স্ত্রী বর্ণনা করেছেন যে তিনি প্রথম নয় দিন রোজা রাখতেন (আবু দাউদ ২৪৩৭)।',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',
@@ -2053,7 +2057,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get zakatNeedSilverPrice =>
-      'আজকের রুপার দাম লিখুন — স্বর্ণই একমাত্র সম্পদ না হলে নিসাব রুপার দামে হিসাব হয়।';
+      'আজকের রুপার দাম লিখুন — স্বর্ণই একমাত্র সম্পদ না হলে এই হিসাব রুপার নিসাব ধরে, যা কম সীমা (হানাফি ও অন্যান্য)। কিছু আলেম নগদ অর্থে স্বর্ণের নিসাব ধরেন।';
 
   @override
   String get zakatInvalidNumber => 'সঠিক সংখ্যা লিখুন';
@@ -2076,7 +2080,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String zakatNisabSilver(String grams) {
-    return 'রুপার নিসাব ($grams গ্রাম)';
+    return 'রুপার নিসাব ($grams গ্রাম) — কম সীমা (হানাফি ও অন্যান্য); কিছু আলেম নগদে স্বর্ণ ধরেন';
   }
 
   @override
@@ -2124,11 +2128,11 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.selectLogic(day, {
       'hijriNewYear': 'হিজরি নববর্ষ',
       'ashura': 'আশুরা',
-      'mawlid': 'ঈদে মিলাদুন্নবী',
-      'israMiraj': 'ইসরা ও মিরাজ',
+      'mawlid': 'মাওলিদুন্নবী',
+      'israMiraj': 'ইসরা ও মিরাজের রাত',
       'nisfShaban': 'শবে বরাত',
       'ramadanStart': 'রমজান শুরু',
-      'laylatulQadr': '২৭ রমজানের রাত (লাইলাতুল কদর)',
+      'laylatulQadr': '২৭তম রাত — প্রায়ই লাইলাতুল কদর হিসেবে তালাশ করা হয়',
       'eidAlFitr': 'ঈদুল ফিতর',
       'arafah': 'আরাফার দিন',
       'eidAlAdha': 'ঈদুল আজহা',
@@ -3869,4 +3873,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get muhasabaRangeChange => 'তারিখের পরিসর বদলান';
+
+  @override
+  String get calendarNightBeginsAtSunset =>
+      'এই রাত এই তারিখের সূর্যাস্তে শুরু হয়।';
+
+  @override
+  String get calendarObservanceDiffers =>
+      'এই তারিখ এবং এ উপলক্ষে বিশেষ ইবাদত পালন নিয়ে আলেমদের মধ্যে মতভেদ আছে।';
+
+  @override
+  String get rakaatHanafiNote =>
+      'হানাফি মাযহাব অনুযায়ী — সুন্নত ও বিতরের রাকাত সংখ্যায় অন্য মাযহাবে ভিন্নতা আছে।';
 }

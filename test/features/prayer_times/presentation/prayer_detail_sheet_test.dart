@@ -108,5 +108,16 @@ void main() {
       );
       expect(find.textContaining('congregation'), findsOneWidget);
     });
+
+    testWidgets('labels the rakaat counts as Hanafi', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const SingleChildScrollView(
+            child: PrayerDetailSheet(prayer: Prayer.dhuhr, range: 'r'),
+          ),
+        ),
+      );
+      expect(find.textContaining('Hanafi count'), findsOneWidget);
+    });
   });
 }
