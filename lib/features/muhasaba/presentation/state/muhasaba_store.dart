@@ -10,7 +10,7 @@ import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
 import '../../domain/repositories/muhasaba_repository.dart';
 
-enum MuhasabaPeriod { today, week, month, year }
+enum MuhasabaPeriod { today, week, month, year, custom }
 
 /// App-scoped muhasaba state: today's checklist (with back-fill date
 /// switching) and the dashboard aggregates. Shared with Home's
@@ -80,7 +80,25 @@ final class MuhasabaStore {
       _days.value[DateTime(day.year, day.month, day.day)] ??
       const <String, int>{};
 
+  /// Mean completion of the active items on [day] (0..1), from the cached
+  /// entries — independent of the dashboard [period]. Every active item
+  /// counts today, so for today this equals the SQL day completion.
+  /// Reactive.
+  double completionOn(DateTime day) {
+    final list = items.value;
+    if (list.isEmpty) {
+      return 0;
+    }
+    final values = entriesOn(day);
+    return list.fold(0.0, (sum, i) => sum + i.fractionOf(values[i.id] ?? 0)) /
+        list.length;
+  }
+
   late final period = signal(MuhasabaPeriod.week);
+
+  /// The [MuhasabaPeriod.custom] range as picked (date-only, inclusive);
+  /// null until one is picked.
+  late final customRange = signal<(DateTime, DateTime)?>(null);
   late final stats = signal<PeriodStats?>(null);
   late final loaded = signal(false);
 
@@ -381,8 +399,33 @@ final class MuhasabaStore {
     await refreshStats();
   }
 
-  (DateTime, DateTime) _range() {
+  /// Longest custom range, in days (bounds the heatmap and day loops).
+  static const maxCustomDays = 366;
+
+  /// Shows [start]..[end] (inclusive) on the dashboard. Days after today
+  /// are cut off (the range never extends into the future); a span over
+  /// [maxCustomDays] keeps its last [maxCustomDays] days.
+  Future<void> setCustomRange(DateTime start, DateTime end) async {
+    final e = DateTime(end.year, end.month, end.day);
+    final earliest = DateTime(e.year, e.month, e.day - (maxCustomDays - 1));
+    final s = DateTime(start.year, start.month, start.day);
+    customRange.value = (s.isBefore(earliest) ? earliest : s, e);
+    period.value = MuhasabaPeriod.custom;
+    await refreshStats();
+  }
+
+  /// The dashboard's current range (date-only, inclusive, never past
+  /// today).
+  (DateTime, DateTime) get range {
     final today = _today();
+    if (period.value == MuhasabaPeriod.custom) {
+      if (customRange.value case (final s, final e)) {
+        // Re-clamped on every read: the wall clock can move back (a manual
+        // city behind the one the range was picked in).
+        final end = e.isAfter(today) ? today : e;
+        return (s.isAfter(end) ? end : s, end);
+      }
+    }
     return switch (period.value) {
       MuhasabaPeriod.today => (today, today),
       MuhasabaPeriod.week => (
@@ -397,6 +440,11 @@ final class MuhasabaStore {
         DateTime(today.year, today.month, today.day - 364),
         today,
       ),
+      // Not picked yet: the week.
+      MuhasabaPeriod.custom => (
+        DateTime(today.year, today.month, today.day - 6),
+        today,
+      ),
     };
   }
 
@@ -408,7 +456,7 @@ final class MuhasabaStore {
     _statsTimer?.cancel();
     final request = ++_statsRequest;
     final today = _today();
-    final (start, end) = _range();
+    final (start, end) = range;
     final result = await _repository.periodStats(
       start: start,
       end: end,

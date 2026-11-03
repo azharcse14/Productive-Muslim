@@ -3706,4 +3706,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get healthWeightLogPast => 'অন্য দিনের ওজন লিখুন';
+
+  @override
+  String get muhasabaRangeCustom => 'কাস্টম';
+
+  @override
+  String muhasabaRangeSpan(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get muhasabaRangeChange => 'তারিখের পরিসর বদলান';
 }

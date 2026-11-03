@@ -769,9 +769,8 @@ final class _HomeScreenState extends State<HomeScreen> {
       if (stats == null) {
         return const SizedBox.shrink();
       }
-      // The period range always ends today, so the last day completion is
-      // today's.
-      final today = stats.days.isEmpty ? 0.0 : stats.days.last.completion;
+      // Today's, whatever range the dashboard shows.
+      final today = _muhasaba.completionOn(_store.dateKey.value);
       final items = _muhasaba.items.value;
       final entries = _muhasaba.entriesOn(_store.dateKey.value);
       final doneToday = items.where((i) => i.isDone(entries[i.id] ?? 0)).length;

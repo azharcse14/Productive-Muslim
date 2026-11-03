@@ -100,4 +100,26 @@ void main() {
       await db.close();
     },
   );
+
+  test(
+    'v1 with no entries backfills created_on from the injected clock',
+    () async {
+      final schema = await verifier.schemaAt(1);
+      schema.rawDatabase.execute(
+        "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
+        "is_default, archived, sort_order) VALUES "
+        "('salah_fajr', 'f', 0, 'm', 0, 1, 0, 0)",
+      );
+      // The location's wall clock, not the device's.
+      final db = MuhasabaDatabase(
+        schema.newConnection(),
+        clock: () => DateTime(2031, 1, 2, 23, 30),
+      );
+      await verifier.migrateAndValidate(db, 4);
+      final row = await db.select(db.trackerItems).getSingle();
+      expect(row.createdOn, 20310102);
+      expect(row.addedOn, 20310102);
+      await db.close();
+    },
+  );
 }

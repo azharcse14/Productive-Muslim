@@ -460,6 +460,32 @@ void main() {
       expect(byId['c']!.totalValue, 15);
     });
 
+    test('an arbitrary past range (custom) aggregates only its days', () async {
+      await seedScenario();
+      // Jun 8–10, viewed on Jun 12: doesn't start a week back or end today.
+      final result = await unwrap(
+        repo.periodStats(
+          start: DateTime(2026, 6, 8),
+          end: DateTime(2026, 6, 10),
+          today: today,
+        ),
+      );
+      expect(
+        [for (final d in result.days) d.date],
+        [DateTime(2026, 6, 8), DateTime(2026, 6, 9), DateTime(2026, 6, 10)],
+      );
+      expect(result.completion, closeTo((1.5 / 3 + 0.4 / 3 + 2 / 3) / 3, 0.01));
+      final byId = {for (final s in result.items) s.itemId: s};
+      expect(byId['b']!.periodDays, 3);
+      expect(byId['b']!.daysDone, 1);
+      expect(byId['b']!.totalValue, 140);
+      expect(byId['a']!.daysDone, 1);
+      // Previous window = the 3 days before (Jun 5–7: only a on Jun 7).
+      expect(result.previousCompletion, closeTo((1 / 3) / 3, 0.01));
+      // Streaks stay anchored at today, not at the range end.
+      expect(result.currentStreak, 3);
+    });
+
     test('streaks: done-done-gap-done-done-done ending today', () async {
       await seedScenario();
       // Done days: 7, 8 | gap 9 | 10, 11, 12 (today).

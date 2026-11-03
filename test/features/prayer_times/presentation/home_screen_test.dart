@@ -354,6 +354,30 @@ void main() {
       expect(find.text('0/14 done'), findsOneWidget);
     });
 
+    testHomeWidgets(
+      'muhasaba card shows today even with a past custom dashboard range',
+      (tester) async {
+        await _register(withLocation: true);
+        final muhasaba = GetIt.I<MuhasabaStore>();
+        await muhasaba.togglePrayerOn('salah_fajr', DateTime(2026, 6, 12));
+        await muhasaba.setCustomRange(DateTime(2026, 6), DateTime(2026, 6, 5));
+        await tester.pumpWidget(_app());
+        await tester.pump();
+        await tester.scrollUntilVisible(
+          find.byType(HomeMuhasabaCard),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        final card = tester.widget<HomeMuhasabaCard>(
+          find.byType(HomeMuhasabaCard),
+        );
+        expect(card.doneToday, 1);
+        expect(card.completion, closeTo(1 / card.totalItems, 1e-9));
+        // The dashboard's range ends Jun 5, with nothing logged.
+        expect(muhasaba.stats.value!.days.last.completion, 0);
+      },
+    );
+
     testHomeWidgets('hidden home cards are not built', (tester) async {
       await _register(withLocation: true);
       await GetIt.I<SettingsStore>().setHomeCardVisible(

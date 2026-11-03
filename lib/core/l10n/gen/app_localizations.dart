@@ -5557,6 +5557,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log another day'**
   String get healthWeightLogPast;
+
+  /// No description provided for @muhasabaRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get muhasabaRangeCustom;
+
+  /// No description provided for @muhasabaRangeSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String muhasabaRangeSpan(String start, String end);
+
+  /// No description provided for @muhasabaRangeChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date range'**
+  String get muhasabaRangeChange;
 }
 
 class _AppLocalizationsDelegate
