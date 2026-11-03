@@ -137,6 +137,21 @@ void main() {
       }
     });
 
+    test('passages sit in the category their hadith is about', () {
+      const placed = <String, String>{
+        'kalimat_tammat': 'morning_evening',
+        'audhu_kalimat_ghadab_sleep': 'sihr_jinn',
+      };
+      final where = {
+        for (final c in categories)
+          for (final item in c['items']! as List<Object?>)
+            (item! as Map<dynamic, dynamic>)['id']: c['id'],
+      };
+      placed.forEach((id, category) {
+        expect(where[id], category, reason: id);
+      });
+    });
+
     test('item ids are unique across the whole collection', () {
       final ids = allItems.map((Map<String, Object?> i) => i['id']).toList();
       expect(

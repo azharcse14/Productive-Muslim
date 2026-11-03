@@ -51,6 +51,25 @@ void main() {
     expect(second.ids.value, {'me_1', 'sl_1'});
   });
 
+  test(
+    'a stored id of a removed duplicate dua resolves to the kept one',
+    () async {
+      await SharedPreferencesAsync().setStringList('dua_favorites_v1', [
+        'tv_safar',
+        'me_1',
+      ]);
+      final store = DuaFavoritesStore(SharedPreferencesAsync());
+      await store.load();
+
+      expect(store.ids.value, {'dua_safar', 'me_1'});
+
+      await store.toggle('dua_safar');
+      expect(await SharedPreferencesAsync().getStringList('dua_favorites_v1'), [
+        'me_1',
+      ]);
+    },
+  );
+
   test('a failed save rolls the toggle back and reports it', () async {
     SharedPreferencesAsyncPlatform.instance = _FailingListPrefs();
     final store = DuaFavoritesStore(SharedPreferencesAsync());
