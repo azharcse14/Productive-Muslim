@@ -158,6 +158,13 @@ final class _OneHadithRepo implements HadithRepository {
       reference: 'Bukhari 1',
     ),
   ]);
+
+  @override
+  Future<Result<Set<String>>> favoriteIds() async => const Result.success({});
+
+  @override
+  Future<Result<void>> setFavoriteIds(Set<String> ids) async =>
+      const Result.success(null);
 }
 
 /// Exact alarms denied until requested; nothing else is used by Home.

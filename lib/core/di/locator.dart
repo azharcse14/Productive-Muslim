@@ -373,7 +373,7 @@ Future<void> setupLocator() async {
   locator
     ..registerLazySingleton(() => HadithAssetDataSource(rootBundle))
     ..registerLazySingleton<HadithRepository>(
-      () => HadithRepositoryImpl(locator()),
+      () => HadithRepositoryImpl(locator(), SharedPreferencesAsync()),
     )
     ..registerLazySingleton(() => HadithStore(locator()))
     // Full-book browsing — bundled snapshot first, network only as fallback.
