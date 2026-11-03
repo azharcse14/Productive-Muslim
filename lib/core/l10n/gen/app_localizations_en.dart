@@ -2746,6 +2746,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseEmpty => 'No expenses logged.';
 
   @override
+  String get ramadanEidPrompt =>
+      'Was the moon sighted after the 29th fast? If Eid has been announced, mark it so the 30th day counts as Eid al-Fitr, not a fast.';
+
+  @override
+  String get ramadanEidAnnounce =>
+      'Eid announced — Ramadan ended after 29 days';
+
+  @override
+  String get ramadanEidMarked =>
+      'Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.';
+
+  @override
+  String get ramadanEidPromptLastDay =>
+      'Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.';
+
+  @override
+  String get ramadanEidAnnounceToday => 'Mark today as Eid al-Fitr';
+
+  @override
   String expenseFilterEmpty(String category) {
     return 'No $category entries this month.';
   }

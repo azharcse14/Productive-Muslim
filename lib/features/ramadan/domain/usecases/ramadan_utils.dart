@@ -13,24 +13,37 @@ abstract final class RamadanUtils {
   /// The fasting-day number (1..29/30) for [d], or null outside Ramadan.
   static int? rozaDay(HijriDate d) => isRamadan(d) ? d.day : null;
 
-  /// Number of days in Ramadan of [hijriYear] (29 or 30 in the tabular
-  /// calendar; always 30 for month 9, but computed, not assumed).
+  /// Number of days in Ramadan of [hijriYear]: 30 in the tabular calendar,
+  /// 29 once the user marked that year's Eid as announced after 29 days
+  /// ([HijriDate.shortRamadanYears]).
   static int ramadanLength(int hijriYear) =>
       HijriDate.daysInMonth(hijriYear, HijriDate.ramadanMonth);
 
   /// Gregorian civil date of 1 Ramadan [hijriYear].
-  static DateTime firstDayOf(int hijriYear, {int offsetDays = 0}) =>
-      HijriDate(hijriYear, HijriDate.ramadanMonth, 1)
-          .toGregorian(offsetDays: offsetDays);
+  static DateTime firstDayOf(int hijriYear, {int offsetDays = 0}) => HijriDate(
+    hijriYear,
+    HijriDate.ramadanMonth,
+    1,
+  ).toGregorian(offsetDays: offsetDays);
 
   /// Every Gregorian civil date of Ramadan [hijriYear], in order. The
   /// length always equals [ramadanLength].
   static List<DateTime> gregorianDaysOf(int hijriYear, {int offsetDays = 0}) =>
       [
         for (var day = 1; day <= ramadanLength(hijriYear); day++)
-          HijriDate(hijriYear, HijriDate.ramadanMonth, day)
-              .toGregorian(offsetDays: offsetDays),
+          HijriDate(
+            hijriYear,
+            HijriDate.ramadanMonth,
+            day,
+          ).toGregorian(offsetDays: offsetDays),
       ];
+
+  /// Whether the "Eid announced — Ramadan ended after 29 days" control is
+  /// offered on [today]: on 29 and 30 Ramadan, and — so it can be undone —
+  /// on 1 Shawwal once [ended] (the override is set for [today]'s year).
+  static bool offersEidAnnouncement(HijriDate today, {required bool ended}) =>
+      (isRamadan(today) && today.day >= 29) ||
+      (ended && today.month == HijriDate.shawwalMonth && today.day == 1);
 
   /// The hijri year of the next (or current) Ramadan relative to [today],
   /// and how many days remain until its first day — 0 when [today] is
@@ -52,9 +65,11 @@ abstract final class RamadanUtils {
     final first = firstDayOf(year, offsetDays: offsetDays);
     return (
       year,
-      DateTime.utc(first.year, first.month, first.day)
-          .difference(DateTime.utc(date.year, date.month, date.day))
-          .inDays,
+      DateTime.utc(
+        first.year,
+        first.month,
+        first.day,
+      ).difference(DateTime.utc(date.year, date.month, date.day)).inDays,
     );
   }
 }

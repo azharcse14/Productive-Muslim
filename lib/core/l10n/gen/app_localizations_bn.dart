@@ -2739,6 +2739,25 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseEmpty => 'কোনো খরচ লেখা হয়নি।';
 
   @override
+  String get ramadanEidPrompt =>
+      '২৯তম রোজার পর চাঁদ দেখা গেছে? ঈদের ঘোষণা হলে চিহ্নিত করুন, তাহলে ৩০তম দিনটি রোজা নয়, ঈদুল ফিতর হিসেবে ধরা হবে।';
+
+  @override
+  String get ramadanEidAnnounce => 'ঈদ ঘোষণা হয়েছে — রমজান ২৯ দিনে শেষ';
+
+  @override
+  String get ramadanEidMarked =>
+      'চিহ্নিত: রমজান ২৯ দিনে শেষ হয়েছে। ২৯তম রোজার পরের দিন ঈদুল ফিতর।';
+
+  @override
+  String get ramadanEidPromptLastDay =>
+      'রমজান কি গতকাল ২৯ রোজায় শেষ হয়েছে? ঈদের ঘোষণা হলে আজকের দিনটি ঈদুল ফিতর হিসেবে চিহ্নিত করুন। আজকের দিন আর রমজানের রোজা হিসেবে গণ্য হবে না।';
+
+  @override
+  String get ramadanEidAnnounceToday =>
+      'আজকের দিন ঈদুল ফিতর হিসেবে চিহ্নিত করুন';
+
+  @override
   String expenseFilterEmpty(String category) {
     return 'এই মাসে $category খাতে কোনো খরচ নেই।';
   }

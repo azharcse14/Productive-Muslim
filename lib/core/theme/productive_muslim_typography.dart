@@ -42,6 +42,9 @@ abstract final class QType {
   static final label = _base(13, 1.35, 600);
   static final caption = _base(11.5, 1.4, 500);
 
+  /// Tiny secondary numeral, e.g. the Bangla day in a calendar cell.
+  static final micro = _base(9.5, 1.2, 500);
+
   /// Slightly larger caption for banner and countdown sub-lines.
   static final captionLg = _base(12.5, 1.4, 500);
 
