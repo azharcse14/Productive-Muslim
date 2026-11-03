@@ -1602,6 +1602,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingQazaSetOwed => 'Set number owed';
 
   @override
+  String get ramadanShareProgress => 'Share progress';
+
+  @override
+  String get ramadanShareHeading => 'My Ramadan, alhamdulillah';
+
+  @override
+  String ramadanShareFastsLogged(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString fasts logged',
+      one: '1 fast logged',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanShareBlessing => 'May Allah accept it · تقبل الله';
+
+  @override
+  String ramadanShareText(String progress) {
+    return 'Ramadan, $progress — alhamdulillah. · Productive Muslim';
+  }
+
+  @override
+  String get ramadanShareFailed =>
+      'Couldn\'t create the share image. Please try again.';
+
+  @override
   String get fastingQazaOwedHint => 'Fasts owed (optional)';
 
   @override

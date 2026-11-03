@@ -2558,6 +2558,42 @@ abstract class AppLocalizations {
   /// **'Set number owed'**
   String get fastingQazaSetOwed;
 
+  /// No description provided for @ramadanShareProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Share progress'**
+  String get ramadanShareProgress;
+
+  /// No description provided for @ramadanShareHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'My Ramadan, alhamdulillah'**
+  String get ramadanShareHeading;
+
+  /// No description provided for @ramadanShareFastsLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 fast logged} other{{count} fasts logged}}'**
+  String ramadanShareFastsLogged(int count);
+
+  /// No description provided for @ramadanShareBlessing.
+  ///
+  /// In en, this message translates to:
+  /// **'May Allah accept it · تقبل الله'**
+  String get ramadanShareBlessing;
+
+  /// No description provided for @ramadanShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan, {progress} — alhamdulillah. · Productive Muslim'**
+  String ramadanShareText(String progress);
+
+  /// No description provided for @ramadanShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the share image. Please try again.'**
+  String get ramadanShareFailed;
+
   /// No description provided for @fastingQazaOwedHint.
   ///
   /// In en, this message translates to:

@@ -79,6 +79,7 @@ import '../../features/quran/data/repositories/quran_repository_impl.dart';
 import '../../features/quran/domain/repositories/quran_repository.dart';
 import '../../features/quran/presentation/state/quran_store.dart';
 import '../../features/ramadan/data/datasources/eid_announcement_local_data_source.dart';
+import '../../features/ramadan/domain/repositories/fast_log.dart';
 import '../../features/ramadan/presentation/state/eid_announcement_store.dart';
 import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
 import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
@@ -372,6 +373,10 @@ Future<void> setupLocator() async {
       hijriOffset: () => locator<SettingsStore>().hijriOffsetDays.value,
       now: _wallNow,
     ),
+  );
+  // Ramadan share card counts this Ramadan's logged fasts through it.
+  locator.registerLazySingleton<IsDayFasted>(
+    () => locator<FastingStore>().isLogged,
   );
 
   // ---- expenses (hisab) ----

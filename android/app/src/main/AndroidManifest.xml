@@ -109,6 +109,18 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/productive_muslim_widget_info" />
         </receiver>
+
+        <!-- Image share (Ramadan card): hands cache/share/ files to the
+             chooser target with a read grant (MainActivity.shareImage). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.shareprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/share_file_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -75,12 +75,24 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
-    // Per-ayah share → the system activity sheet, plain text.
+    // Per-ayah share → the system activity sheet, plain text; the Ramadan
+    // card → the same sheet with the PNG Dart wrote to the caches folder.
     FlutterMethodChannel(
       name: "com.productivemuslim.app/share",
       binaryMessenger: registrar.messenger()
     ).setMethodCallHandler { call, result in
-      guard call.method == "shareText", let text = call.arguments as? String else {
+      let items: [Any]
+      if call.method == "shareText", let text = call.arguments as? String {
+        items = [text]
+      } else if call.method == "shareImage" {
+        let args = call.arguments as? [String: Any]
+        guard let path = args?["path"] as? String,
+              let image = UIImage(contentsOfFile: path) else {
+          result(FlutterError(code: "BAD_PATH", message: "No image to share", details: nil))
+          return
+        }
+        items = [image] + ((args?["text"] as? String).map { [$0] } ?? [])
+      } else {
         result(FlutterMethodNotImplemented)
         return
       }
@@ -97,7 +109,7 @@ import WidgetKit
         return
       }
       while let presented = top.presentedViewController { top = presented }
-      let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+      let sheet = UIActivityViewController(activityItems: items, applicationActivities: nil)
       // iPad shows it as a popover, which needs an anchor.
       if let popover = sheet.popoverPresentationController {
         popover.sourceView = top.view

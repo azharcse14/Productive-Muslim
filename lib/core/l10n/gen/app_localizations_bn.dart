@@ -1592,6 +1592,38 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
 
   @override
+  String get ramadanShareProgress => 'অগ্রগতি শেয়ার করুন';
+
+  @override
+  String get ramadanShareHeading => 'আমার রমজান, আলহামদুলিল্লাহ';
+
+  @override
+  String ramadanShareFastsLogged(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countStringটি রোজা রেকর্ড হয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanShareBlessing => 'আল্লাহ কবুল করুন · تقبل الله';
+
+  @override
+  String ramadanShareText(String progress) {
+    return 'রমজান, $progress — আলহামদুলিল্লাহ। · প্রোডাক্টিভ মুসলিম';
+  }
+
+  @override
+  String get ramadanShareFailed =>
+      'শেয়ারের ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
 
   @override
