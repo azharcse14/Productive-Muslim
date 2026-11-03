@@ -34,6 +34,7 @@ import '../../features/hadith/data/http_fetcher.dart';
 import '../../features/hadith/domain/repositories/hadith_book_repository.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
 import '../../features/hadith/presentation/state/hadith_books_store.dart';
+import '../../features/hadith/presentation/state/hadith_search_store.dart';
 import '../../features/hadith/presentation/state/hadith_section_store.dart';
 import '../../features/hadith/presentation/state/hadith_store.dart';
 import '../../features/health/presentation/state/health_store.dart';
@@ -417,7 +418,8 @@ Future<void> setupLocator() async {
       () => HadithBookRepositoryImpl(locator(), locator(), locator()),
     )
     ..registerLazySingleton(() => HadithBooksStore(locator()))
-    ..registerFactory(() => HadithSectionStore(locator()));
+    ..registerFactory(() => HadithSectionStore(locator()))
+    ..registerFactory(() => HadithSearchStore(locator()));
 
   // ---- home-screen widget ----
   locator.registerLazySingleton(

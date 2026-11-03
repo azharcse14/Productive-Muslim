@@ -27,6 +27,7 @@ final class HadithSectionScreen extends StatefulWidget {
     required this.book,
     required this.section,
     this.focusNumber,
+    this.languageCode,
     super.key,
   });
 
@@ -37,6 +38,10 @@ final class HadithSectionScreen extends StatefulWidget {
   /// [BookHadith.referenceNumber], so 8a and 8b both show) instead of the
   /// whole chapter.
   final int? focusNumber;
+
+  /// Language whose chapter list [section] is from; defaults to the app
+  /// locale's. Search opens an English match from the Bangla UI this way.
+  final String? languageCode;
 
   @override
   State<HadithSectionScreen> createState() => _HadithSectionScreenState();
@@ -65,7 +70,8 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
     // Locale is read here (not initState) — inherited widgets aren't yet
     // available during initState. Guarded so it runs only once.
     if (_lang == null) {
-      _lang = Localizations.localeOf(context).languageCode;
+      _lang =
+          widget.languageCode ?? Localizations.localeOf(context).languageCode;
       // ponytail: restores a pixel offset, drifts if the text size changed
       // since; save the top-visible hadith number if that matters.
       _scroll = ScrollController(

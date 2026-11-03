@@ -2510,6 +2510,48 @@ abstract class AppLocalizations {
   /// **'{done} of {owed} made up'**
   String fastingQazaOfOwed(int done, int owed);
 
+  /// No description provided for @hadithSearchFullTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all collections'**
+  String get hadithSearchFullTooltip;
+
+  /// No description provided for @hadithSearchFullHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith text or number'**
+  String get hadithSearchFullHint;
+
+  /// No description provided for @hadithSearchFullPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Search every collection in English or Bangla, or type a hadith number.'**
+  String get hadithSearchFullPrompt;
+
+  /// No description provided for @hadithSearchFullNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith matches — try another word'**
+  String get hadithSearchFullNoResults;
+
+  /// No description provided for @hadithSearchFullShowingFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the first {count} matches'**
+  String hadithSearchFullShowingFirst(int count);
+
+  /// No description provided for @hadithSearchFullError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search hadith. Please try again.'**
+  String get hadithSearchFullError;
+
+  /// No description provided for @hadithSearchFullPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing search…'**
+  String get hadithSearchFullPreparing;
+
   /// No description provided for @fastingQazaSetOwed.
   ///
   /// In en, this message translates to:

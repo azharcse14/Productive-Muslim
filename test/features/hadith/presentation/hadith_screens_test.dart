@@ -6,6 +6,7 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith_search.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_books_screen.dart';
@@ -109,6 +110,16 @@ const _muslim = HadithBook(
 );
 
 final class _FakeBookRepository implements HadithBookRepository {
+  @override
+  Future<Result<HadithSearchResults>> search(
+    String query,
+    String languageCode, {
+    int limit = hadithSearchLimit,
+  }) async => const Result.success((hits: [], truncated: false));
+
+  @override
+  void releaseSearch() {}
+
   _FakeBookRepository({this.fail = false});
 
   final bool fail;
