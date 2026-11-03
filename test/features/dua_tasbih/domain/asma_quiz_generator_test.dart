@@ -16,7 +16,7 @@ List<AsmaName> _names(int count) => [
 void main() {
   group('AsmaQuizGenerator', () {
     test('never shows two options with the same text', () {
-      // Two "Al-Majid"s (#48 and #65 in the bundled list).
+      // Two names sharing a transliteration.
       final names = [
         for (final n in _names(4))
           n.number == 2

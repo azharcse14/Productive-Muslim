@@ -81,7 +81,10 @@ final class CreditsScreen extends StatelessWidget {
           ]),
           _Group(l10n.duaTitle, [
             ('Hisnul Muslim', 'aminurdev/dua-ruqya-server'),
-            (l10n.asmaulHusnaTitle, l10n.creditsAsmaulHusnaSource),
+            (
+              l10n.asmaulHusnaTitle,
+              '${l10n.creditsAsmaulHusnaSource}\n${l10n.asmaSourceListNote}',
+            ),
             (l10n.rasulNamesTitle, l10n.creditsRasulNamesSource),
           ]),
           _Group(l10n.creditsGroupPlaces, [

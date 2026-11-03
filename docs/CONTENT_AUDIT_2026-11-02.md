@@ -10,6 +10,20 @@ B–D are **flagged for the owner/scholar**, not auto-fix. Bundled DB change →
 Legend: ✅ verified by script against source · 🔎 agent-verified with source link (re-check
 before fixing) · Sev = high / med / low.
 
+## Status — 2026-11-03
+
+Owner approved fixing everything ("sobgulo koro"). Each change set was re-checked against the
+pinned hadith-api snapshot `@df57907` and reviewed by a separate agent.
+- **Done (merged to `master`):** A3, A4, A5, all of B, C and D — branches
+  `fix/content-audit-app-text`, `fix/content-audit-hadith40-asma`, `fix/content-audit-duas`.
+  Corrections to this audit found while fixing: B6's Aisha hadith is Muslim **1176** (not 1175);
+  A3 covered 61 duas (14 passages moved from ruqyah.json on 2026-10-25 also lacked trBn).
+- **PENDING:** **A1** (section-0 hadith missing from hadith.db) and **A2** (decimal hadith
+  numbers) — in progress on `fix/content-audit-hadith-db`, not merged yet. Needs review, then
+  merge with a `bundledVersion` + `PRAGMA user_version` bump.
+- **For a scholar to re-check:** the 61 AI-written Bangla transliterations (A3), the madhab
+  wording in B1/B5, and the Asma meanings changed in C11–C15.
+
 ---
 
 ## A. Data pipeline (not religious-text edits — safe to fix)
