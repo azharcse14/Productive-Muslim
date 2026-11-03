@@ -280,6 +280,7 @@ final class HomeStore {
               : null) ??
           jamaatConfig.value,
       ramadanMode: ramadanMode.value,
+      ramadanTonight: sahriInRamadan.value,
     );
   });
 

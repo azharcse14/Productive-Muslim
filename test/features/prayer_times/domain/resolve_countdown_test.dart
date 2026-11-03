@@ -168,6 +168,21 @@ void main() {
       expect(_resolve(DateTime(2026, 6, 12, 22)).kind, CountdownKind.waqtEnd);
     });
 
+    test('after isha the sahri target follows tomorrow, not today', () {
+      CountdownTarget at22({required bool today, required bool tonight}) =>
+          resolveCountdownTarget(
+            now: DateTime(2026, 6, 12, 22),
+            day: _day,
+            jamaat: JamaatConfig.none,
+            ramadanMode: today,
+            ramadanTonight: tonight,
+          );
+      // Last night of Ramadan (Eid tomorrow): no sahri to count to.
+      expect(at22(today: true, tonight: false).kind, CountdownKind.waqtEnd);
+      // Eve of 1 Ramadan: tonight's sahri opens the first fast.
+      expect(at22(today: false, tonight: true).kind, CountdownKind.sahriEnd);
+    });
+
     test('after isha the safety margin applies to tomorrow\'s sahri', () {
       final day = PrayerDay(
         ishaYesterday: _day.ishaYesterday,
