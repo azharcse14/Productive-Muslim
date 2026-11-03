@@ -518,6 +518,10 @@ final class _StatsCard extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
+    final monthName = LocaleDigits.localize(
+      DateFormat.yMMMM(code).format(month),
+      code,
+    );
     String n(int v) => LocaleDigits.localize('$v', code);
     // Same Sunday-first padding as monthHeatmap; -1 off this month.
     final todayCell = month.year == today.year && month.month == today.month
@@ -564,10 +568,7 @@ final class _StatsCard extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  LocaleDigits.localize(
-                    DateFormat.yMMMM(code).format(month),
-                    code,
-                  ),
+                  monthName,
                   textAlign: TextAlign.center,
                   style: QType.titleSm.copyWith(color: q.ink),
                 ),
@@ -583,12 +584,13 @@ final class _StatsCard extends StatelessWidget {
           // A month calendar: one row per week, day numbers in the cells.
           Semantics(
             container: true,
-            // Counts every logged fast this month, not just nafl ones.
+            // Counts every logged fast in the shown month, not just nafl.
             label: l10n.fastingHeatmapLabel(
               [
                 for (var w = 0; w < weeks.length; w++)
                   for (var d = 0; d < 7; d++) dateAt(w, d),
               ].whereType<DateTime>().where(isLogged).length,
+              monthName,
             ),
             child: Column(
               children: [

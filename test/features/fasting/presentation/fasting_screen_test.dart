@@ -153,6 +153,11 @@ void main() {
       await tester.tap(find.text('Make-up (qaza)'));
       await tester.pumpAndSettle();
       expect(GetIt.I<FastingStore>().isLogged(DateTime(2026, 5, 6)), isTrue);
+      // The calendar's spoken summary names the shown month.
+      expect(
+        find.bySemanticsLabel('1 fast logged in May 2026'),
+        findsOneWidget,
+      );
 
       await tester.tap(find.byTooltip('Next month'));
       await tester.pumpAndSettle();

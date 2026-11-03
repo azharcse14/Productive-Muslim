@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1513,7 +1514,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
 
   @override
-  String fastingHeatmapLabel(int count) {
+  String fastingHeatmapLabel(int count, String month) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
@@ -1521,9 +1522,9 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'এই মাসে $countStringটি রোজা রেকর্ড হয়েছে',
-      one: 'এই মাসে ১টি রোজা রেকর্ড হয়েছে',
-      zero: 'এই মাসে কোনো রোজা রেকর্ড হয়নি',
+      other: '$month মাসে $countStringটি রোজা রেকর্ড হয়েছে',
+      one: '$month মাসে ১টি রোজা রেকর্ড হয়েছে',
+      zero: '$month মাসে কোনো রোজা রেকর্ড হয়নি',
     );
     return '$_temp0';
   }
@@ -1548,16 +1549,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday':
-          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays':
-          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura':
-          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah':
-          'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
+      'dhulHijjah': 'এই দশ দিনের নেক আমলের চেয়ে প্রিয় কোনো আমল আল্লাহর কাছে নেই। (বুখারি)',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',

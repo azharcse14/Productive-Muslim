@@ -2435,8 +2435,8 @@ abstract class AppLocalizations {
   /// No description provided for @fastingHeatmapLabel.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}'**
-  String fastingHeatmapLabel(int count);
+  /// **'{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}'**
+  String fastingHeatmapLabel(int count, String month);
 
   /// No description provided for @fastingUpcomingTitle.
   ///
