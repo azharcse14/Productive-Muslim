@@ -71,11 +71,16 @@ class TrackerArchiveSpans extends Table {
 @DriftDatabase(tables: [TrackerItems, DailyEntries, TrackerArchiveSpans])
 final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// Takes a [QueryExecutor] so tests can inject `NativeDatabase.memory()`.
-  MuhasabaDatabase(super.executor);
+  /// [clock] is the location wall clock (as the repository and store use);
+  /// migrations take "today" from it.
+  MuhasabaDatabase(super.executor, {DateTime Function() clock = DateTime.now})
+    : _clock = clock;
 
   /// Opens the production on-device database file.
-  static MuhasabaDatabase open() =>
-      MuhasabaDatabase(driftDatabase(name: 'muhasaba'));
+  static MuhasabaDatabase open({DateTime Function() clock = DateTime.now}) =>
+      MuhasabaDatabase(driftDatabase(name: 'muhasaba'), clock: clock);
+
+  final DateTime Function() _clock;
 
   /// Bump with every schema change, then export it and regenerate the
   /// migration-test helpers:
@@ -98,7 +103,7 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
         // other item at the earliest entry overall (≈ install day).
         // Already-archived items never count (archived_on = created_on):
         // v1 left them out of every day, past ones included.
-        final now = DateTime.now();
+        final now = _clock();
         final today = now.year * 10000 + now.month * 100 + now.day;
         await customStatement(
           'UPDATE tracker_items SET created_on = COALESCE( '

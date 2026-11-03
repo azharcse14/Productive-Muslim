@@ -174,7 +174,9 @@ Future<void> setupLocator() async {
 
   // ---- muhasaba ----
   locator
-    ..registerLazySingleton<MuhasabaDatabase>(MuhasabaDatabase.open)
+    ..registerLazySingleton<MuhasabaDatabase>(
+      () => MuhasabaDatabase.open(clock: _wallNow),
+    )
     ..registerLazySingleton<MuhasabaRepository>(
       () => MuhasabaRepositoryImpl(locator(), clock: _wallNow),
     )
