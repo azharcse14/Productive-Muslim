@@ -27,6 +27,7 @@ final class TasbihStore {
   static const _roundKey = 'tasbih_round';
   static const _lifetimeKey = 'tasbih_lifetime';
   static const _phraseKey = 'tasbih_phrase';
+  static const _autoNextKey = 'tasbih_auto_next';
 
   final SharedPreferencesAsync _prefs;
   final void Function() _haptic;
@@ -38,6 +39,20 @@ final class TasbihStore {
 
   /// Counts saved to history today (current round not included).
   late final totalToday = signal(0);
+
+  /// Today's beads: [totalToday] plus the round in progress when it began
+  /// today (one left from before midnight belongs to yesterday).
+  int get countedToday =>
+      totalToday.value +
+      (count.value > 0 && _roundDay == _todayKey() ? count.value : 0);
+
+  /// The bead after a full round saves it and starts the next. Persisted.
+  late final autoNextRound = signal(false);
+
+  Future<void> setAutoNextRound({required bool value}) {
+    autoNextRound.value = value;
+    return _prefs.setBool(_autoNextKey, value);
+  }
 
   /// The day key [totalToday] belongs to; a different day means it is stale.
   String? _totalDay;
@@ -91,6 +106,7 @@ final class TasbihStore {
     }
     final today = _todayKey();
     phrase.value ??= await _prefs.getString(_phraseKey);
+    autoNextRound.value = await _prefs.getBool(_autoNextKey) ?? false;
     totalToday.value = (await _readStored()).totalFor(today);
     _totalDay = today;
     await _loadLifetime();
@@ -213,6 +229,10 @@ final class TasbihStore {
   }
 
   void tap() {
+    if (autoNextRound.value && count.value >= target.value) {
+      // Clears the round synchronously; the save finishes in the background.
+      unawaited(reset(saveToHistory: true));
+    }
     rollOverDay();
     _haptic();
     if (count.value == 0) {

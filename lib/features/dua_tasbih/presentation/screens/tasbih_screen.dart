@@ -14,6 +14,7 @@ import '../../../../shared/widgets/q_celebrate.dart';
 import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_progress_ring.dart';
+import '../../../keep_awake/domain/screen_wake.dart';
 import '../state/tasbih_store.dart';
 
 const _presets = [33, 100];
@@ -63,6 +64,7 @@ final class TasbihScreen extends StatefulWidget {
 final class _TasbihScreenState extends State<TasbihScreen> {
   // App-scoped store — never disposed here.
   late final TasbihStore _store = locator<TasbihStore>();
+  late final ScreenWake _wake = locator<ScreenWake>();
 
   /// A [_phrases] id or [_afterSalahId] (persisted by the store); an
   /// unknown stored id falls back to the first phrase.
@@ -84,6 +86,8 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   void initState() {
     super.initState();
     unawaited(_store.load());
+    // Counting with the phone set down: don't let the screen lock.
+    unawaited(_wake.hold(on: true));
     _dayTick = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _store.rollOverDay(),
@@ -93,10 +97,23 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   @override
   void dispose() {
     _dayTick?.cancel();
+    unawaited(_wake.hold(on: false));
     super.dispose();
   }
 
   void _setPhrase(String id) => unawaited(_store.setPhrase(id));
+
+  /// A new dhikr mid-round would carry the old phrase's beads over: ask to
+  /// save or discard the round first (cancel keeps the phrase).
+  Future<void> _pickPhrase(String id) async {
+    if (id == _phraseId) {
+      return;
+    }
+    if (_store.count.value > 0 && !await confirmTasbihReset(context, _store)) {
+      return;
+    }
+    _setPhrase(id);
+  }
 
   void _startAfterSalah() {
     _setPhrase(_afterSalahId);
@@ -147,7 +164,22 @@ final class _TasbihScreenState extends State<TasbihScreen> {
     final languageCode = Localizations.localeOf(context).languageCode;
     final reduced = MediaQuery.disableAnimationsOf(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tasbihTitle)),
+      appBar: AppBar(
+        title: Text(l10n.tasbihTitle),
+        actions: [
+          SignalBuilder(
+            builder: (context) {
+              final on = _store.autoNextRound.value;
+              return IconButton(
+                tooltip: l10n.tasbihAutoNext,
+                isSelected: on,
+                icon: Icon(on ? Icons.repeat_on : Icons.repeat),
+                onPressed: () => unawaited(_store.setAutoNextRound(value: !on)),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
@@ -221,7 +253,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                                 QChip(
                                   label: l10n.tasbihPhrase(id),
                                   active: phraseId == id,
-                                  onTap: () => _setPhrase(id),
+                                  onTap: () => unawaited(_pickPhrase(id)),
                                 ),
                             ],
                           ),
@@ -358,7 +390,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                       const SizedBox(height: QSpace.s3),
                       Text(
                         LocaleDigits.localize(
-                          l10n.tasbihSessionLine(_store.totalToday.value),
+                          l10n.tasbihSessionLine(_store.countedToday),
                           languageCode,
                         ),
                         style: QType.caption.copyWith(color: q.ink2),
@@ -376,8 +408,9 @@ final class _TasbihScreenState extends State<TasbihScreen> {
 }
 
 /// Save-and-reset confirmation shared by this screen and the Home quick
-/// card, so a stray tap never ends a round silently.
-Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
+/// card, so a stray tap never ends a round silently. True when the round
+/// was ended (saved or discarded), false on cancel.
+Future<bool> confirmTasbihReset(BuildContext context, TasbihStore store) async {
   final l10n = context.l10n;
   // null = cancel, false = discard the round, true = save it.
   final save = await showDialog<bool>(
@@ -401,7 +434,9 @@ Future<void> confirmTasbihReset(BuildContext context, TasbihStore store) async {
       ],
     ),
   );
-  if (save != null) {
-    await store.reset(saveToHistory: save);
+  if (save == null) {
+    return false;
   }
+  await store.reset(saveToHistory: save);
+  return true;
 }

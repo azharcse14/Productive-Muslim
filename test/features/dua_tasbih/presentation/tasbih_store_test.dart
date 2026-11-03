@@ -301,6 +301,46 @@ void main() {
       },
     );
 
+    test('countedToday adds the round in progress, not a stale one', () {
+      var now = DateTime(2026, 6, 12, 23, 58);
+      final store = makeStore(now: () => now)
+        ..tap()
+        ..tap();
+      expect(store.countedToday, 2);
+      // Past midnight the open round belongs to yesterday.
+      now = DateTime(2026, 6, 13, 0, 1);
+      expect(store.countedToday, 0);
+    });
+
+    test('auto-next saves a full round on the next bead (persisted)', () async {
+      final store = makeStore();
+      await store.load();
+      await store.setAutoNextRound(value: true);
+      store
+        ..setTarget(2)
+        ..tap()
+        ..tap();
+      expect(store.count.value, 2); // the target is still shown
+
+      store.tap();
+      await pumpEventQueue();
+      expect(store.count.value, 1);
+      expect(store.totalToday.value, 2);
+      expect(store.lifetimeSessions.value, 1);
+
+      final restored = makeStore();
+      await restored.load();
+      expect(restored.autoNextRound.value, isTrue);
+    });
+
+    test('without auto-next the count runs past the target', () {
+      final store = makeStore()
+        ..setTarget(1)
+        ..tap()
+        ..tap();
+      expect(store.count.value, 2);
+    });
+
     test('a stale round is cleared before it is credited', () async {
       final prefs = _RecordingPrefs();
       SharedPreferencesAsyncPlatform.instance = prefs;

@@ -13,10 +13,13 @@ import 'package:productive_muslim/features/dua_tasbih/presentation/screens/tasbi
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
+import 'package:productive_muslim/features/keep_awake/domain/screen_wake.dart';
 import 'package:productive_muslim/shared/widgets/q_progress_ring.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../../helpers/screen_wake_fake.dart';
 
 const _morningCategory = DuaCategory(
   id: 'morning_evening',
@@ -85,7 +88,10 @@ Widget _app(Widget home) => MaterialApp(
 );
 
 void main() {
+  late FakeScreenWake wake;
+
   setUp(() async {
+    wake = FakeScreenWake();
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
     final duaStore = DuaStore(_FakeDuaRepository());
@@ -93,6 +99,7 @@ void main() {
     final favoritesStore = DuaFavoritesStore(SharedPreferencesAsync());
     await favoritesStore.load();
     GetIt.I
+      ..registerSingleton<ScreenWake>(wake)
       ..registerSingleton<DuaStore>(duaStore)
       ..registerSingleton<DuaFavoritesStore>(favoritesStore)
       ..registerSingleton<TasbihStore>(
@@ -209,6 +216,10 @@ void main() {
       await tester.ensureVisible(find.text('Astaghfirullah'));
       await tester.tap(find.text('Astaghfirullah'));
       await tester.pump();
+      // Mid-round: the old phrase's beads aren't carried over silently.
+      await tester.tap(find.text('Discard'));
+      await tester.pumpAndSettle();
+      expect(GetIt.I<TasbihStore>().count.value, 0);
       expect(
         await SharedPreferencesAsync().getString('tasbih_phrase'),
         'astaghfirullah',
@@ -242,6 +253,65 @@ void main() {
       await tester.runAsync(pumpEventQueue);
       await tester.pump();
       expect(find.text('Today: 0 counted'), findsOneWidget);
+    });
+
+    testWidgets('changing the phrase mid-round can be cancelled', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      await tester.tap(find.byType(QProgressRing));
+      await tester.pump();
+
+      await tester.tap(find.text('Alhamdulillah'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      final store = GetIt.I<TasbihStore>();
+      expect(store.count.value, 1);
+      expect(store.phrase.value, isNot('alhamdulillah'));
+
+      // With nothing counted the phrase just switches.
+      store.undo();
+      await tester.tap(find.text('Alhamdulillah'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(store.phrase.value, 'alhamdulillah');
+    });
+
+    testWidgets("today's line includes the round in progress", (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      await tester.tap(find.byType(QProgressRing));
+      await tester.tap(find.byType(QProgressRing));
+      await tester.pump();
+      expect(find.text('Today: 2 counted'), findsOneWidget);
+    });
+
+    testWidgets('the app-bar toggle turns on auto-next rounds', (tester) async {
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Start the next round at the target'));
+      await tester.pump();
+      expect(GetIt.I<TasbihStore>().autoNextRound.value, isTrue);
+      expect(
+        await SharedPreferencesAsync().getBool('tasbih_auto_next'),
+        isTrue,
+      );
+    });
+
+    testWidgets('keeps the screen on while open', (tester) async {
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      expect(wake.holds, 1);
+
+      await tester.pumpWidget(const SizedBox());
+      expect(wake.calls, [true, false]);
     });
 
     testWidgets('tap increments the displayed count', (tester) async {
