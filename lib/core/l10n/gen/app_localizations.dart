@@ -2669,7 +2669,7 @@ abstract class AppLocalizations {
   /// No description provided for @fastingKindNote.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{There are no days in which righteous deeds are more beloved to Allah than these ten (Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw him fast these days (Muslim 1176); another of his wives reported that he did (Abu Dawud 2437).} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}'**
+  /// **'{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}'**
   String fastingKindNote(String id);
 
   /// No description provided for @achievementsTitle.
@@ -3011,7 +3011,7 @@ abstract class AppLocalizations {
   /// No description provided for @zakatNeedSilverPrice.
   ///
   /// In en, this message translates to:
-  /// **'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab (the Hanafi view, the lower threshold). Some scholars use the gold nisab for cash.'**
+  /// **'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab, the lower threshold (Hanafi and others). Some scholars use the gold nisab for cash.'**
   String get zakatNeedSilverPrice;
 
   /// No description provided for @zakatInvalidNumber.
@@ -3047,7 +3047,7 @@ abstract class AppLocalizations {
   /// No description provided for @zakatNisabSilver.
   ///
   /// In en, this message translates to:
-  /// **'Silver nisab ({grams} g) — Hanafi view; some scholars use gold for cash'**
+  /// **'Silver nisab ({grams} g) — the lower threshold (Hanafi and others); some scholars use gold for cash'**
   String zakatNisabSilver(String grams);
 
   /// No description provided for @zakatRowCash.
@@ -5810,23 +5810,23 @@ abstract class AppLocalizations {
   /// **'Change date range'**
   String get muhasabaRangeChange;
 
-  /// No description provided for @auditNightBeginsAtSunset.
+  /// No description provided for @calendarNightBeginsAtSunset.
   ///
   /// In en, this message translates to:
   /// **'This night begins at sunset on this date.'**
-  String get auditNightBeginsAtSunset;
+  String get calendarNightBeginsAtSunset;
 
-  /// No description provided for @auditObservanceDiffers.
+  /// No description provided for @calendarObservanceDiffers.
   ///
   /// In en, this message translates to:
   /// **'Scholars differ on this date and on marking it with special worship.'**
-  String get auditObservanceDiffers;
+  String get calendarObservanceDiffers;
 
-  /// No description provided for @auditRakaatHanafiNote.
+  /// No description provided for @rakaatHanafiNote.
   ///
   /// In en, this message translates to:
   /// **'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.'**
-  String get auditRakaatHanafiNote;
+  String get rakaatHanafiNote;
 }
 
 class _AppLocalizationsDelegate

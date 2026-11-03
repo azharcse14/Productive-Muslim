@@ -516,12 +516,12 @@ final class _DaySheet extends StatelessWidget {
               ),
               if (event.isNight)
                 Text(
-                  l10n.auditNightBeginsAtSunset,
+                  l10n.calendarNightBeginsAtSunset,
                   style: QType.body.copyWith(color: q.ink2),
                 ),
               if (event.scholarsDiffer)
                 Text(
-                  l10n.auditObservanceDiffers,
+                  l10n.calendarObservanceDiffers,
                   style: QType.caption.copyWith(color: q.ink2),
                 ),
             ],

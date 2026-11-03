@@ -1708,7 +1708,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'arafah':
           'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
       'dhulHijjah':
-          'There are no days in which righteous deeds are more beloved to Allah than these ten (Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw him fast these days (Muslim 1176); another of his wives reported that he did (Abu Dawud 2437).',
+          'There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).',
       'shawwal':
           'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
@@ -2064,7 +2064,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get zakatNeedSilverPrice =>
-      'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab (the Hanafi view, the lower threshold). Some scholars use the gold nisab for cash.';
+      'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab, the lower threshold (Hanafi and others). Some scholars use the gold nisab for cash.';
 
   @override
   String get zakatInvalidNumber => 'Enter a valid number';
@@ -2088,7 +2088,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String zakatNisabSilver(String grams) {
-    return 'Silver nisab ($grams g) — Hanafi view; some scholars use gold for cash';
+    return 'Silver nisab ($grams g) — the lower threshold (Hanafi and others); some scholars use gold for cash';
   }
 
   @override
@@ -3891,14 +3891,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muhasabaRangeChange => 'Change date range';
 
   @override
-  String get auditNightBeginsAtSunset =>
+  String get calendarNightBeginsAtSunset =>
       'This night begins at sunset on this date.';
 
   @override
-  String get auditObservanceDiffers =>
+  String get calendarObservanceDiffers =>
       'Scholars differ on this date and on marking it with special worship.';
 
   @override
-  String get auditRakaatHanafiNote =>
+  String get rakaatHanafiNote =>
       'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.';
 }

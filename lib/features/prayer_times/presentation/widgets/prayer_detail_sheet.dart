@@ -109,7 +109,7 @@ final class PrayerDetailSheet extends StatelessWidget {
             _RakaatChips(prayer: prayer, jumuah: jumuah),
             const SizedBox(height: QSpace.s1),
             Text(
-              l10n.auditRakaatHanafiNote,
+              l10n.rakaatHanafiNote,
               style: QType.caption.copyWith(color: q.ink3),
             ),
             const SizedBox(height: QSpace.s5),

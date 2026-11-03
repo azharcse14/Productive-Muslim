@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/bangla_date.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/core/utils/locale_digits.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/calendar/presentation/screens/calendar_screen.dart';
@@ -184,5 +185,36 @@ void main() {
     await pumpAt(tester, const Locale('en'));
     expect(tester.takeException(), isNull);
     expect(cellTexts(tester, 1), hasLength(2));
+  });
+
+  testWidgets('Shab-e-Barat sheet: begins at sunset, scholars differ', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360, 1400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const CalendarScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    // 14 Sha'ban 1448 (the eve of the 15th), months after pinned Nov 2026.
+    final eve = const HijriDate(1448, 8, 14).toGregorian();
+    final months = (eve.year - 2026) * 12 + eve.month - 11;
+    expect(months, inInclusiveRange(1, 4), reason: 'fixture assumption');
+    for (var i = 0; i < months; i++) {
+      await tester.fling(find.byType(GridView), const Offset(-250, 0), 1000);
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text(l10n.islamicDayName('nisfShaban')));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.calendarNightBeginsAtSunset), findsOneWidget);
+    expect(find.text(l10n.calendarObservanceDiffers), findsOneWidget);
   });
 }
