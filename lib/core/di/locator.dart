@@ -77,6 +77,8 @@ import '../../features/quran/data/datasources/quran_database.dart';
 import '../../features/quran/data/repositories/quran_repository_impl.dart';
 import '../../features/quran/domain/repositories/quran_repository.dart';
 import '../../features/quran/presentation/state/quran_store.dart';
+import '../../features/ramadan/data/datasources/eid_announcement_local_data_source.dart';
+import '../../features/ramadan/presentation/state/eid_announcement_store.dart';
 import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
 import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
 import '../../features/ruqyah/domain/repositories/ruqyah_repository.dart';
@@ -102,6 +104,7 @@ import '../../features/settings/presentation/state/settings_store.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../utils/haptics.dart';
+import '../utils/hijri_date.dart';
 import '../utils/time_format.dart';
 
 /// Global service locator. The ONLY place registrations happen
@@ -345,6 +348,23 @@ Future<void> setupLocator() async {
     ),
   );
 
+  // ---- Ramadan: "Eid announced after 29 days" ----
+  final eidSource = EidAnnouncementLocalDataSource(SharedPreferencesAsync());
+  final eid = EidAnnouncementStore(
+    read: eidSource.load,
+    write: eidSource.save,
+    // Signal-driven code re-runs by itself (see below); notifications and
+    // the home widget schedule outside signals, so refresh them here.
+    onChanged: () {
+      unawaited(locator<NotificationController>().retry());
+      unawaited(locator<PrayerWidgetService>().update());
+    },
+  );
+  locator.registerSingleton(eid);
+  // Every Hijri conversion follows it; a computed converting a date
+  // subscribes to [years] through this read.
+  HijriDate.shortRamadanYears = () => eid.years.value;
+
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
     () => ExpenseStore(
@@ -435,6 +455,7 @@ Future<void> setupLocator() async {
     }),
     load('Dua favorites', locator<DuaFavoritesStore>().load),
     load('Fasting', locator<FastingStore>().load),
+    load('Eid announcement', eid.load),
     load('Tasbih', locator<TasbihStore>().load),
     load('Reader text size', locator<ReaderTextSize>().load),
   ]);

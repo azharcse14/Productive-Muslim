@@ -8,6 +8,7 @@ import 'package:productive_muslim/features/prayer_times/data/repositories/prayer
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/ramadan/domain/usecases/ramadan_utils.dart';
 import 'package:productive_muslim/features/ramadan/presentation/screens/ramadan_screen.dart';
+import 'package:productive_muslim/features/ramadan/presentation/state/eid_announcement_store.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
@@ -64,6 +65,12 @@ void main() {
     settings = await makeSettingsStore(const AppSettings(location: _dhaka));
     final clock = _FixedClock(now);
     GetIt.I
+      ..registerSingleton(
+        EidAnnouncementStore(
+          read: () async => const {},
+          write: (_, {required ended}) async {},
+        ),
+      )
       ..registerSingleton<SettingsStore>(settings)
       ..registerSingleton<ZonedClock>(clock)
       ..registerSingleton<GetPrayerDay>(

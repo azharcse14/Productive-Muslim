@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/ramadan/presentation/screens/ramadan_screen.dart';
+import 'package:productive_muslim/features/ramadan/presentation/state/eid_announcement_store.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
@@ -63,6 +65,8 @@ void main() {
 
   late SettingsStore settings;
   late _Clock clock;
+  late EidAnnouncementStore eid;
+  late Set<int> savedYears;
   final getPrayerDay = GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock()));
 
   setUp(() async {
@@ -72,13 +76,24 @@ void main() {
     );
     await settings.load();
     clock = _Clock();
+    savedYears = {};
+    eid = EidAnnouncementStore(
+      read: () async => savedYears,
+      write: (year, {required ended}) async =>
+          ended ? savedYears.add(year) : savedYears.remove(year),
+    );
+    HijriDate.shortRamadanYears = () => eid.years.value;
     GetIt.I
+      ..registerSingleton(eid)
       ..registerSingleton<SettingsStore>(settings)
       ..registerSingleton<ZonedClock>(clock)
       ..registerSingleton(getPrayerDay);
   });
 
-  tearDown(() => GetIt.I.reset());
+  tearDown(() {
+    HijriDate.shortRamadanYears = () => const {};
+    return GetIt.I.reset();
+  });
 
   String hms(Duration d) {
     String two(int v) => v.toString().padLeft(2, '0');
@@ -129,6 +144,49 @@ void main() {
     );
 
     // Unmount so the screen's timers are cancelled.
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('Eid announced: offered on 29 Ramadan, makes the 30th Eid, '
+      'undoable', (tester) async {
+    Future<void> pumpAt(HijriDate day) async {
+      clock.now = day.toGregorian().add(const Duration(hours: 12));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const RamadanScreen(),
+        ),
+      );
+      await tester.pump();
+    }
+
+    const announce = 'Eid announced — Ramadan ended after 29 days';
+
+    // Not offered before the 29th.
+    await pumpAt(const HijriDate(1447, 9, 28));
+    expect(find.text(announce), findsNothing);
+
+    await pumpAt(const HijriDate(1447, 9, 29));
+    expect(find.text('Day 29 of 30'), findsOneWidget);
+    await tester.tap(find.text(announce));
+    await tester.pump();
+    expect(savedYears, {1447});
+    expect(find.text('Day 29 of 29'), findsOneWidget);
+    expect(find.text('Undo'), findsOneWidget);
+
+    // The tabular 30th is now Eid: no roza counter, undo still offered.
+    await pumpAt(const HijriDate(1447, 9, 30));
+    expect(find.textContaining('of 30'), findsNothing);
+    expect(find.text('Undo'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await tester.pump();
+    expect(savedYears, isEmpty);
+    expect(find.text('Day 30 of 30'), findsOneWidget);
+    expect(find.text(announce), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

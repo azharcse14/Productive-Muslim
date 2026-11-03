@@ -22,6 +22,8 @@ import '../../../prayer_times/presentation/screens/home_formatting.dart'
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
+import '../../domain/usecases/ramadan_utils.dart';
+import '../state/eid_announcement_store.dart';
 import '../state/ramadan_store.dart';
 
 /// Ramadan hub (design §4.x): roza counter, sahri & iftar month table,
@@ -36,6 +38,7 @@ final class RamadanScreen extends StatefulWidget {
 final class _RamadanScreenState extends State<RamadanScreen> {
   late final SettingsStore _settings = locator<SettingsStore>();
   late final ZonedClock _clock = locator<ZonedClock>();
+  late final EidAnnouncementStore _eid = locator<EidAnnouncementStore>();
   late final RamadanStore _store = RamadanStore(
     locator<GetPrayerDay>(),
     _settings,
@@ -72,6 +75,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
               padding: const EdgeInsets.all(QSpace.s5),
               children: [
                 _RozaCounterCard(store: _store),
+                EidAnnouncementCard(store: _store, eid: _eid),
                 // Roza count and the table follow the Hijri offset.
                 QHijriOffsetLink(
                   offset: _settings.hijriOffsetDays.value,
@@ -213,6 +217,72 @@ final class _RozaCounterCard extends StatelessWidget {
                 style: QType.caption.copyWith(color: q.ink2),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// "Eid announced — Ramadan ended after 29 days" for the current Hijri
+/// year, offered on 29/30 Ramadan and (to undo) on Eid itself; hidden on
+/// every other day.
+final class EidAnnouncementCard extends StatelessWidget {
+  const EidAnnouncementCard({
+    required this.store,
+    required this.eid,
+    super.key,
+  });
+
+  final RamadanStore store;
+  final EidAnnouncementStore eid;
+
+  Future<void> _set(BuildContext context, int year, bool ended) async {
+    try {
+      await eid.setEnded(year, ended: ended);
+    } on Object {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return SignalBuilder(
+      builder: (context) {
+        final today = store.hijriToday.value;
+        final ended = eid.years.value.contains(today.year);
+        if (!RamadanUtils.offersEidAnnouncement(today, ended: ended)) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: QSpace.s4),
+          child: QCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  context.digits(
+                    ended ? l10n.ramadanEidMarked : l10n.ramadanEidPrompt,
+                  ),
+                  style: QType.body.copyWith(color: q.ink2),
+                ),
+                const SizedBox(height: QSpace.s3),
+                QButton(
+                  label: ended
+                      ? l10n.undo
+                      : context.digits(l10n.ramadanEidAnnounce),
+                  icon: ended ? Icons.undo : Icons.celebration_outlined,
+                  kind: ended ? QButtonKind.ghost : QButtonKind.tonal,
+                  onPressed: () => unawaited(_set(context, today.year, !ended)),
+                ),
+              ],
+            ),
           ),
         );
       },
