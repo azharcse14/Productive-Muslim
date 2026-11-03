@@ -59,6 +59,9 @@ abstract final class Routes {
   /// Ruqyah — Qur'anic & prophetic protection/healing (More tab).
   static const ruqyah = (name: 'ruqyah', path: '/ruqyah');
 
+  /// The 99 names — reachable from More and the Dua tab.
+  static const asmaulHusna = (name: 'asmaulHusna', path: '/asmaul-husna');
+
   /// Asmaul Husna memorization quiz (entered from the names screen).
   static const asmaQuiz = (name: 'asmaQuiz', path: '/asma-quiz');
 
