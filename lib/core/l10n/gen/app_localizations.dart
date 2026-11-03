@@ -98,6 +98,42 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @quranJuzTabSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get quranJuzTabSurahs;
+
+  /// No description provided for @quranJuzTabJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz'**
+  String get quranJuzTabJuz;
+
+  /// No description provided for @quranJuzTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz {number}'**
+  String quranJuzTitle(String number);
+
+  /// No description provided for @shareAyahTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareAyahTooltip;
+
+  /// No description provided for @shareAyahReference.
+  ///
+  /// In en, this message translates to:
+  /// **'— Surah {name} {reference}'**
+  String shareAyahReference(String name, String reference);
+
+  /// No description provided for @shareTranslationBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation: {translator}'**
+  String shareTranslationBy(String translator);
+
   /// No description provided for @quranOpenAyah.
   ///
   /// In en, this message translates to:

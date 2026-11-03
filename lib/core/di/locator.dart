@@ -99,6 +99,8 @@ import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
+import '../../features/share/data/platform_share_sheet.dart';
+import '../../features/share/domain/share_sheet.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../utils/haptics.dart';
@@ -302,6 +304,9 @@ Future<void> setupLocator() async {
 
   // Keeps the screen on in the Quran reader and tasbih.
   locator.registerLazySingleton<ScreenWake>(PlatformScreenWake.new);
+
+  // OS share sheet (per-ayah share in the Quran reader).
+  locator.registerLazySingleton<ShareSheet>(PlatformShareSheet.new);
 
   // ---- dua & tasbih ----
   locator

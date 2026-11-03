@@ -19,6 +19,7 @@ import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../domain/entities/ayah.dart';
+import '../../domain/entities/juz.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
 import '../widgets/quran_unavailable.dart';
@@ -283,79 +284,152 @@ final class _QuranIndexState extends State<_QuranIndex> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.quranTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.bookmarksTitle,
-            icon: const Icon(Icons.bookmarks_outlined),
-            onPressed: _showBookmarks,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.quranTitle),
+          actions: [
+            IconButton(
+              tooltip: l10n.bookmarksTitle,
+              icon: const Icon(Icons.bookmarks_outlined),
+              onPressed: _showBookmarks,
+            ),
+          ],
+          bottom: TabBar(
+            tabs: [
+              Tab(text: l10n.quranJuzTabSurahs),
+              Tab(text: l10n.quranJuzTabJuz),
+            ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: SignalBuilder(
-          builder: (context) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+        body: SafeArea(
+          child: TabBarView(
             children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(
-                  QSpace.s5,
-                  QSpace.s3,
-                  QSpace.s5,
-                  0,
-                ),
-                child: Column(
+              SignalBuilder(
+                builder: (context) => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (_store.lastRead.value != null) ...[
-                      _resumeCard(context),
-                      const SizedBox(height: QSpace.s3),
-                    ] else if (_store.loaded.value) ...[
-                      QBanner(
-                        text: l10n.quranFirstOpen,
-                        icon: Icons.menu_book_outlined,
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        QSpace.s5,
+                        QSpace.s3,
+                        QSpace.s5,
+                        0,
                       ),
-                      const SizedBox(height: QSpace.s3),
-                    ],
-                    ListenableBuilder(
-                      listenable: _query,
-                      builder: (context, _) => TextField(
-                        controller: _query,
-                        onChanged: _onQueryChanged,
-                        onSubmitted: (query) {
-                          if (parseAyahReference(_store.surahs.value, query)
-                              case final p?) {
-                            _openReader(p.surah, initialAyah: p.ayah);
-                          }
-                        },
-                        decoration: InputDecoration(
-                          hintText: l10n.searchSurahHint,
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: _query.text.isEmpty
-                              ? null
-                              : IconButton(
-                                  tooltip: l10n.clearSearch,
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    _query.clear();
-                                    _debounce?.cancel();
-                                    unawaited(_runSearch(''));
-                                  },
-                                ),
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_store.lastRead.value != null) ...[
+                            _resumeCard(context),
+                            const SizedBox(height: QSpace.s3),
+                          ] else if (_store.loaded.value) ...[
+                            QBanner(
+                              text: l10n.quranFirstOpen,
+                              icon: Icons.menu_book_outlined,
+                            ),
+                            const SizedBox(height: QSpace.s3),
+                          ],
+                          ListenableBuilder(
+                            listenable: _query,
+                            builder: (context, _) => TextField(
+                              controller: _query,
+                              onChanged: _onQueryChanged,
+                              onSubmitted: (query) {
+                                if (parseAyahReference(
+                                      _store.surahs.value,
+                                      query,
+                                    )
+                                    case final p?) {
+                                  _openReader(p.surah, initialAyah: p.ayah);
+                                }
+                              },
+                              decoration: InputDecoration(
+                                hintText: l10n.searchSurahHint,
+                                prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _query.text.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        tooltip: l10n.clearSearch,
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () {
+                                          _query.clear();
+                                          _debounce?.cancel();
+                                          unawaited(_runSearch(''));
+                                        },
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    const SizedBox(height: QSpace.s2),
+                    Expanded(child: _surahList(context)),
                   ],
                 ),
               ),
-              const SizedBox(height: QSpace.s2),
-              Expanded(child: _surahList(context)),
+              SignalBuilder(builder: _juzList),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// The 30 juz; each row opens the reader at the juz's first ayah.
+  Widget _juzList(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(
+        horizontal: QSpace.s5,
+        vertical: QSpace.s2,
+      ),
+      itemCount: juzStarts.length,
+      itemBuilder: (context, index) {
+        final start = juzStarts[index];
+        final reference = LocaleDigits.localize(
+          '${start.surah}:${start.ayah}',
+          languageCode,
+        );
+        final name = _surahById(start.surah)?.transliteration;
+        return QPressable(
+          onTap: () => _openReader(start.surah, initialAyah: start.ayah),
+          borderRadius: BorderRadius.circular(QRadius.md),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 2,
+              vertical: QSpace.s2,
+            ),
+            child: Row(
+              children: [
+                QMedallion(number: index + 1),
+                const SizedBox(width: QSpace.s4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.quranJuzTitle(
+                          LocaleDigits.localize('${index + 1}', languageCode),
+                        ),
+                        style: QType.titleSm.copyWith(color: q.ink),
+                      ),
+                      Text(
+                        name == null ? reference : '$name · $reference',
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: q.ink3),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

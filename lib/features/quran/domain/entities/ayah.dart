@@ -25,6 +25,13 @@ final class Ayah {
     _ => translationEn,
   };
 
+  /// Translator of [translationFor]'s text, for attribution when sharing
+  /// (same names as Settings → Credits).
+  String translatorFor(String languageCode) => switch (languageCode) {
+    'bn' when translationBn.isNotEmpty => 'Muhiuddin Khan',
+    _ => 'Mohammed Marmaduke William Pickthall',
+  };
+
   @override
   bool operator ==(Object other) => other is Ayah && other.id == id;
 

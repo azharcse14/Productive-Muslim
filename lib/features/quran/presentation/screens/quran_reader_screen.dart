@@ -22,6 +22,7 @@ import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../keep_awake/domain/screen_wake.dart';
+import '../../../share/domain/share_sheet.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
@@ -62,6 +63,8 @@ final class _QuranReaderState extends State<_QuranReader> {
   // App-scoped store — never disposed here.
   late final QuranStore _store = locator<QuranStore>();
   late final ScreenWake _wake = locator<ScreenWake>();
+  // Resolved on the first share tap.
+  late final ShareSheet _share = locator<ShareSheet>();
 
   final ScrollController _controller = ScrollController();
   final _ayahs = signal(const <Ayah>[]);
@@ -459,6 +462,20 @@ final class _QuranReaderState extends State<_QuranReader> {
     );
   }
 
+  /// Arabic, translation, "— Surah Name 2:255" and the translator.
+  String _shareText(BuildContext context, Ayah ayah) {
+    final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final reference = LocaleDigits.localize(
+      '${ayah.surah}:${ayah.number}',
+      languageCode,
+    );
+    return '${ayah.arabic}\n\n'
+        '${ayah.translationFor(languageCode)}\n\n'
+        '${l10n.shareAyahReference(_surah(ayah.surah)?.transliteration ?? '', reference)}\n'
+        '${l10n.shareTranslationBy(ayah.translatorFor(languageCode))}';
+  }
+
   Widget _ayahCard(BuildContext context, Ayah ayah) {
     final l10n = context.l10n;
     final q = context.q;
@@ -523,8 +540,12 @@ final class _QuranReaderState extends State<_QuranReader> {
                     '${ayah.translationFor(languageCode)}\n'
                     '${l10n.ayahShareSuffix(ayah.surah, ayah.number)}',
               ),
-              // Share returns with the share-sheet integration phase; a
-              // permanently disabled button just looked broken.
+              IconButton(
+                tooltip: l10n.shareAyahTooltip,
+                icon: Icon(Icons.share_outlined, color: q.ink3),
+                onPressed: () =>
+                    unawaited(_share.shareText(_shareText(context, ayah))),
+              ),
             ],
           ),
         ],

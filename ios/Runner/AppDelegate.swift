@@ -75,6 +75,33 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
+    // Per-ayah share → the system activity sheet, plain text.
+    FlutterMethodChannel(
+      name: "com.productivemuslim.app/share",
+      binaryMessenger: registrar.messenger()
+    ).setMethodCallHandler { call, result in
+      guard call.method == "shareText", let text = call.arguments as? String else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let scene = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .first { $0.activationState == .foregroundActive }
+      guard var top = scene?.keyWindow?.rootViewController else {
+        result(FlutterError(code: "NO_UI", message: "No window to present from", details: nil))
+        return
+      }
+      while let presented = top.presentedViewController { top = presented }
+      let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+      // iPad shows it as a popover, which needs an anchor.
+      if let popover = sheet.popoverPresentationController {
+        popover.sourceView = top.view
+        popover.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+        popover.permittedArrowDirections = []
+      }
+      top.present(sheet, animated: true)
+      result(nil)
+    }
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()

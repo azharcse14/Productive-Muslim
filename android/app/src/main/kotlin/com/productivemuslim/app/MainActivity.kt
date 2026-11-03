@@ -103,6 +103,26 @@ class MainActivity : FlutterFragmentActivity() {
                 result.notImplemented()
             }
         }
+        // Per-ayah share → the system share chooser, plain text.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.productivemuslim.app/share"
+        ).setMethodCallHandler { call, result ->
+            val text = call.arguments as? String
+            if (call.method == "shareText" && text != null) {
+                val send = Intent(Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(Intent.EXTRA_TEXT, text)
+                try {
+                    startActivity(Intent.createChooser(send, null))
+                    result.success(null)
+                } catch (e: ActivityNotFoundException) {
+                    result.error("NO_TARGET", e.message, null)
+                }
+            } else {
+                result.notImplemented()
+            }
+        }
     }
 
     /** Some settings pages are missing on low-RAM / Go devices: fall back to Settings. */

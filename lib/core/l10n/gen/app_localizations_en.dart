@@ -9,6 +9,30 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get quranJuzTabSurahs => 'Surahs';
+
+  @override
+  String get quranJuzTabJuz => 'Juz';
+
+  @override
+  String quranJuzTitle(String number) {
+    return 'Juz $number';
+  }
+
+  @override
+  String get shareAyahTooltip => 'Share';
+
+  @override
+  String shareAyahReference(String name, String reference) {
+    return '— Surah $name $reference';
+  }
+
+  @override
+  String shareTranslationBy(String translator) {
+    return 'Translation: $translator';
+  }
+
+  @override
   String quranOpenAyah(String reference) {
     return 'Open $reference';
   }

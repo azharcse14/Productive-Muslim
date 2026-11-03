@@ -14,6 +14,7 @@ import 'package:productive_muslim/features/quran/domain/repositories/quran_repos
 import 'package:productive_muslim/features/quran/presentation/screens/quran_reader_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/screens/quran_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/features/share/domain/share_sheet.dart';
 import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 import 'package:productive_muslim/shared/widgets/q_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/screen_wake_fake.dart';
+import '../../../helpers/share_sheet_fake.dart';
 
 /// In-memory [QuranRepository] — 3 surahs with a few ayahs each.
 final class FakeQuranRepository implements QuranRepository {
@@ -204,6 +206,7 @@ void main() {
   late FakeQuranRepository repo;
   late QuranStore store;
   late FakeScreenWake wake;
+  late FakeShareSheet share;
 
   setUp(() async {
     SharedPreferencesAsyncPlatform.instance =
@@ -212,9 +215,11 @@ void main() {
     store = QuranStore(repo, SharedPreferencesAsync());
     await store.load();
     wake = FakeScreenWake();
+    share = FakeShareSheet();
     GetIt.I
       ..registerSingleton<QuranStore>(store)
-      ..registerSingleton<ScreenWake>(wake);
+      ..registerSingleton<ScreenWake>(wake)
+      ..registerSingleton<ShareSheet>(share);
   });
 
   tearDown(() => GetIt.I.reset());
@@ -421,9 +426,48 @@ void main() {
 
       await flushMarkRead(tester);
     });
+
+    testWidgets('the Juz tab lists 30 juz and opens the reader at one', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      await tester.tap(find.text('Juz'));
+      await tester.pumpAndSettle();
+      expect(find.text('Juz 1'), findsOneWidget);
+      expect(find.text('Al-Faatiha · 1:1'), findsOneWidget);
+      expect(find.text('Al-Baqara · 2:142'), findsOneWidget);
+
+      await tester.tap(find.text('Juz 1'));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsOneWidget);
+      expect(find.text('In the name of Allah'), findsOneWidget);
+
+      await flushMarkRead(tester);
+    });
   });
 
   group('QuranReaderScreen', () {
+    testWidgets('share sends arabic, translation, reference and translator', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Share').first);
+      await tester.pump();
+
+      expect(share.shared, [
+        'بِسْمِ اللَّهِ\n\n'
+            'In the name of Allah\n\n'
+            '— Surah Al-Faatiha 1:1\n'
+            'Translation: Mohammed Marmaduke William Pickthall',
+      ]);
+
+      await flushMarkRead(tester);
+    });
+
     testWidgets('renders arabic and translation per ayah', (tester) async {
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();

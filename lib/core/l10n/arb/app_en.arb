@@ -1,5 +1,23 @@
 {
   "@@locale": "en",
+  "quranJuzTabSurahs": "Surahs",
+  "quranJuzTabJuz": "Juz",
+  "quranJuzTitle": "Juz {number}",
+  "@quranJuzTitle": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "shareAyahTooltip": "Share",
+  "shareAyahReference": "— Surah {name} {reference}",
+  "@shareAyahReference": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "reference": { "type": "String" }
+    }
+  },
+  "shareTranslationBy": "Translation: {translator}",
+  "@shareTranslationBy": {
+    "placeholders": { "translator": { "type": "String" } }
+  },
   "quranOpenAyah": "Open {reference}",
   "@quranOpenAyah": {
     "placeholders": { "reference": { "type": "String" } }
