@@ -417,6 +417,7 @@
   "hadithSearchFullNoResults": "কোনো হাদিস মেলেনি — অন্য শব্দ লিখে দেখুন",
   "hadithSearchFullShowingFirst": "প্রথম {count}টি ফলাফল দেখানো হচ্ছে",
   "hadithSearchFullError": "হাদিস খোঁজা যায়নি। আবার চেষ্টা করুন।",
+  "hadithSearchFullPreparing": "খোঁজার প্রস্তুতি চলছে…",
   "fastingQazaSetOwed": "বাকি রোজার সংখ্যা দিন",
   "fastingQazaOwedHint": "বাকি রোজা (ঐচ্ছিক)",
   "fastingHeatmapLabel": "{count, plural, =0{{month} মাসে কোনো রোজা রেকর্ড হয়নি} =1{{month} মাসে ১টি রোজা রেকর্ড হয়েছে} other{{month} মাসে {count}টি রোজা রেকর্ড হয়েছে}}",

@@ -12,7 +12,6 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
 import '../../domain/entities/hadith_search.dart';
-import '../../domain/repositories/hadith_book_repository.dart';
 import '../state/hadith_search_store.dart';
 import 'hadith_section_screen.dart';
 
@@ -26,7 +25,7 @@ final class HadithSearchScreen extends StatefulWidget {
 }
 
 final class _HadithSearchScreenState extends State<HadithSearchScreen> {
-  late final _store = HadithSearchStore(locator<HadithBookRepository>());
+  final HadithSearchStore _store = locator<HadithSearchStore>();
   final _controller = TextEditingController();
   var _warm = false;
 
@@ -103,8 +102,20 @@ final class _HadithSearchScreenState extends State<HadithSearchScreen> {
               context,
               l10n.hadithSearchFullPrompt,
             ),
-            HadithSearchLoading() => const Center(
-              child: CircularProgressIndicator(),
+            HadithSearchLoading() => Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  if (!_store.ready.value) ...[
+                    const SizedBox(height: QSpace.s3),
+                    Text(
+                      l10n.hadithSearchFullPreparing,
+                      style: QType.body.copyWith(color: q.ink2),
+                    ),
+                  ],
+                ],
+              ),
             ),
             HadithSearchFailed() => QErrorRetry(
               message: l10n.hadithSearchFullError,
@@ -115,7 +126,7 @@ final class _HadithSearchScreenState extends State<HadithSearchScreen> {
               _message(context, l10n.hadithSearchFullNoResults),
             HadithSearchDone(results: (:final hits, :final truncated)) =>
               ListView.separated(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   QSpace.s5,
                   QSpace.s3,
                   QSpace.s5,

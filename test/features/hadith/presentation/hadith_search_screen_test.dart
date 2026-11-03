@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -9,6 +11,7 @@ import 'package:productive_muslim/features/hadith/domain/entities/hadith_search.
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_search_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
+import 'package:productive_muslim/features/hadith/presentation/state/hadith_search_store.dart';
 import 'package:productive_muslim/features/hadith/presentation/state/hadith_section_store.dart';
 
 const _section = HadithSection(
@@ -42,6 +45,10 @@ HadithSearchHit _hit(int n) => HadithSearchHit(
 );
 
 final class _FakeRepository implements HadithBookRepository {
+  _FakeRepository([this.hold]);
+
+  /// Every search waits on this (an unloaded corpus) when set.
+  final Completer<void>? hold;
   final queries = <String>[];
   bool released = false;
 
@@ -71,6 +78,7 @@ final class _FakeRepository implements HadithBookRepository {
     int limit = hadithSearchLimit,
   }) async {
     queries.add(query);
+    await hold?.future;
     return switch (query) {
       'fail' => const Result.failure(UnexpectedFailure('broken')),
       'prayer' => Result.success((
@@ -85,11 +93,15 @@ final class _FakeRepository implements HadithBookRepository {
   void releaseSearch() => released = true;
 }
 
-Future<_FakeRepository> _pump(WidgetTester tester) async {
-  final repo = _FakeRepository();
+Future<_FakeRepository> _pump(
+  WidgetTester tester, {
+  Completer<void>? hold,
+}) async {
+  final repo = _FakeRepository(hold);
   GetIt.I
     ..registerSingleton<HadithBookRepository>(repo)
-    ..registerFactory<HadithSectionStore>(() => HadithSectionStore(repo));
+    ..registerFactory<HadithSectionStore>(() => HadithSectionStore(repo))
+    ..registerFactory<HadithSearchStore>(() => HadithSearchStore(repo));
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.light(),
@@ -142,6 +154,21 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await _type(tester, 'prayer');
     expect(repo.queries, ['', 'prayer']);
+  });
+
+  testWidgets('says "Preparing search" until the corpus has loaded', (
+    tester,
+  ) async {
+    final hold = Completer<void>();
+    await _pump(tester, hold: hold);
+    await _type(tester, 'prayer');
+    expect(find.text('Preparing search…'), findsOneWidget);
+
+    hold.complete();
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Preparing search…'), findsNothing);
+    expect(find.text('Sahih al-Bukhari · 1'), findsOneWidget);
   });
 
   testWidgets('no match shows the no-results message', (tester) async {

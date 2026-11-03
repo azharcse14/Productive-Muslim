@@ -740,6 +740,7 @@
   "hadithSearchFullShowingFirst": "Showing the first {count} matches",
   "@hadithSearchFullShowingFirst": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
   "hadithSearchFullError": "Couldn't search hadith. Please try again.",
+  "hadithSearchFullPreparing": "Preparing search…",
   "fastingQazaSetOwed": "Set number owed",
   "fastingQazaOwedHint": "Fasts owed (optional)",
   "fastingHeatmapLabel": "{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}",

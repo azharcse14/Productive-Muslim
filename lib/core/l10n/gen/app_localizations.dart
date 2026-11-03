@@ -2498,6 +2498,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t search hadith. Please try again.'**
   String get hadithSearchFullError;
 
+  /// No description provided for @hadithSearchFullPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing search…'**
+  String get hadithSearchFullPreparing;
+
   /// No description provided for @fastingQazaSetOwed.
   ///
   /// In en, this message translates to:

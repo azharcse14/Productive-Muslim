@@ -1556,6 +1556,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hadithSearchFullError => 'হাদিস খোঁজা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get hadithSearchFullPreparing => 'খোঁজার প্রস্তুতি চলছে…';
+
+  @override
   String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
 
   @override

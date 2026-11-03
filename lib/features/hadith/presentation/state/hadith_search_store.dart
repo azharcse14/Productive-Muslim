@@ -41,6 +41,10 @@ final class HadithSearchStore {
 
   late final state = signal<HadithSearchState>(const HadithSearchIdle());
 
+  /// False until the corpus has loaded once — the screen says
+  /// "Preparing search…" while a search waits on it.
+  late final ready = signal(false);
+
   Timer? _timer;
 
   /// Bumped per query so a slow, stale search can't overwrite a newer one.
@@ -50,8 +54,13 @@ final class HadithSearchStore {
   var _languageCode = 'en';
 
   /// Starts loading the corpus (seconds on first use) while the user types.
-  void warmUp(String languageCode) =>
-      unawaited(_repository.search('', languageCode));
+  void warmUp(String languageCode) => unawaited(
+    _repository.search('', languageCode).then((r) {
+      if (!_disposed && r.isSuccess) {
+        ready.value = true;
+      }
+    }),
+  );
 
   /// Runs [query] after [debounce] of no further input.
   void search(String query, String languageCode) {
@@ -75,6 +84,9 @@ final class HadithSearchStore {
     if (_disposed || seq != _seq) {
       return;
     }
+    if (result.isSuccess) {
+      ready.value = true;
+    }
     state.value = switch (result.valueOrNull) {
       final results? => HadithSearchDone(results),
       null => const HadithSearchFailed(),
@@ -85,6 +97,7 @@ final class HadithSearchStore {
     _disposed = true;
     _timer?.cancel();
     state.dispose();
+    ready.dispose();
     _repository.releaseSearch();
   }
 }

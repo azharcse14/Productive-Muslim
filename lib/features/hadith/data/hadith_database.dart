@@ -37,11 +37,28 @@ final class HadithDatabase extends GeneratedDatabase {
   /// Copies the bundled asset into Application Support/bundled (excluded
   /// from device backups — it is re-creatable) on first run or a version
   /// bump, and opens it.
-  static Future<HadithDatabase> open() async {
-    final file = await bundledDbFile(_fileName, subdir: 'bundled');
-    await ensureCopied(file, () => rootBundle.load(_assetPath));
-    return HadithDatabase(NativeDatabase.createInBackground(file));
-  }
+  static Future<HadithDatabase> open() async =>
+      HadithDatabase(NativeDatabase.createInBackground(await _bundledFile()));
+
+  /// Path of the copied asset, for the search isolate's own read-only
+  /// connection (it copies once, shared with [open]).
+  static Future<String> bundledPath() async => (await _bundledFile()).path;
+
+  static Future<File>? _file;
+
+  /// Copies once per process; a failed copy is retried on the next call.
+  static Future<File> _bundledFile() => _file ??=
+      () async {
+        final file = await bundledDbFile(_fileName, subdir: 'bundled');
+        await ensureCopied(file, () => rootBundle.load(_assetPath));
+        return file;
+      }().then(
+        (f) => f,
+        onError: (Object e, StackTrace s) {
+          _file = null;
+          Error.throwWithStackTrace(e, s);
+        },
+      );
 
   /// Skips the copy when [file] already matches [bundledVersion]; otherwise
   /// atomically replaces it with the asset from [load].
@@ -88,39 +105,6 @@ final class HadithDatabase extends GeneratedDatabase {
       "AND name = 'hadith_bn_section'",
     ).get();
     return rows.isNotEmpty;
-  }
-
-  /// Every section blob of the given fawazahmed0 [editions], as
-  /// (edition, section, blob) — the search corpus source.
-  Future<List<(String, int, Uint8List)>> editionBlobs(List<String> editions) =>
-      _blobs('hadith_section', 'edition', editions);
-
-  /// Every hadithbangla section blob of [bookIds], as (bookId, section, blob).
-  Future<List<(String, int, Uint8List)>> banglaBlobs(List<String> bookIds) =>
-      _blobs('hadith_bn_section', 'book_id', bookIds);
-
-  Future<List<(String, int, Uint8List)>> _blobs(
-    String table,
-    String keyColumn,
-    List<String> keys,
-  ) async {
-    if (keys.isEmpty) {
-      return const [];
-    }
-    final marks = List.filled(keys.length, '?').join(', ');
-    final rows = await customSelect(
-      'SELECT $keyColumn AS k, section, data FROM $table '
-      'WHERE $keyColumn IN ($marks)',
-      variables: [for (final k in keys) Variable<String>(k)],
-    ).get();
-    return [
-      for (final r in rows)
-        (
-          r.read<String>('k'),
-          r.read<int>('section'),
-          r.read<Uint8List>('data'),
-        ),
-    ];
   }
 
   /// The gzip blob of one hadithbangla [section] of [bookId], or null.

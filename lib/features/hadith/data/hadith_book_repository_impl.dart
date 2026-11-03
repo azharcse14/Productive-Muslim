@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../../config/app_config.dart';
 import '../../../core/utils/result.dart';
 import '../domain/entities/hadith_book.dart';
@@ -7,17 +9,24 @@ import 'hadith_book_bundled_data_source.dart';
 import 'hadith_book_catalog_data_source.dart';
 import 'hadith_book_remote_data_source.dart';
 import 'hadith_search.dart';
+import 'hadith_search_worker.dart';
 
 final class HadithBookRepositoryImpl implements HadithBookRepository {
   /// [bengaliHadith] false (or a bundled DB without the hadithbangla table)
   /// drops that source everywhere: Bengali readers get Arabic + English and
   /// the hadithbangla URL is never requested.
+  ///
+  /// [openSearch] (tests) replaces the bundled search worker; the loaded
+  /// search corpus outlives [releaseSearch] by [searchKeepAlive].
   HadithBookRepositoryImpl(
     this._catalog,
     this._bundled,
     this._remote, {
     bool bengaliHadith = AppConfig.bengaliHadith,
-  }) : _bengaliHadith = bengaliHadith;
+    Future<HadithSearchIndex> Function(List<HadithBook>)? openSearch,
+    this.searchKeepAlive = const Duration(seconds: 60),
+  }) : _bengaliHadith = bengaliHadith,
+       _openSearch = openSearch;
 
   final HadithBookCatalogDataSource _catalog;
   final HadithBookBundledDataSource _bundled;
@@ -86,7 +95,12 @@ final class HadithBookRepositoryImpl implements HadithBookRepository {
     }
   }
 
-  Future<HadithSearchCorpus>? _corpus;
+  final Future<HadithSearchIndex> Function(List<HadithBook>)? _openSearch;
+  final Duration searchKeepAlive;
+
+  /// The loaded (or loading) search index and the books its hits index.
+  Future<(List<HadithBook>, HadithSearchIndex)>? _search;
+  Timer? _release;
 
   @override
   Future<Result<HadithSearchResults>> search(
@@ -94,25 +108,50 @@ final class HadithBookRepositoryImpl implements HadithBookRepository {
     String languageCode, {
     int limit = hadithSearchLimit,
   }) async {
+    _release?.cancel();
+    final loading = _search ??= _loadSearch();
+    final List<HadithBook> books;
+    final HadithSearchIndex index;
     try {
-      final corpus = await (_corpus ??= _loadCorpus());
-      return Result.success(
-        searchHadithCorpus(corpus, query, languageCode, limit: limit),
-      );
+      (books, index) = await loading;
     } on Object catch (e) {
-      _corpus = null; // retry the load next time
+      if (identical(_search, loading)) {
+        _search = null; // retry the load next time
+      }
+      return Result.failure(UnexpectedFailure('Hadith search load failed', e));
+    }
+    try {
+      final raw = await index.search(query, languageCode, limit);
+      return Result.success((
+        hits: toSearchHits(books, raw.hits),
+        truncated: raw.truncated,
+      ));
+    } on Object catch (e) {
+      // The corpus is fine; only this query failed.
       return Result.failure(UnexpectedFailure('Hadith search failed', e));
     }
   }
 
-  Future<HadithSearchCorpus> _loadCorpus() async {
+  Future<(List<HadithBook>, HadithSearchIndex)> _loadSearch() async {
     final books = (await this.books()).valueOrNull;
     if (books == null) {
       throw StateError('Hadith catalog unavailable');
     }
-    return _bundled.loadSearchCorpus(books);
+    return (books, await (_openSearch ?? _bundled.openSearch)(books));
   }
 
+  /// Frees the corpus after [searchKeepAlive] unless searched again, so
+  /// reopening the search screen soon after is instant.
   @override
-  void releaseSearch() => _corpus = null;
+  void releaseSearch() {
+    _release?.cancel();
+    _release = Timer(searchKeepAlive, () {
+      final loaded = _search;
+      _search = null;
+      if (loaded != null) {
+        // A failed load has nothing to close.
+        unawaited(loaded.then((s) => s.$2.close(), onError: (Object _) {}));
+      }
+    });
+  }
 }

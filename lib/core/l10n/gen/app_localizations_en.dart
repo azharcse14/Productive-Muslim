@@ -1566,6 +1566,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t search hadith. Please try again.';
 
   @override
+  String get hadithSearchFullPreparing => 'Preparing search…';
+
+  @override
   String get fastingQazaSetOwed => 'Set number owed';
 
   @override
