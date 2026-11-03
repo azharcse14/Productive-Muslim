@@ -14,15 +14,23 @@ const _ishraqWindow = Duration(minutes: 30);
 /// The Salat al-Zawal window right after the sun declines into Dhuhr.
 const _salatZawalWindow = Duration(minutes: 15);
 
+/// Wall time → real instant and back, at one location.
+typedef WallZone = ({
+  DateTime Function(DateTime wall) instantOf,
+  DateTime Function(DateTime instant) wallOf,
+});
+
 /// The three forbidden (makruh taḥrīmī) windows and the nafl windows for
 /// [day], derived purely from its sun/prayer times. A pure function with
 /// exhaustive tests (guide §5). Ordered for top-to-bottom display:
 /// forbidden first, then nafl. [preFajr]: the clock is before today's
 /// Fajr, so Tahajjud is the night still running (yesterday's Maghrib →
-/// Fajr), not tonight's.
+/// Fajr), not tonight's. [zone] converts wall time ↔ real instant at the
+/// location, so a DST night is split in real hours.
 List<SpecialWindow> resolveSpecialWindows(
   PrayerDay day, {
   bool preFajr = false,
+  WallZone? zone,
 }) {
   // The sun's own sunrise/sunset, not the method-offset Fajr end / Maghrib.
   final sunriseEnd = day.trueSunrise.add(_horizonWindow);
@@ -35,8 +43,14 @@ List<SpecialWindow> resolveSpecialWindows(
     final m? when preFajr => (m, day.fajr),
     _ => (day.maghrib, day.fajrTomorrow),
   };
-  final night = nightEnd.difference(nightStart);
-  final tahajjudStart = nightStart.add(night * (2 / 3));
+  final DateTime tahajjudStart;
+  if (zone case (:final instantOf, :final wallOf)) {
+    final start = instantOf(nightStart);
+    final night = instantOf(nightEnd).difference(start);
+    tahajjudStart = wallOf(start.add(night * (2 / 3)));
+  } else {
+    tahajjudStart = nightStart.add(nightEnd.difference(nightStart) * (2 / 3));
+  }
 
   return [
     SpecialWindow(

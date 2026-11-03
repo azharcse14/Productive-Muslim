@@ -38,8 +38,16 @@ final class _Clock implements ZonedClock {
   DateTime now = DateTime(2026, 3, 1, 3);
   final _real = TimezoneClock();
 
+  // Floating wall time, like TimezoneClock.
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => DateTime.utc(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
@@ -125,21 +133,25 @@ void main() {
     );
     await tester.pump();
     expect(
-      find.text('Sahri ends in ${hms(sahriOf(1).difference(clock.now))}'),
+      find.text(
+        'Sahri ends in ${hms(sahriOf(1).difference(clock.nowAt(_dhaka)))}',
+      ),
       findsOneWidget,
     );
 
     clock.now = DateTime(2026, 3, 1, 12);
     await tester.pump(const Duration(seconds: 1));
     expect(
-      find.text('Iftar in ${hms(iftar.difference(clock.now))}'),
+      find.text('Iftar in ${hms(iftar.difference(clock.nowAt(_dhaka)))}'),
       findsOneWidget,
     );
 
     clock.now = DateTime(2026, 3, 1, 21);
     await tester.pump(const Duration(seconds: 1));
     expect(
-      find.text('Sahri ends in ${hms(sahriOf(2).difference(clock.now))}'),
+      find.text(
+        'Sahri ends in ${hms(sahriOf(2).difference(clock.nowAt(_dhaka)))}',
+      ),
       findsOneWidget,
     );
 

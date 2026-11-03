@@ -1,4 +1,5 @@
 import '../../../../core/utils/hijri_date.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
@@ -137,13 +138,7 @@ List<NotificationItem> buildNotificationPlan({
       // Field constructor, not midnight + Duration: stays on the wall-clock
       // time across a DST shift.
       final minute = matrix.dailyReminderMinute;
-      final remindAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        minute ~/ 60,
-        minute % 60,
-      );
+      final remindAt = day.fajr.wallDay(0, minute ~/ 60, minute % 60);
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyReminder, at: remindAt),
@@ -153,13 +148,7 @@ List<NotificationItem> buildNotificationPlan({
 
     if (matrix.dailyAyahReminder) {
       final minute = matrix.dailyAyahMinute;
-      final remindAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        minute ~/ 60,
-        minute % 60,
-      );
+      final remindAt = day.fajr.wallDay(0, minute ~/ 60, minute % 60);
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyAyah, at: remindAt),
@@ -169,13 +158,7 @@ List<NotificationItem> buildNotificationPlan({
 
     if (matrix.dailyHadithReminder) {
       final minute = matrix.dailyHadithMinute;
-      final remindAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        minute ~/ 60,
-        minute % 60,
-      );
+      final remindAt = day.fajr.wallDay(0, minute ~/ 60, minute % 60);
       if (inWindow(remindAt)) {
         items.add(
           NotificationItem(kind: NotificationKind.dailyHadith, at: remindAt),

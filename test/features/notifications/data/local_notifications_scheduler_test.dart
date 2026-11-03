@@ -18,6 +18,7 @@ import 'package:timezone/timezone.dart';
 /// Records schedule calls; throws for the ids in [failIds].
 final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   final scheduled = <int, NotificationDetails>{};
+  final instants = <int, DateTime>{};
   final titles = <int, String?>{};
   final failIds = <int>{};
   final pending = <int>{};
@@ -81,6 +82,10 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
       throw StateError('exact alarms revoked');
     }
     scheduled[id] = notificationDetails;
+    instants[id] = DateTime.fromMillisecondsSinceEpoch(
+      scheduledDate.millisecondsSinceEpoch,
+      isUtc: true,
+    );
     titles[id] = title;
     pending.add(id);
   }
@@ -358,6 +363,53 @@ void main() {
 
       expect(plugin.cancelled, isNot(contains(fajr.id)));
       expect(plugin.pending, contains(fajr.id));
+    });
+  });
+
+  group('manual-city wall times fire at the city instant', () {
+    const london = ManualCityLocation(
+      City(
+        name: 'London',
+        countryCode: 'GB',
+        latitude: 51.5085,
+        longitude: -0.1257,
+        timezone: 'Europe/London',
+      ),
+    );
+    late DateTime now;
+    Future<void> schedule(LocationConfig city, NotificationItem item) =>
+        LocalNotificationsScheduler(
+          clock: TimezoneClock(),
+          currentLocation: () => city,
+          formatTime: (_) => '',
+          plugin: plugin,
+          now: () => now,
+        ).reschedule([item], _texts);
+    NotificationItem fajrAt(DateTime wall) => NotificationItem(
+      kind: NotificationKind.azan,
+      prayer: Prayer.fajr,
+      at: wall,
+    );
+
+    test('Dhaka 02:30 on the US spring-forward day', () async {
+      now = DateTime.utc(2026, 3, 7, 12);
+      final item = fajrAt(DateTime.utc(2026, 3, 8, 2, 30));
+      await schedule(_dhaka, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 3, 7, 20, 30));
+    });
+
+    test('Dhaka 01:30 on the US fall-back day', () async {
+      now = DateTime.utc(2026, 10, 31, 12);
+      final item = fajrAt(DateTime.utc(2026, 11, 1, 1, 30));
+      await schedule(_dhaka, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 10, 31, 19, 30));
+    });
+
+    test("London Fajr after its own spring-forward is on BST", () async {
+      now = DateTime.utc(2026, 3, 28, 12);
+      final item = fajrAt(DateTime.utc(2026, 3, 29, 5));
+      await schedule(london, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 3, 29, 4));
     });
   });
 

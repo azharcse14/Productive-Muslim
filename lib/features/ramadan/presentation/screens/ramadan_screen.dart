@@ -50,6 +50,12 @@ final class _RamadanScreenState extends State<RamadanScreen> {
     return location == null ? DateTime.now() : _clock.nowAt(location);
   }
 
+  /// Wall time → real instant, so the countdown spans a DST night right.
+  DateTime _instantOf(DateTime wall) {
+    final location = _settings.location.value;
+    return location == null ? wall : _clock.utcInstantOf(location, wall);
+  }
+
   @override
   void dispose() {
     _store.dispose();
@@ -110,6 +116,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
                     _TodayTimesCard(
                       store: _store,
                       now: _wallNow,
+                      instantOf: _instantOf,
                       formatTime: (t) => _formatTime(context, t),
                     ),
                     const SizedBox(height: QSpace.s4),
@@ -305,11 +312,13 @@ final class _TodayTimesCard extends StatefulWidget {
   const _TodayTimesCard({
     required this.store,
     required this.now,
+    required this.instantOf,
     required this.formatTime,
   });
 
   final RamadanStore store;
   final DateTime Function() now;
+  final DateTime Function(DateTime wall) instantOf;
   final String Function(DateTime) formatTime;
 
   @override
@@ -355,6 +364,9 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             : next != null
             ? (l10n.countdownSahriEnds, next.$2)
             : (null, null);
+        // Real time left, not the wall-clock gap (a DST night).
+        Duration left(DateTime at) =>
+            widget.instantOf(at).difference(widget.instantOf(now));
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +401,7 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
               if (label != null && target != null) ...[
                 const SizedBox(height: QSpace.s3),
                 Text(
-                  '$label ${formatCountdown(context, target.difference(now))}',
+                  '$label ${formatCountdown(context, left(target))}',
                   style: QType.num_(
                     QType.titleSm,
                   ).copyWith(color: q.onPrimarySoft),

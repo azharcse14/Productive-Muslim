@@ -397,7 +397,17 @@ final class HomeStore {
     if (day == null) {
       return const [];
     }
-    return resolveSpecialWindows(day, preFajr: _preFajr.value);
+    return resolveSpecialWindows(
+      day,
+      preFajr: _preFajr.value,
+      zone: switch (location.value) {
+        final loc? => (
+          instantOf: (wall) => _clock.utcInstantOf(loc, wall),
+          wallOf: (instant) => _clock.instantAt(loc, instant),
+        ),
+        null => null,
+      },
+    );
   });
 
   /// The special window the clock is currently inside, or null. A value
@@ -435,12 +445,8 @@ final class HomeStore {
     if (target == null) {
       return Duration.zero;
     }
-    // Through real instants: a manual city's wall times are plain local
-    // DateTimes, so subtracting them directly would pick up the device's
-    // DST shift instead of the city's.
-    // ponytail: a city wall time inside the device's spring-forward gap is
-    // still shifted an hour at construction; wall times would need their
-    // own zone-free type to fix that.
+    // Through real instants: wall times are floating, so subtracting them
+    // directly would miss the location's own DST shift.
     final r = target.remainingAt(now.value, instantOf.value);
     return r.isNegative ? Duration.zero : r;
   });

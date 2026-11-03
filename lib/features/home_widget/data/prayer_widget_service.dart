@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart' show Locale;
 import '../../../config/app_config.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/utils/time_format.dart';
+import '../../../core/utils/wall_time.dart';
 import '../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../my_mosque/presentation/state/mosque_store.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
@@ -121,7 +122,7 @@ final class PrayerWidgetService {
 
       if (days.firstOrNull case final day?) {
         final next = resolveNextPrayer(day, now).at;
-        final midnight = DateTime(now.year, now.month, now.day + 1);
+        final midnight = now.wallDay(1);
         // A past `next` would re-arm with zero delay in a tight loop.
         final at = next.isAfter(now) && next.isBefore(midnight)
             ? next

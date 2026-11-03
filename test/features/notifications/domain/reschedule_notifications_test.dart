@@ -279,7 +279,7 @@ void main() {
 
     test('round-trips with instantAt', () {
       final clock = TimezoneClock();
-      final wall = DateTime(2026, 6, 12, 3, 45);
+      final wall = DateTime.utc(2026, 6, 12, 3, 45);
       final utc = clock.utcInstantOf(_dhaka, wall);
       expect(clock.instantAt(_dhaka, utc), wall);
     });

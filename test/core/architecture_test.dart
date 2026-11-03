@@ -58,6 +58,7 @@ const _pureCoreUtils = {
   'lib/core/utils/hijri_date.dart',
   'lib/core/utils/locale_digits.dart',
   'lib/core/utils/result.dart',
+  'lib/core/utils/wall_time.dart',
 };
 
 // `import` / `export` directives up to their `;` (multi-line statements and

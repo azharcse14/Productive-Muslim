@@ -83,8 +83,16 @@ final class _FakeClock implements ZonedClock {
   DateTime current;
   final _real = TimezoneClock();
 
+  // Floating wall time, like TimezoneClock.
   @override
-  DateTime nowAt(LocationConfig location) => current;
+  DateTime nowAt(LocationConfig location) => DateTime.utc(
+    current.year,
+    current.month,
+    current.day,
+    current.hour,
+    current.minute,
+    current.second,
+  );
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
