@@ -27,7 +27,7 @@ object FocusPlan {
      * [atMs] as the app shows times: Dart's [pattern] (DateFormat.jm) with
      * its [am]/[pm] markers and locale [digits] ("0123456789" in the app's
      * script), on [zone] (IANA; empty = device zone). Null when no pattern
-     * was sent (older plans) or it doesn't parse.
+     * was sent (older plans), it doesn't parse, or the device lacks [zone].
      */
     fun clockLabel(
         atMs: Long,
@@ -43,7 +43,12 @@ object FocusPlan {
             if (am.isNotEmpty() && pm.isNotEmpty()) {
                 f.dateFormatSymbols = f.dateFormatSymbols.apply { amPmStrings = arrayOf(am, pm) }
             }
-            if (zone.isNotEmpty()) f.timeZone = TimeZone.getTimeZone(zone)
+            if (zone.isNotEmpty()) {
+                // Unknown ids (newer tzdata than the device's) come back as GMT.
+                val tz = TimeZone.getTimeZone(zone)
+                if (tz.id != zone) return null
+                f.timeZone = tz
+            }
             f.format(Date(atMs))
         } catch (e: IllegalArgumentException) {
             return null

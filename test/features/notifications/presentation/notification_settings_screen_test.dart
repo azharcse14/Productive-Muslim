@@ -453,6 +453,26 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     });
 
+    testWidgets('Android: an exempt app never shows the battery hint', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final scheduler = _FakeScheduler()..batteryExempt = true;
+      await _register(scheduler);
+      await tester.pumpWidget(_app());
+      // First frame, before the check answers: neither state.
+      expect(find.text('Open battery settings'), findsNothing);
+      await tester.pump();
+      final done = find.text(
+        'Battery optimization is off for Productive Muslim, so reminders '
+        'can arrive on time.',
+      );
+      await tester.scrollUntilVisible(done, 200);
+      expect(done, findsOneWidget);
+      expect(find.text('Open battery settings'), findsNothing);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     testWidgets('nothing scheduled says so', (tester) async {
       await _register(_FakeScheduler());
       await tester.pumpWidget(_app());

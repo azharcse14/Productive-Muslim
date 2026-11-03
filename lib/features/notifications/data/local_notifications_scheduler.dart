@@ -504,6 +504,15 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         t.keepAliveTitle,
         false,
       ),
+      // Calm like daily content, but its own channel: muting daily content
+      // must not hide it (it carries "mark as prayed").
+      NotificationKind.focusEnd => (
+        'productive_muslim_focus_end',
+        t.channelFocusEndName.isEmpty
+            ? t.channelRemindersName
+            : t.channelFocusEndName,
+        true,
+      ),
       // Default-importance channel of its own: an existing channel's
       // importance can't be lowered, so these left 'reminders' (high).
       _ when daily => (

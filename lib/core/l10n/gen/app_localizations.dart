@@ -4082,6 +4082,12 @@ abstract class AppLocalizations {
   /// **'Open battery settings'**
   String get batteryOpenSettingsCta;
 
+  /// No description provided for @notifChannelFocusEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'After jamaat focus'**
+  String get notifChannelFocusEnd;
+
   /// No description provided for @batteryOptimizationOff.
   ///
   /// In en, this message translates to:
