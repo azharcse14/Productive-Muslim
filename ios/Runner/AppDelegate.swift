@@ -62,6 +62,19 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
+    // Quran reader / tasbih open → no auto-lock. Handlers run on the main
+    // thread, as UIApplication requires.
+    FlutterMethodChannel(
+      name: "com.productivemuslim.app/screen",
+      binaryMessenger: registrar.messenger()
+    ).setMethodCallHandler { call, result in
+      if call.method == "keepOn" {
+        UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) ?? false
+        result(nil)
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    }
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()

@@ -1,5 +1,14 @@
 {
   "@@locale": "en",
+  "quranOpenAyah": "Open {reference}",
+  "@quranOpenAyah": {
+    "placeholders": { "reference": { "type": "String" } }
+  },
+  "tasbihAutoNext": "Start the next round at the target",
+  "favoriteRemoved": "Removed from favorites",
+  "hadithFavoritesTitle": "Saved hadith",
+  "asmaQuizLeaveTitle": "Leave the quiz?",
+  "asmaQuizLeave": "Leave",
   "appTitle": "Productive Muslim",
   "@appTitle": {
     "description": "The application name shown in the launcher and app bars"
@@ -570,7 +579,7 @@
   },
   "notYet": "Not yet",
   "quranTitle": "Quran",
-  "searchSurahHint": "Search surah…",
+  "searchSurahHint": "Surah name, number or 2:255",
   "surahSearchNoResults": "No matching surah — try another name or number",
   "continueReading": "Continue reading",
   "surahMeta": "{count} ayahs · {place}",
@@ -1336,7 +1345,7 @@
       "count": {"type": "int", "format": "decimalPattern"}
     }
   },
-  "hadithSearchHint": "Search hadith",
+  "hadithSearchHint": "Search topics",
   "hadithNoResults": "No hadith found",
   "ruqyahSearchHint": "Search ruqyah",
   "ruqyahNoResults": "Nothing found",

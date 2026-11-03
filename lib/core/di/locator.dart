@@ -37,6 +37,8 @@ import '../../features/hadith/presentation/state/hadith_section_store.dart';
 import '../../features/hadith/presentation/state/hadith_store.dart';
 import '../../features/health/presentation/state/health_store.dart';
 import '../../features/home_widget/data/prayer_widget_service.dart';
+import '../../features/keep_awake/data/platform_screen_wake.dart';
+import '../../features/keep_awake/domain/screen_wake.dart';
 import '../../features/muhasaba/data/database/muhasaba_database.dart';
 import '../../features/muhasaba/data/repositories/muhasaba_repository_impl.dart';
 import '../../features/muhasaba/domain/repositories/muhasaba_repository.dart';
@@ -296,6 +298,9 @@ Future<void> setupLocator() async {
         write: (size) => prefs.setDouble(key, size),
       );
     });
+
+  // Keeps the screen on in the Quran reader and tasbih.
+  locator.registerLazySingleton<ScreenWake>(PlatformScreenWake.new);
 
   // ---- dua & tasbih ----
   locator

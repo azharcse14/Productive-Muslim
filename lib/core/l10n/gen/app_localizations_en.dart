@@ -9,6 +9,26 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String quranOpenAyah(String reference) {
+    return 'Open $reference';
+  }
+
+  @override
+  String get tasbihAutoNext => 'Start the next round at the target';
+
+  @override
+  String get favoriteRemoved => 'Removed from favorites';
+
+  @override
+  String get hadithFavoritesTitle => 'Saved hadith';
+
+  @override
+  String get asmaQuizLeaveTitle => 'Leave the quiz?';
+
+  @override
+  String get asmaQuizLeave => 'Leave';
+
+  @override
   String get appTitle => 'Productive Muslim';
 
   @override
@@ -1198,7 +1218,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quranTitle => 'Quran';
 
   @override
-  String get searchSurahHint => 'Search surah…';
+  String get searchSurahHint => 'Surah name, number or 2:255';
 
   @override
   String get surahSearchNoResults =>
@@ -2831,7 +2851,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hadithSearchHint => 'Search hadith';
+  String get hadithSearchHint => 'Search topics';
 
   @override
   String get hadithNoResults => 'No hadith found';

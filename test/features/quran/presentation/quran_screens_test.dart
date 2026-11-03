@@ -7,6 +7,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/keep_awake/domain/screen_wake.dart';
 import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
 import 'package:productive_muslim/features/quran/domain/entities/surah.dart';
 import 'package:productive_muslim/features/quran/domain/repositories/quran_repository.dart';
@@ -18,6 +19,8 @@ import 'package:productive_muslim/shared/widgets/q_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../../helpers/screen_wake_fake.dart';
 
 /// In-memory [QuranRepository] — 3 surahs with a few ayahs each.
 final class FakeQuranRepository implements QuranRepository {
@@ -200,6 +203,7 @@ Widget _routerApp(String location) => MaterialApp.router(
 void main() {
   late FakeQuranRepository repo;
   late QuranStore store;
+  late FakeScreenWake wake;
 
   setUp(() async {
     SharedPreferencesAsyncPlatform.instance =
@@ -207,7 +211,10 @@ void main() {
     repo = FakeQuranRepository();
     store = QuranStore(repo, SharedPreferencesAsync());
     await store.load();
-    GetIt.I.registerSingleton<QuranStore>(store);
+    wake = FakeScreenWake();
+    GetIt.I
+      ..registerSingleton<QuranStore>(store)
+      ..registerSingleton<ScreenWake>(wake);
   });
 
   tearDown(() => GetIt.I.reset());
@@ -248,7 +255,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Continue reading'), findsOneWidget);
-      expect(find.text('Al-Baqara · 2'), findsOneWidget);
+      expect(find.text('Al-Baqara · Ayah 2'), findsOneWidget);
     });
 
     testWidgets('search filters the list and empty results show a notice', (
@@ -276,6 +283,47 @@ void main() {
       );
     });
 
+    testWidgets('a surah:ayah query offers a jump to that ayah', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), '2:2');
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+      expect(find.text('Open 2:2'), findsOneWidget);
+      expect(find.text('Al-Baqara'), findsOneWidget);
+      expect(find.text('Al-Faatiha'), findsNothing);
+
+      await tester.tap(find.text('Open 2:2'));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsOneWidget);
+      expect(find.text('This is the Book'), findsOneWidget);
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('submitting a surah:ayah query opens the reader', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      // Past the surah's end: not a reference, just no results.
+      await tester.enterText(find.byType(TextField), '2:3');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsNothing);
+      expect(find.textContaining('Open'), findsNothing);
+
+      await tester.tap(find.byType(TextField));
+      await tester.enterText(find.byType(TextField), '২:২');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsOneWidget);
+      await flushMarkRead(tester);
+    });
+
     testWidgets('bookmarks sheet lists saved ayahs and opens the reader', (
       tester,
     ) async {
@@ -295,7 +343,7 @@ void main() {
       // Reference plus a first-words preview of the ayah.
       expect(find.text('2:2 · This is the Book'), findsOneWidget);
 
-      await tester.tap(find.textContaining('2:2'));
+      await tester.tap(find.textContaining('2:2 ·'));
       await tester.pumpAndSettle();
       expect(find.byType(QuranReaderScreen), findsOneWidget);
       expect(find.text('This is the Book'), findsOneWidget);
@@ -312,7 +360,7 @@ void main() {
       await tester.tap(find.byTooltip('Bookmarks'));
       await tester.pumpAndSettle();
 
-      await tester.drag(find.textContaining('2:2'), const Offset(-600, 0));
+      await tester.drag(find.textContaining('2:2 ·'), const Offset(-600, 0));
       await tester.pumpAndSettle();
       expect(store.bookmarks.value, isEmpty);
       expect(find.text('Bookmark removed'), findsOneWidget);
@@ -320,7 +368,32 @@ void main() {
       await tester.tap(find.text('Undo'));
       await tester.pumpAndSettle();
       expect(store.bookmarks.value, {4});
-      expect(find.textContaining('2:2'), findsOneWidget);
+      expect(find.textContaining('2:2 ·'), findsOneWidget);
+    });
+
+    testWidgets('undo puts back each removed bookmark, newest first', (
+      tester,
+    ) async {
+      await store.toggleBookmark(3);
+      await store.toggleBookmark(4);
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Remove bookmark').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Remove bookmark'));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, isEmpty);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, {4});
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(store.bookmarks.value, {3, 4});
+      expect(find.text('Undo'), findsNothing);
     });
 
     testWidgets('a bookmark has a labelled remove button', (tester) async {
@@ -375,6 +448,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Show translation'), findsOneWidget);
       expect(find.text('Arabic text size'), findsOneWidget);
+      // The slider announces the size itself, not a percentage.
+      final slider = tester.widget<Slider>(find.byType(Slider));
+      expect(slider.semanticFormatterCallback?.call(30), '30');
 
       await tester.tap(find.byType(Switch));
       await tester.pump();
@@ -539,6 +615,18 @@ void main() {
       await tester.tap(find.text('Go'));
       await tester.pumpAndSettle();
       expect(find.text('arabic 30'), findsOneWidget);
+      // The chosen ayah becomes "continue reading".
+      expect(repo.storedLastRead, const QuranPosition(1, 30));
+    });
+
+    testWidgets('keeps the screen on while open', (tester) async {
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+      expect(wake.holds, 1);
+
+      await tester.pumpWidget(const SizedBox());
+      expect(wake.holds, 0);
+      expect(wake.calls, [true, false]);
     });
 
     testWidgets('the last card opens the next surah, none after 114', (

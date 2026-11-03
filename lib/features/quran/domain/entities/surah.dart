@@ -1,4 +1,5 @@
 import '../../../../core/utils/locale_digits.dart';
+import 'ayah.dart';
 
 /// One of the 114 surahs (bundled DB metadata).
 final class Surah {
@@ -110,4 +111,22 @@ List<Surah> filterSurahs(List<Surah> all, String query) {
                   ).contains(arabic))))
         s,
   ];
+}
+
+/// A "2:255"-style ayah reference (any digit script, `:` `.` or `/`
+/// between, spaces ignored) checked against [all]'s ayah counts; null when
+/// [query] isn't one or points past the surah.
+QuranPosition? parseAyahReference(List<Surah> all, String query) {
+  final match = RegExp(
+    r'^(\d{1,3})[:./](\d{1,3})$',
+  ).firstMatch(LocaleDigits.toAscii(query));
+  if (match == null) {
+    return null;
+  }
+  final surah = int.parse(match[1]!);
+  final ayah = int.parse(match[2]!);
+  final s = all.where((s) => s.id == surah).firstOrNull;
+  return s == null || ayah < 1 || ayah > s.ayahCount
+      ? null
+      : QuranPosition(surah, ayah);
 }
