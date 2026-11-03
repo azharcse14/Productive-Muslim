@@ -12,6 +12,7 @@ import '../../features/calculators/presentation/screens/fitra_screen.dart';
 import '../../features/calculators/presentation/screens/inheritance_screen.dart';
 import '../../features/calculators/presentation/screens/qaza_screen.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
+import '../../features/dua_tasbih/domain/entities/dua.dart';
 import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/asmaul_husna_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
@@ -323,6 +324,18 @@ GoRouter buildRouter() {
         name: Routes.asmaulHusna.name,
         path: Routes.asmaulHusna.path,
         builder: (context, state) => const AsmaulHusnaScreen(),
+      ),
+      GoRoute(
+        name: Routes.rasulNames.name,
+        path: Routes.rasulNames.path,
+        builder: (context, state) =>
+            const AsmaulHusnaScreen(nameSet: NameSet.rasul),
+      ),
+      GoRoute(
+        name: Routes.rasulQuiz.name,
+        path: Routes.rasulQuiz.path,
+        builder: (context, state) =>
+            const AsmaQuizScreen(nameSet: NameSet.rasul),
       ),
       GoRoute(
         name: Routes.asmaQuiz.name,

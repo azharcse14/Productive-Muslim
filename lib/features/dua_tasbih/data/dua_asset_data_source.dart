@@ -5,17 +5,20 @@ import 'package:flutter/services.dart' show AssetBundle;
 
 import '../domain/entities/dua.dart';
 
-/// Loads the bundled dua collection and Asmaul Husna names from JSON assets.
+/// Loads the bundled dua collection, Asmaul Husna and the Prophet's ﷺ names
+/// from JSON assets.
 /// Malformed entries are skipped silently — a partial list beats a crash.
 final class DuaAssetDataSource {
   DuaAssetDataSource(this._bundle);
 
   static const duasAssetPath = 'assets/data/duas.json';
   static const asmaAssetPath = 'assets/data/asmaul_husna.json';
+  static const rasulAssetPath = 'assets/data/rasul_names.json';
 
   final AssetBundle _bundle;
   List<DuaCategory>? _categoriesCache;
   List<AsmaName>? _asmaCache;
+  List<AsmaName>? _rasulCache;
 
   Future<List<DuaCategory>> loadCategories() async {
     if (_categoriesCache case final cached?) {
@@ -41,14 +44,16 @@ final class DuaAssetDataSource {
     ];
   }
 
-  Future<List<AsmaName>> loadAsmaulHusna() async {
-    if (_asmaCache case final cached?) {
-      return cached;
-    }
-    final raw = await _bundle.loadString(asmaAssetPath);
-    final decoded = jsonDecode(raw);
+  Future<List<AsmaName>> loadAsmaulHusna() async =>
+      _asmaCache ??= await _loadNames(asmaAssetPath);
+
+  Future<List<AsmaName>> loadRasulNames() async =>
+      _rasulCache ??= await _loadNames(rasulAssetPath);
+
+  Future<List<AsmaName>> _loadNames(String path) async {
+    final decoded = jsonDecode(await _bundle.loadString(path));
     final entries = decoded is List ? decoded : const <Object?>[];
-    return _asmaCache = [
+    return [
       for (final entry in entries)
         if (_asmaName(entry) case final name?) name,
     ];

@@ -45,6 +45,9 @@ final class _FakeDuaRepository implements DuaRepository {
   }
 
   @override
+  Future<Result<List<AsmaName>>> rasulNames() => asmaulHusna();
+
+  @override
   Future<Result<List<AsmaName>>> asmaulHusna() async =>
       const Result.success([]);
 }

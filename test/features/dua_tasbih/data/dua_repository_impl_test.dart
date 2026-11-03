@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -167,5 +169,22 @@ void main() {
 
       expect(result.isSuccess, isFalse);
     });
+  });
+
+  test('bundled Rasul names parse fully, numbered and distinct', () async {
+    final raw = File(DuaAssetDataSource.rasulAssetPath).readAsStringSync();
+    final names = (await makeRepo(
+      _FakeAssetBundle({DuaAssetDataSource.rasulAssetPath: raw}),
+    ).rasulNames()).valueOrNull!;
+
+    expect(names, hasLength(27));
+    expect(
+      [for (final n in names) n.number],
+      [for (var i = 1; i <= 27; i++) i],
+    );
+    // The quiz needs unambiguous options.
+    expect({for (final n in names) n.meaningEn}, hasLength(27));
+    expect({for (final n in names) n.meaningBn}, hasLength(27));
+    expect(names.every((n) => n.meaningBn.isNotEmpty), isTrue);
   });
 }

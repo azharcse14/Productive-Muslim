@@ -29,22 +29,18 @@ final class Dua {
   final int repeat;
 
   String transliterationFor(String languageCode) => switch (languageCode) {
-        'bn' when transliterationBn.isNotEmpty => transliterationBn,
-        _ => transliteration,
-      };
+    'bn' when transliterationBn.isNotEmpty => transliterationBn,
+    _ => transliteration,
+  };
 
   String translationFor(String languageCode) => switch (languageCode) {
-        'bn' when translationBn.isNotEmpty => translationBn,
-        _ => translationEn,
-      };
+    'bn' when translationBn.isNotEmpty => translationBn,
+    _ => translationEn,
+  };
 }
 
 final class DuaCategory {
-  const DuaCategory({
-    required this.id,
-    required this.icon,
-    required this.duas,
-  });
+  const DuaCategory({required this.id, required this.icon, required this.duas});
 
   /// l10n key (duaCategoryName select) and stable id.
   final String id;
@@ -54,7 +50,11 @@ final class DuaCategory {
   final List<Dua> duas;
 }
 
-/// One of the 99 names of Allah.
+/// Which bundled name list: Allah's 99 names or the Prophet's ﷺ names.
+/// `.name` is persisted (quiz best-score keys).
+enum NameSet { allah, rasul }
+
+/// One numbered name — of Allah (Asmaul Husna) or of the Prophet ﷺ.
 final class AsmaName {
   const AsmaName({
     required this.number,
@@ -71,7 +71,7 @@ final class AsmaName {
   final String meaningBn;
 
   String meaningFor(String languageCode) => switch (languageCode) {
-        'bn' when meaningBn.isNotEmpty => meaningBn,
-        _ => meaningEn,
-      };
+    'bn' when meaningBn.isNotEmpty => meaningBn,
+    _ => meaningEn,
+  };
 }

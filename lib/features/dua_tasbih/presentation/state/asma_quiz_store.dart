@@ -14,13 +14,14 @@ import '../../domain/entities/dua.dart';
 final class AsmaQuizStore {
   AsmaQuizStore(
     this._prefs, {
+    this.nameSet = NameSet.allah,
     int Function()? seed,
     void Function()? correctHaptic,
     void Function()? wrongHaptic,
     this.questionCount = 10,
-  })  : _seed = seed ?? (() => DateTime.now().millisecondsSinceEpoch),
-        _correctHaptic = correctHaptic ?? _defaultCorrectHaptic,
-        _wrongHaptic = wrongHaptic ?? _defaultWrongHaptic;
+  }) : _seed = seed ?? (() => DateTime.now().millisecondsSinceEpoch),
+       _correctHaptic = correctHaptic ?? _defaultCorrectHaptic,
+       _wrongHaptic = wrongHaptic ?? _defaultWrongHaptic;
 
   static const _bestKeyPrefix = 'asma_quiz_best_';
 
@@ -29,6 +30,9 @@ final class AsmaQuizStore {
   final void Function() _correctHaptic;
   final void Function() _wrongHaptic;
   final int questionCount;
+
+  /// Whose names are quizzed; keeps a separate best score per set.
+  final NameSet nameSet;
 
   late final mode = signal(AsmaQuizMode.nameToMeaning);
   late final questions = signal(const <AsmaQuestion>[]);
@@ -56,13 +60,15 @@ final class AsmaQuizStore {
     return i >= 0 && i < all.length ? all[i] : null;
   });
 
-  static void _defaultCorrectHaptic() =>
-      Haptics.light();
+  static void _defaultCorrectHaptic() => Haptics.light();
 
-  static void _defaultWrongHaptic() =>
-      Haptics.medium();
+  static void _defaultWrongHaptic() => Haptics.medium();
 
-  String _bestKey(AsmaQuizMode mode) => '$_bestKeyPrefix${mode.name}';
+  // Allah's set keeps the original key so existing best scores survive.
+  String _bestKey(AsmaQuizMode mode) => switch (nameSet) {
+    NameSet.allah => '$_bestKeyPrefix${mode.name}',
+    NameSet.rasul => '$_bestKeyPrefix${nameSet.name}_${mode.name}',
+  };
 
   /// Restores the persisted best score for the current [mode].
   Future<void> load() async {

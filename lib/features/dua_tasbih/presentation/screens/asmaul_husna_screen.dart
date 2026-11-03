@@ -16,10 +16,13 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/dua.dart';
 import '../state/dua_store.dart';
 
-/// The 99 names of Allah: numbered medallion list; tap for a focused sheet
-/// with the name large.
+/// The 99 names of Allah — or, with [NameSet.rasul], the Prophet's ﷺ
+/// names: numbered medallion list; tap for a focused sheet with the name
+/// large.
 final class AsmaulHusnaScreen extends StatefulWidget {
-  const AsmaulHusnaScreen({super.key});
+  const AsmaulHusnaScreen({super.key, this.nameSet = NameSet.allah});
+
+  final NameSet nameSet;
 
   @override
   State<AsmaulHusnaScreen> createState() => _AsmaulHusnaScreenState();
@@ -50,19 +53,25 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.asmaulHusnaTitle),
+        title: Text(switch (widget.nameSet) {
+          NameSet.allah => l10n.asmaulHusnaTitle,
+          NameSet.rasul => l10n.rasulNamesTitle,
+        }),
         actions: [
           IconButton(
             icon: const Icon(Icons.quiz_outlined),
             tooltip: l10n.asmaQuizTitle,
-            onPressed: () => context.pushNamed(Routes.asmaQuiz.name),
+            onPressed: () => context.pushNamed(switch (widget.nameSet) {
+              NameSet.allah => Routes.asmaQuiz.name,
+              NameSet.rasul => Routes.rasulQuiz.name,
+            }),
           ),
         ],
       ),
       body: SafeArea(
         child: SignalBuilder(
           builder: (context) {
-            final names = _store.asma.value;
+            final names = _store.names(widget.nameSet);
             if (!_store.loaded.value) {
               return ListView(
                 padding: const EdgeInsets.all(QSpace.s5),

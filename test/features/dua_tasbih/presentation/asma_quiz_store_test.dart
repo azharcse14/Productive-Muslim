@@ -121,6 +121,22 @@ void main() {
       expect(restored.best.value, 3);
     });
 
+    test('Rasul names keep their own best score', () async {
+      final store = makeStore(questionCount: 3);
+      await store.start(_names(27));
+      for (var i = 0; i < 3; i++) {
+        store.answer(store.current.value!.answerIndex);
+        await store.next();
+      }
+
+      final rasul = AsmaQuizStore(
+        SharedPreferencesAsync(),
+        nameSet: NameSet.rasul,
+      );
+      await rasul.load();
+      expect(rasul.best.value, 0);
+    });
+
     test('a failed best-score save is contained and rolled back', () async {
       SharedPreferencesAsyncPlatform.instance = _FailingIntPrefs();
       final store = makeStore(questionCount: 2);

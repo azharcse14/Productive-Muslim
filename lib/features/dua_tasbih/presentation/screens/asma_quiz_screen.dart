@@ -16,13 +16,16 @@ import '../../../../shared/widgets/q_progress_ring.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
 import '../../domain/entities/asma_quiz.dart';
+import '../../domain/entities/dua.dart';
 import '../state/asma_quiz_store.dart';
 import '../state/dua_store.dart';
 
 /// Self-test over the 99 names: pick the right meaning for a name (or the
 /// right name for a meaning). No audio. Encouraging, no-shame results.
 final class AsmaQuizScreen extends StatefulWidget {
-  const AsmaQuizScreen({super.key});
+  const AsmaQuizScreen({super.key, this.nameSet = NameSet.allah});
+
+  final NameSet nameSet;
 
   @override
   State<AsmaQuizScreen> createState() => _AsmaQuizScreenState();
@@ -31,7 +34,11 @@ final class AsmaQuizScreen extends StatefulWidget {
 final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
   // App-scoped catalogue store; the quiz store is screen-scoped (a factory).
   late final DuaStore _names = locator<DuaStore>();
-  late final AsmaQuizStore _quiz = locator<AsmaQuizStore>();
+  late final AsmaQuizStore _quiz = locator<AsmaQuizStore>(
+    param1: widget.nameSet,
+  );
+
+  List<AsmaName> get _list => _names.names(widget.nameSet);
 
   @override
   void initState() {
@@ -44,12 +51,12 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
       await _names.load();
     }
     await _quiz.load();
-    await _quiz.start(_names.asma.value);
+    await _quiz.start(_list);
   }
 
   Future<void> _retry() async {
     await _names.load();
-    await _quiz.start(_names.asma.value);
+    await _quiz.start(_list);
   }
 
   Future<void> _onSelectMode(int i) async {
@@ -62,7 +69,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
     if (started && !(await _confirmModeSwitch())) {
       return;
     }
-    await _quiz.start(_names.asma.value, mode: mode);
+    await _quiz.start(_list, mode: mode);
   }
 
   Future<bool> _confirmModeSwitch() async {
@@ -114,7 +121,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
 
   void _onNext() => unawaited(_quiz.next());
 
-  void _onRestart() => _quiz.restart(_names.asma.value);
+  void _onRestart() => _quiz.restart(_list);
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +134,7 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
             final questions = _quiz.questions.value;
             if (questions.isEmpty) {
               // Loaded but no names: the asset failed, don't spin forever.
-              if (_names.loaded.value && _names.asma.value.isEmpty) {
+              if (_names.loaded.value && _list.isEmpty) {
                 return QErrorRetry(
                   message: l10n.asmaLoadError,
                   retryLabel: l10n.retry,

@@ -1318,6 +1318,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get asmaulHusnaTitle => 'Asmaul Husna';
 
   @override
+  String get rasulNamesTitle => 'Names of the Prophet ﷺ';
+
+  @override
   String get asmaQuizTitle => 'Names quiz';
 
   @override
@@ -3627,6 +3630,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String creditsBnHadithNawawiMalik(String source) {
     return '40 Hadith Nawawi, Muwatta Malik: $source';
   }
+
+  @override
+  String get creditsRasulNamesSource =>
+      'Compiled for this app from the Quran, Sahih Bukhari & Muslim and the Sirah; pending scholarly review';
 
   @override
   String get creditsAsmaulHusnaSource =>
