@@ -1591,6 +1591,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get expenseCurrency => 'Currency';
+
+  @override
   String get fastingUpcomingTitle => 'Upcoming recommended fasts';
 
   @override
@@ -2802,7 +2805,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseAmountInvalid =>
-      'Enter a whole number above 0, without decimals (e.g. 250)';
+      'Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)';
 
   @override
   String get expenseBudget => 'Monthly budget';
