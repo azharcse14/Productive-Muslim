@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1704,12 +1703,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
-      'whiteDays': 'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
-      'ashura': 'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
-      'arafah': 'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
-      'dhulHijjah': 'There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).',
-      'shawwal': 'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
+      'mondayThursday':
+          'Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)',
+      'whiteDays':
+          'Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)',
+      'ashura':
+          'Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)',
+      'arafah':
+          'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
+      'dhulHijjah':
+          'There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).',
+      'shawwal':
+          'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
     });
     return '$_temp0';
