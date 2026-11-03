@@ -101,6 +101,10 @@ final class SettingsStore {
     return _update((s) => s.copyWith(hapticsEnabled: enabled));
   }
 
+  /// Home's exact-alarm banner: "don't remind me".
+  Future<void> dismissExactAlarmBanner() =>
+      _update((s) => s.copyWith(exactAlarmBannerDismissed: true));
+
   Future<void> setHomeCardVisible(HomeCard card, {required bool visible}) {
     return _update((s) {
       final hidden = {...s.hiddenHomeCards};

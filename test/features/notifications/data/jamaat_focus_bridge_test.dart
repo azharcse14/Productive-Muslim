@@ -4,6 +4,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:productive_muslim/features/notifications/data/jamaat_focus_bridge.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_focus_windows.dart';
+import 'package:productive_muslim/features/settings/domain/entities/city.dart';
+import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
 const _texts = NotificationTexts(
@@ -44,6 +46,7 @@ void main() {
     required Object? blocking,
     NotificationTexts texts = _texts,
     DateTime Function(DateTime wall) toUtc = _same,
+    LocationConfig? location,
   }) async {
     Map<Object?, Object?>? sent;
     messenger.setMockMethodCallHandler(channel, (call) async {
@@ -72,6 +75,7 @@ void main() {
       nafsDuration: const Duration(minutes: 5),
       texts: texts,
       toUtc: toUtc,
+      location: location,
     );
     return sent!;
   }
@@ -141,4 +145,62 @@ void main() {
     expect(window[1], DateTime.utc(2026, 10, 29, 7, 20).millisecondsSinceEpoch);
     expect(window[3], matches(RegExp(r'^1:20\sPM$')));
   });
+
+  test(
+    'nafs ends (set natively) get the app format, digits and city zone',
+    () async {
+      await initializeDateFormatting('bn');
+      const bn = NotificationTexts(
+        azanTitle: '',
+        azanBody: '',
+        jamaatTitle: '',
+        jamaatBody: '',
+        sahriTitle: '',
+        sahriBody: '',
+        iftarTitle: '',
+        iftarBody: '',
+        muhasabaTitle: '',
+        muhasabaBody: '',
+        dailyReminderTitle: '',
+        dailyReminderBody: '',
+        dailyReminderRoute: '/hadith',
+        keepAliveTitle: '',
+        keepAliveBody: '',
+        markAsPrayedAction: '',
+        channelAzanName: '',
+        channelRemindersName: '',
+        channelSilentName: '',
+        channelBeepName: '',
+        prayerNames: {},
+        localeCode: 'bn',
+      );
+      final city = await scheduled(
+        blocking: true,
+        texts: bn,
+        location: const ManualCityLocation(
+          City(
+            name: 'Dhaka',
+            countryCode: 'BD',
+            latitude: 23.7,
+            longitude: 90.4,
+            timezone: 'Asia/Dhaka',
+          ),
+        ),
+      );
+      expect(city['clockPattern'], 'h:mm a');
+      expect(city['clockAm'], isNotEmpty);
+      expect(city['clockPm'], isNotEmpty);
+      expect(city['clockDigits'], '০১২৩৪৫৬৭৮৯');
+      expect(city['clockZone'], 'Asia/Dhaka');
+      // GPS: the device zone is the location's zone.
+      final gps = await scheduled(
+        blocking: true,
+        texts: bn,
+        location: const GpsLocation(latitude: 23.7, longitude: 90.4),
+      );
+      expect(gps['clockZone'], '');
+      // Locale unknown: native keeps the device format.
+      expect((await scheduled(blocking: true))['clockPattern'], '');
+    },
+  );
 }

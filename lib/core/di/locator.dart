@@ -514,6 +514,7 @@ Future<void> _sendFocusWindows(
       nafsDuration: matrix.nafsLockDuration,
       texts: texts,
       toUtc: (wall) => locator<ZonedClock>().utcInstantOf(location!, wall),
+      location: location,
     );
   } on Object catch (e) {
     debugPrint('Jamaat focus schedule failed: $e');

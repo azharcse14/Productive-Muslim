@@ -230,6 +230,30 @@ void main() {
       expect(find.text(banner), findsNothing);
     });
 
+    testHomeWidgets("the banner's close button hides it for good", (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      final scheduler = _DeniedAlarmsScheduler();
+      GetIt.I.registerSingleton<NotificationScheduler>(scheduler);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      const banner = 'Azan may arrive late without exact alarms.';
+      await tester.tap(find.byTooltip("Don't remind me"));
+      await tester.pump();
+      expect(find.text(banner), findsNothing);
+      expect(scheduler.requests, 0);
+      expect(
+        GetIt.I<SettingsStore>().settings.value.exactAlarmBannerDismissed,
+        isTrue,
+      );
+      // Still denied, still hidden after Home is rebuilt.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.text(banner), findsNothing);
+    });
+
     testHomeWidgets('nearby mosques action says it opens Maps', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());

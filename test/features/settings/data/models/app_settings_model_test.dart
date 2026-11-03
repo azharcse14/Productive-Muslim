@@ -166,6 +166,20 @@ void main() {
       );
     });
 
+    test('exactAlarmBannerDismissed defaults to off and round-trips on', () {
+      expect(
+        AppSettingsModel.fromMap(const {}).exactAlarmBannerDismissed,
+        isFalse,
+      );
+      const on = AppSettings(exactAlarmBannerDismissed: true);
+      expect(
+        AppSettingsModel.fromMap(
+          AppSettingsModel.toMap(on),
+        ).exactAlarmBannerDismissed,
+        isTrue,
+      );
+    });
+
     test('hiddenHomeCards round-trips; unknown names are dropped', () {
       expect(AppSettingsModel.fromMap(const {}).hiddenHomeCards, isEmpty);
       const s = AppSettings(

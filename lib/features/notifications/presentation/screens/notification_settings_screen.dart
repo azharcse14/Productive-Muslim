@@ -52,6 +52,9 @@ final class _NotificationSettingsScreenState
   final _permission = signal<NotificationPermission?>(null);
   final _exactAlarms = signal(true);
 
+  /// Android: exempt from battery optimization (shows a done state).
+  final _batteryExempt = signal(false);
+
   late final AppLifecycleListener _lifecycle;
 
   @override
@@ -95,6 +98,7 @@ final class _NotificationSettingsScreenState
   Future<void> _refreshStatus() async {
     _permission.value = await _scheduler.permissionStatus();
     _exactAlarms.value = await _scheduler.canScheduleExactAlarms();
+    _batteryExempt.value = await _scheduler.isIgnoringBatteryOptimizations();
   }
 
   /// Always try the OS prompt first (on iOS the Settings row only exists
@@ -488,19 +492,29 @@ final class _NotificationSettingsScreenState
               // Battery optimization is an Android-only setting.
               if (defaultTargetPlatform == TargetPlatform.android) ...[
                 const SizedBox(height: QSpace.s2),
-                QBanner(
-                  text: l10n.notifBatteryHint,
-                  icon: Icons.battery_saver_outlined,
-                  tone: q.surface2,
-                  foreground: q.ink2,
-                ),
-                // App info → Battery holds the "Unrestricted" switch.
-                QButton(
-                  label: l10n.openSystemSettings,
-                  kind: QButtonKind.ghost,
-                  small: true,
-                  onPressed: () => unawaited(_scheduler.openSystemSettings()),
-                ),
+                if (_batteryExempt.value)
+                  QBanner(
+                    text: l10n.batteryOptimizationOff,
+                    icon: Icons.check_circle_outline,
+                    tone: q.surface2,
+                    foreground: q.ink2,
+                  )
+                else ...[
+                  QBanner(
+                    text: l10n.notifBatteryHint,
+                    icon: Icons.battery_saver_outlined,
+                    tone: q.surface2,
+                    foreground: q.ink2,
+                  ),
+                  // Re-checked on return (resume listener above).
+                  QButton(
+                    label: l10n.batteryOpenSettingsCta,
+                    kind: QButtonKind.ghost,
+                    small: true,
+                    onPressed: () =>
+                        unawaited(_scheduler.openBatteryOptimizationSettings()),
+                  ),
+                ],
               ],
               const SizedBox(height: QSpace.s10),
             ],

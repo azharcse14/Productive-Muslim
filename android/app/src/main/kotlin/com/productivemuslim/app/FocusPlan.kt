@@ -1,6 +1,10 @@
 package com.productivemuslim.app
 
 import android.media.AudioManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * The pure decisions behind [JamaatFocus]: no Context, so JVM unit tests
@@ -18,6 +22,35 @@ object FocusPlan {
         val key: Long = 0L,
         val endLabel: String = "",
     )
+
+    /**
+     * [atMs] as the app shows times: Dart's [pattern] (DateFormat.jm) with
+     * its [am]/[pm] markers and locale [digits] ("0123456789" in the app's
+     * script), on [zone] (IANA; empty = device zone). Null when no pattern
+     * was sent (older plans) or it doesn't parse.
+     */
+    fun clockLabel(
+        atMs: Long,
+        pattern: String,
+        am: String,
+        pm: String,
+        digits: String,
+        zone: String,
+    ): String? {
+        if (pattern.isEmpty()) return null
+        val out = try {
+            val f = SimpleDateFormat(pattern, Locale.ROOT) // ASCII digits, mapped below
+            if (am.isNotEmpty() && pm.isNotEmpty()) {
+                f.dateFormatSymbols = f.dateFormatSymbols.apply { amPmStrings = arrayOf(am, pm) }
+            }
+            if (zone.isNotEmpty()) f.timeZone = TimeZone.getTimeZone(zone)
+            f.format(Date(atMs))
+        } catch (e: IllegalArgumentException) {
+            return null
+        }
+        if (digits.length != 10) return out
+        return out.map { if (it in '0'..'9') digits[it - '0'] else it }.joinToString("")
+    }
 
     /** A "until I end it" session may start this late (alarm delayed, phone off). */
     const val MANUAL_GRACE_MS = 30 * 60 * 1000L

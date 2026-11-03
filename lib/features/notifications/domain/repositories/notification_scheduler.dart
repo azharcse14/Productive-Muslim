@@ -28,6 +28,14 @@ abstract interface class NotificationScheduler {
   /// notifications were denied (the OS won't prompt again).
   Future<void> openSystemSettings();
 
+  /// Android: whether the OS exempts this app from battery optimization
+  /// (alarms then aren't deferred). True elsewhere.
+  Future<bool> isIgnoringBatteryOptimizations();
+
+  /// Android: opens the system's battery-optimization app list (app info
+  /// where a device lacks it). No-op elsewhere.
+  Future<void> openBatteryOptimizationSettings();
+
   /// Replaces the entire pending schedule with [items].
   Future<Result<void>> reschedule(
     List<NotificationItem> items,

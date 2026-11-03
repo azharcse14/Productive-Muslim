@@ -2735,6 +2735,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'Next prayer';
 
   @override
+  String get notifExactAlarmBannerDismiss => 'Don\'t remind me';
+
+  @override
+  String get batteryOpenSettingsCta => 'Open battery settings';
+
+  @override
+  String get batteryOptimizationOff =>
+      'Battery optimization is off for Productive Muslim, so reminders can arrive on time.';
+
+  @override
   String get nearbyMosquesLabel => 'Nearby mosques';
 
   @override

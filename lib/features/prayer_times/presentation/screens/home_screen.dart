@@ -397,7 +397,9 @@ final class _HomeScreenState extends State<HomeScreen> {
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
-              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
+              if (!_exactAlarms &&
+                  !_settings.settings.value.exactAlarmBannerDismissed)
+                _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -616,15 +618,27 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Shown while Android denies exact alarms; tapping opens the OS consent.
-  /// Same tone as the notification settings' banner.
-  Widget _exactAlarmBanner(BuildContext context) => QBanner(
-    text: context.l10n.prayerTimesExactAlarmBanner,
-    icon: Icons.alarm_outlined,
-    onTap: () => unawaited(
-      _scheduler?.requestExactAlarmPermission().then(
-        (_) => _checkExactAlarms(),
+  /// Same tone as the notification settings' banner. × hides it for good
+  /// (notification settings keep their own banner).
+  Widget _exactAlarmBanner(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: QBanner(
+          text: context.l10n.prayerTimesExactAlarmBanner,
+          icon: Icons.alarm_outlined,
+          onTap: () => unawaited(
+            _scheduler?.requestExactAlarmPermission().then(
+              (_) => _checkExactAlarms(),
+            ),
+          ),
+        ),
       ),
-    ),
+      IconButton(
+        icon: const Icon(Icons.close),
+        tooltip: context.l10n.notifExactAlarmBannerDismiss,
+        onPressed: () => unawaited(_settings.dismissExactAlarmBanner()),
+      ),
+    ],
   );
 
   /// Tools hub: shortcuts to features that aren't a bottom-nav tab and
