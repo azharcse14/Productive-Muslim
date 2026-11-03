@@ -4094,6 +4094,60 @@ abstract class AppLocalizations {
   /// **'Nearby mosques'**
   String get nearbyMosquesLabel;
 
+  /// No description provided for @mosqueSeasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonal timings'**
+  String get mosqueSeasonTitle;
+
+  /// No description provided for @mosqueSeasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.'**
+  String get mosqueSeasonHint;
+
+  /// No description provided for @mosqueSeasonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add season'**
+  String get mosqueSeasonAdd;
+
+  /// No description provided for @mosqueSeasonActiveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Active now: {name} ({reason})'**
+  String mosqueSeasonActiveNow(String name, String reason);
+
+  /// No description provided for @mosqueSeasonReasonRule.
+  ///
+  /// In en, this message translates to:
+  /// **'a time rule matches'**
+  String get mosqueSeasonReasonRule;
+
+  /// No description provided for @mosqueSeasonReasonSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'season {range}'**
+  String mosqueSeasonReasonSeason(String range);
+
+  /// No description provided for @mosqueSeasonReasonDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'default mosque'**
+  String get mosqueSeasonReasonDefault;
+
+  /// No description provided for @mosqueSeasonReasonOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'temporary switch'**
+  String get mosqueSeasonReasonOverride;
+
+  /// No description provided for @mosqueSeasonReasonFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'no rule, season or default applies'**
+  String get mosqueSeasonReasonFallback;
+
   /// No description provided for @nearbyMosquesHint.
   ///
   /// In en, this message translates to:

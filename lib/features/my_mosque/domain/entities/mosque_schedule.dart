@@ -79,6 +79,59 @@ final class MosqueRule {
       Object.hash(mosqueId, start, end, Object.hashAllUnordered(days));
 }
 
+/// A month + day, year-agnostic (Feb 29 allowed).
+typedef MonthDay = ({int month, int day});
+
+/// A yearly date range (e.g. winter timings Nov 1 – Feb 28) during which
+/// mosque [mosqueId] is the day's base mosque in [ScheduleMode.auto].
+/// Both ends are inclusive; [start] after [end] wraps the year end; equal
+/// ends cover that single day. Time-of-day [MosqueRule]s still win within
+/// the day — a season only takes the default mosque's place.
+final class MosqueSeason {
+  const MosqueSeason({
+    required this.mosqueId,
+    required this.start,
+    required this.end,
+  });
+
+  final String mosqueId;
+  final MonthDay start;
+  final MonthDay end;
+
+  /// Last valid day of [month] (1–12), counting Feb 29.
+  static int maxDay(int month) => DateTime(2024, month + 1, 0).day;
+
+  /// Whether [date]'s month/day lies in the range. In a common year a
+  /// Feb 29 end still includes Feb 28 and a Feb 29 start begins on Mar 1.
+  /// Two edge cases follow: a single-day Feb 29 season never applies in a
+  /// common year (the editor doesn't offer it), and Mar 1 – Feb 28 leaves
+  /// Feb 29 of a leap year uncovered.
+  bool contains(DateTime date) {
+    int key(MonthDay d) => d.month * 100 + d.day;
+    final k = date.month * 100 + date.day;
+    final s = key(start);
+    final e = key(end);
+    return s <= e ? k >= s && k <= e : k >= s || k <= e;
+  }
+
+  MosqueSeason copyWith({String? mosqueId, MonthDay? start, MonthDay? end}) =>
+      MosqueSeason(
+        mosqueId: mosqueId ?? this.mosqueId,
+        start: start ?? this.start,
+        end: end ?? this.end,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      other is MosqueSeason &&
+      other.mosqueId == mosqueId &&
+      other.start == start &&
+      other.end == end;
+
+  @override
+  int get hashCode => Object.hash(mosqueId, start, end);
+}
+
 /// A temporary manual override while in [ScheduleMode.auto]. [baselineAutoId]
 /// is the auto-resolved mosque at the moment the override was set; once the
 /// schedule would resolve to a different mosque (a window boundary is crossed)

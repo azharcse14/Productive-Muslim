@@ -201,6 +201,23 @@ void main() {
       expect(store.rules.value, isEmpty);
     });
 
+    test('seasons persist and go with their deleted profile', () async {
+      final (store, repo) = await makeMosqueStore();
+      final a = await store.addProfile('A');
+      final b = await store.addProfile('B');
+      final season = MosqueSeason(
+        mosqueId: b.id,
+        start: (month: 11, day: 1),
+        end: (month: 2, day: 28),
+      );
+      await store.addSeason(season);
+      await store.addSeason(season.copyWith(mosqueId: a.id));
+      await store.updateSeason(1, null);
+      expect(repo.stored.seasons, [season]);
+      await store.deleteProfile(b.id);
+      expect(repo.stored.seasons, isEmpty);
+    });
+
     test('insertRule restores a removed rule at its old position', () async {
       final (store, _) = await makeMosqueStore();
       final a = await store.addProfile('A');

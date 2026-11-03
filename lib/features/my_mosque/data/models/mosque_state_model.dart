@@ -44,6 +44,14 @@ abstract final class MosqueStateModel {
           'end': {'hour': rule.end.hour, 'minute': rule.end.minute},
         },
     ],
+    'seasons': [
+      for (final season in state.seasons)
+        {
+          'mosqueId': season.mosqueId,
+          'start': {'month': season.start.month, 'day': season.start.day},
+          'end': {'month': season.end.month, 'day': season.end.day},
+        },
+    ],
     'defaultId': state.defaultId,
     if (state.activeOverride case final o?)
       'override': {
@@ -69,12 +77,46 @@ abstract final class MosqueStateModel {
           for (final raw in rawRules)
             if (_rule(raw) case final MosqueRule rule) rule,
       ],
+      // Absent in older payloads: no seasons.
+      seasons: [
+        if (map['seasons'] case final List<Object?> raw)
+          for (final s in raw)
+            if (_season(s) case final MosqueSeason season) season,
+      ],
       defaultId: _string(map['defaultId']),
       activeOverride: _override(map['override']),
     );
   }
 
   static String? _string(Object? raw) => raw is String ? raw : null;
+
+  /// Null when the season shape is unusable (missing mosqueId / dates).
+  static MosqueSeason? _season(Object? raw) {
+    if (raw is! Map) {
+      return null;
+    }
+    final map = raw.cast<String, Object?>();
+    final mosqueId = map['mosqueId'];
+    final start = _monthDay(map['start']);
+    final end = _monthDay(map['end']);
+    if (mosqueId is! String || start == null || end == null) {
+      return null;
+    }
+    return MosqueSeason(mosqueId: mosqueId, start: start, end: end);
+  }
+
+  /// Null unless a real calendar day in a leap year (Feb 29 allowed).
+  static MonthDay? _monthDay(Object? raw) {
+    if (raw is! Map) {
+      return null;
+    }
+    final month = raw['month'];
+    final day = raw['day'];
+    if (month is! int || day is! int || month < 1 || month > 12 || day < 1) {
+      return null;
+    }
+    return day > MosqueSeason.maxDay(month) ? null : (month: month, day: day);
+  }
 
   /// Null when the rule shape is unusable (missing mosqueId / times).
   static MosqueRule? _rule(Object? raw) {

@@ -11,6 +11,7 @@ final class MosqueState {
     this.activeId,
     this.mode = ScheduleMode.manual,
     this.rules = const [],
+    this.seasons = const [],
     this.defaultId,
     this.activeOverride,
   });
@@ -26,7 +27,11 @@ final class MosqueState {
   /// Ordered auto-switch rules (first match wins) — used in [ScheduleMode.auto].
   final List<MosqueRule> rules;
 
-  /// Fallback mosque when no rule matches (auto mode).
+  /// Yearly date ranges (first match wins) picking the day's base mosque
+  /// ahead of [defaultId] — used in [ScheduleMode.auto].
+  final List<MosqueSeason> seasons;
+
+  /// Fallback mosque when no rule or season matches (auto mode).
   final String? defaultId;
 
   /// Temporary manual override while in auto mode.
@@ -60,11 +65,13 @@ final class MosqueState {
     String? activeId,
     ScheduleMode? mode,
     List<MosqueRule>? rules,
+    List<MosqueSeason>? seasons,
   }) => MosqueState(
     profiles: profiles ?? this.profiles,
     activeId: activeId ?? this.activeId,
     mode: mode ?? this.mode,
     rules: rules ?? this.rules,
+    seasons: seasons ?? this.seasons,
     defaultId: defaultId,
     activeOverride: activeOverride,
   );
@@ -75,6 +82,7 @@ final class MosqueState {
     activeId: id,
     mode: mode,
     rules: rules,
+    seasons: seasons,
     defaultId: defaultId,
     activeOverride: activeOverride,
   );
@@ -85,6 +93,7 @@ final class MosqueState {
     activeId: activeId,
     mode: mode,
     rules: rules,
+    seasons: seasons,
     defaultId: id,
     activeOverride: activeOverride,
   );
@@ -95,6 +104,7 @@ final class MosqueState {
     activeId: activeId,
     mode: mode,
     rules: rules,
+    seasons: seasons,
     defaultId: defaultId,
     activeOverride: value,
   );
@@ -107,7 +117,8 @@ final class MosqueState {
         other.defaultId != defaultId ||
         other.activeOverride != activeOverride ||
         other.profiles.length != profiles.length ||
-        other.rules.length != rules.length) {
+        other.rules.length != rules.length ||
+        other.seasons.length != seasons.length) {
       return false;
     }
     for (var i = 0; i < profiles.length; i++) {
@@ -117,6 +128,11 @@ final class MosqueState {
     }
     for (var i = 0; i < rules.length; i++) {
       if (other.rules[i] != rules[i]) {
+        return false;
+      }
+    }
+    for (var i = 0; i < seasons.length; i++) {
+      if (other.seasons[i] != seasons[i]) {
         return false;
       }
     }
@@ -131,5 +147,6 @@ final class MosqueState {
     activeOverride,
     Object.hashAll(profiles),
     Object.hashAll(rules),
+    Object.hashAll(seasons),
   );
 }

@@ -2748,6 +2748,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nearbyMosquesLabel => 'Nearby mosques';
 
   @override
+  String get mosqueSeasonTitle => 'Seasonal timings';
+
+  @override
+  String get mosqueSeasonHint =>
+      'Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.';
+
+  @override
+  String get mosqueSeasonAdd => 'Add season';
+
+  @override
+  String mosqueSeasonActiveNow(String name, String reason) {
+    return 'Active now: $name ($reason)';
+  }
+
+  @override
+  String get mosqueSeasonReasonRule => 'a time rule matches';
+
+  @override
+  String mosqueSeasonReasonSeason(String range) {
+    return 'season $range';
+  }
+
+  @override
+  String get mosqueSeasonReasonDefault => 'default mosque';
+
+  @override
+  String get mosqueSeasonReasonOverride => 'temporary switch';
+
+  @override
+  String get mosqueSeasonReasonFallback => 'no rule, season or default applies';
+
+  @override
   String get nearbyMosquesHint => 'Opens in Maps';
 
   @override
