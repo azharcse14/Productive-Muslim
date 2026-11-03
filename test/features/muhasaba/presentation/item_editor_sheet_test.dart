@@ -132,4 +132,30 @@ void main() {
     expect(find.text("Couldn't save. Please try again."), findsOneWidget);
     expect(store.items.value.any((i) => i.name == 'Walk'), isFalse);
   });
+
+  testWidgets('the close button closes, confirming unsaved changes first', (
+    tester,
+  ) async {
+    final (store, _) = await makeMuhasabaStore(
+      now: () => DateTime(2026, 6, 12, 9),
+    );
+    addTearDown(store.dispose);
+    await tester.pumpWidget(_host(store));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add item'), findsNothing);
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'Walk');
+    await tester.pump();
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Discard your changes?'), findsOneWidget);
+    await tester.tap(find.text('Discard'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsNothing);
+  });
 }

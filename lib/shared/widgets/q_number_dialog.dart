@@ -7,7 +7,7 @@ import 'q_form.dart';
 
 /// Asks for a whole number in [min]..[max] (localized digits accepted); null
 /// on cancel. An empty or out-of-range entry shows "Enter min–max" as the
-/// error. [initial] prefills the field.
+/// error. [initial] prefills the field; [suffix] names the unit ("minutes").
 Future<int?> showNumberDialog(
   BuildContext context, {
   required String title,
@@ -16,6 +16,7 @@ Future<int?> showNumberDialog(
   int min = 1,
   int max = 99999,
   int? initial,
+  String? suffix,
 }) => showDialog<int>(
   context: context,
   builder: (_) => _NumberDialog(
@@ -25,6 +26,7 @@ Future<int?> showNumberDialog(
     min: min,
     max: max,
     initial: initial,
+    suffix: suffix,
   ),
 );
 
@@ -36,6 +38,7 @@ final class _NumberDialog extends StatefulWidget {
     required this.min,
     required this.max,
     this.initial,
+    this.suffix,
   });
 
   final String title;
@@ -44,6 +47,7 @@ final class _NumberDialog extends StatefulWidget {
   final int min;
   final int max;
   final int? initial;
+  final String? suffix;
 
   @override
   State<_NumberDialog> createState() => _NumberDialogState();
@@ -89,6 +93,7 @@ final class _NumberDialogState extends State<_NumberDialog> {
         ],
         decoration: InputDecoration(
           hintText: widget.hint,
+          suffixText: widget.suffix,
           errorText: _invalid
               ? context.l10n.numberRangeError(
                   context.digits('${widget.min}'),

@@ -60,4 +60,19 @@ void main() {
 
     expect(find.text('Unlocked'), findsWidgets);
   });
+
+  testWidgets('a badge reads as one node with its progress or status', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final store = await _registerStore();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    store.debugSetStats(const AchievementStats(bestStreak: 3));
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel(RegExp(r', Unlocked$')), findsWidgets);
+    expect(find.bySemanticsLabel(RegExp(r', \d+ / \d+$')), findsWidgets);
+    handle.dispose();
+  });
 }

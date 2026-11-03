@@ -66,6 +66,9 @@ final class HealthStore {
       (_date(e.key), e.value),
   ];
 
+  /// The weight logged on [date], if any.
+  double? weightOn(DateTime date) => weights.value[_stamp(date)];
+
   /// Logs [kg] for [date] (null removes it). Out-of-range or future
   /// entries are rejected with false.
   Future<bool> setWeight(DateTime date, double? kg) async {

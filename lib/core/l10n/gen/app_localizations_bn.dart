@@ -1070,7 +1070,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get archiveExplain =>
-      'আর্কাইভ করা আইটেম দৈনিক তালিকা থেকে সরে যায়, কিন্তু আগের সব এন্ট্রি সংরক্ষিত থাকে।';
+      'আর্কাইভ করা আইটেম তালিকার নিচে \"আর্কাইভ করা\" অংশে চলে যায়। আগের সব এন্ট্রি সংরক্ষিত থাকে, যেকোনো সময় ফিরিয়ে আনা যায়।';
 
   @override
   String get archivedSection => 'আর্কাইভ করা';
@@ -2722,7 +2722,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
-  String get expenseAmountInvalid => 'পূর্ণ সংখ্যায় পরিমাণ লিখুন';
+  String get expenseAmountInvalid =>
+      '০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)';
 
   @override
   String get expenseBudget => 'মাসিক বাজেট';
@@ -3617,4 +3618,35 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsTibbNabawiSource =>
       'এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা';
+
+  @override
+  String get fastingPrevMonth => 'আগের মাস';
+
+  @override
+  String get fastingNextMonth => 'পরের মাস';
+
+  @override
+  String get fastingFutureDay => 'দিনটি এলে তবেই এই রোজা লগ করা যাবে।';
+
+  @override
+  String get fastingForbiddenDay => 'এই দিনে রোজা রাখা নিষিদ্ধ (ঈদ বা তাশরীক)।';
+
+  @override
+  String durationHours(int hours) {
+    return '$hours ঘণ্টা';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours ঘণ্টা $minutes মিনিট';
+  }
+
+  @override
+  String get expenseFilterHint => 'শুধু এই ক্যাটাগরি দেখান';
+
+  @override
+  String get expenseFilterClearHint => 'সব ক্যাটাগরি দেখান';
+
+  @override
+  String get healthWeightLogPast => 'অন্য দিনের ওজন লিখুন';
 }

@@ -1835,7 +1835,7 @@ abstract class AppLocalizations {
   /// No description provided for @archiveExplain.
   ///
   /// In en, this message translates to:
-  /// **'Archived items disappear from your daily list, but every past entry is preserved.'**
+  /// **'Archived items move to the Archived section at the bottom of your list. Every past entry is kept, and you can restore them anytime.'**
   String get archiveExplain;
 
   /// No description provided for @archivedSection.
@@ -4067,7 +4067,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseAmountInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a whole amount'**
+  /// **'Enter a whole number above 0, without decimals (e.g. 250)'**
   String get expenseAmountInvalid;
 
   /// No description provided for @expenseBudget.
@@ -5407,6 +5407,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app'**
   String get creditsTibbNabawiSource;
+
+  /// No description provided for @fastingPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get fastingPrevMonth;
+
+  /// No description provided for @fastingNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get fastingNextMonth;
+
+  /// No description provided for @fastingFutureDay.
+  ///
+  /// In en, this message translates to:
+  /// **'You can log this fast once the day has come.'**
+  String get fastingFutureDay;
+
+  /// No description provided for @fastingForbiddenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting isn\'t permitted on this day (Eid or Tashreeq).'**
+  String get fastingForbiddenDay;
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String durationHours(int hours);
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @expenseFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'show only this category'**
+  String get expenseFilterHint;
+
+  /// No description provided for @expenseFilterClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'show all categories'**
+  String get expenseFilterClearHint;
+
+  /// No description provided for @healthWeightLogPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Log another day'**
+  String get healthWeightLogPast;
 }
 
 class _AppLocalizationsDelegate

@@ -182,9 +182,24 @@ final class _ItemEditorState extends State<_ItemEditor> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _isEdit ? l10n.editTracker : l10n.addTracker,
-                style: QType.title.copyWith(color: q.ink),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _isEdit ? l10n.editTracker : l10n.addTracker,
+                      style: QType.title.copyWith(color: q.ink),
+                    ),
+                  ),
+                  // maybePop: goes through the PopScope discard check.
+                  IconButton(
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).closeButtonTooltip,
+                    icon: const Icon(Icons.close),
+                    onPressed: () =>
+                        unawaited(Navigator.of(context).maybePop()),
+                  ),
+                ],
               ),
               const SizedBox(height: QSpace.s4),
               if (!_nameLocked) ...[
