@@ -1291,6 +1291,31 @@
   "favoriteRemoveLabel": "Remove from favorites",
   "widgetNextPrayerLabel": "Next prayer",
   "nearbyMosquesLabel": "Nearby mosques",
+  "mosqueSeasonTitle": "Seasonal timings",
+  "mosqueSeasonHint": "Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.",
+  "mosqueSeasonAdd": "Add season",
+  "mosqueSeasonActiveNow": "Active now: {name} ({reason})",
+  "@mosqueSeasonActiveNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "mosqueSeasonReasonRule": "a time rule matches",
+  "mosqueSeasonReasonSeason": "season {range}",
+  "@mosqueSeasonReasonSeason": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "mosqueSeasonReasonDefault": "default mosque",
+  "mosqueSeasonReasonOverride": "temporary switch",
   "nearbyMosquesHint": "Opens in Maps",
   "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed or you're online.",
   "nearbyMosquesLocationError": "Set your location first to find nearby mosques.",

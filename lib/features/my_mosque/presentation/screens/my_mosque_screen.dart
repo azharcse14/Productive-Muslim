@@ -382,6 +382,19 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                     unawaited(_store.setDefaultMosque(id)),
                 onPickRuleTime: (i, {required bool isStart}) =>
                     unawaited(_pickRuleTime(state, i, isStart: isStart)),
+                now: DateTime.now(),
+                // Defaults to a typical winter range on the last profile
+                // (usually the one just added for it).
+                onAddSeason: () => unawaited(
+                  _store.addSeason(
+                    MosqueSeason(
+                      mosqueId: state.profiles.last.id,
+                      start: (month: 11, day: 1),
+                      end: (month: 2, day: 29),
+                    ),
+                  ),
+                ),
+                onSeasonChanged: (i, s) => unawaited(_store.updateSeason(i, s)),
               ),
               if (active != null) ...[
                 const SizedBox(height: QSpace.s5),

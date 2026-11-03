@@ -5,6 +5,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/domain/usecases/get_mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/domain/usecases/save_mosque_state.dart';
@@ -241,6 +242,95 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.saves, 0);
       expect(repo.stored.profiles.single.entries[Prayer.fajr], isNull);
+    });
+
+    testWidgets('adds, edits and removes a seasonal rule', (tester) async {
+      tester.view.physicalSize = const Size(1200, 3200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await register(
+        const MosqueState(
+          profiles: [
+            MosqueProfile(id: 'a', name: 'Summer'),
+            MosqueProfile(id: 'b', name: 'Winter'),
+          ],
+          activeId: 'a',
+          mode: ScheduleMode.auto,
+          defaultId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      expect(find.textContaining('Active now:'), findsOneWidget);
+
+      await tester.tap(find.text('Add season'));
+      await tester.pumpAndSettle();
+      expect(repo.stored.seasons, const [
+        MosqueSeason(
+          mosqueId: 'b',
+          start: (month: 11, day: 1),
+          end: (month: 2, day: 29),
+        ),
+      ]);
+
+      // End month Feb → Mar keeps day 29.
+      await tester.tap(find.text('Feb'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mar').last);
+      await tester.pumpAndSettle();
+      expect(repo.stored.seasons.single.end, (month: 3, day: 29));
+
+      await tester.tap(find.byTooltip('Delete').last);
+      await tester.pumpAndSettle();
+      expect(repo.stored.seasons, isEmpty);
+    });
+
+    testWidgets('says which mosque is active now and why', (tester) async {
+      Future<void> pumpAt(DateTime now) => tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: MosqueScheduleSection(
+                state: const MosqueState(
+                  profiles: [
+                    MosqueProfile(id: 'a', name: 'Summer'),
+                    MosqueProfile(id: 'b', name: 'Winter'),
+                  ],
+                  mode: ScheduleMode.auto,
+                  defaultId: 'a',
+                  seasons: [
+                    MosqueSeason(
+                      mosqueId: 'b',
+                      start: (month: 11, day: 1),
+                      end: (month: 2, day: 28),
+                    ),
+                  ],
+                ),
+                formatTime: (t) => '$t',
+                onModeChanged: (_) {},
+                onAddRule: () {},
+                onRemoveRule: (_) {},
+                onRuleChanged: (_, _) {},
+                onDefaultChanged: (_) {},
+                onPickRuleTime: (_, {required isStart}) {},
+                now: now,
+                onAddSeason: () {},
+                onSeasonChanged: (_, _) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await pumpAt(DateTime(2026, 12, 1, 10));
+      expect(
+        find.text('Active now: Winter (season Nov 1 – Feb 28)'),
+        findsOneWidget,
+      );
+      await pumpAt(DateTime(2026, 6, 1, 10));
+      expect(find.text('Active now: Summer (default mosque)'), findsOneWidget);
     });
 
     testWidgets('long-pressing a profile chip renames it', (tester) async {

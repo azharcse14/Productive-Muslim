@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/my_mosque/data/models/mosque_state_model.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
@@ -98,6 +100,107 @@ void main() {
         state.activeOverride,
         const MosqueOverride(mosqueId: 'office', baselineAutoId: 'home'),
       );
+    });
+
+    test('seasons round-trip, including Feb 29 and year wrap', () {
+      const state = MosqueState(
+        profiles: [
+          MosqueProfile(id: 'summer', name: 'Summer'),
+          MosqueProfile(id: 'winter', name: 'Winter'),
+        ],
+        mode: ScheduleMode.auto,
+        defaultId: 'summer',
+        seasons: [
+          MosqueSeason(
+            mosqueId: 'winter',
+            start: (month: 11, day: 1),
+            end: (month: 2, day: 29),
+          ),
+        ],
+      );
+      final map = MosqueStateModel.toMap(state);
+      expect(map['seasons'], [
+        {
+          'mosqueId': 'winter',
+          'start': {'month': 11, 'day': 1},
+          'end': {'month': 2, 'day': 29},
+        },
+      ]);
+      // Through JSON, as stored in prefs.
+      final restored = MosqueStateModel.fromMap(
+        jsonDecode(jsonEncode(map)) as Map<String, Object?>,
+      );
+      expect(restored, state);
+    });
+
+    test('a stored blob from before seasons loads unchanged', () {
+      const blob =
+          '{"profiles":[{"id":"home","name":"Home","entries":'
+          '{"fajr":{"type":"fixed","hour":5,"minute":30}},'
+          '"jumuah":{"hour":13,"minute":30}}],'
+          '"activeId":"home","mode":"auto","rules":[{"mosqueId":"home",'
+          '"days":[5],"start":{"hour":12,"minute":0},'
+          '"end":{"hour":14,"minute":0}}],"defaultId":"home"}';
+      final restored = MosqueStateModel.fromMap(
+        jsonDecode(blob) as Map<String, Object?>,
+      );
+      expect(
+        restored,
+        const MosqueState(
+          profiles: [
+            MosqueProfile(
+              id: 'home',
+              name: 'Home',
+              entries: {Prayer.fajr: FixedJamaat(ClockTime(5, 30))},
+              jumuah: ClockTime(13, 30),
+            ),
+          ],
+          activeId: 'home',
+          mode: ScheduleMode.auto,
+          rules: [
+            MosqueRule(
+              mosqueId: 'home',
+              days: {5},
+              start: ClockTime(12, 0),
+              end: ClockTime(14, 0),
+            ),
+          ],
+          defaultId: 'home',
+        ),
+      );
+      expect(restored.seasons, isEmpty);
+    });
+
+    test('corrupt seasons are skipped without throwing', () {
+      final restored = MosqueStateModel.fromMap(const {
+        'seasons': [
+          'junk',
+          {'mosqueId': 'a'},
+          {
+            'mosqueId': 'a',
+            'start': {'month': 2, 'day': 30},
+            'end': {'month': 3, 'day': 1},
+          },
+          {
+            'mosqueId': 'a',
+            'start': {'month': 13, 'day': 1},
+            'end': {'month': 3, 'day': 1},
+          },
+          {
+            'mosqueId': 'ok',
+            'start': {'month': 6, 'day': 1},
+            'end': {'month': 8, 'day': 31},
+          },
+        ],
+      });
+      expect(restored.seasons, const [
+        MosqueSeason(
+          mosqueId: 'ok',
+          start: (month: 6, day: 1),
+          end: (month: 8, day: 31),
+        ),
+      ]);
+      expect(MosqueStateModel.fromMap(const {'seasons': 'x'}).seasons, isEmpty);
     });
 
     test('empty map yields defaults (manual, no rules)', () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
@@ -11,6 +12,7 @@ import '../../domain/entities/jamaat_config.dart';
 import '../../domain/entities/mosque_profile.dart';
 import '../../domain/entities/mosque_schedule.dart';
 import '../../domain/entities/mosque_state.dart';
+import '../../domain/usecases/resolve_active_mosque.dart';
 
 /// Manual/auto mode toggle plus the auto-switch rules editor and the default
 /// mosque picker (design §4.9 scheduled profiles).
@@ -25,7 +27,17 @@ final class MosqueScheduleSection extends StatelessWidget {
     required this.onRuleChanged,
     required this.onDefaultChanged,
     required this.onPickRuleTime,
+    required this.now,
+    required this.onAddSeason,
+    required this.onSeasonChanged,
   });
+
+  /// The moment the "active now" line resolves for.
+  final DateTime now;
+  final VoidCallback onAddSeason;
+
+  /// Edits the season at an index; a null season removes it.
+  final void Function(int index, MosqueSeason? season) onSeasonChanged;
 
   final MosqueState state;
   final String Function(ClockTime) formatTime;
@@ -72,6 +84,10 @@ final class MosqueScheduleSection extends StatelessWidget {
               l10n.scheduleAutoHint,
               style: QType.caption.copyWith(color: q.ink2),
             ),
+            if (_activeNow(context) case final line?) ...[
+              const SizedBox(height: QSpace.s2),
+              Text(line, style: QType.label.copyWith(color: q.primary)),
+            ],
             const SizedBox(height: QSpace.s4),
             if (state.rules.isEmpty)
               Text(
@@ -104,6 +120,35 @@ final class MosqueScheduleSection extends StatelessWidget {
             ),
             const SizedBox(height: QSpace.s4),
             Text(
+              l10n.mosqueSeasonTitle,
+              style: QType.label.copyWith(color: q.ink),
+            ),
+            const SizedBox(height: QSpace.s1),
+            Text(
+              l10n.mosqueSeasonHint,
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
+            const SizedBox(height: QSpace.s3),
+            for (final (i, season) in state.seasons.indexed) ...[
+              _SeasonCard(
+                season: season,
+                profiles: state.profiles,
+                onChanged: (s) => onSeasonChanged(i, s),
+              ),
+              const SizedBox(height: QSpace.s3),
+            ],
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: QButton(
+                label: l10n.mosqueSeasonAdd,
+                kind: QButtonKind.tonal,
+                small: true,
+                icon: Icons.add,
+                onPressed: state.profiles.isEmpty ? null : onAddSeason,
+              ),
+            ),
+            const SizedBox(height: QSpace.s4),
+            Text(
               l10n.scheduleDefaultMosque,
               style: QType.label.copyWith(color: q.ink),
             ),
@@ -120,6 +165,144 @@ final class MosqueScheduleSection extends StatelessWidget {
               style: QType.caption.copyWith(color: q.ink3),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  /// The "active now" line (mosque and why), or null with no profiles.
+  String? _activeNow(BuildContext context) {
+    final l10n = context.l10n;
+    final r = resolveActiveMosque(state, now);
+    final profile = r.profile;
+    if (profile == null) {
+      return null;
+    }
+    final why = switch (r.reason) {
+      MosqueReason.rule => l10n.mosqueSeasonReasonRule,
+      MosqueReason.season => l10n.mosqueSeasonReasonSeason(
+        _range(
+          context,
+          state.seasons.firstWhere(
+            (s) => s.mosqueId == profile.id && s.contains(now),
+          ),
+        ),
+      ),
+      MosqueReason.override => l10n.mosqueSeasonReasonOverride,
+      MosqueReason.manual ||
+      MosqueReason.fallback => l10n.mosqueSeasonReasonDefault,
+    };
+    return l10n.mosqueSeasonActiveNow(profile.name, why);
+  }
+}
+
+String _range(BuildContext context, MosqueSeason s) {
+  final fmt = DateFormat.MMMd(Localizations.localeOf(context).toString());
+  // A leap year, so Feb 29 formats.
+  String f(MonthDay d) => fmt.format(DateTime(2024, d.month, d.day));
+  return '${f(s.start)} – ${f(s.end)}';
+}
+
+/// One yearly date range: profile picker plus month/day pickers per end.
+final class _SeasonCard extends StatelessWidget {
+  const _SeasonCard({
+    required this.season,
+    required this.profiles,
+    required this.onChanged,
+  });
+
+  final MosqueSeason season;
+  final List<MosqueProfile> profiles;
+  final ValueChanged<MosqueSeason?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    final months = DateFormat.MMM(Localizations.localeOf(context).toString());
+    Widget picker(MonthDay value, ValueChanged<MonthDay> set) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DropdownButton<int>(
+          value: value.month,
+          underline: const SizedBox.shrink(),
+          items: [
+            for (var m = 1; m <= 12; m++)
+              DropdownMenuItem(
+                value: m,
+                child: Text(months.format(DateTime(2024, m))),
+              ),
+          ],
+          onChanged: (m) {
+            if (m != null) {
+              // Keep the day valid for the new month (Jan 31 → Feb 29).
+              final max = MosqueSeason.maxDay(m);
+              set((month: m, day: value.day > max ? max : value.day));
+            }
+          },
+        ),
+        const SizedBox(width: QSpace.s2),
+        DropdownButton<int>(
+          value: value.day,
+          underline: const SizedBox.shrink(),
+          items: [
+            for (var d = 1; d <= MosqueSeason.maxDay(value.month); d++)
+              DropdownMenuItem(value: d, child: Text(context.digits('$d'))),
+          ],
+          onChanged: (d) {
+            if (d != null) {
+              set((month: value.month, day: d));
+            }
+          },
+        ),
+      ],
+    );
+    return Container(
+      padding: const EdgeInsets.all(QSpace.s3),
+      decoration: BoxDecoration(
+        color: q.surface2,
+        borderRadius: BorderRadius.circular(QRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _MosqueDropdown(
+                  profiles: profiles,
+                  value: season.mosqueId,
+                  hint: l10n.scheduleDefaultMosque,
+                  onChanged: (id) {
+                    if (id != null) {
+                      onChanged(season.copyWith(mosqueId: id));
+                    }
+                  },
+                ),
+              ),
+              IconButton(
+                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                onPressed: () => onChanged(null),
+                icon: Icon(Icons.delete_outline, size: 20, color: q.ink3),
+              ),
+            ],
+          ),
+          Wrap(
+            spacing: QSpace.s2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                l10n.scheduleFrom,
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
+              picker(season.start, (d) => onChanged(season.copyWith(start: d))),
+              Text(
+                l10n.scheduleTo,
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
+              picker(season.end, (d) => onChanged(season.copyWith(end: d))),
+            ],
+          ),
         ],
       ),
     );
