@@ -98,6 +98,48 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @routeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This page isn\'t available.'**
+  String get routeNotFound;
+
+  /// No description provided for @lockMuhasabaOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Muhasaba only'**
+  String get lockMuhasabaOnly;
+
+  /// No description provided for @lockMuhasabaOnlySub.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app'**
+  String get lockMuhasabaOnlySub;
+
+  /// No description provided for @lockMuhasabaLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhasaba is locked'**
+  String get lockMuhasabaLockedTitle;
+
+  /// No description provided for @lockMuhasabaLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily record stays private. Unlock with your PIN to continue.'**
+  String get lockMuhasabaLockedBody;
+
+  /// No description provided for @lockMuhasabaCardSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Muhasaba to unlock'**
+  String get lockMuhasabaCardSub;
+
+  /// No description provided for @lockUnlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get lockUnlockAction;
+
   /// No description provided for @quranJuzTabSurahs.
   ///
   /// In en, this message translates to:

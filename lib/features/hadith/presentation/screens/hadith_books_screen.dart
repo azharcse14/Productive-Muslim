@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -16,9 +18,6 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith_book.dart';
 import '../state/hadith_books_store.dart';
-import 'hadith_search_screen.dart';
-import 'hadith_section_screen.dart';
-import 'hadith_sections_screen.dart';
 
 /// List of the full hadith collections in the bundled catalog.
 final class HadithBooksScreen extends StatefulWidget {
@@ -42,10 +41,9 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
   void _open(HadithBook book) {
     Haptics.selection();
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => HadithSectionsScreen(book: book),
-        ),
+      context.pushNamed(
+        Routes.hadithBook.name,
+        pathParameters: {'book': book.id},
       ),
     );
   }
@@ -69,11 +67,9 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
         onTap: () {
           Haptics.selection();
           unawaited(
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) =>
-                    HadithSectionScreen(book: book, section: section),
-              ),
+            context.pushNamed(
+              Routes.hadithSection.name,
+              pathParameters: {'book': book.id, 'section': '${section.number}'},
             ),
           );
         },
@@ -94,13 +90,7 @@ final class _HadithBooksScreenState extends State<HadithBooksScreen> {
             icon: const Icon(Icons.search),
             onPressed: () {
               Haptics.selection();
-              unawaited(
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const HadithSearchScreen(),
-                  ),
-                ),
-              );
+              unawaited(context.pushNamed(Routes.hadithSearch.name));
             },
           ),
         ],

@@ -5,10 +5,12 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/router/app_router.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/onboarding/domain/repositories/app_lock_repository.dart';
 import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -22,6 +24,7 @@ import 'package:productive_muslim/features/settings/domain/usecases/get_settings
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/shared/widgets/q_bottom_nav.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/content_fakes.dart';
 import '../../helpers/home_store_fakes.dart';
@@ -413,6 +416,88 @@ void main() {
       expect(find.text('Cash on hand'), findsOneWidget);
       expect(find.text('Gold (grams)'), findsOneWidget);
     });
+
+    testHomeWidgets(
+      'Settings opens full-screen over the More tab; back returns to it',
+      (tester) async {
+        final router = buildRouter();
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash
+        await tester.pumpAndSettle();
+        // Deep link (and Home's "Set location") still switch to More.
+        router.go('/more/settings');
+        await tester.pumpAndSettle();
+        // No bottom bar on a secondary page, like Qibla or Calendar.
+        expect(find.byType(QBottomNavScaffold), findsNothing);
+        expect(find.text('Settings'), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/more');
+        expect(find.byType(QBottomNavScaffold), findsOneWidget);
+      },
+    );
+
+    testHomeWidgets('a ?category= dua payload opens that category over the tab',
+        (tester) async {
+      GetIt.I.registerSingleton<DuaFavoritesStore>(
+        DuaFavoritesStore(SharedPreferencesAsync()),
+      );
+      final router = buildRouter();
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 1300)); // splash
+      await tester.pumpAndSettle();
+      router.go('/dua?category=morning_evening');
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/dua/category/morning_evening');
+      expect(find.text('Morning & evening'), findsOneWidget);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/dua');
+      expect(find.byType(QBottomNavScaffold), findsOneWidget);
+    });
+
+    testHomeWidgets(
+      'a locked Muhasaba section gates its tab, Health and Achievements',
+      (tester) async {
+        final lock = await makeAppLockStore(withPin: true);
+        await lock.setScope(LockScope.muhasaba);
+        await lock.load(); // fresh start: section locked, app open
+        GetIt.I
+          ..unregister<AppLockStore>()
+          ..registerSingleton<AppLockStore>(lock);
+        final router = buildRouter();
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/home');
+        for (final path in ['/muhasaba', '/health', '/achievements']) {
+          router.go(path);
+          await tester.pumpAndSettle();
+          expect(find.text('Muhasaba is locked'), findsOneWidget, reason: path);
+        }
+      },
+    );
 
     testHomeWidgets('renders Bangla labels under the bn locale', (tester) async {
       await tester.pumpWidget(

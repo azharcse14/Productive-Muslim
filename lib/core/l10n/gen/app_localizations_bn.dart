@@ -9,6 +9,29 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String get routeNotFound => 'এই পাতাটি পাওয়া যাচ্ছে না।';
+
+  @override
+  String get lockMuhasabaOnly => 'শুধু মুহাসাবা লক করুন';
+
+  @override
+  String get lockMuhasabaOnlySub =>
+      'অ্যাপের বাকি অংশ সরাসরি খুলবে; প্রতিবার অ্যাপ খোলার পর মুহাসাবায় একবার পিন লাগবে';
+
+  @override
+  String get lockMuhasabaLockedTitle => 'মুহাসাবা লক করা আছে';
+
+  @override
+  String get lockMuhasabaLockedBody =>
+      'আপনার দৈনিক হিসাব গোপন থাকে। চালিয়ে যেতে পিন দিয়ে আনলক করুন।';
+
+  @override
+  String get lockMuhasabaCardSub => 'আনলক করতে মুহাসাবা খুলুন';
+
+  @override
+  String get lockUnlockAction => 'আনলক';
+
+  @override
   String get quranJuzTabSurahs => 'সূরা';
 
   @override

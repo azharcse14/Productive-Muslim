@@ -1,5 +1,12 @@
 {
   "@@locale": "bn",
+  "routeNotFound": "এই পাতাটি পাওয়া যাচ্ছে না।",
+  "lockMuhasabaOnly": "শুধু মুহাসাবা লক করুন",
+  "lockMuhasabaOnlySub": "অ্যাপের বাকি অংশ সরাসরি খুলবে; প্রতিবার অ্যাপ খোলার পর মুহাসাবায় একবার পিন লাগবে",
+  "lockMuhasabaLockedTitle": "মুহাসাবা লক করা আছে",
+  "lockMuhasabaLockedBody": "আপনার দৈনিক হিসাব গোপন থাকে। চালিয়ে যেতে পিন দিয়ে আনলক করুন।",
+  "lockMuhasabaCardSub": "আনলক করতে মুহাসাবা খুলুন",
+  "lockUnlockAction": "আনলক",
   "quranJuzTabSurahs": "সূরা",
   "quranJuzTabJuz": "পারা",
   "quranJuzTitle": "পারা {number}",

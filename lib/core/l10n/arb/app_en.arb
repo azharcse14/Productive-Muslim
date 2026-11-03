@@ -1,5 +1,12 @@
 {
   "@@locale": "en",
+  "routeNotFound": "This page isn't available.",
+  "lockMuhasabaOnly": "Lock Muhasaba only",
+  "lockMuhasabaOnlySub": "The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app",
+  "lockMuhasabaLockedTitle": "Muhasaba is locked",
+  "lockMuhasabaLockedBody": "Your daily record stays private. Unlock with your PIN to continue.",
+  "lockMuhasabaCardSub": "Open Muhasaba to unlock",
+  "lockUnlockAction": "Unlock",
   "quranJuzTabSurahs": "Surahs",
   "quranJuzTabJuz": "Juz",
   "quranJuzTitle": "Juz {number}",

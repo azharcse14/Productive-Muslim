@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -17,8 +19,6 @@ import '../../../muhasaba/presentation/widgets/tracker_visuals.dart';
 import '../../domain/entities/hadith.dart';
 import '../state/hadith_store.dart';
 import '../widgets/hadith_list_card.dart';
-import 'hadith_books_screen.dart';
-import 'hadith_topic_screen.dart';
 
 /// Hadith landing: a "full collections" entry on top, then the bundled
 /// topic-wise grid of authentic narrations.
@@ -54,13 +54,9 @@ final class _HadithScreenState extends State<HadithScreen> {
     }
   }
 
-  void _push(Widget screen) {
+  void _push(String name, [Map<String, String> pathParameters = const {}]) {
     Haptics.selection();
-    unawaited(
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute<void>(builder: (_) => screen)),
-    );
+    unawaited(context.pushNamed(name, pathParameters: pathParameters));
   }
 
   @override
@@ -119,7 +115,7 @@ final class _HadithScreenState extends State<HadithScreen> {
               ),
               children: [
                 _FullCollectionsCard(
-                  onTap: () => _push(const HadithBooksScreen()),
+                  onTap: () => _push(Routes.hadithBooks.name),
                 ),
                 const SizedBox(height: QSpace.s4),
                 if (favorites.isNotEmpty) ...[
@@ -160,7 +156,9 @@ final class _HadithScreenState extends State<HadithScreen> {
                         _TopicCard(
                           topic: topic,
                           languageCode: languageCode,
-                          onTap: () => _push(HadithTopicScreen(topic: topic)),
+                          onTap: () => _push(Routes.hadithTopic.name, {
+                            'topic': topic.id,
+                          }),
                         ),
                     ],
                   ),

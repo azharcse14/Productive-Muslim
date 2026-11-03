@@ -10,6 +10,35 @@ abstract interface class AppLockStorage {
     required int failedAttempts,
     required PinCooldown? cooldown,
   });
+
+  /// What the lock guards; [LockScope.app] when never set. [disable]
+  /// forgets it.
+  Future<LockScope> readScope();
+  Future<void> writeScope(LockScope scope);
+}
+
+/// What the PIN lock guards: the whole app, or only the Muhasaba section.
+enum LockScope {
+  app('app'),
+  muhasaba('muhasaba');
+
+  const LockScope(this.code);
+
+  /// Stable persisted code.
+  final String code;
+
+  /// Unknown or missing codes (a newer version's scope) read as [app]:
+  /// fail closed, locking more rather than less.
+  static LockScope fromCode(Object? code) =>
+      values.where((s) => s.code == code).firstOrNull ?? app;
+}
+
+/// Read side of the Muhasaba section lock, for screens outside Muhasaba
+/// that show its data (Home's summary card). Signal-backed: reading it in
+/// a reactive builder rebuilds that builder when it changes.
+abstract interface class SectionLockStatus {
+  /// Whether Muhasaba data must stay hidden right now.
+  bool get muhasabaLocked;
 }
 
 /// A running wrong-PIN cooldown on the [BootClock]: started at

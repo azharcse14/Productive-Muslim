@@ -21,6 +21,7 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_sche
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
+import 'package:productive_muslim/features/onboarding/domain/repositories/app_lock_repository.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/screens/home_screen.dart';
@@ -45,6 +46,7 @@ import 'package:productive_muslim/shared/widgets/countdown_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../helpers/content_fakes.dart';
 import '../../../helpers/home_store_fakes.dart';
@@ -192,12 +194,19 @@ void _tall(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-Widget _app() => MaterialApp(
+Widget _app({SectionLockStatus? sectionLock}) => MaterialApp(
   theme: AppTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
-  home: const HomeScreen(),
+  home: HomeScreen(sectionLock: sectionLock),
 );
+
+final class _SectionLock implements SectionLockStatus {
+  final locked = signal(true);
+
+  @override
+  bool get muhasabaLocked => locked.value;
+}
 
 void main() {
   tearDown(() => GetIt.I.reset());
@@ -376,6 +385,29 @@ void main() {
       expect(find.text('0%'), findsOneWidget);
       // 10 seeded default trackers, none done yet.
       expect(find.text('0/14 done'), findsOneWidget);
+    });
+
+    testHomeWidgets('a locked Muhasaba section hides the card data', (
+      tester,
+    ) async {
+      _tall(tester);
+      await _register(withLocation: true);
+      final lock = _SectionLock();
+      await tester.pumpWidget(_app(sectionLock: lock));
+      await tester.pump();
+      PrayerTable table() =>
+          tester.widget<PrayerTable>(find.byType(PrayerTable));
+      expect(find.text('Muhasaba is locked'), findsOneWidget);
+      expect(find.byType(HomeMuhasabaCard), findsNothing);
+      expect(find.text('0/14 done'), findsNothing);
+      // No prayed ticks to read or toggle on the table either.
+      expect(table().untracked, Prayer.values.toSet());
+
+      lock.locked.value = false;
+      await tester.pump();
+      expect(find.text('Muhasaba is locked'), findsNothing);
+      expect(find.text('0/14 done'), findsOneWidget);
+      expect(table().untracked, isEmpty);
     });
 
     testHomeWidgets(
