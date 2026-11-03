@@ -19,8 +19,16 @@ pinned hadith-api snapshot `@df57907` and reviewed by a separate agent.
   Corrections to this audit found while fixing: B6's Aisha hadith is Muslim **1176** (not 1175);
   A3 covered 61 duas (14 passages moved from ruqyah.json on 2026-10-25 also lacked trBn).
 - **PENDING:** **A1** (section-0 hadith missing from hadith.db) and **A2** (decimal hadith
-  numbers) — in progress on `fix/content-audit-hadith-db`, not merged yet. Needs review, then
-  merge with a `bundledVersion` + `PRAGMA user_version` bump.
+  numbers). State at end of 2026-11-03: implemented and committed on branch
+  `fix/content-audit-hadith-db` — `07ed1e9` (pipeline fix + rebuilt hadith.db, build test,
+  integrity test) and `4728ae5` (master merged in). **Not reviewed, not merged.** The agent's
+  final full test run had not reported. Next session:
+  1. `flutter gen-l10n`, `flutter analyze`, `flutter test -j 2` on that branch.
+  2. Independent review: section-0 hadith recovered per book (Bukhari 832 / 5692 present),
+     sub-numbers (e.g. 402 vs 402.x) in "go to hadith number", search and chapter views,
+     `bundledVersion` and `PRAGMA user_version` bumped together, favourites / last-read
+     survive the DB upgrade, DB size.
+  3. Fix findings, merge into `master`, tick A1/A2 here and log it in PROGRESS.md.
 - **For a scholar to re-check:** the 61 AI-written Bangla transliterations (A3), the madhab
   wording in B1/B5, and the Asma meanings changed in C11–C15.
 
