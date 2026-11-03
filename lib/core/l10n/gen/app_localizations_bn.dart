@@ -9,6 +9,36 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String get quranJuzTabSurahs => 'সূরা';
+
+  @override
+  String get quranJuzTabJuz => 'পারা';
+
+  @override
+  String quranJuzTitle(String number) {
+    return 'পারা $number';
+  }
+
+  @override
+  String get shareAyahTooltip => 'শেয়ার করুন';
+
+  @override
+  String shareAyahReference(String name, String reference) {
+    return '— সূরা $name $reference';
+  }
+
+  @override
+  String get shareTranslatorPickthall => 'Mohammed Marmaduke William Pickthall';
+
+  @override
+  String get shareTranslatorMuhiuddinKhan => 'মুহিউদ্দীন খান';
+
+  @override
+  String shareTranslationBy(String translator) {
+    return 'অনুবাদ: $translator';
+  }
+
+  @override
   String quranOpenAyah(String reference) {
     return '$reference খুলুন';
   }

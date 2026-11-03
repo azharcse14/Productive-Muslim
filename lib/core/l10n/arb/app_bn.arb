@@ -1,5 +1,13 @@
 {
   "@@locale": "bn",
+  "quranJuzTabSurahs": "সূরা",
+  "quranJuzTabJuz": "পারা",
+  "quranJuzTitle": "পারা {number}",
+  "shareAyahTooltip": "শেয়ার করুন",
+  "shareAyahReference": "— সূরা {name} {reference}",
+  "shareTranslatorPickthall": "Mohammed Marmaduke William Pickthall",
+  "shareTranslatorMuhiuddinKhan": "মুহিউদ্দীন খান",
+  "shareTranslationBy": "অনুবাদ: {translator}",
   "quranOpenAyah": "{reference} খুলুন",
   "tasbihAutoNext": "লক্ষ্য পূর্ণ হলে পরের রাউন্ড শুরু করুন",
   "favoriteRemoved": "প্রিয় থেকে সরানো হয়েছে",

@@ -14,6 +14,7 @@ import 'package:productive_muslim/features/quran/domain/repositories/quran_repos
 import 'package:productive_muslim/features/quran/presentation/screens/quran_reader_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/screens/quran_screen.dart';
 import 'package:productive_muslim/features/quran/presentation/state/quran_store.dart';
+import 'package:productive_muslim/features/share/domain/share_sheet.dart';
 import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 import 'package:productive_muslim/shared/widgets/q_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/screen_wake_fake.dart';
+import '../../../helpers/share_sheet_fake.dart';
 
 /// In-memory [QuranRepository] — 3 surahs with a few ayahs each.
 final class FakeQuranRepository implements QuranRepository {
@@ -109,9 +111,12 @@ final class FakeQuranRepository implements QuranRepository {
   /// Makes `ayahsOf` fail (a broken bundled DB).
   bool failAyahs = false;
 
+  /// Per-test surah index override (e.g. a long one for scroll tests).
+  List<Surah>? surahsOverride;
+
   @override
   Future<Result<List<Surah>>> surahs() async =>
-      const Result.success(surahsData);
+      Result.success(surahsOverride ?? surahsData);
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async => failAyahs
@@ -155,8 +160,9 @@ final class FakeQuranRepository implements QuranRepository {
   }
 }
 
-Widget _app(Widget home) => MaterialApp(
+Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   theme: AppTheme.light(),
+  locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   builder: (context, child) =>
@@ -204,6 +210,7 @@ void main() {
   late FakeQuranRepository repo;
   late QuranStore store;
   late FakeScreenWake wake;
+  late FakeShareSheet share;
 
   setUp(() async {
     SharedPreferencesAsyncPlatform.instance =
@@ -212,9 +219,11 @@ void main() {
     store = QuranStore(repo, SharedPreferencesAsync());
     await store.load();
     wake = FakeScreenWake();
+    share = FakeShareSheet();
     GetIt.I
       ..registerSingleton<QuranStore>(store)
-      ..registerSingleton<ScreenWake>(wake);
+      ..registerSingleton<ScreenWake>(wake)
+      ..registerSingleton<ShareSheet>(share);
   });
 
   tearDown(() => GetIt.I.reset());
@@ -421,9 +430,114 @@ void main() {
 
       await flushMarkRead(tester);
     });
+
+    testWidgets('the Juz tab lists 30 juz and opens the reader at one', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      await tester.tap(find.text('Juz'));
+      await tester.pumpAndSettle();
+      expect(find.text('Juz 1'), findsOneWidget);
+      expect(find.text('Al-Faatiha · 1:1'), findsOneWidget);
+      expect(find.text('Al-Baqara · 2:142'), findsOneWidget);
+
+      await tester.tap(find.text('Juz 1'));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuranReaderScreen), findsOneWidget);
+      expect(find.text('In the name of Allah'), findsOneWidget);
+
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('the surah list keeps its scroll offset across tabs', (
+      tester,
+    ) async {
+      repo.surahsOverride = [
+        for (var i = 1; i <= 40; i++)
+          Surah(
+            id: i,
+            nameArabic: 'س',
+            transliteration: 'Surah$i',
+            translationEn: 'Meaning$i',
+            ayahCount: 1,
+            revelation: 'meccan',
+          ),
+      ];
+      await store.load();
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -1500));
+      await tester.pumpAndSettle();
+      expect(find.text('Surah1'), findsNothing);
+
+      await tester.tap(find.text('Juz'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Surahs'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Surah1'), findsNothing);
+    });
   });
 
   group('QuranReaderScreen', () {
+    testWidgets('share sends arabic, translation, reference and translator', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Share').first);
+      await tester.pump();
+
+      expect(share.shared, [
+        'بِسْمِ اللَّهِ\n\n'
+            'In the name of Allah\n\n'
+            '— Surah Al-Faatiha 1:1\n'
+            'Translation: Mohammed Marmaduke William Pickthall',
+      ]);
+
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('Bangla share uses the Bangla translation and translator', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(const QuranReaderScreen(surahId: 1), locale: const Locale('bn')),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('শেয়ার করুন').first);
+      await tester.pump();
+
+      expect(share.shared, [
+        'بِسْمِ اللَّهِ\n\n'
+            'আল্লাহর নামে\n\n'
+            '— সূরা Al-Faatiha ১:১\n'
+            'অনুবাদ: মুহিউদ্দীন খান',
+      ]);
+
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('share falls back to "Quran s:a" before the index loads', (
+      tester,
+    ) async {
+      store.surahs.value = const [];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Share').first);
+      await tester.pump();
+
+      expect(share.shared.single, contains('\n— Quran 1:1\n'));
+
+      await flushMarkRead(tester);
+    });
+
     testWidgets('renders arabic and translation per ayah', (tester) async {
       await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
       await tester.pump();
