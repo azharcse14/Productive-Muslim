@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get asmaSourceListNote =>
-      'The 99 names shown are the commonly circulated list from the narration in Jami at-Tirmidhi 3507 (that narration has no Al-Ahad; it reads Al-Wahid, As-Samad). The narration is graded weak (da\'if) by al-Albani and others, and many scholars hold that the list of names was added by a narrator. The hadith that Allah has ninety-nine names (Sahih al-Bukhari 2736) is itself sahih.';
+      'The 99 names shown are the commonly circulated list based on the narration in Jami at-Tirmidhi 3507 (that narration has no Al-Ahad; it reads Al-Wahid, As-Samad). The narration is graded weak (da\'if) by al-Albani and others, and many scholars hold that the list of names was added by a narrator. The hadith that Allah has ninety-nine names (Sahih al-Bukhari 2736) is itself sahih.';
 
   @override
   String get routeNotFound => 'This page isn\'t available.';

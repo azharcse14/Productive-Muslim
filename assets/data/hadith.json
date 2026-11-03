@@ -78,7 +78,7 @@
       "en": "Fear Allah wherever you are, and follow a bad deed with a good one to wipe it out.",
       "bn": "তুমি যেখানেই থাকো আল্লাহকে ভয় করো, আর মন্দ কাজের পর ভালো কাজ করো, তা মন্দকে মুছে দেবে।",
       "narrator": "Abu Dharr (RA)",
-      "ref": "An-Nawawi 18 (Jami at-Tirmidhi 1987) — Hasan per al-Albani"
+      "ref": "An-Nawawi 18 (Jami at-Tirmidhi 1987) — Tirmidhi: hasan sahih; Hasan per al-Albani"
     },
     {
       "id": "h009",
@@ -196,7 +196,7 @@
       "grade": "Sahih",
       "ar": "مَنْ بَنَى مَسْجِدًا يَبْتَغِي بِهِ وَجْهَ اللَّهِ بَنَى اللَّهُ لَهُ مِثْلَهُ فِي الْجَنَّةِ",
       "en": "Whoever builds a mosque seeking thereby the Face of Allah, Allah will build for him the like of it in Paradise.",
-      "bn": "যে ব্যক্তি আল্লাহর সন্তুষ্টি লাভের উদ্দেশ্যে একটি মসজিদ নির্মাণ করে, আল্লাহ জান্নাতে তার জন্য সেটির অনুরূপ নির্মাণ করেন।",
+      "bn": "যে ব্যক্তি আল্লাহর চেহারা (সন্তুষ্টি) কামনা করে একটি মসজিদ নির্মাণ করে, আল্লাহ জান্নাতে তার জন্য অনুরূপ (একটি ঘর) নির্মাণ করেন।",
       "narrator": "Uthman ibn Affan (RA)",
       "ref": "Sahih Bukhari 450"
     },
@@ -364,11 +364,11 @@
       "id": "h037",
       "topic": "worship",
       "grade": "Sahih",
-      "ar": "أَحَبُّ الْأَعْمَالِ أَدْوَمُهَا إِلَى اللَّهِ وَإِنْ قَلَّ",
+      "ar": "أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ",
       "en": "The most beloved deeds to Allah are the most consistent, even if they are few.",
       "bn": "আল্লাহর কাছে সর্বাধিক প্রিয় আমল হলো সেটিই, যা নিয়মিত করা হয়, যদিও তা পরিমাণে কম হয়।",
       "narrator": "Aisha (RA)",
-      "ref": "Sahih Bukhari 6464"
+      "ref": "Sahih Muslim 783"
     },
     {
       "id": "h038",
@@ -396,7 +396,7 @@
       "grade": "Sahih",
       "ar": "كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ",
       "en": "Be in this world as though you were a stranger or a traveler passing through.",
-      "bn": "তুমি দুনিয়াতে এমনভাবে থাকো, যেন তুমি একজন বিদেশি (অপরিচিত আগন্তুক) অথবা পথ অতিক্রমকারী মুসাফির।",
+      "bn": "তুমি দুনিয়াতে এমনভাবে থাকো, যেন তুমি একজন প্রবাসী অথবা পথ অতিক্রমকারী মুসাফির।",
       "narrator": "Abdullah ibn Umar (RA)",
       "ref": "Sahih Bukhari 6416"
     }
