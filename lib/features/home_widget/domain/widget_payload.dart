@@ -1,3 +1,4 @@
+import '../../../core/utils/wall_time.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
 import '../../settings/domain/entities/prayer_params.dart';
 
@@ -58,9 +59,9 @@ WidgetPayload buildWidgetPayload({
   String stripLine(PrayerDay d) {
     final noon = d.dhuhr;
     return [
-      millis(DateTime(noon.year, noon.month, noon.day)),
+      millis(noon.wallDay(0)),
       // Calendar +1, not +24h: a DST day is 23h or 25h long.
-      millis(DateTime(noon.year, noon.month, noon.day + 1)),
+      millis(noon.wallDay(1)),
       strip(d),
     ].join('\t');
   }

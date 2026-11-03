@@ -10,7 +10,7 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final now = DateTime(2026, 10, 26, 10);
+  final now = DateTime.utc(2026, 10, 26, 10);
   ExpenseStore store({Locale device = const Locale('en', 'US')}) =>
       ExpenseStore(
         SharedPreferencesAsync(),
@@ -52,7 +52,7 @@ void main() {
       await s.add(
         amount: 999,
         category: ExpenseCategory.want,
-        date: DateTime(2026, 9, 30),
+        date: DateTime.utc(2026, 9, 30),
       );
       await s.add(amount: 0, category: ExpenseCategory.want);
 
@@ -83,7 +83,7 @@ void main() {
         id,
         amount: 150,
         category: ExpenseCategory.family,
-        date: DateTime(2026, 9, 5),
+        date: DateTime.utc(2026, 9, 5),
       );
       expect(s.inMonth(s.month()), isEmpty);
       expect(s.totalsFor(s.month(-1))[ExpenseCategory.family], 150);
@@ -721,7 +721,7 @@ void main() {
     expect(s.entries.value, hasLength(2));
   });
 
-  test('import rejects hex amounts and UTC dates', () async {
+  test('import rejects hex amounts', () async {
     final s = store();
     expect(
       await s.importCsv(
@@ -729,13 +729,26 @@ void main() {
       ),
       isNull,
     );
+    expect(s.entries.value, isEmpty);
+  });
+
+  test('import reads old (local) and new (floating) backups alike', () async {
+    final s = store();
+    // A new backup's floating time keeps its wall-clock fields.
     expect(
       await s.importCsv(
         'date,category,amount,note\n2026-10-31T23:00:00.000Z,need,5,""',
       ),
-      isNull,
+      1,
     );
-    expect(s.entries.value, isEmpty);
+    expect(s.entries.value.single.date, DateTime.utc(2026, 10, 31, 23));
+    // The same entry from an old device-local backup is a duplicate.
+    expect(
+      await s.importCsv(
+        'date,category,amount,note\n2026-10-31T23:00:00.000,need,5,""',
+      ),
+      0,
+    );
   });
 
   test('import tolerates blank lines and a loosely typed header', () async {

@@ -178,7 +178,7 @@ final class _ShiftClock implements ZonedClock {
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) {
     final w = instant.toUtc().add(offset);
-    return DateTime(w.year, w.month, w.day, w.hour, w.minute, w.second);
+    return DateTime.utc(w.year, w.month, w.day, w.hour, w.minute, w.second);
   }
 
   @override

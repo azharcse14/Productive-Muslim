@@ -10,6 +10,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -47,13 +48,25 @@ final class _RamadanScreenState extends State<RamadanScreen> {
 
   DateTime _wallNow() {
     final location = _settings.location.value;
-    return location == null ? DateTime.now() : _clock.nowAt(location);
+    return location == null ? floatingNow() : _clock.nowAt(location);
   }
 
-  /// Wall time → real instant, so the countdown spans a DST night right.
-  DateTime _instantOf(DateTime wall) {
+  /// Real time from wall-clock [now] to [at] at the location, so the
+  /// countdown spans a DST night (and its repeated hour) right.
+  Duration _left(DateTime at, DateTime now) {
     final location = _settings.location.value;
-    return location == null ? wall : _clock.utcInstantOf(location, wall);
+    if (location == null) {
+      return at.difference(now);
+    }
+    DateTime instantOf(DateTime wall) => _clock.utcInstantOf(location, wall);
+    return instantOf(at).difference(
+      nowInstant(
+        now,
+        deviceUtc: DateTime.now().toUtc(),
+        instantOf: instantOf,
+        wallOf: (instant) => _clock.instantAt(location, instant),
+      ),
+    );
   }
 
   @override
@@ -116,7 +129,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
                     _TodayTimesCard(
                       store: _store,
                       now: _wallNow,
-                      instantOf: _instantOf,
+                      left: _left,
                       formatTime: (t) => _formatTime(context, t),
                     ),
                     const SizedBox(height: QSpace.s4),
@@ -312,13 +325,13 @@ final class _TodayTimesCard extends StatefulWidget {
   const _TodayTimesCard({
     required this.store,
     required this.now,
-    required this.instantOf,
+    required this.left,
     required this.formatTime,
   });
 
   final RamadanStore store;
   final DateTime Function() now;
-  final DateTime Function(DateTime wall) instantOf;
+  final Duration Function(DateTime at, DateTime now) left;
   final String Function(DateTime) formatTime;
 
   @override
@@ -364,9 +377,7 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             : next != null
             ? (l10n.countdownSahriEnds, next.$2)
             : (null, null);
-        // Real time left, not the wall-clock gap (a DST night).
-        Duration left(DateTime at) =>
-            widget.instantOf(at).difference(widget.instantOf(now));
+        Duration left(DateTime at) => widget.left(at, now);
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

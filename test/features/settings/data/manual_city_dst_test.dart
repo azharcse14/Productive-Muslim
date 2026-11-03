@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
@@ -6,12 +7,19 @@ import 'package:productive_muslim/features/prayer_times/data/repositories/prayer
 import 'package:productive_muslim/features/prayer_times/domain/entities/countdown_target.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
+import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/resolve_special_times.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/state/home_store.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
+import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
+
+import '../../../helpers/mosque_fakes.dart';
+import '../../../helpers/settings_fakes.dart';
 
 /// Manual-city wall times flow through prayer times, jamaat, the countdown
 /// and the notification plan as floating values: nothing may depend on the
@@ -36,6 +44,25 @@ const _london = ManualCityLocation(
     timezone: 'Europe/London',
   ),
 );
+
+/// The real clock, pinned at [utc] (so [nowAt] is its true reading).
+final class _PinnedClock implements ZonedClock {
+  _PinnedClock(this.utc);
+
+  final DateTime utc;
+  final _real = TimezoneClock();
+
+  @override
+  DateTime nowAt(LocationConfig location) => _real.instantAt(location, utc);
+
+  @override
+  DateTime instantAt(LocationConfig location, DateTime instant) =>
+      _real.instantAt(location, instant);
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      _real.utcInstantOf(location, wall);
+}
 
 void main() {
   setUpAll(TimezoneClock.initialize);
@@ -174,6 +201,60 @@ void main() {
           ),
         ),
         DateTime.utc(2026, 3, 29, 2, 50),
+      );
+    });
+  });
+
+  group("London's repeated fall-back hour (25 Oct 2026)", () {
+    // 00:30 UTC = 01:30 BST, the first time London reads 01:30.
+    final first = DateTime.utc(2026, 10, 25, 0, 30);
+    final wall = DateTime.utc(2026, 10, 25, 1, 30);
+
+    test('nowInstant takes the device instant over the guess', () {
+      DateTime instantOf(DateTime w) => clock.utcInstantOf(_london, w);
+      DateTime wallOf(DateTime i) => clock.instantAt(_london, i);
+      expect(wallOf(first), wall);
+      // The wall time alone resolves to the second 01:30 (GMT).
+      expect(instantOf(wall), DateTime.utc(2026, 10, 25, 1, 30));
+      expect(
+        nowInstant(
+          wall,
+          deviceUtc: first,
+          instantOf: instantOf,
+          wallOf: wallOf,
+        ),
+        first,
+      );
+      // A pinned wall clock that the device doesn't read falls back.
+      expect(
+        nowInstant(
+          wall,
+          deviceUtc: DateTime.utc(2020),
+          instantOf: instantOf,
+          wallOf: wallOf,
+        ),
+        instantOf(wall),
+      );
+    });
+
+    test('the home countdown counts from the real instant', () async {
+      final settings = await makeSettingsStore(
+        const AppSettings(location: _london),
+      );
+      final (mosque, _) = await makeMosqueStore();
+      final store = HomeStore(
+        getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
+        clock: _PinnedClock(first),
+        settings: settings,
+        mosque: mosque,
+        utcNow: () => first,
+      );
+      addTearDown(store.dispose);
+      expect(store.now.value, wall);
+      final target = store.countdownTarget.value!;
+      expect(
+        store.remaining.value,
+        clock.utcInstantOf(_london, target.at).difference(first),
       );
     });
   });

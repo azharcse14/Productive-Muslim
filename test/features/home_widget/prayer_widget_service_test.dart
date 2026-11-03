@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/home_widget/data/prayer_widget_service.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
@@ -31,7 +32,7 @@ final class _FixedClock implements ZonedClock {
   final real = TimezoneClock();
 
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => now.floating;
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
@@ -73,14 +74,14 @@ final class _FakeDays implements PrayerDayRepository {
 }
 
 PrayerDay _dayOn(DateTime d, {DateTime? fajrTomorrow}) => PrayerDay(
-  ishaYesterday: DateTime(d.year, d.month, d.day - 1, 20),
-  fajr: DateTime(d.year, d.month, d.day, 4),
-  sunrise: DateTime(d.year, d.month, d.day, 5, 30),
-  dhuhr: DateTime(d.year, d.month, d.day, 12),
-  asr: DateTime(d.year, d.month, d.day, 15, 30),
-  maghrib: DateTime(d.year, d.month, d.day, 18),
-  isha: DateTime(d.year, d.month, d.day, 19, 30),
-  fajrTomorrow: fajrTomorrow ?? DateTime(d.year, d.month, d.day + 1, 4),
+  ishaYesterday: DateTime.utc(d.year, d.month, d.day - 1, 20),
+  fajr: DateTime.utc(d.year, d.month, d.day, 4),
+  sunrise: DateTime.utc(d.year, d.month, d.day, 5, 30),
+  dhuhr: DateTime.utc(d.year, d.month, d.day, 12),
+  asr: DateTime.utc(d.year, d.month, d.day, 15, 30),
+  maghrib: DateTime.utc(d.year, d.month, d.day, 18),
+  isha: DateTime.utc(d.year, d.month, d.day, 19, 30),
+  fajrTomorrow: fajrTomorrow ?? DateTime.utc(d.year, d.month, d.day + 1, 4),
 );
 
 /// Runs [service].update() and returns the delays of the timers it armed.
@@ -153,7 +154,7 @@ void main() {
         ],
       ),
     );
-    final clock = _FixedClock(DateTime(2026, 6, 11, 10)); // a Thursday
+    final clock = _FixedClock(DateTime.utc(2026, 6, 11, 10)); // a Thursday
     final service = PrayerWidgetService(
       getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
       clock: clock,
@@ -234,7 +235,10 @@ void main() {
     test(
       'arms for the next prayer start when it comes before midnight',
       () async {
-        final s = await service(DateTime(2026, 6, 11, 10), _FakeDays(_dayOn));
+        final s = await service(
+          DateTime.utc(2026, 6, 11, 10),
+          _FakeDays(_dayOn),
+        );
         expect(await _armedTimers(s, timers), [
           const Duration(hours: 2) + slack,
         ]);
@@ -242,7 +246,7 @@ void main() {
     );
 
     test("after Isha it arms for midnight, not tomorrow's Fajr", () async {
-      final s = await service(DateTime(2026, 6, 11, 21), _FakeDays(_dayOn));
+      final s = await service(DateTime.utc(2026, 6, 11, 21), _FakeDays(_dayOn));
       expect(await _armedTimers(s, timers), [const Duration(hours: 3) + slack]);
     });
 
@@ -251,10 +255,12 @@ void main() {
       () async {
         // Bogus data: tomorrow's Fajr already behind now.
         final s = await service(
-          DateTime(2026, 6, 11, 23),
+          DateTime.utc(2026, 6, 11, 23),
           _FakeDays(
-            (d) =>
-                _dayOn(d, fajrTomorrow: DateTime(d.year, d.month, d.day, 22)),
+            (d) => _dayOn(
+              d,
+              fajrTomorrow: DateTime.utc(d.year, d.month, d.day, 22),
+            ),
           ),
         );
         expect(await _armedTimers(s, timers), [
@@ -267,7 +273,7 @@ void main() {
       "today's times failing keeps the widget configured and retries",
       () async {
         final s = await service(
-          DateTime(2026, 6, 11, 10),
+          DateTime.utc(2026, 6, 11, 10),
           _FakeDays(_dayOn, fail: true),
         );
         expect(await _armedTimers(s, timers), [

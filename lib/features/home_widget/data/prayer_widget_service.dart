@@ -64,6 +64,8 @@ final class PrayerWidgetService {
 
       final days = <PrayerDay>[];
       DateTime now;
+      // Read with [now]: its real instant through a repeated (fall-back) hour.
+      final nowUtc = DateTime.now().toUtc();
       var locationLabel = '';
       if (location != null) {
         now = _clock.nowAt(location);
@@ -83,7 +85,7 @@ final class PrayerWidgetService {
         }
         locationLabel = formatLocationName(location, l10n);
       } else {
-        now = DateTime.now();
+        now = floatingNow();
       }
 
       String formatTime(DateTime t) => formatClockTime(
@@ -132,7 +134,14 @@ final class PrayerWidgetService {
             ? at.difference(now)
             : _clock
                   .utcInstantOf(location, at)
-                  .difference(_clock.utcInstantOf(location, now));
+                  .difference(
+                    nowInstant(
+                      now,
+                      deviceUtc: nowUtc,
+                      instantOf: (wall) => _clock.utcInstantOf(location, wall),
+                      wallOf: (instant) => _clock.instantAt(location, instant),
+                    ),
+                  );
         _boundary = Timer(
           wait + const Duration(seconds: 1),
           () => unawaited(update()),

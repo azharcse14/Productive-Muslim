@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/config/app_config.dart';
 import 'package:productive_muslim/core/di/locator.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_texts.dart';
 import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
@@ -72,7 +73,7 @@ final class _FixedClock implements ZonedClock {
   final TimezoneClock real;
 
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => now.floating;
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
@@ -92,7 +93,7 @@ final class _LateIshaRepository implements PrayerDayRepository {
     required DateTime date,
   }) {
     DateTime at(int day, int h, [int m = 0]) =>
-        DateTime(date.year, date.month, date.day + day, h, m);
+        DateTime.utc(date.year, date.month, date.day + day, h, m);
     return Result.success(
       PrayerDay(
         fajr: at(0, 2, 30),
@@ -152,7 +153,7 @@ void main() {
       final usecase = RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime.utc(2026, 3, 12, 4), TimezoneClock()),
       );
       final result = await usecase(
         settings: const AppSettings(),
@@ -168,7 +169,7 @@ void main() {
       final usecase = RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime.utc(2026, 3, 12, 4), TimezoneClock()),
       );
       final result = await usecase(
         settings: const AppSettings(location: _dhaka),
@@ -179,7 +180,7 @@ void main() {
       // Defaults: azan×5/day + sahri + iftar within window — at least a
       // dozen items, all in the future and inside 48h (keep-alive excepted).
       expect(plan.length, greaterThanOrEqualTo(12));
-      final from = DateTime(2026, 3, 12, 4);
+      final from = DateTime.utc(2026, 3, 12, 4);
       expect(plan.every((i) => i.at.isAfter(from)), isTrue);
       final reminders = plan.where((i) => i.kind != NotificationKind.keepAlive);
       expect(
@@ -199,7 +200,7 @@ void main() {
       await RescheduleNotifications(
         getPrayerDay: GetPrayerDay(_LateIshaRepository()),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 6, 15, 0, 10), TimezoneClock()),
+        clock: _FixedClock(DateTime.utc(2026, 6, 15, 0, 10), TimezoneClock()),
       )(
         settings: const AppSettings(location: _dhaka),
         texts: _texts,
@@ -207,7 +208,7 @@ void main() {
       final ishas = scheduler.lastPlan!.where(
         (i) => i.kind == NotificationKind.azan && i.prayer == Prayer.isha,
       );
-      expect(ishas.first.at, DateTime(2026, 6, 15, 0, 30));
+      expect(ishas.first.at, DateTime.utc(2026, 6, 15, 0, 30));
       expect(ishas.first.prayerDay, DateTime(2026, 6, 14));
     });
 
@@ -216,7 +217,7 @@ void main() {
       await RescheduleNotifications(
         getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(TimezoneClock())),
         scheduler: scheduler,
-        clock: _FixedClock(DateTime(2026, 3, 12, 4), TimezoneClock()),
+        clock: _FixedClock(DateTime.utc(2026, 3, 12, 4), TimezoneClock()),
         window: AppConfig.notificationSchedulingWindow,
         maxItems: notificationCapFor(platform),
       )(
@@ -235,7 +236,7 @@ void main() {
 
     test('Android fills the full 7-day window, uncapped', () async {
       final plan = await planFor(TargetPlatform.android);
-      final from = DateTime(2026, 3, 12, 4);
+      final from = DateTime.utc(2026, 3, 12, 4);
       final azans = plan.where((i) => i.kind == NotificationKind.azan);
       // 5 prayers × 7 days (fajr on day one may already be past).
       expect(azans.length, greaterThanOrEqualTo(34));
@@ -273,7 +274,7 @@ void main() {
   group('TimezoneClock.utcInstantOf', () {
     test('manual city wall time converts to the correct UTC instant', () {
       final clock = TimezoneClock();
-      final utc = clock.utcInstantOf(_dhaka, DateTime(2026, 6, 12, 18, 45));
+      final utc = clock.utcInstantOf(_dhaka, DateTime.utc(2026, 6, 12, 18, 45));
       expect(utc, DateTime.utc(2026, 6, 12, 12, 45)); // Dhaka = UTC+6
     });
 

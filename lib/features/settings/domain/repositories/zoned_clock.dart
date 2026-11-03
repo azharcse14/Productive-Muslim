@@ -15,7 +15,8 @@ abstract interface class ZonedClock {
   DateTime instantAt(LocationConfig location, DateTime instant);
 
   /// Inverse of [instantAt]: the UTC instant at which the wall clock at
-  /// [location] reads [wall] (its fields; floating or local alike). Needed to schedule OS alarms at foreign-city
-  /// moments.
+  /// [location] reads [wall] (its fields; floating or local alike). Needed
+  /// to schedule OS alarms at foreign-city moments. In the location's
+  /// repeated fall-back hour it picks one of the two instants.
   DateTime utcInstantOf(LocationConfig location, DateTime wall);
 }

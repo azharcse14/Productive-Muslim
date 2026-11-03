@@ -27,21 +27,31 @@ final class CountdownTarget {
   final DateTime windowStart;
 
   /// [instantOf] maps a wall time to its real instant (the location's
-  /// zone), so a DST shift on the device doesn't skew the difference.
-  Duration remainingAt(DateTime now, [DateTime Function(DateTime)? instantOf]) {
+  /// zone), so a DST shift doesn't skew the difference. [nowInstant] is
+  /// [now]'s real instant when known: in the location's fall-back hour
+  /// [now] reads the same twice and [instantOf] can only guess.
+  Duration remainingAt(
+    DateTime now, [
+    DateTime Function(DateTime)? instantOf,
+    DateTime? nowInstant,
+  ]) {
     final i = instantOf ?? _wall;
-    return i(at).difference(i(now));
+    return i(at).difference(nowInstant ?? i(now));
   }
 
-  /// 0..1 elapsed fraction of the window at [now].
-  double progressAt(DateTime now, [DateTime Function(DateTime)? instantOf]) {
+  /// 0..1 elapsed fraction of the window at [now] (see [remainingAt]).
+  double progressAt(
+    DateTime now, [
+    DateTime Function(DateTime)? instantOf,
+    DateTime? nowInstant,
+  ]) {
     final i = instantOf ?? _wall;
     final start = i(windowStart);
     final total = i(at).difference(start).inSeconds;
     if (total <= 0) {
       return 1;
     }
-    final elapsed = i(now).difference(start).inSeconds;
+    final elapsed = (nowInstant ?? i(now)).difference(start).inSeconds;
     return (elapsed / total).clamp(0, 1).toDouble();
   }
 

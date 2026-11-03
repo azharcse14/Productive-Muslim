@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/hijri_date.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
@@ -18,7 +19,7 @@ final class _MutableClock implements ZonedClock {
   DateTime now;
 
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => now.floating;
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) => instant;

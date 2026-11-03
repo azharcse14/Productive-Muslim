@@ -9,6 +9,7 @@ import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/utils/hijri_date.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_list_row.dart';
@@ -43,7 +44,7 @@ final class _MoreScreenState extends State<MoreScreen> {
     // Today at the user's location, like every other "today" in the app.
     final location = _settings.location.value;
     final now = location == null
-        ? DateTime.now()
+        ? floatingNow()
         : locator<ZonedClock>().nowAt(location);
     return RamadanUtils.isRamadan(
       HijriDate.fromGregorian(

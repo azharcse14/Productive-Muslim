@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 
 /// Spending buckets framed by Islamic priorities: needs first, then family,
 /// then sadaqah, with wants kept in check (no israf — Al-A'raf 7:31).
@@ -32,7 +33,8 @@ final class Expense {
       _ => (j['amount'] as int) * 100,
     },
     category: ExpenseCategory.values.byName(j['category'] as String),
-    date: DateTime.parse(j['date'] as String),
+    // Floating wall time (older records were stored device-local).
+    date: DateTime.parse(j['date'] as String).floating,
     note: j['note'] as String? ?? '',
   );
 
@@ -427,7 +429,7 @@ final class ExpenseStore {
       id: entries.value.fold(0, (m, e) => e.id > m ? e.id : m) + 1,
       amount: amount,
       category: category,
-      date: date ?? _now(),
+      date: (date ?? _now()).floating,
       note: note.trim(),
     );
     final next = [e, ...entries.value]
@@ -492,7 +494,7 @@ final class ExpenseStore {
       id: id,
       amount: amount,
       category: category,
-      date: date,
+      date: date.floating,
       note: note.trim(),
     );
     final next = [for (final e in entries.value) e.id == id ? edited : e]
@@ -670,12 +672,11 @@ final class ExpenseStore {
       if (r.length != 4) {
         return null;
       }
-      final date = DateTime.tryParse(r[0].trim());
+      // Wall-clock fields, floating: older backups wrote them device-local.
+      final date = DateTime.tryParse(r[0].trim())?.floating;
       final category = ExpenseCategory.values.asNameMap()[r[1].trim()];
       final amount = parseAmount(r[2]);
-      // toCsv writes wall-clock times; a UTC one would land on the wrong
-      // day (and never match its local twin when deduping).
-      if (date == null || date.isUtc || category == null || amount == null) {
+      if (date == null || category == null || amount == null) {
         return null;
       }
       parsed.add(
