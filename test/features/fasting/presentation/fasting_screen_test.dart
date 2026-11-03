@@ -128,5 +128,78 @@ void main() {
       expect(find.text('Ramadan — the obligatory fast'), findsOneWidget);
       expect(find.text('Log a voluntary fast'), findsNothing);
     });
+
+    testWidgets('paging back to last month lets its fasts be logged', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(800, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+      expect(find.text('June 2026'), findsOneWidget);
+      // No paging into the future.
+      final next = find.widgetWithIcon(IconButton, Icons.chevron_right);
+      expect(tester.widget<IconButton>(next).onPressed, isNull);
+
+      await tester.tap(find.byTooltip('Previous month'));
+      await tester.pumpAndSettle();
+      expect(find.text('May 2026'), findsOneWidget);
+      // May 6 2026: a Wednesday, not a recommended day.
+      await tester.ensureVisible(find.bySemanticsLabel(RegExp(r'^Wed, May 6')));
+      await tester.tap(find.bySemanticsLabel(RegExp(r'^Wed, May 6')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Make-up (qaza)'));
+      await tester.pumpAndSettle();
+      expect(GetIt.I<FastingStore>().isLogged(DateTime(2026, 5, 6)), isTrue);
+      // The calendar's spoken summary names the shown month.
+      expect(
+        find.bySemanticsLabel('1 fast logged in May 2026'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byTooltip('Next month'));
+      await tester.pumpAndSettle();
+      expect(find.text('June 2026'), findsOneWidget);
+    });
+
+    testWidgets("tapping a future day says why it can't be logged", (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(800, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel(RegExp(r'^Sat, Jun 20')));
+      await tester.pump();
+      expect(
+        find.text('You can log this fast once the day has come.'),
+        findsOneWidget,
+      );
+      expect(GetIt.I<FastingStore>().isLogged(DateTime(2026, 6, 20)), isFalse);
+    });
+
+    testWidgets('tapping an Eid day says fasting is not permitted', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(800, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Previous month'));
+      await tester.pumpAndSettle();
+      // May 27 2026 = 10 Dhul-Hijjah 1447 (Eid al-Adha).
+      await tester.tap(find.bySemanticsLabel(RegExp(r'^Wed, May 27')));
+      await tester.pump();
+      expect(
+        find.text("Fasting isn't permitted on this day (Eid or Tashreeq)."),
+        findsOneWidget,
+      );
+    });
   });
 }

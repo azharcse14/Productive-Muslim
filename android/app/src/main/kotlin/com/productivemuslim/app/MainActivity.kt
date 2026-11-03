@@ -87,6 +87,22 @@ class MainActivity : FlutterFragmentActivity() {
                 result.notImplemented()
             }
         }
+        // Quran reader / tasbih open → the display stays on.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.productivemuslim.app/screen"
+        ).setMethodCallHandler { call, result ->
+            if (call.method == "keepOn") {
+                if (call.arguments == true) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                result.success(null)
+            } else {
+                result.notImplemented()
+            }
+        }
     }
 
     /** Some settings pages are missing on low-RAM / Go devices: fall back to Settings. */

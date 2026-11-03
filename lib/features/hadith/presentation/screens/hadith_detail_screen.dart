@@ -54,7 +54,7 @@ final class _HadithDetailScreenState extends State<HadithDetailScreen> {
             child: switch ((hadith, _store.loaded.value)) {
               (final h?, _) => ListView(
                 padding: const EdgeInsets.all(QSpace.s5),
-                children: [HadithListCard(hadith: h)],
+                children: [HadithListCard(hadith: h, store: _store)],
               ),
               (null, false) => const QSkeletonList(count: 1, height: 220),
               // A failed load isn't "not found" — the id may well exist.

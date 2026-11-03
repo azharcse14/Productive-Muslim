@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
 import 'package:productive_muslim/features/quran/domain/entities/surah.dart';
 
 Surah _surah(int id, String arabic) => Surah(
@@ -27,5 +28,26 @@ void main() {
     // ...and still match when typed without it.
     expect(filterSurahs(all, 'الرحمن').map((s) => s.id), [55]);
     expect(filterSurahs(all, 'طه').map((s) => s.id), [20]);
+  });
+
+  test('parseAyahReference reads surah:ayah within the surah', () {
+    const baqara = Surah(
+      id: 2,
+      nameArabic: '',
+      transliteration: '',
+      translationEn: '',
+      ayahCount: 286,
+      revelation: 'medinan',
+    );
+    const index = [baqara];
+    expect(parseAyahReference(index, '2:255'), const QuranPosition(2, 255));
+    expect(parseAyahReference(index, ' ২ : ২৫৫ '), const QuranPosition(2, 255));
+    expect(parseAyahReference(index, '2.286'), const QuranPosition(2, 286));
+    expect(parseAyahReference(index, '2/1'), const QuranPosition(2, 1));
+    expect(parseAyahReference(index, '2:287'), isNull); // past the surah
+    expect(parseAyahReference(index, '2:0'), isNull);
+    expect(parseAyahReference(index, '3:1'), isNull); // unknown surah
+    expect(parseAyahReference(index, '2'), isNull);
+    expect(parseAyahReference(index, 'baqara'), isNull);
   });
 }

@@ -50,38 +50,42 @@ final class _TibbNabawiScreenState extends State<TibbNabawiScreen> {
         child: SignalBuilder(
           builder: (context) {
             final items = [for (final c in _store.categories.value) ...c.items];
-            return ListView(
+            final failed = _store.failed.value && items.isEmpty;
+            final loading = !failed && !_store.loaded.value;
+            // Lazy: the note, then one row per card (or the retry / three
+            // skeletons) — only the rows on screen are built.
+            final rows = failed ? 1 : (loading ? 3 : items.length);
+            return ListView.separated(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
                 QSpace.s3,
                 QSpace.s5,
                 QSpace.s5,
               ),
-              children: [
-                QCard(
-                  child: Text(
-                    l10n.tibbNabawiNote,
-                    style: QType.body.copyWith(color: q.ink2),
-                  ),
-                ),
-                const SizedBox(height: QSpace.s3),
-                if (_store.failed.value && items.isEmpty)
-                  QErrorRetry(
+              itemCount: rows + 1,
+              separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return QCard(
+                    child: Text(
+                      l10n.tibbNabawiNote,
+                      style: QType.body.copyWith(color: q.ink2),
+                    ),
+                  );
+                }
+                if (failed) {
+                  return QErrorRetry(
                     message: l10n.ruqyahLoadError,
                     retryLabel: l10n.retry,
                     onRetry: () => unawaited(_store.load()),
-                  )
-                else if (!_store.loaded.value)
-                  for (var i = 0; i < 3; i++) ...[
-                    const QSkeleton(height: 160, radius: QRadius.lg),
-                    const SizedBox(height: QSpace.s3),
-                  ]
-                else
-                  for (final item in items) ...[
-                    RuqyahCard(key: ValueKey(item.id), item: item),
-                    const SizedBox(height: QSpace.s3),
-                  ],
-              ],
+                  );
+                }
+                if (loading) {
+                  return const QSkeleton(height: 160, radius: QRadius.lg);
+                }
+                final item = items[index - 1];
+                return RuqyahCard(key: ValueKey(item.id), item: item);
+              },
             );
           },
         ),

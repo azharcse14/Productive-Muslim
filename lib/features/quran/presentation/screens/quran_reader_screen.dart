@@ -21,6 +21,7 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_medallion.dart';
 import '../../../../shared/widgets/q_number_dialog.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
+import '../../../keep_awake/domain/screen_wake.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../state/quran_store.dart';
@@ -60,6 +61,7 @@ final class _QuranReader extends StatefulWidget {
 final class _QuranReaderState extends State<_QuranReader> {
   // App-scoped store — never disposed here.
   late final QuranStore _store = locator<QuranStore>();
+  late final ScreenWake _wake = locator<ScreenWake>();
 
   final ScrollController _controller = ScrollController();
   final _ayahs = signal(const <Ayah>[]);
@@ -86,11 +88,14 @@ final class _QuranReaderState extends State<_QuranReader> {
   void initState() {
     super.initState();
     _controller.addListener(_onScroll);
+    // Reading shouldn't be cut off by the screen timeout.
+    unawaited(_wake.hold(on: true));
     unawaited(_load());
   }
 
   @override
   void dispose() {
+    unawaited(_wake.hold(on: false));
     _controller.dispose();
     super.dispose();
   }
@@ -128,6 +133,8 @@ final class _QuranReaderState extends State<_QuranReader> {
       max: count,
     );
     if (number != null && mounted) {
+      // A chosen ayah is a reading position, like one scrolled to.
+      unawaited(_store.markRead(QuranPosition(widget.surahId, number)));
       _jumpToIndex(number - 1);
     }
   }

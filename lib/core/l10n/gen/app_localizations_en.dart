@@ -9,6 +9,26 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String quranOpenAyah(String reference) {
+    return 'Open $reference';
+  }
+
+  @override
+  String get tasbihAutoNext => 'Start the next round at the target';
+
+  @override
+  String get favoriteRemoved => 'Removed from favorites';
+
+  @override
+  String get hadithFavoritesTitle => 'Saved hadith';
+
+  @override
+  String get asmaQuizLeaveTitle => 'Leave the quiz?';
+
+  @override
+  String get asmaQuizLeave => 'Leave';
+
+  @override
   String get appTitle => 'Productive Muslim';
 
   @override
@@ -1076,7 +1096,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveExplain =>
-      'Archived items disappear from your daily list, but every past entry is preserved.';
+      'Archived items move to the Archived section at the bottom of your list. Every past entry is kept, and you can restore them anytime.';
 
   @override
   String get archivedSection => 'Archived';
@@ -1198,7 +1218,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quranTitle => 'Quran';
 
   @override
-  String get searchSurahHint => 'Search surah…';
+  String get searchSurahHint => 'Surah name, number or 2:255';
 
   @override
   String get surahSearchNoResults =>
@@ -1522,7 +1542,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fastingQazaOwedHint => 'Fasts owed (optional)';
 
   @override
-  String fastingHeatmapLabel(int count) {
+  String fastingHeatmapLabel(int count, String month) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
@@ -1530,9 +1550,9 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString fasts logged this month',
-      one: '1 fast logged this month',
-      zero: 'No fasts logged this month',
+      other: '$countString fasts logged in $month',
+      one: '1 fast logged in $month',
+      zero: 'No fasts logged in $month',
     );
     return '$_temp0';
   }
@@ -2729,7 +2749,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseSaveFailed => 'Couldn\'t save. Please try again.';
 
   @override
-  String get expenseAmountInvalid => 'Enter a whole amount';
+  String get expenseAmountInvalid =>
+      'Enter a whole number above 0, without decimals (e.g. 250)';
 
   @override
   String get expenseBudget => 'Monthly budget';
@@ -2831,7 +2852,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hadithSearchHint => 'Search hadith';
+  String get hadithSearchHint => 'Search topics';
 
   @override
   String get hadithNoResults => 'No hadith found';
@@ -3635,4 +3656,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditsTibbNabawiSource =>
       'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app';
+
+  @override
+  String get fastingPrevMonth => 'Previous month';
+
+  @override
+  String get fastingNextMonth => 'Next month';
+
+  @override
+  String get fastingFutureDay => 'You can log this fast once the day has come.';
+
+  @override
+  String get fastingForbiddenDay =>
+      'Fasting isn\'t permitted on this day (Eid or Tashreeq).';
+
+  @override
+  String durationHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get expenseFilterHint => 'show only this category';
+
+  @override
+  String get expenseFilterClearHint => 'show all categories';
+
+  @override
+  String get healthWeightLogPast => 'Log another day';
 }

@@ -1,5 +1,11 @@
 {
   "@@locale": "bn",
+  "quranOpenAyah": "{reference} খুলুন",
+  "tasbihAutoNext": "লক্ষ্য পূর্ণ হলে পরের রাউন্ড শুরু করুন",
+  "favoriteRemoved": "প্রিয় থেকে সরানো হয়েছে",
+  "hadithFavoritesTitle": "সংরক্ষিত হাদিস",
+  "asmaQuizLeaveTitle": "কুইজ ছেড়ে যাবেন?",
+  "asmaQuizLeave": "ছেড়ে যান",
   "appTitle": "প্রোডাক্টিভ মুসলিম",
   "tabHome": "হোম",
   "tabQuran": "কুরআন",
@@ -289,7 +295,7 @@
   "archiveTracker": "আর্কাইভ",
   "unarchiveTracker": "ফিরিয়ে আনুন",
   "trackerSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-  "archiveExplain": "আর্কাইভ করা আইটেম দৈনিক তালিকা থেকে সরে যায়, কিন্তু আগের সব এন্ট্রি সংরক্ষিত থাকে।",
+  "archiveExplain": "আর্কাইভ করা আইটেম তালিকার নিচে \"আর্কাইভ করা\" অংশে চলে যায়। আগের সব এন্ট্রি সংরক্ষিত থাকে, যেকোনো সময় ফিরিয়ে আনা যায়।",
   "archivedSection": "আর্কাইভ করা",
   "dashboardTab": "ড্যাশবোর্ড",
   "todayTab": "আজ",
@@ -311,7 +317,7 @@
   "minutesValue": "{count} মিনিট",
   "notYet": "এখনো হয়নি",
   "quranTitle": "কুরআন",
-  "searchSurahHint": "সূরা খুঁজুন…",
+  "searchSurahHint": "ইংরেজি বা আরবি নাম, নম্বর বা ২:২৫৫",
   "surahSearchNoResults": "কোনো সূরা মেলেনি — অন্য নাম বা নম্বর দিয়ে চেষ্টা করুন",
   "continueReading": "পড়া চালিয়ে যান",
   "surahMeta": "{count} আয়াত · {place}",
@@ -406,10 +412,11 @@
   "fastingQazaOfOwed": "{owed}টির মধ্যে {done}টি আদায় হয়েছে",
   "fastingQazaSetOwed": "বাকি রোজার সংখ্যা দিন",
   "fastingQazaOwedHint": "বাকি রোজা (ঐচ্ছিক)",
-  "fastingHeatmapLabel": "{count, plural, =0{এই মাসে কোনো রোজা রেকর্ড হয়নি} =1{এই মাসে ১টি রোজা রেকর্ড হয়েছে} other{এই মাসে {count}টি রোজা রেকর্ড হয়েছে}}",
+  "fastingHeatmapLabel": "{count, plural, =0{{month} মাসে কোনো রোজা রেকর্ড হয়নি} =1{{month} মাসে ১টি রোজা রেকর্ড হয়েছে} other{{month} মাসে {count}টি রোজা রেকর্ড হয়েছে}}",
   "@fastingHeatmapLabel": {
     "placeholders": {
-      "count": { "type": "int", "format": "decimalPattern" }
+      "count": { "type": "int", "format": "decimalPattern" },
+      "month": { "type": "String" }
     }
   },
   "fastingUpcomingTitle": "আসন্ন প্রস্তাবিত রোজা",
@@ -786,7 +793,7 @@
   "expenseDeleted": "খরচ মুছে ফেলা হয়েছে",
   "expenseUndo": "ফিরিয়ে আনুন",
   "expenseSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-  "expenseAmountInvalid": "পূর্ণ সংখ্যায় পরিমাণ লিখুন",
+  "expenseAmountInvalid": "০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)",
   "expenseBudget": "মাসিক বাজেট",
   "expenseBudgetClear": "বাজেট মুছুন",
   "expenseBudgetLeft": "{budget} এর মধ্যে {left} বাকি",
@@ -810,7 +817,7 @@
       "count": { "type": "int", "format": "decimalPattern" }
     }
   },
-  "hadithSearchHint": "হাদিস খুঁজুন",
+  "hadithSearchHint": "বিষয়ভিত্তিক হাদিস খুঁজুন",
   "hadithNoResults": "কোনো হাদিস পাওয়া যায়নি",
   "ruqyahSearchHint": "রুকইয়াহ খুঁজুন",
   "ruqyahNoResults": "কিছু পাওয়া যায়নি",
@@ -1014,5 +1021,14 @@
   "creditsBnHadithSixBooks": "সহিহ বুখারি, সহিহ মুসলিম, সুনানে আবু দাউদ, জামে তিরমিজি, সুনানে নাসায়ি, সুনানে ইবনে মাজাহ: {source}",
   "creditsBnHadithNawawiMalik": "৪০ হাদিস নববি, মুয়াত্তা মালিক: {source}",
   "creditsAsmaulHusnaSource": "এই অ্যাপের জন্য সংকলিত; অর্থগুলোর সূত্র লিপিবদ্ধ নেই",
-  "creditsTibbNabawiSource": "এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা"
+  "creditsTibbNabawiSource": "এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা",
+  "fastingPrevMonth": "আগের মাস",
+  "fastingNextMonth": "পরের মাস",
+  "fastingFutureDay": "দিনটি এলে তবেই এই রোজা লগ করা যাবে।",
+  "fastingForbiddenDay": "এই দিনে রোজা রাখা নিষিদ্ধ (ঈদ বা তাশরীক)।",
+  "durationHours": "{hours} ঘণ্টা",
+  "durationHoursMinutes": "{hours} ঘণ্টা {minutes} মিনিট",
+  "expenseFilterHint": "শুধু এই ক্যাটাগরি দেখান",
+  "expenseFilterClearHint": "সব ক্যাটাগরি দেখান",
+  "healthWeightLogPast": "অন্য দিনের ওজন লিখুন"
 }

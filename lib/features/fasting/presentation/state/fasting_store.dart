@@ -216,10 +216,10 @@ final class FastingStore {
     }
   }
 
-  /// The day under heatmap cell ([week], [day]) of [monthHeatmap], or null
-  /// for padding.
-  DateTime? heatmapDate(int week, int day) {
-    final t = today;
+  /// The day under heatmap cell ([week], [day]) of [monthHeatmap] for
+  /// [month] (default: this month), or null for padding.
+  DateTime? heatmapDate(int week, int day, {DateTime? month}) {
+    final t = month ?? today;
     final index = week * 7 + day - DateTime(t.year, t.month).weekday % 7;
     final daysInMonth = DateTime(t.year, t.month + 1, 0).day;
     return index < 0 || index >= daysInMonth
@@ -274,11 +274,12 @@ final class FastingStore {
     );
   }
 
-  /// Heatmap columns (week-per-column, 7 rows) for the current Gregorian
-  /// month: level 4 = fasted, level 0 = not yet, -1 = padding/out-of-range.
-  /// Mirrors the muhasaba heatmap layout (Sunday-first padding).
-  List<List<int>> monthHeatmap() {
-    final t = today;
+  /// Heatmap columns (week-per-column, 7 rows) for the Gregorian [month]
+  /// (default: this month): level 4 = fasted, level 0 = not yet, -1 =
+  /// padding/out-of-range. Mirrors the muhasaba heatmap layout (Sunday-first
+  /// padding).
+  List<List<int>> monthHeatmap({DateTime? month}) {
+    final t = month ?? today;
     final daysInMonth = DateTime(t.year, t.month + 1, 0).day;
     final first = DateTime(t.year, t.month);
     final levels = <int>[

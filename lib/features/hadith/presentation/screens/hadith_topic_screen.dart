@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/di/locator.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/reader/reader_settings_sheet.dart';
 import '../../domain/entities/hadith.dart';
+import '../state/hadith_store.dart';
 import '../widgets/hadith_list_card.dart';
 
 /// The bundled hadith for one topic.
@@ -15,6 +17,8 @@ final class HadithTopicScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // App-scoped store — owns the favorites.
+    final store = locator<HadithStore>();
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.hadithTopicName(topic.id)),
@@ -31,7 +35,7 @@ final class HadithTopicScreen extends StatelessWidget {
           itemCount: topic.items.length,
           separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
           itemBuilder: (context, index) =>
-              HadithListCard(hadith: topic.items[index]),
+              HadithListCard(hadith: topic.items[index], store: store),
         ),
       ),
     );

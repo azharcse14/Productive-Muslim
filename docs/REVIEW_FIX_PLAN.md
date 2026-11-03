@@ -482,7 +482,7 @@ Both branches start from `feb94c9`, so they predate `fix/ui-features-b`, which a
 many of the same findings. Don't merge them as they are. Take only what's still missing, on a
 fresh branch from `master`.
 
-- [ ] **`fix/ux-quran-hadith-dua`** (`b900a57`). Still missing on master:
+- [x] **`fix/ux-quran-hadith-dua`** (`b900a57`). Ported 2026-11-03 (see PROGRESS). Still missing on master:
   - Bangla surah-search hint: name in English/Arabic, or a number.
   - `2:255` jump from the surah search.
   - Bookmarks sheet: build rows with `ListView.builder`, and undo for more than the last removal.
@@ -503,7 +503,7 @@ fresh branch from `master`.
     - The Asma sheet scrolls.
     - The Asma quiz confirms before back.
   - Keep the screen on in Tasbih and the Quran reader (native flag, no package).
-- [ ] **`fix/ux-muhasaba-trackers`** (`eb9eee3`). Still missing on master:
+- [x] **`fix/ux-muhasaba-trackers`** (`eb9eee3`). Ported 2026-11-03 (see PROGRESS). Still missing on master:
   - Fasting: prev/next month so past months' fasts can be logged; a snackbar when a future or Eid day is tapped.
   - Muhasaba:
     - Tapping a yes/no row toggles it.

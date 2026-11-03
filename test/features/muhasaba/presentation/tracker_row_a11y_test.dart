@@ -125,4 +125,76 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(changed, 45);
   });
+
+  testWidgets('tapping a yes/no row toggles it; the pencil edits', (
+    tester,
+  ) async {
+    final changes = <int>[];
+    var edits = 0;
+    await tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: const TrackerItem(
+            id: 'custom_4',
+            name: 'Tahajjud',
+            kind: TrackerKind.yesNo,
+            icon: 'moon',
+          ),
+          value: 0,
+          displayName: 'Tahajjud',
+          onChanged: changes.add,
+          onEdit: () => edits++,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Tahajjud'));
+    expect(changes, [1]);
+    expect(edits, 0);
+    await tester.tap(find.byTooltip('Edit item'));
+    expect(edits, 1);
+  });
+
+  testWidgets('durations read in hours and minutes', (tester) async {
+    Future<void> pump(int value, int? target) => tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: TrackerItem(
+            id: 'custom_5',
+            name: 'Sleep',
+            kind: TrackerKind.duration,
+            icon: 'moon',
+            dailyTarget: target,
+          ),
+          value: value,
+          displayName: 'Sleep',
+          onChanged: (_) {},
+        ),
+      ),
+    );
+    await pump(90, 480);
+    expect(find.text('1 h 30 min / 8 h'), findsOneWidget);
+    await pump(45, null);
+    expect(find.text('45 min'), findsOneWidget);
+  });
+
+  testWidgets('the duration dialog names its unit', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: const TrackerItem(
+            id: 'custom_6',
+            name: 'Reading',
+            kind: TrackerKind.duration,
+            icon: 'book',
+          ),
+          value: 10,
+          displayName: 'Reading',
+          onChanged: (_) {},
+        ),
+      ),
+    );
+    await tester.tap(find.text('10'));
+    await tester.pumpAndSettle();
+    expect(find.text('minutes'), findsOneWidget);
+  });
 }

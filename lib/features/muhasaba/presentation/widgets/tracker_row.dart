@@ -31,7 +31,8 @@ final class TrackerRow extends StatelessWidget {
   /// null renders the controls disabled (archived items).
   final ValueChanged<int>? onChanged;
 
-  /// Tapping (or long-pressing) the row outside its controls edits it.
+  /// A long press edits the item; so does a plain tap, except on an active
+  /// yes/no row, where a tap toggles it (and a pencil button edits).
   final VoidCallback? onEdit;
 
   @override
@@ -39,11 +40,16 @@ final class TrackerRow extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     final tone = TrackerVisuals.colorOf(q, item.colorIndex);
+    // An hour and up reads as "8 h" / "1 h 30 min", not "480 min".
+    String duration(int minutes) => minutes < 60
+        ? l10n.minutesValue(minutes)
+        : minutes % 60 == 0
+        ? l10n.durationHours(minutes ~/ 60)
+        : l10n.durationHoursMinutes(minutes ~/ 60, minutes % 60);
     final sub = switch ((item.kind, item.dailyTarget)) {
       (TrackerKind.count, final t?) => '$value / $t ${l10n.targetCountSuffix}',
-      (TrackerKind.duration, final t?) =>
-        '${l10n.minutesValue(value)} / $t ${l10n.targetMinutesSuffix}',
-      (TrackerKind.duration, null) => l10n.minutesValue(value),
+      (TrackerKind.duration, final t?) => '${duration(value)} / ${duration(t)}',
+      (TrackerKind.duration, null) => duration(value),
       _ => null,
     };
     final changed = this.onChanged;
@@ -61,6 +67,7 @@ final class TrackerRow extends StatelessWidget {
             }
             changed(next);
           };
+    final toggles = item.kind == TrackerKind.yesNo && onChanged != null;
     return Material(
       color: q.surface,
       shape: RoundedRectangleBorder(
@@ -69,7 +76,13 @@ final class TrackerRow extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onEdit == null
+        // An active yes/no row toggles like its switch; others edit.
+        onTap: toggles
+            ? () {
+                Haptics.light();
+                onChanged(value > 0 ? 0 : 1);
+              }
+            : onEdit == null
             ? null
             : () {
                 Haptics.selection();
@@ -145,9 +158,18 @@ final class TrackerRow extends StatelessWidget {
                   // Long targets (sleep) in half hours, not 84 taps.
                   step: (item.dailyTarget ?? 0) >= 120 ? 30 : 5,
                   label: displayName,
+                  unit: l10n.targetMinutesSuffix,
                   onChanged: onChanged,
                 ),
               }),
+              // The tap toggles, so editing needs its own button.
+              if (toggles && onEdit != null)
+                IconButton(
+                  tooltip: l10n.editTracker,
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(Icons.edit_outlined, size: 18, color: q.ink3),
+                  onPressed: onEdit,
+                ),
             ],
           ),
         ),
@@ -162,6 +184,7 @@ final class _Stepper extends StatelessWidget {
     required this.step,
     required this.label,
     required this.onChanged,
+    this.unit,
   });
 
   final int value;
@@ -169,6 +192,9 @@ final class _Stepper extends StatelessWidget {
 
   /// Item name, woven into the +/- buttons' screen-reader labels.
   final String label;
+
+  /// Unit shown in the type-a-value dialog ("minutes"); null for counts.
+  final String? unit;
   final ValueChanged<int>? onChanged;
 
   /// Typing beats 12 taps of +5 for an hour of tahajjud.
@@ -182,6 +208,7 @@ final class _Stepper extends StatelessWidget {
       min: 0,
       max: 100000,
       initial: value,
+      suffix: unit,
     );
     if (typed != null) {
       onChanged?.call(typed);

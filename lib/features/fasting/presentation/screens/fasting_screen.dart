@@ -38,6 +38,9 @@ final class _FastingScreenState extends State<FastingScreen> {
   /// The log couldn't be read; the screen offers a retry.
   bool _loadFailed = false;
 
+  /// Month shown in the log grid: 0 = this month, -1 = last month…
+  int _monthOffset = 0;
+
   @override
   void initState() {
     super.initState();
@@ -188,6 +191,7 @@ final class _FastingScreenState extends State<FastingScreen> {
             final todays = _store.recommendedOn(today);
             final upcoming = _store.upcoming();
             final stats = _store.stats();
+            final month = DateTime(today.year, today.month + _monthOffset);
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -208,16 +212,32 @@ final class _FastingScreenState extends State<FastingScreen> {
                 const SizedBox(height: QSpace.s4),
                 _StatsCard(
                   stats: stats,
-                  weeks: _store.monthHeatmap(),
+                  weeks: _store.monthHeatmap(month: month),
+                  month: month,
                   today: today,
-                  dateAt: _store.heatmapDate,
+                  dateAt: (w, d) => _store.heatmapDate(w, d, month: month),
                   isLogged: _store.isLogged,
+                  onPrevMonth: () => setState(() => _monthOffset--),
+                  // The future can't be logged, so no paging past today.
+                  onNextMonth: _monthOffset < 0
+                      ? () => setState(() => _monthOffset++)
+                      : null,
                   // Past/today days toggle; future & forbidden ones can't
-                  // be logged (removing stays allowed).
+                  // be logged (removing stays allowed), and say why.
                   onDayTap: (date) {
                     if (_store.isLogged(date) || _store.canLog(date)) {
                       Haptics.selection();
                       unawaited(_log(date));
+                    } else {
+                      _snack(
+                        SnackBar(
+                          content: Text(
+                            date.isAfter(today)
+                                ? l10n.fastingFutureDay
+                                : l10n.fastingForbiddenDay,
+                          ),
+                        ),
+                      );
                     }
                   },
                 ),
@@ -465,20 +485,30 @@ final class _QazaCard extends StatelessWidget {
 }
 
 /// Personal log stats + a month heatmap (no-shame framing). Heatmap days
-/// are tappable to log or remove a fast.
+/// are tappable to log or remove a fast; the chevrons page through months.
 final class _StatsCard extends StatelessWidget {
   const _StatsCard({
     required this.stats,
     required this.weeks,
+    required this.month,
     required this.today,
     required this.dateAt,
     required this.isLogged,
+    required this.onPrevMonth,
+    required this.onNextMonth,
     required this.onDayTap,
   });
 
   final FastingStats stats;
   final List<List<int>> weeks;
+
+  /// First day of the month on show.
+  final DateTime month;
   final DateTime today;
+  final VoidCallback onPrevMonth;
+
+  /// Null on the current month.
+  final VoidCallback? onNextMonth;
   final DateTime? Function(int week, int day) dateAt;
   final bool Function(DateTime) isLogged;
   final ValueChanged<DateTime> onDayTap;
@@ -488,10 +518,15 @@ final class _StatsCard extends StatelessWidget {
     final l10n = context.l10n;
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
+    final monthName = LocaleDigits.localize(
+      DateFormat.yMMMM(code).format(month),
+      code,
+    );
     String n(int v) => LocaleDigits.localize('$v', code);
-    // Same Sunday-first padding as monthHeatmap.
-    final todayCell =
-        today.day - 1 + DateTime(today.year, today.month).weekday % 7;
+    // Same Sunday-first padding as monthHeatmap; -1 off this month.
+    final todayCell = month.year == today.year && month.month == today.month
+        ? today.day - 1 + month.weekday % 7
+        : -1;
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,16 +558,39 @@ final class _StatsCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: QSpace.s4),
+          const SizedBox(height: QSpace.s3),
+          Row(
+            children: [
+              IconButton(
+                tooltip: l10n.fastingPrevMonth,
+                icon: const Icon(Icons.chevron_left),
+                onPressed: onPrevMonth,
+              ),
+              Expanded(
+                child: Text(
+                  monthName,
+                  textAlign: TextAlign.center,
+                  style: QType.titleSm.copyWith(color: q.ink),
+                ),
+              ),
+              IconButton(
+                tooltip: l10n.fastingNextMonth,
+                icon: const Icon(Icons.chevron_right),
+                onPressed: onNextMonth,
+              ),
+            ],
+          ),
+          const SizedBox(height: QSpace.s2),
           // A month calendar: one row per week, day numbers in the cells.
           Semantics(
             container: true,
-            // Counts every logged fast this month, not just nafl ones.
+            // Counts every logged fast in the shown month, not just nafl.
             label: l10n.fastingHeatmapLabel(
               [
                 for (var w = 0; w < weeks.length; w++)
                   for (var d = 0; d < 7; d++) dateAt(w, d),
               ].whereType<DateTime>().where(isLogged).length,
+              monthName,
             ),
             child: Column(
               children: [

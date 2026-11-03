@@ -53,11 +53,19 @@ final class AchievementCard extends StatelessWidget {
             ),
     );
 
+    final status = unlocked
+        ? l10n.achievementUnlocked
+        : LocaleDigits.localize('${progress.current} / ${a.threshold}', locale);
     return Semantics(
       button: true,
-      label: isNew
-          ? '${l10n.achievementName(a.id)}, ${l10n.achievementNew}'
-          : l10n.achievementName(a.id),
+      // One spoken node: name, the new tag, then progress or "Unlocked".
+      label: [
+        l10n.achievementName(a.id),
+        if (isNew) l10n.achievementNew,
+        status,
+      ].join(', '),
+      excludeSemantics: true,
+      onTap: () => _showHow(context),
       child: InkWell(
         borderRadius: BorderRadius.circular(QRadius.md),
         onTap: () => _showHow(context),
@@ -87,12 +95,7 @@ final class AchievementCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              unlocked
-                  ? l10n.achievementUnlocked
-                  : LocaleDigits.localize(
-                      '${progress.current} / ${a.threshold}',
-                      locale,
-                    ),
+              status,
               textAlign: TextAlign.center,
               style: QType.num_(
                 QType.caption,

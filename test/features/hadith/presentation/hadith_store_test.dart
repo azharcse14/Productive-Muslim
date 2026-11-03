@@ -19,9 +19,23 @@ final class _FakeHadithRepository implements HadithRepository {
   _FakeHadithRepository(this._items);
 
   final List<Hadith> _items;
+  Set<String> saved = {};
+  bool failSave = false;
 
   @override
   Future<Result<List<Hadith>>> all() async => Result.success(_items);
+
+  @override
+  Future<Result<Set<String>>> favoriteIds() async => Result.success(saved);
+
+  @override
+  Future<Result<void>> setFavoriteIds(Set<String> ids) async {
+    if (failSave) {
+      return const Result.failure(UnexpectedFailure('disk full'));
+    }
+    saved = ids;
+    return const Result.success(null);
+  }
 }
 
 void main() {
@@ -37,6 +51,34 @@ void main() {
 
       expect(store.loaded.value, isTrue);
       expect(store.items.value, hasLength(2));
+    });
+  });
+
+  group('HadithStore favorites', () {
+    test('toggle persists, and load restores them', () async {
+      final repo = _FakeHadithRepository([_hadith('h001')]);
+      final store = HadithStore(repo);
+      await store.load();
+
+      expect(await store.toggleFavorite('h001'), isTrue);
+      expect(store.favorites.value, {'h001'});
+      expect(repo.saved, {'h001'});
+
+      final restored = HadithStore(repo);
+      await restored.load();
+      expect(restored.favorites.value, {'h001'});
+
+      expect(await store.toggleFavorite('h001'), isTrue);
+      expect(repo.saved, isEmpty);
+    });
+
+    test('a failed save takes the tap back', () async {
+      final repo = _FakeHadithRepository([_hadith('h001')])..failSave = true;
+      final store = HadithStore(repo);
+      await store.load();
+
+      expect(await store.toggleFavorite('h001'), isFalse);
+      expect(store.favorites.value, isEmpty);
     });
   });
 

@@ -41,6 +41,8 @@ final class _AsmaulHusnaScreenState extends State<AsmaulHusnaScreen> {
   Future<void> _showDetail(AsmaName name) async {
     await showModalBottomSheet<void>(
       context: context,
+      // Tall at large text sizes: let it grow and scroll.
+      isScrollControlled: true,
       builder: (_) => _AsmaDetailSheet(name: name),
     );
   }
@@ -171,7 +173,7 @@ final class _AsmaDetailSheet extends StatelessWidget {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(QSpace.s6),
         child: Column(
           mainAxisSize: MainAxisSize.min,

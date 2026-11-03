@@ -5,6 +5,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_screen.dart';
+import 'package:productive_muslim/features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_store.dart';
 
 import '../../helpers/content_fakes.dart';
@@ -18,7 +19,12 @@ Widget _app(Widget home) => MaterialApp(
 
 void main() {
   setUp(() async {
-    GetIt.I.registerSingleton<RuqyahStore>(await makeRuqyahStore());
+    GetIt.I
+      ..registerSingleton<RuqyahStore>(await makeRuqyahStore())
+      ..registerSingleton<RuqyahStore>(
+        await makeRuqyahStore(),
+        instanceName: RuqyahStore.tibbNabawi,
+      );
   });
 
   tearDown(() => GetIt.I.reset());
@@ -45,6 +51,17 @@ void main() {
       expect(find.text('Allah — there is no god but He'), findsOneWidget);
       expect(find.textContaining('2:255'), findsOneWidget);
       expect(find.textContaining('3'), findsWidgets); // repeat chip
+    });
+
+    testWidgets('Tibb an-Nabawi lists its cards lazily under the note', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const TibbNabawiScreen()));
+      await tester.pump();
+      expect(find.text('Ayatul Kursi'), findsOneWidget);
+      // One builder-backed list: the note plus one row per card.
+      final list = tester.widget<ListView>(find.byType(ListView));
+      expect(list.childrenDelegate, isA<SliverChildBuilderDelegate>());
     });
   });
 }

@@ -9,6 +9,26 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String quranOpenAyah(String reference) {
+    return '$reference খুলুন';
+  }
+
+  @override
+  String get tasbihAutoNext => 'লক্ষ্য পূর্ণ হলে পরের রাউন্ড শুরু করুন';
+
+  @override
+  String get favoriteRemoved => 'প্রিয় থেকে সরানো হয়েছে';
+
+  @override
+  String get hadithFavoritesTitle => 'সংরক্ষিত হাদিস';
+
+  @override
+  String get asmaQuizLeaveTitle => 'কুইজ ছেড়ে যাবেন?';
+
+  @override
+  String get asmaQuizLeave => 'ছেড়ে যান';
+
+  @override
   String get appTitle => 'প্রোডাক্টিভ মুসলিম';
 
   @override
@@ -1070,7 +1090,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get archiveExplain =>
-      'আর্কাইভ করা আইটেম দৈনিক তালিকা থেকে সরে যায়, কিন্তু আগের সব এন্ট্রি সংরক্ষিত থাকে।';
+      'আর্কাইভ করা আইটেম তালিকার নিচে \"আর্কাইভ করা\" অংশে চলে যায়। আগের সব এন্ট্রি সংরক্ষিত থাকে, যেকোনো সময় ফিরিয়ে আনা যায়।';
 
   @override
   String get archivedSection => 'আর্কাইভ করা';
@@ -1192,7 +1212,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quranTitle => 'কুরআন';
 
   @override
-  String get searchSurahHint => 'সূরা খুঁজুন…';
+  String get searchSurahHint => 'ইংরেজি বা আরবি নাম, নম্বর বা ২:২৫৫';
 
   @override
   String get surahSearchNoResults =>
@@ -1513,7 +1533,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
 
   @override
-  String fastingHeatmapLabel(int count) {
+  String fastingHeatmapLabel(int count, String month) {
     final intl.NumberFormat countNumberFormat =
         intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
@@ -1521,9 +1541,9 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'এই মাসে $countStringটি রোজা রেকর্ড হয়েছে',
-      one: 'এই মাসে ১টি রোজা রেকর্ড হয়েছে',
-      zero: 'এই মাসে কোনো রোজা রেকর্ড হয়নি',
+      other: '$month মাসে $countStringটি রোজা রেকর্ড হয়েছে',
+      one: '$month মাসে ১টি রোজা রেকর্ড হয়েছে',
+      zero: '$month মাসে কোনো রোজা রেকর্ড হয়নি',
     );
     return '$_temp0';
   }
@@ -2722,7 +2742,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
-  String get expenseAmountInvalid => 'পূর্ণ সংখ্যায় পরিমাণ লিখুন';
+  String get expenseAmountInvalid =>
+      '০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)';
 
   @override
   String get expenseBudget => 'মাসিক বাজেট';
@@ -2821,7 +2842,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get hadithSearchHint => 'হাদিস খুঁজুন';
+  String get hadithSearchHint => 'বিষয়ভিত্তিক হাদিস খুঁজুন';
 
   @override
   String get hadithNoResults => 'কোনো হাদিস পাওয়া যায়নি';
@@ -3617,4 +3638,35 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsTibbNabawiSource =>
       'এই অ্যাপের জন্য বুখারি, মুসলিম, সুনান গ্রন্থসমূহ ও কুরআন ১৬:৬৯ থেকে সংকলিত; আরবি পাঠ fawazahmed0/hadith-api-এর সাথে মিলিয়ে দেখা; অনুবাদ ও টীকা এই অ্যাপের জন্য লেখা';
+
+  @override
+  String get fastingPrevMonth => 'আগের মাস';
+
+  @override
+  String get fastingNextMonth => 'পরের মাস';
+
+  @override
+  String get fastingFutureDay => 'দিনটি এলে তবেই এই রোজা লগ করা যাবে।';
+
+  @override
+  String get fastingForbiddenDay => 'এই দিনে রোজা রাখা নিষিদ্ধ (ঈদ বা তাশরীক)।';
+
+  @override
+  String durationHours(int hours) {
+    return '$hours ঘণ্টা';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours ঘণ্টা $minutes মিনিট';
+  }
+
+  @override
+  String get expenseFilterHint => 'শুধু এই ক্যাটাগরি দেখান';
+
+  @override
+  String get expenseFilterClearHint => 'সব ক্যাটাগরি দেখান';
+
+  @override
+  String get healthWeightLogPast => 'অন্য দিনের ওজন লিখুন';
 }

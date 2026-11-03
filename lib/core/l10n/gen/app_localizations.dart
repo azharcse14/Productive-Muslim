@@ -98,6 +98,42 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @quranOpenAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {reference}'**
+  String quranOpenAyah(String reference);
+
+  /// No description provided for @tasbihAutoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the next round at the target'**
+  String get tasbihAutoNext;
+
+  /// No description provided for @favoriteRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get favoriteRemoved;
+
+  /// No description provided for @hadithFavoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved hadith'**
+  String get hadithFavoritesTitle;
+
+  /// No description provided for @asmaQuizLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the quiz?'**
+  String get asmaQuizLeaveTitle;
+
+  /// No description provided for @asmaQuizLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get asmaQuizLeave;
+
   /// The application name shown in the launcher and app bars
   ///
   /// In en, this message translates to:
@@ -1835,7 +1871,7 @@ abstract class AppLocalizations {
   /// No description provided for @archiveExplain.
   ///
   /// In en, this message translates to:
-  /// **'Archived items disappear from your daily list, but every past entry is preserved.'**
+  /// **'Archived items move to the Archived section at the bottom of your list. Every past entry is kept, and you can restore them anytime.'**
   String get archiveExplain;
 
   /// No description provided for @archivedSection.
@@ -1967,7 +2003,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchSurahHint.
   ///
   /// In en, this message translates to:
-  /// **'Search surah…'**
+  /// **'Surah name, number or 2:255'**
   String get searchSurahHint;
 
   /// No description provided for @surahSearchNoResults.
@@ -2435,8 +2471,8 @@ abstract class AppLocalizations {
   /// No description provided for @fastingHeatmapLabel.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{No fasts logged this month} =1{1 fast logged this month} other{{count} fasts logged this month}}'**
-  String fastingHeatmapLabel(int count);
+  /// **'{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}'**
+  String fastingHeatmapLabel(int count, String month);
 
   /// No description provided for @fastingUpcomingTitle.
   ///
@@ -4067,7 +4103,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseAmountInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a whole amount'**
+  /// **'Enter a whole number above 0, without decimals (e.g. 250)'**
   String get expenseAmountInvalid;
 
   /// No description provided for @expenseBudget.
@@ -4181,7 +4217,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search hadith'**
+  /// **'Search topics'**
   String get hadithSearchHint;
 
   /// No description provided for @hadithNoResults.
@@ -5407,6 +5443,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app'**
   String get creditsTibbNabawiSource;
+
+  /// No description provided for @fastingPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get fastingPrevMonth;
+
+  /// No description provided for @fastingNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get fastingNextMonth;
+
+  /// No description provided for @fastingFutureDay.
+  ///
+  /// In en, this message translates to:
+  /// **'You can log this fast once the day has come.'**
+  String get fastingFutureDay;
+
+  /// No description provided for @fastingForbiddenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting isn\'t permitted on this day (Eid or Tashreeq).'**
+  String get fastingForbiddenDay;
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String durationHours(int hours);
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @expenseFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'show only this category'**
+  String get expenseFilterHint;
+
+  /// No description provided for @expenseFilterClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'show all categories'**
+  String get expenseFilterClearHint;
+
+  /// No description provided for @healthWeightLogPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Log another day'**
+  String get healthWeightLogPast;
 }
 
 class _AppLocalizationsDelegate

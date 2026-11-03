@@ -92,6 +92,33 @@ final class _HealthScreenState extends State<HealthScreen> {
     return false;
   }
 
+  /// Add, edit or remove [day]'s weight ([current] = what's logged).
+  void _openWeight(DateTime day, double? current) => unawaited(
+    showDialog<void>(
+      context: context,
+      builder: (_) => _WeightDialog(
+        day: day == _store.today ? null : day,
+        current: current,
+        onSave: (kg) => _saveWeight(day, kg),
+        onRemove: current == null ? null : () => _removeWeight(day, current),
+      ),
+    ),
+  );
+
+  /// Picks an earlier day (a missed weigh-in) and opens its dialog.
+  Future<void> _logPastDay() async {
+    final today = _store.today;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: today,
+      firstDate: DateTime(today.year - 5),
+      lastDate: today,
+    );
+    if (picked != null && mounted) {
+      _openWeight(picked, _store.weightOn(picked));
+    }
+  }
+
   /// Removes [day]'s weight and offers Undo (the dialog doesn't confirm).
   Future<void> _removeWeight(DateTime day, double previous) async {
     if (await _saveWeight(day, null) && mounted) {
@@ -193,23 +220,11 @@ final class _HealthScreenState extends State<HealthScreen> {
                   _WeightCard(
                     history: _store.history,
                     today: _store.today,
-                    onLog: (current) {
-                      // Pinned at open: a save past midnight still edits
-                      // the day the dialog showed.
-                      final day = _store.today;
-                      unawaited(
-                        showDialog<void>(
-                          context: context,
-                          builder: (_) => _WeightDialog(
-                            current: current,
-                            onSave: (kg) => _saveWeight(day, kg),
-                            onRemove: current == null
-                                ? null
-                                : () => _removeWeight(day, current),
-                          ),
-                        ),
-                      );
-                    },
+                    // Pinned at open: a save past midnight still edits
+                    // the day the dialog showed.
+                    onLog: (current) => _openWeight(_store.today, current),
+                    onEdit: _openWeight,
+                    onLogPast: () => unawaited(_logPastDay()),
                   ),
                 const SizedBox(height: QSpace.s4),
                 _Section(l10n.healthSunnahTitle),
@@ -287,12 +302,20 @@ final class _WeightCard extends StatelessWidget {
     required this.history,
     required this.today,
     required this.onLog,
+    required this.onEdit,
+    required this.onLogPast,
   });
 
   /// Newest first.
   final List<(DateTime, double)> history;
   final DateTime today;
   final void Function(double? current) onLog;
+
+  /// A history row was tapped: edit or remove that day's weight.
+  final void Function(DateTime day, double current) onEdit;
+
+  /// Pick an earlier day to log.
+  final VoidCallback onLogPast;
 
   @override
   Widget build(BuildContext context) {
@@ -327,25 +350,51 @@ final class _WeightCard extends StatelessWidget {
               ),
               style: QType.caption.copyWith(color: q.ink2),
             ),
+          const SizedBox(height: QSpace.s1),
           for (final (date, w) in recent.skip(1))
-            Padding(
-              padding: const EdgeInsets.only(top: QSpace.s1),
-              child: Text(
-                context.digits(
-                  '${LocaleDigits.localize(DateFormat.MMMd(code).format(date), code)} · ${kg(w)}',
+            InkWell(
+              onTap: () => onEdit(date, w),
+              borderRadius: BorderRadius.circular(QRadius.sm),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: QTouch.minTarget),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        context.digits(
+                          '${LocaleDigits.localize(DateFormat.MMMd(code).format(date), code)} · ${kg(w)}',
+                        ),
+                        style: QType.caption.copyWith(color: q.ink2),
+                      ),
+                    ),
+                    Icon(Icons.edit_outlined, size: 16, color: q.ink3),
+                  ],
                 ),
-                style: QType.caption.copyWith(color: q.ink2),
               ),
             ),
           const SizedBox(height: QSpace.s3),
-          QButton(
-            label: todays == null
-                ? l10n.healthWeightLog
-                : l10n.healthWeightEdit,
-            icon: Icons.monitor_weight_outlined,
-            kind: QButtonKind.tonal,
-            small: true,
-            onPressed: () => onLog(todays),
+          // Wraps under large text instead of overflowing.
+          Wrap(
+            spacing: QSpace.s2,
+            runSpacing: QSpace.s2,
+            children: [
+              QButton(
+                label: todays == null
+                    ? l10n.healthWeightLog
+                    : l10n.healthWeightEdit,
+                icon: Icons.monitor_weight_outlined,
+                kind: QButtonKind.tonal,
+                small: true,
+                onPressed: () => onLog(todays),
+              ),
+              QButton(
+                label: l10n.healthWeightLogPast,
+                icon: Icons.calendar_today_outlined,
+                kind: QButtonKind.outline,
+                small: true,
+                onPressed: onLogPast,
+              ),
+            ],
           ),
         ],
       ),
@@ -357,11 +406,14 @@ final class _WeightCard extends StatelessWidget {
 /// (mirrors the expense budget dialog).
 final class _WeightDialog extends StatefulWidget {
   const _WeightDialog({
+    required this.day,
     required this.current,
     required this.onSave,
     required this.onRemove,
   });
 
+  /// The past day being edited, named in the title; null for today.
+  final DateTime? day;
   final double? current;
   final Future<void> Function(double) onSave;
 
@@ -406,8 +458,17 @@ final class _WeightDialogState extends State<_WeightDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final text = _controller.text.trim();
+    final code = Localizations.localeOf(context).languageCode;
+    final day = widget.day;
     return AlertDialog(
-      title: Text(l10n.healthWeightTitle),
+      title: Text(
+        day == null
+            ? l10n.healthWeightTitle
+            : LocaleDigits.localize(
+                '${l10n.healthWeightTitle} · ${DateFormat.MMMd(code).format(day)}',
+                code,
+              ),
+      ),
       content: TextField(
         controller: _controller,
         autofocus: true,

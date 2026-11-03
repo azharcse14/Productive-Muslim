@@ -104,6 +104,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('tea'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Delete'));
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
     expect(store.entries.value, isEmpty);
@@ -211,7 +212,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, '150.50');
     await tester.pump();
-    expect(find.text('Enter a whole amount'), findsOneWidget);
+    expect(
+      find.text('Enter a whole number above 0, without decimals (e.g. 250)'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('swipe deletes; the Undo SnackBar restores and does not linger', (
@@ -433,6 +437,48 @@ void main() {
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(store.entries.value.single.date, DateTime(2026, 10, 26, 10));
+  });
+
+  testWidgets('the editor close button asks before dropping an amount', (
+    tester,
+  ) async {
+    register();
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '120');
+    await tester.pump();
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Discard your changes?'), findsOneWidget);
+    await tester.tap(find.text('Discard'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsNothing);
+    expect(store.entries.value, isEmpty);
+  });
+
+  testWidgets('category rows are buttons that say what a tap does', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final handle = tester.ensureSemantics();
+    register();
+    await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+    await tester.pumpWidget(_app());
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(find.text('Wants').first),
+      isSemantics(
+        isButton: true,
+        hasTapAction: true,
+        onTapHint: 'show only this category',
+      ),
+    );
+    handle.dispose();
   });
 }
 

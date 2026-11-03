@@ -48,12 +48,16 @@ final class _QuranIndexState extends State<_QuranIndex> {
   /// null = no active query (show the full index from the store).
   final _results = signal<List<Surah>?>(null);
 
+  /// The query read as a "2:255" reference, offered as a direct jump.
+  final _reference = signal<QuranPosition?>(null);
+
   Timer? _debounce;
 
   final _query = TextEditingController();
 
-  /// Last bookmark swiped away in the sheet, offered back via undo.
-  final _removedBookmark = signal<int?>(null);
+  /// Bookmarks removed while the sheet is open, newest last; each undo
+  /// puts back the latest.
+  final _removedBookmarks = signal(const <int>[]);
 
   /// One read per surah for the bookmark previews, shared across rows.
   final Map<int, Future<List<Ayah>?>> _previewAyahs = {};
@@ -85,9 +89,15 @@ final class _QuranIndexState extends State<_QuranIndex> {
 
   Future<void> _runSearch(String query) async {
     final seq = ++_searchSeq;
-    final results = query.trim().isEmpty ? null : await _store.search(query);
+    final reference = parseAyahReference(_store.surahs.value, query);
+    final results = query.trim().isEmpty
+        ? null
+        : reference != null
+        ? [?_surahById(reference.surah)]
+        : await _store.search(query);
     // A slower earlier query must not overwrite a newer one's results.
     if (seq == _searchSeq) {
+      _reference.value = reference;
       _results.value = results;
     }
   }
@@ -107,12 +117,12 @@ final class _QuranIndexState extends State<_QuranIndex> {
   }
 
   void _removeBookmark(int id) {
-    _removedBookmark.value = id;
+    _removedBookmarks.value = [..._removedBookmarks.value, id];
     unawaited(_store.toggleBookmark(id));
   }
 
   void _showBookmarks() {
-    _removedBookmark.value = null;
+    _removedBookmarks.value = const [];
     unawaited(
       showModalBottomSheet<void>(
         context: context,
@@ -127,7 +137,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     final ids = _store.bookmarks.value.toList()..sort();
-    final removed = _removedBookmark.value;
+    final removed = _removedBookmarks.value;
     return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -144,7 +154,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
                 style: QType.title.copyWith(color: q.ink),
               ),
             ),
-            if (removed != null)
+            if (removed.isNotEmpty)
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(
                   QSpace.s5,
@@ -162,8 +172,11 @@ final class _QuranIndexState extends State<_QuranIndex> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _removedBookmark.value = null;
-                        unawaited(_store.toggleBookmark(removed));
+                        _removedBookmarks.value = removed.sublist(
+                          0,
+                          removed.length - 1,
+                        );
+                        unawaited(_store.toggleBookmark(removed.last));
                       },
                       child: Text(l10n.bookmarkUndo),
                     ),
@@ -185,71 +198,69 @@ final class _QuranIndexState extends State<_QuranIndex> {
               )
             else
               Flexible(
-                child: ListView(
+                child: ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
-                  children: [
-                    for (final id in ids)
-                      if (_store.positionOf(id) case final position?)
-                        Dismissible(
-                          key: ValueKey(id),
-                          onDismissed: (_) => _removeBookmark(id),
-                          child: FutureBuilder(
-                            future: _previewAyahs.putIfAbsent(
-                              position.surah,
-                              () async {
-                                final a = await _store.ayahsOf(position.surah);
-                                // A failed read isn't cached: the next
-                                // build retries it.
-                                if (a == null) {
-                                  _previewAyahs.removeWhere(
-                                    (k, _) => k == position.surah,
-                                  );
-                                }
-                                return a;
-                              },
-                            ),
-                            builder: (context, snapshot) {
-                              final reference = LocaleDigits.localize(
-                                '${position.surah}:${position.ayah}',
-                                languageCode,
-                              );
-                              final preview = _preview(
-                                snapshot.data,
-                                position.ayah,
-                                languageCode,
-                              );
-                              return QListRow(
-                                icon: Icons.bookmark_outline,
-                                title:
-                                    _surahById(
-                                      position.surah,
-                                    )?.transliteration ??
-                                    '',
-                                subtitle: preview == null
-                                    ? reference
-                                    : '$reference · $preview',
-                                // The swipe has a visible, labelled twin.
-                                trailing: IconButton(
-                                  tooltip: l10n.bookmarkRemoveTooltip,
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    color: q.ink3,
-                                  ),
-                                  onPressed: () => _removeBookmark(id),
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  _openReader(
-                                    position.surah,
-                                    initialAyah: position.ayah,
-                                  );
-                                },
-                              );
+                  itemCount: ids.length,
+                  itemBuilder: (context, index) {
+                    final id = ids[index];
+                    return switch (_store.positionOf(id)) {
+                      null => const SizedBox.shrink(),
+                      final position => Dismissible(
+                        key: ValueKey(id),
+                        onDismissed: (_) => _removeBookmark(id),
+                        child: FutureBuilder(
+                          future: _previewAyahs.putIfAbsent(
+                            position.surah,
+                            () async {
+                              final a = await _store.ayahsOf(position.surah);
+                              // A failed read isn't cached: the next
+                              // build retries it.
+                              if (a == null) {
+                                _previewAyahs.removeWhere(
+                                  (k, _) => k == position.surah,
+                                );
+                              }
+                              return a;
                             },
                           ),
+                          builder: (context, snapshot) {
+                            final reference = LocaleDigits.localize(
+                              '${position.surah}:${position.ayah}',
+                              languageCode,
+                            );
+                            final preview = _preview(
+                              snapshot.data,
+                              position.ayah,
+                              languageCode,
+                            );
+                            return QListRow(
+                              icon: Icons.bookmark_outline,
+                              title:
+                                  _surahById(position.surah)?.transliteration ??
+                                  '',
+                              subtitle: preview == null
+                                  ? reference
+                                  : '$reference · $preview',
+                              // The swipe has a visible, labelled twin.
+                              trailing: IconButton(
+                                tooltip: l10n.bookmarkRemoveTooltip,
+                                icon: Icon(Icons.delete_outline, color: q.ink3),
+                                onPressed: () => _removeBookmark(id),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                _openReader(
+                                  position.surah,
+                                  initialAyah: position.ayah,
+                                );
+                              },
+                            );
+                          },
                         ),
-                  ],
+                      ),
+                    };
+                  },
                 ),
               ),
           ],
@@ -313,6 +324,12 @@ final class _QuranIndexState extends State<_QuranIndex> {
                       builder: (context, _) => TextField(
                         controller: _query,
                         onChanged: _onQueryChanged,
+                        onSubmitted: (query) {
+                          if (parseAyahReference(_store.surahs.value, query)
+                              case final p?) {
+                            _openReader(p.surah, initialAyah: p.ayah);
+                          }
+                        },
                         decoration: InputDecoration(
                           hintText: l10n.searchSurahHint,
                           prefixIcon: const Icon(Icons.search),
@@ -350,9 +367,11 @@ final class _QuranIndexState extends State<_QuranIndex> {
       return const SizedBox.shrink();
     }
     final surah = _surahById(position.surah);
-    final ayahLabel = LocaleDigits.localize(
-      '${position.ayah}',
-      Localizations.localeOf(context).languageCode,
+    final ayahLabel = l10n.continueReadingAyah(
+      LocaleDigits.localize(
+        '${position.ayah}',
+        Localizations.localeOf(context).languageCode,
+      ),
     );
     return QCard(
       padding: const EdgeInsets.symmetric(
@@ -408,6 +427,27 @@ final class _QuranIndexState extends State<_QuranIndex> {
           l10n.surahSearchNoResults,
           style: QType.body.copyWith(color: q.ink2),
         ),
+      );
+    }
+    final reference = _results.value == null ? null : _reference.value;
+    if (reference != null) {
+      return ListView(
+        padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
+        children: [
+          QListRow(
+            icon: Icons.menu_book_outlined,
+            title: l10n.quranOpenAyah(
+              LocaleDigits.localize(
+                '${reference.surah}:${reference.ayah}',
+                Localizations.localeOf(context).languageCode,
+              ),
+            ),
+            trailing: Icon(Icons.chevron_right, color: q.ink3),
+            onTap: () =>
+                _openReader(reference.surah, initialAyah: reference.ayah),
+          ),
+          for (final surah in surahs) _surahRow(context, surah),
+        ],
       );
     }
     return ListView.builder(

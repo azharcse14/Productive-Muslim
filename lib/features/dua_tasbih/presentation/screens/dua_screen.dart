@@ -66,6 +66,16 @@ final class _DuaScreenState extends State<DuaScreen> {
     }
   }
 
+  /// Favorited duas in category order (reads both stores' signals).
+  List<Dua> _favoriteDuas() {
+    final ids = _favorites.ids.value;
+    return [
+      for (final category in _store.categories.value)
+        for (final dua in category.duas)
+          if (ids.contains(dua.id)) dua,
+    ];
+  }
+
   void _push(Widget screen) {
     Haptics.selection();
     unawaited(
@@ -161,6 +171,20 @@ final class _DuaScreenState extends State<DuaScreen> {
                   ],
                 ),
                 const SizedBox(height: QSpace.s4),
+                // Saved duas first: the daily-use ones shouldn't sit below
+                // the whole category grid. Its own builder: a heart tap
+                // rebuilds only this section.
+                SignalBuilder(
+                  builder: (context) {
+                    final duas = _favoriteDuas();
+                    return duas.isEmpty
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: QSpace.s4),
+                            child: _FavoritesSection(duas: duas),
+                          );
+                  },
+                ),
                 if (_store.failed.value && categories.isEmpty)
                   QErrorRetry(
                     message: l10n.duaLoadError,
@@ -191,19 +215,15 @@ final class _DuaScreenState extends State<DuaScreen> {
                         ),
                     ],
                   ),
-                const SizedBox(height: QSpace.s4),
-                // Its own builder: a heart tap rebuilds only this section.
+                // With none saved yet, the how-to hint goes below the grid.
                 SignalBuilder(
-                  builder: (context) {
-                    final favoriteIds = _favorites.ids.value;
-                    return _FavoritesSection(
-                      duas: [
-                        for (final category in _store.categories.value)
-                          for (final dua in category.duas)
-                            if (favoriteIds.contains(dua.id)) dua,
-                      ],
-                    );
-                  },
+                  builder: (context) =>
+                      _store.loaded.value && _favoriteDuas().isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.only(top: QSpace.s4),
+                          child: _FavoritesSection(duas: []),
+                        )
+                      : const SizedBox.shrink(),
                 ),
               ]),
             );
