@@ -31,25 +31,54 @@ void main() {
     );
     await PlatformShareSheet().shareText('hello');
   });
-  test('writes the PNG to the cache share folder and sends its path', () async {
+
+  test(
+    'writes a fresh PNG to the cache share folder, dropping old ones',
+    () async {
+      final cache = Directory.systemTemp.createTempSync('share_test');
+      addTearDown(() => cache.deleteSync(recursive: true));
+      final calls = <MethodCall>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call);
+        return null;
+      });
+      var now = DateTime.fromMillisecondsSinceEpoch(1000);
+      final sheet = PlatformShareSheet(
+        cacheDir: () async => cache,
+        now: () => now,
+      );
+      final png = Uint8List.fromList([137, 80, 78, 71]);
+      expect(await sheet.shareImage(png, 'hi'), isTrue);
+      now = DateTime.fromMillisecondsSinceEpoch(2000);
+      expect(await sheet.shareImage(png, 'again'), isTrue);
+      final paths = [
+        for (final c in calls) (c.arguments as Map<Object?, Object?>)['path'],
+      ];
+      expect(calls.map((c) => c.method), ['shareImage', 'shareImage']);
+      expect(paths, [
+        '${cache.path}/share/productive_muslim_1000.png',
+        '${cache.path}/share/productive_muslim_2000.png',
+      ]);
+      expect(Directory('${cache.path}/share').listSync().map((f) => f.path), [
+        paths.last,
+      ]);
+      expect(File(paths.last! as String).readAsBytesSync(), png);
+      expect((calls.last.arguments as Map<Object?, Object?>)['text'], 'again');
+    },
+  );
+
+  test('a failing native side reports false', () async {
     final cache = Directory.systemTemp.createTempSync('share_test');
     addTearDown(() => cache.deleteSync(recursive: true));
-    final calls = <MethodCall>[];
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      calls.add(call);
-      return null;
-    });
-    final png = Uint8List.fromList([137, 80, 78, 71]);
-    await PlatformShareSheet(cacheDir: () async => cache).shareImage(png, 'hi');
-    expect(calls.single.method, 'shareImage');
-    final args = calls.single.arguments as Map<Object?, Object?>;
-    final path = args['path']! as String;
-    expect(path, '${cache.path}/share/productive_muslim_share.png');
-    expect(File(path).readAsBytesSync(), png);
-    expect(args['text'], 'hi');
+    messenger.setMockMethodCallHandler(
+      channel,
+      (_) async => throw PlatformException(code: 'NO_UI'),
+    );
+    final sheet = PlatformShareSheet(cacheDir: () async => cache);
+    expect(await sheet.shareImage(Uint8List(1), 'hi'), isFalse);
   });
 
-  test('an unwritable cache shares nothing and is not an error', () async {
+  test('an unwritable cache shares nothing and reports false', () async {
     final calls = <MethodCall>[];
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
@@ -58,9 +87,10 @@ void main() {
     final file = File('${Directory.systemTemp.path}/share_not_a_dir')
       ..writeAsStringSync('x');
     addTearDown(file.deleteSync);
-    await PlatformShareSheet(
+    final shown = await PlatformShareSheet(
       cacheDir: () async => Directory(file.path),
     ).shareImage(Uint8List(1), 'hi');
+    expect(shown, isFalse);
     expect(calls, isEmpty);
   });
 }

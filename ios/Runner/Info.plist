@@ -33,6 +33,8 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Productive Muslim uses Face ID to unlock the app when app lock is on.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Productive Muslim saves images you share, like your Ramadan progress card, to Photos when you choose Save Image.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Productive Muslim uses your location on this device to calculate prayer times and the qibla direction. It is shared only if you choose to open nearby mosques in Maps.</string>
 	<key>UIApplicationSceneManifest</key>

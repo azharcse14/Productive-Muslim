@@ -72,24 +72,29 @@ final class _RamadanScreenState extends State<RamadanScreen> {
           date: _store.today.value,
         ),
       );
-      await locator<ShareSheet>().shareImage(
+      final shown = await locator<ShareSheet>().shareImage(
         png,
         LocaleDigits.localize(
           l10n.ramadanShareText(l10n.rozaDayOf(rozaDay, total)),
           language,
         ),
       );
+      if (!shown && context.mounted) {
+        _showShareFailed(context);
+      }
     } on Object catch (e) {
       debugPrint('ramadan share: card not rendered: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.ramadanShareFailed)),
-        );
+        _showShareFailed(context);
       }
     } finally {
       _sharing = false;
     }
   }
+
+  void _showShareFailed(BuildContext context) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(context.l10n.ramadanShareFailed)));
 
   DateTime _wallNow() {
     final location = _settings.location.value;

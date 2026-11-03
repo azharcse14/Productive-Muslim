@@ -14,27 +14,36 @@ final class PlatformShareSheet implements ShareSheet {
       'com.productivemuslim.app/share',
     ),
     Future<Directory> Function() cacheDir = getTemporaryDirectory,
+    DateTime Function() now = DateTime.now,
   }) : _channel = channel,
-       _cacheDir = cacheDir;
+       _cacheDir = cacheDir,
+       _now = now;
 
   final MethodChannel _channel;
   final Future<Directory> Function() _cacheDir;
+  final DateTime Function() _now;
 
   /// Images go to `<cache>/share/`, the only folder Android's FileProvider
-  /// exposes (`res/xml/file_paths.xml`). One fixed name: each share
-  /// replaces the last, so the cache never grows.
+  /// exposes (`res/xml/share_file_paths.xml`).
   static const shareDir = 'share';
-  static const imageName = 'productive_muslim_share.png';
 
   @override
   Future<void> shareText(String text) =>
       _invoke(() => _channel.invokeMethod<void>('shareText', text));
 
+  /// Each share gets a fresh file name, so a target app still reading the
+  /// previous image never sees it replaced; older images are deleted
+  /// first, so the folder holds one image at a time.
   @override
-  Future<void> shareImage(Uint8List png, String text) => _invoke(() async {
+  Future<bool> shareImage(Uint8List png, String text) => _invoke(() async {
     final dir = Directory('${(await _cacheDir()).path}/$shareDir');
+    if (dir.existsSync()) {
+      await dir.delete(recursive: true);
+    }
     await dir.create(recursive: true);
-    final file = File('${dir.path}/$imageName');
+    final file = File(
+      '${dir.path}/productive_muslim_${_now().millisecondsSinceEpoch}.png',
+    );
     await file.writeAsBytes(png, flush: true);
     await _channel.invokeMethod<void>('shareImage', {
       'path': file.path,
@@ -42,9 +51,12 @@ final class PlatformShareSheet implements ShareSheet {
     });
   });
 
-  Future<void> _invoke(Future<void> Function() share) async {
+  /// Runs [share]; false (logged) when the native side is missing or
+  /// fails, or the file can't be written.
+  Future<bool> _invoke(Future<void> Function() share) async {
     try {
       await share();
+      return true;
     } on PlatformException catch (e) {
       debugPrint('share: not shown: $e');
     } on MissingPluginException catch (e) {
@@ -52,5 +64,6 @@ final class PlatformShareSheet implements ShareSheet {
     } on FileSystemException catch (e) {
       debugPrint('share: image not written: $e');
     }
+    return false;
   }
 }

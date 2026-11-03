@@ -12,6 +12,7 @@ import 'package:productive_muslim/features/ramadan/domain/repositories/fast_log.
 import 'package:productive_muslim/features/ramadan/domain/usecases/ramadan_utils.dart';
 import 'package:productive_muslim/features/ramadan/presentation/screens/ramadan_screen.dart';
 import 'package:productive_muslim/features/ramadan/presentation/state/eid_announcement_store.dart';
+import 'package:productive_muslim/features/ramadan/presentation/widgets/ramadan_share_card.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
@@ -170,6 +171,19 @@ void main() {
   ) async {
     await pump(tester, evening);
     await tester.tap(find.text(l10n.ramadanShareProgress));
+    await tester.pump();
+    // The off-screen card: 18 Feb – 1 Mar are logged (12 fasts), and its
+    // text has real styles, not the no-Material debug underline.
+    final card = find.byType(RamadanShareCard);
+    expect(tester.widget<RamadanShareCard>(card).fastsLogged, 12);
+    expect(find.text(l10n.ramadanShareFastsLogged(12)), findsOneWidget);
+    final texts = tester.widgetList<RichText>(
+      find.descendant(of: card, matching: find.byType(RichText)),
+    );
+    expect(texts, isNotEmpty);
+    for (final text in texts) {
+      expect(text.text.style?.decoration, isNot(TextDecoration.underline));
+    }
     // toImage/toByteData finish on the real event loop.
     for (var i = 0; i < 50 && share.images.isEmpty; i++) {
       await tester.runAsync(
@@ -190,6 +204,21 @@ void main() {
     );
     // The off-screen card is gone again.
     expect(find.text(l10n.ramadanShareHeading.toUpperCase()), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('a share sheet that fails says so', (tester) async {
+    await pump(tester, evening);
+    share.imageShown = false;
+    await tester.tap(find.text(l10n.ramadanShareProgress));
+    for (var i = 0; i < 50 && share.images.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    await tester.pump();
+    expect(find.text(l10n.ramadanShareFailed), findsOneWidget);
     await unmount(tester);
   });
 }

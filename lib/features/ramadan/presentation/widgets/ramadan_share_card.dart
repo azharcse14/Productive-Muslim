@@ -49,85 +49,92 @@ final class RamadanShareCard extends StatelessWidget {
     final ramadan = l10n.hijriMonthName('m${HijriDate.ramadanMonth}');
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-      child: SizedBox.fromSize(
-        size: size,
-        child: ColoredBox(
-          color: q.primary,
-          child: Stack(
-            children: [
-              MotifBackground(color: fg, opacity: 0.06, cell: 110),
-              Padding(
-                padding: const EdgeInsets.all(QSpace.s8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        QalbMark(
-                          size: 36,
-                          color: fg,
-                          accent: q.accent,
-                          strokeWidth: 3.2,
-                        ),
-                        const SizedBox(width: QSpace.s3),
-                        Expanded(
-                          child: Text(
-                            l10n.appTitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: QType.titleSm.copyWith(color: fg),
+      // Its own text defaults: the root overlay has no Material ancestor,
+      // which would leave Text in the debug (underlined) fallback style.
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox.fromSize(
+          size: size,
+          child: ColoredBox(
+            color: q.primary,
+            child: Stack(
+              children: [
+                MotifBackground(color: fg, opacity: 0.06, cell: 110),
+                Padding(
+                  padding: const EdgeInsets.all(QSpace.s8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          QalbMark(
+                            size: 36,
+                            color: fg,
+                            accent: q.accent,
+                            strokeWidth: 3.2,
                           ),
+                          const SizedBox(width: QSpace.s3),
+                          Expanded(
+                            child: Text(
+                              l10n.appTitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: QType.titleSm.copyWith(color: fg),
+                            ),
+                          ),
+                          Text(
+                            digits('$ramadan ${hijri.year}'),
+                            style: QType.captionLg.copyWith(color: muted),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Text(
+                        l10n.ramadanShareHeading.toUpperCase(),
+                        style: QType.overline.copyWith(color: muted),
+                      ),
+                      const SizedBox(height: QSpace.s3),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          digits(l10n.rozaDayOf(rozaDay, total)),
+                          style: QType.num_(
+                            QType.display,
+                          ).copyWith(color: fg, fontSize: 52),
                         ),
+                      ),
+                      if (fastsLogged > 0) ...[
+                        const SizedBox(height: QSpace.s4),
                         Text(
-                          digits('$ramadan ${hijri.year}'),
-                          style: QType.captionLg.copyWith(color: muted),
+                          digits(l10n.ramadanShareFastsLogged(fastsLogged)),
+                          style: QType.title.copyWith(color: q.accent),
                         ),
                       ],
-                    ),
-                    const Spacer(),
-                    Text(
-                      l10n.ramadanShareHeading.toUpperCase(),
-                      style: QType.overline.copyWith(color: muted),
-                    ),
-                    const SizedBox(height: QSpace.s3),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        digits(l10n.rozaDayOf(rozaDay, total)),
-                        style: QType.num_(
-                          QType.display,
-                        ).copyWith(color: fg, fontSize: 52),
-                      ),
-                    ),
-                    if (fastsLogged > 0) ...[
-                      const SizedBox(height: QSpace.s4),
+                      const SizedBox(height: QSpace.s6),
                       Text(
-                        digits(l10n.ramadanShareFastsLogged(fastsLogged)),
-                        style: QType.title.copyWith(color: q.accent),
+                        digits(
+                          '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} '
+                          '${hijri.year}',
+                        ),
+                        style: QType.body.copyWith(color: fg),
+                      ),
+                      Text(
+                        digits(
+                          DateFormat.yMMMMd(locale.toString()).format(date),
+                        ),
+                        style: QType.body.copyWith(color: muted),
+                      ),
+                      const Spacer(),
+                      Text(
+                        l10n.ramadanShareBlessing,
+                        style: QType.captionLg.copyWith(color: muted),
                       ),
                     ],
-                    const SizedBox(height: QSpace.s6),
-                    Text(
-                      digits(
-                        '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} '
-                        '${hijri.year}',
-                      ),
-                      style: QType.body.copyWith(color: fg),
-                    ),
-                    Text(
-                      digits(DateFormat.yMMMMd(locale.toString()).format(date)),
-                      style: QType.body.copyWith(color: muted),
-                    ),
-                    const Spacer(),
-                    Text(
-                      l10n.ramadanShareBlessing,
-                      style: QType.captionLg.copyWith(color: muted),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -41,6 +41,10 @@ void main() {
         RamadanShareCard.size,
       );
       expect(find.text(l10n.ramadanShareBlessing), findsOneWidget);
+      // No Material ancestor here either: the card brings its own.
+      for (final text in tester.widgetList<RichText>(find.byType(RichText))) {
+        expect(text.text.style?.decoration, isNot(TextDecoration.underline));
+      }
     });
   }
 
@@ -49,6 +53,12 @@ void main() {
     expect(find.text('রোজা ৩০/৩০'), findsOneWidget);
     expect(find.text('৩০টি রোজা রেকর্ড হয়েছে'), findsOneWidget);
     expect(find.textContaining('১৪৪৭'), findsWidgets);
+  });
+
+  testWidgets('en: shows the fasts line when some are logged', (tester) async {
+    final l10n = await pump(tester, 'en');
+    expect(find.text(l10n.ramadanShareFastsLogged(30)), findsOneWidget);
+    expect(find.text('30 fasts logged'), findsOneWidget);
   });
 
   testWidgets('no fasts logged: the line is left out, not shown as 0', (
