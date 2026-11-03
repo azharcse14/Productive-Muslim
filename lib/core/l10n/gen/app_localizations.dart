@@ -4568,18 +4568,6 @@ abstract class AppLocalizations {
   /// **'Discard'**
   String get editorDiscard;
 
-  /// No description provided for @muhasabaIconOption.
-  ///
-  /// In en, this message translates to:
-  /// **'Icon {n}'**
-  String muhasabaIconOption(int n);
-
-  /// No description provided for @muhasabaColorOption.
-  ///
-  /// In en, this message translates to:
-  /// **'Color {n}'**
-  String muhasabaColorOption(int n);
-
   /// No description provided for @tasbihTargetInvalid.
   ///
   /// In en, this message translates to:

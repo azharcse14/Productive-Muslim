@@ -5,22 +5,24 @@ merged into `master` via `integrate/review-fixes`: `fix/review-muhasaba`,
 `fix/review-fasting-expenses`, `fix/review-prayer-widget`, `fix/review-notifications-native`
 and `fix/review-core-settings`. The items below are still open.
 
-## Failing tests after the merge (fix first)
+## Failing tests after the merge — fixed 2026-11-03 on `fix/review-followups`
+
+Full suite 1354 green; debug APK builds; Kotlin unit tests pass.
 
 The full `flutter test` run on `integrate/review-fixes` gave 1347 pass and 6 fail. The owner
 asked to merge without more test runs.
-- [ ] `expense_screen_test.dart`: "re-dating an evening entry to today never lands after now".
+- [x] `expense_screen_test.dart`: "re-dating an evening entry to today never lands after now".
   **New in this merge.** It passed on `fix/review-fasting-expenses`, so master's UI changes to
   the expense sheet (`fix/ui-features-*` / `fix/ux-*`) most likely changed the date-picker flow
   the test drives. Check the clamp in `expense_screen.dart` still runs, then fix the test.
-- [ ] The 5 already on master before this merge. They are listed in `REVIEW_FIX_PLAN.md`
+- [x] The 5 already on master before this merge. They are listed in `REVIEW_FIX_PLAN.md`
   § "UX review follow-ups — 2026-11-02 (second pass)":
   - `age_screen_test` "as-of before birth"
   - `my_mosque_screen_test` "mode segments…"
   - `notification_settings_screen_test` "failed reschedule…"
   - `home_screen_test` "exact-alarm banner…"
   - `home_screen_test` "nearby mosques…"
-- [ ] `flutter build apk --debug` and `./gradlew :app:testDebugUnitTest` have not been run on the
+- [x] `flutter build apk --debug` and `./gradlew :app:testDebugUnitTest` have not been run on the
   merged master. Both passed on `fix/review-notifications-native` and `fix/review-core-settings`
   separately.
 

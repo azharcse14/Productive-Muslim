@@ -43,6 +43,37 @@ void main() {
       expect(find.text('Jamaat at 5:15 pm'), findsOneWidget);
     });
 
+    testWidgets('corner shares the eyebrow row and keeps its own tap',
+        (tester) async {
+      Color? fg;
+      var taps = 0;
+      await tester.pumpWidget(_wrap(SizedBox(
+        width: 320,
+        child: CountdownCard(
+          state: CountdownState.calm,
+          eyebrow: 'A very long eyebrow that has to wrap before the corner',
+          big: '01:24:36',
+          sub: 'Jamaat at 5:15 pm',
+          progress: 0.42,
+          corner: (foreground) {
+            fg = foreground;
+            return IconButton(
+              tooltip: 'Qibla',
+              icon: const Icon(Icons.explore),
+              onPressed: () => taps++,
+            );
+          },
+        ),
+      )));
+      expect(tester.takeException(), isNull);
+      expect(fg, isNotNull);
+      final eyebrow = tester.getRect(find.textContaining('A VERY LONG'));
+      final corner = tester.getRect(find.byTooltip('Qibla'));
+      expect(eyebrow.right, lessThanOrEqualTo(corner.left));
+      await tester.tap(find.byTooltip('Qibla'));
+      expect(taps, 1);
+    });
+
     testWidgets('reads as one semantics label', (tester) async {
       await tester.pumpWidget(_wrap(const CountdownCard(
         state: CountdownState.calm,

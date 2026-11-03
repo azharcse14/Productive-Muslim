@@ -875,8 +875,6 @@
   "onboardingStepProgress": "{total}টির মধ্যে {step} নম্বর ধাপ",
   "editorDiscardTitle": "পরিবর্তনগুলো বাদ দেবেন?",
   "editorDiscard": "বাদ দিন",
-  "muhasabaIconOption": "আইকন {n}",
-  "muhasabaColorOption": "রং {n}",
   "tasbihTargetInvalid": "১ থেকে ৯৯৯৯৯ এর মধ্যে একটি সংখ্যা লিখুন",
   "hadithTopicsLoadError": "হাদিস লোড করা যায়নি। আবার চেষ্টা করুন।",
   "ruqyahLoadError": "রুকইয়াহ লোড করা যায়নি। আবার চেষ্টা করুন।",

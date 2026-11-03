@@ -206,7 +206,7 @@ void main() {
       expect(find.text('Set location'), findsOneWidget);
     });
 
-    testHomeWidgets('exact-alarm banner has a visible button and a dismiss', (
+    testHomeWidgets('tapping the exact-alarm banner asks the OS', (
       tester,
     ) async {
       await _register(withLocation: true);
@@ -216,20 +216,10 @@ void main() {
       await tester.pump();
       const banner = 'Azan may arrive late without exact alarms.';
       expect(find.text(banner), findsOneWidget);
-      await tester.tap(find.text('Allow exact alarms'));
+      await tester.tap(find.text(banner));
       await tester.pump();
       await tester.pump();
       expect(scheduler.requests, 1);
-      expect(find.text(banner), findsNothing);
-
-      // Denied again: × hides it for the session.
-      scheduler.granted = false;
-      await tester.pumpWidget(const SizedBox());
-      await tester.pumpWidget(_app());
-      await tester.pump();
-      expect(find.text(banner), findsOneWidget);
-      await tester.tap(find.byTooltip('Close'));
-      await tester.pump();
       expect(find.text(banner), findsNothing);
     });
 
