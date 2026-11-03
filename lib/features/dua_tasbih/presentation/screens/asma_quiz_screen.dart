@@ -116,8 +116,47 @@ final class _AsmaQuizScreenState extends State<AsmaQuizScreen> {
 
   void _onRestart() => _quiz.restart(_names.asma.value);
 
+  /// A run under way (something answered, not finished): leaving loses it.
+  bool get _midRun =>
+      !_quiz.finished.value && (_quiz.index.value > 0 || _quiz.answered.value);
+
+  Future<void> _confirmLeave() async {
+    final l10n = context.l10n;
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.asmaQuizLeaveTitle),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.asmaQuizLeave),
+          ),
+        ],
+      ),
+    );
+    if ((leave ?? false) && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => SignalBuilder(
+    builder: (context) => PopScope(
+      canPop: !_midRun,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          unawaited(_confirmLeave());
+        }
+      },
+      child: _scaffold(context),
+    ),
+  );
+
+  Widget _scaffold(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.asmaQuizTitle)),

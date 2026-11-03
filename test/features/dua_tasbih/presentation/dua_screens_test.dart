@@ -340,5 +340,19 @@ void main() {
         99,
       );
     });
+
+    testWidgets('the detail sheet scrolls at large text sizes', (tester) async {
+      await tester.pumpWidget(_app(const AsmaulHusnaScreen()));
+      await tester.pump();
+      await tester.tap(find.text('Name 1'));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(BottomSheet),
+          matching: find.byType(SingleChildScrollView),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }

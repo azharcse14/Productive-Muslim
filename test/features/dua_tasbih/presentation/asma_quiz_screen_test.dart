@@ -84,6 +84,45 @@ void main() {
       expect(find.text('Next'), findsOneWidget);
     });
 
+    testWidgets('back mid-quiz asks before leaving', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const AsmaQuizScreen()),
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      // Nothing answered yet: back just leaves.
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byType(AsmaQuizScreen), findsNothing);
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining(RegExp(r'Meaning \d')).first);
+      await tester.pumpAndSettle();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Leave the quiz?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AsmaQuizScreen), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Leave'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AsmaQuizScreen), findsNothing);
+    });
+
     testWidgets('switching mode mid-quiz asks first', (tester) async {
       await tester.pumpWidget(_app(const AsmaQuizScreen()));
       await tester.pumpAndSettle();
