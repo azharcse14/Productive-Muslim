@@ -20,17 +20,15 @@ final class Ayah {
   final String translationBn;
 
   /// Bundled translation for [languageCode], falling back to English.
-  String translationFor(String languageCode) => switch (languageCode) {
-    'bn' when translationBn.isNotEmpty => translationBn,
-    _ => translationEn,
-  };
+  String translationFor(String languageCode) =>
+      translationLanguageFor(languageCode) == 'bn'
+      ? translationBn
+      : translationEn;
 
-  /// Translator of [translationFor]'s text, for attribution when sharing
-  /// (same names as Settings → Credits).
-  String translatorFor(String languageCode) => switch (languageCode) {
-    'bn' when translationBn.isNotEmpty => 'Muhiuddin Khan',
-    _ => 'Mohammed Marmaduke William Pickthall',
-  };
+  /// Language ('bn' | 'en') of the text [translationFor] returns, so its
+  /// translator can be credited.
+  String translationLanguageFor(String languageCode) =>
+      languageCode == 'bn' && translationBn.isNotEmpty ? 'bn' : 'en';
 
   @override
   bool operator ==(Object other) => other is Ayah && other.id == id;

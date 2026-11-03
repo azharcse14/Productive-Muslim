@@ -28,6 +28,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shareTranslatorPickthall => 'Mohammed Marmaduke William Pickthall';
+
+  @override
+  String get shareTranslatorMuhiuddinKhan => 'Muhiuddin Khan';
+
+  @override
   String shareTranslationBy(String translator) {
     return 'Translation: $translator';
   }

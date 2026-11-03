@@ -84,10 +84,15 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
         return
       }
-      let scene = UIApplication.shared.connectedScenes
+      // Prefer the active scene; during a transition (e.g. the sheet's
+      // own dismissal) it may be inactive, so take any with a key window.
+      let scenes = UIApplication.shared.connectedScenes
         .compactMap { $0 as? UIWindowScene }
-        .first { $0.activationState == .foregroundActive }
-      guard var top = scene?.keyWindow?.rootViewController else {
+        .filter { $0.keyWindow != nil }
+      let window = (scenes.first { $0.activationState == .foregroundActive }
+        ?? scenes.first { $0.activationState == .foregroundInactive }
+        ?? scenes.first)?.keyWindow
+      guard var top = window?.rootViewController else {
         result(FlutterError(code: "NO_UI", message: "No window to present from", details: nil))
         return
       }

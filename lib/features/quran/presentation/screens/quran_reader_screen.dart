@@ -466,14 +466,22 @@ final class _QuranReaderState extends State<_QuranReader> {
   String _shareText(BuildContext context, Ayah ayah) {
     final l10n = context.l10n;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final reference = LocaleDigits.localize(
-      '${ayah.surah}:${ayah.number}',
-      languageCode,
-    );
+    final surah = _surah(ayah.surah);
+    // Index not loaded: "— Quran 2:255" rather than a blank surah name.
+    final reference = surah == null
+        ? l10n.ayahShareSuffix(ayah.surah, ayah.number)
+        : l10n.shareAyahReference(
+            surah.transliteration,
+            LocaleDigits.localize('${ayah.surah}:${ayah.number}', languageCode),
+          );
+    final translator = switch (ayah.translationLanguageFor(languageCode)) {
+      'bn' => l10n.shareTranslatorMuhiuddinKhan,
+      _ => l10n.shareTranslatorPickthall,
+    };
     return '${ayah.arabic}\n\n'
         '${ayah.translationFor(languageCode)}\n\n'
-        '${l10n.shareAyahReference(_surah(ayah.surah)?.transliteration ?? '', reference)}\n'
-        '${l10n.shareTranslationBy(ayah.translatorFor(languageCode))}';
+        '$reference\n'
+        '${l10n.shareTranslationBy(translator)}';
   }
 
   Widget _ayahCard(BuildContext context, Ayah ayah) {

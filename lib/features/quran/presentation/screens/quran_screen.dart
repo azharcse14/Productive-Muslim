@@ -383,6 +383,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     return ListView.builder(
+      key: const PageStorageKey('quranJuzList'),
       padding: const EdgeInsets.symmetric(
         horizontal: QSpace.s5,
         vertical: QSpace.s2,
@@ -525,6 +526,8 @@ final class _QuranIndexState extends State<_QuranIndex> {
       );
     }
     return ListView.builder(
+      // Tab switches rebuild this page; keep its scroll offset.
+      key: const PageStorageKey('quranSurahList'),
       padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
       itemCount: surahs.length,
       itemBuilder: (context, index) => index < 10

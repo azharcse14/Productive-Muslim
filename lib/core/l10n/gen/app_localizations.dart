@@ -128,6 +128,18 @@ abstract class AppLocalizations {
   /// **'— Surah {name} {reference}'**
   String shareAyahReference(String name, String reference);
 
+  /// No description provided for @shareTranslatorPickthall.
+  ///
+  /// In en, this message translates to:
+  /// **'Mohammed Marmaduke William Pickthall'**
+  String get shareTranslatorPickthall;
+
+  /// No description provided for @shareTranslatorMuhiuddinKhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhiuddin Khan'**
+  String get shareTranslatorMuhiuddinKhan;
+
   /// No description provided for @shareTranslationBy.
   ///
   /// In en, this message translates to:

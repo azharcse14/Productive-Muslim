@@ -111,9 +111,12 @@ final class FakeQuranRepository implements QuranRepository {
   /// Makes `ayahsOf` fail (a broken bundled DB).
   bool failAyahs = false;
 
+  /// Per-test surah index override (e.g. a long one for scroll tests).
+  List<Surah>? surahsOverride;
+
   @override
   Future<Result<List<Surah>>> surahs() async =>
-      const Result.success(surahsData);
+      Result.success(surahsOverride ?? surahsData);
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async => failAyahs
@@ -157,8 +160,9 @@ final class FakeQuranRepository implements QuranRepository {
   }
 }
 
-Widget _app(Widget home) => MaterialApp(
+Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   theme: AppTheme.light(),
+  locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   builder: (context, child) =>
@@ -446,6 +450,36 @@ void main() {
 
       await flushMarkRead(tester);
     });
+
+    testWidgets('the surah list keeps its scroll offset across tabs', (
+      tester,
+    ) async {
+      repo.surahsOverride = [
+        for (var i = 1; i <= 40; i++)
+          Surah(
+            id: i,
+            nameArabic: 'س',
+            transliteration: 'Surah$i',
+            translationEn: 'Meaning$i',
+            ayahCount: 1,
+            revelation: 'meccan',
+          ),
+      ];
+      await store.load();
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -1500));
+      await tester.pumpAndSettle();
+      expect(find.text('Surah1'), findsNothing);
+
+      await tester.tap(find.text('Juz'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Surahs'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Surah1'), findsNothing);
+    });
   });
 
   group('QuranReaderScreen', () {
@@ -464,6 +498,42 @@ void main() {
             '— Surah Al-Faatiha 1:1\n'
             'Translation: Mohammed Marmaduke William Pickthall',
       ]);
+
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('Bangla share uses the Bangla translation and translator', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(const QuranReaderScreen(surahId: 1), locale: const Locale('bn')),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('শেয়ার করুন').first);
+      await tester.pump();
+
+      expect(share.shared, [
+        'بِسْمِ اللَّهِ\n\n'
+            'আল্লাহর নামে\n\n'
+            '— সূরা Al-Faatiha ১:১\n'
+            'অনুবাদ: মুহিউদ্দীন খান',
+      ]);
+
+      await flushMarkRead(tester);
+    });
+
+    testWidgets('share falls back to "Quran s:a" before the index loads', (
+      tester,
+    ) async {
+      store.surahs.value = const [];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 1)));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Share').first);
+      await tester.pump();
+
+      expect(share.shared.single, contains('\n— Quran 1:1\n'));
 
       await flushMarkRead(tester);
     });

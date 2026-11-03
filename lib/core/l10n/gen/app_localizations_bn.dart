@@ -28,6 +28,12 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get shareTranslatorPickthall => 'Mohammed Marmaduke William Pickthall';
+
+  @override
+  String get shareTranslatorMuhiuddinKhan => 'মুহিউদ্দীন খান';
+
+  @override
   String shareTranslationBy(String translator) {
     return 'অনুবাদ: $translator';
   }
