@@ -19,6 +19,7 @@ void main() {
   late AchievementStore store;
   late Signal<int> activity;
   late Signal<bool> enabled;
+  late Signal<bool> paused;
 
   setUp(() async {
     SharedPreferencesAsyncPlatform.instance =
@@ -33,6 +34,7 @@ void main() {
     await store.load();
     activity = signal(0);
     enabled = signal(true);
+    paused = signal(false);
   });
 
   Widget app({Key? key}) => MaterialApp(
@@ -43,6 +45,7 @@ void main() {
       key: key,
       store: store,
       enabled: () => enabled.value,
+      paused: () => paused.value,
       watchActivity: () => activity.value,
       child: const Scaffold(body: Text('any tab')),
     ),
@@ -112,11 +115,76 @@ void main() {
     await tester.pumpWidget(app());
     await unlockStreak(tester);
     expect(find.text(_toast), findsNothing);
+    // Evaluated meanwhile (e.g. by the badge wall).
+    await store.refresh();
 
     // Turning them on takes the current badges as the baseline.
     enabled.value = true;
     await tester.pump();
     await tester.pump();
     expect(find.text(_toast), findsNothing);
+  });
+
+  testWidgets('an unlock found by its own first scan toasts', (tester) async {
+    // Logged after the store loaded: only the listener's scan sees it.
+    for (final day in [8, 9, 10]) {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, day),
+          value: 1,
+        ),
+      );
+    }
+    await tester.pumpWidget(app());
+    await tester.pump();
+    await tester.pump();
+    expect(find.text(_toast), findsOneWidget);
+  });
+
+  testWidgets('a locked section holds the toast until unlocked', (
+    tester,
+  ) async {
+    paused.value = true;
+    await tester.pumpWidget(app());
+    await tester.pump();
+    await unlockStreak(tester);
+    expect(find.text(_toast), findsNothing);
+
+    paused.value = false;
+    await tester.pump();
+    expect(find.text(_toast), findsOneWidget);
+  });
+
+  testWidgets('several unlocks at once each toast, one after another', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await tester.pump();
+    // Ten days of fajr: Three in a row, A steady week, Ten days of salah.
+    for (var day = 1; day <= 10; day++) {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, day),
+          value: 1,
+        ),
+      );
+    }
+    activity.value++;
+    await tester.pump();
+    await tester.pump();
+    final seen = <String>{};
+    for (var i = 0; i < 3; i++) {
+      await tester.pumpAndSettle();
+      final text = tester.widget<Text>(find.textContaining('New badge')).data!;
+      seen.add(text);
+      await tester.pump(const Duration(seconds: 5)); // auto-dismiss
+    }
+    expect(seen, {
+      'New badge: Three in a row',
+      'New badge: A steady week',
+      'New badge: Ten days of salah',
+    });
   });
 }

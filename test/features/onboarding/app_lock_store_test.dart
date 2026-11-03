@@ -715,11 +715,13 @@ void main() {
       await restarted.load();
       expect(restarted.scope.value, LockScope.muhasaba);
       expect(restarted.locked.value, isFalse);
-      expect(restarted.lockedNow, isFalse);
+      // Muhasaba is off limits ("Mark as prayed" refuses), the app isn't.
+      expect(restarted.lockedNow, isTrue);
       expect(restarted.muhasabaLocked, isTrue);
 
       expect(await restarted.unlockWithPin('1234'), isTrue);
       expect(restarted.muhasabaLocked, isFalse);
+      expect(restarted.lockedNow, isFalse);
     });
 
     test('backgrounding past the grace period re-locks the section', () async {
@@ -735,6 +737,26 @@ void main() {
       expect(store.muhasabaLocked, isTrue);
       expect(store.locked.value, isFalse);
     });
+
+    test(
+      'changing the scope never unlocks: a locked section stays locked',
+      () async {
+        final store = _store();
+        await store.enable('1234', biometric: false);
+        await store.setScope(LockScope.muhasaba);
+        await store.load(); // fresh start: section locked
+        expect(store.muhasabaLocked, isTrue);
+        expect(store.lockedNow, isTrue); // notification actions refuse too
+
+        await store.setScope(LockScope.app);
+        expect(store.locked.value, isTrue);
+        expect(store.sectionLocked.value, isFalse);
+        expect(store.lockedNow, isTrue);
+
+        expect(await store.unlockWithPin('1234'), isTrue);
+        expect(store.lockedNow, isFalse);
+      },
+    );
 
     test('an unknown stored scope reads as the whole app', () async {
       final store = _store();

@@ -307,13 +307,14 @@ final class AppLockStore implements SectionLockStatus {
     return (wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod;
   }
 
-  /// Whether the app must be treated as locked right now — also when it
-  /// is due to re-lock but hasn't seen `resumed` yet (a notification
-  /// action can run first).
+  /// Whether what the lock guards (the app, or just Muhasaba) must be
+  /// treated as locked right now — also when it is due to re-lock but
+  /// hasn't seen `resumed` yet (a notification action can run first).
+  /// Either way Muhasaba data is off limits.
   bool get lockedNow =>
       enabled.value &&
-      _appScope &&
-      (locked.value || (!_authInProgress && _relockDue()));
+      ((_appScope ? locked.value : sectionLocked.value) ||
+          (!_authInProgress && _relockDue()));
 
   /// Whether biometric unlock is available to offer at PIN setup.
   Future<bool> canUseBiometric() => _biometric.canAuthenticate();
@@ -343,13 +344,15 @@ final class AppLockStore implements SectionLockStatus {
     sectionLocked.value = false;
   }
 
-  /// Switches what the lock guards. The caller proves the PIN first when
-  /// narrowing it to Muhasaba; the current session stays unlocked.
+  /// Switches what the lock guards; the caller proves the PIN first when
+  /// narrowing it to Muhasaba. Never unlocks anything: a locked state
+  /// moves over to the new scope.
   Future<void> setScope(LockScope next) async {
     await _source.writeScope(next);
+    final wasLocked = locked.value || sectionLocked.value;
     scope.value = next;
-    locked.value = false;
-    sectionLocked.value = false;
+    locked.value = next == LockScope.app && wasLocked;
+    sectionLocked.value = next == LockScope.muhasaba && wasLocked;
   }
 
   /// Verifies [pin]. Always false while throttled ([lockedUntil] in the

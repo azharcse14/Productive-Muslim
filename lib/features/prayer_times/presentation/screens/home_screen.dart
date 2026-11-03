@@ -692,6 +692,8 @@ final class _HomeScreenState extends State<HomeScreen> {
         final resolution = _store.mosqueResolution.value;
         final profiles = _store.mosqueProfiles.value;
         final archived = {for (final i in muhasaba.archivedItems.value) i.id};
+        // A locked Muhasaba section: no ticks to read or toggle.
+        final hidden = widget.sectionLock?.muhasabaLocked ?? false;
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
@@ -703,7 +705,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           locked: _store.lockedPrayers.value,
           untracked: {
             for (final prayer in Prayer.values)
-              if (archived.contains('salah_${prayer.name}')) prayer,
+              if (hidden || archived.contains('salah_${prayer.name}')) prayer,
           },
           onLockedTap: (_) => _showLockedToast(context),
           onSetJamaat: () => context.pushNamed(Routes.myMosque.name),

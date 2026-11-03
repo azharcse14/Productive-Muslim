@@ -395,14 +395,19 @@ void main() {
       final lock = _SectionLock();
       await tester.pumpWidget(_app(sectionLock: lock));
       await tester.pump();
+      PrayerTable table() =>
+          tester.widget<PrayerTable>(find.byType(PrayerTable));
       expect(find.text('Muhasaba is locked'), findsOneWidget);
       expect(find.byType(HomeMuhasabaCard), findsNothing);
       expect(find.text('0/14 done'), findsNothing);
+      // No prayed ticks to read or toggle on the table either.
+      expect(table().untracked, Prayer.values.toSet());
 
       lock.locked.value = false;
       await tester.pump();
       expect(find.text('Muhasaba is locked'), findsNothing);
       expect(find.text('0/14 done'), findsOneWidget);
+      expect(table().untracked, isEmpty);
     });
 
     testHomeWidgets(

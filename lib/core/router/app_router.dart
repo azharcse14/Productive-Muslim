@@ -200,8 +200,10 @@ GoRouter buildRouter() {
               GoRoute(
                 name: Routes.muhasaba.name,
                 path: Routes.muhasaba.path,
-                builder: (context, state) =>
-                    const SectionLockGate(child: MuhasabaScreen()),
+                builder: (context, state) => SectionLockGate(
+                  lock: locator<AppLockStore>(),
+                  child: const MuhasabaScreen(),
+                ),
               ),
             ],
           ),
@@ -214,7 +216,9 @@ GoRouter buildRouter() {
                 // category, with the Dua tab beneath it.
                 redirect: (context, state) =>
                     switch (state.uri.queryParameters['category']) {
-                      final id? when state.uri.path == Routes.dua.path =>
+                      final id?
+                          when id.isNotEmpty &&
+                              state.uri.path == Routes.dua.path =>
                         state.namedLocation(
                           Routes.duaCategory.name,
                           pathParameters: {'id': id},
@@ -377,7 +381,11 @@ GoRouter buildRouter() {
       GoRoute(
         name: Routes.health.name,
         path: Routes.health.path,
-        builder: (context, state) => const HealthScreen(),
+        // Its habits are Muhasaba trackers.
+        builder: (context, state) => SectionLockGate(
+          lock: locator<AppLockStore>(),
+          child: const HealthScreen(),
+        ),
       ),
       GoRoute(
         name: Routes.tibbNabawi.name,
@@ -387,7 +395,11 @@ GoRouter buildRouter() {
       GoRoute(
         name: Routes.achievements.name,
         path: Routes.achievements.path,
-        builder: (context, state) => const AchievementsScreen(),
+        // Badges are built from Muhasaba history.
+        builder: (context, state) => SectionLockGate(
+          lock: locator<AppLockStore>(),
+          child: const AchievementsScreen(),
+        ),
       ),
       GoRoute(
         name: Routes.zakat.name,
@@ -613,9 +625,14 @@ final class QShellScaffold extends StatelessWidget {
         !locator.isRegistered<MuhasabaStore>()) {
       return scaffold;
     }
+    final lock = locator.isRegistered<AppLockStore>()
+        ? locator<AppLockStore>()
+        : null;
     return BadgeUnlockListener(
       store: locator<AchievementStore>(),
       enabled: () => locator<SettingsStore>().settings.value.showAchievements,
+      // A locked Muhasaba section holds its toasts until unlocked.
+      paused: () => lock?.muhasabaLocked ?? false,
       watchActivity: () => locator<MuhasabaStore>().stats.value,
       child: scaffold,
     );

@@ -10,6 +10,7 @@ import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_sto
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
+import 'package:productive_muslim/features/onboarding/domain/repositories/app_lock_repository.dart';
 import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -468,6 +469,35 @@ void main() {
       expect(router.state.uri.path, '/dua');
       expect(find.byType(QBottomNavScaffold), findsOneWidget);
     });
+
+    testHomeWidgets(
+      'a locked Muhasaba section gates its tab, Health and Achievements',
+      (tester) async {
+        final lock = await makeAppLockStore(withPin: true);
+        await lock.setScope(LockScope.muhasaba);
+        await lock.load(); // fresh start: section locked, app open
+        GetIt.I
+          ..unregister<AppLockStore>()
+          ..registerSingleton<AppLockStore>(lock);
+        final router = buildRouter();
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/home');
+        for (final path in ['/muhasaba', '/health', '/achievements']) {
+          router.go(path);
+          await tester.pumpAndSettle();
+          expect(find.text('Muhasaba is locked'), findsOneWidget, reason: path);
+        }
+      },
+    );
 
     testHomeWidgets('renders Bangla labels under the bn locale', (tester) async {
       await tester.pumpWidget(
