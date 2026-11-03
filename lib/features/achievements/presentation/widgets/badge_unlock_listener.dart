@@ -52,11 +52,13 @@ final class _BadgeUnlockListenerState extends State<BadgeUnlockListener> {
 
   /// Unseen badge ids already toasted or baselined; null = no baseline.
   Set<String>? _known;
+  var _wasPaused = false;
 
   @override
   void initState() {
     super.initState();
     final badges = widget.store;
+    _wasPaused = _paused.peek();
     _effects
       ..add(
         effect(() {
@@ -73,6 +75,18 @@ final class _BadgeUnlockListenerState extends State<BadgeUnlockListener> {
               }),
             ),
           );
+        }),
+      )
+      ..add(
+        effect(() {
+          // Locking drops toasts already queued; they show nothing new.
+          final paused = _paused.value;
+          if (paused && !_wasPaused && mounted) {
+            untracked(
+              () => ScaffoldMessenger.maybeOf(context)?.clearSnackBars(),
+            );
+          }
+          _wasPaused = paused;
         }),
       )
       ..add(

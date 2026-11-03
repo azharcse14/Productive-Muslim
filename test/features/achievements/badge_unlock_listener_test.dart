@@ -156,6 +156,16 @@ void main() {
     expect(find.text(_toast), findsOneWidget);
   });
 
+  testWidgets('locking the section drops a showing toast', (tester) async {
+    await tester.pumpWidget(app());
+    await unlockStreak(tester);
+    expect(find.text(_toast), findsOneWidget);
+
+    paused.value = true;
+    await tester.pumpAndSettle();
+    expect(find.text(_toast), findsNothing);
+  });
+
   testWidgets('several unlocks at once each toast, one after another', (
     tester,
   ) async {
