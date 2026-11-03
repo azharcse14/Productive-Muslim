@@ -1263,6 +1263,7 @@
   "widgetNextPrayerLabel": "Next prayer",
   "notifExactAlarmBannerDismiss": "Don't remind me",
   "batteryOpenSettingsCta": "Open battery settings",
+  "notifChannelFocusEnd": "After jamaat focus",
   "batteryOptimizationOff": "Battery optimization is off for Productive Muslim, so reminders can arrive on time.",
   "nearbyMosquesLabel": "Nearby mosques",
   "nearbyMosquesHint": "Opens in Maps",

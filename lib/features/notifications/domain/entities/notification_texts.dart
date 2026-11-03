@@ -35,6 +35,7 @@ final class NotificationTexts {
     this.focusLockBodyUntil = '',
     this.focusEndAction = '',
     this.channelFocusName = '',
+    this.channelFocusEndName = '',
     this.focusEndTitle = '',
     this.focusEndBody = '',
     this.nafsLockTitle = '',
@@ -86,6 +87,10 @@ final class NotificationTexts {
   final String focusLockBodyUntil;
   final String focusEndAction;
   final String channelFocusName;
+
+  /// The focus-end notice's own channel (so muting daily content keeps
+  /// it); empty falls back to [channelRemindersName].
+  final String channelFocusEndName;
 
   /// Session end: "prayed in jamaat?" (`{prayer}`) + after-salah adhkar.
   final String focusEndTitle;

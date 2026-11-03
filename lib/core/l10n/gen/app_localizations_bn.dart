@@ -2671,6 +2671,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get batteryOpenSettingsCta => 'ব্যাটারি সেটিংস খুলুন';
 
   @override
+  String get notifChannelFocusEnd => 'জামাত ফোকাসের পরে';
+
+  @override
   String get batteryOptimizationOff =>
       'প্রোডাক্টিভ মুসলিমের জন্য ব্যাটারি অপটিমাইজেশন বন্ধ, তাই রিমাইন্ডার সময়মতো আসবে।';
 

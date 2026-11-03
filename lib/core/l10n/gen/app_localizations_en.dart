@@ -2678,6 +2678,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get batteryOpenSettingsCta => 'Open battery settings';
 
   @override
+  String get notifChannelFocusEnd => 'After jamaat focus';
+
+  @override
   String get batteryOptimizationOff =>
       'Battery optimization is off for Productive Muslim, so reminders can arrive on time.';
 

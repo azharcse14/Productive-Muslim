@@ -202,5 +202,7 @@ class FocusPlanTest {
         // No pattern sent (older plan) or a broken one: caller falls back.
         assertNull(FocusPlan.clockLabel(at, "", "", "", "", ""))
         assertNull(FocusPlan.clockLabel(at, "h:mm q", "", "", "", "UTC"))
+        // A zone the device doesn't know would read as GMT: fall back instead.
+        assertNull(FocusPlan.clockLabel(at, "h:mm a", "AM", "PM", "", "Bad/Zone"))
     }
 }

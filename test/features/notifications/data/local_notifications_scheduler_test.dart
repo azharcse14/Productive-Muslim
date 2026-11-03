@@ -517,7 +517,12 @@ void main() {
     expect(urgent.iOS!.interruptionLevel, InterruptionLevel.timeSensitive);
     for (final item in [ayah, muhasaba, focusEnd]) {
       final d = plugin.scheduled[item.id]!;
-      expect(d.android!.channelId, 'productive_muslim_daily');
+      expect(
+        d.android!.channelId,
+        item == focusEnd
+            ? 'productive_muslim_focus_end'
+            : 'productive_muslim_daily',
+      );
       expect(d.android!.importance, Importance.defaultImportance);
       expect(d.android!.priority, Priority.defaultPriority);
       expect(d.iOS!.interruptionLevel, InterruptionLevel.active);

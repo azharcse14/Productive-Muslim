@@ -244,6 +244,7 @@ final class NotificationController {
       focusLockBodyUntil: l10n.focusLockBodyUntil('{time}'),
       focusEndAction: l10n.focusEndAction,
       channelFocusName: l10n.channelFocus,
+      channelFocusEndName: l10n.notifChannelFocusEnd,
       focusEndTitle: l10n.notifFocusEndTitle('{prayer}'),
       focusEndBody: l10n.notifFocusEndBody,
       dailyAyahTitle: l10n.notifDailyAyahTitle,
