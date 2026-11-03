@@ -49,6 +49,13 @@ void main() {
       expect(const HijriDate(1447, 10, 1).toGregorian(), r30);
     });
 
+    test('30 Ramadan of that year has no Gregorian date (asserts)', () {
+      expect(
+        () => const HijriDate(1447, 9, 30).toGregorian(),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
     test('Ramadan utilities give a 29-day month', () {
       expect(RamadanUtils.ramadanLength(1447), 29);
       expect(RamadanUtils.gregorianDaysOf(1447), hasLength(29));

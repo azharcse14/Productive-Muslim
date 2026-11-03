@@ -260,6 +260,9 @@ final class EidAnnouncementCard extends StatelessWidget {
         if (!RamadanUtils.offersEidAnnouncement(today, ended: ended)) {
           return const SizedBox.shrink();
         }
+        // Tabular 30 Ramadan: the user is likely mid-day, so ask about
+        // today rather than "the 30th".
+        final lastDay = today.day == 30;
         return Padding(
           padding: const EdgeInsets.only(top: QSpace.s4),
           child: QCard(
@@ -268,7 +271,11 @@ final class EidAnnouncementCard extends StatelessWidget {
               children: [
                 Text(
                   context.digits(
-                    ended ? l10n.ramadanEidMarked : l10n.ramadanEidPrompt,
+                    ended
+                        ? l10n.ramadanEidMarked
+                        : lastDay
+                        ? l10n.ramadanEidPromptLastDay
+                        : l10n.ramadanEidPrompt,
                   ),
                   style: QType.body.copyWith(color: q.ink2),
                 ),
@@ -276,6 +283,8 @@ final class EidAnnouncementCard extends StatelessWidget {
                 QButton(
                   label: ended
                       ? l10n.undo
+                      : lastDay
+                      ? l10n.ramadanEidAnnounceToday
                       : context.digits(l10n.ramadanEidAnnounce),
                   icon: ended ? Icons.undo : Icons.celebration_outlined,
                   kind: ended ? QButtonKind.ghost : QButtonKind.tonal,

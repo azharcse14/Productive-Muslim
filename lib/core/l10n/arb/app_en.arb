@@ -1278,6 +1278,8 @@
   "ramadanEidPrompt": "Was the moon sighted after the 29th fast? If Eid has been announced, mark it so the 30th day counts as Eid al-Fitr, not a fast.",
   "ramadanEidAnnounce": "Eid announced — Ramadan ended after 29 days",
   "ramadanEidMarked": "Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.",
+  "ramadanEidPromptLastDay": "Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.",
+  "ramadanEidAnnounceToday": "Mark today as Eid al-Fitr",
   "expenseFilterEmpty": "No {category} entries this month.",
   "@expenseFilterEmpty": {
     "placeholders": {

@@ -4076,6 +4076,18 @@ abstract class AppLocalizations {
   /// **'Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.'**
   String get ramadanEidMarked;
 
+  /// No description provided for @ramadanEidPromptLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.'**
+  String get ramadanEidPromptLastDay;
+
+  /// No description provided for @ramadanEidAnnounceToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark today as Eid al-Fitr'**
+  String get ramadanEidAnnounceToday;
+
   /// No description provided for @expenseFilterEmpty.
   ///
   /// In en, this message translates to:

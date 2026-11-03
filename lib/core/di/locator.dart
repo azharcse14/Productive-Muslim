@@ -116,6 +116,24 @@ final GetIt locator = GetIt.instance;
 /// lazySingletons, use cases lazySingletons (stateless), screen stores
 /// factories; [SettingsStore] is app-scoped (theme/locale drive the root).
 Future<void> setupLocator() async {
+  // ---- Ramadan: "Eid announced after 29 days" ----
+  final eidSource = EidAnnouncementLocalDataSource(SharedPreferencesAsync());
+  final eid = EidAnnouncementStore(
+    read: eidSource.load,
+    write: eidSource.save,
+    // Signal-driven code re-runs by itself (see below); notifications and
+    // the home widget schedule outside signals, so refresh them here.
+    onChanged: () {
+      unawaited(locator<NotificationController>().retry());
+      unawaited(locator<PrayerWidgetService>().update());
+    },
+  );
+  // First, before anything can convert a date: every Hijri conversion
+  // follows it, and a computed converting a date subscribes to [years]
+  // through this read.
+  HijriDate.shortRamadanYears = () => eid.years.value;
+  locator.registerSingleton(eid);
+
   TimezoneClock.initialize();
 
   // ---- settings / location ----
@@ -347,23 +365,6 @@ Future<void> setupLocator() async {
       now: _wallNow,
     ),
   );
-
-  // ---- Ramadan: "Eid announced after 29 days" ----
-  final eidSource = EidAnnouncementLocalDataSource(SharedPreferencesAsync());
-  final eid = EidAnnouncementStore(
-    read: eidSource.load,
-    write: eidSource.save,
-    // Signal-driven code re-runs by itself (see below); notifications and
-    // the home widget schedule outside signals, so refresh them here.
-    onChanged: () {
-      unawaited(locator<NotificationController>().retry());
-      unawaited(locator<PrayerWidgetService>().update());
-    },
-  );
-  locator.registerSingleton(eid);
-  // Every Hijri conversion follows it; a computed converting a date
-  // subscribes to [years] through this read.
-  HijriDate.shortRamadanYears = () => eid.years.value;
 
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(

@@ -29,6 +29,13 @@ final class HijriDate {
   /// it without each caller threading it through; the composition root
   /// points it at a signal, so a `computed` that converts a date re-runs
   /// when the set changes. Kept pure Dart: no signals import here.
+  ///
+  /// Process-wide: set once, first thing in `setupLocator`; tests that set
+  /// it must reset it. Domain code that depends on it through
+  /// [fromGregorian]/[daysInMonth]: `RamadanUtils` (roza day, length,
+  /// month table), `RecommendedFasts` (Eid forbidden, Ramadan excluded),
+  /// `IslamicDates` (calendar labels), `buildNotificationPlan` (sahri and
+  /// iftar days) and the age calculator.
   // ponytail: process-wide hook; pass the set explicitly if a second
   // calendar (e.g. per-profile sighting) is ever needed.
   static Set<int> Function() shortRamadanYears = _noShortRamadans;
@@ -92,11 +99,21 @@ final class HijriDate {
   }
 
   /// Inverse of [fromGregorian] for the same [offsetDays].
-  DateTime toGregorian({int offsetDays = 0}) =>
-      _jdnToGregorian(_tabular()._toJdn() - offsetDays);
+  ///
+  /// 30 Ramadan does not exist in a [shortRamadanYears] year: asserts, so a
+  /// "last day of Ramadan" helper can't silently land on Eid.
+  DateTime toGregorian({int offsetDays = 0}) {
+    assert(
+      !(month == ramadanMonth &&
+          day == 30 &&
+          _isShortRamadanMonth(year, month)),
+      '30 Ramadan $year does not exist: Ramadan ended after 29 days',
+    );
+    return _jdnToGregorian(_tabular()._toJdn() - offsetDays);
+  }
 
   /// This observed date in the tabular calendar (undoes the
-  /// [shortRamadanYears] shift; 30 Ramadan of such a year stays as is).
+  /// [shortRamadanYears] shift).
   HijriDate _tabular() {
     if (month != shawwalMonth || !_isShortRamadanMonth(year, month)) {
       return this;

@@ -400,11 +400,7 @@ final class _DayCell extends StatelessWidget {
               if (bangla != null)
                 Text(
                   LocaleDigits.localize('${bangla.day}', language),
-                  style: QType.caption.copyWith(
-                    fontSize: 9.5,
-                    height: 1.2,
-                    color: q.ink3,
-                  ),
+                  style: QType.micro.copyWith(color: q.ink3),
                 ),
               Padding(
                 padding: const EdgeInsets.only(top: 2),

@@ -2720,6 +2720,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'চিহ্নিত: রমজান ২৯ দিনে শেষ হয়েছে। ২৯তম রোজার পরের দিন ঈদুল ফিতর।';
 
   @override
+  String get ramadanEidPromptLastDay =>
+      'রমজান কি গতকাল ২৯ রোজায় শেষ হয়েছে? ঈদের ঘোষণা হলে আজকের দিনটি ঈদুল ফিতর হিসেবে চিহ্নিত করুন। আজকের দিন আর রমজানের রোজা হিসেবে গণ্য হবে না।';
+
+  @override
+  String get ramadanEidAnnounceToday =>
+      'আজকের দিন ঈদুল ফিতর হিসেবে চিহ্নিত করুন';
+
+  @override
   String expenseFilterEmpty(String category) {
     return 'এই মাসে $category খাতে কোনো খরচ নেই।';
   }

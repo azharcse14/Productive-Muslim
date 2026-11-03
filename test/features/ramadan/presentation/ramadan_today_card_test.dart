@@ -149,8 +149,14 @@ void main() {
 
   testWidgets('Eid announced: offered on 29 Ramadan, makes the 30th Eid, '
       'undoable', (tester) async {
-    Future<void> pumpAt(HijriDate day) async {
-      clock.now = day.toGregorian().add(const Duration(hours: 12));
+    // Tabular dates (no override yet): 30 Ramadan doesn't exist once set.
+    DateTime noon(int day) => const HijriDate(
+      1447,
+      9,
+      1,
+    ).toGregorian().add(Duration(days: day - 1, hours: 12));
+    Future<void> pumpAt(int ramadanDay) async {
+      clock.now = noon(ramadanDay);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
         MaterialApp(
@@ -166,10 +172,10 @@ void main() {
     const announce = 'Eid announced — Ramadan ended after 29 days';
 
     // Not offered before the 29th.
-    await pumpAt(const HijriDate(1447, 9, 28));
+    await pumpAt(28);
     expect(find.text(announce), findsNothing);
 
-    await pumpAt(const HijriDate(1447, 9, 29));
+    await pumpAt(29);
     expect(find.text('Day 29 of 30'), findsOneWidget);
     await tester.tap(find.text(announce));
     await tester.pump();
@@ -178,14 +184,21 @@ void main() {
     expect(find.text('Undo'), findsOneWidget);
 
     // The tabular 30th is now Eid: no roza counter, undo still offered.
-    await pumpAt(const HijriDate(1447, 9, 30));
+    await pumpAt(30);
     expect(find.textContaining('of 30'), findsNothing);
     expect(find.text('Undo'), findsOneWidget);
     await tester.tap(find.text('Undo'));
     await tester.pump();
     expect(savedYears, isEmpty);
     expect(find.text('Day 30 of 30'), findsOneWidget);
-    expect(find.text(announce), findsOneWidget);
+    // On the 30th itself the copy asks about today, not "the 30th".
+    expect(find.text(announce), findsNothing);
+    expect(find.textContaining('Did Ramadan end yesterday'), findsOneWidget);
+    await tester.tap(find.text('Mark today as Eid al-Fitr'));
+    await tester.pump();
+    expect(savedYears, {1447});
+    expect(find.textContaining('of 30'), findsNothing);
+    expect(find.text('Undo'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
