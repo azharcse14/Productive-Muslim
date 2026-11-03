@@ -2180,6 +2180,12 @@ abstract class AppLocalizations {
   /// **'Asmaul Husna'**
   String get asmaulHusnaTitle;
 
+  /// No description provided for @rasulNamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Names of the Prophet ﷺ'**
+  String get rasulNamesTitle;
+
   /// No description provided for @asmaQuizTitle.
   ///
   /// In en, this message translates to:
@@ -5431,6 +5437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'40 Hadith Nawawi, Muwatta Malik: {source}'**
   String creditsBnHadithNawawiMalik(String source);
+
+  /// No description provided for @creditsRasulNamesSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiled for this app from the Quran, Sahih Bukhari & Muslim and the Sirah; pending scholarly review'**
+  String get creditsRasulNamesSource;
 
   /// No description provided for @creditsAsmaulHusnaSource.
   ///

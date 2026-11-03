@@ -62,6 +62,10 @@ abstract final class Routes {
   /// The 99 names — reachable from More and the Dua tab.
   static const asmaulHusna = (name: 'asmaulHusna', path: '/asmaul-husna');
 
+  /// Names of the Prophet ﷺ (More tab) and their quiz.
+  static const rasulNames = (name: 'rasulNames', path: '/rasul-names');
+  static const rasulQuiz = (name: 'rasulQuiz', path: '/rasul-quiz');
+
   /// Asmaul Husna memorization quiz (entered from the names screen).
   static const asmaQuiz = (name: 'asmaQuiz', path: '/asma-quiz');
 

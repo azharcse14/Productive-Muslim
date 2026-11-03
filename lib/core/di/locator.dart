@@ -15,6 +15,7 @@ import '../../features/achievements/presentation/state/achievement_store.dart';
 import '../../features/daily_content/presentation/state/daily_content_store.dart';
 import '../../features/dua_tasbih/data/dua_asset_data_source.dart';
 import '../../features/dua_tasbih/data/dua_repository_impl.dart';
+import '../../features/dua_tasbih/domain/entities/dua.dart';
 import '../../features/dua_tasbih/domain/repositories/dua_repository.dart';
 import '../../features/dua_tasbih/presentation/state/asma_quiz_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
@@ -311,7 +312,9 @@ Future<void> setupLocator() async {
     ..registerLazySingleton(
       () => TasbihStore(SharedPreferencesAsync(), now: _wallNow),
     )
-    ..registerFactory(() => AsmaQuizStore(SharedPreferencesAsync()))
+    ..registerFactoryParam<AsmaQuizStore, NameSet, void>(
+      (set, _) => AsmaQuizStore(SharedPreferencesAsync(), nameSet: set),
+    )
     ..registerLazySingleton(() => DailyContentStore(locator()));
 
   // ---- ruqyah ----

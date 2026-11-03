@@ -13,9 +13,7 @@ final class DuaRepositoryImpl implements DuaRepository {
     try {
       return Result.success(await _source.loadCategories());
     } on Object catch (e) {
-      return Result.failure(
-        UnexpectedFailure('Dua categories load failed', e),
-      );
+      return Result.failure(UnexpectedFailure('Dua categories load failed', e));
     }
   }
 
@@ -24,9 +22,16 @@ final class DuaRepositoryImpl implements DuaRepository {
     try {
       return Result.success(await _source.loadAsmaulHusna());
     } on Object catch (e) {
-      return Result.failure(
-        UnexpectedFailure('Asmaul Husna load failed', e),
-      );
+      return Result.failure(UnexpectedFailure('Asmaul Husna load failed', e));
+    }
+  }
+
+  @override
+  Future<Result<List<AsmaName>>> rasulNames() async {
+    try {
+      return Result.success(await _source.loadRasulNames());
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Rasul names load failed', e));
     }
   }
 }

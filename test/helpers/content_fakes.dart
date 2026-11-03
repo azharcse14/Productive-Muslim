@@ -33,22 +33,21 @@ final class FakeQuranRepository implements QuranRepository {
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async => const Result.success([
-        Ayah(
-          id: 1,
-          surah: 1,
-          number: 1,
-          arabic: 'بِسْمِ اللَّهِ',
-          translationEn: 'In the name of Allah',
-          translationBn: 'আল্লাহর নামে',
-        ),
-      ]);
+    Ayah(
+      id: 1,
+      surah: 1,
+      number: 1,
+      arabic: 'بِسْمِ اللَّهِ',
+      translationEn: 'In the name of Allah',
+      translationBn: 'আল্লাহর নামে',
+    ),
+  ]);
 
   @override
   Future<Result<List<Surah>>> searchSurahs(String query) => surahs();
 
   @override
-  Future<Result<QuranPosition?>> lastRead() async =>
-      Result.success(_lastRead);
+  Future<Result<QuranPosition?>> lastRead() async => Result.success(_lastRead);
 
   @override
   Future<Result<void>> setLastRead(QuranPosition position) async {
@@ -77,35 +76,37 @@ Future<QuranStore> makeQuranStore() async {
 
 final class FakeDuaRepository implements DuaRepository {
   @override
-  Future<Result<List<DuaCategory>>> categories() async =>
-      const Result.success([
-        DuaCategory(
-          id: 'morning_evening',
-          icon: 'sun',
-          duas: [
-            Dua(
-              id: 'd1',
-              arabic: 'سُبْحَانَ اللَّهِ',
-              transliteration: 'SubhanAllah',
-              translationEn: 'Glory be to Allah',
-              translationBn: 'আল্লাহ পবিত্র',
-              reference: 'Muslim 2691',
-              repeat: 33,
-            ),
-          ],
+  Future<Result<List<DuaCategory>>> categories() async => const Result.success([
+    DuaCategory(
+      id: 'morning_evening',
+      icon: 'sun',
+      duas: [
+        Dua(
+          id: 'd1',
+          arabic: 'سُبْحَانَ اللَّهِ',
+          transliteration: 'SubhanAllah',
+          translationEn: 'Glory be to Allah',
+          translationBn: 'আল্লাহ পবিত্র',
+          reference: 'Muslim 2691',
+          repeat: 33,
         ),
-      ]);
+      ],
+    ),
+  ]);
+
+  @override
+  Future<Result<List<AsmaName>>> rasulNames() => asmaulHusna();
 
   @override
   Future<Result<List<AsmaName>>> asmaulHusna() async => const Result.success([
-        AsmaName(
-          number: 1,
-          arabic: 'الرَّحْمَنُ',
-          transliteration: 'Ar-Rahman',
-          meaningEn: 'The Most Merciful',
-          meaningBn: 'পরম দয়ালু',
-        ),
-      ]);
+    AsmaName(
+      number: 1,
+      arabic: 'الرَّحْمَنُ',
+      transliteration: 'Ar-Rahman',
+      meaningEn: 'The Most Merciful',
+      meaningBn: 'পরম দয়ালু',
+    ),
+  ]);
 }
 
 Future<DuaStore> makeDuaStore() async {
