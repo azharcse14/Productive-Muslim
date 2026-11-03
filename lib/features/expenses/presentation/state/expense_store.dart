@@ -70,9 +70,6 @@ final class ExpenseStore {
   /// The device's locale (region included), for the default currency.
   final Locale Function() _deviceLocale;
 
-  /// Pre-decimal data was found on load — all of it was taka.
-  bool _hadLegacyData = false;
-
   static const _key = 'expenses_v1';
 
   /// Records (or a whole payload) that couldn't be read, kept as a JSON list
@@ -149,17 +146,15 @@ final class ExpenseStore {
   }
 
   /// Stores the default currency once, so the symbol on stored amounts
-  /// never changes with the device or app language: BDT if pre-decimal
-  /// (taka) data was found, else [currencyFor]. Best-effort: an unsaved
+  /// never changes with the device or app language: [currencyFor]. (With
+  /// pre-decimal data, [load] already set BDT.) Best-effort: an unsaved
   /// default still shows and is retried next time.
   Future<void> ensureCurrency(String appLanguage) async {
     await load();
     if (currency.value != null) {
       return;
     }
-    final code = _hadLegacyData
-        ? 'BDT'
-        : currencyFor(_deviceLocale(), appLanguage);
+    final code = currencyFor(_deviceLocale(), appLanguage);
     currency.value = code;
     try {
       await _prefs.setString(_currencyKey, code);
@@ -283,7 +278,24 @@ final class ExpenseStore {
         // Still unreadable — keep it.
       }
     }
-    _hadLegacyData = legacy;
+    // Pre-decimal data was all taka: store BDT before the rewrites below
+    // erase that evidence. The v1 budget keys are never removed, so only
+    // legacy records block the rewrites when this save fails (retried on
+    // the next load).
+    currency.value = await _prefs.getString(_currencyKey);
+    var canRewrite = true;
+    if (currency.value == null &&
+        (legacy ||
+            await _prefs.getInt(_legacyBudgetKey) != null ||
+            await _prefs.getString(_legacyCategoryBudgetKey) != null)) {
+      currency.value = 'BDT';
+      try {
+        await _prefs.setString(_currencyKey, 'BDT');
+      } on Object catch (e) {
+        canRewrite = !legacy;
+        debugPrint('Expense currency not saved: $e');
+      }
+    }
     entries.value = _persisted = read;
     if (recovered.isNotEmpty) {
       var list = read;
@@ -294,11 +306,15 @@ final class ExpenseStore {
           list = _withEntry(list, e);
         }
       }
-      await _save(list);
-      // Only after the recovered records are saved: shortening this list
-      // first would lose them if that save failed.
-      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
-    } else if (legacy) {
+      if (canRewrite) {
+        await _save(list);
+        // Only after the recovered records are saved: shortening this list
+        // first would lose them if that save failed.
+        await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+      } else {
+        entries.value = list; // shown; still kept, saved on a later load
+      }
+    } else if (legacy && canRewrite) {
       try {
         await _save(read); // rewrite in minor units
       } on Object catch (e) {
@@ -335,7 +351,6 @@ final class ExpenseStore {
         // Corrupt payload: no category budgets rather than a crash.
       }
     }
-    currency.value = await _prefs.getString(_currencyKey);
     loaded.value = true;
   }
 
@@ -345,7 +360,6 @@ final class ExpenseStore {
   Future<void> _migrateBudgets() async {
     final budget = await _prefs.getInt(_legacyBudgetKey);
     final categories = await _prefs.getString(_legacyCategoryBudgetKey);
-    _hadLegacyData |= budget != null || categories != null;
     if (budget != null) {
       await _prefs.setInt(_budgetKey, budget * 100);
     }

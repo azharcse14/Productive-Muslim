@@ -284,6 +284,32 @@ void main() {
       expect(s.currency.value, 'BDT');
     });
 
+    test('a failed BDT save defers the rewrite; next load still BDT', () async {
+      final prefs = _FlakyPrefs()
+        ..failKey = 'expense_currency_v1'
+        ..failWriteCount = 1;
+      SharedPreferencesAsyncPlatform.instance = prefs;
+      const opts = SharedPreferencesOptions();
+      await prefs.setString('expenses_v1', '[$good]', opts);
+      final first = store();
+      await first.ensureCurrency('en');
+      expect(first.currency.value, 'BDT');
+      expect(first.entries.value.single.amount, 500);
+      expect(
+        await prefs.getString('expenses_v1', opts),
+        isNot(contains('amountMinor')),
+        reason: 'legacy evidence kept until BDT is stored',
+      );
+      final second = store();
+      await second.ensureCurrency('en');
+      expect(second.currency.value, 'BDT');
+      expect(await prefs.getString('expense_currency_v1', opts), 'BDT');
+      expect(
+        await prefs.getString('expenses_v1', opts),
+        contains('amountMinor'),
+      );
+    });
+
     test('a legacy budget alone also means taka', () async {
       await SharedPreferencesAsync().setInt('expense_budget_v1', 50);
       final s = store();
@@ -367,7 +393,7 @@ void main() {
       );
     });
 
-    for (final failing in [1, 2]) {
+    for (final failing in [1, 2, 3]) {
       test('write $failing failing during load loses no record', () async {
         final prefs = _FlakyPrefs();
         SharedPreferencesAsyncPlatform.instance = prefs;
