@@ -971,7 +971,7 @@ abstract class AppLocalizations {
   /// No description provided for @forbiddenTimesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Avoid voluntary prayers in these windows. A missed fard (e.g. today\'s Asr) may still be prayed.'**
+  /// **'No nafl prayers in these windows. Making up a missed fard then: not valid in the Hanafi madhab (though that day\'s own Asr may still be prayed before sunset); permitted by the other madhabs.'**
   String get forbiddenTimesSubtitle;
 
   /// No description provided for @naflTimesSubtitle.
@@ -1025,7 +1025,7 @@ abstract class AppLocalizations {
   /// No description provided for @specialDetailIshraq.
   ///
   /// In en, this message translates to:
-  /// **'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah.'**
+  /// **'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah (Tirmidhi 586 — graded hasan by al-Albani; some scholars grade it weak).'**
   String get specialDetailIshraq;
 
   /// No description provided for @specialDetailDuha.
@@ -1211,7 +1211,7 @@ abstract class AppLocalizations {
   /// No description provided for @hijriMonthName.
   ///
   /// In en, this message translates to:
-  /// **'{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}'**
+  /// **'{month, select, m1{Muharram} m2{Safar} m3{Rabi\' al-Awwal} m4{Rabi\' al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Sha\'ban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qa\'dah} m12{Dhul-Hijjah} other{—}}'**
   String hijriMonthName(String month);
 
   /// No description provided for @hijriFromMaghrib.
@@ -2669,7 +2669,7 @@ abstract class AppLocalizations {
   /// No description provided for @fastingKindNote.
   ///
   /// In en, this message translates to:
-  /// **'{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}'**
+  /// **'{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa\'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{There are no days in which righteous deeds are more beloved to Allah than these ten (Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw him fast these days (Muslim 1176); another of his wives reported that he did (Abu Dawud 2437).} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}'**
   String fastingKindNote(String id);
 
   /// No description provided for @achievementsTitle.
@@ -3011,7 +3011,7 @@ abstract class AppLocalizations {
   /// No description provided for @zakatNeedSilverPrice.
   ///
   /// In en, this message translates to:
-  /// **'Enter today\'s silver price — the nisab is based on silver unless gold is your only asset.'**
+  /// **'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab (the Hanafi view, the lower threshold). Some scholars use the gold nisab for cash.'**
   String get zakatNeedSilverPrice;
 
   /// No description provided for @zakatInvalidNumber.
@@ -3047,7 +3047,7 @@ abstract class AppLocalizations {
   /// No description provided for @zakatNisabSilver.
   ///
   /// In en, this message translates to:
-  /// **'Silver nisab ({grams} g)'**
+  /// **'Silver nisab ({grams} g) — Hanafi view; some scholars use gold for cash'**
   String zakatNisabSilver(String grams);
 
   /// No description provided for @zakatRowCash.
@@ -3119,7 +3119,7 @@ abstract class AppLocalizations {
   /// No description provided for @islamicDayName.
   ///
   /// In en, this message translates to:
-  /// **'{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Night of the 27th (Laylatul Qadr)} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}'**
+  /// **'{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Night of Isra & Mi\'raj} nisfShaban{Night of mid-Sha\'ban} ramadanStart{Ramadan begins} laylatulQadr{27th night — often sought as Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}'**
   String islamicDayName(String day);
 
   /// No description provided for @onboardingWelcomeTitle.
@@ -5809,6 +5809,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change date range'**
   String get muhasabaRangeChange;
+
+  /// No description provided for @auditNightBeginsAtSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'This night begins at sunset on this date.'**
+  String get auditNightBeginsAtSunset;
+
+  /// No description provided for @auditObservanceDiffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Scholars differ on this date and on marking it with special worship.'**
+  String get auditObservanceDiffers;
+
+  /// No description provided for @auditRakaatHanafiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.'**
+  String get auditRakaatHanafiNote;
 }
 
 class _AppLocalizationsDelegate

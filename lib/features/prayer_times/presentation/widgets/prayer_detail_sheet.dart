@@ -7,8 +7,8 @@ import '../../../../shared/extensions/context_ext.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
 
-/// Per-prayer rakaat counts (fard · sunnah · witr). Constant reference data
-/// for the detail sheet; zero segments are not rendered.
+/// Per-prayer rakaat counts (fard · sunnah · witr) by the Hanafi madhab —
+/// the sheet labels them so. Zero segments are not rendered.
 const Map<Prayer, ({int fard, int sunnah, int witr})> _rakaat = {
   Prayer.fajr: (fard: 2, sunnah: 2, witr: 0),
   Prayer.dhuhr: (fard: 4, sunnah: 6, witr: 0),
@@ -107,6 +107,11 @@ final class PrayerDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: QSpace.s2),
             _RakaatChips(prayer: prayer, jumuah: jumuah),
+            const SizedBox(height: QSpace.s1),
+            Text(
+              l10n.auditRakaatHanafiNote,
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
             const SizedBox(height: QSpace.s5),
             Text(
               _fazilat(context, prayer),

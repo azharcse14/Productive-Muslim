@@ -514,6 +514,16 @@ final class _DaySheet extends StatelessWidget {
                   ),
                 ],
               ),
+              if (event.isNight)
+                Text(
+                  l10n.auditNightBeginsAtSunset,
+                  style: QType.body.copyWith(color: q.ink2),
+                ),
+              if (event.scholarsDiffer)
+                Text(
+                  l10n.auditObservanceDiffers,
+                  style: QType.caption.copyWith(color: q.ink2),
+                ),
             ],
             if (oddNightEve && event == null) ...[
               const SizedBox(height: QSpace.s3),

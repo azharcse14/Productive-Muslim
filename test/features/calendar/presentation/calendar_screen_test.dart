@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -101,5 +102,26 @@ void main() {
     Navigator.of(tester.element(find.text(l10n.settingHijriOffsetSub))).pop();
     await tester.pumpAndSettle();
     expect(find.textContaining(l10n.hijriAdjustChange), findsOneWidget);
+  });
+
+  testWidgets('Shab-e-Barat sheet: begins at sunset, scholars differ', (
+    tester,
+  ) async {
+    await pump(tester);
+    // The next 14 Sha'ban (the eve of the 15th) in or after this month.
+    final hijriNow = HijriDate.fromGregorian(today);
+    var eve = HijriDate(hijriNow.year, 8, 14).toGregorian();
+    if (eve.isBefore(DateTime(today.year, today.month))) {
+      eve = HijriDate(hijriNow.year + 1, 8, 14).toGregorian();
+    }
+    final months = (eve.year - today.year) * 12 + eve.month - today.month;
+    for (var i = 0; i < months; i++) {
+      await tester.fling(find.byType(GridView), const Offset(-250, 0), 1000);
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text(l10n.islamicDayName('nisfShaban')));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.auditNightBeginsAtSunset), findsOneWidget);
+    expect(find.text(l10n.auditObservanceDiffers), findsOneWidget);
   });
 }
