@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
@@ -8,9 +9,15 @@ import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.
 /// An in-memory [HadithDatabase] with the bundled schema created but no rows.
 /// Mirrors tool/hadith_db_build.dart so tests exercise the real queries +
 /// blob codec without touching the committed asset. [withBangla] false mirrors
-/// a `--no-bengali` build (no `hadith_bn_section` table).
-Future<HadithDatabase> openTestHadithDb({bool withBangla = true}) async {
-  final db = HadithDatabase(NativeDatabase.memory());
+/// a `--no-bengali` build (no `hadith_bn_section` table). [file] puts it on
+/// disk instead (for code that opens the file itself, e.g. search).
+Future<HadithDatabase> openTestHadithDb({
+  bool withBangla = true,
+  File? file,
+}) async {
+  final db = HadithDatabase(
+    file == null ? NativeDatabase.memory() : NativeDatabase(file),
+  );
   await db.customStatement(
     'CREATE TABLE hadith_section '
     '(edition TEXT NOT NULL, section INTEGER NOT NULL, data BLOB NOT NULL, '

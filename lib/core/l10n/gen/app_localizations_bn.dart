@@ -9,6 +9,59 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String get routeNotFound => 'এই পাতাটি পাওয়া যাচ্ছে না।';
+
+  @override
+  String get lockMuhasabaOnly => 'শুধু মুহাসাবা লক করুন';
+
+  @override
+  String get lockMuhasabaOnlySub =>
+      'অ্যাপের বাকি অংশ সরাসরি খুলবে; প্রতিবার অ্যাপ খোলার পর মুহাসাবায় একবার পিন লাগবে';
+
+  @override
+  String get lockMuhasabaLockedTitle => 'মুহাসাবা লক করা আছে';
+
+  @override
+  String get lockMuhasabaLockedBody =>
+      'আপনার দৈনিক হিসাব গোপন থাকে। চালিয়ে যেতে পিন দিয়ে আনলক করুন।';
+
+  @override
+  String get lockMuhasabaCardSub => 'আনলক করতে মুহাসাবা খুলুন';
+
+  @override
+  String get lockUnlockAction => 'আনলক';
+
+  @override
+  String get quranJuzTabSurahs => 'সূরা';
+
+  @override
+  String get quranJuzTabJuz => 'পারা';
+
+  @override
+  String quranJuzTitle(String number) {
+    return 'পারা $number';
+  }
+
+  @override
+  String get shareAyahTooltip => 'শেয়ার করুন';
+
+  @override
+  String shareAyahReference(String name, String reference) {
+    return '— সূরা $name $reference';
+  }
+
+  @override
+  String get shareTranslatorPickthall => 'Mohammed Marmaduke William Pickthall';
+
+  @override
+  String get shareTranslatorMuhiuddinKhan => 'মুহিউদ্দীন খান';
+
+  @override
+  String shareTranslationBy(String translator) {
+    return 'অনুবাদ: $translator';
+  }
+
+  @override
   String quranOpenAyah(String reference) {
     return '$reference খুলুন';
   }
@@ -1530,7 +1583,68 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get hadithSearchFullTooltip => 'সব হাদিসগ্রন্থে খুঁজুন';
+
+  @override
+  String get hadithSearchFullHint => 'হাদিসের লেখা বা নম্বর খুঁজুন';
+
+  @override
+  String get hadithSearchFullPrompt =>
+      'ইংরেজি বা বাংলায় সব হাদিসগ্রন্থে খুঁজুন, অথবা হাদিস নম্বর লিখুন।';
+
+  @override
+  String get hadithSearchFullNoResults =>
+      'কোনো হাদিস মেলেনি — অন্য শব্দ লিখে দেখুন';
+
+  @override
+  String hadithSearchFullShowingFirst(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'প্রথম $countStringটি ফলাফল দেখানো হচ্ছে';
+  }
+
+  @override
+  String get hadithSearchFullError => 'হাদিস খোঁজা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get hadithSearchFullPreparing => 'খোঁজার প্রস্তুতি চলছে…';
+
+  @override
   String get fastingQazaSetOwed => 'বাকি রোজার সংখ্যা দিন';
+
+  @override
+  String get ramadanShareProgress => 'অগ্রগতি শেয়ার করুন';
+
+  @override
+  String get ramadanShareHeading => 'আমার রমজান, আলহামদুলিল্লাহ';
+
+  @override
+  String ramadanShareFastsLogged(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countStringটি রোজা রেকর্ড হয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanShareBlessing => 'আল্লাহ কবুল করুন · تقبل الله';
+
+  @override
+  String ramadanShareText(String progress) {
+    return 'রমজান, $progress — আলহামদুলিল্লাহ। · প্রোডাক্টিভ মুসলিম';
+  }
+
+  @override
+  String get ramadanShareFailed =>
+      'শেয়ারের ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get fastingQazaOwedHint => 'বাকি রোজা (ঐচ্ছিক)';
@@ -1550,6 +1664,9 @@ class AppLocalizationsBn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get expenseCurrency => 'মুদ্রা';
 
   @override
   String get fastingUpcomingTitle => 'আসন্ন প্রস্তাবিত রোজা';
@@ -2665,7 +2782,53 @@ class AppLocalizationsBn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'পরবর্তী নামাজ';
 
   @override
+  String get notifExactAlarmBannerDismiss => 'আর মনে করাবেন না';
+
+  @override
+  String get batteryOpenSettingsCta => 'ব্যাটারি সেটিংস খুলুন';
+
+  @override
+  String get notifChannelFocusEnd => 'জামাত ফোকাসের পরে';
+
+  @override
+  String get batteryOptimizationOff =>
+      'প্রোডাক্টিভ মুসলিমের জন্য ব্যাটারি অপটিমাইজেশন বন্ধ, তাই রিমাইন্ডার সময়মতো আসবে।';
+
+  @override
   String get nearbyMosquesLabel => 'কাছের মসজিদ';
+
+  @override
+  String get mosqueSeasonTitle => 'মৌসুমি সময়সূচি';
+
+  @override
+  String get mosqueSeasonHint =>
+      'প্রতি বছর দুটি তারিখের মধ্যে অন্য প্রোফাইল ব্যবহার করুন, যেমন শীতের সময়। ওপরের নিয়মগুলো তাদের সময়ে প্রাধান্য পাবে।';
+
+  @override
+  String get mosqueSeasonAdd => 'মৌসুম যোগ করুন';
+
+  @override
+  String mosqueSeasonActiveNow(String name, String reason) {
+    return 'এখন চালু: $name ($reason)';
+  }
+
+  @override
+  String get mosqueSeasonReasonRule => 'একটি সময়ের নিয়ম মিলেছে';
+
+  @override
+  String mosqueSeasonReasonSeason(String range) {
+    return 'মৌসুম $range';
+  }
+
+  @override
+  String get mosqueSeasonReasonDefault => 'ডিফল্ট মসজিদ';
+
+  @override
+  String get mosqueSeasonReasonOverride => 'সাময়িক পরিবর্তন';
+
+  @override
+  String get mosqueSeasonReasonFallback =>
+      'কোনো নিয়ম, মৌসুম বা ডিফল্ট প্রযোজ্য নয়';
 
   @override
   String get nearbyMosquesHint => 'ম্যাপে খুলবে';
@@ -2709,6 +2872,25 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseEmpty => 'কোনো খরচ লেখা হয়নি।';
 
   @override
+  String get ramadanEidPrompt =>
+      '২৯তম রোজার পর চাঁদ দেখা গেছে? ঈদের ঘোষণা হলে চিহ্নিত করুন, তাহলে ৩০তম দিনটি রোজা নয়, ঈদুল ফিতর হিসেবে ধরা হবে।';
+
+  @override
+  String get ramadanEidAnnounce => 'ঈদ ঘোষণা হয়েছে — রমজান ২৯ দিনে শেষ';
+
+  @override
+  String get ramadanEidMarked =>
+      'চিহ্নিত: রমজান ২৯ দিনে শেষ হয়েছে। ২৯তম রোজার পরের দিন ঈদুল ফিতর।';
+
+  @override
+  String get ramadanEidPromptLastDay =>
+      'রমজান কি গতকাল ২৯ রোজায় শেষ হয়েছে? ঈদের ঘোষণা হলে আজকের দিনটি ঈদুল ফিতর হিসেবে চিহ্নিত করুন। আজকের দিন আর রমজানের রোজা হিসেবে গণ্য হবে না।';
+
+  @override
+  String get ramadanEidAnnounceToday =>
+      'আজকের দিন ঈদুল ফিতর হিসেবে চিহ্নিত করুন';
+
+  @override
   String expenseFilterEmpty(String category) {
     return 'এই মাসে $category খাতে কোনো খরচ নেই।';
   }
@@ -2746,7 +2928,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseAmountInvalid =>
-      '০-এর বেশি পূর্ণ সংখ্যা লিখুন, দশমিক ছাড়া (যেমন ২৫০)';
+      '০-এর বেশি পরিমাণ লিখুন, দশমিকের পরে সর্বোচ্চ ২ ঘর (যেমন ২৫০ বা ১২.৫০)';
 
   @override
   String get expenseBudget => 'মাসিক বাজেট';
@@ -3676,4 +3858,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get healthWeightLogPast => 'অন্য দিনের ওজন লিখুন';
+
+  @override
+  String get muhasabaRangeCustom => 'কাস্টম';
+
+  @override
+  String muhasabaRangeSpan(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get muhasabaRangeChange => 'তারিখের পরিসর বদলান';
 }

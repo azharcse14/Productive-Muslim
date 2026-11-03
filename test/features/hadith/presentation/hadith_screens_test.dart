@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith_search.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
-import 'package:productive_muslim/features/hadith/presentation/screens/hadith_books_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_detail_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
@@ -109,16 +112,26 @@ const _muslim = HadithBook(
 );
 
 final class _FakeBookRepository implements HadithBookRepository {
-  _FakeBookRepository({this.fail = false});
+  @override
+  Future<Result<HadithSearchResults>> search(
+    String query,
+    String languageCode, {
+    int limit = hadithSearchLimit,
+  }) async => const Result.success((hits: [], truncated: false));
+
+  @override
+  void releaseSearch() {}
+
+  _FakeBookRepository({this.fail = false, this.catalog = const [_bukhari]});
 
   final bool fail;
+  final List<HadithBook> catalog;
 
   /// Language of every section fetch, in order.
   final languages = <String>[];
 
   @override
-  Future<Result<List<HadithBook>>> books() async =>
-      const Result.success([_bukhari]);
+  Future<Result<List<HadithBook>>> books() async => Result.success(catalog);
 
   @override
   Future<Result<List<BookHadith>>> section(
@@ -167,10 +180,30 @@ Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   home: home,
 );
 
-Future<_FakeBookRepository> _register({bool failSection = false}) async {
+/// The app's real hadith routes under `/hadith`, opened at [location].
+Widget _routerApp(String location) => MaterialApp.router(
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  routerConfig: GoRouter(
+    initialLocation: location,
+    routes: [
+      GoRoute(
+        path: Routes.hadith.path,
+        builder: (_, _) => const HadithScreen(),
+        routes: hadithRoutes(),
+      ),
+    ],
+  ),
+);
+
+Future<_FakeBookRepository> _register({
+  bool failSection = false,
+  List<HadithBook> catalog = const [_bukhari],
+}) async {
   final store = HadithStore(_FakeHadithRepository());
   await store.load();
-  final booksRepo = _FakeBookRepository(fail: failSection);
+  final booksRepo = _FakeBookRepository(fail: failSection, catalog: catalog);
   SharedPreferencesAsyncPlatform.instance =
       InMemorySharedPreferencesAsync.empty();
   final booksStore = HadithBooksStore(booksRepo, SharedPreferencesAsync());
@@ -202,7 +235,7 @@ void main() {
 
     testWidgets('tapping a topic opens its hadith list', (tester) async {
       await _register();
-      await tester.pumpWidget(_app(const HadithScreen()));
+      await tester.pumpWidget(_routerApp('/hadith'));
       await tester.pump();
 
       await tester.tap(find.text('Character & manners'));
@@ -217,7 +250,7 @@ void main() {
       tester,
     ) async {
       await _register();
-      await tester.pumpWidget(_app(const HadithScreen()));
+      await tester.pumpWidget(_routerApp('/hadith'));
       await tester.pump();
       expect(find.text('Saved hadith'), findsNothing);
 
@@ -270,7 +303,7 @@ void main() {
       tester,
     ) async {
       await _register();
-      await tester.pumpWidget(_app(const HadithBooksScreen()));
+      await tester.pumpWidget(_routerApp('/hadith/books'));
       await tester.pump();
 
       expect(find.text('Sahih al-Bukhari'), findsOneWidget);
@@ -304,7 +337,7 @@ void main() {
       expect(restored.resumeFor('en')?.$2.name, 'Revelation');
       expect(restored.resumeFor('bn'), isNull); // other numbering
 
-      await tester.pumpWidget(_app(const HadithBooksScreen()));
+      await tester.pumpWidget(_routerApp('/hadith/books'));
       await tester.pump();
       await tester.tap(find.text('Continue reading'));
       await tester.pumpAndSettle();
@@ -339,7 +372,8 @@ void main() {
 
     testWidgets('hadith-number lookup opens just that hadith', (tester) async {
       await _register();
-      await tester.pumpWidget(_app(const HadithSectionsScreen(book: _bukhari)));
+      await tester.pumpWidget(_routerApp('/hadith/books/bukhari'));
+      await tester.pump();
       await tester.tap(find.byTooltip('Go to hadith number'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), '১'); // Bengali digit
@@ -355,8 +389,9 @@ void main() {
     testWidgets('lookup uses the number on the cards (Sahih Muslim refs)', (
       tester,
     ) async {
-      await _register();
-      await tester.pumpWidget(_app(const HadithSectionsScreen(book: _muslim)));
+      await _register(catalog: const [_muslim]);
+      await tester.pumpWidget(_routerApp('/hadith/books/muslim'));
+      await tester.pump();
       await tester.tap(find.byTooltip('Go to hadith number'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), '8');
@@ -407,8 +442,9 @@ void main() {
           ),
         ],
       );
-      await _register();
-      await tester.pumpWidget(_app(const HadithSectionsScreen(book: split)));
+      await _register(catalog: const [split]);
+      await tester.pumpWidget(_routerApp('/hadith/books/muslim'));
+      await tester.pump();
 
       Future<void> goTo(String number) async {
         await tester.tap(find.byTooltip('Go to hadith number'));

@@ -98,6 +98,96 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @routeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This page isn\'t available.'**
+  String get routeNotFound;
+
+  /// No description provided for @lockMuhasabaOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Muhasaba only'**
+  String get lockMuhasabaOnly;
+
+  /// No description provided for @lockMuhasabaOnlySub.
+  ///
+  /// In en, this message translates to:
+  /// **'The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app'**
+  String get lockMuhasabaOnlySub;
+
+  /// No description provided for @lockMuhasabaLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhasaba is locked'**
+  String get lockMuhasabaLockedTitle;
+
+  /// No description provided for @lockMuhasabaLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily record stays private. Unlock with your PIN to continue.'**
+  String get lockMuhasabaLockedBody;
+
+  /// No description provided for @lockMuhasabaCardSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Muhasaba to unlock'**
+  String get lockMuhasabaCardSub;
+
+  /// No description provided for @lockUnlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get lockUnlockAction;
+
+  /// No description provided for @quranJuzTabSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get quranJuzTabSurahs;
+
+  /// No description provided for @quranJuzTabJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz'**
+  String get quranJuzTabJuz;
+
+  /// No description provided for @quranJuzTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz {number}'**
+  String quranJuzTitle(String number);
+
+  /// No description provided for @shareAyahTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareAyahTooltip;
+
+  /// No description provided for @shareAyahReference.
+  ///
+  /// In en, this message translates to:
+  /// **'— Surah {name} {reference}'**
+  String shareAyahReference(String name, String reference);
+
+  /// No description provided for @shareTranslatorPickthall.
+  ///
+  /// In en, this message translates to:
+  /// **'Mohammed Marmaduke William Pickthall'**
+  String get shareTranslatorPickthall;
+
+  /// No description provided for @shareTranslatorMuhiuddinKhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Muhiuddin Khan'**
+  String get shareTranslatorMuhiuddinKhan;
+
+  /// No description provided for @shareTranslationBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation: {translator}'**
+  String shareTranslationBy(String translator);
+
   /// No description provided for @quranOpenAyah.
   ///
   /// In en, this message translates to:
@@ -2462,11 +2552,89 @@ abstract class AppLocalizations {
   /// **'{done} of {owed} made up'**
   String fastingQazaOfOwed(int done, int owed);
 
+  /// No description provided for @hadithSearchFullTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all collections'**
+  String get hadithSearchFullTooltip;
+
+  /// No description provided for @hadithSearchFullHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith text or number'**
+  String get hadithSearchFullHint;
+
+  /// No description provided for @hadithSearchFullPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Search every collection in English or Bangla, or type a hadith number.'**
+  String get hadithSearchFullPrompt;
+
+  /// No description provided for @hadithSearchFullNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith matches — try another word'**
+  String get hadithSearchFullNoResults;
+
+  /// No description provided for @hadithSearchFullShowingFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the first {count} matches'**
+  String hadithSearchFullShowingFirst(int count);
+
+  /// No description provided for @hadithSearchFullError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search hadith. Please try again.'**
+  String get hadithSearchFullError;
+
+  /// No description provided for @hadithSearchFullPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing search…'**
+  String get hadithSearchFullPreparing;
+
   /// No description provided for @fastingQazaSetOwed.
   ///
   /// In en, this message translates to:
   /// **'Set number owed'**
   String get fastingQazaSetOwed;
+
+  /// No description provided for @ramadanShareProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Share progress'**
+  String get ramadanShareProgress;
+
+  /// No description provided for @ramadanShareHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'My Ramadan, alhamdulillah'**
+  String get ramadanShareHeading;
+
+  /// No description provided for @ramadanShareFastsLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 fast logged} other{{count} fasts logged}}'**
+  String ramadanShareFastsLogged(int count);
+
+  /// No description provided for @ramadanShareBlessing.
+  ///
+  /// In en, this message translates to:
+  /// **'May Allah accept it · تقبل الله'**
+  String get ramadanShareBlessing;
+
+  /// No description provided for @ramadanShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan, {progress} — alhamdulillah. · Productive Muslim'**
+  String ramadanShareText(String progress);
+
+  /// No description provided for @ramadanShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the share image. Please try again.'**
+  String get ramadanShareFailed;
 
   /// No description provided for @fastingQazaOwedHint.
   ///
@@ -2479,6 +2647,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}'**
   String fastingHeatmapLabel(int count, String month);
+
+  /// No description provided for @expenseCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get expenseCurrency;
 
   /// No description provided for @fastingUpcomingTitle.
   ///
@@ -3974,11 +4148,89 @@ abstract class AppLocalizations {
   /// **'Next prayer'**
   String get widgetNextPrayerLabel;
 
+  /// No description provided for @notifExactAlarmBannerDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t remind me'**
+  String get notifExactAlarmBannerDismiss;
+
+  /// No description provided for @batteryOpenSettingsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open battery settings'**
+  String get batteryOpenSettingsCta;
+
+  /// No description provided for @notifChannelFocusEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'After jamaat focus'**
+  String get notifChannelFocusEnd;
+
+  /// No description provided for @batteryOptimizationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery optimization is off for Productive Muslim, so reminders can arrive on time.'**
+  String get batteryOptimizationOff;
+
   /// No description provided for @nearbyMosquesLabel.
   ///
   /// In en, this message translates to:
   /// **'Nearby mosques'**
   String get nearbyMosquesLabel;
+
+  /// No description provided for @mosqueSeasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonal timings'**
+  String get mosqueSeasonTitle;
+
+  /// No description provided for @mosqueSeasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.'**
+  String get mosqueSeasonHint;
+
+  /// No description provided for @mosqueSeasonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add season'**
+  String get mosqueSeasonAdd;
+
+  /// No description provided for @mosqueSeasonActiveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Active now: {name} ({reason})'**
+  String mosqueSeasonActiveNow(String name, String reason);
+
+  /// No description provided for @mosqueSeasonReasonRule.
+  ///
+  /// In en, this message translates to:
+  /// **'a time rule matches'**
+  String get mosqueSeasonReasonRule;
+
+  /// No description provided for @mosqueSeasonReasonSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'season {range}'**
+  String mosqueSeasonReasonSeason(String range);
+
+  /// No description provided for @mosqueSeasonReasonDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'default mosque'**
+  String get mosqueSeasonReasonDefault;
+
+  /// No description provided for @mosqueSeasonReasonOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'temporary switch'**
+  String get mosqueSeasonReasonOverride;
+
+  /// No description provided for @mosqueSeasonReasonFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'no rule, season or default applies'**
+  String get mosqueSeasonReasonFallback;
 
   /// No description provided for @nearbyMosquesHint.
   ///
@@ -4058,6 +4310,36 @@ abstract class AppLocalizations {
   /// **'No expenses logged.'**
   String get expenseEmpty;
 
+  /// No description provided for @ramadanEidPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Was the moon sighted after the 29th fast? If Eid has been announced, mark it so the 30th day counts as Eid al-Fitr, not a fast.'**
+  String get ramadanEidPrompt;
+
+  /// No description provided for @ramadanEidAnnounce.
+  ///
+  /// In en, this message translates to:
+  /// **'Eid announced — Ramadan ended after 29 days'**
+  String get ramadanEidAnnounce;
+
+  /// No description provided for @ramadanEidMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.'**
+  String get ramadanEidMarked;
+
+  /// No description provided for @ramadanEidPromptLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.'**
+  String get ramadanEidPromptLastDay;
+
+  /// No description provided for @ramadanEidAnnounceToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark today as Eid al-Fitr'**
+  String get ramadanEidAnnounceToday;
+
   /// No description provided for @expenseFilterEmpty.
   ///
   /// In en, this message translates to:
@@ -4109,7 +4391,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseAmountInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a whole number above 0, without decimals (e.g. 250)'**
+  /// **'Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)'**
   String get expenseAmountInvalid;
 
   /// No description provided for @expenseBudget.
@@ -5509,6 +5791,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log another day'**
   String get healthWeightLogPast;
+
+  /// No description provided for @muhasabaRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get muhasabaRangeCustom;
+
+  /// No description provided for @muhasabaRangeSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String muhasabaRangeSpan(String start, String end);
+
+  /// No description provided for @muhasabaRangeChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date range'**
+  String get muhasabaRangeChange;
 }
 
 class _AppLocalizationsDelegate

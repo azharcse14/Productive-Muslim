@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,6 +128,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     if (!first) {
       return;
     }
+    await _deleteLegacyChannels();
     // Cold start from a tap: replay it once the app is up.
     final launch = await _plugin.getNotificationAppLaunchDetails();
     final response = launch?.notificationResponse;
@@ -141,6 +143,25 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         // Unreadable: replaying a stale tap beats dropping a real one.
       }
       _dispatch(response);
+    }
+  }
+
+  /// Android channels no longer used. A channel's importance can't be
+  /// changed in place, so moved items get a new id and the old one is
+  /// removed from system settings. Deleting a missing channel is a no-op.
+  static const legacyChannels = ['productive_muslim_reminders'];
+
+  Future<void> _deleteLegacyChannels() async {
+    final android = _android;
+    if (android == null) {
+      return;
+    }
+    for (final id in legacyChannels) {
+      try {
+        await android.deleteNotificationChannel(channelId: id);
+      } on Object catch (e) {
+        debugPrint('Failed to delete channel $id: $e');
+      }
     }
   }
 
@@ -220,6 +241,37 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   // on both platforms.
   @override
   Future<void> openSystemSettings() async => Geolocator.openAppSettings();
+
+  /// MainActivity's battery handler (BatteryOptimization.kt).
+  static const _battery = MethodChannel('com.productivemuslim.app/battery');
+
+  @override
+  Future<bool> isIgnoringBatteryOptimizations() async {
+    if (_android == null) {
+      return true;
+    }
+    try {
+      return await _battery.invokeMethod<bool>('isIgnoring') ?? false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> openBatteryOptimizationSettings() async {
+    if (_android == null) {
+      return;
+    }
+    try {
+      await _battery.invokeMethod<void>('openSettings');
+    } on PlatformException {
+      await openSystemSettings();
+    } on MissingPluginException {
+      await openSystemSettings();
+    }
+  }
 
   @override
   Future<Result<void>> reschedule(
@@ -423,7 +475,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       NotificationKind.muhasabaEvening ||
       NotificationKind.dailyReminder ||
       NotificationKind.dailyAyah ||
-      NotificationKind.dailyHadith => true,
+      NotificationKind.dailyHadith ||
+      // After the jamaat, not before it: nothing to catch in time.
+      NotificationKind.focusEnd => true,
       _ => false,
     };
     final normal = beep || daily;
@@ -450,6 +504,15 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         t.keepAliveTitle,
         false,
       ),
+      // Calm like daily content, but its own channel: muting daily content
+      // must not hide it (it carries "mark as prayed").
+      NotificationKind.focusEnd => (
+        'productive_muslim_focus_end',
+        t.channelFocusEndName.isEmpty
+            ? t.channelRemindersName
+            : t.channelFocusEndName,
+        true,
+      ),
       // Default-importance channel of its own: an existing channel's
       // importance can't be lowered, so these left 'reminders' (high).
       _ when daily => (
@@ -459,7 +522,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             : t.channelDailyName,
         true,
       ),
-      _ => ('productive_muslim_reminders', t.channelRemindersName, true),
+      // New id: the old one ('productive_muslim_reminders', see
+      // [legacyChannels]) also held the daily nudges a user may have muted.
+      _ => ('productive_muslim_alerts', t.channelRemindersName, true),
     };
     return NotificationDetails(
       android: AndroidNotificationDetails(

@@ -1,3 +1,4 @@
+import '../../../../core/utils/wall_time.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 
 /// Wall-clock time of day, Flutter-free (domain stays pure Dart).
@@ -95,13 +96,7 @@ final class JamaatConfig {
   /// isha puts a 00:15 jamaat after it and an after-midnight isha keeps a
   /// 23:45 jamaat on the evening before. Unclamped: may precede the waqt.
   static DateTime placeNear(DateTime waqtStart, ClockTime time) {
-    DateTime on(int day) => DateTime(
-      waqtStart.year,
-      waqtStart.month,
-      waqtStart.day + day,
-      time.hour,
-      time.minute,
-    );
+    DateTime on(int day) => waqtStart.wallDay(day, time.hour, time.minute);
     final gap = on(0).difference(waqtStart);
     if (gap > const Duration(hours: 12)) {
       return on(-1);

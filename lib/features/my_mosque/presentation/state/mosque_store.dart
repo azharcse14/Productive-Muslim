@@ -118,6 +118,24 @@ final class MosqueStore {
     );
   }
 
+  Future<void> addSeason(MosqueSeason season) =>
+      _update((s) => s.copyWith(seasons: [...s.seasons, season]));
+
+  /// Replaces the season at [index]; with a null [season] removes it.
+  Future<void> updateSeason(int index, MosqueSeason? season) {
+    if (index < 0 || index >= state.value.seasons.length) {
+      return Future.value();
+    }
+    return _update(
+      (s) => s.copyWith(
+        seasons: [
+          for (final (i, x) in s.seasons.indexed)
+            if (i != index) x else if (season != null) season,
+        ],
+      ),
+    );
+  }
+
   Future<void> setDefaultMosque(String? id) =>
       _update((s) => s.withDefault(id));
 
@@ -171,6 +189,10 @@ final class MosqueStore {
       rules: [
         for (final r in current.rules)
           if (r.mosqueId != id) r,
+      ],
+      seasons: [
+        for (final s in current.seasons)
+          if (s.mosqueId != id) s,
       ],
       defaultId: current.defaultId == id ? null : current.defaultId,
       activeOverride: override?.mosqueId == id ? null : override,

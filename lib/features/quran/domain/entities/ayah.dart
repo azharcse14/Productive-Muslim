@@ -20,10 +20,15 @@ final class Ayah {
   final String translationBn;
 
   /// Bundled translation for [languageCode], falling back to English.
-  String translationFor(String languageCode) => switch (languageCode) {
-    'bn' when translationBn.isNotEmpty => translationBn,
-    _ => translationEn,
-  };
+  String translationFor(String languageCode) =>
+      translationLanguageFor(languageCode) == 'bn'
+      ? translationBn
+      : translationEn;
+
+  /// Language ('bn' | 'en') of the text [translationFor] returns, so its
+  /// translator can be credited.
+  String translationLanguageFor(String languageCode) =>
+      languageCode == 'bn' && translationBn.isNotEmpty ? 'bn' : 'en';
 
   @override
   bool operator ==(Object other) => other is Ayah && other.id == id;

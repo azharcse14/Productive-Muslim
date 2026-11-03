@@ -13,6 +13,8 @@ import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/countdown_card.dart';
 import '../../../../shared/widgets/q_banner.dart';
+import '../../../../shared/widgets/q_card.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_pressable.dart';
 import '../../../../shared/widgets/q_seg_control.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
@@ -31,6 +33,7 @@ import '../../../hadith/presentation/widgets/hadith_card.dart';
 import '../../../muhasaba/presentation/state/muhasaba_store.dart';
 import '../../../nearby_mosques/domain/usecases/open_nearby_mosques.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
+import '../../../onboarding/domain/repositories/app_lock_repository.dart';
 import '../../../qibla/domain/usecases/compass_math.dart';
 import '../../../quran/domain/entities/ayah.dart';
 import '../../../quran/presentation/state/quran_store.dart';
@@ -64,7 +67,10 @@ import 'home_formatting.dart';
 /// table, sahri & iftar (under the countdown during Ramadan), then the
 /// daily cards. Compact adaptation below 700dp height.
 final class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({this.sectionLock, super.key});
+
+  /// Muhasaba section lock; while locked the summary card hides its data.
+  final SectionLockStatus? sectionLock;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -397,7 +403,9 @@ final class _HomeScreenState extends State<HomeScreen> {
             final hidden = _settings.settings.value.hiddenHomeCards;
             bool shows(HomeCard card) => !hidden.contains(card);
             final sections = <Widget>[
-              if (!_exactAlarms) _section(_exactAlarmBanner(context)),
+              if (!_exactAlarms &&
+                  !_settings.settings.value.exactAlarmBannerDismissed)
+                _section(_exactAlarmBanner(context)),
               _countdownSection(context, day, compact: compact),
               if (ramadan) sahriIftar,
               if (shows(HomeCard.quickActions))
@@ -546,6 +554,7 @@ final class _HomeScreenState extends State<HomeScreen> {
             // A waqt already prayed has nothing left to rush.
             prayed:
                 target.kind != CountdownKind.waqtStart &&
+                !(widget.sectionLock?.muhasabaLocked ?? false) &&
                 _isPrayed(target.prayer),
             forbidden: forbidden,
             instantOf: _store.instantOf.value,
@@ -616,15 +625,27 @@ final class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Shown while Android denies exact alarms; tapping opens the OS consent.
-  /// Same tone as the notification settings' banner.
-  Widget _exactAlarmBanner(BuildContext context) => QBanner(
-    text: context.l10n.prayerTimesExactAlarmBanner,
-    icon: Icons.alarm_outlined,
-    onTap: () => unawaited(
-      _scheduler?.requestExactAlarmPermission().then(
-        (_) => _checkExactAlarms(),
+  /// Same tone as the notification settings' banner. × hides it for good
+  /// (notification settings keep their own banner).
+  Widget _exactAlarmBanner(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: QBanner(
+          text: context.l10n.prayerTimesExactAlarmBanner,
+          icon: Icons.alarm_outlined,
+          onTap: () => unawaited(
+            _scheduler?.requestExactAlarmPermission().then(
+              (_) => _checkExactAlarms(),
+            ),
+          ),
+        ),
       ),
-    ),
+      IconButton(
+        icon: const Icon(Icons.close),
+        tooltip: context.l10n.notifExactAlarmBannerDismiss,
+        onPressed: () => unawaited(_settings.dismissExactAlarmBanner()),
+      ),
+    ],
   );
 
   /// Tools hub: shortcuts to features that aren't a bottom-nav tab and
@@ -672,6 +693,8 @@ final class _HomeScreenState extends State<HomeScreen> {
         final resolution = _store.mosqueResolution.value;
         final profiles = _store.mosqueProfiles.value;
         final archived = {for (final i in muhasaba.archivedItems.value) i.id};
+        // A locked Muhasaba section: no ticks to read or toggle.
+        final hidden = widget.sectionLock?.muhasabaLocked ?? false;
         return PrayerTable(
           day: day,
           activePrayer: _store.activeWaqt.value?.prayer,
@@ -683,7 +706,7 @@ final class _HomeScreenState extends State<HomeScreen> {
           locked: _store.lockedPrayers.value,
           untracked: {
             for (final prayer in Prayer.values)
-              if (archived.contains('salah_${prayer.name}')) prayer,
+              if (hidden || archived.contains('salah_${prayer.name}')) prayer,
           },
           onLockedTap: (_) => _showLockedToast(context),
           onSetJamaat: () => context.pushNamed(Routes.myMosque.name),
@@ -765,13 +788,22 @@ final class _HomeScreenState extends State<HomeScreen> {
   /// Muhasaba (daily-deeds) summary.
   Widget _muhasabaSection(BuildContext context) => SignalBuilder(
     builder: (context) {
+      if (widget.sectionLock?.muhasabaLocked ?? false) {
+        return QCard(
+          child: QListRow(
+            icon: Icons.lock_outline,
+            title: context.l10n.lockMuhasabaLockedTitle,
+            subtitle: context.l10n.lockMuhasabaCardSub,
+            onTap: () => context.goNamed(Routes.muhasaba.name),
+          ),
+        );
+      }
       final stats = _muhasaba.stats.value;
       if (stats == null) {
         return const SizedBox.shrink();
       }
-      // The period range always ends today, so the last day completion is
-      // today's.
-      final today = stats.days.isEmpty ? 0.0 : stats.days.last.completion;
+      // Today's, whatever range the dashboard shows.
+      final today = _muhasaba.completionOn(_store.dateKey.value);
       final items = _muhasaba.items.value;
       final entries = _muhasaba.entriesOn(_store.dateKey.value);
       final doneToday = items.where((i) => i.isDone(entries[i.id] ?? 0)).length;

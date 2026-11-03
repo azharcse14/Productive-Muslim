@@ -1,5 +1,32 @@
 {
   "@@locale": "en",
+  "routeNotFound": "This page isn't available.",
+  "lockMuhasabaOnly": "Lock Muhasaba only",
+  "lockMuhasabaOnlySub": "The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app",
+  "lockMuhasabaLockedTitle": "Muhasaba is locked",
+  "lockMuhasabaLockedBody": "Your daily record stays private. Unlock with your PIN to continue.",
+  "lockMuhasabaCardSub": "Open Muhasaba to unlock",
+  "lockUnlockAction": "Unlock",
+  "quranJuzTabSurahs": "Surahs",
+  "quranJuzTabJuz": "Juz",
+  "quranJuzTitle": "Juz {number}",
+  "@quranJuzTitle": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "shareAyahTooltip": "Share",
+  "shareAyahReference": "— Surah {name} {reference}",
+  "@shareAyahReference": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "reference": { "type": "String" }
+    }
+  },
+  "shareTranslatorPickthall": "Mohammed Marmaduke William Pickthall",
+  "shareTranslatorMuhiuddinKhan": "Muhiuddin Khan",
+  "shareTranslationBy": "Translation: {translator}",
+  "@shareTranslationBy": {
+    "placeholders": { "translator": { "type": "String" } }
+  },
   "quranOpenAyah": "Open {reference}",
   "@quranOpenAyah": {
     "placeholders": { "reference": { "type": "String" } }
@@ -733,7 +760,23 @@
   "@fastingQazaMadeUp": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
   "fastingQazaOfOwed": "{done} of {owed} made up",
   "@fastingQazaOfOwed": {"placeholders": {"done": {"type": "int", "format": "decimalPattern"}, "owed": {"type": "int", "format": "decimalPattern"}}},
+  "hadithSearchFullTooltip": "Search all collections",
+  "hadithSearchFullHint": "Search hadith text or number",
+  "hadithSearchFullPrompt": "Search every collection in English or Bangla, or type a hadith number.",
+  "hadithSearchFullNoResults": "No hadith matches — try another word",
+  "hadithSearchFullShowingFirst": "Showing the first {count} matches",
+  "@hadithSearchFullShowingFirst": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "hadithSearchFullError": "Couldn't search hadith. Please try again.",
+  "hadithSearchFullPreparing": "Preparing search…",
   "fastingQazaSetOwed": "Set number owed",
+  "ramadanShareProgress": "Share progress",
+  "ramadanShareHeading": "My Ramadan, alhamdulillah",
+  "ramadanShareFastsLogged": "{count, plural, =1{1 fast logged} other{{count} fasts logged}}",
+  "@ramadanShareFastsLogged": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "ramadanShareBlessing": "May Allah accept it · تقبل الله",
+  "ramadanShareText": "Ramadan, {progress} — alhamdulillah. · Productive Muslim",
+  "@ramadanShareText": {"placeholders": {"progress": {"type": "String"}}},
+  "ramadanShareFailed": "Couldn't create the share image. Please try again.",
   "fastingQazaOwedHint": "Fasts owed (optional)",
   "fastingHeatmapLabel": "{count, plural, =0{No fasts logged in {month}} =1{1 fast logged in {month}} other{{count} fasts logged in {month}}}",
   "@fastingHeatmapLabel": {
@@ -742,6 +785,7 @@
       "month": { "type": "String" }
     }
   },
+  "expenseCurrency": "Currency",
   "fastingUpcomingTitle": "Upcoming recommended fasts",
   "fastingKindName": "{id, select, mondayThursday{Monday & Thursday} whiteDays{White days (Ayyam al-Beed)} ashura{Ashura} arafah{Day of Arafah} dhulHijjah{First nine days of Dhul-Hijjah} shawwal{Six days of Shawwal} other{{id}}}",
   "@fastingKindName": {
@@ -1261,7 +1305,37 @@
   "favoriteAddLabel": "Add to favorites",
   "favoriteRemoveLabel": "Remove from favorites",
   "widgetNextPrayerLabel": "Next prayer",
+  "notifExactAlarmBannerDismiss": "Don't remind me",
+  "batteryOpenSettingsCta": "Open battery settings",
+  "notifChannelFocusEnd": "After jamaat focus",
+  "batteryOptimizationOff": "Battery optimization is off for Productive Muslim, so reminders can arrive on time.",
   "nearbyMosquesLabel": "Nearby mosques",
+  "mosqueSeasonTitle": "Seasonal timings",
+  "mosqueSeasonHint": "Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.",
+  "mosqueSeasonAdd": "Add season",
+  "mosqueSeasonActiveNow": "Active now: {name} ({reason})",
+  "@mosqueSeasonActiveNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "mosqueSeasonReasonRule": "a time rule matches",
+  "mosqueSeasonReasonSeason": "season {range}",
+  "@mosqueSeasonReasonSeason": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "mosqueSeasonReasonDefault": "default mosque",
+  "mosqueSeasonReasonOverride": "temporary switch",
+  "mosqueSeasonReasonFallback": "no rule, season or default applies",
   "nearbyMosquesHint": "Opens in Maps",
   "nearbyMosquesLaunchError": "Couldn't open Maps. Make sure a maps app is installed or you're online.",
   "nearbyMosquesLocationError": "Set your location first to find nearby mosques.",
@@ -1275,6 +1349,11 @@
   "expensePrevMonth": "Previous month",
   "expenseNextMonth": "Next month",
   "expenseEmpty": "No expenses logged.",
+  "ramadanEidPrompt": "Was the moon sighted after the 29th fast? If Eid has been announced, mark it so the 30th day counts as Eid al-Fitr, not a fast.",
+  "ramadanEidAnnounce": "Eid announced — Ramadan ended after 29 days",
+  "ramadanEidMarked": "Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.",
+  "ramadanEidPromptLastDay": "Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.",
+  "ramadanEidAnnounceToday": "Mark today as Eid al-Fitr",
   "expenseFilterEmpty": "No {category} entries this month.",
   "@expenseFilterEmpty": {
     "placeholders": {
@@ -1295,7 +1374,7 @@
   "expenseDeleted": "Expense deleted",
   "expenseUndo": "Undo",
   "expenseSaveFailed": "Couldn't save. Please try again.",
-  "expenseAmountInvalid": "Enter a whole number above 0, without decimals (e.g. 250)",
+  "expenseAmountInvalid": "Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)",
   "expenseBudget": "Monthly budget",
   "expenseBudgetClear": "Remove budget",
   "expenseBudgetLeft": "{left} left of {budget}",
@@ -1684,5 +1763,14 @@
   },
   "expenseFilterHint": "show only this category",
   "expenseFilterClearHint": "show all categories",
-  "healthWeightLogPast": "Log another day"
+  "healthWeightLogPast": "Log another day",
+  "muhasabaRangeCustom": "Custom",
+  "muhasabaRangeSpan": "{start} – {end}",
+  "@muhasabaRangeSpan": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "muhasabaRangeChange": "Change date range"
 }

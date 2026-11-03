@@ -4,6 +4,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/presentation/widgets/setting_labels.dart';
@@ -25,7 +26,7 @@ Future<void> showDayTimelineSheet(
   // Floored to the minute: a 1s `now` rebuilds the sheet once a minute.
   final minute = computed(() {
     final t = now();
-    return DateTime(t.year, t.month, t.day, t.hour, t.minute);
+    return t.wallDay(0, t.hour, t.minute);
   });
   try {
     await showModalBottomSheet<void>(

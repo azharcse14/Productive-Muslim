@@ -131,5 +131,7 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // FileProvider (image share). Same version plugins already resolve to.
+    implementation("androidx.core:core:1.18.0")
     testImplementation("junit:junit:4.13.2")
 }

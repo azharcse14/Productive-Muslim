@@ -15,6 +15,7 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/q_step_button.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
+import '../../../onboarding/domain/repositories/app_lock_repository.dart';
 import '../../../onboarding/presentation/screens/lock_screen.dart';
 import '../../../onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../onboarding/presentation/state/app_lock_store.dart';
@@ -275,17 +276,39 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                     SignalBuilder(
                       builder: (context) {
                         final lock = locator<AppLockStore>();
-                        return QListRow(
-                          icon: Icons.lock_outline,
-                          title: l10n.appLockEnable,
-                          subtitle: l10n.appLockEnableSub,
-                          // The whole row toggles, not just the switch.
-                          onTap: () =>
-                              unawaited(_toggleAppLock(!lock.enabled.value)),
-                          trailing: Switch(
-                            value: lock.enabled.value,
-                            onChanged: (v) => unawaited(_toggleAppLock(v)),
-                          ),
+                        final sectionOnly =
+                            lock.scope.value == LockScope.muhasaba;
+                        return Column(
+                          children: [
+                            QListRow(
+                              icon: Icons.lock_outline,
+                              title: l10n.appLockEnable,
+                              subtitle: l10n.appLockEnableSub,
+                              // The whole row toggles, not just the switch.
+                              onTap: () => unawaited(
+                                _toggleAppLock(!lock.enabled.value),
+                              ),
+                              trailing: Switch(
+                                value: lock.enabled.value,
+                                onChanged: (v) => unawaited(_toggleAppLock(v)),
+                              ),
+                            ),
+                            if (lock.enabled.value) ...[
+                              const Divider(),
+                              QListRow(
+                                icon: Icons.checklist_outlined,
+                                title: l10n.lockMuhasabaOnly,
+                                subtitle: l10n.lockMuhasabaOnlySub,
+                                onTap: () =>
+                                    unawaited(_setSectionOnly(!sectionOnly)),
+                                trailing: Switch(
+                                  value: sectionOnly,
+                                  onChanged: (v) =>
+                                      unawaited(_setSectionOnly(v)),
+                                ),
+                              ),
+                            ],
+                          ],
                         );
                       },
                     ),
@@ -372,6 +395,23 @@ final class _SettingsScreenState extends State<SettingsScreen> {
         builder: (_) => const LockScreen(mode: LockScreenMode.setup),
       ),
     );
+  }
+
+  /// Narrowing the lock to Muhasaba weakens it, so it needs the PIN (or
+  /// biometric) first; widening it back to the whole app doesn't.
+  Future<void> _setSectionOnly(bool on) async {
+    final lock = locator<AppLockStore>();
+    if (on) {
+      final verified = await Navigator.of(context).push(
+        MaterialPageRoute<bool>(
+          builder: (_) => const LockScreen(mode: LockScreenMode.verify),
+        ),
+      );
+      if (!(verified ?? false)) {
+        return;
+      }
+    }
+    await lock.setScope(on ? LockScope.muhasaba : LockScope.app);
   }
 
   /// Setup stays complete while re-running, so the flow can be closed

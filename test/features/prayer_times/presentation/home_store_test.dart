@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/core/utils/wall_time.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
@@ -33,7 +34,7 @@ final class _CountingClock implements ZonedClock {
   @override
   DateTime nowAt(LocationConfig location) {
     reads++;
-    return now;
+    return now.floating;
   }
 
   @override
@@ -54,14 +55,14 @@ final class _FridayDays implements PrayerDayRepository {
     required DateTime date,
   }) => Result.success(
     PrayerDay(
-      ishaYesterday: DateTime(2026, 6, 18, 20, 30),
-      fajr: DateTime(2026, 6, 19, 3, 45),
-      sunrise: DateTime(2026, 6, 19, 5, 10),
-      dhuhr: DateTime(2026, 6, 19, 12, 10),
-      asr: DateTime(2026, 6, 19, 15, 30),
-      maghrib: DateTime(2026, 6, 19, 18, 50),
-      isha: DateTime(2026, 6, 19, 20, 15),
-      fajrTomorrow: DateTime(2026, 6, 20, 3, 45),
+      ishaYesterday: DateTime.utc(2026, 6, 18, 20, 30),
+      fajr: DateTime.utc(2026, 6, 19, 3, 45),
+      sunrise: DateTime.utc(2026, 6, 19, 5, 10),
+      dhuhr: DateTime.utc(2026, 6, 19, 12, 10),
+      asr: DateTime.utc(2026, 6, 19, 15, 30),
+      maghrib: DateTime.utc(2026, 6, 19, 18, 50),
+      isha: DateTime.utc(2026, 6, 19, 20, 15),
+      fajrTomorrow: DateTime.utc(2026, 6, 20, 3, 45),
     ),
   );
 }
@@ -119,7 +120,7 @@ void main() {
     () async {
       // Work (Jumu'ah 13:30) until 13:00 on Fridays, Home (13:45) otherwise.
       final (store, _) = await at(
-        DateTime(2026, 6, 19, 13),
+        DateTime.utc(2026, 6, 19, 13),
         mosqueState: const MosqueState(
           profiles: [
             MosqueProfile(id: 'home', name: 'Home', jumuah: ClockTime(13, 45)),
@@ -139,7 +140,7 @@ void main() {
       );
       final target = store.countdownTarget.value!;
       expect(target.kind, CountdownKind.jamaat);
-      expect(target.at, DateTime(2026, 6, 19, 13, 30));
+      expect(target.at, DateTime.utc(2026, 6, 19, 13, 30));
       expect(store.rowJamaat.value[Prayer.dhuhr], target.at);
       store.dispose();
     },
@@ -148,7 +149,7 @@ void main() {
   testWidgets('the store starts on the slow tick until resumed', (
     tester,
   ) async {
-    final (store, clock) = await at(DateTime(2026, 6, 19, 13));
+    final (store, clock) = await at(DateTime.utc(2026, 6, 19, 13));
     final created = clock.reads;
     await tester.pump(const Duration(seconds: 5));
     expect(clock.reads, created, reason: 'no per-second tick before Home');
@@ -161,7 +162,7 @@ void main() {
   });
 
   group('override expiry', () {
-    final friday = DateTime(2026, 6, 19, 13);
+    final friday = DateTime.utc(2026, 6, 19, 13);
     MosqueState withOverride(MosqueOverride o) => MosqueState(
       profiles: const [
         MosqueProfile(id: 'home', name: 'Home'),
@@ -185,7 +186,7 @@ void main() {
           MosqueOverride(
             mosqueId: 'work',
             baselineAutoId: 'home',
-            setOn: DateTime(2026, 6, 19),
+            setOn: DateTime.utc(2026, 6, 19),
           ),
         ),
       );
@@ -202,7 +203,7 @@ void main() {
         MosqueOverride(
           mosqueId: 'work',
           baselineAutoId: 'gone',
-          setOn: DateTime(2026, 6, 19),
+          setOn: DateTime.utc(2026, 6, 19),
         ),
       ),
       (
@@ -210,7 +211,7 @@ void main() {
         MosqueOverride(
           mosqueId: 'work',
           baselineAutoId: 'home',
-          setOn: DateTime(2026, 6, 18),
+          setOn: DateTime.utc(2026, 6, 18),
         ),
       ),
     ]) {
@@ -231,7 +232,7 @@ void main() {
           MosqueOverride(
             mosqueId: 'work',
             baselineAutoId: 'gone',
-            setOn: DateTime(2026, 6, 19),
+            setOn: DateTime.utc(2026, 6, 19),
           ),
         ),
       );

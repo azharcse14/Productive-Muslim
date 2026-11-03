@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/dua_tasbih/domain/entities/dua.dart';
@@ -90,6 +93,34 @@ Widget _app(Widget home) => MaterialApp(
   home: home,
 );
 
+/// The Dua tab's real sub-routes under `/dua` (as in the app shell).
+GoRouter _duaRouter([String location = '/dua']) {
+  final root = GlobalKey<NavigatorState>();
+  return GoRouter(
+    navigatorKey: root,
+    initialLocation: location,
+    routes: [
+      GoRoute(
+        path: Routes.dua.path,
+        builder: (_, _) => const DuaScreen(),
+        routes: duaRoutes(root),
+      ),
+      GoRoute(
+        name: Routes.asmaulHusna.name,
+        path: Routes.asmaulHusna.path,
+        builder: (_, _) => const AsmaulHusnaScreen(),
+      ),
+    ],
+  );
+}
+
+Widget _routerApp(GoRouter router) => MaterialApp.router(
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  routerConfig: router,
+);
+
 void main() {
   late FakeScreenWake wake;
 
@@ -133,14 +164,48 @@ void main() {
     });
 
     testWidgets('tapping a category opens its detail screen', (tester) async {
-      await tester.pumpWidget(_app(const DuaScreen()));
+      final router = _duaRouter();
+      await tester.pumpWidget(_routerApp(router));
       await tester.pump();
 
       await tester.tap(find.text('Sleep'));
       await tester.pumpAndSettle();
 
+      expect(router.state.uri.path, '/dua/category/sleep');
       expect(find.byType(DuaCategoryScreen), findsOneWidget);
       expect(find.text('اللَّهُمَّ'), findsOneWidget);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/dua');
+    });
+
+    testWidgets('tasbih and Asmaul Husna open through named routes', (
+      tester,
+    ) async {
+      final router = _duaRouter();
+      await tester.pumpWidget(_routerApp(router));
+      await tester.pump();
+
+      await tester.tap(find.text('Tasbih'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/dua/tasbih');
+      expect(find.byType(TasbihScreen), findsOneWidget);
+      router.pop();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Asmaul Husna'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, Routes.asmaulHusna.path);
+    });
+
+    testWidgets('a category deep link opens with the Dua tab beneath', (
+      tester,
+    ) async {
+      final router = _duaRouter('/dua/category/morning_evening');
+      await tester.pumpWidget(_routerApp(router));
+      await tester.pumpAndSettle();
+      expect(find.text('بِسْمِ اللَّهِ'), findsOneWidget);
+      expect(router.canPop(), isTrue);
     });
   });
 
@@ -149,7 +214,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _app(const DuaCategoryScreen(category: _morningCategory)),
+        _app(const DuaCategoryScreen(id: 'morning_evening')),
       );
 
       expect(find.text('بِسْمِ اللَّهِ'), findsOneWidget);
@@ -167,7 +232,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _app(const DuaCategoryScreen(category: _morningCategory)),
+        _app(const DuaCategoryScreen(id: 'morning_evening')),
       );
       await tester.tap(find.text('Repeat 3×'));
       await tester.pump();

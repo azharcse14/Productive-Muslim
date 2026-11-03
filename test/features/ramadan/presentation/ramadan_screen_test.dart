@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -6,16 +8,21 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
+import 'package:productive_muslim/features/ramadan/domain/repositories/fast_log.dart';
 import 'package:productive_muslim/features/ramadan/domain/usecases/ramadan_utils.dart';
 import 'package:productive_muslim/features/ramadan/presentation/screens/ramadan_screen.dart';
+import 'package:productive_muslim/features/ramadan/presentation/state/eid_announcement_store.dart';
+import 'package:productive_muslim/features/ramadan/presentation/widgets/ramadan_share_card.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
+import 'package:productive_muslim/features/share/domain/share_sheet.dart';
 
 import '../../../helpers/settings_fakes.dart';
+import '../../../helpers/share_sheet_fake.dart';
 
 const _dhaka = ManualCityLocation(
   City(
@@ -34,8 +41,16 @@ final class _FixedClock implements ZonedClock {
   final DateTime now;
   final _real = TimezoneClock();
 
+  // Floating wall time, like TimezoneClock.
   @override
-  DateTime nowAt(LocationConfig location) => now;
+  DateTime nowAt(LocationConfig location) => DateTime.utc(
+    now.year,
+    now.month,
+    now.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
 
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) =>
@@ -55,6 +70,7 @@ void main() {
 
   late SettingsStore settings;
   late AppLocalizations l10n;
+  late FakeShareSheet share;
 
   Future<void> pump(WidgetTester tester, DateTime now) async {
     tester.view
@@ -64,11 +80,21 @@ void main() {
     settings = await makeSettingsStore(const AppSettings(location: _dhaka));
     final clock = _FixedClock(now);
     GetIt.I
+      ..registerSingleton(
+        EidAnnouncementStore(
+          read: () async => const {},
+          write: (_, {required ended}) async {},
+        ),
+      )
       ..registerSingleton<SettingsStore>(settings)
       ..registerSingleton<ZonedClock>(clock)
       ..registerSingleton<GetPrayerDay>(
         GetPrayerDay(PrayerDayRepositoryImpl(clock)),
-      );
+      )
+      ..registerSingleton<IsDayFasted>(
+        (day) => !day.isBefore(DateTime(2026, 2, 18)),
+      )
+      ..registerSingleton<ShareSheet>(share = FakeShareSheet());
     l10n = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
       MaterialApp(
@@ -145,6 +171,62 @@ void main() {
       ),
       findsOneWidget,
     );
+    await unmount(tester);
+  });
+
+  testWidgets('share progress hands a PNG of the card to the share sheet', (
+    tester,
+  ) async {
+    await pump(tester, evening);
+    await tester.tap(find.text(l10n.ramadanShareProgress));
+    await tester.pump();
+    // The off-screen card: 18 Feb – 1 Mar are logged (12 fasts), and its
+    // text has real styles, not the no-Material debug underline.
+    final card = find.byType(RamadanShareCard);
+    expect(tester.widget<RamadanShareCard>(card).fastsLogged, 12);
+    expect(find.text(l10n.ramadanShareFastsLogged(12)), findsOneWidget);
+    final texts = tester.widgetList<RichText>(
+      find.descendant(of: card, matching: find.byType(RichText)),
+    );
+    expect(texts, isNotEmpty);
+    for (final text in texts) {
+      expect(text.text.style?.decoration, isNot(TextDecoration.underline));
+    }
+    // toImage/toByteData finish on the real event loop.
+    for (var i = 0; i < 50 && share.images.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    final (png, text) = share.images.single;
+    // PNG signature, and the 4:5 1080×1350 header (IHDR width/height).
+    expect(png.sublist(0, 4), [0x89, 0x50, 0x4E, 0x47]);
+    final ihdr = ByteData.sublistView(png, 16, 24);
+    expect((ihdr.getUint32(0), ihdr.getUint32(4)), (1080, 1350));
+    expect(
+      text,
+      l10n.ramadanShareText(
+        l10n.rozaDayOf(12, RamadanUtils.ramadanLength(1447)),
+      ),
+    );
+    // The off-screen card is gone again.
+    expect(find.text(l10n.ramadanShareHeading.toUpperCase()), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('a share sheet that fails says so', (tester) async {
+    await pump(tester, evening);
+    share.imageShown = false;
+    await tester.tap(find.text(l10n.ramadanShareProgress));
+    for (var i = 0; i < 50 && share.images.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    await tester.pump();
+    expect(find.text(l10n.ramadanShareFailed), findsOneWidget);
     await unmount(tester);
   });
 }

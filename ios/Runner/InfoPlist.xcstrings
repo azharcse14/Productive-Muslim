@@ -34,6 +34,23 @@
           }
         }
       }
+    },
+    "NSPhotoLibraryAddUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "আপনি \"ছবি সংরক্ষণ\" বেছে নিলে প্রোডাক্টিভ মুসলিম শেয়ার করা ছবি, যেমন রমজানের অগ্রগতি কার্ড, আপনার ফটোতে সংরক্ষণ করে।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productive Muslim saves images you share, like your Ramadan progress card, to Photos when you choose Save Image."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

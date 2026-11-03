@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -17,6 +18,7 @@ import 'package:timezone/timezone.dart';
 /// Records schedule calls; throws for the ids in [failIds].
 final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   final scheduled = <int, NotificationDetails>{};
+  final instants = <int, DateTime>{};
   final titles = <int, String?>{};
   final failIds = <int>{};
   final pending = <int>{};
@@ -25,6 +27,12 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
   int cancelPendingCalls = 0;
   int initCalls = 0;
   NotificationAppLaunchDetails? launch;
+  FlutterLocalNotificationsPlatform? android;
+
+  @override
+  T? resolvePlatformSpecificImplementation<
+    T extends FlutterLocalNotificationsPlatform
+  >() => android is T ? android as T : null;
 
   @override
   Future<bool?> initialize({
@@ -74,6 +82,10 @@ final class _FakePlugin implements FlutterLocalNotificationsPlugin {
       throw StateError('exact alarms revoked');
     }
     scheduled[id] = notificationDetails;
+    instants[id] = DateTime.fromMillisecondsSinceEpoch(
+      scheduledDate.millisecondsSinceEpoch,
+      isUtc: true,
+    );
     titles[id] = title;
     pending.add(id);
   }
@@ -90,6 +102,18 @@ final class _OffAndroid implements AndroidFlutterLocalNotificationsPlugin {
 
   @override
   Future<bool?> requestNotificationsPermission() async => false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// Records deleted channels.
+final class _ChannelAndroid implements AndroidFlutterLocalNotificationsPlugin {
+  final deleted = <String>[];
+
+  @override
+  Future<void> deleteNotificationChannel({required String channelId}) async =>
+      deleted.add(channelId);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
@@ -154,7 +178,7 @@ final class _ShiftClock implements ZonedClock {
   @override
   DateTime instantAt(LocationConfig location, DateTime instant) {
     final w = instant.toUtc().add(offset);
-    return DateTime(w.year, w.month, w.day, w.hour, w.minute, w.second);
+    return DateTime.utc(w.year, w.month, w.day, w.hour, w.minute, w.second);
   }
 
   @override
@@ -342,6 +366,53 @@ void main() {
     });
   });
 
+  group('manual-city wall times fire at the city instant', () {
+    const london = ManualCityLocation(
+      City(
+        name: 'London',
+        countryCode: 'GB',
+        latitude: 51.5085,
+        longitude: -0.1257,
+        timezone: 'Europe/London',
+      ),
+    );
+    late DateTime now;
+    Future<void> schedule(LocationConfig city, NotificationItem item) =>
+        LocalNotificationsScheduler(
+          clock: TimezoneClock(),
+          currentLocation: () => city,
+          formatTime: (_) => '',
+          plugin: plugin,
+          now: () => now,
+        ).reschedule([item], _texts);
+    NotificationItem fajrAt(DateTime wall) => NotificationItem(
+      kind: NotificationKind.azan,
+      prayer: Prayer.fajr,
+      at: wall,
+    );
+
+    test('Dhaka 02:30 on the US spring-forward day', () async {
+      now = DateTime.utc(2026, 3, 7, 12);
+      final item = fajrAt(DateTime.utc(2026, 3, 8, 2, 30));
+      await schedule(_dhaka, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 3, 7, 20, 30));
+    });
+
+    test('Dhaka 01:30 on the US fall-back day', () async {
+      now = DateTime.utc(2026, 10, 31, 12);
+      final item = fajrAt(DateTime.utc(2026, 11, 1, 1, 30));
+      await schedule(_dhaka, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 10, 31, 19, 30));
+    });
+
+    test("London Fajr after its own spring-forward is on BST", () async {
+      now = DateTime.utc(2026, 3, 28, 12);
+      final item = fajrAt(DateTime.utc(2026, 3, 29, 5));
+      await schedule(london, item);
+      expect(plugin.instants[item.id], DateTime.utc(2026, 3, 29, 4));
+    });
+  });
+
   test(
     'one failing item still schedules the rest; only all-failed fails',
     () async {
@@ -486,17 +557,81 @@ void main() {
       kind: NotificationKind.muhasabaEvening,
       at: at.add(const Duration(hours: 2)),
     );
-    await scheduler.reschedule([jamaat, ayah, muhasaba], _texts);
+    final focusEnd = NotificationItem(
+      kind: NotificationKind.focusEnd,
+      prayer: Prayer.asr,
+      at: at.add(const Duration(hours: 3)),
+    );
+    await scheduler.reschedule([jamaat, ayah, muhasaba, focusEnd], _texts);
     final urgent = plugin.scheduled[jamaat.id]!;
-    expect(urgent.android!.channelId, 'productive_muslim_reminders');
+    expect(urgent.android!.channelId, 'productive_muslim_alerts');
     expect(urgent.android!.importance, Importance.high);
     expect(urgent.iOS!.interruptionLevel, InterruptionLevel.timeSensitive);
-    for (final item in [ayah, muhasaba]) {
+    for (final item in [ayah, muhasaba, focusEnd]) {
       final d = plugin.scheduled[item.id]!;
-      expect(d.android!.channelId, 'productive_muslim_daily');
+      expect(
+        d.android!.channelId,
+        item == focusEnd
+            ? 'productive_muslim_focus_end'
+            : 'productive_muslim_daily',
+      );
       expect(d.android!.importance, Importance.defaultImportance);
       expect(d.android!.priority, Priority.defaultPriority);
       expect(d.iOS!.interruptionLevel, InterruptionLevel.active);
     }
   });
+
+  test('first initialize deletes the legacy Android channel', () async {
+    final android = _ChannelAndroid();
+    plugin.android = android;
+    await scheduler.initialize(_texts);
+    expect(android.deleted, ['productive_muslim_reminders']);
+    // Later re-initializations (language change) don't repeat it.
+    await scheduler.initialize(
+      const NotificationTexts(
+        azanTitle: '',
+        azanBody: '',
+        jamaatTitle: '',
+        jamaatBody: '',
+        sahriTitle: '',
+        sahriBody: '',
+        iftarTitle: '',
+        iftarBody: '',
+        muhasabaTitle: '',
+        muhasabaBody: '',
+        dailyReminderTitle: '',
+        dailyReminderBody: '',
+        dailyReminderRoute: '/hadith',
+        keepAliveTitle: '',
+        keepAliveBody: '',
+        markAsPrayedAction: 'x',
+        channelAzanName: '',
+        channelRemindersName: '',
+        channelSilentName: '',
+        channelBeepName: '',
+        prayerNames: {},
+      ),
+    );
+    expect(android.deleted, hasLength(1));
+  });
+
+  test(
+    'battery exemption: Android asks the native side, others are exempt',
+    () async {
+      expect(await scheduler.isIgnoringBatteryOptimizations(), isTrue);
+      const channel = MethodChannel('com.productivemuslim.app/battery');
+      final messenger =
+          TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
+      final calls = <String>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call.method);
+        return call.method == 'isIgnoring' ? false : null;
+      });
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      plugin.android = _ChannelAndroid();
+      expect(await scheduler.isIgnoringBatteryOptimizations(), isFalse);
+      await scheduler.openBatteryOptimizationSettings();
+      expect(calls, ['isIgnoring', 'openSettings']);
+    },
+  );
 }

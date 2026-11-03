@@ -75,6 +75,50 @@ import WidgetKit
         result(FlutterMethodNotImplemented)
       }
     }
+    // Per-ayah share → the system activity sheet, plain text; the Ramadan
+    // card → the same sheet with the PNG Dart wrote to the caches folder.
+    FlutterMethodChannel(
+      name: "com.productivemuslim.app/share",
+      binaryMessenger: registrar.messenger()
+    ).setMethodCallHandler { call, result in
+      let items: [Any]
+      if call.method == "shareText", let text = call.arguments as? String {
+        items = [text]
+      } else if call.method == "shareImage" {
+        let args = call.arguments as? [String: Any]
+        guard let path = args?["path"] as? String,
+              let image = UIImage(contentsOfFile: path) else {
+          result(FlutterError(code: "BAD_PATH", message: "No image to share", details: nil))
+          return
+        }
+        items = [image] + ((args?["text"] as? String).map { [$0] } ?? [])
+      } else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      // Prefer the active scene; during a transition (e.g. the sheet's
+      // own dismissal) it may be inactive, so take any with a key window.
+      let scenes = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .filter { $0.keyWindow != nil }
+      let window = (scenes.first { $0.activationState == .foregroundActive }
+        ?? scenes.first { $0.activationState == .foregroundInactive }
+        ?? scenes.first)?.keyWindow
+      guard var top = window?.rootViewController else {
+        result(FlutterError(code: "NO_UI", message: "No window to present from", details: nil))
+        return
+      }
+      while let presented = top.presentedViewController { top = presented }
+      let sheet = UIActivityViewController(activityItems: items, applicationActivities: nil)
+      // iPad shows it as a popover, which needs an anchor.
+      if let popover = sheet.popoverPresentationController {
+        popover.sourceView = top.view
+        popover.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+        popover.permittedArrowDirections = []
+      }
+      top.present(sheet, animated: true)
+      result(nil)
+    }
     let channel = FlutterMethodChannel(
       name: channelName,
       binaryMessenger: registrar.messenger()

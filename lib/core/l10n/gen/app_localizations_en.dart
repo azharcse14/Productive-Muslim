@@ -9,6 +9,59 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get routeNotFound => 'This page isn\'t available.';
+
+  @override
+  String get lockMuhasabaOnly => 'Lock Muhasaba only';
+
+  @override
+  String get lockMuhasabaOnlySub =>
+      'The rest of the app opens freely; Muhasaba asks for your PIN once each time you open the app';
+
+  @override
+  String get lockMuhasabaLockedTitle => 'Muhasaba is locked';
+
+  @override
+  String get lockMuhasabaLockedBody =>
+      'Your daily record stays private. Unlock with your PIN to continue.';
+
+  @override
+  String get lockMuhasabaCardSub => 'Open Muhasaba to unlock';
+
+  @override
+  String get lockUnlockAction => 'Unlock';
+
+  @override
+  String get quranJuzTabSurahs => 'Surahs';
+
+  @override
+  String get quranJuzTabJuz => 'Juz';
+
+  @override
+  String quranJuzTitle(String number) {
+    return 'Juz $number';
+  }
+
+  @override
+  String get shareAyahTooltip => 'Share';
+
+  @override
+  String shareAyahReference(String name, String reference) {
+    return '— Surah $name $reference';
+  }
+
+  @override
+  String get shareTranslatorPickthall => 'Mohammed Marmaduke William Pickthall';
+
+  @override
+  String get shareTranslatorMuhiuddinKhan => 'Muhiuddin Khan';
+
+  @override
+  String shareTranslationBy(String translator) {
+    return 'Translation: $translator';
+  }
+
+  @override
   String quranOpenAyah(String reference) {
     return 'Open $reference';
   }
@@ -1539,7 +1592,70 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get hadithSearchFullTooltip => 'Search all collections';
+
+  @override
+  String get hadithSearchFullHint => 'Search hadith text or number';
+
+  @override
+  String get hadithSearchFullPrompt =>
+      'Search every collection in English or Bangla, or type a hadith number.';
+
+  @override
+  String get hadithSearchFullNoResults =>
+      'No hadith matches — try another word';
+
+  @override
+  String hadithSearchFullShowingFirst(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Showing the first $countString matches';
+  }
+
+  @override
+  String get hadithSearchFullError =>
+      'Couldn\'t search hadith. Please try again.';
+
+  @override
+  String get hadithSearchFullPreparing => 'Preparing search…';
+
+  @override
   String get fastingQazaSetOwed => 'Set number owed';
+
+  @override
+  String get ramadanShareProgress => 'Share progress';
+
+  @override
+  String get ramadanShareHeading => 'My Ramadan, alhamdulillah';
+
+  @override
+  String ramadanShareFastsLogged(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString fasts logged',
+      one: '1 fast logged',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ramadanShareBlessing => 'May Allah accept it · تقبل الله';
+
+  @override
+  String ramadanShareText(String progress) {
+    return 'Ramadan, $progress — alhamdulillah. · Productive Muslim';
+  }
+
+  @override
+  String get ramadanShareFailed =>
+      'Couldn\'t create the share image. Please try again.';
 
   @override
   String get fastingQazaOwedHint => 'Fasts owed (optional)';
@@ -1559,6 +1675,9 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get expenseCurrency => 'Currency';
 
   @override
   String get fastingUpcomingTitle => 'Upcoming recommended fasts';
@@ -2672,7 +2791,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetNextPrayerLabel => 'Next prayer';
 
   @override
+  String get notifExactAlarmBannerDismiss => 'Don\'t remind me';
+
+  @override
+  String get batteryOpenSettingsCta => 'Open battery settings';
+
+  @override
+  String get notifChannelFocusEnd => 'After jamaat focus';
+
+  @override
+  String get batteryOptimizationOff =>
+      'Battery optimization is off for Productive Muslim, so reminders can arrive on time.';
+
+  @override
   String get nearbyMosquesLabel => 'Nearby mosques';
+
+  @override
+  String get mosqueSeasonTitle => 'Seasonal timings';
+
+  @override
+  String get mosqueSeasonHint =>
+      'Use another profile between two dates every year, e.g. winter times. Rules above still win at their times.';
+
+  @override
+  String get mosqueSeasonAdd => 'Add season';
+
+  @override
+  String mosqueSeasonActiveNow(String name, String reason) {
+    return 'Active now: $name ($reason)';
+  }
+
+  @override
+  String get mosqueSeasonReasonRule => 'a time rule matches';
+
+  @override
+  String mosqueSeasonReasonSeason(String range) {
+    return 'season $range';
+  }
+
+  @override
+  String get mosqueSeasonReasonDefault => 'default mosque';
+
+  @override
+  String get mosqueSeasonReasonOverride => 'temporary switch';
+
+  @override
+  String get mosqueSeasonReasonFallback => 'no rule, season or default applies';
 
   @override
   String get nearbyMosquesHint => 'Opens in Maps';
@@ -2716,6 +2880,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseEmpty => 'No expenses logged.';
 
   @override
+  String get ramadanEidPrompt =>
+      'Was the moon sighted after the 29th fast? If Eid has been announced, mark it so the 30th day counts as Eid al-Fitr, not a fast.';
+
+  @override
+  String get ramadanEidAnnounce =>
+      'Eid announced — Ramadan ended after 29 days';
+
+  @override
+  String get ramadanEidMarked =>
+      'Marked: Ramadan ended after 29 days. The day after the 29th fast is Eid al-Fitr.';
+
+  @override
+  String get ramadanEidPromptLastDay =>
+      'Did Ramadan end yesterday, after 29 fasts? If Eid has been announced, mark today as Eid al-Fitr. Today will no longer count as a Ramadan fast.';
+
+  @override
+  String get ramadanEidAnnounceToday => 'Mark today as Eid al-Fitr';
+
+  @override
   String expenseFilterEmpty(String category) {
     return 'No $category entries this month.';
   }
@@ -2753,7 +2936,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseAmountInvalid =>
-      'Enter a whole number above 0, without decimals (e.g. 250)';
+      'Enter an amount above 0, up to 2 decimals (e.g. 250 or 12.50)';
 
   @override
   String get expenseBudget => 'Monthly budget';
@@ -3695,4 +3878,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get healthWeightLogPast => 'Log another day';
+
+  @override
+  String get muhasabaRangeCustom => 'Custom';
+
+  @override
+  String muhasabaRangeSpan(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get muhasabaRangeChange => 'Change date range';
 }

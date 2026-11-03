@@ -3,6 +3,8 @@ import 'dart:isolate';
 import '../domain/entities/hadith_book.dart';
 import 'hadith_blob_codec.dart';
 import 'hadith_database.dart';
+import 'hadith_search.dart';
+import 'hadith_search_worker.dart';
 import 'hadith_section_assembler.dart';
 
 /// Serves hadith section text from the bundled SQLite snapshot
@@ -14,9 +16,16 @@ final class HadithBookBundledDataSource {
   /// rather than blocking app startup. A successful open is reused; a failed
   /// one (e.g. disk full mid-copy) is retried on the next read instead of
   /// sending every section to the network for the rest of the session.
-  HadithBookBundledDataSource(this._openDb);
+  ///
+  /// [dbPath] locates the copied asset for the search worker's own
+  /// connection.
+  HadithBookBundledDataSource(
+    this._openDb, {
+    Future<String> Function() dbPath = HadithDatabase.bundledPath,
+  }) : _dbPath = dbPath;
 
   final Future<HadithDatabase> Function() _openDb;
+  final Future<String> Function() _dbPath;
   Future<HadithDatabase>? _db;
 
   Future<HadithDatabase> get _open => _db ??= _openDb().then(
@@ -34,6 +43,11 @@ final class HadithBookBundledDataSource {
 
   /// Whether the snapshot carries the hadithbangla Bengali text.
   Future<bool> hasBangla() async => (await _open).hasBanglaSections();
+
+  /// Spawns a search worker over the English + Bangla text of [books]
+  /// (see [hadithSearchSources]); its indices refer to [books].
+  Future<HadithSearchIndex> openSearch(List<HadithBook> books) async =>
+      HadithSearchWorker.spawn(await _dbPath(), hadithSearchSources(books));
 
   Future<List<BookHadith>> fetchSection(
     HadithBook book,

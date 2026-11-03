@@ -34,6 +34,7 @@ import '../../features/hadith/data/http_fetcher.dart';
 import '../../features/hadith/domain/repositories/hadith_book_repository.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
 import '../../features/hadith/presentation/state/hadith_books_store.dart';
+import '../../features/hadith/presentation/state/hadith_search_store.dart';
 import '../../features/hadith/presentation/state/hadith_section_store.dart';
 import '../../features/hadith/presentation/state/hadith_store.dart';
 import '../../features/health/presentation/state/health_store.dart';
@@ -77,6 +78,9 @@ import '../../features/quran/data/datasources/quran_database.dart';
 import '../../features/quran/data/repositories/quran_repository_impl.dart';
 import '../../features/quran/domain/repositories/quran_repository.dart';
 import '../../features/quran/presentation/state/quran_store.dart';
+import '../../features/ramadan/data/datasources/eid_announcement_local_data_source.dart';
+import '../../features/ramadan/domain/repositories/fast_log.dart';
+import '../../features/ramadan/presentation/state/eid_announcement_store.dart';
 import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
 import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
 import '../../features/ruqyah/domain/repositories/ruqyah_repository.dart';
@@ -99,10 +103,14 @@ import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/settings/presentation/state/settings_store.dart';
+import '../../features/share/data/platform_share_sheet.dart';
+import '../../features/share/domain/share_sheet.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../utils/haptics.dart';
+import '../utils/hijri_date.dart';
 import '../utils/time_format.dart';
+import '../utils/wall_time.dart';
 
 /// Global service locator. The ONLY place registrations happen
 /// (guide §4 — single composition root). Widgets never call
@@ -113,6 +121,24 @@ final GetIt locator = GetIt.instance;
 /// lazySingletons, use cases lazySingletons (stateless), screen stores
 /// factories; [SettingsStore] is app-scoped (theme/locale drive the root).
 Future<void> setupLocator() async {
+  // ---- Ramadan: "Eid announced after 29 days" ----
+  final eidSource = EidAnnouncementLocalDataSource(SharedPreferencesAsync());
+  final eid = EidAnnouncementStore(
+    read: eidSource.load,
+    write: eidSource.save,
+    // Signal-driven code re-runs by itself (see below); notifications and
+    // the home widget schedule outside signals, so refresh them here.
+    onChanged: () {
+      unawaited(locator<NotificationController>().retry());
+      unawaited(locator<PrayerWidgetService>().update());
+    },
+  );
+  // First, before anything can convert a date: every Hijri conversion
+  // follows it, and a computed converting a date subscribes to [years]
+  // through this read.
+  HijriDate.shortRamadanYears = () => eid.years.value;
+  locator.registerSingleton(eid);
+
   TimezoneClock.initialize();
 
   // ---- settings / location ----
@@ -174,7 +200,9 @@ Future<void> setupLocator() async {
 
   // ---- muhasaba ----
   locator
-    ..registerLazySingleton<MuhasabaDatabase>(MuhasabaDatabase.open)
+    ..registerLazySingleton<MuhasabaDatabase>(
+      () => MuhasabaDatabase.open(clock: _wallNow),
+    )
     ..registerLazySingleton<MuhasabaRepository>(
       () => MuhasabaRepositoryImpl(locator(), clock: _wallNow),
     )
@@ -303,6 +331,9 @@ Future<void> setupLocator() async {
   // Keeps the screen on in the Quran reader and tasbih.
   locator.registerLazySingleton<ScreenWake>(PlatformScreenWake.new);
 
+  // OS share sheet (per-ayah share in the Quran reader).
+  locator.registerLazySingleton<ShareSheet>(PlatformShareSheet.new);
+
   // ---- dua & tasbih ----
   locator
     ..registerLazySingleton(() => DuaAssetDataSource(rootBundle))
@@ -344,13 +375,20 @@ Future<void> setupLocator() async {
       now: _wallNow,
     ),
   );
+  // Ramadan share card counts this Ramadan's logged fasts through it.
+  locator.registerLazySingleton<IsDayFasted>(
+    () => locator<FastingStore>().isLogged,
+  );
 
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
     () => ExpenseStore(
       SharedPreferencesAsync(),
       now: _wallNow,
-      onSadaqah: (date) => locator<MuhasabaStore>().markDoneOn('sadaqah', date),
+      // Not behind the lock (as "Mark as prayed").
+      onSadaqah: (date) async => locator<AppLockStore>().lockedNow
+          ? null
+          : await locator<MuhasabaStore>().markDoneOn('sadaqah', date),
     ),
   );
 
@@ -389,7 +427,8 @@ Future<void> setupLocator() async {
       () => HadithBookRepositoryImpl(locator(), locator(), locator()),
     )
     ..registerLazySingleton(() => HadithBooksStore(locator()))
-    ..registerFactory(() => HadithSectionStore(locator()));
+    ..registerFactory(() => HadithSectionStore(locator()))
+    ..registerFactory(() => HadithSearchStore(locator()));
 
   // ---- home-screen widget ----
   locator.registerLazySingleton(
@@ -435,6 +474,7 @@ Future<void> setupLocator() async {
     }),
     load('Dua favorites', locator<DuaFavoritesStore>().load),
     load('Fasting', locator<FastingStore>().load),
+    load('Eid announcement', eid.load),
     load('Tasbih', locator<TasbihStore>().load),
     load('Reader text size', locator<ReaderTextSize>().load),
   ]);
@@ -483,6 +523,7 @@ Future<void> _sendFocusWindows(
       nafsDuration: matrix.nafsLockDuration,
       texts: texts,
       toUtc: (wall) => locator<ZonedClock>().utcInstantOf(location!, wall),
+      location: location,
     );
   } on Object catch (e) {
     debugPrint('Jamaat focus schedule failed: $e');
@@ -551,7 +592,7 @@ void _onNotificationTap(String? payload, String? actionId) {
 DateTime _wallNow() {
   final location = locator<SettingsStore>().location.value;
   return location == null
-      ? DateTime.now()
+      ? floatingNow()
       : locator<ZonedClock>().nowAt(location);
 }
 

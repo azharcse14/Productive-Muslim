@@ -10,6 +10,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
@@ -22,7 +23,12 @@ import '../../../prayer_times/presentation/screens/home_formatting.dart'
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
 import '../../../settings/presentation/state/settings_store.dart';
+import '../../../share/domain/share_sheet.dart';
+import '../../domain/repositories/fast_log.dart';
+import '../../domain/usecases/ramadan_utils.dart';
+import '../state/eid_announcement_store.dart';
 import '../state/ramadan_store.dart';
+import '../widgets/ramadan_share_card.dart';
 
 /// Ramadan hub (design §4.x): roza counter, sahri & iftar month table,
 /// zakat calculator entry, and the fitra reminder.
@@ -36,15 +42,82 @@ final class RamadanScreen extends StatefulWidget {
 final class _RamadanScreenState extends State<RamadanScreen> {
   late final SettingsStore _settings = locator<SettingsStore>();
   late final ZonedClock _clock = locator<ZonedClock>();
+  late final EidAnnouncementStore _eid = locator<EidAnnouncementStore>();
   late final RamadanStore _store = RamadanStore(
     locator<GetPrayerDay>(),
     _settings,
     now: _wallNow,
   );
 
+  bool _sharing = false;
+
+  /// Renders the 4:5 progress card off-screen and hands the PNG to the OS
+  /// share sheet. Fasting log and share sheet resolve on the first tap.
+  Future<void> _shareProgress(BuildContext context) async {
+    final rozaDay = _store.rozaDay.value;
+    if (_sharing || rozaDay == null) {
+      return;
+    }
+    _sharing = true;
+    try {
+      final l10n = context.l10n;
+      final language = Localizations.localeOf(context).languageCode;
+      final total = _store.ramadanLength.value;
+      final png = await renderShareCard(
+        context,
+        RamadanShareCard(
+          rozaDay: rozaDay,
+          total: total,
+          fastsLogged: _store.fastsLogged(locator<IsDayFasted>()),
+          hijri: _store.hijriToday.value,
+          date: _store.today.value,
+        ),
+      );
+      final shown = await locator<ShareSheet>().shareImage(
+        png,
+        LocaleDigits.localize(
+          l10n.ramadanShareText(l10n.rozaDayOf(rozaDay, total)),
+          language,
+        ),
+      );
+      if (!shown && context.mounted) {
+        _showShareFailed(context);
+      }
+    } on Object catch (e) {
+      debugPrint('ramadan share: card not rendered: $e');
+      if (context.mounted) {
+        _showShareFailed(context);
+      }
+    } finally {
+      _sharing = false;
+    }
+  }
+
+  void _showShareFailed(BuildContext context) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(context.l10n.ramadanShareFailed)));
+
   DateTime _wallNow() {
     final location = _settings.location.value;
-    return location == null ? DateTime.now() : _clock.nowAt(location);
+    return location == null ? floatingNow() : _clock.nowAt(location);
+  }
+
+  /// Real time from wall-clock [now] to [at] at the location, so the
+  /// countdown spans a DST night (and its repeated hour) right.
+  Duration _left(DateTime at, DateTime now) {
+    final location = _settings.location.value;
+    if (location == null) {
+      return at.difference(now);
+    }
+    DateTime instantOf(DateTime wall) => _clock.utcInstantOf(location, wall);
+    return instantOf(at).difference(
+      nowInstant(
+        now,
+        deviceUtc: DateTime.now().toUtc(),
+        instantOf: instantOf,
+        wallOf: (instant) => _clock.instantAt(location, instant),
+      ),
+    );
   }
 
   @override
@@ -71,7 +144,11 @@ final class _RamadanScreenState extends State<RamadanScreen> {
             return ListView(
               padding: const EdgeInsets.all(QSpace.s5),
               children: [
-                _RozaCounterCard(store: _store),
+                _RozaCounterCard(
+                  store: _store,
+                  onShare: () => unawaited(_shareProgress(context)),
+                ),
+                EidAnnouncementCard(store: _store, eid: _eid),
                 // Roza count and the table follow the Hijri offset.
                 QHijriOffsetLink(
                   offset: _settings.hijriOffsetDays.value,
@@ -106,6 +183,7 @@ final class _RamadanScreenState extends State<RamadanScreen> {
                     _TodayTimesCard(
                       store: _store,
                       now: _wallNow,
+                      left: _left,
                       formatTime: (t) => _formatTime(context, t),
                     ),
                     const SizedBox(height: QSpace.s4),
@@ -141,9 +219,10 @@ final class _RamadanScreenState extends State<RamadanScreen> {
 }
 
 final class _RozaCounterCard extends StatelessWidget {
-  const _RozaCounterCard({required this.store});
+  const _RozaCounterCard({required this.store, required this.onShare});
 
   final RamadanStore store;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +291,90 @@ final class _RozaCounterCard extends StatelessWidget {
                 ),
                 style: QType.caption.copyWith(color: q.ink2),
               ),
+              const SizedBox(height: QSpace.s4),
+              QButton(
+                label: l10n.ramadanShareProgress,
+                icon: Icons.share_outlined,
+                kind: QButtonKind.tonal,
+                small: true,
+                onPressed: onShare,
+              ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// "Eid announced — Ramadan ended after 29 days" for the current Hijri
+/// year, offered on 29/30 Ramadan and (to undo) on Eid itself; hidden on
+/// every other day.
+final class EidAnnouncementCard extends StatelessWidget {
+  const EidAnnouncementCard({
+    required this.store,
+    required this.eid,
+    super.key,
+  });
+
+  final RamadanStore store;
+  final EidAnnouncementStore eid;
+
+  Future<void> _set(BuildContext context, int year, bool ended) async {
+    try {
+      await eid.setEnded(year, ended: ended);
+    } on Object {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = context.q;
+    return SignalBuilder(
+      builder: (context) {
+        final today = store.hijriToday.value;
+        final ended = eid.years.value.contains(today.year);
+        if (!RamadanUtils.offersEidAnnouncement(today, ended: ended)) {
+          return const SizedBox.shrink();
+        }
+        // Tabular 30 Ramadan: the user is likely mid-day, so ask about
+        // today rather than "the 30th".
+        final lastDay = today.day == 30;
+        return Padding(
+          padding: const EdgeInsets.only(top: QSpace.s4),
+          child: QCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  context.digits(
+                    ended
+                        ? l10n.ramadanEidMarked
+                        : lastDay
+                        ? l10n.ramadanEidPromptLastDay
+                        : l10n.ramadanEidPrompt,
+                  ),
+                  style: QType.body.copyWith(color: q.ink2),
+                ),
+                const SizedBox(height: QSpace.s3),
+                QButton(
+                  label: ended
+                      ? l10n.undo
+                      : lastDay
+                      ? l10n.ramadanEidAnnounceToday
+                      : context.digits(l10n.ramadanEidAnnounce),
+                  icon: ended ? Icons.undo : Icons.celebration_outlined,
+                  kind: ended ? QButtonKind.ghost : QButtonKind.tonal,
+                  onPressed: () => unawaited(_set(context, today.year, !ended)),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -226,11 +388,13 @@ final class _TodayTimesCard extends StatefulWidget {
   const _TodayTimesCard({
     required this.store,
     required this.now,
+    required this.left,
     required this.formatTime,
   });
 
   final RamadanStore store;
   final DateTime Function() now;
+  final Duration Function(DateTime at, DateTime now) left;
   final String Function(DateTime) formatTime;
 
   @override
@@ -276,6 +440,7 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             : next != null
             ? (l10n.countdownSahriEnds, next.$2)
             : (null, null);
+        Duration left(DateTime at) => widget.left(at, now);
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +475,7 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
               if (label != null && target != null) ...[
                 const SizedBox(height: QSpace.s3),
                 Text(
-                  '$label ${formatCountdown(context, target.difference(now))}',
+                  '$label ${formatCountdown(context, left(target))}',
                   style: QType.num_(
                     QType.titleSm,
                   ).copyWith(color: q.onPrimarySoft),

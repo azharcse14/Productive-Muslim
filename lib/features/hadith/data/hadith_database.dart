@@ -37,11 +37,28 @@ final class HadithDatabase extends GeneratedDatabase {
   /// Copies the bundled asset into Application Support/bundled (excluded
   /// from device backups — it is re-creatable) on first run or a version
   /// bump, and opens it.
-  static Future<HadithDatabase> open() async {
-    final file = await bundledDbFile(_fileName, subdir: 'bundled');
-    await ensureCopied(file, () => rootBundle.load(_assetPath));
-    return HadithDatabase(NativeDatabase.createInBackground(file));
-  }
+  static Future<HadithDatabase> open() async =>
+      HadithDatabase(NativeDatabase.createInBackground(await _bundledFile()));
+
+  /// Path of the copied asset, for the search isolate's own read-only
+  /// connection (it copies once, shared with [open]).
+  static Future<String> bundledPath() async => (await _bundledFile()).path;
+
+  static Future<File>? _file;
+
+  /// Copies once per process; a failed copy is retried on the next call.
+  static Future<File> _bundledFile() => _file ??=
+      () async {
+        final file = await bundledDbFile(_fileName, subdir: 'bundled');
+        await ensureCopied(file, () => rootBundle.load(_assetPath));
+        return file;
+      }().then(
+        (f) => f,
+        onError: (Object e, StackTrace s) {
+          _file = null;
+          Error.throwWithStackTrace(e, s);
+        },
+      );
 
   /// Skips the copy when [file] already matches [bundledVersion]; otherwise
   /// atomically replaces it with the asset from [load].

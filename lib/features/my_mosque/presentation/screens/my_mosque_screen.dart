@@ -20,6 +20,7 @@ import '../../domain/entities/jamaat_config.dart';
 import '../../domain/entities/mosque_profile.dart';
 import '../../domain/entities/mosque_schedule.dart';
 import '../../domain/entities/mosque_state.dart';
+import '../../domain/usecases/resolve_active_mosque.dart';
 import '../state/mosque_store.dart';
 import '../widgets/mosque_schedule_section.dart';
 import '../widgets/prayer_jamaat_card.dart';
@@ -382,6 +383,26 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                     unawaited(_store.setDefaultMosque(id)),
                 onPickRuleTime: (i, {required bool isStart}) =>
                     unawaited(_pickRuleTime(state, i, isStart: isStart)),
+                // Home's live resolution, at the location's wall clock (a
+                // manual foreign city may be on another date).
+                resolution: locator.isRegistered<HomeStore>()
+                    ? locator<HomeStore>().mosqueResolution.value
+                    : resolveActiveMosque(state, DateTime.now()),
+                // A winter range on the mosque used when nothing else
+                // matches, so adding changes nothing until it's edited.
+                onAddSeason: () => unawaited(
+                  _store.addSeason(
+                    MosqueSeason(
+                      mosqueId: resolveAutoMosqueId(
+                        state.copyWith(rules: const [], seasons: const []),
+                        DateTime.now(),
+                      )!,
+                      start: (month: 11, day: 1),
+                      end: (month: 2, day: 29),
+                    ),
+                  ),
+                ),
+                onSeasonChanged: (i, s) => unawaited(_store.updateSeason(i, s)),
               ),
               if (active != null) ...[
                 const SizedBox(height: QSpace.s5),

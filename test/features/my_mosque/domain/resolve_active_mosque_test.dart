@@ -273,4 +273,186 @@ void main() {
       expect(r.isOverride, isFalse);
     });
   });
+
+  const winter = MosqueSeason(
+    mosqueId: 'b',
+    start: (month: 11, day: 1),
+    end: (month: 2, day: 28),
+  );
+
+  group('MosqueSeason.contains', () {
+    test('plain range is inclusive at both ends', () {
+      const summer = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 4, day: 1),
+        end: (month: 9, day: 30),
+      );
+      expect(summer.contains(DateTime(2026, 4)), isTrue);
+      expect(summer.contains(DateTime(2026, 9, 30, 23, 59)), isTrue);
+      expect(summer.contains(DateTime(2026, 3, 31)), isFalse);
+      expect(summer.contains(DateTime(2026, 10)), isFalse);
+    });
+
+    test('range wrapping the year end matches both sides', () {
+      expect(winter.contains(DateTime(2026, 11)), isTrue);
+      expect(winter.contains(DateTime(2026, 12, 31)), isTrue);
+      expect(winter.contains(DateTime(2027, 1, 15)), isTrue);
+      expect(winter.contains(DateTime(2027, 2, 28)), isTrue);
+      expect(winter.contains(DateTime(2027, 3)), isFalse);
+      expect(winter.contains(DateTime(2026, 10, 31)), isFalse);
+      expect(winter.contains(DateTime(2026, 6)), isFalse);
+    });
+
+    test('Feb 29 ends behave in leap and common years', () {
+      const toLeapDay = MosqueSeason(
+        mosqueId: 'b',
+        start: (month: 11, day: 1),
+        end: (month: 2, day: 29),
+      );
+      expect(toLeapDay.contains(DateTime(2028, 2, 29)), isTrue);
+      expect(toLeapDay.contains(DateTime(2027, 2, 28)), isTrue);
+      expect(toLeapDay.contains(DateTime(2027, 3)), isFalse);
+      // A Feb 28 end leaves the leap day out.
+      expect(winter.contains(DateTime(2028, 2, 29)), isFalse);
+      const fromLeapDay = MosqueSeason(
+        mosqueId: 'b',
+        start: (month: 2, day: 29),
+        end: (month: 3, day: 31),
+      );
+      expect(fromLeapDay.contains(DateTime(2027, 2, 28)), isFalse);
+      expect(fromLeapDay.contains(DateTime(2027, 3)), isTrue);
+      expect(fromLeapDay.contains(DateTime(2028, 2, 29)), isTrue);
+    });
+
+    test('equal ends cover just that day', () {
+      const oneDay = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 7, day: 4),
+        end: (month: 7, day: 4),
+      );
+      expect(oneDay.contains(DateTime(2026, 7, 4)), isTrue);
+      expect(oneDay.contains(DateTime(2026, 7, 5)), isFalse);
+    });
+
+    test('documented Feb 29 gaps', () {
+      const leapDayOnly = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 2, day: 29),
+        end: (month: 2, day: 29),
+      );
+      expect(leapDayOnly.contains(DateTime(2028, 2, 29)), isTrue);
+      for (final d in [DateTime(2027, 2, 28), DateTime(2027, 3)]) {
+        expect(leapDayOnly.contains(d), isFalse); // never in a common year
+      }
+      const marToFeb28 = MosqueSeason(
+        mosqueId: 'a',
+        start: (month: 3, day: 1),
+        end: (month: 2, day: 28),
+      );
+      expect(marToFeb28.contains(DateTime(2028, 2, 28)), isTrue);
+      expect(marToFeb28.contains(DateTime(2028, 2, 29)), isFalse);
+    });
+  });
+
+  group('seasons in resolution', () {
+    const base = MosqueState(
+      profiles: [_a, _b],
+      mode: ScheduleMode.auto,
+      defaultId: 'a',
+      seasons: [winter],
+    );
+
+    test('inside the season it replaces the default', () {
+      final r = resolveActiveMosque(base, DateTime(2026, 12, 10, 9));
+      expect(r.profile, _b);
+      expect(r.reason, MosqueReason.season);
+      expect(r.season, winter);
+    });
+
+    test('outside the season the default applies', () {
+      final r = resolveActiveMosque(base, DateTime(2026, 7, 10, 9));
+      expect(r.profile, _a);
+      expect(r.reason, MosqueReason.defaultMosque);
+      expect(r.season, isNull);
+    });
+
+    test('without a default, the fallback is labelled as such', () {
+      final r = resolveActiveMosque(
+        base.withDefault(null),
+        DateTime(2026, 7, 10, 9),
+      );
+      expect(r.profile, _a);
+      expect(r.reason, MosqueReason.fallback);
+    });
+
+    test('a matching time rule beats the season', () {
+      final state = base.copyWith(
+        rules: const [
+          MosqueRule(
+            mosqueId: 'a',
+            start: ClockTime(12, 0),
+            end: ClockTime(14, 0),
+          ),
+        ],
+      );
+      final noon = resolveActiveMosque(state, DateTime(2026, 12, 10, 13));
+      expect(noon.profile, _a);
+      expect(noon.reason, MosqueReason.rule);
+      final evening = resolveActiveMosque(state, DateTime(2026, 12, 10, 19));
+      expect(evening.profile, _b);
+      expect(evening.reason, MosqueReason.season);
+    });
+
+    test('first matching season wins; dangling ones are skipped', () {
+      final state = base.copyWith(
+        seasons: const [
+          MosqueSeason(
+            mosqueId: 'gone',
+            start: (month: 1, day: 1),
+            end: (month: 12, day: 31),
+          ),
+          winter,
+          MosqueSeason(
+            mosqueId: 'a',
+            start: (month: 12, day: 1),
+            end: (month: 12, day: 31),
+          ),
+        ],
+      );
+      expect(resolveAutoMosqueId(state, DateTime(2026, 12, 10)), 'b');
+    });
+
+    test('manual mode ignores seasons', () {
+      final state = base.copyWith(mode: ScheduleMode.manual, activeId: 'a');
+      final r = resolveActiveMosque(state, DateTime(2026, 12, 10));
+      expect(r.profile, _a);
+      expect(r.reason, MosqueReason.manual);
+    });
+
+    test('a season boundary expires an override like a rule boundary', () {
+      final state = base.withOverride(
+        MosqueOverride(
+          mosqueId: 'b',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 10, 31),
+        ),
+      );
+      expect(
+        resolveActiveMosque(state, DateTime(2026, 10, 31, 20)).reason,
+        MosqueReason.override,
+      );
+      // Same-day check isolated: an override baselined to the pre-season
+      // default no longer matches once the season resolves to 'b'.
+      final stale = base.withOverride(
+        MosqueOverride(
+          mosqueId: 'a',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 11),
+        ),
+      );
+      final r = resolveActiveMosque(stale, DateTime(2026, 11, 1, 9));
+      expect(r.isOverride, isFalse);
+      expect(r.profile, _b);
+    });
+  });
 }

@@ -11,6 +11,7 @@ import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/islamic_dates.dart';
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_hijri_offset.dart';
 import '../../../prayer_times/domain/entities/prayer_day.dart';
@@ -48,7 +49,7 @@ final class _CalendarScreenState extends State<CalendarScreen> {
       locator<HomeStore>().dateKey.value;
     }
     final location = _settings.location.value;
-    final now = location == null ? DateTime.now() : _clock.nowAt(location);
+    final now = location == null ? floatingNow() : _clock.nowAt(location);
     return DateTime(now.year, now.month, now.day);
   }
 
@@ -355,10 +356,15 @@ final class _DayCell extends StatelessWidget {
     final event = IslamicDates.of(hijri);
     final hasEvent = event != null;
     final oddNightEve = IslamicDates.isOddNightEve(hijri);
+    // Bangla-calendar day, only in the Bangla locale (design §13).
+    final bangla = language == 'bn' ? BanglaDate.fromGregorian(date) : null;
     final label = LocaleDigits.localize(
       [
         DateFormat.yMMMMEEEEd(locale.toString()).format(date),
         '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}',
+        if (bangla != null)
+          '${bangla.day} ${l10n.banglaMonthName('m${bangla.month}')} '
+              '${bangla.year}',
         if (event != null) l10n.islamicDayName(event.name),
         if (oddNightEve && event == null)
           l10n.oddNightBegins('${hijri.day + 1}'),
@@ -392,6 +398,11 @@ final class _DayCell extends StatelessWidget {
                 LocaleDigits.localize('${hijri.day}', language),
                 style: QType.caption.copyWith(color: q.ink3),
               ),
+              if (bangla != null)
+                Text(
+                  LocaleDigits.localize('${bangla.day}', language),
+                  style: QType.micro.copyWith(color: q.ink3),
+                ),
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: hasEvent

@@ -30,6 +30,7 @@ final class AppSettings {
     this.showAchievements = false,
     this.hapticsEnabled = true,
     this.hiddenHomeCards = const {},
+    this.exactAlarmBannerDismissed = false,
     int hijriOffsetDays = 0,
   }) : hijriOffsetDays = hijriOffsetDays < minHijriOffset
            ? minHijriOffset
@@ -67,6 +68,10 @@ final class AppSettings {
   /// clamped): the tabular calendar can differ from local sighting.
   final int hijriOffsetDays;
 
+  /// Home's exact-alarm banner was closed for good ("don't remind me").
+  /// The notification settings screen still shows its own banner.
+  final bool exactAlarmBannerDismissed;
+
   AppSettings copyWith({
     LocationConfig? location,
     PrayerParams? prayerParams,
@@ -78,6 +83,7 @@ final class AppSettings {
     bool? hapticsEnabled,
     Set<HomeCard>? hiddenHomeCards,
     int? hijriOffsetDays,
+    bool? exactAlarmBannerDismissed,
   }) {
     return AppSettings(
       location: location ?? this.location,
@@ -90,6 +96,8 @@ final class AppSettings {
       hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
       hiddenHomeCards: hiddenHomeCards ?? this.hiddenHomeCards,
       hijriOffsetDays: hijriOffsetDays ?? this.hijriOffsetDays,
+      exactAlarmBannerDismissed:
+          exactAlarmBannerDismissed ?? this.exactAlarmBannerDismissed,
     );
   }
 
@@ -106,7 +114,8 @@ final class AppSettings {
       other.hapticsEnabled == hapticsEnabled &&
       other.hiddenHomeCards.length == hiddenHomeCards.length &&
       other.hiddenHomeCards.containsAll(hiddenHomeCards) &&
-      other.hijriOffsetDays == hijriOffsetDays;
+      other.hijriOffsetDays == hijriOffsetDays &&
+      other.exactAlarmBannerDismissed == exactAlarmBannerDismissed;
 
   @override
   int get hashCode => Object.hash(
@@ -120,5 +129,6 @@ final class AppSettings {
     hapticsEnabled,
     Object.hashAllUnordered(hiddenHomeCards),
     hijriOffsetDays,
+    exactAlarmBannerDismissed,
   );
 }

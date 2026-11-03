@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:ui' show Locale, PlatformDispatcher;
 
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/utils/locale_digits.dart';
+import '../../../../core/utils/wall_time.dart';
 
 /// Spending buckets framed by Islamic priorities: needs first, then family,
 /// then sadaqah, with wants kept in check (no israf — Al-A'raf 7:31).
@@ -18,17 +22,26 @@ final class Expense {
     this.note = '',
   });
 
+  /// Reads both record formats: `amountMinor` (minor units, current) and
+  /// the legacy whole-unit `amount` (×100). Records describe their own
+  /// unit, so a legacy one kept in the unreadable list still converts
+  /// correctly whenever it's recovered.
   factory Expense.fromJson(Map<String, dynamic> j) => Expense(
     id: j['id'] as int,
-    amount: j['amount'] as int,
+    amount: switch (j['amountMinor']) {
+      final int minor => minor,
+      _ => (j['amount'] as int) * 100,
+    },
     category: ExpenseCategory.values.byName(j['category'] as String),
-    date: DateTime.parse(j['date'] as String),
+    // Floating wall time (older records were stored device-local).
+    date: DateTime.parse(j['date'] as String).floating,
     note: j['note'] as String? ?? '',
   );
 
   final int id;
 
-  /// Whole currency units (taka) — avoids float rounding in totals.
+  /// Minor currency units (cents / poisha, 2 decimals) — ints avoid float
+  /// rounding in totals.
   final int amount;
   final ExpenseCategory category;
   final DateTime date;
@@ -36,7 +49,7 @@ final class Expense {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'amount': amount,
+    'amountMinor': amount,
     'category': category.name,
     'date': date.toIso8601String(),
     'note': note,
@@ -50,8 +63,14 @@ final class ExpenseStore {
     this._prefs, {
     DateTime Function()? now,
     Future<void> Function(DateTime date)? onSadaqah,
+    Locale Function()? deviceLocale,
   }) : _now = now ?? DateTime.now,
-       _onSadaqah = onSadaqah;
+       _onSadaqah = onSadaqah,
+       _deviceLocale =
+           deviceLocale ?? (() => PlatformDispatcher.instance.locale);
+
+  /// The device's locale (region included), for the default currency.
+  final Locale Function() _deviceLocale;
 
   static const _key = 'expenses_v1';
 
@@ -60,8 +79,18 @@ final class ExpenseStore {
   /// destroys the only copy. Every load retries them, so records written by
   /// a newer version come back after upgrading again.
   static const _unreadableKey = 'expenses_v1_unreadable_records';
-  static const _budgetKey = 'expense_budget_v1';
-  static const _categoryBudgetKey = 'expense_category_budgets_v1';
+
+  /// Budgets in minor units. The whole-unit v1 keys are copied (×100) once,
+  /// guarded by [_minorUnitsKey], and never written again — so a re-run
+  /// after a crash mid-migration recomputes from the untouched v1 values.
+  /// (So a budget edited after downgrading to a pre-decimal build is
+  /// ignored on re-upgrade; downgrades aren't supported.)
+  static const _budgetKey = 'expense_budget_v2';
+  static const _categoryBudgetKey = 'expense_category_budgets_v2';
+  static const _legacyBudgetKey = 'expense_budget_v1';
+  static const _legacyCategoryBudgetKey = 'expense_category_budgets_v1';
+  static const _minorUnitsKey = 'expense_minor_units_migrated';
+  static const _currencyKey = 'expense_currency_v1';
 
   final SharedPreferencesAsync _prefs;
   final DateTime Function() _now;
@@ -80,17 +109,110 @@ final class ExpenseStore {
   /// Per-category monthly limits (for sadaqah, a goal); absent = none.
   late final categoryBudgets = signal(const <ExpenseCategory, int>{});
 
+  /// ISO 4217 code of the expense amounts; null until [ensureCurrency]
+  /// stores the default.
+  late final currency = signal<String?>(null);
+
+  /// Offered in the currency picker (any stored code still displays).
+  static const commonCurrencies = [
+    'BDT', 'USD', 'EUR', 'GBP', 'SAR', 'AED', 'INR', 'PKR', 'MYR', 'IDR', //
+    'TRY', 'CAD', 'AUD',
+  ];
+
+  /// Device region → currency, for the picker's currencies.
+  static const _regionCurrency = {
+    'BD': 'BDT', 'US': 'USD', 'GB': 'GBP', 'SA': 'SAR', 'AE': 'AED', //
+    'IN': 'INR', 'PK': 'PKR', 'MY': 'MYR', 'ID': 'IDR', 'TR': 'TRY',
+    'CA': 'CAD', 'AU': 'AUD', 'DE': 'EUR', 'FR': 'EUR', 'IT': 'EUR',
+    'ES': 'EUR', 'NL': 'EUR', 'BE': 'EUR', 'AT': 'EUR', 'IE': 'EUR',
+    'PT': 'EUR', 'FI': 'EUR', 'GR': 'EUR',
+  };
+
+  /// Default currency: the device region's, else BDT for a Bangla app,
+  /// else what `intl` maps the device locale to, else USD.
+  static String currencyFor(Locale device, String appLanguage) {
+    if (_regionCurrency[device.countryCode?.toUpperCase()] case final c?) {
+      return c;
+    }
+    if (appLanguage == 'bn' || device.languageCode == 'bn') {
+      return 'BDT';
+    }
+    try {
+      return NumberFormat.simpleCurrency(
+            locale: device.toLanguageTag(),
+          ).currencyName ??
+          'USD';
+    } on ArgumentError {
+      return 'USD';
+    }
+  }
+
+  /// Stores the default currency once, so the symbol on stored amounts
+  /// never changes with the device or app language: [currencyFor]. (With
+  /// pre-decimal data, [load] already set BDT.) Best-effort: an unsaved
+  /// default still shows and is retried next time.
+  Future<void> ensureCurrency(String appLanguage) async {
+    await load();
+    if (currency.value != null) {
+      return;
+    }
+    final code = currencyFor(_deviceLocale(), appLanguage);
+    currency.value = code;
+    try {
+      await _prefs.setString(_currencyKey, code);
+    } on Object catch (e) {
+      debugPrint('Expense currency not saved: $e');
+    }
+  }
+
+  /// [minor] as [currencyCode] money in [languageCode]'s digits, always
+  /// with 2 decimals (the stored precision) so amounts line up.
+  static String formatAmount(
+    int minor,
+    String currencyCode,
+    String languageCode,
+  ) {
+    final f = NumberFormat.simpleCurrency(
+      locale: languageCode,
+      name: currencyCode,
+      decimalDigits: 2,
+    );
+    return LocaleDigits.localize(f.format(minor / 100), languageCode);
+  }
+
+  /// Plain editable text for [minor] (ASCII digits, '.' decimal, no
+  /// grouping): 1250 → "12.50", 1200 → "12". Also the CSV amount format.
+  static String amountText(int minor) {
+    final whole = minor ~/ 100;
+    final cents = minor % 100;
+    return cents == 0 ? '$whole' : '$whole.${'$cents'.padLeft(2, '0')}';
+  }
+
   /// Stored budget entries this version can't read, written back as-is.
   Map<String, Object?> _keptBudgets = const {};
 
-  /// Largest accepted amount — keeps int totals far from overflow.
-  static const maxAmount = 999999999999;
+  /// Largest accepted amount in minor units (999,999,999,999.99) — keeps
+  /// int totals far from overflow.
+  static const maxAmount = 99999999999999;
 
-  /// Whole-unit amount from user text (Bengali/Arabic digits and ','
-  /// grouping accepted); null unless 1..[maxAmount].
+  static final _amountPattern = RegExp(r'^(\d*)(?:\.(\d{0,2}))?$');
+
+  /// Minor-unit amount from user text: up to 2 decimals after '.' or a
+  /// decimal comma, Bengali/Arabic digits and grouping accepted (rules in
+  /// [LocaleDigits.toAscii]); null unless 0.01..[maxAmount].
   static int? parseAmount(String text) {
-    final v = int.tryParse(LocaleDigits.toAscii(text.trim()), radix: 10);
-    return v == null || v <= 0 || v > maxAmount ? null : v;
+    final m = _amountPattern.firstMatch(LocaleDigits.toAscii(text.trim()));
+    if (m == null) {
+      return null;
+    }
+    final whole = m[1]!;
+    final cents = (m[2] ?? '').padRight(2, '0');
+    // 15 digits overflow nothing and are already past maxAmount.
+    if (whole.length > 15 || (whole.isEmpty && cents == '00')) {
+      return null;
+    }
+    final v = int.parse(whole.isEmpty ? '0' : whole) * 100 + int.parse(cents);
+    return v <= 0 || v > maxAmount ? null : v;
   }
 
   /// "Now" on the app's clock (the location's wall clock when injected).
@@ -118,11 +240,15 @@ final class ExpenseStore {
     ];
     final before = unreadable.length;
     final read = <Expense>[];
+    // Any whole-unit record read: rewrite the list in minor units.
+    var legacy = false;
     if (stored != null) {
       try {
         for (final j in jsonDecode(stored) as List) {
           try {
-            read.add(Expense.fromJson(j as Map<String, dynamic>));
+            final map = j as Map<String, dynamic>;
+            read.add(Expense.fromJson(map));
+            legacy |= !map.containsKey('amountMinor');
           } on Object {
             // One bad record (e.g. a category from a newer version).
             final raw = jsonEncode(j);
@@ -137,16 +263,39 @@ final class ExpenseStore {
         }
       }
     }
+    // Newly kept records are stored before any rewrite of [_key] below
+    // drops them from it, so neither write failing can lose one.
+    if (unreadable.length != before) {
+      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+    }
     // Retry the kept records; any that read now rejoin the list.
     final recovered = <Expense>[];
     for (final raw in [...unreadable]) {
       try {
-        recovered.add(
-          Expense.fromJson(jsonDecode(raw) as Map<String, dynamic>),
-        );
+        final map = jsonDecode(raw) as Map<String, dynamic>;
+        recovered.add(Expense.fromJson(map));
+        legacy |= !map.containsKey('amountMinor');
         unreadable.remove(raw);
       } on Object {
         // Still unreadable — keep it.
+      }
+    }
+    // Pre-decimal data was all taka: store BDT before the rewrites below
+    // erase that evidence. The v1 budget keys are never removed, so only
+    // legacy records block the rewrites when this save fails (retried on
+    // the next load).
+    currency.value = await _prefs.getString(_currencyKey);
+    var canRewrite = true;
+    if (currency.value == null &&
+        (legacy ||
+            await _prefs.getInt(_legacyBudgetKey) != null ||
+            await _prefs.getString(_legacyCategoryBudgetKey) != null)) {
+      currency.value = 'BDT';
+      try {
+        await _prefs.setString(_currencyKey, 'BDT');
+      } on Object catch (e) {
+        canRewrite = !legacy;
+        debugPrint('Expense currency not saved: $e');
       }
     }
     entries.value = _persisted = read;
@@ -159,12 +308,27 @@ final class ExpenseStore {
           list = _withEntry(list, e);
         }
       }
-      await _save(list);
+      if (canRewrite) {
+        await _save(list);
+        // Only after the recovered records are saved: shortening this list
+        // first would lose them if that save failed.
+        await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+      } else {
+        entries.value = list; // shown; still kept, saved on a later load
+      }
+    } else if (legacy && canRewrite) {
+      try {
+        await _save(read); // rewrite in minor units
+      } on Object catch (e) {
+        // Best-effort: the converted list is shown, fromJson reads either
+        // format, and the next save writes the new one.
+        debugPrint('Expense minor-units rewrite deferred: $e');
+      }
     }
-    // Only after the recovered records are saved: shortening this list
-    // first would lose them if that save failed.
-    if (unreadable.length != before || recovered.isNotEmpty) {
-      await _prefs.setString(_unreadableKey, jsonEncode(unreadable));
+    // Blocking, unlike the rewrite above: until the marker is stored, every
+    // load re-copies v1x100 - which would overwrite a v2 budget set since.
+    if (await _prefs.getBool(_minorUnitsKey) != true) {
+      await _migrateBudgets();
     }
     budget.value = await _prefs.getInt(_budgetKey);
     final storedBudgets = await _prefs.getString(_categoryBudgetKey);
@@ -190,6 +354,47 @@ final class ExpenseStore {
       }
     }
     loaded.value = true;
+  }
+
+  /// One-time copy of the whole-unit v1 budgets into the minor-unit v2
+  /// keys. The v1 keys are left as they are; a corrupt v1 category map is
+  /// skipped (no category budgets, as before) but stays stored.
+  Future<void> _migrateBudgets() async {
+    final budget = await _prefs.getInt(_legacyBudgetKey);
+    final categories = await _prefs.getString(_legacyCategoryBudgetKey);
+    if (budget != null) {
+      await _prefs.setInt(_budgetKey, budget * 100);
+    }
+    if (categories != null) {
+      try {
+        final old = jsonDecode(categories) as Map<String, dynamic>;
+        await _prefs.setString(
+          _categoryBudgetKey,
+          jsonEncode({
+            for (final MapEntry(:key, :value) in old.entries)
+              key: value is int ? value * 100 : value,
+          }),
+        );
+      } on FormatException {
+        // Unreadable v1: left untouched.
+      } on TypeError {
+        // Not a map: left untouched.
+      }
+    }
+    await _prefs.setBool(_minorUnitsKey, true);
+  }
+
+  /// Persists the expense currency (an ISO 4217 code).
+  Future<void> setCurrency(String code) async {
+    await load();
+    final previous = currency.value;
+    currency.value = code;
+    try {
+      await _prefs.setString(_currencyKey, code);
+    } on Object {
+      currency.value = previous;
+      rethrow;
+    }
   }
 
   /// Sets the monthly budget; null or non-positive clears it.
@@ -224,7 +429,7 @@ final class ExpenseStore {
       id: entries.value.fold(0, (m, e) => e.id > m ? e.id : m) + 1,
       amount: amount,
       category: category,
-      date: date ?? _now(),
+      date: (date ?? _now()).floating,
       note: note.trim(),
     );
     final next = [e, ...entries.value]
@@ -289,7 +494,7 @@ final class ExpenseStore {
       id: id,
       amount: amount,
       category: category,
-      date: date,
+      date: date.floating,
       note: note.trim(),
     );
     final next = [for (final e in entries.value) e.id == id ? edited : e]
@@ -428,6 +633,10 @@ final class ExpenseStore {
 
   /// All entries as CSV (oldest first) — opens in any spreadsheet and is
   /// the backup format [importCsv] reads back. Budgets are not included.
+  ///
+  /// The amount column is always in major units with a '.' decimal
+  /// ("12.50", "120") — so a pre-decimal backup's whole numbers ("120")
+  /// read back as the same 120.00, and no version column is needed.
   Future<String> toCsv() async {
     await load();
     // A leading ' stops spreadsheets running =,+,-,@ notes as formulas;
@@ -437,7 +646,8 @@ final class ExpenseStore {
     return [
       _csvHeader,
       for (final e in entries.value.reversed)
-        '${e.date.toIso8601String()},${e.category.name},${e.amount},'
+        '${e.date.toIso8601String()},${e.category.name},'
+            '${amountText(e.amount)},'
             '${quote(e.note)}',
     ].join('\n');
   }
@@ -462,12 +672,11 @@ final class ExpenseStore {
       if (r.length != 4) {
         return null;
       }
-      final date = DateTime.tryParse(r[0].trim());
+      // Wall-clock fields, floating: older backups wrote them device-local.
+      final date = DateTime.tryParse(r[0].trim())?.floating;
       final category = ExpenseCategory.values.asNameMap()[r[1].trim()];
       final amount = parseAmount(r[2]);
-      // toCsv writes wall-clock times; a UTC one would land on the wrong
-      // day (and never match its local twin when deduping).
-      if (date == null || date.isUtc || category == null || amount == null) {
+      if (date == null || category == null || amount == null) {
         return null;
       }
       parsed.add(

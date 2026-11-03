@@ -51,20 +51,25 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
   /// The log couldn't be read; the screen offers a retry.
   bool _loadFailed = false;
 
+  /// App language for the default currency; read once dependencies exist.
+  String? _language;
+
   @override
-  void initState() {
-    super.initState();
-    if (!_store.loaded.value) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_language == null) {
+      _language = Localizations.localeOf(context).languageCode;
       _load();
     }
   }
 
+  /// Loads (a no-op once loaded) and stores the default currency if none.
   void _load() {
     if (_loadFailed) {
       setState(() => _loadFailed = false);
     }
     unawaited(
-      _store.load().catchError((Object _) {
+      _store.ensureCurrency(_language!).catchError((Object _) {
         if (mounted) {
           setState(() => _loadFailed = true);
         }
@@ -117,14 +122,15 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
     final l10n = context.l10n;
     final q = context.q;
     final code = Localizations.localeOf(context).languageCode;
-    String n(int v) => LocaleDigits.localize(
-      NumberFormat.decimalPattern(code).format(v),
-      code,
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.expenseTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.expenseCurrency,
+            icon: const Icon(Icons.currency_exchange),
+            onPressed: () => _showCurrencyPicker(context, _store),
+          ),
           IconButton(
             tooltip: l10n.expenseBudget,
             icon: const Icon(Icons.account_balance_wallet_outlined),
@@ -164,6 +170,8 @@ final class _ExpenseScreenState extends State<ExpenseScreen> {
               return const QSkeletonList(count: 3, height: 160);
             }
             _store.entries.value;
+            final currency = _currencyOf(context, _store);
+            String n(int v) => ExpenseStore.formatAmount(v, currency, code);
             final budget = _store.budget.value;
             final categoryBudgets = _store.categoryBudgets.value;
             final month = _store.month(_offset);
@@ -461,6 +469,52 @@ void _removeWithUndo(BuildContext context, ExpenseStore store, Expense e) {
   unawaited(undo.closed.then((_) => undoShowing = false));
 }
 
+/// The expense currency ([ExpenseStore.ensureCurrency] sets it on load).
+String _currencyOf(BuildContext context, ExpenseStore store) =>
+    store.currency.value ?? 'USD';
+
+/// Picks the expense currency from [ExpenseStore.commonCurrencies] (plus
+/// the current one if it isn't listed).
+Future<void> _showCurrencyPicker(BuildContext context, ExpenseStore store) {
+  final current = _currencyOf(context, store);
+  final code = Localizations.localeOf(context).languageCode;
+  final messenger = ScaffoldMessenger.of(context);
+  final failed = context.l10n.expenseSaveFailed;
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) => SimpleDialog(
+      title: Text(context.l10n.expenseCurrency),
+      children: [
+        for (final c in {current, ...ExpenseStore.commonCurrencies})
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              unawaited(
+                store
+                    .setCurrency(c)
+                    .catchError(
+                      (Object _) => messenger.showSnackBar(
+                        SnackBar(content: Text(failed)),
+                      ),
+                    ),
+              );
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '$c  ${NumberFormat.simpleCurrency(locale: code, name: c).currencySymbol}',
+                  ),
+                ),
+                if (c == current) const Icon(Icons.check),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
 void _showSaveFailed(BuildContext context) => ScaffoldMessenger.of(
   context,
 ).showSnackBar(SnackBar(content: Text(context.l10n.expenseSaveFailed)));
@@ -645,7 +699,7 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
     text: widget.current == null
         ? ''
         : LocaleDigits.localize(
-            '${widget.current}',
+            ExpenseStore.amountText(widget.current!),
             Localizations.localeOf(context).languageCode,
           ),
   );
@@ -682,7 +736,7 @@ final class _BudgetDialogState extends State<_BudgetDialog> {
       content: TextField(
         controller: _controller,
         autofocus: true,
-        keyboardType: TextInputType.number,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: l10n.expenseAmountHint,
           errorText: invalid ? l10n.expenseAmountInvalid : null,
@@ -744,7 +798,7 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
     text: widget.existing == null
         ? ''
         : LocaleDigits.localize(
-            '${widget.existing!.amount}',
+            ExpenseStore.amountText(widget.existing!.amount),
             Localizations.localeOf(context).languageCode,
           ),
   );
@@ -803,13 +857,16 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
       context: context,
       initialDate: _date.isAfter(now) ? now : _date,
       // An imported entry may predate 2000; the picker asserts on it.
-      firstDate: _date.isBefore(DateTime(2000)) ? _date : DateTime(2000),
+      firstDate: _date.isBefore(DateTime.utc(2000))
+          ? _date
+          : DateTime.utc(2000),
       lastDate: now,
     );
     if (picked != null) {
       // Keep the time of day so same-day entries stay in entry order —
       // but never past now (re-dating an evening entry to today).
-      final kept = DateTime(
+      // Floating, like every wall time (see `ZonedClock`).
+      final kept = DateTime.utc(
         picked.year,
         picked.month,
         picked.day,
@@ -906,7 +963,9 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
               TextField(
                 controller: _amount,
                 autofocus: widget.existing == null,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   labelText: l10n.expenseAmountHint,
                   errorText: _amount.text.trim().isNotEmpty && _parsed == null

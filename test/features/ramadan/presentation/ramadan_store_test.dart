@@ -107,6 +107,23 @@ void main() {
       }
     });
 
+    test('fastsLogged counts this Ramadan up to today only', () async {
+      final store = await make();
+      final logged = {
+        DateTime(2026, 2, 17), // Sha'ban: not this Ramadan
+        DateTime(2026, 2, 18), // 1 Ramadan
+        DateTime(2026, 2, 25),
+        DateTime(2026, 3), // today (1 Mar)
+        DateTime(2026, 3, 2), // future
+      };
+      expect(store.fastsLogged(logged.contains), 3);
+    });
+
+    test('fastsLogged is 0 outside Ramadan', () async {
+      final store = await make(now: DateTime(2026, 4, 1, 10));
+      expect(store.fastsLogged((_) => true), 0);
+    });
+
     test('no location → empty rows', () async {
       final store = await make(withLocation: false);
       expect(store.monthRows.value, isEmpty);

@@ -19,7 +19,11 @@ enum PinResetAuth { verified, failed, noDeviceLock }
 /// Re-locks after the app has been in the background longer than
 /// [AppConfig.appLockGracePeriod]; wrong PINs are throttled with a
 /// persisted, growing cooldown.
-final class AppLockStore {
+///
+/// With [scope] [LockScope.muhasaba] the app itself never locks: the same
+/// PIN guards only the Muhasaba section ([sectionLocked]), once per
+/// foreground session, re-locking on the same background rule.
+final class AppLockStore implements SectionLockStatus {
   AppLockStore(
     this._source,
     this._biometric, {
@@ -86,7 +90,28 @@ final class AppLockStore {
   late final biometricEnabled = signal(false);
 
   /// True while the gate must show (enabled and not yet unlocked).
+  /// Always false with [LockScope.muhasaba].
   late final locked = signal(false);
+
+  /// What the lock guards.
+  late final scope = signal(LockScope.app);
+
+  /// True while the Muhasaba section needs the PIN ([LockScope.muhasaba]).
+  late final sectionLocked = signal(false);
+
+  @override
+  bool get muhasabaLocked => enabled.value && sectionLocked.value;
+
+  bool get _appScope => scope.value == LockScope.app;
+
+  /// Locks whatever [scope] guards.
+  void _relock() {
+    if (_appScope) {
+      locked.value = true;
+    } else {
+      sectionLocked.value = true;
+    }
+  }
 
   /// True between a verified "Forgot PIN?" device-lock check and
   /// [resetPin]. Leaving the app revokes it, so whoever opens it next
@@ -164,7 +189,15 @@ final class AppLockStore {
     final state = await _source.read();
     enabled.value = state.enabled;
     biometricEnabled.value = state.biometric;
-    locked.value = state.enabled;
+    try {
+      scope.value = await _source.readScope();
+    } on Object catch (e) {
+      // Fail closed: the whole app locks.
+      debugPrint('app lock: scope unreadable: $e');
+      scope.value = LockScope.app;
+    }
+    locked.value = state.enabled && _appScope;
+    sectionLocked.value = state.enabled && !_appScope;
     final ({int failedAttempts, PinCooldown? cooldown}) throttle;
     try {
       throttle = await _source.readThrottle();
@@ -244,7 +277,7 @@ final class AppLockStore {
           // Judged once the prompt ends (see [_duringAuth]).
           _awayDuringAuth |= due;
         } else if (due) {
-          locked.value = true;
+          _relock();
         }
       // iOS snapshots the app switcher right after inactive. Android's
       // FLAG_SECURE already blanks it, and inactive fires there for
@@ -274,11 +307,14 @@ final class AppLockStore {
     return (wall > mono ? wall : mono) >= AppConfig.appLockGracePeriod;
   }
 
-  /// Whether the app must be treated as locked right now — also when it
-  /// is due to re-lock but hasn't seen `resumed` yet (a notification
-  /// action can run first).
+  /// Whether what the lock guards (the app, or just Muhasaba) must be
+  /// treated as locked right now — also when it is due to re-lock but
+  /// hasn't seen `resumed` yet (a notification action can run first).
+  /// Either way Muhasaba data is off limits.
   bool get lockedNow =>
-      enabled.value && (locked.value || (!_authInProgress && _relockDue()));
+      enabled.value &&
+      ((_appScope ? locked.value : sectionLocked.value) ||
+          (!_authInProgress && _relockDue()));
 
   /// Whether biometric unlock is available to offer at PIN setup.
   Future<bool> canUseBiometric() => _biometric.canAuthenticate();
@@ -304,6 +340,19 @@ final class AppLockStore {
     enabled.value = false;
     biometricEnabled.value = false;
     locked.value = false;
+    scope.value = LockScope.app;
+    sectionLocked.value = false;
+  }
+
+  /// Switches what the lock guards; the caller proves the PIN first when
+  /// narrowing it to Muhasaba. Never unlocks anything: a locked state
+  /// moves over to the new scope.
+  Future<void> setScope(LockScope next) async {
+    await _source.writeScope(next);
+    final wasLocked = locked.value || sectionLocked.value;
+    scope.value = next;
+    locked.value = next == LockScope.app && wasLocked;
+    sectionLocked.value = next == LockScope.muhasaba && wasLocked;
   }
 
   /// Verifies [pin]. Always false while throttled ([lockedUntil] in the
@@ -369,6 +418,7 @@ final class AppLockStore {
     // Device ownership is proven: unlock before saving, so a storage error
     // in [enable] can't leave the user shut out.
     locked.value = false;
+    sectionLocked.value = false;
     await enable(pin, biometric: biometricEnabled.value);
     return true;
   }
@@ -389,7 +439,7 @@ final class AppLockStore {
         // counts as usual. Already back → judge now; still away → cover
         // the UI and let the coming resume judge it.
         if (_awayDuringAuth) {
-          locked.value = true;
+          _relock();
         }
         if (_backgroundedAt != null && enabled.value) {
           pinResetAuthorized.value = false;
@@ -405,6 +455,7 @@ final class AppLockStore {
   /// stricter after a restart, never looser — so it is only logged.
   Future<void> _unlock() async {
     locked.value = false;
+    sectionLocked.value = false;
     try {
       await _resetThrottle();
     } on Object catch (e) {

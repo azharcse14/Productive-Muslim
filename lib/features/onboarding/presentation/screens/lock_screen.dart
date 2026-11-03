@@ -17,7 +17,9 @@ import '../state/app_lock_store.dart';
 /// PIN (+ optional biometric) gate. Also reused as the PIN setup screen
 /// and, via [LockScreenMode.verify], as the re-auth step before turning the
 /// lock off (pops `true` once the PIN or biometric checks out).
-enum LockScreenMode { unlock, setup, verify }
+/// [LockScreenMode.section] opens the Muhasaba section lock: like unlock
+/// (with "Forgot PIN?"), but pushed, so it pops `true` once unlocked.
+enum LockScreenMode { unlock, setup, verify, section }
 
 /// Keypad sentinel for the delete key (drawn as an icon).
 const _backspace = 'del';
@@ -43,8 +45,11 @@ final class _LockScreenState extends State<LockScreen> {
 
   /// "Forgot PIN?" verified via the device lock: collect a new PIN. Lives
   /// in the store so leaving the app ends it.
-  late bool _resetting =
-      widget.mode == LockScreenMode.unlock && _store.pinResetAuthorized.value;
+  late bool _resetting = _unlocking && _store.pinResetAuthorized.value;
+
+  bool get _unlocking =>
+      widget.mode == LockScreenMode.unlock ||
+      widget.mode == LockScreenMode.section;
   void Function()? _stopResetWatch;
 
   /// Repaints the cooldown countdown once a second while throttled.
@@ -55,7 +60,7 @@ final class _LockScreenState extends State<LockScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.mode == LockScreenMode.unlock) {
+    if (_unlocking) {
       _stopResetWatch = effect(() {
         final authorized = _store.pinResetAuthorized.value;
         if (authorized == _resetting || !mounted) {
@@ -92,7 +97,7 @@ final class _LockScreenState extends State<LockScreen> {
   /// Unlock: the store flips the gate. Verify: report success to the
   /// caller.
   void _verified() {
-    if (_verifying && mounted) {
+    if ((_verifying || widget.mode == LockScreenMode.section) && mounted) {
       Navigator.of(context).pop(true);
     }
   }
@@ -306,7 +311,9 @@ final class _LockScreenState extends State<LockScreen> {
         } else if (_firstPin == _entered) {
           if (_resetting) {
             // Unlocking flips the router gate; no navigation needed.
-            await _store.resetPin(_entered);
+            if (await _store.resetPin(_entered)) {
+              _verified();
+            }
           } else {
             // Biometrics are an explicit opt-in, never switched on silently.
             final biometric =
