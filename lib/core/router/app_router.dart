@@ -13,6 +13,7 @@ import '../../features/calculators/presentation/screens/inheritance_screen.dart'
 import '../../features/calculators/presentation/screens/qaza_screen.dart';
 import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/asma_quiz_screen.dart';
+import '../../features/dua_tasbih/presentation/screens/asmaul_husna_screen.dart';
 import '../../features/dua_tasbih/presentation/screens/dua_screen.dart';
 import '../../features/expenses/presentation/screens/expense_screen.dart';
 import '../../features/fasting/presentation/screens/fasting_screen.dart';
@@ -317,6 +318,11 @@ GoRouter buildRouter() {
         name: Routes.ruqyah.name,
         path: Routes.ruqyah.path,
         builder: (context, state) => const RuqyahScreen(),
+      ),
+      GoRoute(
+        name: Routes.asmaulHusna.name,
+        path: Routes.asmaulHusna.path,
+        builder: (context, state) => const AsmaulHusnaScreen(),
       ),
       GoRoute(
         name: Routes.asmaQuiz.name,

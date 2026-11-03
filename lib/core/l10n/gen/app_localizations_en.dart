@@ -3086,26 +3086,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorDiscard => 'Discard';
 
   @override
-  String muhasabaIconOption(int n) {
-    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String nString = nNumberFormat.format(n);
-
-    return 'Icon $nString';
-  }
-
-  @override
-  String muhasabaColorOption(int n) {
-    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String nString = nNumberFormat.format(n);
-
-    return 'Color $nString';
-  }
-
-  @override
   String get tasbihTargetInvalid => 'Enter a number from 1 to 99999';
 
   @override

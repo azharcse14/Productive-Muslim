@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/age_screen.dart';
-import 'package:productive_muslim/shared/widgets/q_button.dart';
 
 Widget _app() => MaterialApp(
   theme: AppTheme.light(),
@@ -28,7 +27,7 @@ void main() {
       expect(find.text('As of date'), findsOneWidget);
     });
 
-    testWidgets('an as-of date before the birth date blocks Calculate', (
+    testWidgets('as-of date cannot be picked before the birth date', (
       tester,
     ) async {
       await tester.pumpWidget(_app());
@@ -38,19 +37,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
-      // Then as of 1 Jan 1990, typed in the picker's input mode.
       await tester.tap(find.text('As of date'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.edit_outlined));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField), '01/01/1990');
-      await tester.tap(find.text('OK'));
-      await tester.pumpAndSettle();
-      expect(find.text('As-of date is before the birth date'), findsOneWidget);
-      final button = tester.widget<QButton>(
-        find.widgetWithText(QButton, 'Calculate'),
+      final picker = tester.widget<DatePickerDialog>(
+        find.byType(DatePickerDialog),
       );
-      expect(button.onPressed, isNull);
+      expect(picker.firstDate, DateTime(2000));
     });
 
     testWidgets('birth date cannot be picked after the as-of date', (

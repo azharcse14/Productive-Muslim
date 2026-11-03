@@ -60,6 +60,12 @@ void main() {
     expect(find.byIcon(Icons.emoji_events_outlined), findsOneWidget);
   });
 
+  testWidgets('Worship group links to Asmaul Husna', (tester) async {
+    await pump(tester, const AppSettings());
+    await tester.scrollUntilVisible(find.text('Asmaul Husna'), 200);
+    expect(find.text('Asmaul Husna'), findsOneWidget);
+  });
+
   testWidgets('app bar has a Settings shortcut', (tester) async {
     await pump(tester, const AppSettings());
     expect(find.byTooltip('Settings'), findsOneWidget);

@@ -417,7 +417,11 @@ void main() {
     );
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('tea'));
+    await tester.scrollUntilVisible(
+      find.text('tea'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('tea'));
     await tester.pumpAndSettle();

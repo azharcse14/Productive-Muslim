@@ -218,7 +218,9 @@ void main() {
       await tester.runAsync(_controller.retry);
       await tester.pumpWidget(_app());
       await tester.pump();
-      final banner = find.text("Couldn't schedule reminders");
+      final banner = find.textContaining(
+        "Couldn't schedule your notifications",
+      );
       await tester.scrollUntilVisible(banner, 300);
       expect(banner, findsOneWidget);
       scheduler.failReschedule = false;

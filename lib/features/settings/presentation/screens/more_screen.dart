@@ -122,6 +122,12 @@ final class _MoreScreenState extends State<MoreScreen> {
             ),
             if (!inRamadan) ramadan,
             _Entry(
+              Icons.auto_awesome_outlined,
+              l10n.asmaulHusnaTitle,
+              null,
+              () => context.pushNamed(Routes.asmaulHusna.name),
+            ),
+            _Entry(
               Icons.format_quote_outlined,
               l10n.hadithTitle,
               l10n.hadithSubtitle,

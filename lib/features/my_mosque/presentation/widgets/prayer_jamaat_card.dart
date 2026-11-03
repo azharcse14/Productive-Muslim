@@ -157,6 +157,10 @@ final class PrayerJamaatCard extends StatelessWidget {
                         heightFactor: 1,
                         child: Text(
                           l10n.minutesShort(offset.inMinutes),
+                          // Names its prayer for screen readers.
+                          semanticsLabel:
+                              '$stepperLabel: '
+                              '${l10n.minutesShort(offset.inMinutes)}',
                           textAlign: TextAlign.center,
                           style: QType.num_(
                             QType.label,

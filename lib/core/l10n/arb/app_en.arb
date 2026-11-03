@@ -1444,18 +1444,6 @@
   },
   "editorDiscardTitle": "Discard your changes?",
   "editorDiscard": "Discard",
-  "muhasabaIconOption": "Icon {n}",
-  "@muhasabaIconOption": {
-    "placeholders": {
-      "n": { "type": "int", "format": "decimalPattern" }
-    }
-  },
-  "muhasabaColorOption": "Color {n}",
-  "@muhasabaColorOption": {
-    "placeholders": {
-      "n": { "type": "int", "format": "decimalPattern" }
-    }
-  },
   "tasbihTargetInvalid": "Enter a number from 1 to 99999",
   "hadithTopicsLoadError": "Couldn't load the hadith. Please try again.",
   "ruqyahLoadError": "Couldn't load ruqyah. Please try again.",

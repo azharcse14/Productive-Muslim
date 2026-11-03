@@ -3072,26 +3072,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get editorDiscard => 'বাদ দিন';
 
   @override
-  String muhasabaIconOption(int n) {
-    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String nString = nNumberFormat.format(n);
-
-    return 'আইকন $nString';
-  }
-
-  @override
-  String muhasabaColorOption(int n) {
-    final intl.NumberFormat nNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String nString = nNumberFormat.format(n);
-
-    return 'রং $nString';
-  }
-
-  @override
   String get tasbihTargetInvalid => '১ থেকে ৯৯৯৯৯ এর মধ্যে একটি সংখ্যা লিখুন';
 
   @override

@@ -880,6 +880,7 @@ final class _HomeScreenState extends State<HomeScreen> {
   Widget _duaCard(BuildContext context, Dua dua, Locale locale) => DuaOfDayCard(
     arabic: dua.arabic,
     translation: dua.translationFor(locale.languageCode),
+    transliteration: dua.transliterationFor(locale.languageCode),
     reference: dua.reference,
     onTap: () => unawaited(showDuaSheet(context, dua)),
   );

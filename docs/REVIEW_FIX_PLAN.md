@@ -444,17 +444,17 @@ Write a short design for each in the report. Don't implement until approved.
 
 The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and `fix/ui-features-b`, all merged into `master`. What is still open:
 
-- [ ] **Full `flutter test` on merged master.** Each feature branch passed the full suite, but nobody has run it on the merge result. The merge was urgent, so only `flutter analyze` and the l10n diff were checked.
-- [ ] **Home dua-of-the-day transliteration.** In `prayer_times/presentation/screens/home_screen.dart`, pass `transliteration: dua.transliterationFor(code)` to `DuaOfDayCard` so the screen reader gets a `semanticsLabel`.
-- [ ] **Ruqyah categories still use `MaterialPageRoute`.** Add a named route in `app_router.dart` and use `context.pushNamed`.
-- [ ] **Remove dead ARB keys.** `muhasabaIconOption` and `muhasabaColorOption` are no longer used; delete them from en and bn.
+- [x] **Full `flutter test` on merged master.** Each feature branch passed the full suite, but nobody has run it on the merge result. The merge was urgent, so only `flutter analyze` and the l10n diff were checked.
+- [x] **Home dua-of-the-day transliteration.** In `prayer_times/presentation/screens/home_screen.dart`, pass `transliteration: dua.transliterationFor(code)` to `DuaOfDayCard` so the screen reader gets a `semanticsLabel`.
+- [ ] **Ruqyah categories still use `MaterialPageRoute`.** Add a named route in `app_router.dart` and use `context.pushNamed`. (2026-11-03: left as is — dua and hadith sub-screens use the same `MaterialPageRoute` push; do all of them together or drop the item.)
+- [x] **Remove dead ARB keys.** `muhasabaIconOption` and `muhasabaColorOption` are no longer used; delete them from en and bn.
 - [ ] **Owner to confirm these behaviour changes:**
   - The calendar screen's side padding went from 20dp to 12dp, to get 48dp day cells.
   - `QCard`'s default padding went from 18 to 20.
   - The lock screen now shows "Biometric unavailable" even when the user cancels the biometric prompt.
   - The prayer table puts the time range on a second line when text is scaled above 1.3x.
 - [ ] **Manual QA.** No device run has been done yet. Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
-- [ ] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
+- [x] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
 - [ ] **Muhasaba Today swipe.** The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
 
 ---
@@ -467,14 +467,14 @@ and `fix/ux-ramadan-calendar-calc`. Where they overlapped with the earlier `fix/
 merge, the version already on master was kept (QBanner `onTap`, prayer-table `_nameAndTime`,
 `rescheduleFailed`, `l10n.retry`, `QListRow` switch rows, `context.clockTime`). Still open:
 
-### 5 failing tests on master after this merge (fix first)
+### 5 failing tests on master after this merge — fixed 2026-11-03 (`fix/review-followups`)
 
 All come from the overlap with `fix/ui-features-*`: our tests expect the dropped variant.
-- [ ] `home_screen_test.dart`: "exact-alarm banner has a visible button and a dismiss" (× dropped; delete or rewrite for `onTap`).
-- [ ] `home_screen_test.dart`: "nearby mosques action says it opens Maps".
-- [ ] `age_screen_test.dart`: "an as-of date before the birth date blocks Calculate" (rewritten in the merge; picker flow needs checking).
-- [ ] `my_mosque_screen_test.dart`: "mode segments and the minute value name their prayer" (minute-value `Semantics` dropped in favour of master's `ConstrainedBox`).
-- [ ] `notification_settings_screen_test.dart`: "a failed reschedule shows a banner and retry clears it" (two versions of the same test merged).
+- [x] `home_screen_test.dart`: "exact-alarm banner has a visible button and a dismiss" (× dropped; delete or rewrite for `onTap`).
+- [x] `home_screen_test.dart`: "nearby mosques action says it opens Maps".
+- [x] `age_screen_test.dart`: "an as-of date before the birth date blocks Calculate" (rewritten in the merge; picker flow needs checking).
+- [x] `my_mosque_screen_test.dart`: "mode segments and the minute value name their prayer" (minute-value `Semantics` dropped in favour of master's `ConstrainedBox`).
+- [x] `notification_settings_screen_test.dart`: "a failed reschedule shows a banner and retry clears it" (two versions of the same test merged).
 
 ### Unmerged WIP branches (stopped mid-gate, never gated)
 
