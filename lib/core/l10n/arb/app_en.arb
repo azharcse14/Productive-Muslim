@@ -260,7 +260,7 @@
   "specialTimeSalatZawal": "Salat al-Zawal",
   "specialTimeAwwabin": "Awwabin",
   "specialTimeTahajjud": "Tahajjud",
-  "forbiddenTimesSubtitle": "Avoid voluntary prayers in these windows. A missed fard (e.g. today's Asr) may still be prayed.",
+  "forbiddenTimesSubtitle": "No nafl prayers in these windows. Making up a missed fard then: not valid in the Hanafi madhab (though that day's own Asr may still be prayed before sunset); permitted by the other madhabs.",
   "naflTimesSubtitle": "Best times for voluntary (nafl) prayers.",
   "specialTimesLearnMore": "Tap for details",
   "specialTimesPageTitle": "Forbidden & nafl times",
@@ -269,7 +269,7 @@
   "specialDetailForbiddenSunrise": "From sunrise until the sun has fully risen above the horizon (about 15 minutes). The Prophet ﷺ said the sun rises between the two horns of Shaytan, so salah is withheld until it clears.",
   "specialDetailForbiddenZawal": "The brief moment the sun stands at its highest point (istiwa) before passing the meridian into the Dhuhr time. No salah is offered until it begins to decline.",
   "specialDetailForbiddenSunset": "From when the sun yellows and starts to set until it has fully set (Maghrib). As at sunrise, salah is withheld while the sun sets.",
-  "specialDetailIshraq": "Two rak'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak'ahs earns the reward of a complete Hajj and Umrah.",
+  "specialDetailIshraq": "Two rak'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak'ahs earns the reward of a complete Hajj and Umrah (Tirmidhi 586 — graded hasan by al-Albani; some scholars grade it weak).",
   "specialDetailDuha": "The forenoon prayer of two to twelve rak'ahs, best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak'ahs suffice for it.",
   "specialDetailSalatZawal": "Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.",
   "specialDetailAwwabin": "Voluntary rak'ahs offered between the Maghrib and Isha prayers, popularly called awwabin. In the authentic hadith, the Prophet ﷺ gave the name \"salah of the awwabin\" to Duha (Muslim); naming the Maghrib–Isha prayer so rests on weaker reports.",
@@ -305,7 +305,7 @@
   "homeSetLocationTitle": "Where are you?",
   "homeSetLocationBody": "Pick your location once and Productive Muslim computes accurate prayer times for it — fully offline.",
   "homeSetLocationCta": "Set location",
-  "hijriMonthName": "{month, select, m1{Muharram} m2{Safar} m3{Rabi al-Awwal} m4{Rabi al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Shaban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qadah} m12{Dhul-Hijjah} other{—}}",
+  "hijriMonthName": "{month, select, m1{Muharram} m2{Safar} m3{Rabi' al-Awwal} m4{Rabi' al-Thani} m5{Jumada al-Ula} m6{Jumada al-Akhirah} m7{Rajab} m8{Sha'ban} m9{Ramadan} m10{Shawwal} m11{Dhul-Qa'dah} m12{Dhul-Hijjah} other{—}}",
   "@hijriMonthName": {
     "placeholders": {
       "month": {
@@ -794,7 +794,7 @@
       "id": { "type": "String" }
     }
   },
-  "fastingKindNote": "{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}",
+  "fastingKindNote": "{id, select, mondayThursday{Deeds are presented to Allah on Mondays and Thursdays, and the Prophet ﷺ loved to be fasting then. (Tirmidhi)} whiteDays{Fasting the 13th, 14th and 15th of each hijri month is like fasting the whole year. (Nasa'i)} ashura{Fasting Ashura expiates the sins of the past year; fast the 9th with it. (Muslim)} arafah{Fasting the Day of Arafah expiates the past and the coming year. (Muslim)} dhulHijjah{There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).} shawwal{Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)} other{}}",
   "@fastingKindNote": {
     "placeholders": {
       "id": { "type": "String" }
@@ -981,7 +981,7 @@
   "zakatDebts": "Debts (deducted)",
   "zakatGoldPrice": "Gold price per gram",
   "zakatSilverPrice": "Silver price per gram",
-  "zakatNeedSilverPrice": "Enter today's silver price — the nisab is based on silver unless gold is your only asset.",
+  "zakatNeedSilverPrice": "Enter today's silver price — unless gold is your only asset, this calculator uses the silver nisab, the lower threshold (Hanafi and others). Some scholars use the gold nisab for cash.",
   "zakatInvalidNumber": "Enter a valid number",
   "zakatNeedMetalPrice": "Enter the price for each metal you entered grams of.",
   "zakatCalculate": "Calculate",
@@ -1001,7 +1001,7 @@
       }
     }
   },
-  "zakatNisabSilver": "Silver nisab ({grams} g)",
+  "zakatNisabSilver": "Silver nisab ({grams} g) — the lower threshold (Hanafi and others); some scholars use gold for cash",
   "@zakatNisabSilver": {
     "placeholders": {
       "grams": {
@@ -1028,7 +1028,7 @@
   "hijriAdjustedBy": "Hijri dates adjusted {value}",
   "@hijriAdjustedBy": {"placeholders": {"value": {"type": "String"}}},
   "hijriAdjustChange": "Change",
-  "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Isra & Miraj} nisfShaban{Mid-Shaban} ramadanStart{Ramadan begins} laylatulQadr{Night of the 27th (Laylatul Qadr)} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
+  "islamicDayName": "{day, select, hijriNewYear{Hijri New Year} ashura{Ashura} mawlid{Mawlid} israMiraj{Night of Isra & Mi'raj} nisfShaban{Night of mid-Sha'ban} ramadanStart{Ramadan begins} laylatulQadr{27th night — often sought as Laylatul Qadr} eidAlFitr{Eid al-Fitr} arafah{Day of Arafah} eidAlAdha{Eid al-Adha} other{—}}",
   "@islamicDayName": {
     "placeholders": {
       "day": {
@@ -1773,5 +1773,8 @@
       "end": {"type": "String"}
     }
   },
-  "muhasabaRangeChange": "Change date range"
+  "muhasabaRangeChange": "Change date range",
+  "calendarNightBeginsAtSunset": "This night begins at sunset on this date.",
+  "calendarObservanceDiffers": "Scholars differ on this date and on marking it with special worship.",
+  "rakaatHanafiNote": "Hanafi count — other madhabs differ on the sunnah and witr rak'ahs."
 }

@@ -22,34 +22,65 @@ void main() {
     });
 
     test('expected mapping for key dates', () {
-      expect(IslamicDates.of(const HijriDate(1447, 1, 1)),
-          IslamicDay.hijriNewYear);
+      expect(
+        IslamicDates.of(const HijriDate(1447, 1, 1)),
+        IslamicDay.hijriNewYear,
+      );
       expect(IslamicDates.of(const HijriDate(1447, 1, 10)), IslamicDay.ashura);
       expect(IslamicDates.of(const HijriDate(1447, 3, 12)), IslamicDay.mawlid);
+      // Night observances begin at sunset: marked on the eve (26 Rajab,
+      // 14 Sha'ban), not on the hijri day they are named after.
       expect(
-          IslamicDates.of(const HijriDate(1447, 7, 27)), IslamicDay.israMiraj);
-      expect(IslamicDates.of(const HijriDate(1447, 8, 15)),
-          IslamicDay.nisfShaban);
-      expect(IslamicDates.of(const HijriDate(1447, 9, 1)),
-          IslamicDay.ramadanStart);
+        IslamicDates.of(const HijriDate(1447, 7, 26)),
+        IslamicDay.israMiraj,
+      );
+      expect(
+        IslamicDates.of(const HijriDate(1447, 8, 14)),
+        IslamicDay.nisfShaban,
+      );
+      expect(
+        IslamicDates.of(const HijriDate(1447, 9, 1)),
+        IslamicDay.ramadanStart,
+      );
       // The night of the 27th begins on the evening of the 26th.
-      expect(IslamicDates.of(const HijriDate(1447, 9, 26)),
-          IslamicDay.laylatulQadr);
       expect(
-          IslamicDates.of(const HijriDate(1447, 10, 1)), IslamicDay.eidAlFitr);
+        IslamicDates.of(const HijriDate(1447, 9, 26)),
+        IslamicDay.laylatulQadr,
+      );
+      expect(
+        IslamicDates.of(const HijriDate(1447, 10, 1)),
+        IslamicDay.eidAlFitr,
+      );
       expect(IslamicDates.of(const HijriDate(1447, 12, 9)), IslamicDay.arafah);
-      expect(IslamicDates.of(const HijriDate(1447, 12, 10)),
-          IslamicDay.eidAlAdha);
+      expect(
+        IslamicDates.of(const HijriDate(1447, 12, 10)),
+        IslamicDay.eidAlAdha,
+      );
     });
 
     test('null on ordinary days', () {
       expect(IslamicDates.of(const HijriDate(1447, 1, 2)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 1, 11)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 2, 10)), isNull);
+      expect(IslamicDates.of(const HijriDate(1447, 7, 27)), isNull);
+      expect(IslamicDates.of(const HijriDate(1447, 8, 15)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 9, 27)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 10, 2)), isNull);
       expect(IslamicDates.of(const HijriDate(1447, 12, 11)), isNull);
     });
+  });
+
+  test('night observances and scholarly-difference flags', () {
+    expect(IslamicDay.values.where((d) => d.isNight), [
+      IslamicDay.israMiraj,
+      IslamicDay.nisfShaban,
+      IslamicDay.laylatulQadr,
+    ]);
+    expect(IslamicDay.values.where((d) => d.scholarsDiffer), [
+      IslamicDay.mawlid,
+      IslamicDay.israMiraj,
+      IslamicDay.nisfShaban,
+    ]);
   });
 
   test('isOddNightEve: the days whose evening starts nights 21..29', () {
@@ -69,12 +100,11 @@ void main() {
       expect(events, contains((IslamicDay.eidAlFitr, eid)));
     });
 
-    test('a Gregorian month spanning two hijri months yields both events',
-        () {
-      // The month of 1 Ramadan 1447 also contains 15 Shaban 1447 (Shaban
+    test('a Gregorian month spanning two hijri months yields both events', () {
+      // The month of 1 Ramadan 1447 also contains 14 Sha'ban 1447 (Sha'ban
       // runs into it), exercising the hijri month boundary.
       final ramadanStart = const HijriDate(1447, 9, 1).toGregorian();
-      final nisf = const HijriDate(1447, 8, 15).toGregorian();
+      final nisf = const HijriDate(1447, 8, 14).toGregorian();
       expect(nisf.month, ramadanStart.month, reason: 'fixture assumption');
       final events = IslamicDates.inGregorianMonth(
         ramadanStart.year,
@@ -86,21 +116,15 @@ void main() {
       ]);
     });
 
-    test('a Gregorian month spanning two hijri years finds the new year',
-        () {
+    test('a Gregorian month spanning two hijri years finds the new year', () {
       final newYear = const HijriDate(1448, 1, 1).toGregorian();
-      final events = IslamicDates.inGregorianMonth(
-        newYear.year,
-        newYear.month,
-      );
+      final events = IslamicDates.inGregorianMonth(newYear.year, newYear.month);
       expect(events, contains((IslamicDay.hijriNewYear, newYear)));
       // Days before the 1st of Muharram in that month belong to 1447 —
       // walking the month must not miss or duplicate anything around the
       // year boundary.
       expect(
-        HijriDate.fromGregorian(
-          newYear.subtract(const Duration(days: 1)),
-        ).year,
+        HijriDate.fromGregorian(newYear.subtract(const Duration(days: 1))).year,
         1447,
       );
     });
@@ -116,14 +140,13 @@ void main() {
 
     test('a month with no events returns an empty list', () {
       // The month after Eid al-Fitr 1447 covers late Shawwal and early
-      // Dhul-Qadah, neither of which carries an event.
+      // Dhul-Qa'dah, neither of which carries an event.
       final eid = const HijriDate(1447, 10, 1).toGregorian();
       final events = IslamicDates.inGregorianMonth(eid.year, eid.month + 1);
       expect(events, isEmpty);
     });
 
-    test('every event of hijri year 1447 is found in some Gregorian month',
-        () {
+    test('every event of hijri year 1447 is found in some Gregorian month', () {
       final found = <IslamicDay>{};
       for (final entry in IslamicDates.all) {
         final g = HijriDate(1447, entry.month, entry.hijriDay).toGregorian();

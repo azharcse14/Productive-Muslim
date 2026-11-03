@@ -519,7 +519,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forbiddenTimesSubtitle =>
-      'Avoid voluntary prayers in these windows. A missed fard (e.g. today\'s Asr) may still be prayed.';
+      'No nafl prayers in these windows. Making up a missed fard then: not valid in the Hanafi madhab (though that day\'s own Asr may still be prayed before sunset); permitted by the other madhabs.';
 
   @override
   String get naflTimesSubtitle => 'Best times for voluntary (nafl) prayers.';
@@ -552,7 +552,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get specialDetailIshraq =>
-      'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah.';
+      'Two rak\'ahs offered shortly after the sun has fully risen. Whoever prays Fajr in congregation, sits in dhikr until sunrise, then prays two rak\'ahs earns the reward of a complete Hajj and Umrah (Tirmidhi 586 — graded hasan by al-Albani; some scholars grade it weak).';
 
   @override
   String get specialDetailDuha =>
@@ -669,15 +669,15 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.selectLogic(month, {
       'm1': 'Muharram',
       'm2': 'Safar',
-      'm3': 'Rabi al-Awwal',
-      'm4': 'Rabi al-Thani',
+      'm3': 'Rabi\' al-Awwal',
+      'm4': 'Rabi\' al-Thani',
       'm5': 'Jumada al-Ula',
       'm6': 'Jumada al-Akhirah',
       'm7': 'Rajab',
-      'm8': 'Shaban',
+      'm8': 'Sha\'ban',
       'm9': 'Ramadan',
       'm10': 'Shawwal',
-      'm11': 'Dhul-Qadah',
+      'm11': 'Dhul-Qa\'dah',
       'm12': 'Dhul-Hijjah',
       'other': '—',
     });
@@ -1712,7 +1712,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'arafah':
           'Fasting the Day of Arafah expiates the past and the coming year. (Muslim)',
       'dhulHijjah':
-          'No good deeds are more beloved to Allah than those done in these ten days. (Bukhari)',
+          'There are no days in which righteous deeds are more beloved to Allah than these ten (Bukhari 969, Abu Dawud 2438, Tirmidhi 757) — fasting is one such deed. Aisha never saw the Prophet ﷺ fast these days (Muslim 1176); another of his wives reported that he fasted the first nine (Abu Dawud 2437).',
       'shawwal':
           'Fasting Ramadan then six days of Shawwal is like fasting the entire year. (Muslim)',
       'other': '',
@@ -2068,7 +2068,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get zakatNeedSilverPrice =>
-      'Enter today\'s silver price — the nisab is based on silver unless gold is your only asset.';
+      'Enter today\'s silver price — unless gold is your only asset, this calculator uses the silver nisab, the lower threshold (Hanafi and others). Some scholars use the gold nisab for cash.';
 
   @override
   String get zakatInvalidNumber => 'Enter a valid number';
@@ -2092,7 +2092,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String zakatNisabSilver(String grams) {
-    return 'Silver nisab ($grams g)';
+    return 'Silver nisab ($grams g) — the lower threshold (Hanafi and others); some scholars use gold for cash';
   }
 
   @override
@@ -2141,10 +2141,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'hijriNewYear': 'Hijri New Year',
       'ashura': 'Ashura',
       'mawlid': 'Mawlid',
-      'israMiraj': 'Isra & Miraj',
-      'nisfShaban': 'Mid-Shaban',
+      'israMiraj': 'Night of Isra & Mi\'raj',
+      'nisfShaban': 'Night of mid-Sha\'ban',
       'ramadanStart': 'Ramadan begins',
-      'laylatulQadr': 'Night of the 27th (Laylatul Qadr)',
+      'laylatulQadr': '27th night — often sought as Laylatul Qadr',
       'eidAlFitr': 'Eid al-Fitr',
       'arafah': 'Day of Arafah',
       'eidAlAdha': 'Eid al-Adha',
@@ -3893,4 +3893,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get muhasabaRangeChange => 'Change date range';
+
+  @override
+  String get calendarNightBeginsAtSunset =>
+      'This night begins at sunset on this date.';
+
+  @override
+  String get calendarObservanceDiffers =>
+      'Scholars differ on this date and on marking it with special worship.';
+
+  @override
+  String get rakaatHanafiNote =>
+      'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.';
 }
