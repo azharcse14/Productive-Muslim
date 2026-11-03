@@ -1684,5 +1684,14 @@
   },
   "expenseFilterHint": "show only this category",
   "expenseFilterClearHint": "show all categories",
-  "healthWeightLogPast": "Log another day"
+  "healthWeightLogPast": "Log another day",
+  "muhasabaRangeCustom": "Custom",
+  "muhasabaRangeSpan": "{start} – {end}",
+  "@muhasabaRangeSpan": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "muhasabaRangeChange": "Change date range"
 }

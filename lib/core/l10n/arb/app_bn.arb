@@ -1032,5 +1032,8 @@
   "durationHoursMinutes": "{hours} ঘণ্টা {minutes} মিনিট",
   "expenseFilterHint": "শুধু এই ক্যাটাগরি দেখান",
   "expenseFilterClearHint": "সব ক্যাটাগরি দেখান",
-  "healthWeightLogPast": "অন্য দিনের ওজন লিখুন"
+  "healthWeightLogPast": "অন্য দিনের ওজন লিখুন",
+  "muhasabaRangeCustom": "কাস্টম",
+  "muhasabaRangeSpan": "{start} – {end}",
+  "muhasabaRangeChange": "তারিখের পরিসর বদলান"
 }

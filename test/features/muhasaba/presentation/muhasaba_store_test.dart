@@ -159,6 +159,34 @@ void main() {
       expect(store.stats.value!.completion, greaterThan(0));
     });
 
+    test('a custom range is used as picked, never past today', () async {
+      final (store, _) = await makeMuhasabaStore(now: _fixedNow);
+      final today = store.today;
+      await store.setCustomRange(
+        DateTime(today.year, today.month, today.day - 20),
+        DateTime(today.year, today.month, today.day - 11, 15),
+      );
+      expect(store.period.value, MuhasabaPeriod.custom);
+      expect(store.range, (
+        DateTime(today.year, today.month, today.day - 20),
+        DateTime(today.year, today.month, today.day - 11),
+      ));
+      expect(store.stats.value!.days.length, 10);
+
+      // A future end (e.g. the clock moved back) is cut at today.
+      await store.setCustomRange(
+        DateTime(today.year, today.month, today.day - 2),
+        DateTime(today.year, today.month, today.day + 5),
+      );
+      expect(store.range.$2, today);
+      expect(store.stats.value!.days.length, 3);
+      await store.setCustomRange(
+        DateTime(today.year, today.month, today.day + 1),
+        DateTime(today.year, today.month, today.day + 3),
+      );
+      expect(store.range, (today, today));
+    });
+
     test('setValue bursts recompute stats once, after the debounce', () async {
       final (store, repo) = await makeMuhasabaStore(
         now: _fixedNow,

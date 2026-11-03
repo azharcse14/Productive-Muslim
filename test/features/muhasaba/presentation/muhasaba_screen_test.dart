@@ -378,6 +378,43 @@ void main() {
       expect(find.text('1 day streak'), findsOneWidget);
     });
 
+    testWidgets('Custom opens a range picker capped at today; a pick applies', (
+      tester,
+    ) async {
+      final fixed = MuhasabaStore(
+        InMemoryMuhasabaRepository(),
+        now: () => DateTime(2026, 6, 20, 9),
+        statsDebounce: Duration.zero,
+      );
+      await fixed.load();
+      await fixed.setValue('salah_fajr', 1);
+      GetIt.I.unregister<MuhasabaStore>();
+      GetIt.I.registerSingleton<MuhasabaStore>(fixed);
+
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Dashboard'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Custom'));
+      await tester.pumpAndSettle();
+      final picker = tester.widget<DateRangePickerDialog>(
+        find.byType(DateRangePickerDialog),
+      );
+      expect(picker.lastDate, DateTime(2026, 6, 20));
+
+      // Type the range (input mode) rather than scroll the calendar.
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).at(0), '06/01/2026');
+      await tester.enterText(find.byType(TextField).at(1), '06/10/2026');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(fixed.period.value, MuhasabaPeriod.custom);
+      expect(fixed.range, (DateTime(2026, 6), DateTime(2026, 6, 10)));
+      expect(fixed.stats.value!.days.length, 10);
+      expect(find.text('Jun 1, 2026 – Jun 10, 2026'), findsOneWidget);
+    });
+
     testWidgets('achievements card is hidden by default, shown when enabled', (
       tester,
     ) async {

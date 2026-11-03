@@ -653,11 +653,26 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             l10n.periodWeek,
             l10n.periodMonth,
             l10n.periodYear,
+            l10n.muhasabaRangeCustom,
           ],
           activeIndex: _store.period.value.index,
-          onChanged: (i) =>
-              unawaited(_store.setPeriod(MuhasabaPeriod.values[i])),
+          // Custom (re-)opens the picker; the period changes only on a pick.
+          onChanged: (i) => MuhasabaPeriod.values[i] == MuhasabaPeriod.custom
+              ? unawaited(_pickRange(context))
+              : unawaited(_store.setPeriod(MuhasabaPeriod.values[i])),
         ),
+        if (_store.period.value == MuhasabaPeriod.custom)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Tooltip(
+              message: l10n.muhasabaRangeChange,
+              child: TextButton.icon(
+                onPressed: () => unawaited(_pickRange(context)),
+                icon: const Icon(Icons.date_range_outlined, size: 18),
+                label: Text(_rangeLabel(context)),
+              ),
+            ),
+          ),
         const SizedBox(height: QSpace.s4),
         if (stats == null)
           for (final h in const [140.0, 64.0, 120.0]) ...[
@@ -702,6 +717,35 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
         ],
       ],
     );
+  }
+
+  String _rangeLabel(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final format = DateFormat.yMMMd(locale.toString());
+    final (start, end) = _store.range;
+    return LocaleDigits.localize(
+      context.l10n.muhasabaRangeSpan(format.format(start), format.format(end)),
+      locale.languageCode,
+    );
+  }
+
+  Future<void> _pickRange(BuildContext context) async {
+    // The store's clock (location wall time), not the device's; the range
+    // can't reach past today.
+    final today = _store.today;
+    final (start, end) = _store.range;
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(today.year - 5),
+      lastDate: today,
+      initialDateRange: _store.customRange.value == null
+          ? null
+          : DateTimeRange(start: start, end: end),
+      helpText: context.l10n.muhasabaRangeChange,
+    );
+    if (picked != null) {
+      await _store.setCustomRange(picked.start, picked.end);
+    }
   }
 
   Widget _headerCard(BuildContext context, PeriodStats stats) {
@@ -811,8 +855,11 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       return i >= 0 && i < days.length ? days[i] : null;
     }
 
-    // The range ends today, so the last cell is today's.
-    final todayIndex = leading + days.length - 1;
+    // Today is the last cell when the range reaches it (a custom range
+    // may end earlier: no highlight then).
+    final todayIndex = days.isNotEmpty && days.last.date == _store.today
+        ? leading + days.length - 1
+        : null;
     final complete = days.where((d) => d.completion >= 1).length;
     return QCard(
       child: Column(
@@ -823,7 +870,9 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             reverse: true,
             child: QHeatmap(
               weeks: _heatmapWeeks(days),
-              highlight: (todayIndex ~/ 7, todayIndex % 7),
+              highlight: todayIndex == null
+                  ? null
+                  : (todayIndex ~/ 7, todayIndex % 7),
               semanticLabel: l10n.heatmapDaysComplete(complete, days.length),
               cellLabel: (w, d) {
                 final day = dayAt(w, d);

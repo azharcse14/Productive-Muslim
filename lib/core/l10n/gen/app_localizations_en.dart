@@ -3695,4 +3695,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get healthWeightLogPast => 'Log another day';
+
+  @override
+  String get muhasabaRangeCustom => 'Custom';
+
+  @override
+  String muhasabaRangeSpan(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get muhasabaRangeChange => 'Change date range';
 }
