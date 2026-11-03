@@ -65,6 +65,13 @@ void main() {
       expect(names.first['tr'], 'Ar-Rahman');
       expect(names.last['tr'], 'As-Sabur');
     });
+
+    test('tr, en and bn are unique so no quiz question is ambiguous', () {
+      for (final field in <String>['tr', 'en', 'bn']) {
+        final values = names.map((n) => (n[field]! as String).toLowerCase());
+        expect(values.toSet(), hasLength(names.length), reason: 'duplicate $field');
+      }
+    });
   });
 
   group('duas.json', () {

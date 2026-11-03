@@ -79,6 +79,22 @@ void main() {
         );
       }
     });
+
+    test('outside the two Sahihs, every grade is al-Albani\'s and named', () {
+      final albani = RegExp(r'\b(Sahih|Hasan) per al-Albani\b');
+      for (final h in hadith) {
+        final ref = h['ref']! as String;
+        if (ref.startsWith('Sahih Bukhari ') ||
+            ref.startsWith('Sahih Muslim ')) {
+          continue;
+        }
+        expect(
+          albani.firstMatch(ref)?.group(1),
+          h['grade'],
+          reason: '"${h['id']}" ref must name al-Albani\'s grade: $ref',
+        );
+      }
+    });
   });
 
   group('hadith_books.json catalog', () {
