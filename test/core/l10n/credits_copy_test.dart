@@ -75,6 +75,7 @@ void main() {
           jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
       for (final key in [
         'creditsAsmaulHusnaSource',
+        'asmaSourceListNote',
         'creditsTibbNabawiSource',
         'creditsBnHadithNawawiMalik',
         'creditsUnlicense',

@@ -9,6 +9,10 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String get asmaSourceListNote =>
+      'এখানে দেখানো ৯৯টি নাম জামে তিরমিজি ৩৫০৭-এর বর্ণনা থেকে নেওয়া বহুল প্রচলিত তালিকা (ওই বর্ণনায় আল-আহাদ নেই; সেখানে আল-ওয়াহিদের পরে আস-সামাদ)। আল-আলবানি ও অন্যরা এই বর্ণনাকে দুর্বল (যঈফ) বলেছেন, আর অনেক আলেমের মতে নামের তালিকাটি কোনো বর্ণনাকারীর সংযোজন। তবে আল্লাহর নিরানব্বইটি নাম আছে — এই হাদিসটি (সহিহ বুখারি ২৭৩৬) নিজে সহিহ।';
+
+  @override
   String get routeNotFound => 'এই পাতাটি পাওয়া যাচ্ছে না।';
 
   @override

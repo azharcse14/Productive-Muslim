@@ -70,8 +70,9 @@ abstract final class AsmaQuizGenerator {
     required _Lcg rng,
   }) {
     // Draw distractors from every other name, deterministically. Skip any
-    // whose shown text repeats one already on screen (#48 al-Majid and #65
-    // al-Majid share a transliteration): two identical tiles, one "wrong".
+    // whose shown text repeats one already on screen (two identical tiles,
+    // one "wrong") — the bundled list is kept duplicate-free, this guards
+    // other name sets.
     List<String> shown(AsmaName n) => [
       ...mode == AsmaQuizMode.meaningToName
           ? [n.transliteration.toLowerCase()]
