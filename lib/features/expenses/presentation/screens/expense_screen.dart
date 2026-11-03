@@ -499,7 +499,11 @@ final class _CategoryRow extends StatelessWidget {
     final isGoal = category == ExpenseCategory.sadaqah;
     final over = b != null && !isGoal && spent > b;
     return Semantics(
+      button: true,
       selected: selected,
+      onTapHint: selected
+          ? l10n.expenseFilterClearHint
+          : l10n.expenseFilterHint,
       child: InkWell(
         onTap: onTap,
         onLongPress: onEditBudget,
@@ -877,9 +881,26 @@ final class _ExpenseEditorState extends State<_ExpenseEditor> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.existing == null ? l10n.expenseAdd : l10n.expenseEdit,
-                style: QType.title.copyWith(color: q.ink),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.existing == null
+                          ? l10n.expenseAdd
+                          : l10n.expenseEdit,
+                      style: QType.title.copyWith(color: q.ink),
+                    ),
+                  ),
+                  // maybePop: goes through the PopScope discard check.
+                  IconButton(
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).closeButtonTooltip,
+                    icon: const Icon(Icons.close),
+                    onPressed: () =>
+                        unawaited(Navigator.of(context).maybePop()),
+                  ),
+                ],
               ),
               const SizedBox(height: QSpace.s4),
               TextField(

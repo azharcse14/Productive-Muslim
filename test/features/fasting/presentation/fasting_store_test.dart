@@ -225,6 +225,18 @@ void main() {
       expect(s.heatmapDate(4, 2), DateTime(2026, 6, 30));
       expect(s.heatmapDate(4, 3), isNull);
     });
+
+    test('heatmapDate and monthHeatmap take another month', () async {
+      final s = store();
+      await s.load();
+      await s.toggle(DateTime(2026, 5, 6));
+      final may = DateTime(2026, 5);
+      // May 2026 starts on a Friday: five Sunday-first pad cells.
+      expect(s.heatmapDate(0, 4, month: may), isNull);
+      expect(s.heatmapDate(0, 5, month: may), DateTime(2026, 5));
+      expect(s.monthHeatmap(month: may).expand((w) => w), contains(4));
+      expect(s.monthHeatmap().expand((w) => w), isNot(contains(4)));
+    });
   });
 
   group('FastingStore — recommended passthrough', () {

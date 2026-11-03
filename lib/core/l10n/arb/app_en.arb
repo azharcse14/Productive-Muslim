@@ -502,7 +502,7 @@
   "archiveTracker": "Archive",
   "unarchiveTracker": "Restore",
   "trackerSaveFailed": "Couldn't save. Please try again.",
-  "archiveExplain": "Archived items disappear from your daily list, but every past entry is preserved.",
+  "archiveExplain": "Archived items move to the Archived section at the bottom of your list. Every past entry is kept, and you can restore them anytime.",
   "archivedSection": "Archived",
   "dashboardTab": "Dashboard",
   "todayTab": "Today",
@@ -1284,7 +1284,7 @@
   "expenseDeleted": "Expense deleted",
   "expenseUndo": "Undo",
   "expenseSaveFailed": "Couldn't save. Please try again.",
-  "expenseAmountInvalid": "Enter a whole amount",
+  "expenseAmountInvalid": "Enter a whole number above 0, without decimals (e.g. 250)",
   "expenseBudget": "Monthly budget",
   "expenseBudgetClear": "Remove budget",
   "expenseBudgetLeft": "{left} left of {budget}",
@@ -1652,5 +1652,25 @@
     }
   },
   "creditsAsmaulHusnaSource": "Compiled for this app; source of the meanings not recorded",
-  "creditsTibbNabawiSource": "Compiled for this app from Bukhari, Muslim, the Sunan and Qur'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app"
+  "creditsTibbNabawiSource": "Compiled for this app from Bukhari, Muslim, the Sunan and Qur'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app",
+  "fastingPrevMonth": "Previous month",
+  "fastingNextMonth": "Next month",
+  "fastingFutureDay": "You can log this fast once the day has come.",
+  "fastingForbiddenDay": "Fasting isn't permitted on this day (Eid or Tashreeq).",
+  "durationHours": "{hours} h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {"type": "int"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "expenseFilterHint": "show only this category",
+  "expenseFilterClearHint": "show all categories",
+  "healthWeightLogPast": "Log another day"
 }

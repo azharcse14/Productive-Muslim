@@ -1076,7 +1076,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveExplain =>
-      'Archived items disappear from your daily list, but every past entry is preserved.';
+      'Archived items move to the Archived section at the bottom of your list. Every past entry is kept, and you can restore them anytime.';
 
   @override
   String get archivedSection => 'Archived';
@@ -2729,7 +2729,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseSaveFailed => 'Couldn\'t save. Please try again.';
 
   @override
-  String get expenseAmountInvalid => 'Enter a whole amount';
+  String get expenseAmountInvalid =>
+      'Enter a whole number above 0, without decimals (e.g. 250)';
 
   @override
   String get expenseBudget => 'Monthly budget';
@@ -3635,4 +3636,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditsTibbNabawiSource =>
       'Compiled for this app from Bukhari, Muslim, the Sunan and Qur\'an 16:69; Arabic checked against fawazahmed0/hadith-api; translations and notes written for this app';
+
+  @override
+  String get fastingPrevMonth => 'Previous month';
+
+  @override
+  String get fastingNextMonth => 'Next month';
+
+  @override
+  String get fastingFutureDay => 'You can log this fast once the day has come.';
+
+  @override
+  String get fastingForbiddenDay =>
+      'Fasting isn\'t permitted on this day (Eid or Tashreeq).';
+
+  @override
+  String durationHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get expenseFilterHint => 'show only this category';
+
+  @override
+  String get expenseFilterClearHint => 'show all categories';
+
+  @override
+  String get healthWeightLogPast => 'Log another day';
 }
