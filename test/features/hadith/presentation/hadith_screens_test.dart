@@ -33,12 +33,23 @@ Hadith _h(String id, String topic) => Hadith(
 );
 
 final class _FakeHadithRepository implements HadithRepository {
+  Set<String> saved = {};
+
   @override
   Future<Result<List<Hadith>>> all() async => Result.success([
     _h('1', 'faith'),
     _h('2', 'character'),
     _h('3', 'character'),
   ]);
+
+  @override
+  Future<Result<Set<String>>> favoriteIds() async => Result.success(saved);
+
+  @override
+  Future<Result<void>> setFavoriteIds(Set<String> ids) async {
+    saved = ids;
+    return const Result.success(null);
+  }
 }
 
 /// Fails the first load, succeeds after.
@@ -49,6 +60,13 @@ final class _FlakyHadithRepository implements HadithRepository {
   Future<Result<List<Hadith>>> all() async => calls++ == 0
       ? const Result.failure(UnexpectedFailure('broken'))
       : Result.success([_h('1', 'faith')]);
+
+  @override
+  Future<Result<Set<String>>> favoriteIds() async => const Result.success({});
+
+  @override
+  Future<Result<void>> setFavoriteIds(Set<String> ids) async =>
+      const Result.success(null);
 }
 
 const _bukhari = HadithBook(
@@ -193,6 +211,41 @@ void main() {
       expect(find.byType(HadithTopicScreen), findsOneWidget);
       expect(find.text('English 2'), findsOneWidget);
       expect(find.text('Sahih'), findsWidgets);
+    });
+
+    testWidgets('a favorited hadith is listed on the landing screen', (
+      tester,
+    ) async {
+      await _register();
+      await tester.pumpWidget(_app(const HadithScreen()));
+      await tester.pump();
+      expect(find.text('Saved hadith'), findsNothing);
+
+      await tester.tap(find.text('Character & manners'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Add to favorites').first);
+      await tester.pump();
+      expect(find.byTooltip('Remove from favorites'), findsOneWidget);
+      expect(GetIt.I<HadithStore>().favorites.value, {'2'});
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Saved hadith'), findsOneWidget);
+      expect(find.text('English 2'), findsOneWidget);
+    });
+
+    testWidgets('search finds hadith by topic name', (tester) async {
+      await _register();
+      await tester.pumpWidget(_app(const HadithScreen()));
+      await tester.pump();
+
+      await tester.tap(find.byTooltip('Search topics'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'manners');
+      await tester.pumpAndSettle();
+      expect(find.text('English 2'), findsOneWidget);
+      expect(find.text('English 3'), findsOneWidget);
+      expect(find.text('English 1'), findsNothing);
     });
   });
 

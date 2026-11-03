@@ -58,6 +58,9 @@ Future<void> showReaderSettingsSheet(
                               AppConfig.quranFontSizeStep)
                           .round(),
                   label: context.digits('${size.round()}'),
+                  // Announce the size, not the default percentage.
+                  semanticFormatterCallback: (value) =>
+                      context.digits('${value.round()}'),
                   // Persist once on release, not on every tick.
                   onChangeStart: (_) => onFontChangeStart?.call(),
                   onChanged: (value) {

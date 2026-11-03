@@ -1,5 +1,11 @@
 {
   "@@locale": "bn",
+  "quranOpenAyah": "{reference} খুলুন",
+  "tasbihAutoNext": "লক্ষ্য পূর্ণ হলে পরের রাউন্ড শুরু করুন",
+  "favoriteRemoved": "প্রিয় থেকে সরানো হয়েছে",
+  "hadithFavoritesTitle": "সংরক্ষিত হাদিস",
+  "asmaQuizLeaveTitle": "কুইজ ছেড়ে যাবেন?",
+  "asmaQuizLeave": "ছেড়ে যান",
   "appTitle": "প্রোডাক্টিভ মুসলিম",
   "tabHome": "হোম",
   "tabQuran": "কুরআন",
@@ -311,7 +317,7 @@
   "minutesValue": "{count} মিনিট",
   "notYet": "এখনো হয়নি",
   "quranTitle": "কুরআন",
-  "searchSurahHint": "সূরা খুঁজুন…",
+  "searchSurahHint": "ইংরেজি বা আরবি নাম, নম্বর বা ২:২৫৫",
   "surahSearchNoResults": "কোনো সূরা মেলেনি — অন্য নাম বা নম্বর দিয়ে চেষ্টা করুন",
   "continueReading": "পড়া চালিয়ে যান",
   "surahMeta": "{count} আয়াত · {place}",
@@ -811,7 +817,7 @@
       "count": { "type": "int", "format": "decimalPattern" }
     }
   },
-  "hadithSearchHint": "হাদিস খুঁজুন",
+  "hadithSearchHint": "বিষয়ভিত্তিক হাদিস খুঁজুন",
   "hadithNoResults": "কোনো হাদিস পাওয়া যায়নি",
   "ruqyahSearchHint": "রুকইয়াহ খুঁজুন",
   "ruqyahNoResults": "কিছু পাওয়া যায়নি",

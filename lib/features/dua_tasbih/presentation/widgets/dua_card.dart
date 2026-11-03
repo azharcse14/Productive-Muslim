@@ -78,6 +78,22 @@ final class DuaCard extends StatelessWidget {
                             messenger.showSnackBar(
                               SnackBar(content: Text(l10n.saveFailed)),
                             );
+                          } else if (active) {
+                            // An un-heart drops the card from Favorites:
+                            // offer it back.
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.favoriteRemoved),
+                                action: SnackBarAction(
+                                  label: l10n.undo,
+                                  onPressed: () {
+                                    if (!favorites.ids.value.contains(dua.id)) {
+                                      unawaited(favorites.toggle(dua.id));
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
                           }
                         }),
                       );

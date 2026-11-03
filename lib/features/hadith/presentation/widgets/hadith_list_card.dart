@@ -1,21 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/reader/reader_text_size.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../domain/entities/hadith.dart';
+import '../state/hadith_store.dart';
 
 /// A card for one bundled [Hadith]: Arabic, translation, narrator, grade chip
-/// and reference.
+/// and reference — with a favorite heart when [store] is given.
 final class HadithListCard extends StatelessWidget {
-  const HadithListCard({required this.hadith, super.key});
+  const HadithListCard({required this.hadith, this.store, super.key});
 
   final Hadith hadith;
+  final HadithStore? store;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +74,34 @@ final class HadithListCard extends StatelessWidget {
                   style: QType.caption.copyWith(color: q.ink3),
                 ),
               ),
+              if (store case final store?)
+                SignalBuilder(
+                  builder: (context) {
+                    final active = store.favorites.value.contains(hadith.id);
+                    return IconButton(
+                      tooltip: active
+                          ? l10n.favoriteRemoveLabel
+                          : l10n.favoriteAddLabel,
+                      icon: Icon(
+                        active ? Icons.favorite : Icons.favorite_border,
+                        color: active ? q.primary : q.ink3,
+                      ),
+                      onPressed: () {
+                        Haptics.selection();
+                        final messenger = ScaffoldMessenger.of(context);
+                        unawaited(
+                          store.toggleFavorite(hadith.id).then((saved) {
+                            if (!saved) {
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(l10n.saveFailed)),
+                              );
+                            }
+                          }),
+                        );
+                      },
+                    );
+                  },
+                ),
               QCopyButton(
                 text: [
                   hadith.arabic,

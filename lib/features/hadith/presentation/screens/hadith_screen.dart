@@ -84,13 +84,15 @@ final class _HadithScreenState extends State<HadithScreen> {
                         delegate: QSearchDelegate<Hadith>(
                           items: _store.items.value,
                           fields: (h) => [
+                            l10n.hadithTopicName(h.topic),
                             h.arabic,
                             h.en,
                             h.bn,
                             h.narrator,
                             h.reference,
                           ],
-                          itemBuilder: (_, h) => HadithListCard(hadith: h),
+                          itemBuilder: (_, h) =>
+                              HadithListCard(hadith: h, store: _store),
                           emptyText: l10n.hadithNoResults,
                           hint: l10n.hadithSearchHint,
                         ),
@@ -104,6 +106,10 @@ final class _HadithScreenState extends State<HadithScreen> {
         child: SignalBuilder(
           builder: (context) {
             final topics = _store.topics.value;
+            final favorites = [
+              for (final h in _store.items.value)
+                if (_store.favorites.value.contains(h.id)) h,
+            ];
             return ListView(
               padding: const EdgeInsets.fromLTRB(
                 QSpace.s5,
@@ -116,6 +122,22 @@ final class _HadithScreenState extends State<HadithScreen> {
                   onTap: () => _push(const HadithBooksScreen()),
                 ),
                 const SizedBox(height: QSpace.s4),
+                if (favorites.isNotEmpty) ...[
+                  Text(
+                    l10n.hadithFavoritesTitle,
+                    style: QType.titleSm.copyWith(color: context.q.ink),
+                  ),
+                  const SizedBox(height: QSpace.s3),
+                  for (final h in favorites) ...[
+                    HadithListCard(
+                      key: ValueKey(h.id),
+                      hadith: h,
+                      store: _store,
+                    ),
+                    const SizedBox(height: QSpace.s3),
+                  ],
+                  const SizedBox(height: QSpace.s1),
+                ],
                 if (_store.failed.value && topics.isEmpty)
                   QErrorRetry(
                     message: l10n.hadithTopicsLoadError,

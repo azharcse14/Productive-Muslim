@@ -10,6 +10,26 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
+  String quranOpenAyah(String reference) {
+    return '$reference খুলুন';
+  }
+
+  @override
+  String get tasbihAutoNext => 'লক্ষ্য পূর্ণ হলে পরের রাউন্ড শুরু করুন';
+
+  @override
+  String get favoriteRemoved => 'প্রিয় থেকে সরানো হয়েছে';
+
+  @override
+  String get hadithFavoritesTitle => 'সংরক্ষিত হাদিস';
+
+  @override
+  String get asmaQuizLeaveTitle => 'কুইজ ছেড়ে যাবেন?';
+
+  @override
+  String get asmaQuizLeave => 'ছেড়ে যান';
+
+  @override
   String get appTitle => 'প্রোডাক্টিভ মুসলিম';
 
   @override
@@ -1193,7 +1213,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quranTitle => 'কুরআন';
 
   @override
-  String get searchSurahHint => 'সূরা খুঁজুন…';
+  String get searchSurahHint => 'ইংরেজি বা আরবি নাম, নম্বর বা ২:২৫৫';
 
   @override
   String get surahSearchNoResults =>
@@ -2819,7 +2839,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get hadithSearchHint => 'হাদিস খুঁজুন';
+  String get hadithSearchHint => 'বিষয়ভিত্তিক হাদিস খুঁজুন';
 
   @override
   String get hadithNoResults => 'কোনো হাদিস পাওয়া যায়নি';

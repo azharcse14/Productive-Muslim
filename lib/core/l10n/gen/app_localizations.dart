@@ -98,6 +98,42 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
+  /// No description provided for @quranOpenAyah.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {reference}'**
+  String quranOpenAyah(String reference);
+
+  /// No description provided for @tasbihAutoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the next round at the target'**
+  String get tasbihAutoNext;
+
+  /// No description provided for @favoriteRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get favoriteRemoved;
+
+  /// No description provided for @hadithFavoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved hadith'**
+  String get hadithFavoritesTitle;
+
+  /// No description provided for @asmaQuizLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the quiz?'**
+  String get asmaQuizLeaveTitle;
+
+  /// No description provided for @asmaQuizLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get asmaQuizLeave;
+
   /// The application name shown in the launcher and app bars
   ///
   /// In en, this message translates to:
@@ -1967,7 +2003,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchSurahHint.
   ///
   /// In en, this message translates to:
-  /// **'Search surah…'**
+  /// **'Surah name, number or 2:255'**
   String get searchSurahHint;
 
   /// No description provided for @surahSearchNoResults.
@@ -4181,7 +4217,7 @@ abstract class AppLocalizations {
   /// No description provided for @hadithSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search hadith'**
+  /// **'Search topics'**
   String get hadithSearchHint;
 
   /// No description provided for @hadithNoResults.
