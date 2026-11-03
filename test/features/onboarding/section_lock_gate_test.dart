@@ -147,6 +147,56 @@ void main() {
     expect(find.text('Muhasaba is locked'), findsOneWidget);
   });
 
+  testWidgets('a sheet left open on a hidden tab is gone after re-lock', (
+    tester,
+  ) async {
+    // The gate in its own (branch) navigator; TickerMode stands in for the
+    // shell hiding an inactive tab.
+    final visible = ValueNotifier(true);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ValueListenableBuilder<bool>(
+          valueListenable: visible,
+          builder: (_, on, child) => TickerMode(enabled: on, child: child!),
+          child: Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute<void>(
+              builder: (_) => SectionLockGate(
+                lock: store,
+                child: Builder(
+                  builder: (context) => Scaffold(
+                    body: TextButton(
+                      onPressed: () => showModalBottomSheet<void>(
+                        context: context,
+                        builder: (_) => const Text('editing a tracker'),
+                      ),
+                      child: const Text('edit'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await unlock(tester);
+    await tester.tap(find.text('edit'));
+    await tester.pumpAndSettle();
+    expect(find.text('editing a tracker'), findsOneWidget);
+
+    visible.value = false; // switched to another tab
+    await tester.pump();
+    relock();
+    await tester.pumpAndSettle();
+    visible.value = true; // back to Muhasaba
+    await tester.pumpAndSettle();
+    expect(find.text('editing a tracker'), findsNothing);
+    expect(find.text('Muhasaba is locked'), findsOneWidget);
+  });
+
   testWidgets('whole-app scope never shows the section gate', (tester) async {
     await store.unlockWithPin('1234');
     await store.setScope(LockScope.app);

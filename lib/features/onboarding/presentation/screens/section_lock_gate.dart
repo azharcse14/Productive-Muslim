@@ -27,7 +27,19 @@ final class SectionLockGate extends StatefulWidget {
 
 final class _SectionLockGateState extends State<SectionLockGate> {
   late bool _wasLocked = widget.lock.muhasabaLocked;
+  var _wasVisible = false;
   var _unlocking = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Coming back to a locked page (tab switch): close what's left on top.
+    final visible = TickerMode.valuesOf(context).enabled;
+    if (visible && !_wasVisible && widget.lock.muhasabaLocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _closeAbove());
+    }
+    _wasVisible = visible;
+  }
 
   Future<void> _unlock() async {
     if (_unlocking) {
@@ -46,23 +58,21 @@ final class _SectionLockGateState extends State<SectionLockGate> {
     }
   }
 
-  /// Pops everything above this page — only when its navigator is the
-  /// one showing (not a hidden tab's), so a re-lock never closes another
-  /// tab's pages or dialogs.
+  /// Pops everything above this page in its own navigator (its tab's
+  /// stack, hidden or not: sheets opened there stay editable otherwise).
+  /// Root dialogs only while that navigator is showing, so a re-lock never
+  /// closes another tab's.
   void _closeAbove() {
     if (!mounted) {
       return;
     }
     final navigator = Navigator.of(context);
-    if (!TickerMode.valuesOf(navigator.context).enabled) {
-      return;
-    }
     final route = ModalRoute.of(context);
     navigator.popUntil((r) => r == route || r.isFirst);
-    Navigator.of(
-      context,
-      rootNavigator: true,
-    ).popUntil((r) => r is! PopupRoute);
+    final root = Navigator.of(context, rootNavigator: true);
+    if (root != navigator && TickerMode.valuesOf(navigator.context).enabled) {
+      root.popUntil((r) => r is! PopupRoute);
+    }
   }
 
   @override

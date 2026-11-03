@@ -554,6 +554,7 @@ final class _HomeScreenState extends State<HomeScreen> {
             // A waqt already prayed has nothing left to rush.
             prayed:
                 target.kind != CountdownKind.waqtStart &&
+                !(widget.sectionLock?.muhasabaLocked ?? false) &&
                 _isPrayed(target.prayer),
             forbidden: forbidden,
             instantOf: _store.instantOf.value,

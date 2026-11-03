@@ -384,7 +384,10 @@ Future<void> setupLocator() async {
     () => ExpenseStore(
       SharedPreferencesAsync(),
       now: _wallNow,
-      onSadaqah: (date) => locator<MuhasabaStore>().markDoneOn('sadaqah', date),
+      // Not behind the lock (as "Mark as prayed").
+      onSadaqah: (date) async => locator<AppLockStore>().lockedNow
+          ? null
+          : await locator<MuhasabaStore>().markDoneOn('sadaqah', date),
     ),
   );
 
