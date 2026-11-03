@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/bangla_date.dart';
+import 'package:productive_muslim/core/utils/locale_digits.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -134,5 +136,53 @@ void main() {
     tester,
   ) async {
     expect(await leadingCells(tester, DateTime.monday), 6);
+  });
+
+  /// Texts inside the cell for [day] of November 2026.
+  List<String> cellTexts(WidgetTester tester, int day) => tester
+      .widgetList<Text>(
+        find.descendant(
+          of: find.byKey(ValueKey('calendar-day-$day')),
+          matching: find.byType(Text),
+        ),
+      )
+      .map((t) => t.data!)
+      .toList();
+
+  Future<void> pumpAt(WidgetTester tester, Locale locale) async {
+    tester.view
+      ..physicalSize = const Size(360, 780)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const CalendarScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('bn: cells add the Bangla day in Bangla digits, no overflow '
+      'at 360dp and 1.3x text', (tester) async {
+    await pumpAt(tester, const Locale('bn'));
+    expect(tester.takeException(), isNull);
+    for (var day = 1; day <= 30; day++) {
+      final bangla = BanglaDate.fromGregorian(DateTime(2026, 11, day)).day;
+      final texts = cellTexts(tester, day);
+      expect(texts, hasLength(3));
+      expect(texts.last, LocaleDigits.localize('$bangla', 'bn'));
+    }
+  });
+
+  testWidgets('en: cells show no Bangla day', (tester) async {
+    await pumpAt(tester, const Locale('en'));
+    expect(tester.takeException(), isNull);
+    expect(cellTexts(tester, 1), hasLength(2));
   });
 }

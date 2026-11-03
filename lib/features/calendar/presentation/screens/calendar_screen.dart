@@ -355,10 +355,15 @@ final class _DayCell extends StatelessWidget {
     final event = IslamicDates.of(hijri);
     final hasEvent = event != null;
     final oddNightEve = IslamicDates.isOddNightEve(hijri);
+    // Bangla-calendar day, only in the Bangla locale (design §13).
+    final bangla = language == 'bn' ? BanglaDate.fromGregorian(date) : null;
     final label = LocaleDigits.localize(
       [
         DateFormat.yMMMMEEEEd(locale.toString()).format(date),
         '${hijri.day} ${l10n.hijriMonthName('m${hijri.month}')} ${hijri.year}',
+        if (bangla != null)
+          '${bangla.day} ${l10n.banglaMonthName('m${bangla.month}')} '
+              '${bangla.year}',
         if (event != null) l10n.islamicDayName(event.name),
         if (oddNightEve && event == null)
           l10n.oddNightBegins('${hijri.day + 1}'),
@@ -392,6 +397,15 @@ final class _DayCell extends StatelessWidget {
                 LocaleDigits.localize('${hijri.day}', language),
                 style: QType.caption.copyWith(color: q.ink3),
               ),
+              if (bangla != null)
+                Text(
+                  LocaleDigits.localize('${bangla.day}', language),
+                  style: QType.caption.copyWith(
+                    fontSize: 9.5,
+                    height: 1.2,
+                    color: q.ink3,
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: hasEvent
