@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1712,12 +1711,16 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String fastingKindNote(String id) {
     String _temp0 = intl.Intl.selectLogic(id, {
-      'mondayThursday': 'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
-      'whiteDays': 'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
-      'ashura': 'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
+      'mondayThursday':
+          'সোম ও বৃহস্পতিবার আল্লাহর কাছে আমল পেশ করা হয়, আর নবীজি ﷺ তখন রোজা রাখা পছন্দ করতেন। (তিরমিজি)',
+      'whiteDays':
+          'প্রতি হিজরি মাসের ১৩, ১৪ ও ১৫ তারিখে রোজা রাখা সারা বছর রোজা রাখার সমান। (নাসায়ি)',
+      'ashura':
+          'আশুরার রোজা বিগত এক বছরের গুনাহের কাফফারা; সাথে ৯ তারিখেও রাখুন। (মুসলিম)',
       'arafah':
           'আরাফার দিনের রোজা বিগত ও আগামী বছরের গুনাহের কাফফারা। (মুসলিম)',
-      'dhulHijjah': 'এমন কোনো দিন নেই যেদিনের নেক আমল আল্লাহর কাছে এই দশ দিনের আমলের চেয়ে বেশি প্রিয় (বুখারি ৯৬৯, আবু দাউদ ২৪৩৮, তিরমিজি ৭৫৭) — রোজাও এমন একটি আমল। আয়েশা (রা.) নবীজি ﷺ-কে এই দিনগুলোতে রোজা রাখতে দেখেননি (মুসলিম ১১৭৬); তাঁর আরেক স্ত্রী বর্ণনা করেছেন যে তিনি প্রথম নয় দিন রোজা রাখতেন (আবু দাউদ ২৪৩৭)।',
+      'dhulHijjah':
+          'এমন কোনো দিন নেই যেদিনের নেক আমল আল্লাহর কাছে এই দশ দিনের আমলের চেয়ে বেশি প্রিয় (বুখারি ৯৬৯, আবু দাউদ ২৪৩৮, তিরমিজি ৭৫৭) — রোজাও এমন একটি আমল। আয়েশা (রা.) নবীজি ﷺ-কে এই দিনগুলোতে রোজা রাখতে দেখেননি (মুসলিম ১১৭৬); তাঁর আরেক স্ত্রী বর্ণনা করেছেন যে তিনি প্রথম নয় দিন রোজা রাখতেন (আবু দাউদ ২৪৩৭)।',
       'shawwal':
           'রমজানের পর শাওয়ালের ছয় রোজা সারা বছর রোজা রাখার সমান। (মুসলিম)',
       'other': '',
@@ -3940,4 +3943,32 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsProphetsSource =>
       'এই অ্যাপের জন্য কুরআন ও হাদিস থেকে লেখা; রেফারেন্সগুলো অ্যাপের কুরআন ও হাদিসের পাঠের সাথে মিলিয়ে দেখা। এখনো কোনো আলেম পর্যালোচনা করেননি';
+
+  @override
+  String get storiesTitle => 'গল্প';
+
+  @override
+  String get storiesTabQuran => 'কুরআন';
+
+  @override
+  String get storiesTabHadith => 'হাদিস';
+
+  @override
+  String get quranStoriesTitle => 'কুরআনের গল্প';
+
+  @override
+  String get hadithStoriesTitle => 'হাদিসের গল্প';
+
+  @override
+  String get storiesLoadError => 'গল্পগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get storiesEmpty => 'এখনো কোনো গল্প নেই।';
+
+  @override
+  String get storyReferences => 'সূত্র';
+
+  @override
+  String get creditsStoriesSource =>
+      'কুরআন ও হাদিসের গল্প এই অ্যাপের জন্য নতুন করে লেখা, প্রতিটি গল্পে কুরআনের আয়াত ও হাদিস নম্বর উল্লেখ করা; আলেমের পর্যালোচনা বাকি';
 }

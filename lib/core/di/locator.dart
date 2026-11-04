@@ -72,6 +72,9 @@ import '../../features/prayer_times/domain/repositories/prayer_day_repository.da
 import '../../features/prayer_times/domain/usecases/get_prayer_day.dart';
 import '../../features/prayer_times/domain/usecases/locked_prayers.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
+import '../../features/prophets/data/prophet_repository_impl.dart';
+import '../../features/prophets/domain/repositories/prophet_repository.dart';
+import '../../features/prophets/presentation/state/prophets_store.dart';
 import '../../features/qibla/data/datasources/sensor_data_source.dart';
 import '../../features/qibla/domain/repositories/compass_sensor_source.dart';
 import '../../features/qibla/presentation/state/qibla_store.dart';
@@ -82,9 +85,6 @@ import '../../features/quran/presentation/state/quran_store.dart';
 import '../../features/ramadan/data/datasources/eid_announcement_local_data_source.dart';
 import '../../features/ramadan/domain/repositories/fast_log.dart';
 import '../../features/ramadan/presentation/state/eid_announcement_store.dart';
-import '../../features/prophets/data/prophet_repository_impl.dart';
-import '../../features/prophets/domain/repositories/prophet_repository.dart';
-import '../../features/prophets/presentation/state/prophets_store.dart';
 import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
 import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
 import '../../features/ruqyah/domain/repositories/ruqyah_repository.dart';
@@ -108,6 +108,10 @@ import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/share/data/platform_share_sheet.dart';
 import '../../features/share/domain/share_sheet.dart';
+import '../../features/stories/data/story_asset_data_source.dart';
+import '../../features/stories/data/story_repository_impl.dart';
+import '../../features/stories/domain/repositories/story_repository.dart';
+import '../../features/stories/presentation/state/stories_store.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../settings/settings_store.dart';
@@ -377,6 +381,13 @@ Future<void> setupLocator() async {
       () => ProphetRepositoryImpl(rootBundle),
     )
     ..registerLazySingleton(() => ProphetsStore(locator()));
+  // ---- stories (Quran + hadith) ----
+  locator
+    ..registerLazySingleton(() => StoryAssetDataSource(rootBundle))
+    ..registerLazySingleton<StoryRepository>(
+      () => StoryRepositoryImpl(locator()),
+    )
+    ..registerFactory(() => StoriesStore(locator()));
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(

@@ -5923,6 +5923,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar'**
   String get creditsProphetsSource;
+
+  /// No description provided for @storiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get storiesTitle;
+
+  /// No description provided for @storiesTabQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get storiesTabQuran;
+
+  /// No description provided for @storiesTabHadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith'**
+  String get storiesTabHadith;
+
+  /// No description provided for @quranStoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran stories'**
+  String get quranStoriesTitle;
+
+  /// No description provided for @hadithStoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith stories'**
+  String get hadithStoriesTitle;
+
+  /// No description provided for @storiesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the stories. Please try again.'**
+  String get storiesLoadError;
+
+  /// No description provided for @storiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stories yet.'**
+  String get storiesEmpty;
+
+  /// No description provided for @storyReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'References'**
+  String get storyReferences;
+
+  /// No description provided for @creditsStoriesSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran and hadith stories retold for this app, with the Quran ayahs and hadith numbers cited per story; pending review by a scholar'**
+  String get creditsStoriesSource;
 }
 
 class _AppLocalizationsDelegate

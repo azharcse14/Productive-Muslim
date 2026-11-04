@@ -43,13 +43,13 @@ import '../../features/prayer_times/domain/entities/special_time.dart';
 import '../../features/prayer_times/presentation/screens/home_screen.dart';
 import '../../features/prayer_times/presentation/screens/special_times_screen.dart';
 import '../../features/prayer_times/presentation/state/home_store.dart';
+import '../../features/prophets/presentation/screens/prophet_screen.dart';
+import '../../features/prophets/presentation/screens/prophets_screen.dart';
 import '../../features/qibla/presentation/screens/qibla_screen.dart';
 import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/ramadan/presentation/screens/zakat_screen.dart';
-import '../../features/prophets/presentation/screens/prophet_screen.dart';
-import '../../features/prophets/presentation/screens/prophets_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_screen.dart';
 import '../../features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
@@ -57,6 +57,9 @@ import '../../features/settings/presentation/screens/credits_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/stories/domain/entities/story.dart';
+import '../../features/stories/presentation/screens/stories_screen.dart';
+import '../../features/stories/presentation/screens/story_screen.dart';
 import '../../shared/gallery/widget_gallery_screen.dart';
 import '../../shared/widgets/q_bottom_nav.dart';
 import '../di/locator.dart';
@@ -390,6 +393,16 @@ GoRouter buildRouter() {
         ),
       ),
       GoRoute(
+        name: Routes.stories.name,
+        path: Routes.stories.path,
+        builder: (context, state) => StoriesScreen(
+          initialKind:
+              StoryKind.values.asNameMap()[state.uri.queryParameters['kind']] ??
+              StoryKind.quran,
+        ),
+        routes: storiesRoutes(),
+      ),
+      GoRoute(
         name: Routes.tibbNabawi.name,
         path: Routes.tibbNabawi.path,
         builder: (context, state) => const TibbNabawiScreen(),
@@ -536,6 +549,18 @@ List<RouteBase> ruqyahRoutes() => [
     path: Routes.ruqyahCategory.path,
     builder: (context, state) =>
         RuqyahCategoryScreen(id: state.pathParameters['id']!),
+  ),
+];
+
+/// Story detail, under the stories list.
+List<RouteBase> storiesRoutes() => [
+  GoRoute(
+    name: Routes.story.name,
+    path: Routes.story.path,
+    builder: (context, state) => StoryScreen(
+      kind: StoryKind.values.asNameMap()[state.pathParameters['kind']],
+      id: state.pathParameters['id']!,
+    ),
   ),
 ];
 

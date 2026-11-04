@@ -17,6 +17,7 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../ramadan/domain/usecases/ramadan_utils.dart';
+import '../../../stories/domain/entities/story.dart';
 import '../../domain/repositories/zoned_clock.dart';
 
 /// More tab — every secondary destination, grouped (Worship / Tools / You)
@@ -146,6 +147,19 @@ final class _MoreScreenState extends State<MoreScreen> {
               l10n.hadithSubtitle,
               () => context.pushNamed(Routes.hadith.name),
             ),
+            for (final kind in StoryKind.values)
+              _Entry(
+                Icons.auto_stories_outlined,
+                switch (kind) {
+                  StoryKind.quran => l10n.quranStoriesTitle,
+                  StoryKind.hadith => l10n.hadithStoriesTitle,
+                },
+                null,
+                () => context.pushNamed(
+                  Routes.stories.name,
+                  queryParameters: {'kind': kind.name},
+                ),
+              ),
             _Entry(
               Icons.shield_outlined,
               l10n.ruqyahTitle,

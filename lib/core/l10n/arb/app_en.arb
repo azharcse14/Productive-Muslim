@@ -1806,5 +1806,14 @@
   "prophetSummaryComingSoon": "Summary coming soon.",
   "prophetQuranMentions": "In the Quran",
   "prophetHadithRefs": "In the hadith",
-  "creditsProphetsSource": "Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar"
+  "creditsProphetsSource": "Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar",
+  "storiesTitle": "Stories",
+  "storiesTabQuran": "Quran",
+  "storiesTabHadith": "Hadith",
+  "quranStoriesTitle": "Quran stories",
+  "hadithStoriesTitle": "Hadith stories",
+  "storiesLoadError": "Couldn't load the stories. Please try again.",
+  "storiesEmpty": "No stories yet.",
+  "storyReferences": "References",
+  "creditsStoriesSource": "Quran and hadith stories retold for this app, with the Quran ayahs and hadith numbers cited per story; pending review by a scholar"
 }
