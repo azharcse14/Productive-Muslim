@@ -11,7 +11,9 @@ import '../../../../config/app_config.dart';
 import '../../domain/repositories/app_lock_repository.dart';
 
 /// Outcome of the "Forgot PIN?" device-lock check.
-enum PinResetAuth { verified, failed, noDeviceLock }
+/// [unavailable]: the screen lock can't be used right now (e.g. locked
+/// out after too many tries).
+enum PinResetAuth { verified, failed, noDeviceLock, unavailable }
 
 /// App-lock state: whether the app is locked right now and the
 /// enable/verify flows. The router redirect watches [locked].
@@ -401,9 +403,16 @@ final class AppLockStore implements SectionLockStatus {
     if (!await _biometric.canUseDeviceLock()) {
       return PinResetAuth.noDeviceLock;
     }
-    final ok = await _duringAuth(
-      () => _biometric.authenticateWithDeviceLock(reason),
-    );
+    final bool ok;
+    try {
+      ok = await _duringAuth(
+        () => _biometric.authenticateWithDeviceLock(reason),
+      );
+    } on Object catch (e) {
+      debugPrint('PIN reset auth: $e');
+      pinResetAuthorized.value = false;
+      return PinResetAuth.unavailable;
+    }
     pinResetAuthorized.value = ok;
     return ok ? PinResetAuth.verified : PinResetAuth.failed;
   }

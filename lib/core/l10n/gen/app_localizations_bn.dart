@@ -2290,6 +2290,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনাকে যাচাই করা যায়নি। পিন আগের মতোই আছে।';
 
   @override
+  String get appLockResetUnavailable =>
+      'এই মুহূর্তে স্ক্রিন লক ব্যবহার করা যাচ্ছে না, হয়তো অনেকবার ভুল চেষ্টার কারণে। কিছুক্ষণ পরে আবার চেষ্টা করুন। পিন আগের মতোই আছে।';
+
+  @override
   String get appLockSetupNoDeviceLockTitle => 'এই ডিভাইসে কোনো স্ক্রিন লক নেই';
 
   @override

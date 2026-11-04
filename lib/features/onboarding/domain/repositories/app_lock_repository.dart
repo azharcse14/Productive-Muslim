@@ -72,6 +72,7 @@ abstract interface class BiometricAuth {
   Future<bool> canUseDeviceLock();
 
   /// Authenticates with the device's own screen lock (biometric or device
-  /// credential) — the "Forgot PIN?" path.
+  /// credential) — the "Forgot PIN?" path. Like [authenticate]: false on
+  /// a cancel or a rejected try, throws when it can't be used (lockout).
   Future<bool> authenticateWithDeviceLock(String reason);
 }

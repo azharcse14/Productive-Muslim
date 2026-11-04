@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' show max;
 
 import 'package:drift/drift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +58,7 @@ Future<void> importLegacyExpenses(
   final unimported = <String>[];
   var legacy = false;
   final read = <Expense>[];
+  var maxId = 0;
 
   void readRecord(Object? j, String raw) {
     try {
@@ -66,8 +68,9 @@ Future<void> importLegacyExpenses(
       final holder = read.where((x) => x.id == e.id).firstOrNull;
       if (holder == null) {
         read.add(e);
+        maxId = max(maxId, e.id);
       } else if (holder.fields != e.fields) {
-        read.add(e.withId(read.fold(0, (m, x) => x.id > m ? x.id : m) + 1));
+        read.add(e.withId(++maxId));
       } // else: stored and kept aside both — once is enough.
     } on Object {
       unimported.add(raw);
@@ -87,11 +90,12 @@ Future<void> importLegacyExpenses(
   final keptAside = await prefs.getString(_unreadableKey);
   if (keptAside != null) {
     try {
-      for (final raw in (jsonDecode(keptAside) as List).cast<String>()) {
-        try {
-          readRecord(jsonDecode(raw), raw);
-        } on FormatException {
-          unimported.add(raw);
+      for (final raw in jsonDecode(keptAside) as List) {
+        // One bad element is set aside alone; the rest still import.
+        if (raw is String) {
+          readRecord(_decodeOrNull(raw), raw);
+        } else {
+          unimported.add(jsonEncode(raw));
         }
       }
     } on Object {
@@ -204,3 +208,12 @@ Expense _fromJson(Map<String, dynamic> j) => Expense(
   date: DateTime.parse(j['date'] as String).floating,
   note: j['note'] as String? ?? '',
 );
+
+/// [raw] decoded, or null (read as unreadable) when it isn't JSON.
+Object? _decodeOrNull(String raw) {
+  try {
+    return jsonDecode(raw);
+  } on FormatException {
+    return null;
+  }
+}

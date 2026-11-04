@@ -233,6 +233,10 @@ final class _LockScreenState extends State<LockScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(l10n.appLockResetFailed)));
+      case PinResetAuth.unavailable:
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.appLockResetUnavailable)));
     }
   }
 
