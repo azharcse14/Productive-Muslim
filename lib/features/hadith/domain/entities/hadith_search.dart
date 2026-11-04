@@ -3,6 +3,11 @@ import 'hadith_book.dart';
 /// Results a full-collection search returns at most.
 const hadithSearchLimit = 50;
 
+/// [query] without ZWNJ/ZWJ (U+200C/U+200D) and surrounding whitespace — what
+/// the search actually matches, so a joiner-only query counts as empty.
+String normalizeHadithQuery(String query) =>
+    query.replaceAll(RegExp('[\u200C\u200D]'), '').trim();
+
 /// One full-collection search match: where it lives (opened with
 /// [languageCode]'s chapter list) and a snippet around the match.
 final class HadithSearchHit {

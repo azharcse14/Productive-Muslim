@@ -44,6 +44,9 @@ final class AchievementStore {
   final DateTime Function() _now;
 
   late final stats = signal(const AchievementStats());
+
+  /// True once badges were evaluated successfully — by [load] or, after a
+  /// failed first load, by any later [refresh].
   late final loaded = signal(false);
 
   /// Ids the user has already seen unlocked (persisted).
@@ -72,7 +75,6 @@ final class AchievementStore {
   Future<void> load() async {
     await _loadSeen();
     await refresh();
-    loaded.value = true;
   }
 
   Future<void> _loadSeen() async {
@@ -171,6 +173,7 @@ final class AchievementStore {
       quranBookmarks: _quran?.bookmarks.value.length ?? 0,
       hasStartedReading: _quran?.lastRead.value != null,
     );
+    loaded.value = true;
   }
 
   /// Current and best run of consecutive [days]. The current run may end

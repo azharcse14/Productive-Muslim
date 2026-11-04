@@ -110,6 +110,81 @@ void main() {
     expect(find.text(_toast), findsNothing);
   });
 
+  testWidgets('a badge that re-locks and unlocks again toasts once', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await unlockStreak(tester);
+    expect(find.text(_toast), findsOneWidget);
+    await dismissToast(tester);
+
+    Future<void> setDay10(int value) async {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, 10),
+          value: value,
+        ),
+      );
+      activity.value++;
+      await tester.pump();
+      await tester.pump();
+    }
+
+    await setDay10(0); // untick: the streak badge re-locks
+    expect(store.newlyUnlocked.value, isEmpty);
+    await setDay10(1); // retick: unlocked again
+    expect(store.newlyUnlocked.value, isNotEmpty);
+    expect(find.text(_toast), findsNothing);
+  });
+
+  testWidgets('a failed first load still toasts once a refresh succeeds', (
+    tester,
+  ) async {
+    // Three in a row was already unlocked before this session.
+    for (final day in [8, 9, 10]) {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, day),
+          value: 1,
+        ),
+      );
+    }
+    repo.failItemReads = true;
+    store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      now: () => DateTime(2026, 6, 10),
+    );
+    await expectLater(store.load(), throwsA(anything));
+    await tester.pumpWidget(app());
+    await tester.pump();
+
+    // Recovered: the next scan baselines the old badge, no toast.
+    repo.failItemReads = false;
+    activity.value++;
+    await tester.pump();
+    await tester.pump();
+    expect(store.loaded.value, isTrue);
+    expect(find.textContaining('New badge'), findsNothing);
+
+    // A real unlock afterwards toasts.
+    for (var day = 4; day <= 7; day++) {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, day),
+          value: 1,
+        ),
+      );
+    }
+    activity.value++;
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('New badge: A steady week'), findsOneWidget);
+  });
+
   testWidgets('with achievements hidden nothing toasts', (tester) async {
     enabled.value = false;
     await tester.pumpWidget(app());

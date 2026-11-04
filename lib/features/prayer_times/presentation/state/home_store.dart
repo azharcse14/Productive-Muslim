@@ -89,12 +89,14 @@ final class HomeStore {
   void resume() => _tick(const Duration(seconds: 1));
 
   void _tick(Duration period) {
+    // Always re-read: a show/resume on the slow tick may come up to a
+    // minute (or a day flip) after the last one.
+    now.value = _wallNow();
     if (_period == period) {
       return;
     }
     _ticker?.cancel();
     _period = period;
-    now.value = _wallNow();
     _ticker = Timer.periodic(period, (_) {
       now.value = _wallNow();
     });
@@ -211,13 +213,20 @@ final class HomeStore {
   );
 
   /// The overnight waqt's jamaat config: the mosque active at its
-  /// (yesterday's) start, as notifications resolve it. Null otherwise.
+  /// (yesterday's) start, as notifications resolve it — unless an override
+  /// is in effect now, which the user set for the waqt running now (it
+  /// can't have been live at that start if set after midnight). Null
+  /// otherwise.
   late final _overnightConfig = computed<JamaatConfig?>(() {
     final o = overnightRange.value;
-    return o == null
-        ? null
-        : resolveActiveMosque(_mosque.state.value, o.start).profile?.config ??
-              JamaatConfig.none;
+    if (o == null) {
+      return null;
+    }
+    if (mosqueResolution.value.isOverride) {
+      return jamaatConfig.value;
+    }
+    return resolveActiveMosque(_mosque.state.value, o.start).profile?.config ??
+        JamaatConfig.none;
   });
 
   /// Each prayer row's jamaat moment. The overnight row's comes from the

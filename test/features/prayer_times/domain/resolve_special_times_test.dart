@@ -60,6 +60,25 @@ void main() {
       expect(w.end, _day.dhuhr);
     });
 
+    test('zawal hugs the raw transit, not an adjusted dhuhr', () {
+      final day = PrayerDay(
+        ishaYesterday: _day.ishaYesterday,
+        fajr: _day.fajr,
+        sunrise: _day.sunrise,
+        dhuhr: DateTime(2026, 6, 12, 12, 10), // user +10 min
+        transit: DateTime(2026, 6, 12, 12),
+        asr: _day.asr,
+        maghrib: _day.maghrib,
+        isha: _day.isha,
+        fajrTomorrow: _day.fajrTomorrow,
+      );
+      final w = resolveSpecialWindows(
+        day,
+      ).firstWhere((w) => w.time == SpecialTime.forbiddenZawal);
+      expect(w.start, DateTime(2026, 6, 12, 11, 54));
+      expect(w.end, DateTime(2026, 6, 12, 12));
+    });
+
     test('sunset window: maghrib - 15min → maghrib', () {
       final w = _window(SpecialTime.forbiddenSunset);
       expect(w.start, _day.maghrib.subtract(const Duration(minutes: 15)));

@@ -230,6 +230,37 @@ void main() {
       expect(store.milestone.value, isFalse);
     });
 
+    test(
+      'a target below the count saves the round and starts a fresh one',
+      () async {
+        var milestones = 0;
+        final store = makeStore(milestoneHaptic: () => milestones++);
+        await store.load();
+        store.setTarget(100);
+        for (var i = 0; i < 70; i++) {
+          store.tap();
+        }
+
+        store.setTarget(33);
+        expect(store.count.value, 0);
+        expect(store.target.value, 33);
+        await pumpEventQueue();
+        expect(store.totalToday.value, 70);
+        expect(store.lifetimeSessions.value, 1);
+
+        // The new round can reach its target again.
+        for (var i = 0; i < 33; i++) {
+          store.tap();
+        }
+        expect(store.milestone.value, isTrue);
+        expect(milestones, 1);
+
+        // Equal to the count keeps the round.
+        store.setTarget(33);
+        expect(store.count.value, 33);
+      },
+    );
+
     test('load ignores a corrupt payload', () async {
       final prefs = SharedPreferencesAsync();
       await prefs.setString('tasbih_today', '{"date": ');

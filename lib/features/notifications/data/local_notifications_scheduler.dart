@@ -317,6 +317,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       firesAt.removeWhere(
         (id, _) => !pendingIds.contains(id) || dropped.contains(id),
       );
+      await _syncChannels(items, texts);
       final exact = await canScheduleExactAlarms();
       final mode = exact
           ? AndroidScheduleMode.exactAllowWhileIdle
@@ -325,6 +326,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       // leave the rest unscheduled. Partial success is success (logged), so
       // the caller still records the run; only all-failed is a failure.
       Object? firstError;
+      final lockedBoot = <Map<String, Object>>[];
       var failed = 0;
       var attempted = 0;
       for (final item in items) {
@@ -335,6 +337,24 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
           continue;
         }
         final (title, body) = _texts(item, texts);
+        final details = _details(item, texts);
+        final payload = switch (item.kind) {
+          NotificationKind.muhasabaEvening => '/muhasaba',
+          NotificationKind.dailyReminder => texts.dailyReminderRoute,
+          NotificationKind.dailyAyah => '/home',
+          NotificationKind.dailyHadith => '/hadith',
+          // Prayer + its prayer-day date ride along for the "mark as
+          // prayed" action, so a late (or after-midnight isha) tap
+          // files the right day.
+          NotificationKind.azan =>
+            '/home?prayer=${item.prayer?.name}'
+                '&date=${_dateParam(item.prayerDay ?? item.at)}',
+          // Tap → after-salah duas; the action files the prayer.
+          NotificationKind.focusEnd =>
+            '/dua?category=salah&prayer=${item.prayer?.name}'
+                '&date=${_dateParam(item.prayerDay ?? item.at)}',
+          _ => '/home',
+        };
         attempted++;
         try {
           await _plugin.zonedSchedule(
@@ -342,27 +362,19 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             title: title,
             body: body,
             scheduledDate: tz.TZDateTime.from(utc, tz.UTC),
-            notificationDetails: _details(item, texts),
+            notificationDetails: details,
             androidScheduleMode: mode,
-            payload: switch (item.kind) {
-              NotificationKind.muhasabaEvening => '/muhasaba',
-              NotificationKind.dailyReminder => texts.dailyReminderRoute,
-              NotificationKind.dailyAyah => '/home',
-              NotificationKind.dailyHadith => '/hadith',
-              // Prayer + its prayer-day date ride along for the "mark as
-              // prayed" action, so a late (or after-midnight isha) tap
-              // files the right day.
-              NotificationKind.azan =>
-                '/home?prayer=${item.prayer?.name}'
-                    '&date=${_dateParam(item.prayerDay ?? item.at)}',
-              // Tap → after-salah duas; the action files the prayer.
-              NotificationKind.focusEnd =>
-                '/dua?category=salah&prayer=${item.prayer?.name}'
-                    '&date=${_dateParam(item.prayerDay ?? item.at)}',
-              _ => '/home',
-            },
+            payload: payload,
           );
           firesAt[item.id] = utc;
+          lockedBoot.add({
+            'id': item.id,
+            'at': utc.millisecondsSinceEpoch,
+            'channel': details.android!.channelId,
+            'title': title,
+            'body': body,
+            'payload': payload,
+          });
         } on Object catch (e) {
           firstError ??= e;
           failed++;
@@ -372,6 +384,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         debugPrint('$failed/$attempted notifications failed: $firstError');
       }
       await _saveFiresAt(firesAt);
+      await _saveLockedBootPlan(lockedBoot);
       if (failed > 0 && failed == attempted) {
         return Result.failure(
           UnexpectedFailure('Failed to schedule notifications', firstError),
@@ -382,6 +395,42 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       return Result.failure(
         UnexpectedFailure('Failed to schedule notifications', e),
       );
+    }
+  }
+
+  /// Creates the plan's Android channels up front, and renames existing
+  /// ones to the current language: the plugin only creates a missing
+  /// channel when an alarm fires (and its `update` action never creates
+  /// one), so names set at install would stay forever. Re-creating an
+  /// existing channel changes only its name; the OS keeps its sound and
+  /// importance (and the user's overrides).
+  Future<void> _syncChannels(
+    List<NotificationItem> items,
+    NotificationTexts texts,
+  ) async {
+    final android = _android;
+    if (android == null) {
+      return;
+    }
+    final channels = <String, AndroidNotificationDetails>{
+      for (final item in items)
+        if (_details(item, texts).android case final d?) d.channelId: d,
+    };
+    for (final d in channels.values) {
+      try {
+        await android.createNotificationChannel(
+          AndroidNotificationChannel(
+            d.channelId,
+            d.channelName,
+            importance: d.importance,
+            playSound: d.playSound,
+            enableVibration: d.enableVibration,
+          ),
+        );
+      } on Object catch (e) {
+        // The alarm still creates a missing channel when it fires.
+        debugPrint('Failed to sync channel ${d.channelId}: $e');
+      }
     }
   }
 
@@ -416,6 +465,27 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   Future<void> cancelAll() async {
     await _plugin.cancelAll();
     await _saveFiresAt(const {});
+    await _saveLockedBootPlan(const []);
+  }
+
+  /// DirectBoot.kt: a device-protected copy of the plan (final strings),
+  /// shown by the app itself after a reboot until the first unlock — the
+  /// plugin's own cache is unreadable until then.
+  static const _directBoot = MethodChannel(
+    'com.productivemuslim.app/direct_boot',
+  );
+
+  Future<void> _saveLockedBootPlan(List<Map<String, Object>> entries) async {
+    if (_android == null) {
+      return;
+    }
+    try {
+      await _directBoot.invokeMethod<void>('save', entries);
+    } on PlatformException catch (e) {
+      debugPrint('Failed to save the locked-boot plan: $e');
+    } on MissingPluginException {
+      // Tests / no host: nothing to mirror into.
+    }
   }
 
   (String, String) _texts(NotificationItem item, NotificationTexts t) {

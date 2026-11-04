@@ -156,28 +156,149 @@ void main() {
     }
   });
 
-  test('polar day still yields times (Tromsø, midsummer)', () {
-    const tromso = ManualCityLocation(
+  for (final (name, lat, lng, tz, date) in [
+    ('Tromsø', 69.6492, 18.9553, 'Europe/Oslo', DateTime(2026, 6, 21)),
+    ('Tromsø', 69.6492, 18.9553, 'Europe/Oslo', DateTime(2026, 12, 21)),
+    ('Murmansk', 68.9585, 33.0827, 'Europe/Moscow', DateTime(2026, 6, 21)),
+    ('Murmansk', 68.9585, 33.0827, 'Europe/Moscow', DateTime(2026, 12, 21)),
+    ('Bodø', 67.2804, 14.4049, 'Europe/Oslo', DateTime(2026, 6, 21)),
+    ('Bodø', 67.2804, 14.4049, 'Europe/Oslo', DateTime(2026, 12, 21)),
+  ]) {
+    test('polar $name ${date.month}/${date.day}: times sit on that date', () {
+      final city = ManualCityLocation(
+        City(
+          name: name,
+          countryCode: 'XX',
+          latitude: lat,
+          longitude: lng,
+          timezone: tz,
+        ),
+      );
+      final day = repo
+          .prayerDay(location: city, params: const PrayerParams(), date: date)
+          .valueOrNull!;
+      // adhan's own polar resolution borrowed times weeks away
+      // (Tromsø 21 Jun: sunrise 30 May, maghrib 14 Jul).
+      final start = DateTime.utc(date.year, date.month, date.day);
+      final dayAfter = start.add(const Duration(days: 2));
+      final dayBefore = start.subtract(const Duration(days: 1));
+      for (final t in [day.fajr, day.sunrise, day.dhuhr, day.asr]) {
+        expect(DateTime.utc(t.year, t.month, t.day), start, reason: '$t');
+      }
+      for (final t in [day.maghrib, day.sunset, day.isha, day.fajrTomorrow]) {
+        expect(
+          !t.isBefore(start) && t.isBefore(dayAfter),
+          isTrue,
+          reason: '$t',
+        );
+      }
+      for (final t in [
+        day.ishaYesterday,
+        day.maghribYesterday!,
+        day.asrYesterday!,
+      ]) {
+        expect(
+          !t.isBefore(dayBefore) &&
+              t.isBefore(start.add(const Duration(days: 1))),
+          isTrue,
+          reason: '$t',
+        );
+      }
+      final ordered = [day.fajr, day.sunrise, day.dhuhr, day.asr, day.maghrib];
+      for (var i = 1; i < ordered.length; i++) {
+        expect(ordered[i].isAfter(ordered[i - 1]), isTrue, reason: '$ordered');
+      }
+    });
+  }
+
+  test('polar rule 45°: above 66° every time is the 45° analogue', () {
+    ManualCityLocation at(double lat) => ManualCityLocation(
       City(
         name: 'Tromsø',
         countryCode: 'NO',
-        latitude: 69.6492,
+        latitude: lat,
         longitude: 18.9553,
         timezone: 'Europe/Oslo',
       ),
     );
-    final result = repo.prayerDay(
-      location: tromso,
-      params: const PrayerParams(),
-      date: DateTime(2026, 6, 21),
-    );
-    // Unresolved, adhan returned NaN-derived dates weeks away.
-    final day = result.valueOrNull!;
-    final ordered = [day.sunrise, day.dhuhr, day.asr, day.maghrib];
-    for (var i = 1; i < ordered.length; i++) {
-      expect(ordered[i].isAfter(ordered[i - 1]), isTrue, reason: '$ordered');
+    const lat45 = PrayerParams(polarRule: PolarRule.latitude45);
+    for (final date in [DateTime(2026, 6, 21), DateTime(2026, 12, 21)]) {
+      final tromso = repo
+          .prayerDay(location: at(69.6492), params: lat45, date: date)
+          .valueOrNull!;
+      final at45 = repo
+          .prayerDay(location: at(45), params: const PrayerParams(), date: date)
+          .valueOrNull!;
+      final nearest = repo
+          .prayerDay(
+            location: at(69.6492),
+            params: const PrayerParams(),
+            date: date,
+          )
+          .valueOrNull!;
+      expect(
+        [
+          tromso.fajr,
+          tromso.sunrise,
+          tromso.dhuhr,
+          tromso.maghrib,
+          tromso.isha,
+        ],
+        [at45.fajr, at45.sunrise, at45.dhuhr, at45.maghrib, at45.isha],
+      );
+      expect(tromso.maghrib, isNot(nearest.maghrib));
     }
-    expect(day.dhuhr.day, 21);
+    // Below 66° the 45° rule changes nothing.
+    final below = repo
+        .prayerDay(location: at(60), params: lat45, date: DateTime(2026, 3, 2))
+        .valueOrNull!;
+    final belowDefault = repo
+        .prayerDay(
+          location: at(60),
+          params: const PrayerParams(),
+          date: DateTime(2026, 3, 2),
+        )
+        .valueOrNull!;
+    expect(below.maghrib, belowDefault.maghrib);
+  });
+
+  test('raw transit ignores the user Dhuhr adjustment', () {
+    final day = repo
+        .prayerDay(
+          location: _dhaka,
+          params: const PrayerParams(adjustments: {Prayer.dhuhr: 10}),
+          date: date,
+        )
+        .valueOrNull!;
+    final plain = repo
+        .prayerDay(location: _dhaka, params: const PrayerParams(), date: date)
+        .valueOrNull!;
+    expect(day.dhuhr, plain.dhuhr.add(const Duration(minutes: 10)));
+    expect(day.transit, plain.transit);
+    // MWL's own +1 min Dhuhr offset is left out too.
+    expect(plain.dhuhr.difference(plain.transit), const Duration(minutes: 1));
+  });
+
+  test("Nome in June: yesterday's asr runs past midnight", () {
+    const nome = ManualCityLocation(
+      City(
+        name: 'Nome',
+        countryCode: 'US',
+        latitude: 64.5011,
+        longitude: -165.4064,
+        timezone: 'America/Nome',
+      ),
+    );
+    final day = repo
+        .prayerDay(
+          location: nome,
+          params: const PrayerParams(),
+          date: DateTime(2026, 6, 21),
+        )
+        .valueOrNull!;
+    final night = DateTime.utc(2026, 6, 21, 0, 30);
+    expect(day.maghribYesterday!.isAfter(night), isTrue);
+    expect(day.activeWaqtAt(night)?.prayer, Prayer.asr);
   });
 
   for (final (name, lat, lng, tz) in [

@@ -26,6 +26,17 @@ enum CalculationMethodId {
 /// Fajr/Isha handling for extreme latitudes (Settings → advanced).
 enum HighLatitudeRule { middleOfTheNight, seventhOfTheNight, twilightAngle }
 
+/// Polar regions, where the sun doesn't rise or set (Settings → advanced).
+enum PolarRule {
+  /// Times of the nearest latitude where day and night are distinct
+  /// (aqrab al-bilad): Saudi Permanent Committee fatwa 2769, AMJA.
+  nearestLatitude,
+
+  /// Above 66°, every time from its analogue at 45°: Muslim World League
+  /// Fiqh Council, 9th session (1406 AH), region 3.
+  latitude45,
+}
+
 /// Everything prayer computation depends on, flowing through ONE entity
 /// (guide §5). Per-prayer minute offsets are user fine-tuning.
 final class PrayerParams {
@@ -33,6 +44,7 @@ final class PrayerParams {
     this.method = CalculationMethodId.karachi,
     this.madhab = Madhab.hanafi,
     this.highLatitudeRule = HighLatitudeRule.middleOfTheNight,
+    this.polarRule = PolarRule.nearestLatitude,
     this.adjustments = const {},
     int sahriSafetyMinutes = 0,
   }) : sahriSafetyMinutes = sahriSafetyMinutes < 0
@@ -51,6 +63,7 @@ final class PrayerParams {
   final CalculationMethodId method;
   final Madhab madhab;
   final HighLatitudeRule highLatitudeRule;
+  final PolarRule polarRule;
 
   /// Signed minute offsets per prayer; missing key = 0.
   final Map<Prayer, int> adjustments;
@@ -64,6 +77,7 @@ final class PrayerParams {
     CalculationMethodId? method,
     Madhab? madhab,
     HighLatitudeRule? highLatitudeRule,
+    PolarRule? polarRule,
     Map<Prayer, int>? adjustments,
     int? sahriSafetyMinutes,
   }) {
@@ -71,6 +85,7 @@ final class PrayerParams {
       method: method ?? this.method,
       madhab: madhab ?? this.madhab,
       highLatitudeRule: highLatitudeRule ?? this.highLatitudeRule,
+      polarRule: polarRule ?? this.polarRule,
       adjustments: adjustments ?? this.adjustments,
       sahriSafetyMinutes: sahriSafetyMinutes ?? this.sahriSafetyMinutes,
     );
@@ -82,6 +97,7 @@ final class PrayerParams {
         other.method != method ||
         other.madhab != madhab ||
         other.highLatitudeRule != highLatitudeRule ||
+        other.polarRule != polarRule ||
         other.sahriSafetyMinutes != sahriSafetyMinutes ||
         other.adjustments.length != adjustments.length) {
       return false;
@@ -99,6 +115,7 @@ final class PrayerParams {
     method,
     madhab,
     highLatitudeRule,
+    polarRule,
     sahriSafetyMinutes,
     Object.hashAllUnordered(
       adjustments.entries.map((e) => Object.hash(e.key, e.value)),

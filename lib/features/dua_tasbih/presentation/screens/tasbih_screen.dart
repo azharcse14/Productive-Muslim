@@ -115,12 +115,33 @@ final class _TasbihScreenState extends State<TasbihScreen> {
     _setPhrase(id);
   }
 
-  void _startAfterSalah() {
+  /// Like [_pickPhrase]: a mode change that would reinterpret the round's
+  /// beads (into or out of after-salah, or a target below the count) asks to
+  /// save or discard the round first. False on cancel.
+  Future<bool> _confirmModeChange({
+    required bool afterSalah,
+    required int target,
+  }) async {
+    final count = _store.count.value;
+    if (count == 0 || (afterSalah == _afterSalah && target >= count)) {
+      return true;
+    }
+    return confirmTasbihReset(context, _store);
+  }
+
+  Future<void> _startAfterSalah() async {
+    if (_afterSalah ||
+        !await _confirmModeChange(afterSalah: true, target: _afterSalahTotal)) {
+      return;
+    }
     _setPhrase(_afterSalahId);
     _store.setTarget(_afterSalahTotal);
   }
 
-  void _setTarget(int target) {
+  Future<void> _setTarget(int target) async {
+    if (!await _confirmModeChange(afterSalah: false, target: target)) {
+      return;
+    }
     if (_phraseId == _afterSalahId) {
       _setPhrase(_phrases.keys.first);
     }
@@ -150,8 +171,8 @@ final class _TasbihScreenState extends State<TasbihScreen> {
           ? null
           : _store.target.value,
     );
-    if (picked != null) {
-      _setTarget(picked);
+    if (picked != null && mounted) {
+      await _setTarget(picked);
     }
   }
 
@@ -217,7 +238,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                                 languageCode,
                               ),
                               active: !afterSalah && target == preset,
-                              onTap: () => _setTarget(preset),
+                              onTap: () => unawaited(_setTarget(preset)),
                             ),
                           QChip(
                             label: _presets.contains(target)
@@ -232,7 +253,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                           QChip(
                             label: l10n.tasbihAfterSalah,
                             active: afterSalah,
-                            onTap: _startAfterSalah,
+                            onTap: () => unawaited(_startAfterSalah()),
                           ),
                         ],
                       ),

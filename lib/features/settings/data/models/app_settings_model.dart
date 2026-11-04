@@ -32,6 +32,7 @@ abstract final class AppSettingsModel {
       'method': s.prayerParams.method.name,
       'madhab': s.prayerParams.madhab.name,
       'highLat': s.prayerParams.highLatitudeRule.name,
+      'polar': s.prayerParams.polarRule.name,
       'sahriSafety': s.prayerParams.sahriSafetyMinutes,
       'adjustments': {
         for (final e in s.prayerParams.adjustments.entries) e.key.name: e.value,
@@ -166,6 +167,11 @@ abstract final class AppSettingsModel {
         HighLatitudeRule.values,
         map['highLat'],
         defaults.highLatitudeRule,
+      ),
+      polarRule: _enumOrDefault(
+        PolarRule.values,
+        map['polar'],
+        defaults.polarRule,
       ),
       adjustments: {
         for (final prayer in Prayer.values)

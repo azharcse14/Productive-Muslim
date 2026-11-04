@@ -192,12 +192,23 @@ final class _SettingsScreenState extends State<SettingsScreen> {
                   horizontal: QSpace.s4,
                   vertical: QSpace.s1,
                 ),
-                child: QListRow(
-                  icon: Icons.public_outlined,
-                  title: l10n.settingHighLat,
-                  subtitle: l10n.highLatLabel(params.highLatitudeRule),
-                  trailing: Icon(Icons.chevron_right, color: q.ink3),
-                  onTap: () => _pickHighLat(params.highLatitudeRule),
+                child: Column(
+                  children: [
+                    QListRow(
+                      icon: Icons.public_outlined,
+                      title: l10n.settingHighLat,
+                      subtitle: l10n.highLatLabel(params.highLatitudeRule),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickHighLat(params.highLatitudeRule),
+                    ),
+                    QListRow(
+                      icon: Icons.ac_unit_outlined,
+                      title: l10n.settingPolar,
+                      subtitle: l10n.polarLabel(params.polarRule),
+                      trailing: Icon(Icons.chevron_right, color: q.ink3),
+                      onTap: () => _pickPolar(params.polarRule),
+                    ),
+                  ],
                 ),
               ),
               QSectionHeader(l10n.groupNotifications),
@@ -467,6 +478,20 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (choice != null) {
       await _store.setHighLatitudeRule(choice);
+    }
+  }
+
+  Future<void> _pickPolar(PolarRule current) async {
+    final l10n = context.l10n;
+    final choice = await showOptionSheet(
+      context: context,
+      title: l10n.settingPolar,
+      options: PolarRule.values,
+      selected: current,
+      labelOf: l10n.polarLabel,
+    );
+    if (choice != null) {
+      await _store.setPolarRule(choice);
     }
   }
 

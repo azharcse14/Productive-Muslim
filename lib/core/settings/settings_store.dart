@@ -80,6 +80,10 @@ final class SettingsStore {
     ),
   );
 
+  Future<void> setPolarRule(PolarRule rule) => _update(
+    (s) => s.copyWith(prayerParams: s.prayerParams.copyWith(polarRule: rule)),
+  );
+
   Future<void> setNotifications(NotificationMatrix matrix) =>
       _update((s) => s.copyWith(notifications: matrix));
 

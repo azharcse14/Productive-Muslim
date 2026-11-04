@@ -3,8 +3,14 @@
 // (owner decision 4, docs/RELEASE_CHECKLIST.md). Offline, in place:
 //   * assets/data/hadith.db — drops `hadith_bn_section`, then VACUUM;
 //   * assets/data/hadith_books.json — drops `sections_bn` and `bn_folder`.
-// Build the app with `--dart-define=BENGALI_HADITH=false` too (credits and
-// the online fallback). Undo with `git checkout -- assets/data`.
+// Build the app with `--dart-define=BENGALI_HADITH=false` too: besides the
+// credits and the online fallback, HadithDatabase.ensureCopied compares that
+// switch with the installed copy's `hadith_bn_section`, so any switch between
+// a stripped and a full asset re-copies on device without a user_version
+// bump (and a mismatched build re-copies on every launch). user_version is
+// left as is on purpose. Undo with
+// `git checkout -- assets/data/hadith.db assets/data/hadith_books.json`
+// (just these two, so other uncommitted asset work survives).
 //
 // Usage:  dart run tool/strip_bengali_hadith.dart
 
@@ -48,6 +54,7 @@ void main() {
   );
   stdout.writeln(
     'Stripped hadithbangla: hadith_bn_section dropped, $books books lost '
-    'their Bengali chapters. Build with --dart-define=BENGALI_HADITH=false.',
+    'their Bengali chapters. Build with --dart-define=BENGALI_HADITH=false, '
+    'then: git checkout -- assets/data/hadith.db assets/data/hadith_books.json',
   );
 }

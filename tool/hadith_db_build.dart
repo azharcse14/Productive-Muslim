@@ -26,11 +26,12 @@
 // Output: assets/data/hadith.db — SQLite, PRAGMA user_version = [_userVersion].
 //
 // --no-bengali omits the hadithbangla text (no `hadith_bn_section` table) so
-// a release can ship without it. Such a build must bump [_userVersion] here
-// and `HadithDatabase.bundledVersion` together (so installed copies holding
-// the Bengali text get replaced), and the app should also be built with
-// `--dart-define=BENGALI_HADITH=false`. The app treats a DB without the
-// table as "no Bengali full-book hadith" and shows Arabic + English.
+// a release can ship without it. The app must then be built with
+// `--dart-define=BENGALI_HADITH=false`: HadithDatabase.ensureCopied compares
+// that switch with the installed copy's table, so installed copies holding
+// the Bengali text get replaced (and vice versa) with no version bump. The
+// app treats a DB without the table as "no Bengali full-book hadith" and
+// shows Arabic + English.
 //
 // Catalog of books/sections is read from assets/data/hadith_books.json so this
 // stays in lock-step with the in-app navigation metadata.
