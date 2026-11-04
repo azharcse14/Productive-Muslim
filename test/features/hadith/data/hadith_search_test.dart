@@ -299,5 +299,15 @@ void main() {
       ], []);
       expect(searchHadithCorpus(corpus, '8', 'en').hits, hasLength(2));
     });
+
+    test('internal numbers match text but not a number lookup', () {
+      const corpus = HadithSearchCorpus([
+        HadithSearchEntry(0, 1, 1220, 'standard'),
+        HadithSearchEntry(0, 9, 1220, 'internal', lookup: false),
+      ], []);
+      final byNumber = searchHadithCorpus(corpus, '1220', 'en').hits;
+      expect(byNumber.map((h) => h.section), [1]);
+      expect(searchHadithCorpus(corpus, 'internal', 'en').hits, hasLength(1));
+    });
   });
 }

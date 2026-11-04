@@ -32,6 +32,11 @@ final class RawHadith {
   /// The whole number readers look up: [ref]'s ("8a" → 8), else [number].
   int get referenceNumber => referenceNumberOf(ref, number);
 
+  /// False for upstream's internal number ("#1220": Sahih Muslim hadith with
+  /// no Abd al-Baqi number) — it would collide with the standard 1220, so
+  /// "go to number" and number search must not match it.
+  bool get hasStandardNumber => !ref.startsWith('#');
+
   static RawHadith? parse(Object? entry) {
     if (entry is! Map) {
       return null;

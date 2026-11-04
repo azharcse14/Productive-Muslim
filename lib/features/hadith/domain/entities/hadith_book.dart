@@ -68,14 +68,14 @@ final class HadithBook {
       usesBanglaSource(languageCode) ? bnSections : sections;
 
   String titleFor(String languageCode) => switch (languageCode) {
-        'bn' when bn.isNotEmpty => bn,
-        _ => en,
-      };
+    'bn' when bn.isNotEmpty => bn,
+    _ => en,
+  };
 
   String authorFor(String languageCode) => switch (languageCode) {
-        'bn' when authorBn.isNotEmpty => authorBn,
-        _ => author,
-      };
+    'bn' when authorBn.isNotEmpty => authorBn,
+    _ => author,
+  };
 
   /// This book without the hadithbangla Bengali source: Bengali readers get
   /// Arabic + English (marked "English only"). Books whose Bengali comes from
@@ -110,7 +110,7 @@ final class HadithSection {
     required this.first,
     required this.last,
     this.count,
-    this.refs = const [],
+    this.refs,
   });
 
   final int number;
@@ -123,14 +123,16 @@ final class HadithSection {
   /// Runs (from, to) of the numbers this section's cards show (Sahih
   /// Muslim's standard reference, else the hadith number). Preferred over
   /// [first]..[last], which upstream stray numbers make overlap (Tirmidhi
-  /// §32 lists 2133–2298 though §33 starts at 2158). Empty: fall back to
+  /// §32 lists 2133–2298 though §33 starts at 2158). Empty: no standard
+  /// number (only internal "#N" ones). Null (not indexed): fall back to
   /// [first]..[last].
-  final List<(int, int)> refs;
+  final List<(int, int)>? refs;
 
   /// Whether "go to hadith [number]" lands in this section.
-  bool holds(int number) => refs.isNotEmpty
-      ? refs.any((r) => r.$1 <= number && number <= r.$2)
-      : (first ?? 0) <= number && number <= (last ?? -1);
+  bool holds(int number) => switch (refs) {
+    final runs? => runs.any((r) => r.$1 <= number && number <= r.$2),
+    null => (first ?? 0) <= number && number <= (last ?? -1),
+  };
 
   /// Number of hadith actually in this section (null when unknown). Stored
   /// explicitly: upstream ranges overlap/contain stray numbers, so

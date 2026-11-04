@@ -31,7 +31,17 @@ List<HadithSearchSource> hadithSearchSources(List<HadithBook> books) => [
 
 /// One searchable hadith text.
 final class HadithSearchEntry {
-  const HadithSearchEntry(this.book, this.section, this.number, this.text);
+  const HadithSearchEntry(
+    this.book,
+    this.section,
+    this.number,
+    this.text, {
+    this.lookup = true,
+  });
+
+  /// Whether a number query may match [number] (false for internal numbers,
+  /// see `RawHadith.hasStandardNumber`).
+  final bool lookup;
 
   /// Book index (see [HadithSearchSource.book]).
   final int book;
@@ -99,7 +109,10 @@ HadithRawResults searchHadithCorpus(
         // one card per chapter (8a/8b share a number and open together).
         final wanted = bnFirst && bnBooks.contains(e.book);
         hit =
-            e.number == number && bn == wanted && seen.add((e.book, e.section))
+            e.lookup &&
+                e.number == number &&
+                bn == wanted &&
+                seen.add((e.book, e.section))
             ? _hit(e, bn, 0, 0)
             : null;
       } else {

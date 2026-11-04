@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 const _catalogPath = 'assets/data/hadith_books.json';
@@ -55,10 +56,19 @@ void main() {
             continue;
           }
           final data = rows.first.values.first! as List<int>;
+          final hadith = bn ? const <RawHadith>[] : decodeEditionBlob(data);
           final numbers = bn
               ? [for (final h in decodeBanglaBlob(data)) h.number]
-              : [for (final h in decodeEditionBlob(data)) h.referenceNumber];
-          final runs = refRuns(numbers);
+              : [for (final h in hadith) h.referenceNumber];
+          // Internal numbers ("#1220") stay out of "go to number".
+          final runs = refRuns(
+            bn
+                ? numbers
+                : [
+                    for (final h in hadith)
+                      if (h.hasStandardNumber) h.referenceNumber,
+                  ],
+          );
           section['count'] = numbers.length;
           section['refs'] = [
             for (final (from, to) in runs) [from, to],

@@ -102,11 +102,12 @@ final class HadithBookCatalogDataSource {
       first: first is int ? first : null,
       last: last is int ? last : null,
       count: count is int ? count : null,
-      refs: [
-        if (refs is List)
-          for (final run in refs)
-            if (run case [final int from, final int to]) (from, to),
-      ],
+      refs: refs is List
+          ? [
+              for (final run in refs)
+                if (run case [final int from, final int to]) (from, to),
+            ]
+          : null,
     );
   }
 }

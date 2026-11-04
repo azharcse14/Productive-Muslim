@@ -128,7 +128,7 @@ final class HadithSectionsScreen extends StatelessWidget {
         title: Text(book.titleFor(languageCode)),
         actions: [
           if (sections.any(
-            (s) => s.refs.isNotEmpty || (s.first != null && s.last != null),
+            (s) => s.refs != null || (s.first != null && s.last != null),
           ))
             IconButton(
               tooltip: context.l10n.hadithGoToNumber,

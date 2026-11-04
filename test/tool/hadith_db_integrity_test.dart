@@ -272,8 +272,12 @@ void main() {
         );
         final expected = <int>{
           for (final h in data.cast<Map<String, dynamic>>())
-            int.tryParse(leading.stringMatch(h['r'] as String? ?? '') ?? '') ??
-                h['n'] as int,
+            // Internal numbers ("#1220") are left out of the refs.
+            if (!(h['r'] as String? ?? '').startsWith('#'))
+              int.tryParse(
+                    leading.stringMatch(h['r'] as String? ?? '') ?? '',
+                  ) ??
+                  h['n'] as int,
         };
         final listed = <int>{
           for (final run
@@ -309,7 +313,10 @@ void main() {
       final data = rows.first.values.first! as List<int>;
       return bn
           ? {for (final h in decodeBanglaBlob(data)) h.number}
-          : {for (final h in decodeEditionBlob(data)) h.referenceNumber};
+          : {
+              for (final h in decodeEditionBlob(data))
+                if (h.hasStandardNumber) h.referenceNumber,
+            };
     }
 
     test(
@@ -349,6 +356,19 @@ void main() {
     test('Sahih Muslim 274 offers both chapters holding its variants', () {
       final muslim = books.firstWhere((b) => b.id == 'muslim');
       expect(muslim.sections.where((s) => s.holds(274)).length, 2);
+    });
+
+    test('Sahih Muslim internal numbers (#N) are not offered', () {
+      final muslim = books.firstWhere((b) => b.id == 'muslim');
+      // #1220 is filed in a chapter far from standard 1220 (Hajj).
+      final offered = muslim.sections.where((s) => s.holds(1220)).toList();
+      expect(offered, hasLength(1));
+      expect(numbersIn(muslim, offered.single, false), contains(1220));
+      // Introduction holds only #3, #4, #15: not a 1..92 fallback.
+      expect(
+        muslim.sections.firstWhere((s) => s.number == 0).holds(50),
+        isFalse,
+      );
     });
 
     test('Tirmidhi 2160 opens the chapter that holds it', () {

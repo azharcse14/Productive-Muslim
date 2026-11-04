@@ -167,7 +167,13 @@ HadithSearchCorpus loadHadithSearchCorpus(
           for (final h in decodeEditionBlob(data)) {
             if (h.text.isNotEmpty) {
               out.add(
-                HadithSearchEntry(s.book, section, h.referenceNumber, h.text),
+                HadithSearchEntry(
+                  s.book,
+                  section,
+                  h.referenceNumber,
+                  h.text,
+                  lookup: h.hasStandardNumber,
+                ),
               );
             }
           }
