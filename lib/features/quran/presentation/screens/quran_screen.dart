@@ -64,6 +64,9 @@ final class _QuranIndexState extends State<_QuranIndex> {
   /// puts back the latest.
   final _removedBookmarks = signal(const <int>[]);
 
+  /// Juz numbers whose surah list is open in the Juz tab.
+  final _expandedJuz = signal(const <int>{});
+
   /// One read per surah for the bookmark previews, shared across rows.
   final Map<int, Future<List<Ayah>?>> _previewAyahs = {};
 
@@ -404,6 +407,8 @@ final class _QuranIndexState extends State<_QuranIndex> {
     final l10n = context.l10n;
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
+    // Read here, not in itemBuilder, so SignalBuilder tracks it.
+    final expandedJuz = _expandedJuz.value;
     return ListView.builder(
       key: const PageStorageKey('quranJuzList'),
       padding: const EdgeInsets.symmetric(
@@ -418,8 +423,12 @@ final class _QuranIndexState extends State<_QuranIndex> {
           languageCode,
         );
         final name = _surahById(start.surah)?.transliteration;
-        return QPressable(
-          onTap: () => _openReader(start.surah, initialAyah: start.ayah),
+        final juz = index + 1;
+        final expanded = expandedJuz.contains(juz);
+        final header = QPressable(
+          onTap: () => _expandedJuz.value = expanded
+              ? ({...expandedJuz}..remove(juz))
+              : {...expandedJuz, juz},
           borderRadius: BorderRadius.circular(QRadius.md),
           child: Padding(
             padding: const EdgeInsetsDirectional.symmetric(
@@ -447,10 +456,53 @@ final class _QuranIndexState extends State<_QuranIndex> {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: q.ink3),
+                Icon(
+                  expanded ? Icons.expand_less : Icons.expand_more,
+                  color: q.ink3,
+                ),
               ],
             ),
           ),
+        );
+        if (!expanded) {
+          return header;
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            for (final id in surahsInJuz(juz))
+              QPressable(
+                // The juz's first surah opens where the juz begins.
+                onTap: () => _openReader(
+                  id,
+                  initialAyah: id == start.surah ? start.ayah : null,
+                ),
+                borderRadius: BorderRadius.circular(QRadius.md),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    QSpace.s5 + QSpace.s4,
+                    QSpace.s2,
+                    2,
+                    QSpace.s2,
+                  ),
+                  child: Row(
+                    children: [
+                      QMedallion(number: id, size: 32),
+                      const SizedBox(width: QSpace.s3),
+                      Expanded(
+                        child: Text(
+                          _surahById(id)?.transliteration ??
+                              LocaleDigits.localize('$id', languageCode),
+                          style: QType.body.copyWith(color: q.ink),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right, color: q.ink3),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         );
       },
     );

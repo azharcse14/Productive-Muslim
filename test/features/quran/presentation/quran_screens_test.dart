@@ -457,7 +457,7 @@ void main() {
       await flushMarkRead(tester);
     });
 
-    testWidgets('the Juz tab lists 30 juz and opens the reader at one', (
+    testWidgets('the Juz tab lists 30 juz, each opening to its surahs', (
       tester,
     ) async {
       await tester.pumpWidget(_routerApp('/quran'));
@@ -469,7 +469,14 @@ void main() {
       expect(find.text('Al-Faatiha · 1:1'), findsOneWidget);
       expect(find.text('Al-Baqara · 2:142'), findsOneWidget);
 
+      // Tapping a juz lists every surah in it (juz 1 = Al-Faatiha, Al-Baqara).
+      expect(find.text('Al-Faatiha'), findsNothing);
       await tester.tap(find.text('Juz 1'));
+      await tester.pumpAndSettle();
+      expect(find.text('Al-Faatiha'), findsOneWidget);
+      expect(find.text('Al-Baqara'), findsOneWidget);
+
+      await tester.tap(find.text('Al-Faatiha'));
       await tester.pumpAndSettle();
       expect(find.byType(QuranReaderScreen), findsOneWidget);
       expect(find.text('In the name of Allah'), findsOneWidget);

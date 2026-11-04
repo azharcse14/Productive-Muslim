@@ -47,4 +47,14 @@ void main() {
       previous = current;
     }
   });
+
+  test('surahsInJuz lists every surah a juz touches', () {
+    expect(surahsInJuz(1), [1, 2]);
+    expect(surahsInJuz(2), [2]);
+    expect(surahsInJuz(14), [15, 16]);
+    expect(surahsInJuz(29), [for (var s = 67; s <= 77; s++) s]);
+    expect(surahsInJuz(30), [for (var s = 78; s <= 114; s++) s]);
+    // Together the 30 juz cover all 114 surahs.
+    expect({for (var j = 1; j <= 30; j++) ...surahsInJuz(j)}, hasLength(114));
+  });
 }
