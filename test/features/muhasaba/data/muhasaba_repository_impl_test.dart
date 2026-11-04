@@ -278,6 +278,44 @@ void main() {
       expect(week.items.single.periodDays, 1);
     });
 
+    test(
+      'a day back-filled into a past archive span counts everywhere',
+      () async {
+        await unwrap(repo.upsertItem(_item('quran', sortOrder: 0)));
+        // Archived Oct 1, restored Oct 10, then Oct 5 ticked after the fact.
+        now = DateTime(2026, 10);
+        await unwrap(repo.setArchived('quran', archived: true));
+        now = DateTime(2026, 10, 10);
+        await unwrap(repo.setArchived('quran', archived: false));
+        final oct5 = DateTime(2026, 10, 5);
+        await unwrap(repo.setEntry(_entry('quran', oct5, 1)));
+
+        Future<PeriodStats> span() => unwrap(
+          repo.periodStats(
+            start: DateTime(2026, 10, 4),
+            end: DateTime(2026, 10, 6),
+            today: DateTime(2026, 10, 10),
+          ),
+        );
+        var stats = await span();
+        expect([for (final d in stats.days) d.completion], [0, 1, 0]);
+        expect(stats.completion, 1);
+        expect(stats.items.single.daysDone, 1);
+        expect(stats.items.single.periodDays, 1);
+        expect(stats.bestStreak, 1);
+        expect(await unwrap(repo.doneDates({'quran'})), {oct5});
+
+        // Clearing it puts the day back into the span for all of them.
+        await unwrap(repo.setEntry(_entry('quran', oct5, 0)));
+        stats = await span();
+        expect([for (final d in stats.days) d.completion], [0, 0, 0]);
+        expect(stats.items.single.daysDone, 0);
+        expect(stats.items.single.periodDays, 0);
+        expect(stats.bestStreak, 0);
+        expect(await unwrap(repo.doneDates({'quran'})), isEmpty);
+      },
+    );
+
     test('archive/restore twice records two spans', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
