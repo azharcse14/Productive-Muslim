@@ -216,6 +216,9 @@ object JamaatFocus {
     }
 
     private fun start(c: Context, w: FocusPlan.Window) {
+        // A nafs countdown can't outlive a jamaat start: its texts and
+        // Cancel button would cover (and could end) this session.
+        cancelNafs()
         val nm = nm(c)
         clocks = null // apps installed since the last session count too
         // DND already on (Bedtime, the user's own) is left alone: we neither

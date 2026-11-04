@@ -11,8 +11,7 @@ final class LocalAuthBiometric implements BiometricAuth {
   @override
   Future<bool> canAuthenticate() async {
     try {
-      return await _auth.isDeviceSupported() &&
-          await _auth.canCheckBiometrics;
+      return await _auth.isDeviceSupported() && await _auth.canCheckBiometrics;
     } on Object {
       return false;
     }
@@ -38,12 +37,22 @@ final class LocalAuthBiometric implements BiometricAuth {
     }
   }
 
+  /// A cancel or timeout is `false`; anything else (lockout, no sensor,
+  /// no enrolled finger) is thrown, so the lock screen can say why.
   @override
   Future<bool> authenticate(String reason) async {
     try {
       return await _auth.authenticate(localizedReason: reason);
-    } on Object {
-      return false;
+    } on LocalAuthException catch (e) {
+      switch (e.code) {
+        case LocalAuthExceptionCode.userCanceled ||
+            LocalAuthExceptionCode.systemCanceled ||
+            LocalAuthExceptionCode.timeout ||
+            LocalAuthExceptionCode.userRequestedFallback:
+          return false;
+        default:
+          rethrow;
+      }
     }
   }
 }

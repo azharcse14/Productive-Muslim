@@ -163,6 +163,11 @@ void main() {
   testHomeWidgets('fresh install: onboarding to Home schedules a plan', (
     tester,
   ) async {
+    // The active waqt's row pulses forever; without this, pumpAndSettle
+    // would time out whenever a waqt is active in Cairo.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     final repo = _InMemoryRepo(const AppSettings());
     final settings = await _registerApp(repo);
     final scheduler = _RecordingScheduler();

@@ -151,6 +151,30 @@ void main() {
     expect(repo.rows.values.map((e) => e.amount), [2], reason: 'UI = stored');
   });
 
+  test('a new id never replaces a hidden stored row', () async {
+    repo.hiddenMaxId = 6; // e.g. a newer version's category, not shown
+    final s = store();
+    await s.load();
+    await s.add(amount: 1, category: ExpenseCategory.need);
+    expect(repo.rows.keys, [7]);
+  });
+
+  test('a failed add keeps an edit of it that was saved meanwhile', () async {
+    final s = store();
+    await s.load();
+    repo
+      ..writeDelay = const Duration(milliseconds: 5)
+      ..failWriteCount = 1;
+    final add = expectLater(
+      s.add(amount: 1, category: ExpenseCategory.need),
+      throwsStateError,
+    );
+    await s.update(1, amount: 3, category: ExpenseCategory.need, date: now);
+    await add;
+    expect(s.entries.value.map((e) => e.amount), [3]);
+    expect(repo.rows.values.map((e) => e.amount), [3], reason: 'UI = stored');
+  });
+
   test('when the later write fails too, both report failure', () async {
     final s = store();
     await s.load();

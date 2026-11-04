@@ -38,8 +38,9 @@ const unimportedExpensesKey = 'expenses_unimported';
 
 /// Copies the expense log and budgets from prefs into [db]'s `expenses` /
 /// `expense_budgets` tables in one transaction, then removes the old keys.
-/// A no-op when none is stored. Re-running after a failure is safe: rows
-/// are written insert-or-replace and nothing is removed before the commit.
+/// A no-op when none is stored. Re-running after a failure is safe:
+/// nothing is removed before the commit, and a re-run after the commit only
+/// finishes removing the keys.
 ///
 /// Legacy handling: whole-unit records (`amount`) and v1 budgets are ×100;
 /// records an older version kept aside are retried (re-ided on an id
@@ -116,8 +117,13 @@ Future<void> importLegacyExpenses(
           in (jsonDecode(categories) as Map<String, dynamic>).entries) {
         // Unknown (newer) categories are kept as rows, unread until a
         // version knows them.
-        if (value is int && key != 'total') {
+        if (key == 'total') {
+          continue;
+        }
+        if (value is int) {
           budgets[key] = migrated ? value : value * 100;
+        } else {
+          unimported.add(jsonEncode({key: value}));
         }
       }
     } on Object {
@@ -129,18 +135,7 @@ Future<void> importLegacyExpenses(
       (legacy || v1Budget != null || v1Categories != null)) {
     await prefs.setString(expenseCurrencyKey, 'BDT');
   }
-  await db.transaction(() async {
-    for (final e in read) {
-      await insertExpense(db, e);
-    }
-    for (final MapEntry(:key, :value) in budgets.entries) {
-      await db.customInsert(
-        'INSERT OR REPLACE INTO expense_budgets (key, amount) VALUES (?, ?)',
-        variables: [Variable.withString(key), Variable.withInt(value)],
-      );
-    }
-  });
-  // Kept before any source key goes, so a failure here loses nothing.
+  // Kept first, so no later failure can lose it.
   if (unimported.isNotEmpty) {
     final earlier = await prefs.getString(unimportedExpensesKey);
     await prefs.setString(
@@ -153,6 +148,29 @@ Future<void> importLegacyExpenses(
         }.toList(),
       ),
     );
+  }
+  // Rows already there mean an earlier run committed and then failed to
+  // remove the keys (nothing else writes before the import has finished):
+  // writing again would replace those rows by the old ids.
+  final committed = await db
+      .customSelect(
+        'SELECT (SELECT COUNT(*) FROM expenses) + '
+        '(SELECT COUNT(*) FROM expense_budgets) AS n',
+      )
+      .map((r) => r.read<int>('n'))
+      .getSingle();
+  if (committed == 0) {
+    await db.transaction(() async {
+      for (final e in read) {
+        await insertExpense(db, e);
+      }
+      for (final MapEntry(:key, :value) in budgets.entries) {
+        await db.customInsert(
+          'INSERT OR REPLACE INTO expense_budgets (key, amount) VALUES (?, ?)',
+          variables: [Variable.withString(key), Variable.withInt(value)],
+        );
+      }
+    });
   }
   for (final key in legacyExpenseKeys) {
     await prefs.remove(key);

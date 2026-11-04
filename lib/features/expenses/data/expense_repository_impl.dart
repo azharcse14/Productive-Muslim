@@ -40,6 +40,10 @@ final class ExpenseRepositoryImpl implements ExpenseRepository {
     final budgets = await _db
         .customSelect('SELECT key, amount FROM expense_budgets')
         .get();
+    final maxId = await _db
+        .customSelect('SELECT COALESCE(MAX(id), 0) AS m FROM expenses')
+        .map((r) => r.read<int>('m'))
+        .getSingle();
     int? budget;
     final categoryBudgets = <ExpenseCategory, int>{};
     for (final r in budgets) {
@@ -69,6 +73,7 @@ final class ExpenseRepositoryImpl implements ExpenseRepository {
       budget: budget,
       categoryBudgets: categoryBudgets,
       currency: await _prefs.getString(expenseCurrencyKey),
+      maxId: maxId,
     );
   });
 
