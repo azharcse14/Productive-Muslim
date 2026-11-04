@@ -3940,4 +3940,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rakaatHanafiNote =>
       'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.';
+
+  @override
+  String get storiesTitle => 'Stories';
+
+  @override
+  String get storiesTabQuran => 'Quran';
+
+  @override
+  String get storiesTabHadith => 'Hadith';
+
+  @override
+  String get quranStoriesTitle => 'Quran stories';
+
+  @override
+  String get hadithStoriesTitle => 'Hadith stories';
+
+  @override
+  String get storiesLoadError =>
+      'Couldn\'t load the stories. Please try again.';
+
+  @override
+  String get storiesEmpty => 'No stories yet.';
+
+  @override
+  String get storyReferences => 'References';
+
+  @override
+  String get creditsStoriesSource =>
+      'Quran and hadith stories retold for this app, with the Quran ayahs and hadith numbers cited per story; pending review by a scholar';
 }

@@ -105,6 +105,10 @@ import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
 import '../../features/share/data/platform_share_sheet.dart';
 import '../../features/share/domain/share_sheet.dart';
+import '../../features/stories/data/story_asset_data_source.dart';
+import '../../features/stories/data/story_repository_impl.dart';
+import '../../features/stories/domain/repositories/story_repository.dart';
+import '../../features/stories/presentation/state/stories_store.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
 import '../settings/settings_store.dart';
@@ -367,6 +371,14 @@ Future<void> setupLocator() async {
       ),
       instanceName: RuqyahStore.tibbNabawi,
     );
+
+  // ---- stories (Quran + hadith) ----
+  locator
+    ..registerLazySingleton(() => StoryAssetDataSource(rootBundle))
+    ..registerLazySingleton<StoryRepository>(
+      () => StoryRepositoryImpl(locator()),
+    )
+    ..registerFactory(() => StoriesStore(locator()));
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(

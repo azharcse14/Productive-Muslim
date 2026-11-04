@@ -1799,5 +1799,14 @@
   "muhasabaRangeChange": "Change date range",
   "calendarNightBeginsAtSunset": "This night begins at sunset on this date.",
   "calendarObservanceDiffers": "Scholars differ on this date and on marking it with special worship.",
-  "rakaatHanafiNote": "Hanafi count — other madhabs differ on the sunnah and witr rak'ahs."
+  "rakaatHanafiNote": "Hanafi count — other madhabs differ on the sunnah and witr rak'ahs.",
+  "storiesTitle": "Stories",
+  "storiesTabQuran": "Quran",
+  "storiesTabHadith": "Hadith",
+  "quranStoriesTitle": "Quran stories",
+  "hadithStoriesTitle": "Hadith stories",
+  "storiesLoadError": "Couldn't load the stories. Please try again.",
+  "storiesEmpty": "No stories yet.",
+  "storyReferences": "References",
+  "creditsStoriesSource": "Quran and hadith stories retold for this app, with the Quran ayahs and hadith numbers cited per story; pending review by a scholar"
 }
