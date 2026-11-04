@@ -8,23 +8,23 @@
 The binding rules in `docs/PRODUCTIVE_MUSLIM_DEVELOPMENT_GUIDE.md` still apply. Where this
 plan is more specific, this plan wins.
 
-## Status — 2026-10-29 (all done items merged into `master`)
+## Status — updated 2026-11-04 (all done items merged into `master`)
 
 | Item | Status |
 |---|---|
 | 1.1 credits, 1.2 ledger, 1.3 `--no-bengali` switch, 1.4 `focusBlocking` | ✅ done |
-| 1.2 worklog backfill (2026-10-27 → 29, added in this plan revision) | ⏳ not started |
+| 1.2 worklog backfill (2026-10-27 → 29, added in this plan revision) | ✅ done 2026-11-04 (10-29 already had rows) |
 | 2.1–2.4 Jamaat Focus native | ✅ done |
 | 3 CI android job | ✅ done — never run on GitHub yet (branch not pushed) |
 | 4.1–4.4 | ✅ done |
-| 4.5 end-to-end flow test (added in this plan revision) | ⏳ not started |
+| 4.5 end-to-end flow test (added in this plan revision) | ✅ done 2026-11-04 (`test/widget_test.dart`) |
 | 5.1 architecture ratchet (baseline 96 → 92) | ✅ done |
 | 5.2 onboarding `AppLockStore`, qibla `QiblaStore`, notifications → `JamaatFocusControl` | ✅ done |
-| 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ⏳ not started |
-| 5.2 `prayer_widget_service.dart` off presentation (do together with the item above) | ⏳ not started |
-| 5.2 `arabicBodySize()` → injected reading preferences | ⏳ not started |
-| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ⏳ not written |
-| Owner decisions 1–5 | ⏳ unanswered |
+| 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ✅ done 2026-11-04 — moved to `lib/core/settings/` (app-scoped like theme/router; an interface would have one implementation) |
+| 5.2 `prayer_widget_service.dart` off presentation (do together with the item above) | ✅ done 2026-11-04 |
+| 5.2 `arabicBodySize()` → injected reading preferences | ✅ already done — reads `ReaderTextSizeScope` (InheritedWidget), no `GetIt` |
+| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ✅ written below — ⏳ awaiting owner approval |
+| Owner decisions 1–5 | 1 ✅ (minor units, 2026-11-03); 2–5 ⏳ unanswered |
 
 Findings that change this plan:
 - `md-rifatkhan/hadithbangla` is gone (404); the snapshot is `azharcse14/hadithbangla`
@@ -389,6 +389,47 @@ violation without deleting its baseline entry fails it.
 ## Phase 6 — Propose first; implement only after the owner approves
 
 Write a short design for each in the report. Don't implement until approved.
+
+### Proposals (written 2026-11-04 — awaiting owner approval)
+
+Checked against code on 2026-11-04: expenses and fasting still persist from their
+presentation stores (`ExpenseStore`, fasting store) into `SharedPreferencesAsync`; expenses
+already export/import a CSV (`ExpenseStore.exportCsv` / `importCsv`, budgets excluded); the
+Android lock record is plain prefs (iOS uses `LockKeychain`). Branch
+`feat/expense-sadaqah-backup` (separate worktree) is also touching expense backup —
+coordinate before starting the first two.
+
+1. **Export all / Import.** A `BackupRepository` in a new `lib/features/backup/` (domain
+   interface + data impl) asks each feature's domain repository for a `Map` section and
+   writes `{"format": "productive_muslim_backup", "version": 1, "exportedAt": …, "sections":
+   {"muhasaba": …, "fasting": …, "tasbih": …, "quran": …, "favorites": …, "mosques": …,
+   "health": …, "expenses": …, "settings": …}}`. Muhasaba rows come from drift DAOs (items
+   by stable id, entries by `(itemId, date)`); never the app-lock record or PIN. Transport:
+   clipboard first (no package, same as expenses today); a file/share-sheet needs a package
+   → guide §3 + owner OK. Import: parse → validate `format`/`version` and each section's
+   shape → preview counts per section → merge, skipping duplicates by natural key (expense
+   id, `(itemId, date)`, bookmark `surah:ayah`); unknown sections ignored, a newer
+   `version` refused. Tests: round-trip per section, duplicate import is a no-op, corrupt
+   input changes nothing.
+2. **Expenses and fasting → drift.** Add `expenses`, `budgets` and `fast_days` tables to the
+   muhasaba drift DB (one user DB): bump `schemaVersion`, migration step, export the schema
+   to `drift_schemas/`, regenerate the test schemas, extend `muhasaba_migration_test.dart`
+   (CLAUDE.md rule). Domain entities + repository interfaces; data impl with DAOs; stores
+   switch to the repositories. On first launch after upgrade a one-time importer copies the
+   old prefs keys into the tables inside one transaction and sets a `migrated` flag; the old
+   keys stay one release, then are removed. Amounts stay minor units. Tests: importer
+   (empty, normal, corrupt prefs), DAO aggregations (month totals, category filter),
+   migration test.
+3. **Android lock record in Android Keystore.** Kotlin `LockKeystore` mirroring iOS
+   `LockKeychain`: a non-exportable AES-256-GCM key (`KeyGenParameterSpec`, alias
+   `pm_lock`, no user-auth requirement so the lock screen can read it), ciphertext + IV in a
+   private `SharedPreferences` file excluded from backup. Same three string calls over the
+   existing method channel as iOS, so `KeychainPrefs` on the Dart side just stops being
+   iOS-only. Migration: on first read, move the plain prefs record into the Keystore store
+   and delete the plain copy. Key loss (restore to a new device, Keystore reset) reads as
+   "no lock" plus the existing PIN-reset path — never a crash. No androidx.security-crypto.
+   Tests: Robolectric/JVM unit test for encrypt/decrypt + migration, Dart test for the
+   channel fallback; `flutter build apk --debug`.
 
 - **Export all / Import.** One versioned JSON
   (`{"format": "productive_muslim_backup", "version": 1, …}`) with: muhasaba items + entries,

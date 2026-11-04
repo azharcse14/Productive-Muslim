@@ -54,7 +54,7 @@ asked to merge without more test runs.
   edit them without the owner:
   - 3:1 "Alim. Lam. Mim" (should probably be "Alif").
   - 12:1 "These are verse…" (should probably be "verses").
-- [ ] **Duas without Bengali transliteration.** 63 of 156 duas have no `trBn` (e.g.
+- [x] **Duas without Bengali transliteration.** — done in content audit A3 (2026-11-03); 0 of 152 missing now. 63 of 156 duas have no `trBn` (e.g.
   `fd_bismillah`, `tv_safar`), so the Bengali UI mixes in Latin script. This is a content task.
 - [ ] **Pickthall license** is still `UNVERIFIED`. The credits screen no longer claims a license.
 - [ ] **Muhasaba, already-migrated users:**
