@@ -22,11 +22,10 @@ asset data source → list/detail screen pattern. No new packages.
 - Drafted in-repo by Claude. Each asset gets a `docs/DEPENDENCIES.md` row with status
   `UNVERIFIED — scholar review pending`, and a line in Settings → Credits. Release needs a
   scholar's review first.
-- First drop (sample size; the rest is added later as content, with no code change):
-  - Quran stories: 3. Hadith stories: 3.
-  - Prophets: all 25 named in the Quran (names in Arabic/English/Bangla, order,
-    lineage). Summaries for 4 only: Adam, Nuh, Ibrahim, Yusuf. Others show name, Quran
-    mentions, and a "summary coming" state.
+- Coverage (owner, 2026-11-04): **every** story the Quran narrates and the well-known
+  narrative hadith (Bukhari/Muslim first, then the other bundled books), and a full
+  summary for **all** 25 prophets named in the Quran. Every ref is checked against the
+  bundled `quran.db` / `hadith.db` before it ships.
 
 ## Data
 
