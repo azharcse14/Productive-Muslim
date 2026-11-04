@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/painters/qalb_mark.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../state/app_lock_store.dart';
 
 /// Branded splash (design §4.1): the mark draws in, total ≤2s, never

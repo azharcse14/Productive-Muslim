@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/result.dart';
@@ -20,8 +22,6 @@ import '../../domain/repositories/location_repository.dart';
 import '../../domain/usecases/get_current_location.dart';
 import '../../domain/usecases/regional_defaults.dart';
 import '../../domain/usecases/search_cities.dart';
-import '../state/settings_store.dart';
-import '../widgets/setting_labels.dart';
 
 /// Two location paths side by side (design §4.2): GPS with priming text,
 /// and a searchable manual city list. Every GPS failure routes to the

@@ -6,14 +6,14 @@ import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/utils/result.dart';
 import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../my_mosque/domain/entities/jamaat_config.dart';
 import '../../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
-import '../../../settings/presentation/state/settings_store.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/notification_item.dart';
 import '../../domain/entities/notification_texts.dart';
 import '../../domain/repositories/notification_scheduler.dart';

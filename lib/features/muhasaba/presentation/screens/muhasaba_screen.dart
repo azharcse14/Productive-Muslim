@@ -6,6 +6,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
@@ -25,7 +26,6 @@ import '../../../../shared/widgets/q_skeleton.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../achievements/presentation/widgets/achievements_summary_card.dart';
 import '../../../prayer_times/presentation/state/home_store.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/period_stats.dart';
 import '../../domain/entities/tracker_item.dart';
 import '../state/muhasaba_store.dart';

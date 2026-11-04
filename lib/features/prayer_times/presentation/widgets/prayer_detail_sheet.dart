@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/settings/setting_labels.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 
 /// Per-prayer rakaat counts (fard · sunnah · witr) by the Hanafi madhab —
 /// the sheet labels them so. Zero segments are not rendered.

@@ -3,12 +3,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/settings/setting_labels.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/prayer_day.dart';
 
 /// Daily prayer table (design §4.3): the 5 prayers; start–end range,

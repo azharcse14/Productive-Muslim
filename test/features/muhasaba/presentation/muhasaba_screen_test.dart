@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/achievements/presentation/state/achievement_store.dart';
@@ -15,7 +16,6 @@ import 'package:productive_muslim/features/muhasaba/presentation/screens/muhasab
 import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_store.dart';
 import 'package:productive_muslim/features/muhasaba/presentation/widgets/tracker_row.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/shared/widgets/q_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';

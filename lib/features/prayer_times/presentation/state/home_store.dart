@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/utils/bangla_date.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/wall_time.dart';
@@ -12,7 +13,6 @@ import '../../../my_mosque/domain/usecases/resolve_active_mosque.dart';
 import '../../../my_mosque/presentation/state/mosque_store.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/entities/countdown_target.dart';
 import '../../domain/entities/prayer_day.dart';
 import '../../domain/entities/special_time.dart';

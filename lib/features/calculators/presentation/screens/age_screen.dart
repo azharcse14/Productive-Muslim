@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -10,7 +11,6 @@ import '../../../../shared/widgets/q_banner.dart';
 import '../../../../shared/widgets/q_button.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_form.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/age_calculator.dart';
 import '../widgets/date_field.dart';
 

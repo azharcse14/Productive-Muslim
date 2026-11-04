@@ -8,6 +8,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -23,8 +25,6 @@ import '../../../nearby_mosques/domain/external_launcher.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
-import '../../../settings/presentation/state/settings_store.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/repositories/jamaat_focus_control.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../state/notification_controller.dart';

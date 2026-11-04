@@ -6,6 +6,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
@@ -22,9 +24,7 @@ import '../../../onboarding/presentation/state/app_lock_store.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/prayer_params.dart';
 import '../../domain/usecases/regional_defaults.dart';
-import '../state/settings_store.dart';
 import '../widgets/option_sheet.dart';
-import '../widgets/setting_labels.dart';
 
 /// Grouped settings (design §12): calculation / notifications /
 /// appearance & language / privacy / about. Notification matrix UI lands

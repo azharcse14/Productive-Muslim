@@ -6,17 +6,16 @@ import 'package:flutter/widgets.dart' show Locale;
 
 import '../../../config/app_config.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/settings/setting_labels.dart';
+import '../../../core/settings/settings_store.dart';
 import '../../../core/utils/time_format.dart';
 import '../../../core/utils/wall_time.dart';
+import '../../my_mosque/domain/entities/mosque_state.dart';
 import '../../my_mosque/domain/usecases/resolve_active_mosque.dart';
-import '../../my_mosque/presentation/state/mosque_store.dart';
 import '../../prayer_times/domain/entities/prayer_day.dart';
 import '../../prayer_times/domain/usecases/get_prayer_day.dart';
-import '../../prayer_times/presentation/screens/home_formatting.dart';
 import '../../settings/domain/entities/prayer_params.dart';
 import '../../settings/domain/repositories/zoned_clock.dart';
-import '../../settings/presentation/state/settings_store.dart';
-import '../../settings/presentation/widgets/setting_labels.dart';
 import '../domain/next_prayer.dart';
 import '../domain/widget_payload.dart';
 import 'widget_bridge.dart';
@@ -30,18 +29,18 @@ final class PrayerWidgetService {
     required GetPrayerDay getPrayerDay,
     required ZonedClock clock,
     required SettingsStore settings,
-    MosqueStore? mosque,
+    MosqueState? Function()? mosqueState,
     WidgetBridge bridge = const WidgetBridge(),
   }) : _getPrayerDay = getPrayerDay,
        _clock = clock,
        _settings = settings,
-       _mosque = mosque,
+       _mosqueState = mosqueState,
        _bridge = bridge;
 
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
   final SettingsStore _settings;
-  final MosqueStore? _mosque;
+  final MosqueState? Function()? _mosqueState;
   final WidgetBridge _bridge;
 
   /// Fires [update] at the next prayer start or midnight, whichever first,
@@ -66,7 +65,7 @@ final class PrayerWidgetService {
       DateTime now;
       // Read with [now]: its real instant through a repeated (fall-back) hour.
       final nowUtc = DateTime.now().toUtc();
-      var locationLabel = '';
+      var placeName = '';
       if (location != null) {
         now = _clock.nowAt(location);
         final today = DateTime(now.year, now.month, now.day);
@@ -83,7 +82,7 @@ final class PrayerWidgetService {
           if (d == null) break; // Keep the days consecutive.
           days.add(d);
         }
-        locationLabel = formatLocationName(location, l10n);
+        placeName = locationLabel(location, l10n);
       } else {
         now = floatingNow();
       }
@@ -96,7 +95,7 @@ final class PrayerWidgetService {
 
       // Same rule as Home: Friday Dhuhr reads Jumu'ah only when the mosque
       // active at that Dhuhr has a Jumu'ah time (resolved for it alone).
-      final mosqueState = _mosque?.state.value;
+      final mosqueState = _mosqueState?.call();
       bool jumuahAt(Prayer p, DateTime at) =>
           p == Prayer.dhuhr &&
           at.weekday == DateTime.friday &&
@@ -109,7 +108,7 @@ final class PrayerWidgetService {
         prayerName: (p, at) =>
             l10n.prayerLabelOn(p, at, jumuah: jumuahAt(p, at)),
         formatTime: formatTime,
-        locationLabel: locationLabel,
+        locationLabel: placeName,
         setupAction: l10n.widgetSetupAction,
         setupHint: l10n.widgetSetupHint,
         staleTitle: l10n.widgetStaleTitle,

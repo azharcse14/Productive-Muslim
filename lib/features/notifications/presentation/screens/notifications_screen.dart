@@ -6,6 +6,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
@@ -17,8 +19,6 @@ import '../../../daily_content/domain/usecases/pick_daily_content.dart';
 import '../../../prayer_times/presentation/screens/home_formatting.dart';
 import '../../../settings/domain/entities/notification_matrix.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
-import '../../../settings/presentation/state/settings_store.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/notification_item.dart';
 import '../../domain/repositories/notification_scheduler.dart';
 import '../state/notification_controller.dart';

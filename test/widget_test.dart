@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/tasbih_store.dart';
@@ -15,7 +16,6 @@ import 'package:productive_muslim/features/settings/domain/entities/app_settings
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/main.dart';
 import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 
