@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:adhan_dart/adhan_dart.dart' as adhan;
 
 import '../../../../core/utils/hijri_date.dart';
@@ -44,7 +46,12 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       // day ahead of solar time (Samoa, UTC+13 at 172°W) that day's times
       // land on the next local date: [shift] picks the matching solar day.
       var shift = 0;
-      adhan.PrayerTimes timesOn(int dayOffset) {
+      // [raw]: unadjusted, unrounded times (the 45° proportion's inputs).
+      adhan.PrayerTimes timesOn(
+        int dayOffset, {
+        double? lat,
+        bool raw = false,
+      }) {
         final day = DateTime.utc(
           date.year,
           date.month,
@@ -59,10 +66,17 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
               offsetDays: offset,
             ).month ==
             HijriDate.ramadanMonth;
+        final calc = _calculationParameters(params, ramadan);
+        if (raw) {
+          calc
+            ..adjustments = {}
+            ..methodAdjustments = {};
+        }
         return adhan.PrayerTimes(
           date: day.add(Duration(days: shift)),
-          coordinates: adhan.Coordinates(latitude, location.longitude),
-          calculationParameters: _calculationParameters(params, ramadan),
+          coordinates: adhan.Coordinates(lat ?? latitude, location.longitude),
+          calculationParameters: calc,
+          precision: raw,
         );
       }
 
@@ -87,19 +101,91 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       }
       final [yesterday, times, tomorrow] = near;
       // Fajr ends at the method's sunrise; the makruh window uses the sun's.
-      final methodOffsets = _calculationParameters(
-        params,
-        false,
-      ).methodAdjustments;
+      final calc = _calculationParameters(params, false);
+      final methodOffsets = calc.methodAdjustments;
       final sunriseOffset = methodOffsets[adhan.Prayer.sunrise] ?? 0;
       // Dhuhr minus every minute offset: the sun's own transit.
       final dhuhrOffset =
           (methodOffsets[adhan.Prayer.dhuhr] ?? 0) +
           params.adjustmentFor(Prayer.dhuhr);
 
+      var ishaYesterday = yesterday.isha;
+      var fajr = times.fajr;
+      var isha = times.isha;
+      var fajrTomorrow = tomorrow.fajr;
+      // MWL Fiqh Council, 9th session (1406 AH), region 2: Isha and Fajr
+      // take the share of the night they take at 45°. Like adhan's own
+      // rules, only a bound: Isha no later, Fajr no earlier.
+      if (params.highLatitudeRule == HighLatitudeRule.latitude45Proportion &&
+          latitude.abs() > 45) {
+        final here = [
+          for (final d in const [-1, 0, 1]) timesOn(d, raw: true),
+        ];
+        final at45 = [
+          for (final d in const [-1, 0, 1])
+            timesOn(d, lat: 45.0 * latitude.sign, raw: true),
+        ];
+        // Night n (0: last night, 1: tonight): sunset of day n-1 → sunrise
+        // of day n, as indexes into [-1, 0, 1].
+        Duration night(List<adhan.PrayerTimes> t, int n) =>
+            t[n + 1].sunrise.difference(t[n].sunset);
+        DateTime proportional(adhan.Prayer prayer, int n) {
+          final part = prayer == adhan.Prayer.isha
+              ? at45[n].isha.difference(at45[n].sunset)
+              : at45[n + 1].sunrise.difference(at45[n + 1].fajr);
+          final offset =
+              night(here, n) *
+              (part.inMicroseconds / night(at45, n).inMicroseconds);
+          final raw = prayer == adhan.Prayer.isha
+              ? here[n].sunset.add(offset)
+              : here[n + 1].sunrise.subtract(offset);
+          final minutes =
+              (calc.adjustments[prayer] ?? 0) +
+              (calc.methodAdjustments[prayer] ?? 0);
+          return _roundUp(raw.add(Duration(minutes: minutes)));
+        }
+
+        // Where the twilight angle is never reached adhan returns an
+        // arbitrary time, not NaN: the proportion replaces it outright.
+        bool reached(double angle, int n) => _twilightReached(
+          latitude,
+          angle,
+          here[n].sunset.add(night(here, n) ~/ 2),
+        );
+        DateTime earlier(DateTime a, DateTime b) => b.isBefore(a) ? b : a;
+        DateTime later(DateTime a, DateTime b) => b.isAfter(a) ? b : a;
+        DateTime ishaOf(DateTime computed, int n) {
+          final p = proportional(adhan.Prayer.isha, n);
+          return reached(calc.ishaAngle, n) ? earlier(computed, p) : p;
+        }
+
+        DateTime fajrOf(DateTime computed, int n) {
+          final p = proportional(adhan.Prayer.fajr, n);
+          return reached(calc.fajrAngle, n) ? later(computed, p) : p;
+        }
+
+        // Interval methods (Umm al-Qura) fix Isha after Maghrib; adhan
+        // never bounds those either.
+        if ((calc.ishaInterval ?? 0) == 0) {
+          ishaYesterday = ishaOf(ishaYesterday, 0);
+          isha = ishaOf(isha, 1);
+        }
+        fajr = fajrOf(fajr, 0);
+        fajrTomorrow = fajrOf(fajrTomorrow, 1);
+      }
+      // Near the polar edge middle-of-the-night Isha and the next Fajr come
+      // from different nights: rounding can put Isha at or past that Fajr
+      // (Tromsø 21 Jun: 00:47 vs 00:46). Take that night's midpoint then.
+      DateTime beforeFajr(DateTime isha, DateTime maghrib, DateTime fajr) =>
+          isha.isBefore(fajr)
+          ? isha
+          : _roundUp(maghrib.add(fajr.difference(maghrib) ~/ 2));
+      ishaYesterday = beforeFajr(ishaYesterday, yesterday.maghrib, fajr);
+      isha = beforeFajr(isha, times.maghrib, fajrTomorrow);
+
       return Result.success(
         PrayerDay(
-          fajr: wall(times.fajr),
+          fajr: wall(fajr),
           // Rounded *up* like the rest, but sunrise ends Fajr: take a
           // minute off so Fajr never shows as running past true sunrise.
           sunrise: wall(times.sunrise).subtract(const Duration(minutes: 1)),
@@ -111,11 +197,11 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           transit: wall(times.dhuhr).subtract(Duration(minutes: dhuhrOffset)),
           asr: wall(times.asr),
           maghrib: wall(times.maghrib),
-          isha: wall(times.isha),
+          isha: wall(isha),
           // Not adhan's fajrAfter/ishaBefore: when twilight is never
           // reached (high-latitude summer) those return *today's* times.
-          fajrTomorrow: wall(tomorrow.fajr),
-          ishaYesterday: wall(yesterday.isha),
+          fajrTomorrow: wall(fajrTomorrow),
+          ishaYesterday: wall(ishaYesterday),
           maghribYesterday: wall(yesterday.maghrib),
           asrYesterday: wall(yesterday.asr),
           // +1: times are rounded *up*, so the shown Fajr can be up to 59 s
@@ -168,6 +254,11 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       HighLatitudeRule.seventhOfTheNight =>
         adhan.HighLatitudeRule.seventhOfTheNight,
       HighLatitudeRule.twilightAngle => adhan.HighLatitudeRule.twilightAngle,
+      // Applied by [prayerDay]. adhan's loosest bound: it only clamps Isha
+      // to, and Fajr from, mid-night, and the 45° share is always under
+      // half a night, so the proportion's own bound always wins.
+      HighLatitudeRule.latitude45Proportion =>
+        adhan.HighLatitudeRule.middleOfTheNight,
     };
     calc.adjustments = {
       adhan.Prayer.fajr: params.adjustmentFor(Prayer.fajr),
@@ -182,6 +273,37 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
     };
     calc.rounding = adhan.Rounding.up;
     return calc;
+  }
+
+  /// Whether the sun sinks [angle]° below the horizon around [midnight]:
+  /// its lowest altitude there is |lat| + declination (toward that pole)
+  /// − 90°. ponytail: Spencer's declination (±0.04°) and a 0.1° margin —
+  /// right at the edge the twilight counts as unreached; take adhan's own
+  /// solar coordinates if they're ever exported.
+  static bool _twilightReached(double lat, double angle, DateTime midnight) {
+    final g =
+        2 *
+        pi *
+        midnight.difference(DateTime.utc(midnight.year)).inMinutes /
+        (365 * 24 * 60);
+    final declination =
+        (0.006918 -
+            0.399912 * cos(g) +
+            0.070257 * sin(g) -
+            0.006758 * cos(2 * g) +
+            0.000907 * sin(2 * g) -
+            0.002697 * cos(3 * g) +
+            0.00148 * sin(3 * g)) *
+        180 /
+        pi;
+    return lat.abs() + declination * lat.sign < 90 - angle - 0.1;
+  }
+
+  /// Up to the next whole minute, like adhan's [adhan.Rounding.up].
+  static DateTime _roundUp(DateTime t) {
+    const minute = Duration.microsecondsPerMinute;
+    final us = t.microsecondsSinceEpoch + minute - 1;
+    return DateTime.fromMicrosecondsSinceEpoch(us - us % minute, isUtc: true);
   }
 
   /// False for the garbage adhan returns on a polar day or night: the

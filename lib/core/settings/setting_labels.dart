@@ -101,6 +101,7 @@ extension SettingLabels on AppLocalizations {
     HighLatitudeRule.middleOfTheNight => highLatMiddle,
     HighLatitudeRule.seventhOfTheNight => highLatSeventh,
     HighLatitudeRule.twilightAngle => highLatTwilight,
+    HighLatitudeRule.latitude45Proportion => highLatProportion45,
   };
 
   String polarLabel(PolarRule r) => switch (r) {

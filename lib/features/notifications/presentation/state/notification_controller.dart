@@ -192,8 +192,12 @@ final class NotificationController {
       final result = await _reschedule(
         settings: _settings.settings.value,
         texts: texts,
-        jamaatAt: (at) =>
-            resolveActiveMosque(_mosque.state.value, at).profile?.config ??
+        jamaatAt: (at, now) =>
+            resolveMosqueForWaqt(
+              _mosque.state.value,
+              at,
+              now,
+            ).profile?.config ??
             JamaatConfig.none,
       );
       switch (result) {

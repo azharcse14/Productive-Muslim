@@ -48,6 +48,17 @@ void main() {
       expect(restored, settings);
     });
 
+    test('persists the 45° proportion rule by name', () {
+      const settings = AppSettings(
+        prayerParams: PrayerParams(
+          highLatitudeRule: HighLatitudeRule.latitude45Proportion,
+        ),
+      );
+      final map = AppSettingsModel.toMap(settings);
+      expect((map['prayerParams']! as Map)['highLat'], 'latitude45Proportion');
+      expect(AppSettingsModel.fromMap(map), settings);
+    });
+
     test('round-trips a GPS location', () {
       const settings = AppSettings(
         location: GpsLocation(

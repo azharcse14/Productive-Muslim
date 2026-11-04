@@ -14,7 +14,9 @@ import '../entities/prayer_day.dart';
 ///      while yesterday's Asr still runs (sunset past midnight)
 ///    The after-Isha sahri target follows [ramadanTonight] (tomorrow's fast),
 ///    not [ramadanMode] (today's): no sahri on the last night of Ramadan,
-///    and it already shows on the eve of 1 Ramadan.
+///    and it already shows on the eve of 1 Ramadan. The pre-fajr iftar
+///    follows [ramadanYesterday] (it ends yesterday's fast): none on
+///    1 Ramadan, still one on 1 Shawwal.
 /// 2. Between waqts (sunrise→dhuhr gap) → next waqt start.
 /// 3. Inside a waqt, jamaat configured for it, still in the future AND
 ///    before the waqt ends → jamaat; otherwise → waqt end (a stale fixed
@@ -25,10 +27,11 @@ CountdownTarget resolveCountdownTarget({
   required JamaatConfig jamaat,
   required bool ramadanMode,
   bool? ramadanTonight,
+  bool? ramadanYesterday,
 }) {
-  if (ramadanMode) {
-    // Sunset past midnight (high-latitude summer): yesterday's fast is
-    // still running, so iftar comes before the next sahri.
+  // Sunset past midnight (high-latitude summer): yesterday's fast is
+  // still running, so iftar comes before the next sahri.
+  if (ramadanYesterday ?? ramadanMode) {
     if (day.activeWaqtAt(now) case ActiveWaqt(
       prayer: Prayer.asr,
       :final start,
@@ -41,6 +44,8 @@ CountdownTarget resolveCountdownTarget({
         windowStart: start,
       );
     }
+  }
+  if (ramadanMode) {
     if (now.isBefore(day.sahriEnd)) {
       return CountdownTarget(
         kind: CountdownKind.sahriEnd,

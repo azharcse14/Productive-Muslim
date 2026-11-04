@@ -1,5 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_profile.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_schedule.dart';
+import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
+import 'package:productive_muslim/features/my_mosque/domain/usecases/resolve_active_mosque.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
@@ -346,6 +350,63 @@ void main() {
       ]);
       expect(asked, contains(DateTime(2026, 3, 13, 12))); // dhuhr waqt start
     });
+  });
+
+  test('an override set after midnight reaches the overnight jamaat', () {
+    // High-latitude summer: Isha 23:50, its jamaat after midnight.
+    PrayerDay day(int d) => PrayerDay(
+      ishaYesterday: DateTime(2026, 6, d - 1, 23, 50),
+      fajr: DateTime(2026, 6, d, 2, 30),
+      sunrise: DateTime(2026, 6, d, 4, 30),
+      dhuhr: DateTime(2026, 6, d, 13),
+      asr: DateTime(2026, 6, d, 17, 30),
+      maghrib: DateTime(2026, 6, d, 21, 30),
+      isha: DateTime(2026, 6, d, 23, 50),
+      fajrTomorrow: DateTime(2026, 6, d + 1, 2, 30),
+    );
+    final now = DateTime(2026, 6, 13, 0, 5);
+    final state = MosqueState(
+      mode: ScheduleMode.auto,
+      defaultId: 'a',
+      profiles: const [
+        MosqueProfile(
+          id: 'a',
+          name: 'A',
+          entries: {Prayer.isha: OffsetJamaat(Duration(minutes: 40))},
+        ),
+        MosqueProfile(
+          id: 'b',
+          name: 'B',
+          entries: {Prayer.isha: OffsetJamaat(Duration(minutes: 55))},
+        ),
+      ],
+      // Switched to B at 00:05, during yesterday's Isha.
+      activeOverride: MosqueOverride(
+        mosqueId: 'b',
+        baselineAutoId: 'a',
+        setOn: DateTime(2026, 6, 13),
+      ),
+    );
+    // As NotificationController wires it (through RescheduleNotifications).
+    final plan = buildNotificationPlan(
+      from: now,
+      days: [day(12), day(13)],
+      matrix: const NotificationMatrix(
+        jamaatReminder: true,
+        jamaatLead: Duration(minutes: 10),
+      ),
+      jamaat: JamaatConfig.none,
+      jamaatAt: (at) =>
+          resolveMosqueForWaqt(state, at, now).profile?.config ??
+          JamaatConfig.none,
+      window: const Duration(hours: 12),
+    );
+    final isha = plan.firstWhere(
+      (i) => i.kind == NotificationKind.jamaat && i.prayer == Prayer.isha,
+    );
+    // B: 23:50 + 55 = 00:45 (A's 00:30 would remind at 00:20).
+    expect(isha.eventAt, DateTime(2026, 6, 13, 0, 45));
+    expect(isha.at, DateTime(2026, 6, 13, 0, 35));
   });
 
   group('buildNotificationPlan — muhasaba nudge', () {

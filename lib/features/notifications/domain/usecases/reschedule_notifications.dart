@@ -36,13 +36,13 @@ final class RescheduleNotifications {
     int? maxItems,
     FocusSink? focusSink,
     bool focusAsNotifications = false,
-  })  : _focusSink = focusSink,
-        _focusAsNotifications = focusAsNotifications,
-        _getPrayerDay = getPrayerDay,
-        _scheduler = scheduler,
-        _clock = clock,
-        _window = window,
-        _maxItems = maxItems;
+  }) : _focusSink = focusSink,
+       _focusAsNotifications = focusAsNotifications,
+       _getPrayerDay = getPrayerDay,
+       _scheduler = scheduler,
+       _clock = clock,
+       _window = window,
+       _maxItems = maxItems;
 
   final GetPrayerDay _getPrayerDay;
   final NotificationScheduler _scheduler;
@@ -53,13 +53,14 @@ final class RescheduleNotifications {
   final bool _focusAsNotifications;
 
   /// Returns the scheduled plan (empty when there is no location).
-  /// [jamaatAt], when given, resolves the jamaat config at each prayer's
-  /// waqt start (location wall clock) and takes precedence over [jamaat].
+  /// [jamaatAt], when given, resolves the jamaat config for each prayer's
+  /// waqt start, seen at now (both location wall clock), and takes
+  /// precedence over [jamaat].
   Future<Result<NotificationPlan>> call({
     required AppSettings settings,
     required NotificationTexts texts,
     JamaatConfig jamaat = JamaatConfig.none,
-    JamaatConfig Function(DateTime at)? jamaatAt,
+    JamaatConfig Function(DateTime waqtStart, DateTime now)? jamaatAt,
   }) async {
     final location = settings.location;
     if (location == null) {
@@ -69,6 +70,9 @@ final class RescheduleNotifications {
     }
 
     final now = _clock.nowAt(location);
+    final configAt = jamaatAt == null
+        ? null
+        : (DateTime start) => jamaatAt(start, now);
     final days = <PrayerDay>[];
     // Yesterday (its isha can start after midnight at high latitudes), today,
     // whole days in the window, and one spare for a late start.
@@ -92,7 +96,7 @@ final class RescheduleNotifications {
       days: days,
       matrix: settings.notifications,
       jamaat: jamaat,
-      jamaatAt: jamaatAt,
+      jamaatAt: configAt,
       window: _window,
     );
     final plan = buildNotificationPlan(
@@ -100,7 +104,7 @@ final class RescheduleNotifications {
       days: days,
       matrix: settings.notifications,
       jamaat: jamaat,
-      jamaatAt: jamaatAt,
+      jamaatAt: configAt,
       window: _window,
       maxItems: _maxItems,
       keepAlive: true,

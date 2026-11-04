@@ -145,3 +145,22 @@ MosqueResolution resolveActiveMosque(MosqueState state, DateTime now) {
     season: season,
   );
 }
+
+/// The mosque whose jamaat a waqt starting at [waqtStart] follows, seen at
+/// [now]: the one active at that start — unless the waqt has begun and an
+/// override is in effect [now]. The user set it for the waqt running now;
+/// set after midnight, it was never live at an overnight waqt's
+/// (yesterday's) start. Home and notifications both resolve through this.
+MosqueResolution resolveMosqueForWaqt(
+  MosqueState state,
+  DateTime waqtStart,
+  DateTime now,
+) {
+  if (!waqtStart.isAfter(now)) {
+    final current = resolveActiveMosque(state, now);
+    if (current.isOverride) {
+      return current;
+    }
+  }
+  return resolveActiveMosque(state, waqtStart);
+}
