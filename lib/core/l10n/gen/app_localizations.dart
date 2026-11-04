@@ -3374,6 +3374,12 @@ abstract class AppLocalizations {
   /// **'Couldn\'t confirm it\'s you. Your PIN is unchanged.'**
   String get appLockResetFailed;
 
+  /// No description provided for @appLockResetUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your screen lock can\'t be used right now, maybe after too many tries. Wait a while and try again. Your PIN is unchanged.'**
+  String get appLockResetUnavailable;
+
   /// No description provided for @appLockSetupNoDeviceLockTitle.
   ///
   /// In en, this message translates to:

@@ -22,13 +22,18 @@ final class _FakeBiometric implements BiometricAuth {
 
   bool deviceLock = true;
   bool deviceLockSucceeds = true;
+  bool deviceLockThrows = false;
 
   @override
   Future<bool> canUseDeviceLock() async => deviceLock;
 
   @override
-  Future<bool> authenticateWithDeviceLock(String reason) async =>
-      deviceLockSucceeds;
+  Future<bool> authenticateWithDeviceLock(String reason) async {
+    if (deviceLockThrows) {
+      throw StateError('locked out');
+    }
+    return deviceLockSucceeds;
+  }
 
   @override
   Future<bool> authenticate(String reason) async {
@@ -702,6 +707,22 @@ void main() {
       );
       expect(await store.unlockWithPin('1234'), isTrue);
     });
+
+    test(
+      'a locked-out device lock reports unavailable, PIN unchanged',
+      () async {
+        final biometric = _FakeBiometric()..deviceLockThrows = true;
+        final store = _store(biometric: biometric);
+        await store.enable('1234', biometric: false);
+        await store.load();
+        expect(
+          await store.authenticateForPinReset('reason'),
+          PinResetAuth.unavailable,
+        );
+        expect(await store.resetPin('9999'), isFalse);
+        expect(await store.unlockWithPin('1234'), isTrue);
+      },
+    );
   });
 
   group('Muhasaba-only scope', () {

@@ -2302,6 +2302,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t confirm it\'s you. Your PIN is unchanged.';
 
   @override
+  String get appLockResetUnavailable =>
+      'Your screen lock can\'t be used right now, maybe after too many tries. Wait a while and try again. Your PIN is unchanged.';
+
+  @override
   String get appLockSetupNoDeviceLockTitle => 'No screen lock on this device';
 
   @override

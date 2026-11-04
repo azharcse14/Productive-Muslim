@@ -209,6 +209,21 @@ void main() {
       },
     );
 
+    test('a non-string kept-aside element is set aside alone', () async {
+      await prefs.setString(
+        'expenses_v1_unreadable_records',
+        jsonEncode([good, 42, '{not json']),
+      );
+      final data = await load();
+      expect(data.expenses.map((e) => e.id), [1]);
+      expect(
+        (jsonDecode((await prefs.getString(unimportedExpensesKey))!) as List)
+            .cast<String>(),
+        ['42', '{not json'],
+        reason: 'the imported record is not also kept for recovery',
+      );
+    });
+
     test('a failed import keeps the prefs and is retried', () async {
       await prefs.setString('expenses_v1', '[$good]');
       await db.customStatement('DROP TABLE expenses');
