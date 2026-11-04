@@ -259,6 +259,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get highLatTwilight => 'গোধূলি কোণ';
 
   @override
+  String get highLatProportion45 => '৪৫° অনুপাত (মুসলিম ওয়ার্ল্ড লীগ)';
+
+  @override
   String get settingPolar => 'মেরু অঞ্চল (সূর্যোদয়/সূর্যাস্ত নেই)';
 
   @override

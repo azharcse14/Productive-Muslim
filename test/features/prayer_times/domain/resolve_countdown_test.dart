@@ -435,6 +435,29 @@ void main() {
       expect(t.at, nome.maghribYesterday);
       expect(t.windowStart, nome.asrYesterday);
     });
+
+    test('1 Ramadan: no iftar for yesterday, a non-fast day', () {
+      final t = resolveCountdownTarget(
+        now: night,
+        day: nome,
+        jamaat: JamaatConfig.none,
+        ramadanMode: true,
+        ramadanYesterday: false,
+      );
+      expect(t.kind, isNot(CountdownKind.iftar));
+    });
+
+    test("1 Shawwal: yesterday's iftar still counts down", () {
+      final t = resolveCountdownTarget(
+        now: night,
+        day: nome,
+        jamaat: JamaatConfig.none,
+        ramadanMode: false,
+        ramadanYesterday: true,
+      );
+      expect(t.kind, CountdownKind.iftar);
+      expect(t.at, nome.maghribYesterday);
+    });
   });
 
   group('resolveCountdownTarget — jamaat past the waqt end', () {

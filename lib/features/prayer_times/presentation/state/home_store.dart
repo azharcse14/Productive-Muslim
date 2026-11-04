@@ -176,6 +176,16 @@ final class HomeStore {
     () => hijriDate.value.month == HijriDate.ramadanMonth,
   );
 
+  /// Whether yesterday was a fast day: its iftar can fall after midnight.
+  late final _ramadanYesterday = computed(() {
+    final d = dateKey.value;
+    return HijriDate.fromGregorian(
+          DateTime(d.year, d.month, d.day - 1),
+          offsetDays: _settings.settings.value.hijriOffsetDays,
+        ).month ==
+        HijriDate.ramadanMonth;
+  });
+
   /// The mosque active right now (manual selection, schedule, or override),
   /// memoized so the home subtree rebuilds only when it actually changes.
   late final mosqueResolution = computed(
@@ -222,10 +232,11 @@ final class HomeStore {
     if (o == null) {
       return null;
     }
-    if (mosqueResolution.value.isOverride) {
-      return jamaatConfig.value;
-    }
-    return resolveActiveMosque(_mosque.state.value, o.start).profile?.config ??
+    return resolveMosqueForWaqt(
+          _mosque.state.value,
+          o.start,
+          now.value,
+        ).profile?.config ??
         JamaatConfig.none;
   });
 
@@ -300,6 +311,7 @@ final class HomeStore {
           jamaatConfig.value,
       ramadanMode: ramadanMode.value,
       ramadanTonight: sahriInRamadan.value,
+      ramadanYesterday: _ramadanYesterday.value,
     );
   });
 

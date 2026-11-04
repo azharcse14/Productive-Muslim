@@ -260,6 +260,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highLatTwilight => 'Twilight angle';
 
   @override
+  String get highLatProportion45 => '45° proportion (Muslim World League)';
+
+  @override
   String get settingPolar => 'Polar regions (no sunrise/sunset)';
 
   @override

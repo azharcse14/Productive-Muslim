@@ -1,3 +1,4 @@
+import 'package:adhan_dart/adhan_dart.dart' as adhan;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -131,6 +132,57 @@ void main() {
     });
   });
 
+  test('London midsummer: Isha follows the rule even when it meets Fajr', () {
+    const london = ManualCityLocation(
+      City(
+        name: 'London',
+        countryCode: 'GB',
+        latitude: 51.5072,
+        longitude: -0.1276,
+        timezone: 'Europe/London',
+      ),
+    );
+    final date = DateTime(2026, 6, 21);
+    PrayerDay dayWith(HighLatitudeRule rule) => repo
+        .prayerDay(
+          location: london,
+          params: PrayerParams(highLatitudeRule: rule),
+          date: date,
+        )
+        .valueOrNull!;
+    final tomorrow = repo
+        .prayerDay(
+          location: london,
+          params: const PrayerParams(),
+          date: date.add(const Duration(days: 1)),
+        )
+        .valueOrNull!;
+    // Karachi's 18° is never reached in London in June. Middle-of-the-night
+    // puts Isha and Fajr both at mid-night; Isha used to jump to 23:13.
+    // Night = sunset → tomorrow's true sunrise.
+    final night = tomorrow.trueSunrise
+        .add(const Duration(minutes: 1))
+        .difference(dayWith(HighLatitudeRule.middleOfTheNight).sunset);
+    for (final (rule, share) in [
+      (HighLatitudeRule.middleOfTheNight, 1 / 2),
+      (HighLatitudeRule.seventhOfTheNight, 1 / 7),
+      (HighLatitudeRule.twilightAngle, 18 / 60),
+    ]) {
+      final day = dayWith(rule);
+      final expected = day.sunset.add(night * share);
+      expect(
+        day.isha.difference(expected).inMinutes.abs() <= 2,
+        isTrue,
+        reason: '$rule: ${day.isha} vs $expected',
+      );
+    }
+    final middle = dayWith(HighLatitudeRule.middleOfTheNight);
+    expect(
+      middle.isha,
+      middle.fajrTomorrow.subtract(const Duration(minutes: 1)),
+    );
+  });
+
   test('London midsummer: adjacent-day Fajr/Isha stay on their own days', () {
     const london = ManualCityLocation(
       City(
@@ -163,6 +215,8 @@ void main() {
     ('Murmansk', 68.9585, 33.0827, 'Europe/Moscow', DateTime(2026, 12, 21)),
     ('Bodø', 67.2804, 14.4049, 'Europe/Oslo', DateTime(2026, 6, 21)),
     ('Bodø', 67.2804, 14.4049, 'Europe/Oslo', DateTime(2026, 12, 21)),
+    ('Nome', 64.5011, -165.4064, 'America/Nome', DateTime(2026, 6, 21)),
+    ('Nome', 64.5011, -165.4064, 'America/Nome', DateTime(2026, 12, 21)),
   ]) {
     test('polar $name ${date.month}/${date.day}: times sit on that date', () {
       final city = ManualCityLocation(
@@ -208,8 +262,130 @@ void main() {
       for (var i = 1; i < ordered.length; i++) {
         expect(ordered[i].isAfter(ordered[i - 1]), isTrue, reason: '$ordered');
       }
+      // Rounding once put Isha a minute past the next Fajr (Tromsø 21 Jun:
+      // 00:47 vs 00:46; Nome: both 03:04).
+      expect(day.isha.isBefore(day.fajrTomorrow), isTrue, reason: '$day');
+      expect(day.ishaYesterday.isBefore(day.fajr), isTrue, reason: '$day');
     });
   }
+
+  group('high-latitude rule: 45° proportion (MWL)', () {
+    const rule = PrayerParams(
+      method: CalculationMethodId.muslimWorldLeague,
+      highLatitudeRule: HighLatitudeRule.latitude45Proportion,
+    );
+    final june = DateTime(2026, 6, 21);
+    ManualCityLocation city(double lat, double lng, String tz) =>
+        ManualCityLocation(
+          City(
+            name: 'X',
+            countryCode: 'XX',
+            latitude: lat,
+            longitude: lng,
+            timezone: tz,
+          ),
+        );
+
+    // The formula, straight from adhan: unrounded, unadjusted times.
+    adhan.PrayerTimes raw(double lat, double lng, int day) => adhan.PrayerTimes(
+      date: DateTime.utc(2026, 6, day, 12),
+      coordinates: adhan.Coordinates(lat, lng),
+      calculationParameters:
+          adhan.CalculationMethodParameters.muslimWorldLeague()
+            ..methodAdjustments = {},
+      precision: true,
+    );
+    DateTime upToMinute(DateTime t) {
+      final s = t.add(const Duration(seconds: 59));
+      return DateTime.utc(s.year, s.month, s.day, s.hour, s.minute);
+    }
+
+    for (final (name, lat, lng, tz) in [
+      ('London', 51.5072, -0.1276, 'Europe/London'),
+      ('Oslo', 59.9139, 10.7522, 'Europe/Oslo'),
+    ]) {
+      test('$name in June: Isha/Fajr follow the 45° share of the night', () {
+        final loc = city(lat, lng, tz);
+        final day = repo
+            .prayerDay(location: loc, params: rule, date: june)
+            .valueOrNull!;
+        final [h20, h21, h22] = [
+          for (final d in [20, 21, 22]) raw(lat, lng, d),
+        ];
+        final [f20, f21, f22] = [
+          for (final d in [20, 21, 22]) raw(45, lng, d),
+        ];
+        double share(Duration part, Duration night) =>
+            part.inMicroseconds / night.inMicroseconds;
+        final tonight = h22.sunrise.difference(h21.sunset);
+        final lastNight = h21.sunrise.difference(h20.sunset);
+        final isha = h21.sunset.add(
+          tonight *
+              share(
+                f21.isha.difference(f21.sunset),
+                f22.sunrise.difference(f21.sunset),
+              ),
+        );
+        final fajr = h21.sunrise.subtract(
+          lastNight *
+              share(
+                f21.sunrise.difference(f21.fajr),
+                f21.sunrise.difference(f20.sunset),
+              ),
+        );
+        final clock = TimezoneClock();
+        expect(day.isha, clock.instantAt(loc, upToMinute(isha)));
+        expect(day.fajr, clock.instantAt(loc, upToMinute(fajr)));
+
+        final middle = repo
+            .prayerDay(
+              location: loc,
+              params: rule.copyWith(
+                highLatitudeRule: HighLatitudeRule.middleOfTheNight,
+              ),
+              date: june,
+            )
+            .valueOrNull!;
+        expect(day.isha, isNot(middle.isha));
+        expect(day.fajr, isNot(middle.fajr));
+        expect(day.ishaYesterday, isNot(middle.ishaYesterday));
+        expect(day.fajrTomorrow, isNot(middle.fajrTomorrow));
+        expect(day.maghrib, middle.maghrib);
+
+        // User minute adjustments still apply on top.
+        final adjusted = repo
+            .prayerDay(
+              location: loc,
+              params: rule.copyWith(
+                adjustments: {Prayer.isha: 5, Prayer.fajr: -3},
+              ),
+              date: june,
+            )
+            .valueOrNull!;
+        expect(adjusted.isha, day.isha.add(const Duration(minutes: 5)));
+        expect(adjusted.fajr, day.fajr.subtract(const Duration(minutes: 3)));
+      });
+    }
+
+    test('at 45° the rule changes nothing', () {
+      final loc = city(45, 10, 'Europe/Rome');
+      for (final date in [june, DateTime(2026, 12, 21)]) {
+        PrayerDay at(HighLatitudeRule r) => repo
+            .prayerDay(
+              location: loc,
+              params: rule.copyWith(highLatitudeRule: r),
+              date: date,
+            )
+            .valueOrNull!;
+        final a = at(HighLatitudeRule.latitude45Proportion);
+        final b = at(HighLatitudeRule.middleOfTheNight);
+        expect(
+          [a.ishaYesterday, a.fajr, a.isha, a.fajrTomorrow],
+          [b.ishaYesterday, b.fajr, b.isha, b.fajrTomorrow],
+        );
+      }
+    });
+  });
 
   test('polar rule 45°: above 66° every time is the 45° analogue', () {
     ManualCityLocation at(double lat) => ManualCityLocation(

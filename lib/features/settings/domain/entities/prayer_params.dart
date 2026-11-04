@@ -24,7 +24,15 @@ enum CalculationMethodId {
 }
 
 /// Fajr/Isha handling for extreme latitudes (Settings → advanced).
-enum HighLatitudeRule { middleOfTheNight, seventhOfTheNight, twilightAngle }
+enum HighLatitudeRule {
+  middleOfTheNight,
+  seventhOfTheNight,
+  twilightAngle,
+
+  /// Isha and Fajr take the share of the night they take at 45°: Muslim
+  /// World League Fiqh Council, 9th session (1406 AH), region 2.
+  latitude45Proportion,
+}
 
 /// Polar regions, where the sun doesn't rise or set (Settings → advanced).
 enum PolarRule {

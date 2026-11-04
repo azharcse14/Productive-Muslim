@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Twilight angle'**
   String get highLatTwilight;
 
+  /// No description provided for @highLatProportion45.
+  ///
+  /// In en, this message translates to:
+  /// **'45° proportion (Muslim World League)'**
+  String get highLatProportion45;
+
   /// No description provided for @settingPolar.
   ///
   /// In en, this message translates to:
