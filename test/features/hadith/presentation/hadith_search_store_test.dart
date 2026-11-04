@@ -70,4 +70,15 @@ void main() {
     await pumpEventQueue();
     expect(store.state.value, isA<HadithSearchIdle>());
   });
+
+  test('a joiner-only query stays idle and never searches', () async {
+    final repo = _ManualRepository();
+    final store = HadithSearchStore(repo, debounce: Duration.zero);
+    addTearDown(store.dispose);
+
+    store.search('\u200C \u200D', 'bn');
+    await pumpEventQueue();
+    expect(repo.pending, isEmpty);
+    expect(store.state.value, isA<HadithSearchIdle>());
+  });
 }

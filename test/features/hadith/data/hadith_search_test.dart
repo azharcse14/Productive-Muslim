@@ -266,6 +266,12 @@ void main() {
       expect(_find(['নামাজ'], 'না\u200Dমাজ').hits, hasLength(1));
     });
 
+    test('a joiner-only query matches nothing', () {
+      final r = _find(['নামাজ', 'রোজা'], ' \u200C\u200D ');
+      expect(r.hits, isEmpty);
+      expect(r.truncated, isFalse);
+    });
+
     test('apostrophes match any quote style', () {
       final r = _find(const [], "prophet's", en: ['The Prophet’s mosque']);
       expect(r.hits, hasLength(1));

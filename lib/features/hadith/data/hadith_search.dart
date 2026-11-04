@@ -83,7 +83,7 @@ HadithRawResults searchHadithCorpus(
   String languageCode, {
   int limit = hadithSearchLimit,
 }) {
-  final q = query.trim();
+  final q = normalizeHadithQuery(query);
   final hits = <HadithRawHit>[];
   if (q.isEmpty) {
     return (hits: hits, truncated: false);

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
+import '../../../config/app_config.dart';
 import '../../../core/storage/bundled_db_file.dart';
 
 /// Raw-SQL drift handle over the bundled, read-only hadith database
@@ -60,18 +61,30 @@ final class HadithDatabase extends GeneratedDatabase {
         },
       );
 
-  /// Skips the copy when [file] already matches [bundledVersion]; otherwise
-  /// atomically replaces it with the asset from [load].
+  /// Skips the copy when [file] already matches [bundledVersion] *and*
+  /// holds the Bengali table exactly when [bengali] (the build's
+  /// `BENGALI_HADITH` switch, which goes with a stripped asset); otherwise
+  /// atomically replaces it with the asset from [load]. The second check
+  /// means a switch between a stripped and a full asset re-copies even when
+  /// nobody bumped the version — the stale copy never keeps (or lacks) the
+  /// hadithbangla text.
   @visibleForTesting
   static Future<void> ensureCopied(
     File file,
-    Future<ByteData> Function() load,
-  ) async {
+    Future<ByteData> Function() load, {
+    bool bengali = AppConfig.bengaliHadith,
+  }) async {
     if (file.existsSync()) {
       try {
         final existing = sqlite.sqlite3.open(file.path);
         try {
-          if (existing.userVersion == bundledVersion) {
+          final hasBengali = existing
+              .select(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' "
+                "AND name = 'hadith_bn_section'",
+              )
+              .isNotEmpty;
+          if (existing.userVersion == bundledVersion && hasBengali == bengali) {
             return;
           }
         } finally {

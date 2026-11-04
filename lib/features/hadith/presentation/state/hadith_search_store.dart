@@ -68,7 +68,7 @@ final class HadithSearchStore {
     _languageCode = languageCode;
     _timer?.cancel();
     final seq = ++_seq;
-    if (query.trim().isEmpty) {
+    if (normalizeHadithQuery(query).isEmpty) {
       state.value = const HadithSearchIdle();
       return;
     }
