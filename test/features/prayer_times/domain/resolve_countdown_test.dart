@@ -388,6 +388,55 @@ void main() {
     });
   });
 
+  group('sunset past midnight (Nome, 21 Jun 2026)', () {
+    // Yesterday's Asr 21:21 → Maghrib 01:48; today's Fajr 03:04.
+    final nome = PrayerDay(
+      asrYesterday: DateTime(2026, 6, 20, 21, 21),
+      maghribYesterday: DateTime(2026, 6, 21, 1, 48),
+      ishaYesterday: DateTime(2026, 6, 21, 3, 4),
+      fajr: DateTime(2026, 6, 21, 3, 4),
+      sunrise: DateTime(2026, 6, 21, 4, 19),
+      dhuhr: DateTime(2026, 6, 21, 15, 5),
+      asr: DateTime(2026, 6, 21, 21, 22),
+      maghrib: DateTime(2026, 6, 22, 1, 48),
+      isha: DateTime(2026, 6, 22, 3, 4),
+      fajrTomorrow: DateTime(2026, 6, 22, 3, 4),
+    );
+    final night = DateTime(2026, 6, 21, 0, 30);
+
+    test("before yesterday's sunset, yesterday's asr is active", () {
+      expect(
+        nome.activeWaqtAt(night),
+        ActiveWaqt(Prayer.asr, nome.asrYesterday!, nome.maghribYesterday!),
+      );
+      expect(nome.activeWaqtAt(nome.maghribYesterday!)?.prayer, Prayer.maghrib);
+    });
+
+    test('countdown runs to the asr waqt end (sunset)', () {
+      final t = resolveCountdownTarget(
+        now: night,
+        day: nome,
+        jamaat: JamaatConfig.none,
+        ramadanMode: false,
+      );
+      expect(t.kind, CountdownKind.waqtEnd);
+      expect(t.prayer, Prayer.asr);
+      expect(t.at, nome.maghribYesterday);
+    });
+
+    test('Ramadan: iftar comes before the next sahri', () {
+      final t = resolveCountdownTarget(
+        now: night,
+        day: nome,
+        jamaat: JamaatConfig.none,
+        ramadanMode: true,
+      );
+      expect(t.kind, CountdownKind.iftar);
+      expect(t.at, nome.maghribYesterday);
+      expect(t.windowStart, nome.asrYesterday);
+    });
+  });
+
   group('resolveCountdownTarget — jamaat past the waqt end', () {
     // December: Asr 13:35–15:52, a summer fixed Asr jamaat at 17:00 left on.
     final winter = PrayerDay(

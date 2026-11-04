@@ -32,11 +32,14 @@ final class PrayerDay {
     required this.fajrTomorrow,
     required this.ishaYesterday,
     this.maghribYesterday,
+    this.asrYesterday,
     this.sahriSafety = Duration.zero,
     DateTime? trueSunrise,
     DateTime? sunset,
+    DateTime? transit,
   }) : trueSunrise = trueSunrise ?? sunrise,
-       sunset = sunset ?? maghrib;
+       sunset = sunset ?? maghrib,
+       transit = transit ?? dhuhr;
 
   final DateTime fajr;
   final DateTime sunrise;
@@ -56,6 +59,11 @@ final class PrayerDay {
   /// pre-fajr is then treated as isha throughout.
   final DateTime? maghribYesterday;
 
+  /// Start of yesterday's asr, still running after midnight when
+  /// [maghribYesterday] itself falls past it (sunset after midnight, e.g.
+  /// Nome in June). Null = unknown: pre-fajr never reads as asr.
+  final DateTime? asrYesterday;
+
   /// Ihtiyat margin before Fajr (the user's sahri safety setting).
   final Duration sahriSafety;
 
@@ -68,6 +76,11 @@ final class PrayerDay {
   /// offset, Tehran's angle, user adjustment). Bounds the makruh window
   /// before sunset. Defaults to [maghrib].
   final DateTime sunset;
+
+  /// Solar transit (true noon) without the method's or the user's Dhuhr
+  /// offset: bounds the zawal window. [dhuhr] keeps the offsets, as it
+  /// starts the waqt. Defaults to [dhuhr].
+  final DateTime transit;
 
   DateTime get sahriEnd => fajr.subtract(sahriSafety);
   DateTime get iftar => maghrib;
@@ -92,9 +105,16 @@ final class PrayerDay {
 
   /// The waqt containing [now], or null in the sunrise→dhuhr gap.
   /// Pre-fajr, yesterday's isha is still active — or yesterday's maghrib
-  /// when that isha only starts after midnight.
+  /// when that isha only starts after midnight, or yesterday's asr when
+  /// even sunset is past midnight.
   ActiveWaqt? activeWaqtAt(DateTime now) {
     if (now.isBefore(fajr)) {
+      if ((asrYesterday, maghribYesterday) case (
+        final a?,
+        final m?,
+      ) when now.isBefore(m)) {
+        return ActiveWaqt(Prayer.asr, a, m);
+      }
       if (maghribYesterday case final m? when now.isBefore(ishaYesterday)) {
         return ActiveWaqt(Prayer.maghrib, m, ishaYesterday);
       }
