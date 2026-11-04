@@ -97,6 +97,37 @@ void main() {
     expect(args['nafs'], isTrue);
   });
 
+  test('nafs countdown texts are pushed for the native cover', () async {
+    const texts = NotificationTexts(
+      azanTitle: '',
+      azanBody: '',
+      jamaatTitle: '',
+      jamaatBody: '',
+      sahriTitle: '',
+      sahriBody: '',
+      iftarTitle: '',
+      iftarBody: '',
+      muhasabaTitle: '',
+      muhasabaBody: '',
+      dailyReminderTitle: '',
+      dailyReminderBody: '',
+      dailyReminderRoute: '/hadith',
+      keepAliveTitle: '',
+      keepAliveBody: '',
+      markAsPrayedAction: '',
+      channelAzanName: '',
+      channelRemindersName: '',
+      channelSilentName: '',
+      channelBeepName: '',
+      prayerNames: {},
+      nafsLockPending: 'Locking in {seconds} s',
+      nafsLockCancel: 'Cancel',
+    );
+    final args = await scheduled(blocking: true, texts: texts);
+    expect(args['nafs.pending'], 'Locking in {seconds} s');
+    expect(args['nafs.cancel'], 'Cancel');
+  });
+
   test('each window carries its jamaat key (prayer day + prayer)', () async {
     final args = await scheduled(blocking: true);
     expect(args['windows'], [

@@ -55,12 +55,6 @@ flutter_launcher_icons:
   adaptive_icon_monochrome: "assets/icon/productive_muslim_icon_monochrome.png"
   ios: true
   remove_alpha_ios: true
-  web:
-    generate: true
-    background_color: "#15564D"
-    theme_color: "#15564D"
-  macos:
-    generate: true
 
 flutter:
   uses-material-design: true

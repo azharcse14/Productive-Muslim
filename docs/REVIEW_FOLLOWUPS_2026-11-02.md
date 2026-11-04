@@ -56,8 +56,8 @@ asked to merge without more test runs.
   - 12:1 "These are verse…" (should probably be "verses").
 - [x] **Duas without Bengali transliteration.** — done in content audit A3 (2026-11-03); 0 of 152 missing now. 63 of 156 duas have no `trBn` (e.g.
   `fd_bismillah`, `tv_safar`), so the Bengali UI mixes in Latin script. This is a content task.
-- [ ] **Pickthall license** is still `UNVERIFIED`. The credits screen no longer claims a license.
-- [ ] **Muhasaba, already-migrated users:**
+- [x] **Pickthall license** — 2026-11-04: Tanzil's terms re-read: non-commercial use allowed; ledger says OK (non-commercial). Was: still `UNVERIFIED`. The credits screen no longer claims a license.
+- [x] **Muhasaba, already-migrated users:** — accepted, won't fix (2026-11-04): unrecoverable, and only pre-release installs have it.
   - Users already on schema v2/v3 keep the wrong `archived_on` for trackers that were archived in v1.
   - Trackers back-filled before v4 keep their lowered `created_on`. This can't be repaired
     without the true creation day.

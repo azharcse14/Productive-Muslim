@@ -65,6 +65,8 @@ final class JamaatFocusBridge implements JamaatFocusControl {
       'channelName': texts.channelFocusName,
       'nafs.title': texts.nafsLockTitle,
       'nafs.bodyUntil': texts.nafsLockBodyUntil,
+      'nafs.pending': texts.nafsLockPending,
+      'nafs.cancel': texts.nafsLockCancel,
       // The app's time format, for ends only native knows (nafs).
       'clockPattern': clock?.pattern ?? '',
       'clockAm': clock?.dateSymbols.AMPMS.first ?? '',

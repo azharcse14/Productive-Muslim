@@ -5120,6 +5120,12 @@ abstract class AppLocalizations {
   /// **'Hold on — remember Allah. Your phone opens at {time}.'**
   String nafsLockBodyUntil(String time);
 
+  /// Shown for 5 s after the shakes, before the nafs lock starts; seconds count down.
+  ///
+  /// In en, this message translates to:
+  /// **'Locking in {seconds} s. Shook it by mistake? Tap Cancel.'**
+  String nafsLockPending(String seconds);
+
   /// No description provided for @healthTitle.
   ///
   /// In en, this message translates to:

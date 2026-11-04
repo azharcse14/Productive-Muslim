@@ -23,8 +23,8 @@ plan is more specific, this plan wins.
 | 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ✅ done 2026-11-04 — moved to `lib/core/settings/` (app-scoped like theme/router; an interface would have one implementation) |
 | 5.2 `prayer_widget_service.dart` off presentation (do together with the item above) | ✅ done 2026-11-04 |
 | 5.2 `arabicBodySize()` → injected reading preferences | ✅ already done — reads `ReaderTextSizeScope` (InheritedWidget), no `GetIt` |
-| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ✅ written below — ⏳ awaiting owner approval |
-| Owner decisions 1–5 | 1 ✅ (minor units, 2026-11-03); 2–5 ⏳ unanswered |
+| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ✅ decided 2026-11-04 — Keystore and export/import dropped; expenses → drift done (see Owner decisions) |
+| Owner decisions 1–5 | ✅ all decided (1 on 2026-11-03; 2–5 on 2026-11-04, see Owner decisions) |
 
 Findings that change this plan:
 - `md-rifatkhan/hadithbangla` is gone (404); the snapshot is `azharcse14/hadithbangla`
@@ -459,6 +459,35 @@ coordinate before starting the first two.
 4. Bengali full-book hadith: ship / ship after permission / ship without it (1.3).
 5. Play builds: `focusBlocking` on or off by default (1.4)?
 
+### Decided 2026-11-04 (owner delegated: "sob tumi decision niye kore felo")
+
+Decided by Claude, each checked by a second, independent agent against the code.
+1. **Minor units** — already done (owner-approved wave 1, 2026-11-03).
+2. **Android + iOS only** — `web/`, `linux/`, `windows/`, `macos/` deleted
+   (`chore/drop-desktop-web`).
+3. **Nafs lock 5 s cancel — yes**, native (the shake is caught by the
+   AccessibilityService in the background): `feat/nafs-lock-countdown`.
+4. **Bengali full-book hadith — ship only after written permission.** Release
+   builds strip it (`tool/strip_bengali_hadith.dart` + `BENGALI_HADITH=false`,
+   `docs/RELEASE_CHECKLIST.md`); dev builds keep it.
+5. **`focusBlocking` stays on for Play** — Play allows non-tool accessibility use
+   for focus blockers with a declaration + disclosure; Settings, the installer
+   and Play stay reachable during a session. Rejection → rebuild with
+   `focusBlocking=false`.
+
+Phase 6: **Android Keystore lock — dropped** (`app_lock.xml` is already excluded
+from cloud backup and device transfer and holds only a salted hash; the data it
+guards sits unencrypted in the same sandbox, so encryption would only slow a
+root-level attacker). **Expenses + budgets → drift — done** (fasting stays in
+prefs: a small bounded list). **Export all / Import — dropped for now**: Android
+Auto Backup + device transfer already carry every user file and preference
+(only `bundled/` and `app_lock.xml` are excluded) and iOS device backups carry
+the app's data, so a same-platform phone change keeps everything; expenses also
+export/import CSV. What's left is Android ↔ iOS moves — not worth ~9
+serializers, a native document picker and merge logic before 1.0. Revisit if
+users ask (design above; transport would be a file via the share channel, as
+the clipboard breaks past Android's ~1 MB Binder limit).
+
 ## Owner tasks — not for Claude Code
 
 - Play Console: Accessibility API declaration for Jamaat Focus / Nafs lock (demo video if
@@ -489,14 +518,14 @@ The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and 
 - [x] **Home dua-of-the-day transliteration.** In `prayer_times/presentation/screens/home_screen.dart`, pass `transliteration: dua.transliterationFor(code)` to `DuaOfDayCard` so the screen reader gets a `semanticsLabel`.
 - [x] **Ruqyah categories still use `MaterialPageRoute`.** Done for ruqyah, dua and hadith on `feat/routes-shell-lock` (2026-11-03, `integrate/followups-2`). Add a named route in `app_router.dart` and use `context.pushNamed`. (2026-11-03: left as is — dua and hadith sub-screens use the same `MaterialPageRoute` push; do all of them together or drop the item.)
 - [x] **Remove dead ARB keys.** `muhasabaIconOption` and `muhasabaColorOption` are no longer used; delete them from en and bn.
-- [ ] **Owner to confirm these behaviour changes:**
+- [x] **Owner to confirm these behaviour changes:** — accepted 2026-11-04 (all four are accessibility/layout fixes), except the biometric message, which was a bug: a cancel no longer says "unavailable" (`fix/lock-biometric-cancel`).
   - The calendar screen's side padding went from 20dp to 12dp, to get 48dp day cells.
   - `QCard`'s default padding went from 18 to 20.
   - The lock screen now shows "Biometric unavailable" even when the user cancels the biometric prompt.
   - The prayer table puts the time range on a second line when text is scaled above 1.3x.
 - [ ] **Manual QA.** No device run has been done yet. Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
 - [x] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
-- [ ] **Muhasaba Today swipe.** The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
+- [x] **Muhasaba Today swipe.** — kept as is (decided 2026-11-04): the chevrons cover it. The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
 
 ---
 
@@ -574,7 +603,7 @@ fresh branch from `master`.
 - [x] **Persistent badge-unlock toast.** (now in the app shell) It only fires while Muhasaba is open; it belongs in the app shell.
 - [ ] **Owner decisions:**
   - ~~Bengali date in calendar cells (design handoff §13).~~ Done `b5dbe37`.
-  - Bengali surah names, which need a licensed source.
+  - Bengali surah names, which need a licensed source. — deferred 2026-11-04 until a licensed source exists (religious text, owner sign-off).
   - ~~Settings lives under the More branch while Qibla/Calendar are root routes (bottom bar
     shows on one, not the other).~~ Done: bottom bar only on the five tab roots; every secondary page full-screen (design shows the bar on Settings/Calendar/Ramadan — owner may want those three in the More branch).
 - [x] **Full `flutter test` passes on a quiet machine.** 1560 green on `integrate/followups-2` with `-j 2`. During the parallel runs some tap tests

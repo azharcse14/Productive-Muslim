@@ -188,7 +188,6 @@ const _baseline = <String>{
   'lib/features/dua_tasbih/presentation/state/dua_favorites_store.dart -> package:shared_preferences',
   'lib/features/dua_tasbih/presentation/state/tasbih_store.dart -> package:shared_preferences',
   'lib/features/dua_tasbih/presentation/widgets/dua_card.dart -> locator',
-  'lib/features/expenses/presentation/state/expense_store.dart -> package:shared_preferences',
   'lib/features/fasting/presentation/screens/fasting_screen.dart -> lib/features/prayer_times/presentation/state/home_store.dart',
   'lib/features/fasting/presentation/state/fasting_store.dart -> package:shared_preferences',
   'lib/features/hadith/presentation/screens/hadith_books_screen.dart -> lib/features/muhasaba/presentation/widgets/tracker_visuals.dart',

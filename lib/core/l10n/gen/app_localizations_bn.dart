@@ -3432,6 +3432,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String nafsLockPending(String seconds) {
+    return '$seconds সেকেন্ড পর লক হবে। ভুল করে ঝাঁকিয়েছেন? বাতিল চাপুন।';
+  }
+
+  @override
   String get healthTitle => 'স্বাস্থ্য ট্র্যাকার';
 
   @override

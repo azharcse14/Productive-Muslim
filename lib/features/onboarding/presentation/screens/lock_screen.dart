@@ -127,10 +127,12 @@ final class _LockScreenState extends State<LockScreen> {
       // Only the biometric plugin can throw here (lockout, no sensor):
       // fall back to the PIN pad, saying why, not a storage message.
       debugPrint('lock screen biometric: $e');
+      if (mounted) {
+        setState(() => _error = l10n.appLockBiometricUnavailable);
+      }
     }
-    if (mounted) {
-      setState(() => _error = l10n.appLockBiometricUnavailable);
-    }
+    // A plain `false` is a cancel (or a rejected finger): the PIN pad is
+    // already there, and "unavailable" would be untrue.
   }
 
   @override

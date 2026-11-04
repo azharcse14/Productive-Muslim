@@ -9,7 +9,8 @@ import 'package:productive_muslim/main.dart';
 
 /// UI audit: every main screen × theme/locale/text-scale variants.
 /// Run: flutter drive --driver=test_driver/integration_test.dart \
-///        --target=integration_test/ui_audit_test.dart
+///        --target=integration_test/ui_audit_test.dart -d DEVICE_ID
+/// (DEVICE_ID: an Android or iOS device — the only platforms.)
 const _screens = {
   'home': '/home',
   'quran': '/quran',

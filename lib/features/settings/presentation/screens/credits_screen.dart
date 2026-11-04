@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../config/app_config.dart';
 import '../../../../core/di/locator.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
@@ -67,10 +68,11 @@ final class CreditsScreen extends StatelessWidget {
               l10n.creditsHadithText,
               l10n.creditsUnlicense('fawazahmed0/hadith-api'),
             ),
-            (
-              l10n.creditsBnTranslation,
-              l10n.creditsBnHadithSixBooks('azharcse14/hadithbangla'),
-            ),
+            if (AppConfig.bengaliHadith)
+              (
+                l10n.creditsBnTranslation,
+                l10n.creditsBnHadithSixBooks('azharcse14/hadithbangla'),
+              ),
             (
               l10n.creditsBnTranslation,
               l10n.creditsBnHadithNawawiMalik(
