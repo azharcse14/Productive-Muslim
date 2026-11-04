@@ -3922,4 +3922,32 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get rakaatHanafiNote =>
       'হানাফি মাযহাব অনুযায়ী — সুন্নত ও বিতরের রাকাত সংখ্যায় অন্য মাযহাবে ভিন্নতা আছে।';
+
+  @override
+  String get storiesTitle => 'গল্প';
+
+  @override
+  String get storiesTabQuran => 'কুরআন';
+
+  @override
+  String get storiesTabHadith => 'হাদিস';
+
+  @override
+  String get quranStoriesTitle => 'কুরআনের গল্প';
+
+  @override
+  String get hadithStoriesTitle => 'হাদিসের গল্প';
+
+  @override
+  String get storiesLoadError => 'গল্পগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get storiesEmpty => 'এখনো কোনো গল্প নেই।';
+
+  @override
+  String get storyReferences => 'সূত্র';
+
+  @override
+  String get creditsStoriesSource =>
+      'কুরআন ও হাদিসের গল্প এই অ্যাপের জন্য নতুন করে লেখা, প্রতিটি গল্পে কুরআনের আয়াত ও হাদিস নম্বর উল্লেখ করা; আলেমের পর্যালোচনা বাকি';
 }

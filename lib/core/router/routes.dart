@@ -100,6 +100,12 @@ abstract final class Routes {
   /// Sunnah health tracker — habits, weight, guidance (More tab).
   static const health = (name: 'health', path: '/health');
 
+  /// Quran and hadith stories (More tab); `?kind=quran|hadith` opens a tab.
+  static const stories = (name: 'stories', path: '/stories');
+
+  /// One story (`/stories/:kind/:id`) — prophet pages deep-link here.
+  static const story = (name: 'story', path: ':kind/:id');
+
   /// Tibb an-Nabawi — prophetic medicine (More tab + Ruqyah screen).
   static const tibbNabawi = (name: 'tibbNabawi', path: '/tibb-nabawi');
 

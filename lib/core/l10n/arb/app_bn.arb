@@ -1095,5 +1095,14 @@
   "muhasabaRangeChange": "তারিখের পরিসর বদলান",
   "calendarNightBeginsAtSunset": "এই রাত এই তারিখের সূর্যাস্তে শুরু হয়।",
   "calendarObservanceDiffers": "এই তারিখ এবং এ উপলক্ষে বিশেষ ইবাদত পালন নিয়ে আলেমদের মধ্যে মতভেদ আছে।",
-  "rakaatHanafiNote": "হানাফি মাযহাব অনুযায়ী — সুন্নত ও বিতরের রাকাত সংখ্যায় অন্য মাযহাবে ভিন্নতা আছে।"
+  "rakaatHanafiNote": "হানাফি মাযহাব অনুযায়ী — সুন্নত ও বিতরের রাকাত সংখ্যায় অন্য মাযহাবে ভিন্নতা আছে।",
+  "storiesTitle": "গল্প",
+  "storiesTabQuran": "কুরআন",
+  "storiesTabHadith": "হাদিস",
+  "quranStoriesTitle": "কুরআনের গল্প",
+  "hadithStoriesTitle": "হাদিসের গল্প",
+  "storiesLoadError": "গল্পগুলো লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "storiesEmpty": "এখনো কোনো গল্প নেই।",
+  "storyReferences": "সূত্র",
+  "creditsStoriesSource": "কুরআন ও হাদিসের গল্প এই অ্যাপের জন্য নতুন করে লেখা, প্রতিটি গল্পে কুরআনের আয়াত ও হাদিস নম্বর উল্লেখ করা; আলেমের পর্যালোচনা বাকি"
 }
