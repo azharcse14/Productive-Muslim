@@ -7,6 +7,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -31,6 +32,7 @@ import android.provider.Settings
 import android.telecom.TelecomManager
 import android.text.format.DateFormat
 import android.view.Gravity
+import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
@@ -689,11 +691,21 @@ class JamaatFocusActivity : Activity() {
             gravity = Gravity.CENTER
             setPadding(0, pad / 2, 0, pad)
         })
+        val dial = Intent(Intent.ACTION_DIAL, Uri.parse("tel:"))
         root.addView(ImageButton(this).apply {
             setImageResource(android.R.drawable.sym_action_call)
             contentDescription = getString(R.string.jamaat_focus_phone)
+            // Dialer-less tablets: no button (the <queries> DIAL entry
+            // makes the lookup see the dialer on Android 11+).
+            if (dial.resolveActivity(packageManager) == null) {
+                visibility = View.GONE
+            }
             setOnClickListener {
-                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:")))
+                try {
+                    startActivity(dial)
+                } catch (e: ActivityNotFoundException) {
+                    // Dialer removed since: the cover stays, nothing crashes.
+                }
             }
         })
         root.addView(Button(this).apply {

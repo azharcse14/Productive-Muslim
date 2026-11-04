@@ -37,6 +37,11 @@ Steps a store build needs that a dev build doesn't. Decisions behind them:
 - Jamaat Focus + Nafs lock on Samsung, Xiaomi, Realme, Vivo/Oppo: the 5 s
   cancel screen appears from the background, Settings → Accessibility stays
   reachable, an alarm stays visible, API 36 back gesture keeps the cover.
+- Reboot without unlocking (FBE device): azan / sahri due before the first
+  unlock still arrive (`DirectBoot.kt`), tapping one after unlock opens the
+  right screen, and nothing repeats after unlock. Known gaps until unlock:
+  no Jamaat Focus session (its state is credential-encrypted) and no "mark
+  as prayed" action on the azan.
 - Home widget: stale state after +8 days; the iOS widget target
   (`ios/ProductiveMuslimWidget/SETUP.md`) still has to be added in Xcode.
 - UI audit screenshots: `flutter drive … -d DEVICE_ID` (see

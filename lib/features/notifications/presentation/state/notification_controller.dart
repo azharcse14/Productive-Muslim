@@ -20,7 +20,7 @@ import '../../domain/repositories/notification_scheduler.dart';
 import '../../domain/usecases/reschedule_notifications.dart';
 
 /// App-scoped: reschedules the plan on app open, on resume once the plan
-/// is stale (or a notification / exact-alarm grant changed), and whenever location / prayer params / matrix / locale
+/// is stale (or a notification / exact-alarm grant or the device zone changed), and whenever location / prayer params / matrix / locale
 /// change (guide §5).
 final class NotificationController {
   NotificationController({
@@ -29,17 +29,28 @@ final class NotificationController {
     required SettingsStore settings,
     required MosqueStore mosque,
     DateTime Function() now = DateTime.now,
+    String Function() deviceZone = _deviceZone,
   }) : _reschedule = reschedule,
        _scheduler = scheduler,
        _settings = settings,
        _mosque = mosque,
-       _now = now;
+       _now = now,
+       _zone = deviceZone;
 
   final RescheduleNotifications _reschedule;
   final NotificationScheduler _scheduler;
   final SettingsStore _settings;
   final MosqueStore _mosque;
   final DateTime Function() _now;
+  final String Function() _zone;
+
+  /// The device zone (name + current offset). Notification bodies and
+  /// GPS wall times are formatted in it, so a change (travel, DST)
+  /// must rebuild even a fresh plan.
+  static String _deviceZone() {
+    final now = DateTime.now();
+    return '${now.timeZoneName} ${now.timeZoneOffset}';
+  }
 
   /// A resume within this long of the last successful run, with the same
   /// grants, keeps that plan: it spans 7 days, and rebuilding it is ~100
@@ -47,6 +58,7 @@ final class NotificationController {
   static const _freshFor = Duration(hours: 12);
   DateTime? _lastRunAt;
   (bool, NotificationPermission)? _lastGrants;
+  String? _lastZone;
 
   /// Exact-alarm + notification grant. iOS drops requests added before
   /// the grant (onboarding schedules first), so a new grant reschedules.
@@ -131,6 +143,7 @@ final class NotificationController {
       // changed grant must reschedule.
       if (!age.isNegative &&
           age < _freshFor &&
+          _zone() == _lastZone &&
           await _grants() == _lastGrants) {
         return;
       }
@@ -173,6 +186,7 @@ final class NotificationController {
       final texts = _texts();
       await _scheduler.initialize(texts);
       final grants = await _grants();
+      final zone = _zone();
       // Resolved per prayer, so time-based mosque rules apply across the
       // whole window.
       final result = await _reschedule(
@@ -186,6 +200,7 @@ final class NotificationController {
         case Success(value: final plan):
           _lastRunAt = _now();
           _lastGrants = grants;
+          _lastZone = zone;
           _plan.value = plan;
           _failed.value = false;
           _scheduledUntil.value = plan
