@@ -1,5 +1,5 @@
-// Writes the numbers each section actually holds into
-// assets/data/hadith_books.json as `refs`: runs `[[from, to], …]` of the
+// Writes the number of hadith each section holds (`count`) and the numbers
+// it holds into assets/data/hadith_books.json as `refs`: runs `[[from, to], …]` of the
 // number a card shows — the whole-number part of the displayed reference
 // ("Sahih Muslim 17a" → 17), else the hadith number.
 //
@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
+import 'package:productive_muslim/features/hadith/data/hadith_section_assembler.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 const _catalogPath = 'assets/data/hadith_books.json';
@@ -55,11 +56,20 @@ void main() {
             continue;
           }
           final data = rows.first.values.first! as List<int>;
+          final hadith = bn ? const <RawHadith>[] : decodeEditionBlob(data);
+          final numbers = bn
+              ? [for (final h in decodeBanglaBlob(data)) h.number]
+              : [for (final h in hadith) h.referenceNumber];
+          // Internal numbers ("#1220") stay out of "go to number".
           final runs = refRuns(
             bn
-                ? [for (final h in decodeBanglaBlob(data)) h.number]
-                : [for (final h in decodeEditionBlob(data)) h.referenceNumber],
+                ? numbers
+                : [
+                    for (final h in hadith)
+                      if (h.hasStandardNumber) h.referenceNumber,
+                  ],
           );
+          section['count'] = numbers.length;
           section['refs'] = [
             for (final (from, to) in runs) [from, to],
           ];

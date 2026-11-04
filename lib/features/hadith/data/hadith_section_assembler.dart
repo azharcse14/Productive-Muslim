@@ -32,6 +32,11 @@ final class RawHadith {
   /// The whole number readers look up: [ref]'s ("8a" → 8), else [number].
   int get referenceNumber => referenceNumberOf(ref, number);
 
+  /// False for upstream's internal number ("#1220": Sahih Muslim hadith with
+  /// no Abd al-Baqi number) — it would collide with the standard 1220, so
+  /// "go to number" and number search must not match it.
+  bool get hasStandardNumber => !ref.startsWith('#');
+
   static RawHadith? parse(Object? entry) {
     if (entry is! Map) {
       return null;
@@ -46,23 +51,27 @@ final class RawHadith {
       number: number.toInt(),
       text: text.trim(),
       grade: firstGrade(map['grades']),
-      ref: standardRef(map['arabicnumber'], number.toInt()),
+      ref: standardRef(map['arabicnumber'], number),
     );
   }
 
-  /// Upstream `arabicnumber` ("8.01" = 8a, "8.02" = 8b, "9" = 9) as a
-  /// sunnah.com-style reference. '' when absent or when its whole-number part
-  /// equals [number]: then [number] already is the standard reference and the
-  /// fraction only marks a sub-narration (Bukhari 402.2 "as above",
-  /// Tirmidhi 3604.02), which sunnah.com files under the same number.
-  static String standardRef(Object? arabicNumber, int number) {
+  /// The displayed reference when it differs from the whole [number]:
+  ///  * a fractional [number] is upstream's sub-narration under one number
+  ///    (Bukhari 402.2 "as above", Tirmidhi 3604.02) — kept as is, so it
+  ///    reads apart from 402;
+  ///  * else upstream `arabicnumber` ("8.01" = 8a, "8.02" = 8b, "9" = 9) as a
+  ///    sunnah.com-style reference; '' when absent or equal to [number].
+  static String standardRef(Object? arabicNumber, num number) {
+    if (number != number.truncate()) {
+      return '$number';
+    }
     final raw = switch (arabicNumber) {
       final String s => s.trim(),
-      final num n => '${n.truncate()}', // numeric fractions = sub-narrations
+      final num n => '${n.truncate()}',
       _ => '',
     };
     final parts = raw.split('.');
-    if (raw.isEmpty || parts.first == '$number') {
+    if (raw.isEmpty || parts.first == '${number.toInt()}') {
       return '';
     }
     if (parts.length == 2) {
@@ -202,16 +211,16 @@ int _nextOccurrence(Map<int, int> seen, int number) =>
 
 /// Shapes one Bengali chapter (hadithbangla source) into display hadith.
 List<BookHadith> assembleBangla(HadithBook book, List<BnHadith> raw) => [
-      for (final h in raw)
-        BookHadith(
-          number: h.number,
-          arabic: h.arabic,
-          translation: h.bn,
-          grade: h.grade.isNotEmpty ? h.grade : (book.isSahih ? 'সহিহ' : ''),
-          reference: '${book.bn} ${h.number}',
-          narrator: h.narrator,
-        ),
-    ];
+  for (final h in raw)
+    BookHadith(
+      number: h.number,
+      arabic: h.arabic,
+      translation: h.bn,
+      grade: h.grade.isNotEmpty ? h.grade : (book.isSahih ? 'সহিহ' : ''),
+      reference: '${book.bn} ${h.number}',
+      narrator: h.narrator,
+    ),
+];
 
 String _grade(RawHadith arabic, RawHadith? translation, bool sahih) {
   if (arabic.grade.isNotEmpty) {

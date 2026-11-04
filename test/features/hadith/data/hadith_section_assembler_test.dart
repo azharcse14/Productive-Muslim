@@ -41,9 +41,9 @@ void main() {
         expect(RawHadith.standardRef('9', 98), '9');
         expect(RawHadith.standardRef('5', 5), ''); // already standard
         expect(RawHadith.standardRef(7, 7), '');
-        // Sub-narrations under the same number keep the plain number.
-        expect(RawHadith.standardRef(402.2, 402), '');
-        expect(RawHadith.standardRef('3604.02', 3604), '');
+        // A sub-narration keeps its sub-number, so it reads apart from 402.
+        expect(RawHadith.standardRef(402.2, 402.2), '402.2');
+        expect(RawHadith.standardRef(3604.02, 3604.02), '3604.02');
         expect(RawHadith.standardRef(null, 3), '');
         final h = RawHadith.parse({
           'hadithnumber': 93,
@@ -53,6 +53,22 @@ void main() {
         expect(h!.ref, '8a');
       },
     );
+
+    test('a decimal hadithnumber keeps its sub-number in the reference', () {
+      final h = RawHadith.parse({
+        'hadithnumber': 402.2,
+        'arabicnumber': 402.2,
+        'text': 'as above',
+      })!;
+      expect(h.number, 402);
+      expect(h.ref, '402.2');
+      expect(h.referenceNumber, 402); // "go to 402" still finds it
+    });
+
+    test('a "#n" reference (no standard number) looks up n', () {
+      const h = RawHadith(number: 1220, text: 'x', grade: '', ref: '#1220');
+      expect(h.referenceNumber, 1220);
+    });
 
     test('returns null on malformed entries', () {
       expect(RawHadith.parse('nope'), isNull);
