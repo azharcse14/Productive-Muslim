@@ -109,6 +109,25 @@ void main() {
     expect(find.text('Biometric unavailable — use your PIN'), findsOneWidget);
   });
 
+  testWidgets('a cancelled biometric prompt shows no error', (tester) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    final store = AppLockStore(
+      AppLockDataSource(SharedPreferencesAsync()),
+      FakeBiometric(available: true), // authenticate() → false: cancelled
+    );
+    await tester.runAsync(() async {
+      await store.enable('1234', biometric: true);
+      await store.load();
+    });
+    GetIt.I.registerSingleton<AppLockStore>(store);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Biometric unavailable — use your PIN'), findsNothing);
+    expect(store.locked.value, isTrue);
+  });
+
   testWidgets('no biometric hardware hides the biometric button', (
     tester,
   ) async {
