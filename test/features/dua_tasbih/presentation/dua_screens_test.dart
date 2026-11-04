@@ -278,16 +278,19 @@ void main() {
       expect(find.text('Allahu Akbar'), findsOneWidget);
       expect(find.text('0 of 34'), findsOneWidget);
 
-      // A plain target leaves the preset; the phrase choice persists.
+      // A plain target leaves the preset; mid-round the after-salah beads
+      // aren't carried over silently.
       await tester.tap(find.text('33'));
-      await tester.pump();
-      await tester.ensureVisible(find.text('Astaghfirullah'));
-      await tester.tap(find.text('Astaghfirullah'));
-      await tester.pump();
-      // Mid-round: the old phrase's beads aren't carried over silently.
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Discard'));
       await tester.pumpAndSettle();
       expect(GetIt.I<TasbihStore>().count.value, 0);
+      expect(GetIt.I<TasbihStore>().target.value, 33);
+      // The phrase choice persists.
+      await tester.ensureVisible(find.text('Astaghfirullah'));
+      await tester.tap(find.text('Astaghfirullah'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
       expect(
         await SharedPreferencesAsync().getString('tasbih_phrase'),
         'astaghfirullah',
@@ -348,6 +351,49 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsNothing);
       expect(store.phrase.value, 'alhamdulillah');
+    });
+
+    testWidgets('changing mode mid-round asks to save or discard first', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      final store = GetIt.I<TasbihStore>()..setTarget(100);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      for (var i = 0; i < 50; i++) {
+        store.tap();
+      }
+      await tester.pump();
+
+      // Into after-salah: cancel keeps the round and the mode.
+      await tester.tap(find.text('After prayer 33·33·34'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(store.count.value, 50);
+      expect(store.phrase.value, isNot('after_salah'));
+
+      // A preset below the count prompts too; save credits today.
+      await tester.tap(find.text('33'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      // The save awaits prefs I/O before the new target lands.
+      await tester.runAsync(pumpEventQueue);
+      await tester.pump();
+      expect(store.count.value, 0);
+      expect(store.target.value, 33);
+      expect(store.totalToday.value, 50);
+
+      // Raising the target keeps the round without asking.
+      store.tap();
+      await tester.tap(find.text('100'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(store.count.value, 1);
+      expect(store.target.value, 100);
     });
 
     testWidgets("today's line includes the round in progress", (tester) async {
