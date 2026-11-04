@@ -40,7 +40,7 @@ final class _Repo implements SettingsRepository {
 final class _FixedClock implements ZonedClock {
   _FixedClock(this.now);
 
-  final DateTime now;
+  DateTime now;
   final _real = TimezoneClock();
 
   @override
@@ -77,6 +77,29 @@ final class _LateIshaDays implements PrayerDayRepository {
   );
 }
 
+/// Nome-like: yesterday's sunset (and so its asr) runs past midnight.
+final class _LateSunsetDays implements PrayerDayRepository {
+  @override
+  Result<PrayerDay> prayerDay({
+    required LocationConfig location,
+    required PrayerParams params,
+    required DateTime date,
+  }) => Result.success(
+    PrayerDay(
+      asrYesterday: DateTime.utc(2026, 6, 20, 21, 21),
+      maghribYesterday: DateTime.utc(2026, 6, 21, 1, 48),
+      ishaYesterday: DateTime.utc(2026, 6, 21, 3, 4),
+      fajr: DateTime.utc(2026, 6, 21, 3, 5),
+      sunrise: DateTime.utc(2026, 6, 21, 4, 19),
+      dhuhr: DateTime.utc(2026, 6, 21, 15, 5),
+      asr: DateTime.utc(2026, 6, 21, 21, 22),
+      maghrib: DateTime.utc(2026, 6, 22, 1, 48),
+      isha: DateTime.utc(2026, 6, 22, 3, 4),
+      fajrTomorrow: DateTime.utc(2026, 6, 22, 3, 5),
+    ),
+  );
+}
+
 const _london = ManualCityLocation(
   City(
     name: 'London',
@@ -93,14 +116,16 @@ void main() {
   Future<HomeStore> at(
     DateTime now, {
     MosqueState mosqueState = const MosqueState(),
+    PrayerDayRepository? days,
+    _FixedClock? clock,
   }) async {
     final repo = _Repo(const AppSettings(location: _london));
     final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
     await settings.load();
     final (mosque, _) = await makeMosqueStore(mosqueState);
     return HomeStore(
-      getPrayerDay: GetPrayerDay(_LateIshaDays()),
-      clock: _FixedClock(now),
+      getPrayerDay: GetPrayerDay(days ?? _LateIshaDays()),
+      clock: clock ?? _FixedClock(now),
       settings: settings,
       mosque: mosque,
     );
@@ -196,6 +221,65 @@ void main() {
     // The countdown agrees: A's 00:40 has passed, so it targets the waqt
     // end, not B's 01:10.
     expect(store.countdownTarget.value?.at, DateTime.utc(2026, 6, 21, 2, 50));
+    store.dispose();
+  });
+
+  test("before a past-midnight sunset, yesterday's asr is the overnight "
+      'waqt and maghrib stays locked', () async {
+    final store = await at(
+      DateTime.utc(2026, 6, 21, 0, 30),
+      days: _LateSunsetDays(),
+    );
+    expect(store.overnightWaqt.value, Prayer.asr);
+    expect(store.lockedPrayers.value, contains(Prayer.maghrib));
+    expect(store.lockedPrayers.value, isNot(contains(Prayer.asr)));
+    expect(store.salahDate(Prayer.asr), DateTime(2026, 6, 20));
+    store.dispose();
+  });
+
+  test('showing the store again re-reads the clock on the slow tick', () async {
+    final clock = _FixedClock(DateTime.utc(2026, 6, 21, 12));
+    final store = await at(clock.now, clock: clock);
+    store.pause(); // e.g. another tab shown again: already on the slow tick
+    clock.now = DateTime.utc(2026, 6, 22, 9);
+    store.pause();
+    expect(store.dateKey.value, DateTime(2026, 6, 22));
+    store.dispose();
+  });
+
+  test('an override set after midnight drives the overnight waqt', () async {
+    final store = await at(
+      DateTime.utc(2026, 6, 21, 0, 10),
+      mosqueState: MosqueState(
+        profiles: const [
+          MosqueProfile(
+            id: 'a',
+            name: 'A',
+            entries: {Prayer.maghrib: OffsetJamaat(Duration(minutes: 10))},
+          ),
+          MosqueProfile(
+            id: 'b',
+            name: 'B',
+            // Yesterday's maghrib 21:20 + 175 min = 00:15, before isha 00:30.
+            entries: {Prayer.maghrib: OffsetJamaat(Duration(minutes: 175))},
+          ),
+        ],
+        mode: ScheduleMode.auto,
+        defaultId: 'a',
+        activeOverride: MosqueOverride(
+          mosqueId: 'b',
+          baselineAutoId: 'a',
+          setOn: DateTime(2026, 6, 21),
+        ),
+      ),
+    );
+    expect(store.mosqueResolution.value.profile?.id, 'b');
+    expect(store.overnightWaqt.value, Prayer.maghrib);
+    expect(
+      store.rowJamaat.value[Prayer.maghrib],
+      DateTime.utc(2026, 6, 21, 0, 15),
+    );
+    expect(store.countdownTarget.value?.at, DateTime.utc(2026, 6, 21, 0, 15));
     store.dispose();
   });
 

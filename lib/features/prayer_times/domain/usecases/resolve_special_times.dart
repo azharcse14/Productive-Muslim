@@ -35,7 +35,8 @@ List<SpecialWindow> resolveSpecialWindows(
   // The sun's own sunrise/sunset, not the method-offset Fajr end / Maghrib.
   final sunriseEnd = day.trueSunrise.add(_horizonWindow);
   final ishraqEnd = sunriseEnd.add(_ishraqWindow);
-  final zawalStart = day.dhuhr.subtract(_zawalWindow);
+  // Zawal hugs the sun's transit, not the offset Dhuhr start.
+  final zawalStart = day.transit.subtract(_zawalWindow);
   final sunsetStart = day.sunset.subtract(_horizonWindow);
 
   // Tahajjud: the last third of the night, sunset (Maghrib) → next Fajr.
@@ -63,7 +64,7 @@ List<SpecialWindow> resolveSpecialWindows(
       time: SpecialTime.forbiddenZawal,
       kind: SpecialKind.forbidden,
       start: zawalStart,
-      end: day.dhuhr,
+      end: day.transit,
     ),
     SpecialWindow(
       time: SpecialTime.forbiddenSunset,

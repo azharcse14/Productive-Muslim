@@ -29,10 +29,9 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
     required DateTime date,
   }) {
     try {
-      final coordinates = adhan.Coordinates(
-        location.latitude,
-        location.longitude,
-      );
+      // Polar day/night (aqrab al-bilad): stepped toward the equator until
+      // the sun rises and sets on all three days used.
+      var latitude = location.latitude;
       final offset = _hijriOffset();
       // Whole minutes, rounded up: the displayed (minute-only) time, the
       // countdown and the notification then agree, and never run early.
@@ -57,7 +56,7 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
             HijriDate.ramadanMonth;
         return adhan.PrayerTimes(
           date: day.add(Duration(days: shift)),
-          coordinates: coordinates,
+          coordinates: adhan.Coordinates(latitude, location.longitude),
           calculationParameters: _calculationParameters(params, ramadan),
         );
       }
@@ -70,15 +69,28 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
         date.day,
       ).difference(DateTime.utc(noon.year, noon.month, noon.day)).inDays;
 
-      final times = timesOn(0);
-      final yesterday = timesOn(-1);
+      List<adhan.PrayerTimes> around() => [
+        for (final d in const [-1, 0, 1]) timesOn(d),
+      ];
+      var near = around();
+      // adhan_dart 2.0.1 never yields NaN where the sun doesn't rise or set
+      // (its own polarCircleResolution never fires): it returns times weeks
+      // away instead. Same 0.5° step as adhan's aqrabBalad.
+      while (!near.every(_sunRisesAndSets) && latitude.abs() > 60) {
+        latitude -= latitude.sign * 0.5;
+        near = around();
+      }
+      final [yesterday, times, tomorrow] = near;
       // Fajr ends at the method's sunrise; the makruh window uses the sun's.
-      final sunriseOffset =
-          _calculationParameters(
-            params,
-            false,
-          ).methodAdjustments[adhan.Prayer.sunrise] ??
-          0;
+      final methodOffsets = _calculationParameters(
+        params,
+        false,
+      ).methodAdjustments;
+      final sunriseOffset = methodOffsets[adhan.Prayer.sunrise] ?? 0;
+      // Dhuhr minus every minute offset: the sun's own transit.
+      final dhuhrOffset =
+          (methodOffsets[adhan.Prayer.dhuhr] ?? 0) +
+          params.adjustmentFor(Prayer.dhuhr);
 
       return Result.success(
         PrayerDay(
@@ -91,14 +103,16 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           ).subtract(Duration(minutes: 1 + sunriseOffset)),
           sunset: wall(times.sunset),
           dhuhr: wall(times.dhuhr),
+          transit: wall(times.dhuhr).subtract(Duration(minutes: dhuhrOffset)),
           asr: wall(times.asr),
           maghrib: wall(times.maghrib),
           isha: wall(times.isha),
           // Not adhan's fajrAfter/ishaBefore: when twilight is never
           // reached (high-latitude summer) those return *today's* times.
-          fajrTomorrow: wall(timesOn(1).fajr),
+          fajrTomorrow: wall(tomorrow.fajr),
           ishaYesterday: wall(yesterday.isha),
           maghribYesterday: wall(yesterday.maghrib),
+          asrYesterday: wall(yesterday.asr),
           // +1: times are rounded *up*, so the shown Fajr can be up to 59 s
           // after the true one; sahri must never end after true Fajr.
           sahriSafety: Duration(minutes: params.sahriSafetyMinutes + 1),
@@ -162,9 +176,16 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       adhan.Prayer.sunrise: 0,
     };
     calc.rounding = adhan.Rounding.up;
-    // Without it adhan throws on the NaN sunrise/sunset of polar days and
-    // nights; take the nearest day that has them.
-    calc.polarCircleResolution = adhan.PolarCircleResolution.aqrabYaum;
     return calc;
   }
+
+  /// False for the garbage adhan returns on a polar day or night: the
+  /// times out of order, or sunrise to sunset a day or more.
+  static bool _sunRisesAndSets(adhan.PrayerTimes t) =>
+      t.fajr.isBefore(t.sunrise) &&
+      t.sunrise.isBefore(t.dhuhr) &&
+      t.dhuhr.isBefore(t.asr) &&
+      t.asr.isBefore(t.sunset) &&
+      t.sunset.isBefore(t.isha) &&
+      t.sunset.difference(t.sunrise) < const Duration(days: 1);
 }
