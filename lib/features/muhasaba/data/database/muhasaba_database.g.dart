@@ -1266,6 +1266,557 @@ class TrackerArchiveSpansCompanion extends UpdateCompanion<ArchiveSpanRow> {
   }
 }
 
+class $ExpensesTable extends Expenses
+    with TableInfo<$ExpensesTable, ExpenseRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExpensesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, amount, category, date, note];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expenses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExpenseRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_noteMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExpenseRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExpenseRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}date'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      )!,
+    );
+  }
+
+  @override
+  $ExpensesTable createAlias(String alias) {
+    return $ExpensesTable(attachedDatabase, alias);
+  }
+}
+
+class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
+  final int id;
+
+  /// Minor currency units.
+  final int amount;
+
+  /// `ExpenseCategory.name`.
+  final String category;
+
+  /// Floating wall time: microseconds since epoch of its UTC-flagged value.
+  final int date;
+  final String note;
+  const ExpenseRow({
+    required this.id,
+    required this.amount,
+    required this.category,
+    required this.date,
+    required this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['amount'] = Variable<int>(amount);
+    map['category'] = Variable<String>(category);
+    map['date'] = Variable<int>(date);
+    map['note'] = Variable<String>(note);
+    return map;
+  }
+
+  ExpensesCompanion toCompanion(bool nullToAbsent) {
+    return ExpensesCompanion(
+      id: Value(id),
+      amount: Value(amount),
+      category: Value(category),
+      date: Value(date),
+      note: Value(note),
+    );
+  }
+
+  factory ExpenseRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExpenseRow(
+      id: serializer.fromJson<int>(json['id']),
+      amount: serializer.fromJson<int>(json['amount']),
+      category: serializer.fromJson<String>(json['category']),
+      date: serializer.fromJson<int>(json['date']),
+      note: serializer.fromJson<String>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'amount': serializer.toJson<int>(amount),
+      'category': serializer.toJson<String>(category),
+      'date': serializer.toJson<int>(date),
+      'note': serializer.toJson<String>(note),
+    };
+  }
+
+  ExpenseRow copyWith({
+    int? id,
+    int? amount,
+    String? category,
+    int? date,
+    String? note,
+  }) => ExpenseRow(
+    id: id ?? this.id,
+    amount: amount ?? this.amount,
+    category: category ?? this.category,
+    date: date ?? this.date,
+    note: note ?? this.note,
+  );
+  ExpenseRow copyWithCompanion(ExpensesCompanion data) {
+    return ExpenseRow(
+      id: data.id.present ? data.id.value : this.id,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      category: data.category.present ? data.category.value : this.category,
+      date: data.date.present ? data.date.value : this.date,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseRow(')
+          ..write('id: $id, ')
+          ..write('amount: $amount, ')
+          ..write('category: $category, ')
+          ..write('date: $date, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, amount, category, date, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExpenseRow &&
+          other.id == this.id &&
+          other.amount == this.amount &&
+          other.category == this.category &&
+          other.date == this.date &&
+          other.note == this.note);
+}
+
+class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
+  final Value<int> id;
+  final Value<int> amount;
+  final Value<String> category;
+  final Value<int> date;
+  final Value<String> note;
+  const ExpensesCompanion({
+    this.id = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.category = const Value.absent(),
+    this.date = const Value.absent(),
+    this.note = const Value.absent(),
+  });
+  ExpensesCompanion.insert({
+    this.id = const Value.absent(),
+    required int amount,
+    required String category,
+    required int date,
+    required String note,
+  }) : amount = Value(amount),
+       category = Value(category),
+       date = Value(date),
+       note = Value(note);
+  static Insertable<ExpenseRow> custom({
+    Expression<int>? id,
+    Expression<int>? amount,
+    Expression<String>? category,
+    Expression<int>? date,
+    Expression<String>? note,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (amount != null) 'amount': amount,
+      if (category != null) 'category': category,
+      if (date != null) 'date': date,
+      if (note != null) 'note': note,
+    });
+  }
+
+  ExpensesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? amount,
+    Value<String>? category,
+    Value<int>? date,
+    Value<String>? note,
+  }) {
+    return ExpensesCompanion(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      note: note ?? this.note,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpensesCompanion(')
+          ..write('id: $id, ')
+          ..write('amount: $amount, ')
+          ..write('category: $category, ')
+          ..write('date: $date, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExpenseBudgetsTable extends ExpenseBudgets
+    with TableInfo<$ExpenseBudgetsTable, ExpenseBudgetRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExpenseBudgetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, amount];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expense_budgets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExpenseBudgetRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  ExpenseBudgetRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExpenseBudgetRow(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+    );
+  }
+
+  @override
+  $ExpenseBudgetsTable createAlias(String alias) {
+    return $ExpenseBudgetsTable(attachedDatabase, alias);
+  }
+}
+
+class ExpenseBudgetRow extends DataClass
+    implements Insertable<ExpenseBudgetRow> {
+  final String key;
+  final int amount;
+  const ExpenseBudgetRow({required this.key, required this.amount});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  ExpenseBudgetsCompanion toCompanion(bool nullToAbsent) {
+    return ExpenseBudgetsCompanion(key: Value(key), amount: Value(amount));
+  }
+
+  factory ExpenseBudgetRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExpenseBudgetRow(
+      key: serializer.fromJson<String>(json['key']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  ExpenseBudgetRow copyWith({String? key, int? amount}) =>
+      ExpenseBudgetRow(key: key ?? this.key, amount: amount ?? this.amount);
+  ExpenseBudgetRow copyWithCompanion(ExpenseBudgetsCompanion data) {
+    return ExpenseBudgetRow(
+      key: data.key.present ? data.key.value : this.key,
+      amount: data.amount.present ? data.amount.value : this.amount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseBudgetRow(')
+          ..write('key: $key, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExpenseBudgetRow &&
+          other.key == this.key &&
+          other.amount == this.amount);
+}
+
+class ExpenseBudgetsCompanion extends UpdateCompanion<ExpenseBudgetRow> {
+  final Value<String> key;
+  final Value<int> amount;
+  final Value<int> rowid;
+  const ExpenseBudgetsCompanion({
+    this.key = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExpenseBudgetsCompanion.insert({
+    required String key,
+    required int amount,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       amount = Value(amount);
+  static Insertable<ExpenseBudgetRow> custom({
+    Expression<String>? key,
+    Expression<int>? amount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (amount != null) 'amount': amount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExpenseBudgetsCompanion copyWith({
+    Value<String>? key,
+    Value<int>? amount,
+    Value<int>? rowid,
+  }) {
+    return ExpenseBudgetsCompanion(
+      key: key ?? this.key,
+      amount: amount ?? this.amount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseBudgetsCompanion(')
+          ..write('key: $key, ')
+          ..write('amount: $amount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MuhasabaDatabase extends GeneratedDatabase {
   _$MuhasabaDatabase(QueryExecutor e) : super(e);
   $MuhasabaDatabaseManager get managers => $MuhasabaDatabaseManager(this);
@@ -1273,6 +1824,8 @@ abstract class _$MuhasabaDatabase extends GeneratedDatabase {
   late final $DailyEntriesTable dailyEntries = $DailyEntriesTable(this);
   late final $TrackerArchiveSpansTable trackerArchiveSpans =
       $TrackerArchiveSpansTable(this);
+  late final $ExpensesTable expenses = $ExpensesTable(this);
+  late final $ExpenseBudgetsTable expenseBudgets = $ExpenseBudgetsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1281,6 +1834,8 @@ abstract class _$MuhasabaDatabase extends GeneratedDatabase {
     trackerItems,
     dailyEntries,
     trackerArchiveSpans,
+    expenses,
+    expenseBudgets,
   ];
 }
 
@@ -2412,6 +2967,371 @@ typedef $$TrackerArchiveSpansTableProcessedTableManager =
       ArchiveSpanRow,
       PrefetchHooks Function({bool itemId})
     >;
+typedef $$ExpensesTableCreateCompanionBuilder =
+    ExpensesCompanion Function({
+      Value<int> id,
+      required int amount,
+      required String category,
+      required int date,
+      required String note,
+    });
+typedef $$ExpensesTableUpdateCompanionBuilder =
+    ExpensesCompanion Function({
+      Value<int> id,
+      Value<int> amount,
+      Value<String> category,
+      Value<int> date,
+      Value<String> note,
+    });
+
+class $$ExpensesTableFilterComposer
+    extends Composer<_$MuhasabaDatabase, $ExpensesTable> {
+  $$ExpensesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExpensesTableOrderingComposer
+    extends Composer<_$MuhasabaDatabase, $ExpensesTable> {
+  $$ExpensesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExpensesTableAnnotationComposer
+    extends Composer<_$MuhasabaDatabase, $ExpensesTable> {
+  $$ExpensesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$ExpensesTableTableManager
+    extends
+        RootTableManager<
+          _$MuhasabaDatabase,
+          $ExpensesTable,
+          ExpenseRow,
+          $$ExpensesTableFilterComposer,
+          $$ExpensesTableOrderingComposer,
+          $$ExpensesTableAnnotationComposer,
+          $$ExpensesTableCreateCompanionBuilder,
+          $$ExpensesTableUpdateCompanionBuilder,
+          (
+            ExpenseRow,
+            BaseReferences<_$MuhasabaDatabase, $ExpensesTable, ExpenseRow>,
+          ),
+          ExpenseRow,
+          PrefetchHooks Function()
+        > {
+  $$ExpensesTableTableManager(_$MuhasabaDatabase db, $ExpensesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExpensesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExpensesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExpensesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<int> date = const Value.absent(),
+                Value<String> note = const Value.absent(),
+              }) => ExpensesCompanion(
+                id: id,
+                amount: amount,
+                category: category,
+                date: date,
+                note: note,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int amount,
+                required String category,
+                required int date,
+                required String note,
+              }) => ExpensesCompanion.insert(
+                id: id,
+                amount: amount,
+                category: category,
+                date: date,
+                note: note,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ExpensesTable, ExpenseRow>(table),
+                  BaseReferences<
+                    _$MuhasabaDatabase,
+                    $ExpensesTable,
+                    ExpenseRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExpensesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MuhasabaDatabase,
+      $ExpensesTable,
+      ExpenseRow,
+      $$ExpensesTableFilterComposer,
+      $$ExpensesTableOrderingComposer,
+      $$ExpensesTableAnnotationComposer,
+      $$ExpensesTableCreateCompanionBuilder,
+      $$ExpensesTableUpdateCompanionBuilder,
+      (
+        ExpenseRow,
+        BaseReferences<_$MuhasabaDatabase, $ExpensesTable, ExpenseRow>,
+      ),
+      ExpenseRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ExpenseBudgetsTableCreateCompanionBuilder =
+    ExpenseBudgetsCompanion Function({
+      required String key,
+      required int amount,
+      Value<int> rowid,
+    });
+typedef $$ExpenseBudgetsTableUpdateCompanionBuilder =
+    ExpenseBudgetsCompanion Function({
+      Value<String> key,
+      Value<int> amount,
+      Value<int> rowid,
+    });
+
+class $$ExpenseBudgetsTableFilterComposer
+    extends Composer<_$MuhasabaDatabase, $ExpenseBudgetsTable> {
+  $$ExpenseBudgetsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExpenseBudgetsTableOrderingComposer
+    extends Composer<_$MuhasabaDatabase, $ExpenseBudgetsTable> {
+  $$ExpenseBudgetsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExpenseBudgetsTableAnnotationComposer
+    extends Composer<_$MuhasabaDatabase, $ExpenseBudgetsTable> {
+  $$ExpenseBudgetsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+}
+
+class $$ExpenseBudgetsTableTableManager
+    extends
+        RootTableManager<
+          _$MuhasabaDatabase,
+          $ExpenseBudgetsTable,
+          ExpenseBudgetRow,
+          $$ExpenseBudgetsTableFilterComposer,
+          $$ExpenseBudgetsTableOrderingComposer,
+          $$ExpenseBudgetsTableAnnotationComposer,
+          $$ExpenseBudgetsTableCreateCompanionBuilder,
+          $$ExpenseBudgetsTableUpdateCompanionBuilder,
+          (
+            ExpenseBudgetRow,
+            BaseReferences<
+              _$MuhasabaDatabase,
+              $ExpenseBudgetsTable,
+              ExpenseBudgetRow
+            >,
+          ),
+          ExpenseBudgetRow,
+          PrefetchHooks Function()
+        > {
+  $$ExpenseBudgetsTableTableManager(
+    _$MuhasabaDatabase db,
+    $ExpenseBudgetsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExpenseBudgetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExpenseBudgetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExpenseBudgetsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseBudgetsCompanion(
+                key: key,
+                amount: amount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String key,
+                required int amount,
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseBudgetsCompanion.insert(
+                key: key,
+                amount: amount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ExpenseBudgetsTable, ExpenseBudgetRow>(table),
+                  BaseReferences<
+                    _$MuhasabaDatabase,
+                    $ExpenseBudgetsTable,
+                    ExpenseBudgetRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExpenseBudgetsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MuhasabaDatabase,
+      $ExpenseBudgetsTable,
+      ExpenseBudgetRow,
+      $$ExpenseBudgetsTableFilterComposer,
+      $$ExpenseBudgetsTableOrderingComposer,
+      $$ExpenseBudgetsTableAnnotationComposer,
+      $$ExpenseBudgetsTableCreateCompanionBuilder,
+      $$ExpenseBudgetsTableUpdateCompanionBuilder,
+      (
+        ExpenseBudgetRow,
+        BaseReferences<
+          _$MuhasabaDatabase,
+          $ExpenseBudgetsTable,
+          ExpenseBudgetRow
+        >,
+      ),
+      ExpenseBudgetRow,
+      PrefetchHooks Function()
+    >;
 
 class $MuhasabaDatabaseManager {
   final _$MuhasabaDatabase _db;
@@ -2422,4 +3342,8 @@ class $MuhasabaDatabaseManager {
       $$DailyEntriesTableTableManager(_db, _db.dailyEntries);
   $$TrackerArchiveSpansTableTableManager get trackerArchiveSpans =>
       $$TrackerArchiveSpansTableTableManager(_db, _db.trackerArchiveSpans);
+  $$ExpensesTableTableManager get expenses =>
+      $$ExpensesTableTableManager(_db, _db.expenses);
+  $$ExpenseBudgetsTableTableManager get expenseBudgets =>
+      $$ExpenseBudgetsTableTableManager(_db, _db.expenseBudgets);
 }

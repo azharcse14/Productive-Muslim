@@ -7,24 +7,8 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/expenses/presentation/screens/expense_screen.dart';
 import 'package:productive_muslim/features/expenses/presentation/state/expense_store.dart';
 import 'package:productive_muslim/shared/widgets/q_chip.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
-import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
-/// Prefs whose writes take a while, like a real platform channel.
-base class _SlowPrefs extends InMemorySharedPreferencesAsync {
-  _SlowPrefs() : super.empty();
-
-  @override
-  Future<bool> setString(
-    String key,
-    String value,
-    SharedPreferencesOptions options,
-  ) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    return super.setString(key, value, options);
-  }
-}
+import 'fake_expense_repository.dart';
 
 Widget _app({Locale? locale}) => MaterialApp(
   locale: locale,
@@ -37,10 +21,11 @@ Widget _app({Locale? locale}) => MaterialApp(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ExpenseStore store;
+  late FakeExpenseRepository repo;
 
   void register({Locale device = const Locale('en', 'US')}) {
     store = ExpenseStore(
-      SharedPreferencesAsync(),
+      repo,
       now: () => DateTime.utc(2026, 10, 26, 10),
       deviceLocale: () => device,
     );
@@ -48,8 +33,7 @@ void main() {
   }
 
   setUp(() {
-    SharedPreferencesAsyncPlatform.instance =
-        InMemorySharedPreferencesAsync.empty();
+    repo = FakeExpenseRepository();
     // Pinned: the default currency (USD here) follows the device locale.
     TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
         const Locale('en', 'US');
@@ -64,7 +48,7 @@ void main() {
   testWidgets('double-tapping Save adds once and keeps the screen', (
     tester,
   ) async {
-    SharedPreferencesAsyncPlatform.instance = _SlowPrefs();
+    repo.writeDelay = const Duration(milliseconds: 300);
     register();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -156,10 +140,7 @@ void main() {
     // US clocks spring forward on Mar 8 2026: midnight-to-midnight is 23h,
     // so a duration diff called yesterday "Today" (run with
     // TZ=America/New_York to exercise it).
-    store = ExpenseStore(
-      SharedPreferencesAsync(),
-      now: () => DateTime.utc(2026, 3, 9, 10),
-    );
+    store = ExpenseStore(repo, now: () => DateTime.utc(2026, 3, 9, 10));
     GetIt.I.registerSingleton<ExpenseStore>(store);
     await store.add(
       amount: 50,
@@ -350,8 +331,6 @@ void main() {
   testWidgets('a failed swipe-delete puts the row back and drops Undo', (
     tester,
   ) async {
-    final prefs = _FailingWrites();
-    SharedPreferencesAsyncPlatform.instance = prefs;
     register();
     await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
     await tester.pumpWidget(_app());
@@ -363,7 +342,7 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    prefs.fail = true;
+    repo.failWrites = true;
     await tester.drag(find.text('tea'), const Offset(-600, 0));
     await tester.pumpAndSettle();
     expect(store.entries.value, hasLength(1));
@@ -375,8 +354,6 @@ void main() {
   testWidgets('a failed save keeps the sheet open with Save re-enabled', (
     tester,
   ) async {
-    final prefs = _FailingWrites();
-    SharedPreferencesAsyncPlatform.instance = prefs;
     register();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -384,20 +361,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, '120');
     await tester.pump();
-    prefs.fail = true;
+    repo.failWrites = true;
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.text("Couldn't save. Please try again."), findsOneWidget);
     expect(store.entries.value, isEmpty);
-    prefs.fail = false;
+    repo.failWrites = false;
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(store.entries.value, hasLength(1));
   });
 
   testWidgets('a failed CSV restore shows an error snackbar', (tester) async {
-    final prefs = _FailingWrites();
-    SharedPreferencesAsyncPlatform.instance = prefs;
     register();
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -417,7 +392,7 @@ void main() {
         null,
       ),
     );
-    prefs.fail = true;
+    repo.failWrites = true;
     await tester.tap(find.byTooltip('Backup'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Restore from copied CSV'));
@@ -477,7 +452,7 @@ void main() {
     tester,
   ) async {
     var clock = DateTime.utc(2026, 10, 26, 10);
-    store = ExpenseStore(SharedPreferencesAsync(), now: () => clock);
+    store = ExpenseStore(repo, now: () => clock);
     GetIt.I.registerSingleton<ExpenseStore>(store);
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -593,22 +568,4 @@ void main() {
     );
     handle.dispose();
   });
-}
-
-base class _FailingWrites extends InMemorySharedPreferencesAsync {
-  _FailingWrites() : super.empty();
-
-  bool fail = false;
-
-  @override
-  Future<bool> setString(
-    String key,
-    String value,
-    SharedPreferencesOptions options,
-  ) {
-    if (fail) {
-      throw StateError('disk full');
-    }
-    return super.setString(key, value, options);
-  }
 }

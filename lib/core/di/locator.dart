@@ -21,6 +21,7 @@ import '../../features/dua_tasbih/presentation/state/asma_quiz_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_favorites_store.dart';
 import '../../features/dua_tasbih/presentation/state/dua_store.dart';
 import '../../features/dua_tasbih/presentation/state/tasbih_store.dart';
+import '../../features/expenses/data/expense_repository_impl.dart';
 import '../../features/expenses/presentation/state/expense_store.dart';
 import '../../features/fasting/presentation/state/fasting_store.dart';
 import '../../features/hadith/data/hadith_asset_data_source.dart';
@@ -383,7 +384,10 @@ Future<void> setupLocator() async {
   // ---- expenses (hisab) ----
   locator.registerLazySingleton(
     () => ExpenseStore(
-      SharedPreferencesAsync(),
+      ExpenseRepositoryImpl(
+        locator<MuhasabaDatabase>(),
+        SharedPreferencesAsync(),
+      ),
       now: _wallNow,
       // Not behind the lock (as "Mark as prayed").
       onSadaqah: (date) async => locator<AppLockStore>().lockedNow

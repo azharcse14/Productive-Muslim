@@ -15,14 +15,29 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('a fresh database matches the exported v4 schema', () async {
-    final schema = await verifier.schemaAt(4);
+  test('a fresh database matches the exported v5 schema', () async {
+    final schema = await verifier.schemaAt(5);
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     await db.close();
   });
 
-  test('v3 -> v4 copies created_on into added_on', () async {
+  test('v4 -> v5 adds empty expense tables; trackers untouched', () async {
+    final schema = await verifier.schemaAt(4);
+    schema.rawDatabase.execute(
+      "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
+      "is_default, archived, sort_order, created_on, archived_on, added_on) "
+      "VALUES ('quran', 'q', 0, 'm', 0, 1, 0, 0, 20250801, NULL, 20250801)",
+    );
+    final db = MuhasabaDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 5);
+    expect(await db.select(db.expenses).get(), isEmpty);
+    expect(await db.select(db.expenseBudgets).get(), isEmpty);
+    expect((await db.select(db.trackerItems).getSingle()).addedOn, 20250801);
+    await db.close();
+  });
+
+  test('v3 -> v5 copies created_on into added_on', () async {
     final schema = await verifier.schemaAt(3);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -31,7 +46,7 @@ void main() {
       "('old', 'o', 0, 'm', 0, 1, 0, 1, NULL, NULL)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     final rows = {
       for (final r in await db.select(db.trackerItems).get()) r.id: r,
     };
@@ -40,7 +55,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 -> v4 adds archive spans; an archived item stays open', () async {
+  test('v2 -> v5 adds archive spans; an archived item stays open', () async {
     final schema = await verifier.schemaAt(2);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -49,7 +64,7 @@ void main() {
       "('dhikr', 'd', 0, 'm', 0, 1, 0, 1, 20250801, NULL)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     expect(await db.select(db.trackerArchiveSpans).get(), isEmpty);
     final quran = await (db.select(
       db.trackerItems,
@@ -60,7 +75,7 @@ void main() {
   });
 
   test(
-    'v1 -> v4 directly: conservative backfill, past completion unchanged',
+    'v1 -> v5 directly: conservative backfill, past completion unchanged',
     () async {
       final schema = await verifier.schemaAt(1);
       final raw = schema.rawDatabase;
@@ -76,7 +91,7 @@ void main() {
         "('salah_fajr', 20260601, 1)",
       );
       final db = MuhasabaDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(db, 4);
+      await verifier.migrateAndValidate(db, 5);
       final rows = {
         for (final r in await db.select(db.trackerItems).get()) r.id: r,
       };
@@ -115,7 +130,7 @@ void main() {
         schema.newConnection(),
         clock: () => DateTime(2031, 1, 2, 23, 30),
       );
-      await verifier.migrateAndValidate(db, 4);
+      await verifier.migrateAndValidate(db, 5);
       final row = await db.select(db.trackerItems).getSingle();
       expect(row.createdOn, 20310102);
       expect(row.addedOn, 20310102);

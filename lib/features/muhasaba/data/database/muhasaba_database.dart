@@ -67,8 +67,47 @@ class TrackerArchiveSpans extends Table {
   Set<Column<Object>> get primaryKey => {itemId, startOn};
 }
 
-/// Drift/SQLite database backing the Muhasaba feature.
-@DriftDatabase(tables: [TrackerItems, DailyEntries, TrackerArchiveSpans])
+/// The expense log (hisab). Lives in this user database; the expenses
+/// feature reaches it through SQL in `ExpenseRepositoryImpl`.
+@DataClassName('ExpenseRow')
+class Expenses extends Table {
+  IntColumn get id => integer()();
+
+  /// Minor currency units.
+  IntColumn get amount => integer()();
+
+  /// `ExpenseCategory.name`.
+  TextColumn get category => text()();
+
+  /// Floating wall time: microseconds since epoch of its UTC-flagged value.
+  IntColumn get date => integer()();
+  TextColumn get note => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Monthly expense budgets in minor units, keyed `total` (overall) or an
+/// `ExpenseCategory.name`.
+@DataClassName('ExpenseBudgetRow')
+class ExpenseBudgets extends Table {
+  TextColumn get key => text()();
+  IntColumn get amount => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {key};
+}
+
+/// Drift/SQLite database backing the Muhasaba feature (and the expense log).
+@DriftDatabase(
+  tables: [
+    TrackerItems,
+    DailyEntries,
+    TrackerArchiveSpans,
+    Expenses,
+    ExpenseBudgets,
+  ],
+)
 final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// Takes a [QueryExecutor] so tests can inject `NativeDatabase.memory()`.
   /// [clock] is the location wall clock (as the repository and store use);
@@ -87,7 +126,7 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// `dart run drift_dev schema dump lib/features/muhasaba/data/database/muhasaba_database.dart drift_schemas/muhasaba/`
   /// `dart run drift_dev schema generate drift_schemas/muhasaba/ test/features/muhasaba/data/generated/`
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -126,6 +165,12 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
         // created_on becomes the creation day.
         await m.addColumn(trackerItems, trackerItems.addedOn);
         await customStatement('UPDATE tracker_items SET added_on = created_on');
+      }
+      if (from < 5) {
+        // Filled from the old prefs keys by the expense repository's
+        // one-time import, not here.
+        await m.createTable(expenses);
+        await m.createTable(expenseBudgets);
       }
     },
   );
