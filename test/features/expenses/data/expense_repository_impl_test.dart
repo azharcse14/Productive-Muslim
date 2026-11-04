@@ -222,5 +222,39 @@ void main() {
       expect((await load()).expenses, hasLength(1));
       expect(await keys(), isEmpty);
     });
+
+    test('a re-run after the commit only removes the leftover keys', () async {
+      // An earlier run committed (id 1 is the kept-aside record, re-ided
+      // to 2 there) but failed removing the kept-aside key.
+      const back =
+          '{"id":1,"amountMinor":9,"category":"family",'
+          '"date":"2026-10-05T10:00:00.000","note":"back"}';
+      await db.customStatement(
+        "INSERT INTO expenses VALUES (1, 550, 'need', 0, 'rice'), "
+        "(2, 9, 'family', 0, 'back')",
+      );
+      await prefs.setString(
+        'expenses_v1_unreadable_records',
+        jsonEncode([back]),
+      );
+      final data = await load();
+      expect(
+        {for (final e in data.expenses) e.id: e.note},
+        {1: 'rice', 2: 'back'},
+        reason: 'expense 1 must not be replaced by the kept-aside record',
+      );
+      expect(await keys(), isEmpty);
+    });
+
+    test('a category budget that is not a number is kept aside', () async {
+      await prefs.setBool('expense_minor_units_migrated', true);
+      await prefs.setString(
+        'expense_category_budgets_v2',
+        jsonEncode({'need': 5000, 'want': '12'}),
+      );
+      final data = await load();
+      expect(data.categoryBudgets, {ExpenseCategory.need: 5000});
+      expect(await prefs.getString(unimportedExpensesKey), contains('want'));
+    });
   });
 }
