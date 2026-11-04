@@ -68,6 +68,7 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                             r.titleEn,
                             r.titleBn,
                             r.transliteration,
+                            r.transliterationBn,
                             r.translationEn,
                             r.translationBn,
                             r.reference,

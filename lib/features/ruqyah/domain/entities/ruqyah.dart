@@ -11,6 +11,7 @@ final class RuqyahItem {
     required this.translationBn,
     required this.reference,
     required this.repeat,
+    this.transliterationBn = '',
     this.detailsEn = '',
     this.detailsBn = '',
   });
@@ -20,6 +21,9 @@ final class RuqyahItem {
   final String titleBn;
   final String arabic;
   final String transliteration;
+
+  /// Bengali-script transliteration; empty falls back to [transliteration].
+  final String transliterationBn;
   final String translationEn;
   final String translationBn;
 
@@ -41,6 +45,11 @@ final class RuqyahItem {
   String titleFor(String languageCode) => switch (languageCode) {
     'bn' when titleBn.isNotEmpty => titleBn,
     _ => titleEn,
+  };
+
+  String transliterationFor(String languageCode) => switch (languageCode) {
+    'bn' when transliterationBn.isNotEmpty => transliterationBn,
+    _ => transliteration,
   };
 
   String translationFor(String languageCode) => switch (languageCode) {

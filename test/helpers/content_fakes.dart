@@ -129,6 +129,7 @@ final class FakeRuqyahRepository implements RuqyahRepository {
               titleBn: 'আয়াতুল কুরসি',
               arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ',
               transliteration: 'Allahu la ilaha illa huwa',
+              transliterationBn: 'আল্লা-হু লা- ইলা-হা ইল্লা- হুওয়া',
               translationEn: 'Allah — there is no god but He',
               translationBn: 'আল্লাহ — তিনি ছাড়া কোনো ইলাহ নেই',
               reference: 'Qur\'an 2:255',

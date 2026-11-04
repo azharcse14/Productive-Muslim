@@ -75,12 +75,14 @@ final class RuqyahAssetDataSource {
     final repeat = map['repeat'];
     final detailsEn = map['detailsEn'];
     final detailsBn = map['detailsBn'];
+    final trBn = map['trBn'];
     return RuqyahItem(
       id: id,
       titleEn: titleEn is String ? titleEn : '',
       titleBn: titleBn is String ? titleBn : '',
       arabic: ar,
       transliteration: tr,
+      transliterationBn: trBn is String ? trBn : '',
       translationEn: en,
       translationBn: bn is String ? bn : '',
       reference: ref is String ? ref : '',
