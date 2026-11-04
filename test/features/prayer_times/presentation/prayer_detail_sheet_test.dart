@@ -119,5 +119,26 @@ void main() {
       );
       expect(find.textContaining('Hanafi count'), findsOneWidget);
     });
+
+    testWidgets('scrolls instead of overflowing at 2x text on 360x640', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(360, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(
+        _app(
+          const PrayerDetailSheet(
+            prayer: Prayer.isha,
+            range: '8:10 pm – 4:20 am',
+            jamaatTime: '8:30 pm',
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
   });
 }

@@ -423,6 +423,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String a11ySeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seconds',
+      one: '1 second',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String a11yMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -3619,6 +3630,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mosqueLoadError =>
       'Couldn\'t load your mosques. Please try again.';
+
+  @override
+  String get mosqueSeasonRemoved => 'Season removed';
+
+  @override
+  String get jumuahCleared => 'Jumu\'ah time removed';
 
   @override
   String jamaatCleared(String prayer) {

@@ -150,12 +150,17 @@ void main() {
       .map((t) => t.data!)
       .toList();
 
-  Future<void> pumpAt(WidgetTester tester, Locale locale) async {
+  Future<void> pumpAt(
+    WidgetTester tester,
+    Locale locale, {
+    double width = 360,
+    double textScale = 1.3,
+  }) async {
     tester.view
-      ..physicalSize = const Size(360, 780)
+      ..physicalSize = Size(width, 780)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await tester.pumpWidget(
       MaterialApp(
@@ -180,6 +185,15 @@ void main() {
       expect(texts.last, LocaleDigits.localize('$bangla', 'bn'));
     }
   });
+
+  for (final scale in [1.0, 1.3]) {
+    testWidgets('bn: three-line cells fit at 320dp and ${scale}x text', (
+      tester,
+    ) async {
+      await pumpAt(tester, const Locale('bn'), width: 320, textScale: scale);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('en: cells show no Bangla day', (tester) async {
     await pumpAt(tester, const Locale('en'));

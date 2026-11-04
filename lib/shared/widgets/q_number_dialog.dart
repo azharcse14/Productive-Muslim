@@ -54,14 +54,21 @@ final class _NumberDialog extends StatefulWidget {
 }
 
 final class _NumberDialogState extends State<_NumberDialog> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.initial == null
+  // Prefilled text starts selected, so typing replaces it (not appends).
+  late final TextEditingController _controller = () {
+    final text = widget.initial == null
         ? ''
         : LocaleDigits.localize(
             '${widget.initial}',
             Localizations.localeOf(context).languageCode,
-          ),
-  );
+          );
+    return TextEditingController.fromValue(
+      TextEditingValue(
+        text: text,
+        selection: TextSelection(baseOffset: 0, extentOffset: text.length),
+      ),
+    );
+  }();
   bool _invalid = false;
 
   @override

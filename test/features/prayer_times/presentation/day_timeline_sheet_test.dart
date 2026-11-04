@@ -114,6 +114,36 @@ void main() {
     expect(y('Now'), lessThan(y('Asr')));
   });
 
+  testWidgets('a long forbidden range wraps at 2x text, no overflow', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(320, 2000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final day = _sampleDay();
+    await tester.pumpWidget(
+      _app(
+        DayTimelineSheet(
+          day: day,
+          now: DateTime(2026, 6, 14, 13),
+          formatTime: (t) => '${_fmt(t)} pm',
+          forbidden: [
+            SpecialWindow(
+              time: SpecialTime.forbiddenZawal,
+              kind: SpecialKind.forbidden,
+              start: DateTime(2026, 6, 14, 12, 24),
+              end: day.dhuhr,
+            ),
+          ],
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   // The active row's label is drawn in ink, the others in ink2.
   Color? labelColor(WidgetTester tester, String label) =>
       tester.widget<Text>(find.text(label)).style?.color;

@@ -202,6 +202,14 @@
       }
     }
   },
+  "a11ySeconds": "{count, plural, =1{1 second} other{{count} seconds}}",
+  "@a11ySeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "a11yMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
   "@a11yMinutes": {
     "placeholders": {
@@ -1666,6 +1674,8 @@
   "specialTimesEmpty": "No times to show for today.",
   "clearSearch": "Clear search",
   "mosqueLoadError": "Couldn't load your mosques. Please try again.",
+  "mosqueSeasonRemoved": "Season removed",
+  "jumuahCleared": "Jumu'ah time removed",
   "jamaatCleared": "{prayer} jamaat removed",
   "@jamaatCleared": {
     "placeholders": {

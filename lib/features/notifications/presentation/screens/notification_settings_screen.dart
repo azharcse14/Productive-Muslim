@@ -133,10 +133,9 @@ final class _NotificationSettingsScreenState
       return context.l10n.notifScheduledNone;
     }
     final locale = Localizations.localeOf(context);
-    final when = LocaleDigits.localize(
-      DateFormat.MMMEd(locale.toString()).add_jm().format(until),
-      locale.languageCode,
-    );
+    // The time follows the device's 24-hour setting.
+    final date = DateFormat.MMMEd(locale.toString()).format(until);
+    final when = '${context.digits(date)} ${context.clockTime(until)}';
     return context.l10n.notifScheduledUntil(when);
   }
 

@@ -121,6 +121,12 @@ final class MosqueStore {
   Future<void> addSeason(MosqueSeason season) =>
       _update((s) => s.copyWith(seasons: [...s.seasons, season]));
 
+  Future<void> insertSeason(int index, MosqueSeason season) => _update((s) {
+    final seasons = [...s.seasons];
+    seasons.insert(index.clamp(0, seasons.length), season);
+    return s.copyWith(seasons: seasons);
+  });
+
   /// Replaces the season at [index]; with a null [season] removes it.
   Future<void> updateSeason(int index, MosqueSeason? season) {
     if (index < 0 || index >= state.value.seasons.length) {

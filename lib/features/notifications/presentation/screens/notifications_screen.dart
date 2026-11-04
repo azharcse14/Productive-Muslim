@@ -156,7 +156,12 @@ final class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.all(QSpace.s5),
+                  // Edge-to-edge: clear the system nav bar at the end.
+                  padding:
+                      const EdgeInsets.all(QSpace.s5) +
+                      EdgeInsets.only(
+                        bottom: MediaQuery.paddingOf(context).bottom,
+                      ),
                   itemCount: items.length,
                   separatorBuilder: (_, _) => const SizedBox(height: QSpace.s3),
                   itemBuilder: (context, index) =>
