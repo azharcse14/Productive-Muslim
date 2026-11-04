@@ -258,11 +258,19 @@ final class TasbihStore {
     _saveRound();
   }
 
+  /// A target below the current count would leave the round unreachable:
+  /// as when a full round rolls over, those beads are saved to history and
+  /// a fresh round starts under the new target.
   void setTarget(int n) {
     if (n < 1) {
       return;
     }
     target.value = n;
+    if (count.value > n) {
+      // Clears the round synchronously; the save finishes in the background.
+      unawaited(reset(saveToHistory: true));
+      return;
+    }
     if (count.value < n) {
       milestone.value = false;
     }
