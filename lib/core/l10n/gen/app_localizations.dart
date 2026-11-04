@@ -812,6 +812,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
   String a11yHours(int count);
 
+  /// No description provided for @a11ySeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 second} other{{count} seconds}}'**
+  String a11ySeconds(int count);
+
   /// No description provided for @a11yMinutes.
   ///
   /// In en, this message translates to:
@@ -5431,6 +5437,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load your mosques. Please try again.'**
   String get mosqueLoadError;
+
+  /// No description provided for @mosqueSeasonRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Season removed'**
+  String get mosqueSeasonRemoved;
+
+  /// No description provided for @jumuahCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumu\'ah time removed'**
+  String get jumuahCleared;
 
   /// No description provided for @jamaatCleared.
   ///

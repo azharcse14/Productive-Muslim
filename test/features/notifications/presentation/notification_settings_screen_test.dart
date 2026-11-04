@@ -518,6 +518,34 @@ void main() {
       expect(until, findsOneWidget);
     });
 
+    testWidgets('"scheduled until" follows the 24-hour setting', (
+      tester,
+    ) async {
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(location: _dhaka),
+      );
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(
+        _app(
+          home: Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(alwaysUse24HourFormat: true),
+              child: const NotificationSettingsScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final until = find.textContaining('Reminders scheduled until ');
+      await tester.scrollUntilVisible(until, 200);
+      final text = tester.widget<Text>(until).data!;
+      expect(text, matches(RegExp(r' \d{2}:\d{2}\b')));
+      expect(text, isNot(matches(RegExp('AM|PM'))));
+    });
+
     testWidgets('per-prayer segments name the prayer for screen readers', (
       tester,
     ) async {
@@ -583,6 +611,25 @@ void main() {
       await tester.pump();
       expect(find.text("It's time for Jumu'ah."), findsOneWidget);
       expect(find.text("It's time for Dhuhr."), findsNothing);
+    });
+
+    testWidgets('the list clears the system nav bar (edge-to-edge)', (
+      tester,
+    ) async {
+      tester.view.padding = const FakeViewPadding(bottom: 48);
+      addTearDown(tester.view.reset);
+      await _register(
+        _FakeScheduler(),
+        settings: const AppSettings(location: _dhaka),
+      );
+      await tester.runAsync(_controller.start);
+      await tester.pumpWidget(_app(home: const NotificationsScreen()));
+      await tester.pump();
+      final padding = tester.widget<ListView>(find.byType(ListView)).padding!;
+      expect(
+        padding.resolve(TextDirection.ltr).bottom,
+        20 + 48 / tester.view.devicePixelRatio,
+      );
     });
 
     testWidgets('a failed reschedule warns and retries', (tester) async {

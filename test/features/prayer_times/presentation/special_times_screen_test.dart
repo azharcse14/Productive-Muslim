@@ -32,6 +32,19 @@ Widget _app(SpecialKind kind, List<SpecialWindow> windows) => MaterialApp(
 
 void main() {
   group('SpecialTimesScreen', () {
+    testWidgets('the list clears the system nav bar (edge-to-edge)', (
+      tester,
+    ) async {
+      tester.view.padding = const FakeViewPadding(bottom: 48);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(SpecialKind.forbidden, _forbidden));
+      final padding = tester.widget<ListView>(find.byType(ListView)).padding!;
+      expect(
+        padding.resolve(TextDirection.ltr).bottom,
+        20 + 48 / tester.view.devicePixelRatio,
+      );
+    });
+
     testWidgets('forbidden page shows only the forbidden intro + windows', (
       tester,
     ) async {

@@ -331,8 +331,36 @@ void main() {
       expect(repo.stored.seasons.single.end, (month: 3, day: 29));
 
       await tester.tap(find.byTooltip('Delete').last);
-      await tester.pumpAndSettle();
+      await tester.pump();
       expect(repo.stored.seasons, isEmpty);
+      expect(find.text('Season removed'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1)); // snackbar in
+      await tester.tap(find.text('Undo'));
+      await tester.pump();
+      expect(repo.stored.seasons.single.end, (month: 3, day: 29));
+    });
+
+    testWidgets("clearing the Jumu'ah time offers an undo", (tester) async {
+      tester.view.physicalSize = const Size(1200, 2600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await register(
+        const MosqueState(
+          profiles: [
+            MosqueProfile(id: 'a', name: 'Home', jumuah: ClockTime(13, 30)),
+          ],
+          activeId: 'a',
+        ),
+      );
+      await tester.pumpWidget(_app());
+      await tester.tap(find.byTooltip("Remove Jumu'ah time"));
+      await tester.pump();
+      expect(repo.stored.profiles.single.jumuah, isNull);
+      await tester.pump(const Duration(seconds: 1)); // snackbar in
+      await tester.tap(find.text('Undo'));
+      await tester.pump();
+      expect(repo.stored.profiles.single.jumuah, const ClockTime(13, 30));
     });
 
     testWidgets('says which mosque is active now and why', (tester) async {
@@ -444,6 +472,19 @@ void main() {
       expect(find.text('Rename mosque'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'Masjid');
       await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(repo.stored.profiles.single.name, 'Masjid');
+    });
+
+    testWidgets('keyboard Done in the name dialog saves like Save', (
+      tester,
+    ) async {
+      await register();
+      await tester.pumpWidget(_app());
+      await tester.tap(find.text('Add profile'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), ' Masjid ');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect(repo.stored.profiles.single.name, 'Masjid');
     });

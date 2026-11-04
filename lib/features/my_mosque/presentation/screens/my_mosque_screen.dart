@@ -91,19 +91,10 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
   void _removeRule(MosqueState state, int index) {
     final rule = state.rules[index];
     unawaited(_store.removeRule(index));
-    final l10n = context.l10n;
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.scheduleRuleRemoved),
-          persist: false,
-          action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () => unawaited(_store.insertRule(index, rule)),
-          ),
-        ),
-      );
+    _undoable(
+      context.l10n.scheduleRuleRemoved,
+      () => _store.insertRule(index, rule),
+    );
   }
 
   /// "None" wipes a fixed time or offset in one tap, so offer a brief undo.
@@ -114,19 +105,46 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
       return;
     }
     final l10n = context.l10n;
+    _undoable(
+      l10n.jamaatCleared(l10n.prayerLabel(prayer)),
+      () => _store.setEntry(profile.id, prayer, previous),
+    );
+  }
+
+  /// A one-tap removal: say what went and offer a brief undo.
+  void _undoable(String message, Future<void> Function() undo) {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(l10n.jamaatCleared(l10n.prayerLabel(prayer))),
+          content: Text(message),
           persist: false,
           action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () =>
-                unawaited(_store.setEntry(profile.id, prayer, previous)),
+            label: context.l10n.undo,
+            onPressed: () => unawaited(undo()),
           ),
         ),
       );
+  }
+
+  void _clearJumuah(MosqueProfile profile) {
+    final previous = profile.jumuah;
+    unawaited(_store.setJumuah(profile.id, null));
+    _undoable(
+      context.l10n.jumuahCleared,
+      () => _store.setJumuah(profile.id, previous),
+    );
+  }
+
+  void _seasonChanged(MosqueState state, int index, MosqueSeason? season) {
+    unawaited(_store.updateSeason(index, season));
+    if (season == null) {
+      final removed = state.seasons[index];
+      _undoable(
+        context.l10n.mosqueSeasonRemoved,
+        () => _store.insertSeason(index, removed),
+      );
+    }
   }
 
   Future<void> _deleteProfile(MosqueProfile profile) async {
@@ -362,8 +380,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                           ? null
                           : _formatTime(context, active.jumuah!),
                       onPick: () => unawaited(_pickJumuah(active)),
-                      onClear: () =>
-                          unawaited(_store.setJumuah(active.id, null)),
+                      onClear: () => _clearJumuah(active),
                     ),
                     const SizedBox(height: QSpace.s3),
                   ],
@@ -402,7 +419,7 @@ final class _MyMosqueScreenState extends State<MyMosqueScreen> {
                     ),
                   ),
                 ),
-                onSeasonChanged: (i, s) => unawaited(_store.updateSeason(i, s)),
+                onSeasonChanged: (i, s) => _seasonChanged(state, i, s),
               ),
               if (active != null) ...[
                 const SizedBox(height: QSpace.s5),
@@ -514,6 +531,8 @@ final class _NameDialogState extends State<_NameDialog> {
     super.dispose();
   }
 
+  void _submit() => Navigator.of(context).pop(_controller.text.trim());
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -523,16 +542,15 @@ final class _NameDialogState extends State<_NameDialog> {
         controller: _controller,
         autofocus: true,
         decoration: InputDecoration(hintText: l10n.profileNameHint),
+        // Keyboard Done saves, as the Save button does.
+        onSubmitted: (_) => _submit(),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.cancel),
         ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
-          child: Text(l10n.save),
-        ),
+        FilledButton(onPressed: _submit, child: Text(l10n.save)),
       ],
     );
   }

@@ -40,7 +40,10 @@ final class SpecialTimesScreen extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(QSpace.s5),
+        // Edge-to-edge: clear the system nav bar at the end.
+        padding:
+            const EdgeInsets.all(QSpace.s5) +
+            EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
         children: [
           Row(
             children: [

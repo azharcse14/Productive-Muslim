@@ -326,7 +326,10 @@ final class _MonthGrid extends StatelessWidget {
       crossAxisCount: 7,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 0.82 / context.textGrowth,
+      // Taller cells in Bangla: they stack a third (Bangla-day) line.
+      childAspectRatio:
+          (Localizations.localeOf(context).languageCode == 'bn' ? 0.68 : 0.82) /
+          context.textGrowth,
       children: cells,
     );
   }
