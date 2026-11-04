@@ -23,6 +23,8 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.AlarmClock
 import android.provider.Settings
@@ -48,8 +50,9 @@ import kotlin.math.sqrt
  * start and end them with the app closed.
  *
  * Nafs lock rides the same engine: with it on, the accessibility service
- * counts hard shakes, and [NAFS_SHAKES] of them start a strict session of
- * the set length right away ([lockNafs]).
+ * counts hard shakes, and [NAFS_SHAKES] of them show a [NAFS_DELAY_MS]
+ * countdown with Cancel ([armNafs]), then start a strict session of the set
+ * length ([lockNafs]) — an accidental shake can still be undone.
  *
  * State lives in SharedPreferences so the alarm receiver, the accessibility
  * service and the lock screen agree without a running engine.
@@ -68,6 +71,12 @@ object JamaatFocus {
     private const val ACTIVE_UNTIL = "activeUntil"
 
     const val NAFS_SHAKES = 5
+    const val NAFS_DELAY_MS = 5_000L
+
+    /** In memory: a process death drops the posted lock with it. */
+    val nafsCountdown = NafsCountdown(NAFS_DELAY_MS)
+    private val main by lazy { Handler(Looper.getMainLooper()) }
+    private var nafsFire: Runnable? = null
 
     // kind of the running session: "jamaat" or "nafs" (own texts, always blocks).
     private const val KIND = "kind"
@@ -140,7 +149,7 @@ object JamaatFocus {
             putInt("nafsMinutes", (args["nafsMinutes"] as? Number)?.toInt() ?: 5)
             for (key in listOf(
                 "title", "body", "bodyUntil", "endAction", "channelName",
-                "nafs.title", "nafs.bodyUntil",
+                "nafs.title", "nafs.bodyUntil", "nafs.pending", "nafs.cancel",
                 "clockPattern", "clockAm", "clockPm", "clockDigits", "clockZone",
             )) {
                 putString(key, args[key] as? String ?: "")
@@ -252,9 +261,39 @@ object JamaatFocus {
         JamaatFocusService.current?.get()?.syncShake()
     }
 
-    /** Shakes counted: a strict, app-blocking session from now. No-op mid-session. */
-    fun lockNafs(c: Context) {
-        if (isActive(c) || !nafsEnabled(c) || !blockingAvailable(c)) return
+    private fun canLockNafs(c: Context) =
+        !isActive(c) && nafsEnabled(c) && blockingAvailable(c)
+
+    /**
+     * Shakes counted: shows the countdown cover, then [lockNafs] and
+     * [onLocked] after [NAFS_DELAY_MS] unless [cancelNafs] runs first.
+     * Shakes during the countdown change nothing.
+     */
+    fun armNafs(c: Context, onLocked: () -> Unit) {
+        if (!canLockNafs(c) || !nafsCountdown.arm(System.currentTimeMillis())) return
+        nafsFire = Runnable {
+            nafsFire = null
+            if (nafsCountdown.fire() && lockNafs(c)) onLocked()
+        }.also { main.postDelayed(it, NAFS_DELAY_MS) }
+        showLock(c)
+    }
+
+    fun cancelNafs() {
+        nafsCountdown.cancel()
+        nafsFire?.let(main::removeCallbacks)
+        nafsFire = null
+    }
+
+    /** Countdown cover text, seconds in the app's digits. */
+    fun pendingBody(c: Context): String = nafsCountdown.label(
+        text(c, "pending"),
+        System.currentTimeMillis(),
+        prefs(c).getString("clockDigits", "").orEmpty(),
+    )
+
+    /** A strict, app-blocking session from now; false (no-op) mid-session. */
+    fun lockNafs(c: Context): Boolean {
+        if (!canLockNafs(c)) return false
         val minutes = prefs(c).getInt("nafsMinutes", 5).coerceAtLeast(1)
         clocks = null
         prefs(c).edit()
@@ -267,6 +306,7 @@ object JamaatFocus {
         showOngoing(c)
         showLock(c)
         tick(c) // arms the end alarm
+        return true
     }
 
     /** User "End" — refused in strict mode. */
@@ -318,7 +358,7 @@ object JamaatFocus {
     /** Session text; a nafs session reads its own "nafs.<key>" where set. */
     fun text(c: Context, key: String): String {
         val p = prefs(c)
-        val own = if (isNafs(c)) p.getString("nafs.$key", "").orEmpty() else ""
+        val own = if (isNafs(c) || nafsCountdown.armed) p.getString("nafs.$key", "").orEmpty() else ""
         return own.ifEmpty { p.getString(key, "").orEmpty() }
     }
 
@@ -466,11 +506,12 @@ class JamaatFocusService : AccessibilityService() {
     }
 
     private val shakes = ShakeCounter(JamaatFocus.NAFS_SHAKES) {
-        JamaatFocus.lockNafs(this)
-        if (JamaatFocus.isActive(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+        JamaatFocus.armNafs(this) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+            }
+            syncShake()
         }
-        syncShake()
     }
     private var listening = false
     private var registered = false
@@ -510,12 +551,13 @@ class JamaatFocusService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
-            !JamaatFocus.isActive(this)
-        ) return
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        // Nafs countdown: keep its cover (and Cancel) in front until it fires.
+        val pending = JamaatFocus.nafsCountdown.armed
+        if (!pending && !JamaatFocus.isActive(this)) return
         JamaatFocus.enforce(this)
         val pkg = event.packageName?.toString() ?: return
-        if (JamaatFocus.blocking(this) && !JamaatFocus.allowed(this, pkg)) {
+        if ((pending || JamaatFocus.blocking(this)) && !JamaatFocus.allowed(this, pkg)) {
             JamaatFocus.showLock(this)
         }
     }
@@ -530,6 +572,7 @@ class JamaatFocusService : AccessibilityService() {
             registered = false
         }
         (getSystemService(Context.SENSOR_SERVICE) as SensorManager).unregisterListener(shakes)
+        JamaatFocus.cancelNafs() // service off: no lock it can't enforce
         if (current?.get() === this) current = null
         super.onDestroy()
     }
@@ -565,6 +608,43 @@ class ShakeCounter(private val needed: Int, private val onShakes: () -> Unit) :
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }
 
+/**
+ * Nafs lock's grace period: armed by the shakes, fires once after [delayMs]
+ * unless cancelled. Re-arming while armed is refused, so extra shakes during
+ * the countdown neither restart nor stack it. Pure: clock passed in.
+ */
+class NafsCountdown(private val delayMs: Long) {
+    /** Epoch ms the lock is due; 0 = not armed. */
+    var endsAt = 0L
+        private set
+
+    val armed get() = endsAt != 0L
+
+    /** False when already armed. */
+    fun arm(nowMs: Long): Boolean {
+        if (armed) return false
+        endsAt = nowMs + delayMs
+        return true
+    }
+
+    /** True if it was armed (and isn't any more). */
+    fun cancel(): Boolean = armed.also { endsAt = 0L }
+
+    /** The due runnable: true only if not cancelled meanwhile. */
+    fun fire(): Boolean = cancel()
+
+    /** Whole seconds left, rounded up (5, 4, … 1), 0 once due or not armed. */
+    fun secondsLeft(nowMs: Long): Int =
+        if (!armed) 0 else ((endsAt - nowMs + 999) / 1000).coerceAtLeast(0).toInt()
+
+    /** [template]'s `{seconds}` filled in, ASCII digits mapped to [digits] (10 chars). */
+    fun label(template: String, nowMs: Long, digits: String): String {
+        val n = secondsLeft(nowMs).toString()
+            .map { if (digits.length == 10) digits[it - '0'] else it }.joinToString("")
+        return template.replace("{seconds}", n)
+    }
+}
+
 /** Full-screen jamaat cover. "End" only outside strict mode; calls stay open. */
 class JamaatFocusActivity : Activity() {
     companion object {
@@ -594,7 +674,7 @@ class JamaatFocusActivity : Activity() {
             setBackgroundColor(Color.parseColor("#15564D"))
         }
         root.addView(TextView(this).apply {
-            text = JamaatFocus.text(this@JamaatFocusActivity, "title")
+            tag = "title"
             textSize = 28f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
@@ -615,25 +695,55 @@ class JamaatFocusActivity : Activity() {
         })
         root.addView(Button(this).apply {
             tag = "end"
-            text = JamaatFocus.text(this@JamaatFocusActivity, "endAction")
             setOnClickListener {
-                JamaatFocus.end(this@JamaatFocusActivity)
+                if (JamaatFocus.nafsCountdown.armed) {
+                    JamaatFocus.cancelNafs()
+                } else {
+                    JamaatFocus.end(this@JamaatFocusActivity)
+                }
                 finish()
             }
         })
         setContentView(root)
     }
 
+    private val refresh = Runnable { render() }
+
     override fun onResume() {
         super.onResume()
-        if (!JamaatFocus.isActive(this)) {
+        render()
+    }
+
+    override fun onPause() {
+        window.decorView.removeCallbacks(refresh)
+        super.onPause()
+    }
+
+    /** Nafs countdown (re-drawn until it fires or is cancelled), else the session. */
+    private fun render() {
+        val pending = JamaatFocus.nafsCountdown.armed
+        if (!pending && !JamaatFocus.isActive(this)) {
             finish()
             return
         }
         val root = window.decorView
-        root.findViewWithTag<TextView>("body").text = JamaatFocus.body(this)
-        root.findViewWithTag<Button>("end").visibility =
-            if (JamaatFocus.status(this)["strict"] == true) Button.GONE else Button.VISIBLE
+        root.findViewWithTag<TextView>("title").text = JamaatFocus.text(this, "title")
+        root.findViewWithTag<TextView>("body").text =
+            if (pending) JamaatFocus.pendingBody(this) else JamaatFocus.body(this)
+        root.findViewWithTag<Button>("end").apply {
+            text = if (pending) {
+                JamaatFocus.text(context, "cancel").ifEmpty { getString(android.R.string.cancel) }
+            } else {
+                JamaatFocus.text(context, "endAction")
+            }
+            visibility = if (pending || JamaatFocus.status(context)["strict"] != true) {
+                Button.VISIBLE
+            } else {
+                Button.GONE
+            }
+        }
+        root.removeCallbacks(refresh)
+        if (pending) root.postDelayed(refresh, 250)
     }
 
     @Deprecated("Back would just reveal the covered app.")

@@ -40,6 +40,8 @@ final class NotificationTexts {
     this.focusEndBody = '',
     this.nafsLockTitle = '',
     this.nafsLockBodyUntil = '',
+    this.nafsLockPending = '',
+    this.nafsLockCancel = '',
     this.dailyAyahTitle = '',
     this.dailyAyahBody = '',
     this.dailyHadithTitle = '',
@@ -99,6 +101,10 @@ final class NotificationTexts {
   /// Nafs lock screen + ongoing notification; body takes `{time}`.
   final String nafsLockTitle;
   final String nafsLockBodyUntil;
+
+  /// Countdown before a shake's lock starts; takes `{seconds}`. Its button.
+  final String nafsLockPending;
+  final String nafsLockCancel;
 
   final String dailyAyahTitle;
   final String dailyAyahBody;

@@ -253,6 +253,8 @@ final class NotificationController {
       dailyHadithBody: l10n.notifDailyHadithBody,
       nafsLockTitle: l10n.nafsLockTitle,
       nafsLockBodyUntil: l10n.nafsLockBodyUntil('{time}'),
+      nafsLockPending: l10n.nafsLockPending('{seconds}'),
+      nafsLockCancel: l10n.cancel,
       prayerNames: {
         for (final prayer in Prayer.values)
           prayer.name: l10n.prayerLabel(prayer),

@@ -968,6 +968,7 @@
   "nafsActiveUntil": "{time} পর্যন্ত নফস লক চালু",
   "nafsLockTitle": "নফস লক",
   "nafsLockBodyUntil": "একটু থামুন — আল্লাহকে স্মরণ করুন। ফোন খুলবে {time}-এ।",
+  "nafsLockPending": "{seconds} সেকেন্ড পর লক হবে। ভুল করে ঝাঁকিয়েছেন? বাতিল চাপুন।",
   "healthTitle": "স্বাস্থ্য ট্র্যাকার",
   "healthSubtitle": "সুন্নাহ মেনে পানি, ঘুম, ব্যায়াম ও ওজন",
   "healthToday": "আজকের অভ্যাস",
