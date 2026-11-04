@@ -17,7 +17,7 @@ plan is more specific, this plan wins.
 | 2.1–2.4 Jamaat Focus native | ✅ done |
 | 3 CI android job | ✅ done — never run on GitHub yet (branch not pushed) |
 | 4.1–4.4 | ✅ done |
-| 4.5 end-to-end flow test (added in this plan revision) | ✅ done 2026-11-04 (`test/e2e_flow_test.dart`) |
+| 4.5 end-to-end flow test (added in this plan revision) | ✅ done 2026-11-04 (`test/widget_test.dart`) |
 | 5.1 architecture ratchet (baseline 96 → 92) | ✅ done |
 | 5.2 onboarding `AppLockStore`, qibla `QiblaStore`, notifications → `JamaatFocusControl` | ✅ done |
 | 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ✅ done 2026-11-04 — moved to `lib/core/settings/` (app-scoped like theme/router; an interface would have one implementation) |
