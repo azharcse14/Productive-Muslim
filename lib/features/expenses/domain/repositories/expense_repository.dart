@@ -7,6 +7,10 @@ typedef ExpenseData = ({
   int? budget,
   Map<ExpenseCategory, int> categoryBudgets,
   String? currency,
+
+  /// Highest id stored, hidden rows (unknown categories) included; 0 when
+  /// empty. New ids go above it so they never replace a stored row.
+  int maxId,
 });
 
 /// Persistence for the expense log (hisab). Amounts are minor units.

@@ -80,6 +80,7 @@ void main() {
     final data = await load();
     expect(data.expenses, isEmpty);
     expect(data.categoryBudgets, isEmpty);
+    expect(data.maxId, 9, reason: 'new ids must go above hidden rows');
   });
 
   group('legacy import', () {

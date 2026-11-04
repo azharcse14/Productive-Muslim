@@ -152,6 +152,12 @@ final class ExpenseStore {
 
   Future<void>? _loading;
 
+  /// Highest id handed out or stored (hidden rows too). Never goes back, so
+  /// a new id can't replace a stored row or one a failed write left behind.
+  int _lastId = 0;
+
+  int _newId() => ++_lastId;
+
   /// Loads once per store; every mutation awaits it first, so a write can
   /// never land before (and be clobbered by, or clobber) the stored list.
   /// A failed load is forgotten, so the next call (or write) retries it.
@@ -166,6 +172,7 @@ final class ExpenseStore {
 
   Future<void> _load() async {
     final data = _unwrap(await _repo.load());
+    _lastId = data.maxId;
     entries.value = data.expenses; // newest first
     budget.value = data.budget;
     categoryBudgets.value = data.categoryBudgets;
@@ -221,7 +228,7 @@ final class ExpenseStore {
       return;
     }
     final e = Expense(
-      id: entries.value.fold(0, (m, e) => e.id > m ? e.id : m) + 1,
+      id: _newId(),
       amount: amount,
       category: category,
       date: (date ?? _now()).floating,
@@ -230,9 +237,10 @@ final class ExpenseStore {
     await _write(
       [e, ...entries.value]..sort(_newestFirst),
       () => _repo.save([e]),
+      // Only if still as added: an edit saved meanwhile is in the DB too.
       undo: (list) => [
         for (final x in list)
-          if (x.id != e.id) x,
+          if (x.id != e.id || x.fields != e.fields) x,
       ],
     );
     await _markSadaqah(e);
@@ -326,7 +334,7 @@ final class ExpenseStore {
   /// remove failed).
   Future<void> restore(Expense expense) async {
     await load();
-    final next = _withEntry(entries.value, expense);
+    final next = _withEntry(entries.value, expense, _newId);
     if (identical(next, entries.value)) {
       return;
     }
@@ -343,14 +351,16 @@ final class ExpenseStore {
 
   /// [list] plus [e], re-ided when another entry holds its id, newest
   /// first; [list] itself when an identical entry is already there.
-  static List<Expense> _withEntry(List<Expense> list, Expense e) {
+  static List<Expense> _withEntry(
+    List<Expense> list,
+    Expense e,
+    int Function() newId,
+  ) {
     final holder = list.where((x) => x.id == e.id).firstOrNull;
     if (holder != null && holder.fields == e.fields) {
       return list;
     }
-    final entry = holder != null
-        ? e.withId(list.fold(0, (m, x) => x.id > m ? x.id : m) + 1)
-        : e;
+    final entry = holder != null ? e.withId(newId()) : e;
     return [entry, ...list]..sort(_newestFirst);
   }
 
@@ -476,10 +486,9 @@ final class ExpenseStore {
       return n <= 0;
     }
 
-    var nextId = entries.value.fold(0, (m, e) => e.id > m ? e.id : m);
     final added = [
       for (final e in parsed)
-        if (isNew(e)) e.withId(++nextId),
+        if (isNew(e)) e.withId(_newId()),
     ];
     if (added.isNotEmpty) {
       final ids = {for (final e in added) e.id};

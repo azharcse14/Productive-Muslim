@@ -10,6 +10,9 @@ final class FakeExpenseRepository implements ExpenseRepository {
   final categoryBudgets = <ExpenseCategory, int>{};
   String? currency;
 
+  /// Highest id of stored rows the app can't show (unknown categories).
+  int hiddenMaxId = 0;
+
   int failLoads = 0;
   bool failWrites = false;
 
@@ -42,6 +45,7 @@ final class FakeExpenseRepository implements ExpenseRepository {
       budget: budget,
       categoryBudgets: Map.of(categoryBudgets),
       currency: currency,
+      maxId: [hiddenMaxId, ...rows.keys].reduce((a, b) => a > b ? a : b),
     ));
   }
 
