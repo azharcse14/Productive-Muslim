@@ -19,8 +19,14 @@ import org.json.JSONArray
  */
 class NotificationBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // After a locked boot: stop those alarms; drop what they showed.
+        val shown = if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            DirectBoot.handOver(context)
+        } else {
+            emptySet()
+        }
         try {
-            pruneStale(context)
+            pruneStale(context, shown)
         } catch (e: Exception) {
             // Unreadable cache: re-arming everything beats re-arming nothing.
             Log.e("NotificationBoot", "prune failed", e)
@@ -28,7 +34,7 @@ class NotificationBootReceiver : BroadcastReceiver() {
         ScheduledNotificationBootReceiver().onReceive(context, intent)
     }
 
-    private fun pruneStale(context: Context) {
+    private fun pruneStale(context: Context, shown: Set<Int>) {
         // The plugin's cache: SharedPreferences "scheduled_notifications",
         // key "scheduled_notifications", a JSON array of NotificationDetails.
         val prefs = context.getSharedPreferences(CACHE, Context.MODE_PRIVATE)
@@ -38,7 +44,7 @@ class NotificationBootReceiver : BroadcastReceiver() {
         val now = System.currentTimeMillis()
         for (i in 0 until all.length()) {
             val n = all.getJSONObject(i)
-            val stale = BootPrune.isStale(
+            val stale = n.optInt("id") in shown || BootPrune.isStale(
                 n.optString("scheduledDateTime").ifEmpty { null },
                 n.optString("timeZoneName").ifEmpty { null },
                 now,

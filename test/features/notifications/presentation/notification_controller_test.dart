@@ -125,6 +125,7 @@ MosqueStore? _lastMosque;
 
 Future<(NotificationController, _CountingScheduler)> _controller({
   DateTime Function() now = DateTime.now,
+  String Function()? deviceZone,
 }) async {
   final scheduler = _CountingScheduler();
   final repo = _InMemoryRepo(const AppSettings(location: _dhaka));
@@ -143,6 +144,7 @@ Future<(NotificationController, _CountingScheduler)> _controller({
     settings: settings,
     mosque: mosqueStore,
     now: now,
+    deviceZone: deviceZone ?? () => 'Asia/Dhaka',
   );
   return (controller, scheduler);
 }
@@ -373,6 +375,30 @@ void main() {
     resume();
     await Future<void>.delayed(const Duration(milliseconds: 600));
     expect(scheduler.rescheduleCalls, 2);
+    controller.dispose();
+  });
+
+  test('resume after a device zone change reschedules a fresh plan', () async {
+    var zone = 'Asia/Dhaka';
+    final now = DateTime(2026, 3, 1, 9);
+    final (controller, scheduler) = await _controller(
+      now: () => now,
+      deviceZone: () => zone,
+    );
+    await controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    final before = scheduler.rescheduleCalls;
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before, reason: 'same zone, fresh');
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    zone = 'Europe/London';
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before + 1, reason: 'zone changed');
     controller.dispose();
   });
 }

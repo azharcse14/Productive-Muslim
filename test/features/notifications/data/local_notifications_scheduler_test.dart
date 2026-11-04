@@ -107,9 +107,18 @@ final class _OffAndroid implements AndroidFlutterLocalNotificationsPlugin {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
-/// Records deleted channels.
+/// Records deleted and created channels.
 final class _ChannelAndroid implements AndroidFlutterLocalNotificationsPlugin {
   final deleted = <String>[];
+  final created = <AndroidNotificationChannel>[];
+
+  @override
+  Future<void> createNotificationChannel(
+    AndroidNotificationChannel notificationChannel,
+  ) async => created.add(notificationChannel);
+
+  @override
+  Future<bool?> canScheduleExactNotifications() async => true;
 
   @override
   Future<void> deleteNotificationChannel({required String channelId}) async =>
@@ -581,6 +590,44 @@ void main() {
     }
   });
 
+  test(
+    'reschedule (re)creates each used channel in the current language',
+    () async {
+      final android = _ChannelAndroid();
+      plugin.android = android;
+      const bn = NotificationTexts(
+        azanTitle: '',
+        azanBody: '',
+        jamaatTitle: '',
+        jamaatBody: '',
+        sahriTitle: '',
+        sahriBody: '',
+        iftarTitle: '',
+        iftarBody: '',
+        muhasabaTitle: '',
+        muhasabaBody: '',
+        dailyReminderTitle: '',
+        dailyReminderBody: '',
+        dailyReminderRoute: '/hadith',
+        keepAliveTitle: '',
+        keepAliveBody: '',
+        markAsPrayedAction: '',
+        channelAzanName: 'আজান',
+        channelRemindersName: '',
+        channelSilentName: '',
+        channelBeepName: '',
+        prayerNames: {},
+      );
+      await scheduler.reschedule([azan(Prayer.fajr), azan(Prayer.asr)], bn);
+      expect(android.created, hasLength(1), reason: 'one per channel');
+      final channel = android.created.single;
+      expect(channel.id, 'productive_muslim_azan');
+      expect(channel.name, 'আজান');
+      expect(channel.importance, Importance.high);
+      expect(channel.playSound, isTrue);
+    },
+  );
+
   test('first initialize deletes the legacy Android channel', () async {
     final android = _ChannelAndroid();
     plugin.android = android;
@@ -634,4 +681,33 @@ void main() {
       expect(calls, ['isIgnoring', 'openSettings']);
     },
   );
+
+  test('Android mirrors the scheduled plan for a locked boot', () async {
+    const channel = MethodChannel('com.productivemuslim.app/direct_boot');
+    final messenger =
+        TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
+    final saved = <Object?>[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      if (call.method == 'save') saved.add(call.arguments);
+      return null;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    plugin.android = _ChannelAndroid();
+    final fajr = azan(Prayer.fajr);
+    plugin.failIds.add(azan(Prayer.asr).id);
+    await scheduler.reschedule([fajr, azan(Prayer.asr)], _texts);
+    final entries = (saved.single! as List<Object?>)
+        .cast<Map<Object?, Object?>>();
+    expect(entries, hasLength(1), reason: 'only what the plugin accepted');
+    expect(entries.single['id'], fajr.id);
+    expect(
+      entries.single['at'],
+      plugin.instants[fajr.id]!.millisecondsSinceEpoch,
+    );
+    expect(entries.single['channel'], 'productive_muslim_azan');
+    expect(entries.single['payload'], startsWith('/home?prayer=fajr'));
+
+    await scheduler.cancelAll();
+    expect(saved.last, isEmpty);
+  });
 }

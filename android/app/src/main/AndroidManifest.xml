@@ -63,6 +63,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- Before the first unlock after a reboot the receivers above
+             can't read their (credential-encrypted) state; this one re-arms
+             a device-protected copy of the plan until then (DirectBoot.kt). -->
+        <receiver
+            android:name=".DirectBootReceiver"
+            android:directBootAware="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <!-- Jamaat focus (JamaatFocus.kt): alarms start/end sessions and
              re-arm after reboot; the accessibility service covers other
              apps with the jamaat screen while a session runs. -->
@@ -141,6 +153,11 @@
         <!-- Jamaat focus never covers an alarm app (JamaatFocus.clocks). -->
         <intent>
             <action android:name="android.intent.action.SHOW_ALARMS" />
+        </intent>
+        <!-- Jamaat focus hides its phone button without a dialer. -->
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
         </intent>
     </queries>
 </manifest>
