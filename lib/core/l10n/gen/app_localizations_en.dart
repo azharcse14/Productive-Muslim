@@ -260,6 +260,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highLatTwilight => 'Twilight angle';
 
   @override
+  String get settingPolar => 'Polar regions (no sunrise/sunset)';
+
+  @override
+  String get polarNearest => 'Nearest latitude with day and night';
+
+  @override
+  String get polarLat45 => '45° latitude (Muslim World League)';
+
+  @override
   String get methodMuslimWorldLeague => 'Muslim World League';
 
   @override

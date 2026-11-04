@@ -29,9 +29,14 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
     required DateTime date,
   }) {
     try {
-      // Polar day/night (aqrab al-bilad): stepped toward the equator until
-      // the sun rises and sets on all three days used.
-      var latitude = location.latitude;
+      // Polar day/night: either 45° above the polar circle (MWL Fiqh
+      // Council region 3) or, by default, stepped toward the equator until
+      // the sun rises and sets on all three days used (aqrab al-bilad).
+      var latitude =
+          params.polarRule == PolarRule.latitude45 &&
+              location.latitude.abs() >= 66
+          ? 45.0 * location.latitude.sign
+          : location.latitude;
       final offset = _hijriOffset();
       // Whole minutes, rounded up: the displayed (minute-only) time, the
       // countdown and the notification then agree, and never run early.

@@ -211,6 +211,57 @@ void main() {
     });
   }
 
+  test('polar rule 45°: above 66° every time is the 45° analogue', () {
+    ManualCityLocation at(double lat) => ManualCityLocation(
+      City(
+        name: 'Tromsø',
+        countryCode: 'NO',
+        latitude: lat,
+        longitude: 18.9553,
+        timezone: 'Europe/Oslo',
+      ),
+    );
+    const lat45 = PrayerParams(polarRule: PolarRule.latitude45);
+    for (final date in [DateTime(2026, 6, 21), DateTime(2026, 12, 21)]) {
+      final tromso = repo
+          .prayerDay(location: at(69.6492), params: lat45, date: date)
+          .valueOrNull!;
+      final at45 = repo
+          .prayerDay(location: at(45), params: const PrayerParams(), date: date)
+          .valueOrNull!;
+      final nearest = repo
+          .prayerDay(
+            location: at(69.6492),
+            params: const PrayerParams(),
+            date: date,
+          )
+          .valueOrNull!;
+      expect(
+        [
+          tromso.fajr,
+          tromso.sunrise,
+          tromso.dhuhr,
+          tromso.maghrib,
+          tromso.isha,
+        ],
+        [at45.fajr, at45.sunrise, at45.dhuhr, at45.maghrib, at45.isha],
+      );
+      expect(tromso.maghrib, isNot(nearest.maghrib));
+    }
+    // Below 66° the 45° rule changes nothing.
+    final below = repo
+        .prayerDay(location: at(60), params: lat45, date: DateTime(2026, 3, 2))
+        .valueOrNull!;
+    final belowDefault = repo
+        .prayerDay(
+          location: at(60),
+          params: const PrayerParams(),
+          date: DateTime(2026, 3, 2),
+        )
+        .valueOrNull!;
+    expect(below.maghrib, belowDefault.maghrib);
+  });
+
   test('raw transit ignores the user Dhuhr adjustment', () {
     final day = repo
         .prayerDay(

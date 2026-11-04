@@ -23,6 +23,7 @@ void main() {
           method: CalculationMethodId.ummAlQura,
           madhab: Madhab.shafi,
           highLatitudeRule: HighLatitudeRule.twilightAngle,
+          polarRule: PolarRule.latitude45,
           adjustments: {Prayer.fajr: 2, Prayer.isha: -3},
           sahriSafetyMinutes: 5,
         ),

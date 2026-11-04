@@ -103,6 +103,11 @@ extension SettingLabels on AppLocalizations {
     HighLatitudeRule.twilightAngle => highLatTwilight,
   };
 
+  String polarLabel(PolarRule r) => switch (r) {
+    PolarRule.nearestLatitude => polarNearest,
+    PolarRule.latitude45 => polarLat45,
+  };
+
   String homeCardLabel(HomeCard c) => switch (c) {
     HomeCard.quickActions => homeCardQuickActions,
     HomeCard.specialTimes => specialTimesPageTitle,

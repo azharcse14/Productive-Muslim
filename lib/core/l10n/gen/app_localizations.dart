@@ -548,6 +548,24 @@ abstract class AppLocalizations {
   /// **'Twilight angle'**
   String get highLatTwilight;
 
+  /// No description provided for @settingPolar.
+  ///
+  /// In en, this message translates to:
+  /// **'Polar regions (no sunrise/sunset)'**
+  String get settingPolar;
+
+  /// No description provided for @polarNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest latitude with day and night'**
+  String get polarNearest;
+
+  /// No description provided for @polarLat45.
+  ///
+  /// In en, this message translates to:
+  /// **'45° latitude (Muslim World League)'**
+  String get polarLat45;
+
   /// No description provided for @methodMuslimWorldLeague.
   ///
   /// In en, this message translates to:
