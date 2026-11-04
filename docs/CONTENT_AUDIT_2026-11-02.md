@@ -18,7 +18,7 @@ pinned hadith-api snapshot `@df57907` and reviewed by a separate agent.
   `fix/content-audit-app-text`, `fix/content-audit-hadith40-asma`, `fix/content-audit-duas`.
   Corrections to this audit found while fixing: B6's Aisha hadith is Muslim **1176** (not 1175);
   A3 covered 61 duas (14 passages moved from ruqyah.json on 2026-10-25 also lacked trBn).
-- **A1/A2 — done 2026-11-04, on `fix/content-audit-hadith-db` (not merged — owner merges).**
+- **A1/A2 — done 2026-11-04 (`fix/content-audit-hadith-db`, merged).**
   Gates re-run and reviewed: section-0 hadith recovered (Bukhari 832 / 5692 present, counts per
   book pinned in `hadith_db_integrity_test.dart`), sub-numbers kept (Bukhari 402 and 402.2),
   `bundledVersion` = `PRAGMA user_version` = 3, DB +85 KB. Favourites (hadith.json ids) and
@@ -27,8 +27,19 @@ pinned hadith-api snapshot `@df57907` and reviewed by a separate agent.
   collided with the standard N in 25 cases, so "go to number" / number search offered the
   wrong chapter. Now excluded from catalog `refs` and number lookup (text search still finds
   them); a section with only "#N" hadith (Muslim Introduction) holds no number.
-- **For a scholar to re-check:** the 61 AI-written Bangla transliterations (A3), the madhab
-  wording in B1/B5, and the Asma meanings changed in C11–C15.
+- **Scholar items — source-checked 2026-11-04 (`fix/content-audit-scholar-pass`, merged 2026-11-04)**, by Claude
+  at the owner's request in place of the scholar pass; not a fatwa — keep for an alim's
+  sign-off when one is available.
+  - A3: all 61 Bangla transliterations read against their Arabic — no wrong letters, vowels or
+    assimilations (an-lā → আল লা-, in lam → ইল্লাম, min ladunka → মিল্লাদুনকা are correct
+    idgham). Only fix: ز written ঝ in 8 of them; the file's own (Hisnul Muslim) convention is য.
+  - B1: correct — Hanafi: qada of fard invalid at sunrise/zenith/sunset except that day's Asr;
+    Shafi'i/Maliki/Hanbali permit it (Muslim 832; Bukhari 597). bn spelling unified to কাজা.
+  - B5: correct — Hanafi measure cash by the nisab more beneficial to the poor (in practice
+    silver); gold alone → gold nisab; many contemporary scholars use gold for cash.
+  - C11, C12, C14, C15: current wording sound. C13 al-Wājid: en "The Perceiver" did not match
+    bn «সবকিছুর অধিকারী, অভাবহীন»; aligned to al-Ghazali (al-Maqsad al-Asna): "The Finder,
+    Who Lacks Nothing" ("Self-Sufficient" avoided — that is al-Ghanī, n88, in the quiz).
 
 ---
 
