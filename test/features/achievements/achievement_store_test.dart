@@ -104,6 +104,11 @@ void main() {
     );
     await expectLater(store.load(), throwsA(isA<Failure>()));
     expect(store.loaded.value, isFalse);
+
+    // A later successful refresh marks it loaded (toasts work again).
+    repo.failItemReads = false;
+    await store.refresh();
+    expect(store.loaded.value, isTrue);
   });
 
   test('streaksOf: runs, gaps, and a current run ending yesterday', () {

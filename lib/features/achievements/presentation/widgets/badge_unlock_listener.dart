@@ -15,7 +15,9 @@ import '../state/achievement_store.dart';
 /// Exactly once per unlock: the badges already pending once the store has
 /// loaded (or when [enabled] turns on) are the baseline and never toast,
 /// so a restart, a rebuild or re-enabling doesn't replay them; anything
-/// unlocked after that, the listener's own first scan included, does.
+/// unlocked after that, the listener's own first scan included, does. A
+/// badge that re-locks (a day unticked) and unlocks again doesn't toast
+/// twice in a session.
 final class BadgeUnlockListener extends StatefulWidget {
   const BadgeUnlockListener({
     required this.store,
@@ -50,8 +52,12 @@ final class _BadgeUnlockListenerState extends State<BadgeUnlockListener> {
   late final _paused = computed(widget.paused ?? () => false);
   final _effects = <EffectCleanup>[];
 
-  /// Unseen badge ids already toasted or baselined; null = no baseline.
-  Set<String>? _known;
+  /// Badge ids toasted or baselined this session — never shrinks, so a
+  /// re-lock and re-unlock stays quiet.
+  final _known = <String>{};
+
+  /// Whether the current enabled+loaded stretch has its baseline.
+  var _baselined = false;
   var _wasPaused = false;
 
   @override
@@ -93,19 +99,19 @@ final class _BadgeUnlockListenerState extends State<BadgeUnlockListener> {
         effect(() {
           final ids = {for (final a in badges.newlyUnlocked.value) a.id};
           if (!_enabled.value || !badges.loaded.value) {
-            _known = null;
+            _baselined = false;
             return;
           }
-          final known = _known;
-          if (known == null) {
-            _known = ids; // baseline
+          if (!_baselined) {
+            _baselined = true;
+            _known.addAll(ids); // baseline
             return;
           }
           if (_paused.value) {
             return; // keep them unknown until unpaused
           }
-          _known = ids;
-          final fresh = ids.difference(known).toList()..sort();
+          final fresh = ids.difference(_known).toList()..sort();
+          _known.addAll(ids);
           if (fresh.isNotEmpty) {
             untracked(() => _toast(fresh));
           }

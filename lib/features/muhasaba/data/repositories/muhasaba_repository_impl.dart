@@ -31,20 +31,31 @@ const _inArchiveSpan =
     'EXISTS (SELECT 1 FROM tracker_archive_spans s WHERE s.item_id = i.id '
     'AND e.date >= s.start_on AND e.date < s.end_on)';
 
-/// SQL fragment: whether item `i` counts toward day `e.date` — it existed
-/// (created on/before), was not yet archived that day, and the day isn't
-/// in one of its past archive spans. Mirrored in Dart by [_countsOn].
+/// SQL fragment: whether item `i`'s entry `e` counts toward its day — the
+/// item existed (created on/before) and was not yet archived that day. A
+/// past archive span doesn't drop it: an entry back-filled into a span
+/// after restore means "I did it that day", so it counts like the streak
+/// and badges count it. Mirrored in Dart by [_countsOn].
 const _existedOnEntryDay =
     '(i.created_on IS NULL OR e.date >= i.created_on) '
-    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on)) '
-    'AND NOT $_inArchiveSpan';
+    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on))';
 
-/// Dart twin of [_existedOnEntryDay] (plus the known-kind check).
-bool _countsOn(TrackerItemRow r, List<ArchiveSpanRow> spans, int code) =>
+/// Dart twin of [_existedOnEntryDay] (plus the known-kind check) for any
+/// day: a day in a past archive span counts only if it has an entry
+/// ([revived], `(itemId, yyyymmdd)`).
+bool _countsOn(
+  TrackerItemRow r,
+  List<ArchiveSpanRow> spans,
+  Set<(String, int)> revived,
+  int code,
+) =>
     TrackerKind.fromCode(r.kind) != null &&
     (r.createdOn == null || r.createdOn! <= code) &&
     (!r.archived || (r.archivedOn != null && code < r.archivedOn!)) &&
-    !spans.any((s) => s.itemId == r.id && code >= s.startOn && code < s.endOn);
+    (revived.contains((r.id, code)) ||
+        !spans.any(
+          (s) => s.itemId == r.id && code >= s.startOn && code < s.endOn,
+        ));
 
 /// SQL fragment: item `i` has a kind this build knows — unknown kinds are
 /// hidden from the UI, so they count toward no completion either.
@@ -288,9 +299,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // Items that count on a given day (existed, not archived that day).
       final rows = await _db.select(_db.trackerItems).get();
       final spans = await _db.select(_db.trackerArchiveSpans).get();
+      final revived = await _revivedDays();
       int countOn(DateTime day) {
         final code = _encodeDate(day);
-        return rows.where((r) => _countsOn(r, spans, code)).length;
+        return rows.where((r) => _countsOn(r, spans, revived, code)).length;
       }
 
       // a) Day completions: SQL fraction sums, calendar filled in Dart.
@@ -327,7 +339,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           : null;
 
       // b) Per-item aggregates over the range.
-      final itemStats = await _itemStats(start, end, periodDays, spans);
+      final itemStats = await _itemStats(start, end, spans, revived);
 
       // c) Streaks: SQL day-has-done-item flags, walked in Dart. The scan
       // covers the whole history (one row per active day), so the best
@@ -467,6 +479,28 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     };
   }
 
+  /// `(itemId, yyyymmdd)` of entries back-filled into a past archive span
+  /// — those days count for the item after all (few rows: back-fills only).
+  Future<Set<(String, int)>> _revivedDays() async {
+    final rows = await _db
+        .customSelect(
+          'SELECT e.item_id AS item_id, e.date AS day '
+          'FROM daily_entries e '
+          'INNER JOIN tracker_items i ON i.id = e.item_id '
+          'WHERE $_inArchiveSpan',
+          readsFrom: {
+            _db.dailyEntries,
+            _db.trackerItems,
+            _db.trackerArchiveSpans,
+          },
+        )
+        .get();
+    return {
+      for (final row in rows)
+        (row.read<String>('item_id'), row.read<int>('day')),
+    };
+  }
+
   /// yyyymmdd codes of days in [from]..[to] with at least one completed
   /// item. Archived items count (history is never lost) and hidden
   /// unknown-kind ones don't, matching the achievements' streaks.
@@ -486,12 +520,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
 
   /// Per non-archived item: done-day count and value sum over the range;
   /// the bar's denominator is the days the item counted within it (from
-  /// its creation, minus past archive spans).
+  /// its creation, minus past archive spans bar their [revived] days).
   Future<List<ItemPeriodStats>> _itemStats(
     DateTime start,
     DateTime end,
-    int periodDays,
     List<ArchiveSpanRow> spans,
+    Set<(String, int)> revived,
   ) async {
     final from = _encodeDate(start);
     final to = _encodeDate(end);
@@ -504,15 +538,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'FROM tracker_items i '
           'LEFT JOIN daily_entries e '
           'ON e.item_id = i.id AND e.date BETWEEN ? AND ? '
-          'AND NOT $_inArchiveSpan '
           'WHERE i.archived = 0 '
           'GROUP BY i.id ORDER BY i.sort_order',
           variables: [Variable<int>(from), Variable<int>(to)],
-          readsFrom: {
-            _db.dailyEntries,
-            _db.trackerItems,
-            _db.trackerArchiveSpans,
-          },
+          readsFrom: {_db.dailyEntries, _db.trackerItems},
         )
         .get();
     final stats = <ItemPeriodStats>[];
@@ -538,6 +567,12 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         final b = DateTime(hi.year, hi.month, hi.day - 1);
         final z = b.isBefore(end) ? b : end;
         if (!a.isAfter(z)) existedDays -= _dayCount(a, z);
+      }
+      if (createdOn == null || createdOn <= to) {
+        final firstCode = _encodeDate(firstDay);
+        existedDays += revived
+            .where((r) => r.$1 == itemId && r.$2 >= firstCode && r.$2 <= to)
+            .length;
       }
       stats.add(
         ItemPeriodStats(
