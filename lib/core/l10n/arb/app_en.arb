@@ -202,6 +202,14 @@
       }
     }
   },
+  "a11ySeconds": "{count, plural, =1{1 second} other{{count} seconds}}",
+  "@a11ySeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "a11yMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
   "@a11yMinutes": {
     "placeholders": {
@@ -1079,6 +1087,7 @@
   "appLockNoDeviceLockTitle": "Can't reset the PIN here",
   "appLockNoDeviceLockBody": "Your device has no screen lock, so we can't confirm it's you. Set up a screen lock in your device settings and try again. Clearing the app's data also removes the PIN, but erases your saved progress.",
   "appLockResetFailed": "Couldn't confirm it's you. Your PIN is unchanged.",
+  "appLockResetUnavailable": "Your screen lock can't be used right now, maybe after too many tries. Wait a while and try again. Your PIN is unchanged.",
   "appLockSetupNoDeviceLockTitle": "No screen lock on this device",
   "appLockSetupNoDeviceLockBody": "Without a device screen lock, a forgotten app PIN can't be reset. Only clearing the app's data removes it — and that erases your saved progress.",
   "appLockSetupNoDeviceLockAck": "I understand",
@@ -1666,6 +1675,8 @@
   "specialTimesEmpty": "No times to show for today.",
   "clearSearch": "Clear search",
   "mosqueLoadError": "Couldn't load your mosques. Please try again.",
+  "mosqueSeasonRemoved": "Season removed",
+  "jumuahCleared": "Jumu'ah time removed",
   "jamaatCleared": "{prayer} jamaat removed",
   "@jamaatCleared": {
     "placeholders": {

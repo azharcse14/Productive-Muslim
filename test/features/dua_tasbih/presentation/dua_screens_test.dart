@@ -396,6 +396,29 @@ void main() {
     });
   });
 
+  group('TasbihScreen semantics', () {
+    testWidgets('the counter reads count / target, then reached', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      GetIt.I<TasbihStore>().setTarget(3);
+      await tester.pumpWidget(_app(const TasbihScreen()));
+      await tester.pump();
+      String counter() => tester
+          .getSemantics(find.bySemanticsLabel(RegExp(r'^Tasbih, ')))
+          .value;
+
+      expect(counter(), '0 / 3');
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.byType(QProgressRing));
+        await tester.pump();
+      }
+      expect(counter(), '3 / 3, Target reached — may Allah accept');
+      await tester.pumpAndSettle();
+      handle.dispose();
+    });
+  });
+
   group('AsmaulHusnaScreen', () {
     testWidgets('lists all 99 names from the store', (tester) async {
       await tester.pumpWidget(_app(const AsmaulHusnaScreen()));

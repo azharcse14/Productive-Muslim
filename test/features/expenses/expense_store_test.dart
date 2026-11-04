@@ -175,6 +175,73 @@ void main() {
     expect(repo.rows.values.map((e) => e.amount), [3], reason: 'UI = stored');
   });
 
+  test(
+    'a failed restore keeps an edit of it that was saved meanwhile',
+    () async {
+      final s = store();
+      await s.add(amount: 1, category: ExpenseCategory.need);
+      final e = s.entries.value.single;
+      await s.remove(e.id);
+      repo
+        ..writeDelay = const Duration(milliseconds: 5)
+        ..failWriteCount = 1;
+      final restore = expectLater(s.restore(e), throwsStateError);
+      await s.update(e.id, amount: 3, category: e.category, date: e.date);
+      await restore;
+      expect(s.entries.value.map((x) => x.amount), [3]);
+      expect(repo.rows.values.map((x) => x.amount), [3], reason: 'UI = stored');
+    },
+  );
+
+  test('a failed import keeps an edit of a row saved meanwhile', () async {
+    final s = store();
+    await s.load();
+    repo
+      ..writeDelay = const Duration(milliseconds: 5)
+      ..failWriteCount = 1;
+    final import = expectLater(
+      s.importCsv(
+        'date,category,amount,note\n'
+        '2026-10-01T10:00:00.000Z,need,1,"a"\n'
+        '2026-10-02T10:00:00.000Z,need,2,"b"',
+      ),
+      throwsStateError,
+    );
+    await Future<void>.delayed(Duration.zero); // rows shown, save pending
+    final b = s.entries.value.firstWhere((x) => x.note == 'b');
+    await s.update(b.id, amount: 5, category: b.category, date: b.date);
+    await import;
+    expect(s.entries.value.map((x) => x.amount), [5]);
+    expect(repo.rows.values.map((x) => x.amount), [5], reason: 'UI = stored');
+  });
+
+  test('re-saving a sadaqah on the same day does not re-tick it', () async {
+    final ticked = <DateTime>[];
+    final s = ExpenseStore(
+      repo,
+      now: () => DateTime.utc(2026, 10, 26, 10, 0, 0, 123, 456),
+      onSadaqah: (d) async => ticked.add(d),
+    );
+    await s.add(amount: 100, category: ExpenseCategory.sadaqah);
+    expect(ticked, hasLength(1));
+    final e = s.entries.value.single;
+    // The date picker returns the same day without the time's fraction.
+    await s.update(
+      e.id,
+      amount: 100,
+      category: e.category,
+      date: DateTime.utc(2026, 10, 26, 10),
+    );
+    expect(ticked, hasLength(1));
+    await s.update(
+      e.id,
+      amount: 100,
+      category: e.category,
+      date: DateTime.utc(2026, 10, 25, 10),
+    );
+    expect(ticked, hasLength(2));
+  });
+
   test('when the later write fails too, both report failure', () async {
     final s = store();
     await s.load();

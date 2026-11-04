@@ -70,7 +70,8 @@ final class PrayerDetailSheet extends StatelessWidget {
     final q = context.q;
     final l10n = context.l10n;
     return SafeArea(
-      child: Padding(
+      // Scrolls at large text instead of overflowing the sheet.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(QSpace.s6),
         child: Column(
           mainAxisSize: MainAxisSize.min,

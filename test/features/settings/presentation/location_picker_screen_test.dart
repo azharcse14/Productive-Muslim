@@ -14,7 +14,10 @@ import 'package:productive_muslim/features/settings/domain/entities/location_con
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/city_repository.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/location_repository.dart';
+import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_current_location.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
+import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/search_cities.dart';
 import 'package:productive_muslim/features/settings/presentation/screens/location_picker_screen.dart';
 
@@ -57,26 +60,47 @@ final class _SlowGps implements LocationRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Saves only when the test completes [gate]; loads the defaults.
+final class _SlowSave implements SettingsRepository {
+  final gate = Completer<void>();
+
+  @override
+  Future<Result<AppSettings>> load() async =>
+      const Result.success(AppSettings());
+
+  @override
+  Future<Result<void>> save(AppSettings settings) async {
+    await gate.future;
+    return const Result.success(null);
+  }
+}
+
 Future<SettingsStore> _pump(
   WidgetTester tester, {
   required bool setup,
   LocationRepository? gps,
   bool autoGps = false,
+  SettingsRepository? repo,
 }) async {
-  final store = await makeSettingsStore(
-    AppSettings(
-      setupComplete: setup,
-      location: const ManualCityLocation(
-        City(
-          name: 'Dhaka',
-          countryCode: 'BD',
-          latitude: 23.71,
-          longitude: 90.41,
-          timezone: 'Asia/Dhaka',
-        ),
+  final initial = AppSettings(
+    setupComplete: setup,
+    location: const ManualCityLocation(
+      City(
+        name: 'Dhaka',
+        countryCode: 'BD',
+        latitude: 23.71,
+        longitude: 90.41,
+        timezone: 'Asia/Dhaka',
       ),
     ),
   );
+  final SettingsStore store;
+  if (repo == null) {
+    store = await makeSettingsStore(initial);
+  } else {
+    store = SettingsStore(GetSettings(repo), SaveSettings(repo));
+    await store.load();
+  }
   GetIt.I
     ..registerSingleton<SettingsStore>(store)
     ..registerSingleton(SearchCities(_Cities()))
@@ -176,5 +200,38 @@ void main() {
     final store = await _pump(tester, setup: false, gps: gps, autoGps: true);
     expect(store.location.value, const GpsLocation(latitude: 1, longitude: 2));
     expect(find.byType(LocationPickerScreen), findsNothing); // popped
+  });
+
+  testWidgets('a double tap on a city pops only the picker', (tester) async {
+    final repo = _SlowSave();
+    await _pump(tester, setup: false, repo: repo);
+    // Both taps land while the first save is still in flight.
+    await tester.tap(find.text('Cairo'));
+    await tester.pump();
+    await tester.tap(find.text('Cairo'));
+    await tester.pump();
+    repo.gate.complete();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(LocationPickerScreen), findsNothing);
+    expect(find.byType(Scaffold), findsOne); // the route underneath stays
+  });
+
+  testWidgets('the city list clears the bottom system inset', (tester) async {
+    tester.view.padding = const FakeViewPadding(bottom: 200);
+    addTearDown(tester.view.resetPadding);
+    await _pump(tester, setup: false);
+    final list = tester.widget<SliverPadding>(
+      find
+          .ancestor(
+            of: find.byType(SliverList),
+            matching: find.byType(SliverPadding),
+          )
+          .first,
+    );
+    expect(
+      list.padding.resolve(TextDirection.ltr).bottom,
+      200 / tester.view.devicePixelRatio,
+    );
   });
 }

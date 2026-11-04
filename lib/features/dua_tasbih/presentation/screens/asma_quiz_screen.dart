@@ -384,43 +384,55 @@ final class _OptionTile extends StatelessWidget {
       },
       onTap: onTap,
       excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: reduced ? Duration.zero : QMotion.fast,
-          curve: QMotion.ease,
-          constraints: const BoxConstraints(minHeight: QTouch.minTarget),
-          padding: const EdgeInsets.symmetric(
-            horizontal: QSpace.s4,
-            vertical: QSpace.s3,
-          ),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(QRadius.md),
-            border: Border.all(color: border, width: 1.5),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(label, style: QType.titleSm.copyWith(color: fg)),
+      child: AnimatedContainer(
+        duration: reduced ? Duration.zero : QMotion.fast,
+        curve: QMotion.ease,
+        constraints: const BoxConstraints(minHeight: QTouch.minTarget),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(QRadius.md),
+          border: Border.all(color: border, width: 1.5),
+        ),
+        // Ink above the fill: a ripple on tap, and keyboard focus.
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
+            customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(QRadius.md),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: QSpace.s4,
+                vertical: QSpace.s3,
               ),
-              if (arabic != null) ...[
-                const SizedBox(width: QSpace.s2),
-                Flexible(
-                  child: Text(
-                    arabic!,
-                    textDirection: TextDirection.rtl,
-                    softWrap: true,
-                    locale: const Locale('ar'),
-                    style: QType.quran(22).copyWith(color: fg),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: QType.titleSm.copyWith(color: fg),
+                    ),
                   ),
-                ),
-              ],
-              if (mark != null) ...[
-                const SizedBox(width: QSpace.s2),
-                Icon(mark, size: 20, color: border),
-              ],
-            ],
+                  if (arabic != null) ...[
+                    const SizedBox(width: QSpace.s2),
+                    Flexible(
+                      child: Text(
+                        arabic!,
+                        textDirection: TextDirection.rtl,
+                        softWrap: true,
+                        locale: const Locale('ar'),
+                        style: QType.quran(22).copyWith(color: fg),
+                      ),
+                    ),
+                  ],
+                  if (mark != null) ...[
+                    const SizedBox(width: QSpace.s2),
+                    Icon(mark, size: 20, color: border),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

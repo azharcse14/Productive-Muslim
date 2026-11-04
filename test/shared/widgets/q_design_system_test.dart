@@ -89,6 +89,37 @@ void main() {
     expect(result, 42);
   });
 
+  testWidgets('number dialog opens with the prefill selected, so typing '
+      'replaces it', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showNumberDialog(
+              context,
+              title: 'Offset',
+              hint: 'Minutes',
+              actionLabel: 'Save',
+              max: 99,
+              initial: 15,
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    final controller = tester
+        .widget<TextField>(find.byType(TextField))
+        .controller!;
+    expect(controller.text, '15');
+    expect(
+      controller.selection,
+      const TextSelection(baseOffset: 0, extentOffset: 2),
+    );
+  });
+
   testWidgets('QMedallion number fits inside the star at 2x text', (
     tester,
   ) async {

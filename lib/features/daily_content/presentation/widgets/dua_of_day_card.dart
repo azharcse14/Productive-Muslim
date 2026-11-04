@@ -83,7 +83,10 @@ final class DuaOfDayCard extends StatelessWidget {
             const SizedBox(height: QSpace.s3),
             Text(translation, style: QType.body.copyWith(color: q.ink2)),
             const SizedBox(height: QSpace.s2),
-            Text(reference, style: QType.caption.copyWith(color: q.ink3)),
+            Text(
+              context.digits(reference),
+              style: QType.caption.copyWith(color: q.ink3),
+            ),
           ],
         ),
       ),

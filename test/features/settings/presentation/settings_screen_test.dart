@@ -143,6 +143,30 @@ void main() {
       expect(repo.stored.prayerParams.adjustmentFor(Prayer.asr), 0);
     });
 
+    testWidgets('home cards sheet scrolls in landscape at 2x text', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(640, 360);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(_app());
+      await tester.scrollUntilVisible(find.text('Home cards'), 100);
+      await tester.ensureVisible(find.text('Home cards'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Home cards'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(
+        find.descendant(
+          of: find.byType(BottomSheet),
+          matching: find.byType(SingleChildScrollView),
+        ),
+        findsOne,
+      );
+    });
+
     testWidgets('theme sheet selection persists', (tester) async {
       await tester.pumpWidget(_app());
       await tester.scrollUntilVisible(find.text('Theme'), 200);

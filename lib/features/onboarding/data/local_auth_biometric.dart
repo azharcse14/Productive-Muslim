@@ -29,13 +29,8 @@ final class LocalAuthBiometric implements BiometricAuth {
   }
 
   @override
-  Future<bool> authenticateWithDeviceLock(String reason) async {
-    try {
-      return await _auth.authenticate(localizedReason: reason);
-    } on Object {
-      return false;
-    }
-  }
+  Future<bool> authenticateWithDeviceLock(String reason) =>
+      authenticate(reason);
 
   /// A cancel or timeout is `false`; anything else (lockout, no sensor,
   /// no enrolled finger) is thrown, so the lock screen can say why.

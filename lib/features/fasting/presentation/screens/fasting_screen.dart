@@ -599,8 +599,12 @@ final class _StatsCard extends StatelessWidget {
                     children: [
                       for (var d = 0; d < 7; d++)
                         Expanded(
+                          // Thin side gaps keep cells as wide as the row allows.
                           child: Padding(
-                            padding: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 1,
+                              vertical: 2,
+                            ),
                             child: switch (dateAt(w, d)) {
                               null => const SizedBox.shrink(),
                               final date => _DayCell(
@@ -683,7 +687,7 @@ final class _DayCell extends StatelessWidget {
           borderRadius: radius,
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 40),
+            constraints: const BoxConstraints(minHeight: QTouch.minTarget),
             child: Center(
               child: Text(
                 day,

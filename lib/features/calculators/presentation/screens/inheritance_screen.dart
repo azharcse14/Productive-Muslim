@@ -344,42 +344,53 @@ final class _InheritanceScreenState extends State<InheritanceScreen> {
                               ),
                               if (s.heirKey != 'unallocated') ...[
                                 const SizedBox(width: QSpace.s3),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    // No estate: the share (after 'awl /
-                                    // radd) is the answer; money is all 0.
-                                    if (_noEstate)
-                                      Text(
-                                        _percent(context, s.fraction),
-                                        style: QType.num_(
-                                          QType.titleSm,
-                                        ).copyWith(color: q.ink),
-                                      )
-                                    else ...[
-                                      Text(
-                                        _money(context, s.amount),
-                                        style: QType.num_(
-                                          QType.titleSm,
-                                        ).copyWith(color: q.ink),
-                                      ),
-                                      Text(
-                                        _percent(context, s.fraction),
-                                        style: QType.num_(
-                                          QType.caption,
-                                        ).copyWith(color: q.ink2),
-                                      ),
-                                    ],
-                                    if (s.count > 1 && !_noEstate)
-                                      Text(
-                                        l10n.faraidPerHead(
-                                          _money(context, s.amount / s.count),
-                                        ),
-                                        style: QType.num_(
-                                          QType.caption,
-                                        ).copyWith(color: q.ink2),
-                                      ),
-                                  ],
+                                // Long (Bangla) amounts shrink, never overflow.
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        // No estate: the share (after 'awl /
+                                        // radd) is the answer; money is all 0.
+                                        if (_noEstate)
+                                          Text(
+                                            _percent(context, s.fraction),
+                                            style: QType.num_(
+                                              QType.titleSm,
+                                            ).copyWith(color: q.ink),
+                                          )
+                                        else ...[
+                                          Text(
+                                            _money(context, s.amount),
+                                            style: QType.num_(
+                                              QType.titleSm,
+                                            ).copyWith(color: q.ink),
+                                          ),
+                                          Text(
+                                            _percent(context, s.fraction),
+                                            style: QType.num_(
+                                              QType.caption,
+                                            ).copyWith(color: q.ink2),
+                                          ),
+                                        ],
+                                        if (s.count > 1 && !_noEstate)
+                                          Text(
+                                            l10n.faraidPerHead(
+                                              _money(
+                                                context,
+                                                s.amount / s.count,
+                                              ),
+                                            ),
+                                            style: QType.num_(
+                                              QType.caption,
+                                            ).copyWith(color: q.ink2),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ],
                             ],

@@ -143,7 +143,16 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
       crossAxisCount: 3,
       mainAxisSpacing: QSpace.s4,
       crossAxisSpacing: QSpace.s3,
-      childAspectRatio: 0.72 / context.textGrowth,
+      // Height from content, not width: 64dp disc + gaps + three caption
+      // lines (2-line name, status) at the user's text size, plus slack.
+      mainAxisExtent:
+          64 +
+          QSpace.s2 +
+          2 +
+          3 *
+              MediaQuery.textScalerOf(context).scale(QType.caption.fontSize!) *
+              QType.caption.height! +
+          QSpace.s2,
     ),
     itemCount: items.length,
     itemBuilder: (context, i) => AchievementCard(

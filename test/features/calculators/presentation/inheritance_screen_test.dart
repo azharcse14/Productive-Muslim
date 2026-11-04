@@ -197,4 +197,25 @@ void main() {
       expect(tester.widget<TextButton>(clear).onPressed, isNull);
     });
   });
+
+  testWidgets('long amounts fit at 320dp and 2x text', (tester) async {
+    tester.view.physicalSize = const Size(320, 6000);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).first, '987654321987');
+    await tester.tap(find.text('Wife'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add).at(1)); // sons
+    await tester.pump();
+    await tester.ensureVisible(find.text('Calculate'));
+    await tester.tap(find.text('Calculate'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Son'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

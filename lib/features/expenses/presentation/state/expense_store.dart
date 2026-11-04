@@ -306,9 +306,11 @@ final class ExpenseStore {
       () => _repo.save([edited]),
       undo: (list) => put(list, old),
     );
-    // Only when it newly became a sadaqah or its date changed — re-saving must not
-    // re-tick a day the user unticked by hand.
-    if (old.category != category || old.date != date) {
+    // Only when it newly became a sadaqah or moved to another day — re-saving
+    // (even re-picking the same day) must not re-tick a day the user
+    // unticked by hand.
+    if (old.category != category ||
+        old.date.wallDay(0) != edited.date.wallDay(0)) {
       await _markSadaqah(edited);
     }
   }
@@ -342,9 +344,10 @@ final class ExpenseStore {
     await _write(
       next,
       () => _repo.save([e]),
+      // Only if still as restored: an edit saved meanwhile is in the DB too.
       undo: (list) => [
         for (final x in list)
-          if (x.id != e.id) x,
+          if (x.id != e.id || x.fields != e.fields) x,
       ],
     );
   }
@@ -491,13 +494,14 @@ final class ExpenseStore {
         if (isNew(e)) e.withId(_newId()),
     ];
     if (added.isNotEmpty) {
-      final ids = {for (final e in added) e.id};
+      final fields = {for (final e in added) e.id: e.fields};
       await _write(
         [...entries.value, ...added]..sort(_newestFirst),
         () => _repo.save(added),
+        // Only rows still as imported: an edit saved meanwhile is stored.
         undo: (list) => [
           for (final x in list)
-            if (!ids.contains(x.id)) x,
+            if (fields[x.id] != x.fields) x,
         ],
       );
     }

@@ -72,8 +72,12 @@ String formatCountdown(BuildContext context, Duration d) {
   };
 }
 
-/// A countdown for screen readers: "1 hour 24 minutes", not "01:24:36".
+/// A countdown for screen readers: "1 hour 24 minutes", not "01:24:36";
+/// seconds in the last minute (not "0 minutes").
 String spokenDuration(AppLocalizations l10n, Duration d) {
+  if (d.inMinutes == 0) {
+    return l10n.a11ySeconds(d.inSeconds);
+  }
   final minutes = l10n.a11yMinutes(d.inMinutes % 60);
   return d.inHours > 0 ? '${l10n.a11yHours(d.inHours)} $minutes' : minutes;
 }

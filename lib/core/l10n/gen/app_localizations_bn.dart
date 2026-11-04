@@ -420,6 +420,16 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String a11ySeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count সেকেন্ড',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String a11yMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2290,6 +2300,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনাকে যাচাই করা যায়নি। পিন আগের মতোই আছে।';
 
   @override
+  String get appLockResetUnavailable =>
+      'এই মুহূর্তে স্ক্রিন লক ব্যবহার করা যাচ্ছে না, হয়তো অনেকবার ভুল চেষ্টার কারণে। কিছুক্ষণ পরে আবার চেষ্টা করুন। পিন আগের মতোই আছে।';
+
+  @override
   String get appLockSetupNoDeviceLockTitle => 'এই ডিভাইসে কোনো স্ক্রিন লক নেই';
 
   @override
@@ -3601,6 +3615,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get mosqueLoadError =>
       'আপনার মসজিদগুলো লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get mosqueSeasonRemoved => 'মৌসুম মুছে ফেলা হয়েছে';
+
+  @override
+  String get jumuahCleared => 'জুমার সময় সরানো হয়েছে';
 
   @override
   String jamaatCleared(String prayer) {

@@ -1,3 +1,5 @@
+import 'dart:math' show max;
+
 import 'package:drift/drift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,10 +42,8 @@ final class ExpenseRepositoryImpl implements ExpenseRepository {
     final budgets = await _db
         .customSelect('SELECT key, amount FROM expense_budgets')
         .get();
-    final maxId = await _db
-        .customSelect('SELECT COALESCE(MAX(id), 0) AS m FROM expenses')
-        .map((r) => r.read<int>('m'))
-        .getSingle();
+    // Every row, hidden categories too: a new id must not replace one.
+    final maxId = rows.fold(0, (m, r) => max(m, r.read<int>('id')));
     int? budget;
     final categoryBudgets = <ExpenseCategory, int>{};
     for (final r in budgets) {

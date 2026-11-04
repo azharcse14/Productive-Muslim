@@ -97,6 +97,8 @@ final class AchievementCard extends StatelessWidget {
             Text(
               status,
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: QType.num_(
                 QType.caption,
               ).copyWith(color: unlocked ? q.ok : q.ink2),

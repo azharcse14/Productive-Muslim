@@ -267,6 +267,32 @@ void main() {
       expect(find.text('Al-Baqara · Ayah 2'), findsOneWidget);
     });
 
+    testWidgets('the keyboard does not overflow the header (bn, 1.3x)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      repo.storedLastRead = const QuranPosition(2, 2);
+      await store.load();
+      await tester.pumpWidget(
+        _app(const QuranScreen(), locale: const Locale('bn')),
+      );
+      await tester.pump();
+      // The resume card carries this icon.
+      final header = find.byIcon(Icons.menu_book_outlined);
+      expect(header, findsOne);
+
+      await tester.tap(find.byType(TextField));
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(header, findsNothing);
+    });
+
     testWidgets('search filters the list and empty results show a notice', (
       tester,
     ) async {

@@ -207,6 +207,7 @@ final class _TimelineRow extends StatelessWidget {
             ),
             const SizedBox(width: QSpace.s3),
             Expanded(
+              flex: 3,
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: tone == _Tone.now
@@ -223,11 +224,16 @@ final class _TimelineRow extends StatelessWidget {
                       ),
               ),
             ),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Text(
-                time,
-                style: QType.num_(QType.caption).copyWith(color: color),
+            // Large text: a forbidden-window range wraps, not the label.
+            Flexible(
+              flex: 2,
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(
+                  time,
+                  textAlign: TextAlign.end,
+                  style: QType.num_(QType.caption).copyWith(color: color),
+                ),
               ),
             ),
           ],
