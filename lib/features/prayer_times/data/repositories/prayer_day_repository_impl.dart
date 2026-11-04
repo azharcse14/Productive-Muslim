@@ -175,11 +175,16 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       }
       // Near the polar edge middle-of-the-night Isha and the next Fajr come
       // from different nights: rounding can put Isha at or past that Fajr
-      // (Tromsø 21 Jun: 00:47 vs 00:46). Take that night's midpoint then.
-      DateTime beforeFajr(DateTime isha, DateTime maghrib, DateTime fajr) =>
-          isha.isBefore(fajr)
-          ? isha
-          : _roundUp(maghrib.add(fajr.difference(maghrib) ~/ 2));
+      // (Tromsø 21 Jun: 00:47 vs 00:46), and where twilight never ends the
+      // rule puts both at mid-night (London in June). Isha then starts a
+      // minute before that Fajr — never before the Maghrib→Fajr midpoint.
+      DateTime beforeFajr(DateTime isha, DateTime maghrib, DateTime fajr) {
+        if (isha.isBefore(fajr)) return isha;
+        final justBefore = fajr.subtract(const Duration(minutes: 1));
+        final midpoint = _roundUp(maghrib.add(fajr.difference(maghrib) ~/ 2));
+        return justBefore.isAfter(midpoint) ? justBefore : midpoint;
+      }
+
       ishaYesterday = beforeFajr(ishaYesterday, yesterday.maghrib, fajr);
       isha = beforeFajr(isha, times.maghrib, fajrTomorrow);
 

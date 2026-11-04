@@ -132,6 +132,57 @@ void main() {
     });
   });
 
+  test('London midsummer: Isha follows the rule even when it meets Fajr', () {
+    const london = ManualCityLocation(
+      City(
+        name: 'London',
+        countryCode: 'GB',
+        latitude: 51.5072,
+        longitude: -0.1276,
+        timezone: 'Europe/London',
+      ),
+    );
+    final date = DateTime(2026, 6, 21);
+    PrayerDay dayWith(HighLatitudeRule rule) => repo
+        .prayerDay(
+          location: london,
+          params: PrayerParams(highLatitudeRule: rule),
+          date: date,
+        )
+        .valueOrNull!;
+    final tomorrow = repo
+        .prayerDay(
+          location: london,
+          params: const PrayerParams(),
+          date: date.add(const Duration(days: 1)),
+        )
+        .valueOrNull!;
+    // Karachi's 18° is never reached in London in June. Middle-of-the-night
+    // puts Isha and Fajr both at mid-night; Isha used to jump to 23:13.
+    // Night = sunset → tomorrow's true sunrise.
+    final night = tomorrow.trueSunrise
+        .add(const Duration(minutes: 1))
+        .difference(dayWith(HighLatitudeRule.middleOfTheNight).sunset);
+    for (final (rule, share) in [
+      (HighLatitudeRule.middleOfTheNight, 1 / 2),
+      (HighLatitudeRule.seventhOfTheNight, 1 / 7),
+      (HighLatitudeRule.twilightAngle, 18 / 60),
+    ]) {
+      final day = dayWith(rule);
+      final expected = day.sunset.add(night * share);
+      expect(
+        day.isha.difference(expected).inMinutes.abs() <= 2,
+        isTrue,
+        reason: '$rule: ${day.isha} vs $expected',
+      );
+    }
+    final middle = dayWith(HighLatitudeRule.middleOfTheNight);
+    expect(
+      middle.isha,
+      middle.fajrTomorrow.subtract(const Duration(minutes: 1)),
+    );
+  });
+
   test('London midsummer: adjacent-day Fajr/Isha stay on their own days', () {
     const london = ManualCityLocation(
       City(
