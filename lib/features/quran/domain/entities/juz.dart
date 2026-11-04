@@ -34,3 +34,15 @@ const juzStarts = <QuranPosition>[
   QuranPosition(67, 1),
   QuranPosition(78, 1),
 ];
+
+/// Surah ids juz [juz] (1-based) covers, in order — including a surah it
+/// only starts or finishes partway through.
+List<int> surahsInJuz(int juz) {
+  final start = juzStarts[juz - 1].surah;
+  var end = 114;
+  if (juz < juzStarts.length) {
+    final next = juzStarts[juz];
+    end = next.ayah == 1 ? next.surah - 1 : next.surah;
+  }
+  return [for (var s = start; s <= end; s++) s];
+}
