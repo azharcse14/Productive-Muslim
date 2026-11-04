@@ -64,7 +64,7 @@ final class HadithListCard extends StatelessWidget {
           Row(
             children: [
               if (hadith.grade.isNotEmpty) ...[
-                GradeChip(grade: hadith.grade),
+                Flexible(child: GradeChip(grade: hadith.grade)),
                 const SizedBox(width: QSpace.s2),
               ],
               Expanded(
@@ -117,7 +117,8 @@ final class HadithListCard extends StatelessWidget {
   }
 }
 
-/// Small pill showing an authenticity grade. Sahih reads in the positive
+/// Small pill showing an authenticity grade; wrap it in [Flexible] inside
+/// a row so long grades wrap instead of overflowing. Sahih reads in the positive
 /// (ok) tone; anything else in a neutral tone.
 final class GradeChip extends StatelessWidget {
   const GradeChip({required this.grade, super.key});
@@ -150,6 +151,8 @@ final class GradeChip extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
         style: QType.caption.copyWith(
           color: color,
           fontWeight: FontWeight.w600,

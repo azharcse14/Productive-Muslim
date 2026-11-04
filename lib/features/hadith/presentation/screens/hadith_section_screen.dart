@@ -268,7 +268,7 @@ final class _BookHadithCard extends StatelessWidget {
           Row(
             children: [
               if (hadith.grade.isNotEmpty) ...[
-                GradeChip(grade: hadith.grade),
+                Flexible(child: GradeChip(grade: hadith.grade)),
                 const SizedBox(width: QSpace.s2),
               ],
               Expanded(

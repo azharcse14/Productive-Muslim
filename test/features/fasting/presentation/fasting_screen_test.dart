@@ -82,6 +82,15 @@ void main() {
       expect(store.isQaza(DateTime(2026, 6, 10)), isTrue);
     });
 
+    testWidgets('month-grid day cells meet the 48dp touch target', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const FastingScreen()));
+      await tester.pumpAndSettle();
+      final cell = find.bySemanticsLabel(RegExp(r'^Wed, Jun 10'));
+      expect(tester.getSize(cell).height, greaterThanOrEqualTo(48));
+    });
+
     testWidgets('renders the upcoming list', (tester) async {
       await tester.pumpWidget(_app(const FastingScreen()));
       await tester.pumpAndSettle();

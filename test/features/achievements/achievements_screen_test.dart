@@ -75,4 +75,36 @@ void main() {
     expect(find.bySemanticsLabel(RegExp(r', \d+ / \d+$')), findsWidgets);
     handle.dispose();
   });
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('badge grid fits at 320dp in Bangla at ${scale}x text', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final store = await _registerStore();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const AchievementsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      store.debugSetStats(const AchievementStats(bestStreak: 3));
+      await tester.pumpAndSettle();
+      // Lay out every card by scrolling through the wall.
+      for (var i = 0; i < 40; i++) {
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      }
+      expect(find.byType(AchievementCard), findsWidgets);
+    });
+  }
 }

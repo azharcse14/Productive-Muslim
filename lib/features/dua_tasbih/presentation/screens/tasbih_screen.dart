@@ -270,7 +270,11 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                     liveRegion: true,
                     label:
                         '${l10n.tasbihTitle}, ${l10n.tasbihPhrase(phraseId)}',
-                    value: LocaleDigits.localize('$count', languageCode),
+                    // The count against its target, and the reached note.
+                    value: [
+                      LocaleDigits.localize('$count / $target', languageCode),
+                      if (reached) l10n.tasbihTargetReached,
+                    ].join(', '),
                     onTap: _tap,
                     child: ExcludeSemantics(
                       // Ripple from the touch point as bead feedback; no

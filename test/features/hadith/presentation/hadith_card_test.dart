@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_card.dart';
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_list_card.dart';
+import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 
 Widget _app(Widget home) => MaterialApp(
   theme: AppTheme.light(),
@@ -111,5 +113,39 @@ void main() {
     expect(find.text('শায, সহিহ'), findsOneWidget);
     expect(find.text("মুরসাল সনদ মতন বাতিল মা'লুল"), findsOneWidget);
     expect(find.text('সহিহ হাদিস'), findsOneWidget);
+  });
+
+  testWidgets('a long grade wraps instead of overflowing (320dp, 1.3x)', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) =>
+            ReaderTextSizeScope(textSize: ReaderTextSize(), child: child!),
+        home: const Scaffold(
+          body: HadithListCard(
+            hadith: Hadith(
+              id: 'x',
+              topic: 'faith',
+              grade: 'Mauquf Hasan Lighairihi',
+              arabic: '',
+              en: 'Text.',
+              bn: 'Text.',
+              narrator: '',
+              reference: 'Sunan Abi Dawud 1234',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
   });
 }

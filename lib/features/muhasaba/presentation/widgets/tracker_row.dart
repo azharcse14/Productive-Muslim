@@ -68,6 +68,39 @@ final class TrackerRow extends StatelessWidget {
             changed(next);
           };
     final toggles = item.kind == TrackerKind.yesNo && onChanged != null;
+    final control = dimmed(switch (item.kind) {
+      // container: its own node, not merged into the row's tap.
+      TrackerKind.yesNo => Semantics(
+        container: true,
+        label: displayName,
+        child: Switch(
+          value: value > 0,
+          onChanged: onChanged == null
+              ? null
+              : (v) {
+                  Haptics.light();
+                  onChanged(v ? 1 : 0);
+                },
+        ),
+      ),
+      TrackerKind.count => _Stepper(
+        value: value,
+        step: 1,
+        label: displayName,
+        onChanged: onChanged,
+      ),
+      TrackerKind.duration => _Stepper(
+        value: value,
+        // Long targets (sleep) in half hours, not 84 taps.
+        step: (item.dailyTarget ?? 0) >= 120 ? 30 : 5,
+        label: displayName,
+        unit: l10n.targetMinutesSuffix,
+        onChanged: onChanged,
+      ),
+    });
+    // Large text: the stepper moves under the name (settings' _UnderRow),
+    // or it squeezes the name to a sliver on narrow phones.
+    final under = item.kind != TrackerKind.yesNo && context.textGrowth > 1.3;
     return Material(
       color: q.surface,
       shape: RoundedRectangleBorder(
@@ -94,81 +127,66 @@ final class TrackerRow extends StatelessWidget {
             horizontal: QSpace.s4,
             vertical: QSpace.s3,
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              dimmed(
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: q.primarySoft,
-                    borderRadius: BorderRadius.circular(QRadius.md),
-                  ),
-                  child: Icon(
-                    TrackerVisuals.iconOf(item.icon),
-                    size: 20,
-                    color: tone,
-                  ),
-                ),
-              ),
-              const SizedBox(width: QSpace.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayName,
-                      style: QType.titleSm.copyWith(
-                        color: dim ? q.ink2 : q.ink,
+              Row(
+                children: [
+                  dimmed(
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: q.primarySoft,
+                        borderRadius: BorderRadius.circular(QRadius.md),
+                      ),
+                      child: Icon(
+                        TrackerVisuals.iconOf(item.icon),
+                        size: 20,
+                        color: tone,
                       ),
                     ),
-                    if (sub != null)
-                      Text(
-                        context.digits(sub),
-                        style: QType.num_(
-                          QType.caption,
-                        ).copyWith(color: q.ink2),
-                      ),
-                  ],
-                ),
-              ),
-              dimmed(switch (item.kind) {
-                // container: its own node, not merged into the row's tap.
-                TrackerKind.yesNo => Semantics(
-                  container: true,
-                  label: displayName,
-                  child: Switch(
-                    value: value > 0,
-                    onChanged: onChanged == null
-                        ? null
-                        : (v) {
-                            Haptics.light();
-                            onChanged(v ? 1 : 0);
-                          },
                   ),
-                ),
-                TrackerKind.count => _Stepper(
-                  value: value,
-                  step: 1,
-                  label: displayName,
-                  onChanged: onChanged,
-                ),
-                TrackerKind.duration => _Stepper(
-                  value: value,
-                  // Long targets (sleep) in half hours, not 84 taps.
-                  step: (item.dailyTarget ?? 0) >= 120 ? 30 : 5,
-                  label: displayName,
-                  unit: l10n.targetMinutesSuffix,
-                  onChanged: onChanged,
-                ),
-              }),
-              // The tap toggles, so editing needs its own button.
-              if (toggles && onEdit != null)
-                IconButton(
-                  tooltip: l10n.editTracker,
-                  visualDensity: VisualDensity.compact,
-                  icon: Icon(Icons.edit_outlined, size: 18, color: q.ink3),
-                  onPressed: onEdit,
+                  const SizedBox(width: QSpace.s3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: QType.titleSm.copyWith(
+                            color: dim ? q.ink2 : q.ink,
+                          ),
+                        ),
+                        if (sub != null)
+                          Text(
+                            context.digits(sub),
+                            style: QType.num_(
+                              QType.caption,
+                            ).copyWith(color: q.ink2),
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (!under) control,
+                  // The tap toggles, so editing needs its own button.
+                  if (toggles && onEdit != null)
+                    IconButton(
+                      tooltip: l10n.editTracker,
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(Icons.edit_outlined, size: 18, color: q.ink3),
+                      onPressed: onEdit,
+                    ),
+                ],
+              ),
+              if (under)
+                Padding(
+                  // 40 icon tile + gap: aligned with the name.
+                  padding: const EdgeInsetsDirectional.only(
+                    start: 40 + QSpace.s3,
+                    top: QSpace.s2,
+                  ),
+                  child: control,
                 ),
             ],
           ),

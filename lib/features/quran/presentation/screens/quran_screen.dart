@@ -56,6 +56,10 @@ final class _QuranIndexState extends State<_QuranIndex> {
 
   final _query = TextEditingController();
 
+  /// While searching, the resume card / banner give way to the results so
+  /// the keyboard never squeezes the list out.
+  final _searchFocus = FocusNode();
+
   /// Bookmarks removed while the sheet is open, newest last; each undo
   /// puts back the latest.
   final _removedBookmarks = signal(const <int>[]);
@@ -75,6 +79,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
   void dispose() {
     _debounce?.cancel();
     _query.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -320,20 +325,37 @@ final class _QuranIndexState extends State<_QuranIndex> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (_store.lastRead.value != null) ...[
-                            _resumeCard(context),
-                            const SizedBox(height: QSpace.s3),
-                          ] else if (_store.loaded.value) ...[
-                            QBanner(
-                              text: l10n.quranFirstOpen,
-                              icon: Icons.menu_book_outlined,
+                          ListenableBuilder(
+                            listenable: Listenable.merge([
+                              _query,
+                              _searchFocus,
+                            ]),
+                            builder: (context, header) =>
+                                _searchFocus.hasFocus || _query.text.isNotEmpty
+                                ? const SizedBox.shrink()
+                                : header!,
+                            // Built here so the signals it reads stay tracked.
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (_store.lastRead.value != null) ...[
+                                  _resumeCard(context),
+                                  const SizedBox(height: QSpace.s3),
+                                ] else if (_store.loaded.value) ...[
+                                  QBanner(
+                                    text: l10n.quranFirstOpen,
+                                    icon: Icons.menu_book_outlined,
+                                  ),
+                                  const SizedBox(height: QSpace.s3),
+                                ],
+                              ],
                             ),
-                            const SizedBox(height: QSpace.s3),
-                          ],
+                          ),
                           ListenableBuilder(
                             listenable: _query,
                             builder: (context, _) => TextField(
                               controller: _query,
+                              focusNode: _searchFocus,
                               onChanged: _onQueryChanged,
                               onSubmitted: (query) {
                                 if (parseAyahReference(
