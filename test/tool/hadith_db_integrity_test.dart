@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/config/app_config.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_blob_codec.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_book_catalog_data_source.dart';
 import 'package:productive_muslim/features/hadith/data/hadith_database.dart';
@@ -49,6 +50,19 @@ void main() {
 
   test('schema version matches HadithDatabase.bundledVersion', () {
     expect(scalar('PRAGMA user_version'), HadithDatabase.bundledVersion);
+  });
+
+  test('Bengali table present exactly when BENGALI_HADITH is on', () {
+    // HadithDatabase.ensureCopied keeps an installed copy only when its
+    // hadith_bn_section presence matches AppConfig.bengaliHadith, so a
+    // stripped asset must ship with --dart-define=BENGALI_HADITH=false (and a
+    // full one without it), or every launch re-copies the asset.
+    expect(
+      scalar(
+        "SELECT COUNT(*) FROM sqlite_master WHERE name = 'hadith_bn_section'",
+      ),
+      AppConfig.bengaliHadith ? 1 : 0,
+    );
   });
 
   /// Every hadith of [edition] across all its sections.

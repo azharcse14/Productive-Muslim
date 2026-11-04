@@ -133,9 +133,11 @@ owner must be able to ship without it. Hiding the UI isn't enough: the text woul
 inside the APK and fetched at runtime.
 
 **Do.** Don't change what ships by default.
-- `tool/hadith_db_build.dart`: a `--no-bengali` flag omits `hadith_bn_section`. Document
-  that such a build must bump `HadithDatabase.bundledVersion` and `PRAGMA user_version`
-  together, so installed copies get replaced.
+- `tool/hadith_db_build.dart`: a `--no-bengali` flag omits `hadith_bn_section`. Installed
+  copies get replaced because `HadithDatabase.ensureCopied` re-copies when the copy's
+  `hadith_bn_section` presence differs from `BENGALI_HADITH` (no version bump needed;
+  the earlier "bump `bundledVersion` + `PRAGMA user_version`" rule was never applied by
+  the strip tool — fixed 2026-11-04, `fix/hadith-strip-version`).
 - App: when the DB has no `hadith_bn_section`, or `--dart-define=BENGALI_HADITH=false`
   (read in `lib/config/`), no code path reads Bengali sections or requests the
   hadithbangla URL; the Bengali UI shows Arabic + English with a localized note.

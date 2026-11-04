@@ -10,13 +10,17 @@ Steps a store build needs that a dev build doesn't. Decisions behind them:
    ```sh
    dart run tool/strip_bengali_hadith.dart   # drops hadith_bn_section + sections_bn
    flutter build appbundle --dart-define=BENGALI_HADITH=false   # (and ipa)
-   git checkout -- assets/data                # restore the dev assets afterwards
+   git checkout -- assets/data/hadith.db assets/data/hadith_books.json   # restore afterwards
    ```
-   The dart-define also removes the hadithbangla credit and the online
-   hadithbangla fallback; English, Arabic and the fawazahmed0 Bengali editions
-   (40 Hadith, Muwatta Malik) stay. Once permission arrives: skip this step,
-   update `docs/DEPENDENCIES.md`, and bump `HadithDatabase.bundledVersion` +
-   `PRAGMA user_version` if the shipped DB changes.
+   Strip and dart-define always go together. The dart-define also removes the
+   hadithbangla credit and the online hadithbangla fallback, and tells the app
+   the bundled hadith.db is stripped: an installed copy whose Bengali table
+   doesn't match is replaced on first launch, so stripped <-> full releases
+   need no version bump (a mismatched pair re-copies on every launch).
+   English, Arabic and the fawazahmed0 Bengali editions (40 Hadith, Muwatta
+   Malik) stay. Once permission arrives: skip this step and update
+   `docs/DEPENDENCIES.md`; bump `HadithDatabase.bundledVersion` +
+   `PRAGMA user_version` only if the DB content itself changes.
 2. **`dua-ruqya-server` (90 `hm_*` duas) — no license.** Still `NO LICENSE —
    permission needed` in `docs/DEPENDENCIES.md`; get permission or replace the
    Bengali wording before a public release.
