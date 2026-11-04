@@ -50,7 +50,7 @@ final class RuqyahCard extends StatelessWidget {
               textDirection: TextDirection.rtl,
               // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
               // transliteration instead so screen-reader users hear the words.
-              semanticsLabel: item.transliteration,
+              semanticsLabel: item.transliterationFor(languageCode),
               // Sized by the reader setting, so the system text scale must
               // not multiply it again.
               textScaler: TextScaler.noScaling,
@@ -61,7 +61,7 @@ final class RuqyahCard extends StatelessWidget {
           ),
           const SizedBox(height: QSpace.s3),
           Text(
-            item.transliteration,
+            item.transliterationFor(languageCode),
             style: QType.caption.copyWith(
               color: q.ink2,
               fontStyle: FontStyle.italic,

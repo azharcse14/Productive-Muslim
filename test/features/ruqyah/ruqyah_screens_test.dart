@@ -13,8 +13,9 @@ import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_stor
 
 import '../../helpers/content_fakes.dart';
 
-Widget _app(Widget home) => MaterialApp(
+Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   theme: AppTheme.light(),
+  locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: home,
@@ -92,6 +93,27 @@ void main() {
       expect(find.text('Allah — there is no god but He'), findsOneWidget);
       expect(find.textContaining('2:255'), findsOneWidget);
       expect(find.textContaining('3'), findsWidgets); // repeat chip
+    });
+
+    testWidgets('Bangla shows the Bengali-script transliteration', (
+      tester,
+    ) async {
+      final category = GetIt.I<RuqyahStore>().categories.value.first;
+      await tester.pumpWidget(
+        _app(RuqyahCategoryScreen(id: category.id), locale: const Locale('bn')),
+      );
+      await tester.pump();
+      expect(find.text('আল্লা-হু লা- ইলা-হা ইল্লা- হুওয়া'), findsOneWidget);
+      expect(find.text('Allahu la ilaha illa huwa'), findsNothing);
+      // Screen readers speak the Arabic as the Bangla transliteration too.
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              w.semanticsLabel == 'আল্লা-হু লা- ইলা-হা ইল্লা- হুওয়া',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Tibb an-Nabawi lists its cards lazily under the note', (

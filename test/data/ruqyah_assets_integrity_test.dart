@@ -32,7 +32,7 @@ void main() {
     'water',
   };
   const allowedRepeats = <int>{1, 3, 7, 100};
-  const requiredStrings = <String>['id', 'ar', 'tr', 'en'];
+  const requiredStrings = <String>['id', 'ar', 'tr', 'trBn', 'en'];
 
   group('ruqyah.json', () {
     late List<Map<String, Object?>> categories;
@@ -106,7 +106,7 @@ void main() {
       }
     });
 
-    test('every item has non-empty id, ar, tr and en fields', () {
+    test('every item has non-empty id, ar, tr, trBn and en fields', () {
       for (final item in allItems) {
         for (final field in requiredStrings) {
           final value = item[field];
@@ -199,6 +199,7 @@ void main() {
         'titleBn',
         'ar',
         'tr',
+        'trBn',
         'en',
         'bn',
         'ref',
