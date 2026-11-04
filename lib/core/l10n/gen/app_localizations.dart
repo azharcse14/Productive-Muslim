@@ -5881,6 +5881,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hanafi count — other madhabs differ on the sunnah and witr rak\'ahs.'**
   String get rakaatHanafiNote;
+
+  /// No description provided for @prophetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophets'**
+  String get prophetsTitle;
+
+  /// No description provided for @prophetsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Adam (AS) to Muhammad ﷺ — the 25 named in the Quran'**
+  String get prophetsSubtitle;
+
+  /// No description provided for @prophetsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the prophets. Please try again.'**
+  String get prophetsLoadError;
+
+  /// No description provided for @prophetSummaryComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary coming soon.'**
+  String get prophetSummaryComingSoon;
+
+  /// No description provided for @prophetQuranMentions.
+  ///
+  /// In en, this message translates to:
+  /// **'In the Quran'**
+  String get prophetQuranMentions;
+
+  /// No description provided for @prophetHadithRefs.
+  ///
+  /// In en, this message translates to:
+  /// **'In the hadith'**
+  String get prophetHadithRefs;
+
+  /// No description provided for @creditsProphetsSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar'**
+  String get creditsProphetsSource;
 }
 
 class _AppLocalizationsDelegate

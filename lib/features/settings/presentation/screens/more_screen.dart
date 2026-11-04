@@ -135,6 +135,12 @@ final class _MoreScreenState extends State<MoreScreen> {
               () => context.pushNamed(Routes.rasulNames.name),
             ),
             _Entry(
+              Icons.account_tree_outlined,
+              l10n.prophetsTitle,
+              l10n.prophetsSubtitle,
+              () => context.pushNamed(Routes.prophets.name),
+            ),
+            _Entry(
               Icons.format_quote_outlined,
               l10n.hadithTitle,
               l10n.hadithSubtitle,

@@ -103,6 +103,11 @@ abstract final class Routes {
   /// Tibb an-Nabawi — prophetic medicine (More tab + Ruqyah screen).
   static const tibbNabawi = (name: 'tibbNabawi', path: '/tibb-nabawi');
 
+  /// Prophets timeline-tree (More tab) and one prophet by id
+  /// (`/prophets/:id`).
+  static const prophets = (name: 'prophets', path: '/prophets');
+  static const prophet = (name: 'prophet', path: ':id');
+
   /// Achievements / badges (More tab + muhasaba summary).
   static const achievements = (name: 'achievements', path: '/achievements');
 

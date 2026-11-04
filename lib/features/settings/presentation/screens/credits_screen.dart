@@ -80,6 +80,7 @@ final class CreditsScreen extends StatelessWidget {
               ),
             ),
             (l10n.tibbNabawiTitle, l10n.creditsTibbNabawiSource),
+            (l10n.prophetsTitle, l10n.creditsProphetsSource),
           ]),
           _Group(l10n.duaTitle, [
             ('Hisnul Muslim', 'aminurdev/dua-ruqya-server'),

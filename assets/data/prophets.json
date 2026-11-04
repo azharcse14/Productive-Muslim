@@ -1,0 +1,728 @@
+[
+  {
+    "id": "adam",
+    "order": 1,
+    "nameAr": "آدم",
+    "nameEn": "Adam",
+    "nameBn": "আদম",
+    "titleEn": "Abul Bashar (Father of Mankind)",
+    "titleBn": "আবুল বাশার (মানবজাতির পিতা)",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:30-39",
+      "3:33",
+      "3:59",
+      "5:27-31",
+      "7:11-27",
+      "15:26-42",
+      "17:61-65",
+      "18:50",
+      "20:115-123",
+      "38:71-85"
+    ],
+    "hadithRefs": [
+      "Bukhari 3326",
+      "Muslim 1976",
+      "Bukhari 3409",
+      "Bukhari 4712",
+      "Bukhari 3887"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "idris",
+    "order": 2,
+    "nameAr": "إدريس",
+    "nameEn": "Idris",
+    "nameBn": "ইদরিস",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "19:56-57",
+      "21:85-86"
+    ],
+    "hadithRefs": [
+      "Bukhari 3887"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "nuh",
+    "order": 3,
+    "nameAr": "نوح",
+    "nameEn": "Nuh",
+    "nameBn": "নূহ",
+    "titleEn": "A Grateful Servant",
+    "titleBn": "কৃতজ্ঞ বান্দা",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "4:163",
+      "7:59-64",
+      "10:71-73",
+      "11:25-49",
+      "17:3",
+      "21:76-77",
+      "23:23-30",
+      "26:105-122",
+      "29:14-15",
+      "37:75-82",
+      "54:9-15",
+      "57:26",
+      "66:10",
+      "71:1-28"
+    ],
+    "hadithRefs": [
+      "Bukhari 3339",
+      "Bukhari 4712"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "hud",
+    "order": 4,
+    "nameAr": "هود",
+    "nameEn": "Hud",
+    "nameBn": "হূদ",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "7:65-72",
+      "11:50-60",
+      "26:123-140",
+      "41:15-16",
+      "46:21-26",
+      "54:18-21",
+      "69:6-8",
+      "89:6-8"
+    ],
+    "hadithRefs": [
+      "Bukhari 1035"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "salih",
+    "order": 5,
+    "nameAr": "صالح",
+    "nameEn": "Salih",
+    "nameBn": "সালিহ",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "7:73-79",
+      "11:61-68",
+      "15:80-84",
+      "17:59",
+      "26:141-159",
+      "27:45-53",
+      "54:23-31",
+      "91:11-15"
+    ],
+    "hadithRefs": [
+      "Bukhari 3379",
+      "Bukhari 3380",
+      "Bukhari 3381"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "ibrahim",
+    "order": 6,
+    "nameAr": "إبراهيم",
+    "nameEn": "Ibrahim",
+    "nameBn": "ইবরাহিম",
+    "titleEn": "Khalilullah (Friend of Allah)",
+    "titleBn": "খলিলুল্লাহ (আল্লাহর বন্ধু)",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:124-132",
+      "2:258-260",
+      "3:65-68",
+      "3:95-97",
+      "4:125",
+      "6:74-83",
+      "11:69-76",
+      "14:35-41",
+      "16:120-123",
+      "19:41-50",
+      "21:51-73",
+      "22:26-27",
+      "26:69-89",
+      "29:16-27",
+      "37:83-113",
+      "43:26-28",
+      "51:24-34",
+      "53:36-37",
+      "60:4",
+      "87:18-19"
+    ],
+    "hadithRefs": [
+      "Muslim 6138",
+      "Bukhari 3349",
+      "Bukhari 3364",
+      "Bukhari 3365",
+      "Bukhari 3887"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "lut",
+    "order": 7,
+    "nameAr": "لوط",
+    "nameEn": "Lut",
+    "nameBn": "লূত",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "6:86",
+      "7:80-84",
+      "11:77-83",
+      "15:57-77",
+      "21:71",
+      "21:74-75",
+      "26:160-175",
+      "27:54-58",
+      "29:26",
+      "29:28-35",
+      "37:133-138",
+      "51:31-37",
+      "54:33-39",
+      "66:10"
+    ],
+    "hadithRefs": [
+      "Bukhari 3375"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "ismail",
+    "order": 8,
+    "nameAr": "إسماعيل",
+    "nameEn": "Ismail",
+    "nameBn": "ইসমাইল",
+    "titleEn": "Dhabihullah",
+    "titleBn": "যবিহুল্লাহ",
+    "parent": "ibrahim",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:125-129",
+      "2:133",
+      "2:136",
+      "3:84",
+      "6:86",
+      "14:37-39",
+      "19:54-55",
+      "21:85-86",
+      "37:100-111",
+      "38:48"
+    ],
+    "hadithRefs": [
+      "Bukhari 3364",
+      "Bukhari 3365",
+      "Bukhari 2899",
+      "Muslim 5938"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "ishaq",
+    "order": 9,
+    "nameAr": "إسحاق",
+    "nameEn": "Ishaq",
+    "nameBn": "ইসহাক",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": "ibrahim",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:133",
+      "4:163",
+      "6:84",
+      "11:71-72",
+      "12:6",
+      "12:38",
+      "14:39",
+      "19:49-50",
+      "21:72-73",
+      "29:27",
+      "37:112-113",
+      "38:45-47"
+    ],
+    "hadithRefs": [
+      "Bukhari 3382"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "yaqub",
+    "order": 10,
+    "nameAr": "يعقوب",
+    "nameEn": "Yaqub",
+    "nameBn": "ইয়াকুব",
+    "titleEn": "Isra'il",
+    "titleBn": "ইসরাইল",
+    "parent": "ishaq",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:132-133",
+      "3:93",
+      "6:84",
+      "11:71",
+      "12:4-18",
+      "12:58-100",
+      "19:49-50",
+      "19:58",
+      "21:72-73",
+      "38:45-47"
+    ],
+    "hadithRefs": [
+      "Bukhari 3382"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "yusuf",
+    "order": 11,
+    "nameAr": "يوسف",
+    "nameEn": "Yusuf",
+    "nameBn": "ইউসুফ",
+    "titleEn": "As-Siddiq (The Truthful)",
+    "titleBn": "সিদ্দিক (সত্যবাদী)",
+    "parent": "yaqub",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "6:84",
+      "12:3-101",
+      "40:34"
+    ],
+    "hadithRefs": [
+      "Bukhari 3382",
+      "Bukhari 3390",
+      "Muslim 411",
+      "Bukhari 3887"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "ayyub",
+    "order": 12,
+    "nameAr": "أيوب",
+    "nameEn": "Ayyub",
+    "nameBn": "আইয়ুব",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "4:163",
+      "6:84",
+      "21:83-84",
+      "38:41-44"
+    ],
+    "hadithRefs": [
+      "Bukhari 279"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "shuayb",
+    "order": 13,
+    "nameAr": "شعيب",
+    "nameEn": "Shu'ayb",
+    "nameBn": "শুআইব",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "7:85-93",
+      "11:84-95",
+      "15:78-79",
+      "26:176-191",
+      "29:36-37"
+    ],
+    "hadithRefs": [],
+    "storyIds": []
+  },
+  {
+    "id": "musa",
+    "order": 14,
+    "nameAr": "موسى",
+    "nameEn": "Musa",
+    "nameBn": "মূসা",
+    "titleEn": "Kalimullah (One Who Spoke with Allah)",
+    "titleBn": "কালিমুল্লাহ (আল্লাহর সাথে কথোপকথনকারী)",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:49-61",
+      "2:67-73",
+      "4:153",
+      "4:164",
+      "5:20-26",
+      "7:103-162",
+      "10:75-92",
+      "17:101-104",
+      "18:60-82",
+      "20:9-98",
+      "26:10-68",
+      "27:7-14",
+      "28:3-46",
+      "33:69",
+      "40:23-46",
+      "61:5",
+      "79:15-26"
+    ],
+    "hadithRefs": [
+      "Bukhari 3404",
+      "Bukhari 3408",
+      "Bukhari 2004",
+      "Bukhari 3401",
+      "Bukhari 3887",
+      "Bukhari 3392"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "harun",
+    "order": 15,
+    "nameAr": "هارون",
+    "nameEn": "Harun",
+    "nameBn": "হারুন",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "4:163",
+      "6:84",
+      "7:142",
+      "7:148-151",
+      "19:53",
+      "20:29-36",
+      "20:90-94",
+      "21:48",
+      "25:35-36",
+      "28:34-35",
+      "37:114-122"
+    ],
+    "hadithRefs": [
+      "Bukhari 3887",
+      "Bukhari 3706"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "dhulkifl",
+    "order": 16,
+    "nameAr": "ذو الكفل",
+    "nameEn": "Dhul-Kifl",
+    "nameBn": "যুলকিফল",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "21:85-86",
+      "38:48"
+    ],
+    "hadithRefs": [],
+    "storyIds": []
+  },
+  {
+    "id": "dawud",
+    "order": 17,
+    "nameAr": "داود",
+    "nameEn": "Dawud",
+    "nameBn": "দাউদ",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:251",
+      "4:163",
+      "5:78",
+      "6:84",
+      "17:55",
+      "21:78-80",
+      "27:15-16",
+      "34:10-11",
+      "38:17-26"
+    ],
+    "hadithRefs": [
+      "Bukhari 1131",
+      "Bukhari 2073",
+      "Bukhari 3417",
+      "Bukhari 3427"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "sulaiman",
+    "order": 18,
+    "nameAr": "سليمان",
+    "nameEn": "Sulaiman",
+    "nameBn": "সুলাইমান",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": "dawud",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:102",
+      "4:163",
+      "6:84",
+      "21:78-82",
+      "27:15-44",
+      "34:12-14",
+      "38:30-40"
+    ],
+    "hadithRefs": [
+      "Bukhari 3427",
+      "Bukhari 461",
+      "Nasai 693"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "ilyas",
+    "order": 19,
+    "nameAr": "إلياس",
+    "nameEn": "Ilyas",
+    "nameBn": "ইলিয়াস",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "6:85",
+      "37:123-132"
+    ],
+    "hadithRefs": [],
+    "storyIds": []
+  },
+  {
+    "id": "alyasa",
+    "order": 20,
+    "nameAr": "اليسع",
+    "nameEn": "Al-Yasa'",
+    "nameBn": "আল-ইয়াসা",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "6:86",
+      "38:48"
+    ],
+    "hadithRefs": [],
+    "storyIds": []
+  },
+  {
+    "id": "yunus",
+    "order": 21,
+    "nameAr": "يونس",
+    "nameEn": "Yunus",
+    "nameBn": "ইউনুস",
+    "titleEn": "Dhun-Nun (Companion of the Fish)",
+    "titleBn": "যুন-নূন (মাছওয়ালা)",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "4:163",
+      "6:86",
+      "10:98",
+      "21:87-88",
+      "37:139-148",
+      "68:48-50"
+    ],
+    "hadithRefs": [
+      "Bukhari 3395",
+      "Bukhari 3413",
+      "Tirmidhi 3505"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "zakariya",
+    "order": 22,
+    "nameAr": "زكريا",
+    "nameEn": "Zakariya",
+    "nameBn": "যাকারিয়া",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "3:37-41",
+      "6:85",
+      "19:2-11",
+      "21:89-90"
+    ],
+    "hadithRefs": [
+      "Muslim 6162"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "yahya",
+    "order": 23,
+    "nameAr": "يحيى",
+    "nameEn": "Yahya",
+    "nameBn": "ইয়াহইয়া",
+    "titleEn": "",
+    "titleBn": "",
+    "parent": "zakariya",
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "3:39",
+      "6:85",
+      "19:7",
+      "19:12-15",
+      "21:90"
+    ],
+    "hadithRefs": [
+      "Bukhari 3887"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "isa",
+    "order": 24,
+    "nameAr": "عيسى",
+    "nameEn": "'Isa",
+    "nameBn": "ঈসা",
+    "titleEn": "Ruhullah, Al-Masih",
+    "titleBn": "রুহুল্লাহ, আল-মাসিহ",
+    "parent": null,
+    "parentDistant": false,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "2:87",
+      "2:253",
+      "3:42-59",
+      "4:156-159",
+      "4:171-172",
+      "5:46",
+      "5:72-75",
+      "5:110-118",
+      "19:16-36",
+      "23:50",
+      "43:57-65",
+      "57:27",
+      "61:6",
+      "61:14"
+    ],
+    "hadithRefs": [
+      "Bukhari 3448",
+      "Muslim 7373",
+      "Bukhari 3431",
+      "Bukhari 3436",
+      "Bukhari 3443",
+      "Bukhari 3887",
+      "Bukhari 3395"
+    ],
+    "storyIds": []
+  },
+  {
+    "id": "muhammad",
+    "order": 25,
+    "nameAr": "محمد",
+    "nameEn": "Muhammad",
+    "nameBn": "মুহাম্মাদ",
+    "titleEn": "Khatam an-Nabiyyin (Seal of the Prophets)",
+    "titleBn": "খাতামুন নাবিয়্যিন (সর্বশেষ নবী)",
+    "parent": "ismail",
+    "parentDistant": true,
+    "summaryEn": [],
+    "summaryBn": [],
+    "quranMentions": [
+      "3:144",
+      "7:157-158",
+      "9:40",
+      "9:128",
+      "17:1",
+      "21:107",
+      "33:21",
+      "33:40",
+      "34:28",
+      "47:2",
+      "48:29",
+      "53:1-18",
+      "61:6",
+      "68:4",
+      "93:1-11",
+      "94:1-8",
+      "96:1-5"
+    ],
+    "hadithRefs": [
+      "Bukhari 3",
+      "Bukhari 3902",
+      "Bukhari 3887",
+      "Bukhari 3535",
+      "Bukhari 335",
+      "Bukhari 4981",
+      "Muslim 5938",
+      "Bukhari 4712"
+    ],
+    "storyIds": []
+  }
+]

@@ -1799,5 +1799,12 @@
   "muhasabaRangeChange": "Change date range",
   "calendarNightBeginsAtSunset": "This night begins at sunset on this date.",
   "calendarObservanceDiffers": "Scholars differ on this date and on marking it with special worship.",
-  "rakaatHanafiNote": "Hanafi count — other madhabs differ on the sunnah and witr rak'ahs."
+  "rakaatHanafiNote": "Hanafi count — other madhabs differ on the sunnah and witr rak'ahs.",
+  "prophetsTitle": "Prophets",
+  "prophetsSubtitle": "Adam (AS) to Muhammad ﷺ — the 25 named in the Quran",
+  "prophetsLoadError": "Couldn't load the prophets. Please try again.",
+  "prophetSummaryComingSoon": "Summary coming soon.",
+  "prophetQuranMentions": "In the Quran",
+  "prophetHadithRefs": "In the hadith",
+  "creditsProphetsSource": "Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar"
 }

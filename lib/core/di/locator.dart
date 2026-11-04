@@ -82,6 +82,9 @@ import '../../features/quran/presentation/state/quran_store.dart';
 import '../../features/ramadan/data/datasources/eid_announcement_local_data_source.dart';
 import '../../features/ramadan/domain/repositories/fast_log.dart';
 import '../../features/ramadan/presentation/state/eid_announcement_store.dart';
+import '../../features/prophets/data/prophet_repository_impl.dart';
+import '../../features/prophets/domain/repositories/prophet_repository.dart';
+import '../../features/prophets/presentation/state/prophets_store.dart';
 import '../../features/ruqyah/data/ruqyah_asset_data_source.dart';
 import '../../features/ruqyah/data/ruqyah_repository_impl.dart';
 import '../../features/ruqyah/domain/repositories/ruqyah_repository.dart';
@@ -367,6 +370,13 @@ Future<void> setupLocator() async {
       ),
       instanceName: RuqyahStore.tibbNabawi,
     );
+
+  // ---- prophets ----
+  locator
+    ..registerLazySingleton<ProphetRepository>(
+      () => ProphetRepositoryImpl(rootBundle),
+    )
+    ..registerLazySingleton(() => ProphetsStore(locator()));
 
   // ---- fasting (sunnah / nafl tracker) ----
   locator.registerLazySingleton(

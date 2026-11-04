@@ -48,6 +48,8 @@ import '../../features/quran/presentation/screens/quran_reader_screen.dart';
 import '../../features/quran/presentation/screens/quran_screen.dart';
 import '../../features/ramadan/presentation/screens/ramadan_screen.dart';
 import '../../features/ramadan/presentation/screens/zakat_screen.dart';
+import '../../features/prophets/presentation/screens/prophet_screen.dart';
+import '../../features/prophets/presentation/screens/prophets_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import '../../features/ruqyah/presentation/screens/ruqyah_screen.dart';
 import '../../features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
@@ -391,6 +393,19 @@ GoRouter buildRouter() {
         name: Routes.tibbNabawi.name,
         path: Routes.tibbNabawi.path,
         builder: (context, state) => const TibbNabawiScreen(),
+      ),
+      GoRoute(
+        name: Routes.prophets.name,
+        path: Routes.prophets.path,
+        builder: (context, state) => const ProphetsScreen(),
+        routes: [
+          GoRoute(
+            name: Routes.prophet.name,
+            path: Routes.prophet.path,
+            builder: (context, state) =>
+                ProphetScreen(id: state.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(
         name: Routes.achievements.name,
