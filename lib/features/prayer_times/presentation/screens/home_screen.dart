@@ -425,32 +425,45 @@ final class _HomeScreenState extends State<HomeScreen> {
                 if (_reflectionSection(context, locale) case final reflection?)
                   _section(reflection),
             ];
-            return RefreshIndicator(
-              onRefresh: _refresh,
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    HomeHeader(
-                      greeting: greetingFor(l10n, _store.daypart.value),
-                      locationName: formatLocationName(location, l10n),
-                      dates: _headerDates(l10n, locale),
-                      onLocationTap: () =>
-                          context.pushNamed(Routes.locationPicker.name),
-                      onQiblaTap: () => context.pushNamed(Routes.qibla.name),
-                      onNotificationsTap: () =>
-                          context.pushNamed(Routes.notifications.name),
-                    ),
-                    for (final (i, section) in sections.indexed)
-                      // Isolates per-second / pulsing repaints to one card.
-                      RepaintBoundary(
-                        child: StaggeredEntrance(index: i, child: section),
-                      ),
-                    const SizedBox(height: QSpace.s5),
-                  ],
+            // Header stays pinned; only the cards below it scroll.
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                HomeHeader(
+                  greeting: greetingFor(l10n, _store.daypart.value),
+                  locationName: formatLocationName(location, l10n),
+                  dates: _headerDates(l10n, locale),
+                  onLocationTap: () =>
+                      context.pushNamed(Routes.locationPicker.name),
+                  onQiblaTap: () => context.pushNamed(Routes.qibla.name),
+                  onNotificationsTap: () =>
+                      context.pushNamed(Routes.notifications.name),
                 ),
-              ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: ClampingScrollPhysics(),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, section) in sections.indexed)
+                            // Isolates per-second / pulsing repaints to one card.
+                            RepaintBoundary(
+                              child: StaggeredEntrance(
+                                index: i,
+                                child: section,
+                              ),
+                            ),
+                          const SizedBox(height: QSpace.s5),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         ),

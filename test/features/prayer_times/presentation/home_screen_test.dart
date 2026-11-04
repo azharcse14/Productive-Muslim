@@ -27,6 +27,7 @@ import 'package:productive_muslim/features/prayer_times/data/repositories/prayer
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/screens/home_screen.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/state/home_store.dart';
+import 'package:productive_muslim/features/prayer_times/presentation/widgets/home_header.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/home_muhasaba_card.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/prayer_table.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/quick_actions_row.dart';
@@ -350,6 +351,22 @@ void main() {
         find.byType(SahriIftarCard, skipOffstage: false),
       );
       expect(meal.compact, isTrue);
+    });
+
+    testHomeWidgets('the header stays pinned outside the scroll view', (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      expect(find.byType(HomeHeader), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.byType(HomeHeader),
+          matching: find.byType(Scrollable),
+        ),
+        findsNothing,
+      );
     });
 
     testHomeWidgets('shows the next special window as one compact row', (
