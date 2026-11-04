@@ -23,7 +23,7 @@ plan is more specific, this plan wins.
 | 5.2 `SettingsStore` + `setting_labels.dart` (pick an option, justify) | ✅ done 2026-11-04 — moved to `lib/core/settings/` (app-scoped like theme/router; an interface would have one implementation) |
 | 5.2 `prayer_widget_service.dart` off presentation (do together with the item above) | ✅ done 2026-11-04 |
 | 5.2 `arabicBodySize()` → injected reading preferences | ✅ already done — reads `ReaderTextSizeScope` (InheritedWidget), no `GetIt` |
-| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ✅ decided 2026-11-04 — Keystore dropped; expenses → drift and export/import done (see Owner decisions) |
+| 6 proposals (export/import, expenses+fasting → drift, Android Keystore lock) | ✅ decided 2026-11-04 — Keystore and export/import dropped; expenses → drift done (see Owner decisions) |
 | Owner decisions 1–5 | ✅ all decided (1 on 2026-11-03; 2–5 on 2026-11-04, see Owner decisions) |
 
 Findings that change this plan:
@@ -479,9 +479,14 @@ Phase 6: **Android Keystore lock — dropped** (`app_lock.xml` is already exclud
 from cloud backup and device transfer and holds only a salted hash; the data it
 guards sits unencrypted in the same sandbox, so encryption would only slow a
 root-level attacker). **Expenses + budgets → drift — done** (fasting stays in
-prefs: a small bounded list). **Export all / Import — done as a file** through
-the existing share channel (the clipboard alone breaks past Android's ~1 MB
-Binder limit).
+prefs: a small bounded list). **Export all / Import — dropped for now**: Android
+Auto Backup + device transfer already carry every user file and preference
+(only `bundled/` and `app_lock.xml` are excluded) and iOS device backups carry
+the app's data, so a same-platform phone change keeps everything; expenses also
+export/import CSV. What's left is Android ↔ iOS moves — not worth ~9
+serializers, a native document picker and merge logic before 1.0. Revisit if
+users ask (design above; transport would be a file via the share channel, as
+the clipboard breaks past Android's ~1 MB Binder limit).
 
 ## Owner tasks — not for Claude Code
 
