@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/settings/setting_labels.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
-import 'package:productive_muslim/features/settings/presentation/widgets/setting_labels.dart';
 
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));

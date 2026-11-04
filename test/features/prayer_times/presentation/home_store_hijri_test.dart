@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/utils/hijri_date.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
@@ -13,7 +14,6 @@ import 'package:productive_muslim/features/settings/domain/repositories/settings
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 import '../../../helpers/mosque_fakes.dart';
 

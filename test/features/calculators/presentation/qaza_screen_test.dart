@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/qaza_screen.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 import '../../../helpers/settings_fakes.dart';
 

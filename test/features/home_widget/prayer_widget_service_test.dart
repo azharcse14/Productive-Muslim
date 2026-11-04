@@ -159,7 +159,7 @@ void main() {
       getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
       clock: clock,
       settings: await makeSettingsStore(const AppSettings(location: _dhaka)),
-      mosque: mosque,
+      mosqueState: () => mosque.state.value,
     );
 
     await service.update();

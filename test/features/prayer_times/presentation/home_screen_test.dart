@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/router/routes.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/dua_tasbih/presentation/state/dua_store.dart';
@@ -41,7 +42,6 @@ import 'package:productive_muslim/features/settings/domain/repositories/settings
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/shared/widgets/countdown_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';

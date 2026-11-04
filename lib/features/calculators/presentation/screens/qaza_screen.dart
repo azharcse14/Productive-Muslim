@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -12,7 +13,6 @@ import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_form.dart';
 import '../../../../shared/widgets/q_list_row.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/usecases/qaza_calculator.dart';
 import '../widgets/date_field.dart';
 

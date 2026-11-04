@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
@@ -14,7 +15,6 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 final class _Repo implements SettingsRepository {
   _Repo(this.stored);

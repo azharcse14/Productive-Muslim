@@ -7,10 +7,10 @@ import 'package:signals_flutter/signals_flutter.dart';
 import 'core/di/locator.dart';
 import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
+import 'core/settings/settings_store.dart';
 import 'core/theme/app_theme.dart';
 import 'features/notifications/presentation/state/notification_controller.dart';
 import 'features/onboarding/presentation/state/app_lock_store.dart';
-import 'features/settings/presentation/state/settings_store.dart';
 import 'shared/reader/reader_text_size.dart';
 
 Future<void> main() async {

@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
 import 'package:productive_muslim/features/settings/data/datasources/timezone_clock.dart';
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 import '../../../helpers/settings_fakes.dart';
 

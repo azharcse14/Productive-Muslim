@@ -102,11 +102,11 @@ import '../../features/settings/domain/usecases/get_current_location.dart';
 import '../../features/settings/domain/usecases/get_settings.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../../features/settings/domain/usecases/search_cities.dart';
-import '../../features/settings/presentation/state/settings_store.dart';
 import '../../features/share/data/platform_share_sheet.dart';
 import '../../features/share/domain/share_sheet.dart';
 import '../../shared/reader/reader_text_size.dart';
 import '../router/app_router.dart';
+import '../settings/settings_store.dart';
 import '../utils/haptics.dart';
 import '../utils/hijri_date.dart';
 import '../utils/time_format.dart';
@@ -436,7 +436,7 @@ Future<void> setupLocator() async {
       getPrayerDay: locator(),
       clock: locator(),
       settings: locator(),
-      mosque: locator(),
+      mosqueState: () => locator<MosqueStore>().state.value,
     ),
   );
 

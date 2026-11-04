@@ -55,10 +55,10 @@ import '../../features/settings/presentation/screens/credits_screen.dart';
 import '../../features/settings/presentation/screens/location_picker_screen.dart';
 import '../../features/settings/presentation/screens/more_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
-import '../../features/settings/presentation/state/settings_store.dart';
 import '../../shared/gallery/widget_gallery_screen.dart';
 import '../../shared/widgets/q_bottom_nav.dart';
 import '../di/locator.dart';
+import '../settings/settings_store.dart';
 import 'routes.dart';
 
 /// Single source of routes (guide §4). Bottom navigation uses

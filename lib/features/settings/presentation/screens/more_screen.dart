@@ -7,6 +7,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../../core/utils/wall_time.dart';
@@ -17,7 +18,6 @@ import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/staggered_entrance.dart';
 import '../../../ramadan/domain/usecases/ramadan_utils.dart';
 import '../../domain/repositories/zoned_clock.dart';
-import '../state/settings_store.dart';
 
 /// More tab — every secondary destination, grouped (Worship / Tools / You)
 /// rather than one long list. Ramadan rises to the top while it's in

@@ -2,9 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:productive_muslim/core/di/locator.dart';
 import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 import 'package:productive_muslim/main.dart';
 
 /// UI audit: every main screen × theme/locale/text-scale variants.

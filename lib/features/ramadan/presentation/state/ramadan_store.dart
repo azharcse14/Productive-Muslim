@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/utils/hijri_date.dart';
 import '../../../prayer_times/domain/usecases/get_prayer_day.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../domain/repositories/fast_log.dart';
 import '../../domain/usecases/ramadan_utils.dart';
 

@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart' show mergeSort;
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../core/settings/setting_labels.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/wall_time.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 import '../../domain/entities/prayer_day.dart';
 import '../../domain/entities/special_time.dart';
 import 'special_times_card.dart';

@@ -7,6 +7,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/locale_digits.dart';
@@ -22,7 +23,6 @@ import '../../../prayer_times/presentation/screens/home_formatting.dart'
     show formatCountdown;
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
-import '../../../settings/presentation/state/settings_store.dart';
 import '../../../share/domain/share_sheet.dart';
 import '../../domain/repositories/fast_log.dart';
 import '../../domain/usecases/ramadan_utils.dart';

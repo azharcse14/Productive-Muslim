@@ -1,7 +1,7 @@
-import '../../../../core/l10n/gen/app_localizations.dart';
-import '../../domain/entities/app_settings.dart';
-import '../../domain/entities/location_config.dart';
-import '../../domain/entities/prayer_params.dart';
+import '../../features/settings/domain/entities/app_settings.dart';
+import '../../features/settings/domain/entities/location_config.dart';
+import '../../features/settings/domain/entities/prayer_params.dart';
+import '../l10n/gen/app_localizations.dart';
 
 /// The two Asr choices offered in pickers; "Standard" stores [Madhab.shafi]
 /// (maliki/hanbali stay valid stored values with the same Asr).

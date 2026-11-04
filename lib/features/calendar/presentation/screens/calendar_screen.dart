@@ -5,6 +5,8 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../core/utils/bangla_date.dart';
@@ -20,8 +22,6 @@ import '../../../prayer_times/presentation/state/home_store.dart';
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/repositories/zoned_clock.dart';
-import '../../../settings/presentation/state/settings_store.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 
 /// Combined Gregorian / hijri / Bangla month calendar (design §4.x):
 /// month grid with hijri captions and Islamic-event dots, a per-day

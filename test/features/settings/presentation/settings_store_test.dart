@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/city.dart';
@@ -8,7 +9,6 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
-import 'package:productive_muslim/features/settings/presentation/state/settings_store.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
   AppSettings stored = const AppSettings();

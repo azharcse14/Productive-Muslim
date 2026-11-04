@@ -7,6 +7,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/locator.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/settings/setting_labels.dart';
+import '../../../../core/settings/settings_store.dart';
 import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
@@ -18,8 +20,6 @@ import '../../../../shared/widgets/q_list_row.dart';
 import '../../../notifications/domain/repositories/notification_scheduler.dart';
 import '../../../settings/domain/entities/prayer_params.dart';
 import '../../../settings/domain/usecases/regional_defaults.dart';
-import '../../../settings/presentation/state/settings_store.dart';
-import '../../../settings/presentation/widgets/setting_labels.dart';
 
 /// First-launch flow (design §4.2): welcome → language → location →
 /// madhab → method → notifications → bismillah. Re-enterable from

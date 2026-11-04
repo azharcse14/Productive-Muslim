@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart' show Locale, ThemeMode;
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../../../core/utils/haptics.dart';
-import '../../../../core/utils/result.dart';
-import '../../domain/entities/app_settings.dart';
-import '../../domain/entities/location_config.dart';
-import '../../domain/entities/notification_matrix.dart';
-import '../../domain/entities/prayer_params.dart';
-import '../../domain/usecases/get_settings.dart';
-import '../../domain/usecases/save_settings.dart';
+import '../../features/settings/domain/entities/app_settings.dart';
+import '../../features/settings/domain/entities/location_config.dart';
+import '../../features/settings/domain/entities/notification_matrix.dart';
+import '../../features/settings/domain/entities/prayer_params.dart';
+import '../../features/settings/domain/usecases/get_settings.dart';
+import '../../features/settings/domain/usecases/save_settings.dart';
+import '../utils/haptics.dart';
+import '../utils/result.dart';
 
 /// App-scoped settings state. One [AppSettings] signal; everything else
 /// is derived (guide §4: derive, don't duplicate). Updates persist
