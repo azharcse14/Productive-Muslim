@@ -62,6 +62,9 @@ abstract interface class BootClock {
 /// Biometric seam so the store is testable without the plugin.
 abstract interface class BiometricAuth {
   Future<bool> canAuthenticate();
+
+  /// False on a cancel or a rejected try; throws when biometrics can't be
+  /// used right now (lockout, sensor gone).
   Future<bool> authenticate(String reason);
 
   /// Whether the device has its own secure screen lock (PIN/pattern/
