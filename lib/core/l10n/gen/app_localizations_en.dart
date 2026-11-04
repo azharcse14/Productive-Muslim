@@ -3449,6 +3449,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String nafsLockPending(String seconds) {
+    return 'Locking in $seconds s. Shook it by mistake? Tap Cancel.';
+  }
+
+  @override
   String get healthTitle => 'Health tracker';
 
   @override

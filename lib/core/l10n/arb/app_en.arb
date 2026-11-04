@@ -1598,6 +1598,15 @@
       }
     }
   },
+  "nafsLockPending": "Locking in {seconds} s. Shook it by mistake? Tap Cancel.",
+  "@nafsLockPending": {
+    "description": "Shown for 5 s after the shakes, before the nafs lock starts; seconds count down.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "healthTitle": "Health tracker",
   "healthSubtitle": "Water, sleep, exercise & weight — the Sunnah way",
   "healthToday": "Today's habits",
