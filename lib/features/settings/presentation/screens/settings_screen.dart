@@ -503,7 +503,8 @@ final class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
-        child: Padding(
+        // Scrolls on short screens / large text instead of overflowing.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(QSpace.s5),
           child: SignalBuilder(
             builder: (context) {

@@ -158,4 +158,32 @@ void main() {
     expect(find.text('1000'), findsNothing);
     expect(tester.widget<TextButton>(clear).onPressed, isNull);
   });
+
+  testWidgets('long Bangla amounts fit at 320dp and 2x text', (tester) async {
+    tester.view.physicalSize = const Size(320, 4000);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const ZakatScreen(),
+      ),
+    );
+    final l10n = await AppLocalizations.delegate.load(const Locale('bn'));
+    await tester.enterText(field(l10n.zakatSilverPrice), '1');
+    await tester.enterText(field(l10n.zakatCash), '987654321987');
+    await tester.ensureVisible(find.text(l10n.zakatCalculate));
+    await tester.tap(find.text(l10n.zakatCalculate));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.zakatRowZakatable), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

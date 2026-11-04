@@ -281,11 +281,17 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                                   style: QType.body.copyWith(color: q.ink2),
                                 ),
                               ),
-                              Text(
-                                _formatAmount(context, amount),
-                                style: QType.num_(
-                                  QType.body,
-                                ).copyWith(color: q.ink),
+                              // Long (Bangla) amounts shrink, never overflow.
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _formatAmount(context, amount),
+                                    style: QType.num_(
+                                      QType.body,
+                                    ).copyWith(color: q.ink),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -299,11 +305,16 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                               style: QType.titleSm.copyWith(color: q.ink),
                             ),
                           ),
-                          Text(
-                            _formatAmount(context, result.zakatableWealth),
-                            style: QType.num_(
-                              QType.titleSm,
-                            ).copyWith(color: q.ink),
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                _formatAmount(context, result.zakatableWealth),
+                                style: QType.num_(
+                                  QType.titleSm,
+                                ).copyWith(color: q.ink),
+                              ),
+                            ),
                           ),
                         ],
                       ),

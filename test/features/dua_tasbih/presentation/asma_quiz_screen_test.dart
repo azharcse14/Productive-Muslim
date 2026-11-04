@@ -88,6 +88,21 @@ void main() {
       expect(find.text('Next'), findsOneWidget);
     });
 
+    testWidgets('options are ink buttons: ripple and keyboard focus', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const AsmaQuizScreen()));
+      await tester.pumpAndSettle();
+
+      final option = find.ancestor(
+        of: find.textContaining(RegExp(r'Meaning \d')).first,
+        matching: find.byType(InkWell),
+      );
+      expect(option, findsOne);
+      expect(tester.widget<InkWell>(option).canRequestFocus, isTrue);
+      expect(tester.widget<InkWell>(option).onTap, isNotNull);
+    });
+
     testWidgets('back mid-quiz asks before leaving', (tester) async {
       await tester.pumpWidget(
         _app(

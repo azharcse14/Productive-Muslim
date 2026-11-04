@@ -63,6 +63,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   /// Last query searched, for retrying a failed search.
   var _query = '';
 
+  /// A save is in flight; a second tap must not pop a second route.
+  var _applying = false;
+
   late final AppLifecycleListener _lifecycle;
 
   final _queryField = TextEditingController();
@@ -149,6 +152,10 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
   /// during first setup, whose own steps pre-select these) offers that
   /// region's method and Asr madhab.
   Future<void> _apply(LocationConfig location) async {
+    if (_applying) {
+      return;
+    }
+    _applying = true;
     final from = countryCodeOf(_store.location.value);
     await _store.setLocation(location);
     final to = countryCodeOf(location);
@@ -373,8 +380,13 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 ManualCityLocation(:final city) => city,
                 _ => null,
               };
+              // Bottom inset keeps the last row above the edge-to-edge nav bar.
               return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: QSpace.s5),
+                padding: EdgeInsetsDirectional.only(
+                  start: QSpace.s5,
+                  end: QSpace.s5,
+                  bottom: MediaQuery.paddingOf(context).bottom,
+                ),
                 sliver: SliverList.builder(
                   itemCount: cities.length,
                   itemBuilder: (context, index) {

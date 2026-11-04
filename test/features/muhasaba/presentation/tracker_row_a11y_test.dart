@@ -197,4 +197,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('minutes'), findsOneWidget);
   });
+
+  testWidgets('at 2x text on 320dp the stepper sits under the name', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      _wrap(
+        TrackerRow(
+          item: _countItem,
+          value: 2,
+          displayName: 'Sadaqah',
+          onChanged: (_) {},
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final name = tester.getRect(find.text('Sadaqah'));
+    final plus = tester.getRect(find.byIcon(Icons.add));
+    expect(plus.top, greaterThanOrEqualTo(name.bottom));
+    // The name keeps (nearly) the full row width.
+    expect(name.width, greaterThan(150));
+  });
 }
