@@ -421,7 +421,9 @@
     "hadithRefs": [
       "Bukhari 3382"
     ],
-    "storyIds": []
+    "storyIds": [
+      "yaqub_advice_to_his_sons"
+    ]
   },
   {
     "id": "yusuf",
@@ -454,7 +456,15 @@
       "Muslim 411",
       "Bukhari 3887"
     ],
-    "storyIds": []
+    "storyIds": [
+      "yusuf_1_the_dream",
+      "yusuf_2_the_well",
+      "yusuf_3_the_house_of_al_aziz",
+      "yusuf_4_the_prison",
+      "yusuf_5_the_kings_dream",
+      "yusuf_6_the_brothers_come_to_egypt",
+      "yusuf_7_the_family_reunited"
+    ]
   },
   {
     "id": "ayyub",
@@ -485,7 +495,9 @@
     "hadithRefs": [
       "Bukhari 279"
     ],
-    "storyIds": []
+    "storyIds": [
+      "ayyub_patience"
+    ]
   },
   {
     "id": "shuayb",
@@ -515,7 +527,9 @@
       "29:36-37"
     ],
     "hadithRefs": [],
-    "storyIds": []
+    "storyIds": [
+      "shuayb_and_madyan"
+    ]
   },
   {
     "id": "musa",
@@ -564,7 +578,27 @@
       "Bukhari 3887",
       "Bukhari 3392"
     ],
-    "storyIds": []
+    "storyIds": [
+      "musa_birth_and_the_river",
+      "musa_flees_egypt",
+      "musa_in_madyan",
+      "musa_and_the_burning_bush",
+      "musa_and_harun_before_pharaoh",
+      "musa_and_the_magicians",
+      "pharaoh_the_signs_and_the_tower",
+      "believer_of_pharaohs_family",
+      "wife_of_pharaoh",
+      "musa_crossing_the_sea",
+      "manna_quails_and_twelve_springs",
+      "musa_asks_to_see_allah",
+      "the_golden_calf",
+      "the_seventy_chosen_men",
+      "the_cow_of_bani_israel",
+      "the_holy_land_and_forty_years",
+      "the_word_hittah",
+      "qarun_and_his_treasure",
+      "musa_and_al_khidr"
+    ]
   },
   {
     "id": "harun",
@@ -603,7 +637,11 @@
       "Bukhari 3887",
       "Bukhari 3706"
     ],
-    "storyIds": []
+    "storyIds": [
+      "harun_brother_of_musa",
+      "musa_and_harun_before_pharaoh",
+      "the_golden_calf"
+    ]
   },
   {
     "id": "dhulkifl",
@@ -628,7 +666,9 @@
       "38:48"
     ],
     "hadithRefs": [],
-    "storyIds": []
+    "storyIds": [
+      "alyasa_and_dhulkifl"
+    ]
   },
   {
     "id": "dawud",
@@ -667,7 +707,12 @@
       "Bukhari 3417",
       "Bukhari 3427"
     ],
-    "storyIds": []
+    "storyIds": [
+      "dawud_mountains_and_iron",
+      "dawud_two_litigants",
+      "dawud_sulaiman_judgment",
+      "talut_and_jalut"
+    ]
   },
   {
     "id": "sulaiman",
@@ -703,7 +748,13 @@
       "Bukhari 461",
       "Nasai 693"
     ],
-    "storyIds": []
+    "storyIds": [
+      "dawud_sulaiman_judgment",
+      "sulaiman_and_the_ant",
+      "sulaiman_hoopoe_and_queen_of_saba",
+      "sulaiman_wind_and_jinn",
+      "sulaiman_death"
+    ]
   },
   {
     "id": "ilyas",
@@ -728,7 +779,9 @@
       "37:123-132"
     ],
     "hadithRefs": [],
-    "storyIds": []
+    "storyIds": [
+      "ilyas_and_baal"
+    ]
   },
   {
     "id": "alyasa",
@@ -753,7 +806,9 @@
       "38:48"
     ],
     "hadithRefs": [],
-    "storyIds": []
+    "storyIds": [
+      "alyasa_and_dhulkifl"
+    ]
   },
   {
     "id": "yunus",
@@ -788,7 +843,9 @@
       "Bukhari 3413",
       "Tirmidhi 3505"
     ],
-    "storyIds": []
+    "storyIds": [
+      "yunus_and_the_whale"
+    ]
   },
   {
     "id": "zakariya",
@@ -819,7 +876,10 @@
     "hadithRefs": [
       "Muslim 6162"
     ],
-    "storyIds": []
+    "storyIds": [
+      "zakariya_and_yahya",
+      "birth_of_maryam"
+    ]
   },
   {
     "id": "yahya",
@@ -851,7 +911,9 @@
     "hadithRefs": [
       "Bukhari 3887"
     ],
-    "storyIds": []
+    "storyIds": [
+      "zakariya_and_yahya"
+    ]
   },
   {
     "id": "isa",
@@ -898,7 +960,13 @@
       "Bukhari 3887",
       "Bukhari 3395"
     ],
-    "storyIds": []
+    "storyIds": [
+      "birth_of_isa",
+      "miracles_of_isa",
+      "the_table_from_heaven",
+      "isa_raised_up",
+      "the_mubahala"
+    ]
   },
   {
     "id": "muhammad",
@@ -949,6 +1017,27 @@
       "Muslim 5938",
       "Bukhari 4712"
     ],
-    "storyIds": []
+    "storyIds": [
+      "first_revelation",
+      "abu_lahab",
+      "abasa_the_blind_man",
+      "splitting_of_the_moon",
+      "jinn_listen_to_quran",
+      "isra_and_miraj",
+      "the_hijrah",
+      "change_of_qibla",
+      "battle_of_badr",
+      "battle_of_uhud",
+      "banu_nadir",
+      "zayd_and_zaynab",
+      "battle_of_ahzab",
+      "the_slander_ifk",
+      "the_woman_who_pleaded",
+      "treaty_of_hudaybiyyah",
+      "conquest_of_makkah",
+      "battle_of_hunayn",
+      "tabuk_and_the_three",
+      "masjid_ad_dirar"
+    ]
   }
 ]
