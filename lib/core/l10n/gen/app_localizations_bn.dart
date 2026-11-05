@@ -226,7 +226,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingCredits => 'কৃতজ্ঞতা ও স্বীকৃতি';
 
   @override
-  String get creditsQuranText => 'কুরআনের মূল পাঠ: Tanzil Project';
+  String get creditsQuranText => 'কুরআনের অনুবাদ: Tanzil Project';
 
   @override
   String get creditsQuranTextLink => 'tanzil.net — খুলতে ট্যাপ করুন';

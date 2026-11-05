@@ -217,7 +217,7 @@ void main() {
           home: const CreditsScreen(),
         ),
       );
-      await tester.tap(find.text('Quran text: Tanzil Project'));
+      await tester.tap(find.text('Quran translations: Tanzil Project'));
       await tester.pump();
       expect(launcher.launched, [Uri.parse('https://tanzil.net')]);
     });

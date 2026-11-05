@@ -227,7 +227,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingCredits => 'Credits & attributions';
 
   @override
-  String get creditsQuranText => 'Quran text: Tanzil Project';
+  String get creditsQuranText => 'Quran translations: Tanzil Project';
 
   @override
   String get creditsQuranTextLink => 'tanzil.net — tap to open';

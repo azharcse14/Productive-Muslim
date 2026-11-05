@@ -485,7 +485,7 @@ abstract class AppLocalizations {
   /// No description provided for @creditsQuranText.
   ///
   /// In en, this message translates to:
-  /// **'Quran text: Tanzil Project'**
+  /// **'Quran translations: Tanzil Project'**
   String get creditsQuranText;
 
   /// No description provided for @creditsQuranTextLink.
