@@ -146,6 +146,68 @@ void main() {
     },
   );
 
+  group('a waqt follows the mosque active at its start', () {
+    // A (13:30) Mon–Fri 12:00–14:00, B (14:15) by default; Dhuhr from
+    // 12:10 — A's waqt, as the reminders schedule it.
+    const state = MosqueState(
+      profiles: [
+        MosqueProfile(
+          id: 'b',
+          name: 'B',
+          entries: {Prayer.dhuhr: FixedJamaat(ClockTime(14, 15))},
+        ),
+        MosqueProfile(
+          id: 'a',
+          name: 'A',
+          entries: {Prayer.dhuhr: FixedJamaat(ClockTime(13, 30))},
+        ),
+      ],
+      mode: ScheduleMode.auto,
+      defaultId: 'b',
+      rules: [
+        MosqueRule(
+          mosqueId: 'a',
+          start: ClockTime(12, 0),
+          end: ClockTime(14, 0),
+          days: {
+            DateTime.monday,
+            DateTime.tuesday,
+            DateTime.wednesday,
+            DateTime.thursday,
+            DateTime.friday,
+          },
+        ),
+      ],
+    );
+
+    test("after A's window: A's past jamaat → waqt end, not B's", () async {
+      final (store, _) = await at(
+        DateTime.utc(2026, 6, 19, 14, 5),
+        mosqueState: state,
+      );
+      expect(store.mosqueResolution.value.profile?.id, 'b');
+      final target = store.countdownTarget.value!;
+      expect(target.kind, CountdownKind.waqtEnd);
+      expect(target.at, DateTime.utc(2026, 6, 19, 15, 30));
+      expect(
+        store.rowJamaat.value[Prayer.dhuhr],
+        DateTime.utc(2026, 6, 19, 13, 30),
+      );
+      store.dispose();
+    });
+
+    test("inside A's window: counts to A's 13:30", () async {
+      final (store, _) = await at(
+        DateTime.utc(2026, 6, 19, 13),
+        mosqueState: state,
+      );
+      final target = store.countdownTarget.value!;
+      expect(target.kind, CountdownKind.jamaat);
+      expect(target.at, DateTime.utc(2026, 6, 19, 13, 30));
+      store.dispose();
+    });
+  });
+
   testWidgets('the store starts on the slow tick until resumed', (
     tester,
   ) async {

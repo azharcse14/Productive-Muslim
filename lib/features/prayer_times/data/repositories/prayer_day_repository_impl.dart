@@ -198,6 +198,7 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
             times.sunrise,
           ).subtract(Duration(minutes: 1 + sunriseOffset)),
           sunset: wall(times.sunset),
+          sunsetYesterday: wall(yesterday.sunset),
           dhuhr: wall(times.dhuhr),
           transit: wall(times.dhuhr).subtract(Duration(minutes: dhuhrOffset)),
           asr: wall(times.asr),

@@ -23,7 +23,8 @@ const _legacyKeys = [
 ///
 /// The native side picks what to show while the app isn't running:
 ///  - `widget_schedule`: one `epochMillis<TAB>name<TAB>time` line per prayer
-///    start across [days] (plus the Isha before and the Fajr after), in
+///    start across [days] (plus the Maghrib and Isha before and the Fajr
+///    after), in
 ///    order. Native shows the first line still ahead.
 ///  - `widget_strips`: one `startMillis<TAB>endMillis<TAB>strip` line per
 ///    day — native shows the five-time strip of the day containing now.
@@ -69,7 +70,9 @@ WidgetPayload buildWidgetPayload({
   final schedule = days.isEmpty
       ? ''
       : [
-          // Covers an after-midnight Isha from the day before.
+          // Covers an after-midnight Maghrib / Isha from the day before.
+          if (days.first.maghribYesterday case final m?)
+            line(Prayer.maghrib, m),
           line(Prayer.isha, days.first.ishaYesterday),
           for (final d in days)
             for (final prayer in Prayer.values) line(prayer, d.startOf(prayer)),
