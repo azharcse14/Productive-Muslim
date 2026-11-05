@@ -88,12 +88,14 @@ const _dhaka = ManualCityLocation(
 Future<(QiblaStore, _FakeSensors, List<int>)> _make({
   bool withLocation = true,
   Duration firstEventTimeout = const Duration(seconds: 3),
+  void Function(SettingsStore)? onSettings,
 }) async {
   final repo = _InMemoryRepo(
     AppSettings(location: withLocation ? _dhaka : null),
   );
   final settings = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await settings.load();
+  onSettings?.call(settings);
   final sensors = _FakeSensors();
   final haptics = <int>[];
   final store = QiblaStore(
@@ -112,6 +114,48 @@ void main() {
       final (store, _, _) = await _make(withLocation: false);
       expect(store.status.value, QiblaStatus.needsLocation);
       expect(store.bearing.value, isNull);
+      store.dispose();
+    });
+
+    test('sensors start only once a location is set', () async {
+      late SettingsStore settings;
+      final (store, sensors, _) = await _make(
+        withLocation: false,
+        onSettings: (s) => settings = s,
+      );
+      expect(sensors.controller.hasListener, isFalse);
+      await settings.setLocation(_dhaka);
+      expect(sensors.controller.hasListener, isTrue);
+      store.dispose();
+    });
+
+    test('a location set while hidden waits for resume', () async {
+      late SettingsStore settings;
+      final (store, sensors, _) = await _make(
+        withLocation: false,
+        onSettings: (s) => settings = s,
+      );
+      store.resume(); // app shown again: still no location
+      expect(sensors.controller.hasListener, isFalse);
+      store.pause();
+      await settings.setLocation(_dhaka);
+      expect(sensors.controller.hasListener, isFalse, reason: 'hidden');
+      store.resume();
+      expect(sensors.controller.hasListener, isTrue);
+      store.dispose();
+      expect(sensors.controller.hasListener, isFalse);
+    });
+
+    test('landscape never reads aligned and fires no haptic', () async {
+      final (store, sensors, haptics) = await _make();
+      store.landscape.value = true;
+      final bearing = store.bearing.value! - store.declination.value;
+      for (var i = 0; i < 60; i++) {
+        sensors.emitHeading(bearing);
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.aligned.value, isFalse);
+      expect(haptics, isEmpty);
       store.dispose();
     });
 

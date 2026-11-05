@@ -1059,6 +1059,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaHoldFlat => 'ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে';
 
   @override
+  String get qiblaHoldPortrait =>
+      'কম্পাস ব্যবহার করতে ফোনটি লম্বালম্বি (পোর্ট্রেট) করে ধরুন';
+
+  @override
   String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
 
   @override

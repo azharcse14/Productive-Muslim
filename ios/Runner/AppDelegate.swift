@@ -225,8 +225,13 @@ final class CalibratedMagnetometer: NSObject, FlutterStreamHandler {
     }
     manager.deviceMotionUpdateInterval = 1.0 / 60
     manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: .main) { motion, _ in
-      guard let field = motion?.magneticField.field else { return }
-      sink([field.x, field.y, field.z])
+      guard let m = motion?.magneticField else { return }
+      // Below medium the bias estimate isn't settled and the field would skew
+      // the heading. A zero field is the existing "calibrate" signal: Dart
+      // shows the banner and holds the last heading (qibla_store), and the
+      // stream keeps ticking so it doesn't time out as a missing sensor.
+      let calibrated = m.accuracy == .medium || m.accuracy == .high
+      sink(calibrated ? [m.field.x, m.field.y, m.field.z] : [0.0, 0.0, 0.0])
     }
     return nil
   }

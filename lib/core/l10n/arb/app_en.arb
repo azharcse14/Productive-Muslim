@@ -492,6 +492,7 @@
   },
   "qiblaCalibrate": "Move your phone in a figure-8 to calibrate the compass",
   "qiblaHoldFlat": "Hold your phone flat, screen facing up",
+  "qiblaHoldPortrait": "Turn your phone upright (portrait) to use the compass",
   "qiblaSensorUnavailable": "Compass sensor unavailable on this device",
   "qiblaRetry": "Try again",
   "qiblaVerbalBearing": "Qibla is at {degrees}° {cardinal} from north",
