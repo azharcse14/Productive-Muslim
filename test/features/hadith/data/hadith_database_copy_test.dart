@@ -51,6 +51,21 @@ void main() {
       expect(hasBengali(installed), bundled);
     });
 
+    test('an asset mismatching the build (bengali: ${!bundled}) is copied '
+        'once, not on every launch', () async {
+      final installed = File('${dir.path}/installed.db');
+      final asset = db('asset.db', bengali: bundled);
+      var loads = 0;
+      for (var launch = 0; launch < 3; launch++) {
+        await HadithDatabase.ensureCopied(installed, () async {
+          loads++;
+          return ByteData.sublistView(asset.readAsBytesSync());
+        }, bengali: !bundled);
+      }
+      expect(loads, 1);
+      expect(hasBengali(installed), bundled);
+    });
+
     test(
       'a ${bundled ? 'full' : 'stripped'} copy matching the build is kept',
       () async {
