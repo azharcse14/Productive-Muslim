@@ -64,6 +64,23 @@ Every ref must be read and matched before it ships.
     "Divine Inspiration" as the Quran (standard, but an interpretation).
   - Left out on purpose: Ayyub's oath and branch (38:44), Lut's "daughters" (11:78),
     Ibrahim's "three lies", details of Ayyub's illness.
+- **Lineage links from the "Salasilah Nabi/Rasul" chart (2026-11-05, `fix/prophets-lineage`).**
+  The owner supplied the chart (an image; no author or source given, so UNVERIFIED). Its
+  names come largely from the genealogies in Ibn Kathir's *Qisas al-Anbiya* and from
+  Israelite reports. Only prophet → prophet links were taken; the names in between are not
+  bundled. Every prophet except Adam now has a parent:
+  - Solid (father → son): Ibrahim → Ismail, Ishaq; Ishaq → Yaqub → Yusuf; Dawud →
+    Sulaiman; Zakariya → Yahya; **Ayyub → Dhul-Kifl** (the chart's view that Dhul-Kifl is
+    Bishr son of Ayyub; this is a minority view and his identity is disputed).
+  - Dashed (many generations): Adam → Idris → Nuh; Nuh → Hud, Salih, Ibrahim, Lut;
+    Ibrahim → Shuayb (via Madyan); Ishaq → Ayyub (via Esau); Yaqub → Musa, Harun (via Levi),
+    Yunus (via Binyamin), Dawud (via Yahuda); Harun → Ilyas, Al-Yasa; Sulaiman → Zakariya,
+    'Isa (via Maryam); Ismail → Muhammad ﷺ (via Adnan).
+  - **Changed from the chart:** the chart draws Lut descending from Hud (via Haran). Lut
+    was the son of Haran, Ibrahim's brother, so he descends from Azar (Nuh → Lut, dashed),
+    as the entry's own summary says.
+  - A scholar should confirm these links, especially Dhul-Kifl, Yunus → Binyamin, the
+    Harun → Ilyas/Al-Yasa chains, and Sulaiman → Zakariya/'Isa.
 - **Muslim numbering: DECIDED 2026-11-05** (default chosen when the owner said "do all"; the
   owner may revisit). Every Muslim ref uses the bundled hadith.db numbering (sequential, e.g.
   Muslim 6162 = 2379 in the common numbering), since the app and the ref checker read that DB.

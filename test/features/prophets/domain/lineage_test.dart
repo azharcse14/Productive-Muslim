@@ -85,6 +85,22 @@ void main() {
       expect(r['muhammad']!.incoming, LinkStyle.dashed);
     });
 
+    test('a later child reuses a freed column on the start side', () {
+      final r = _byId(
+        layoutLineage([
+          _p('a', 1),
+          _p('b', 2, parent: 'a'),
+          _p('c', 3, parent: 'a'),
+          _p('d', 4, parent: 'c'),
+          _p('e', 5, parent: 'c'),
+        ]),
+      );
+      // b ends column 0; c sits in column 1 and branches e back into 0.
+      expect(r['c']!.column, 1);
+      expect(r['c']!.outgoing, {1: LinkStyle.solid, 0: LinkStyle.solid});
+      expect(r['e']!.column, 0);
+    });
+
     test('a root never lands on a passing line', () {
       final r = _byId(
         layoutLineage([
