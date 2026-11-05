@@ -13,7 +13,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 2, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 3, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -29,6 +29,29 @@ const _arabicUrl = '$_cdn/editions/ara-quransimple.json';
 const _englishUrl = '$_cdn/editions/eng-mohammedmarmadu.json';
 const _banglaUrl = '$_cdn/editions/ben-muhiuddinkhan.json';
 const _infoUrl = '$_cdn/info.json';
+
+/// Typos in the upstream (Tanzil) translation text, fixed at build time as
+/// (from, to) replacements. 31:14 — Arabic بِوَالِدَيْهِ and the same ayah's
+/// "thy parents": "partners" is a typo for "parents"; Bangla "পিতা-মতার" →
+/// "পিতা-মাতার".
+const _corrections =
+    <(int, int), ({(String, String)? en, (String, String)? bn})>{
+      (31, 14): (
+        en: ('concerning his partners', 'concerning his parents'),
+        bn: ('পিতা-মতার', 'পিতা-মাতার'),
+      ),
+    };
+
+/// Applies [fix] to [text]; throws when the upstream text no longer has the
+/// typo, so a stale correction is noticed on the next build.
+String? _corrected(String? text, (String, String)? fix) {
+  if (text == null || fix == null) return text;
+  final (from, to) = fix;
+  if (!text.contains(from)) {
+    throw StateError('correction "$from" not found');
+  }
+  return text.replaceAll(from, to);
+}
 
 const _attributionLines = [
   'Quran text: Tanzil Quran Text (Simple), Tanzil.net — '
@@ -211,7 +234,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 2;
+      PRAGMA user_version = 3;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
@@ -237,9 +260,9 @@ void _buildDatabase(
             ++globalId,
             chapter.id,
             number,
-            _stripBasmala(chapter.id, number, arabic[key]!),
-            english[key],
-            bangla[key],
+            _stripBasmala(chapter.id, number, arabic[key]!, arabic[(1, 1)]!),
+            _corrected(english[key], _corrections[key]?.en),
+            _corrected(bangla[key], _corrections[key]?.bn),
           ]);
         }
       }
@@ -271,8 +294,9 @@ void _run(String cmd, List<String> args) {
 /// `ara-quransimple` glues the basmala onto ayah 1 of every surah but 1 and 9,
 /// while the translations don't carry it. Strip it so the Arabic matches its
 /// translation; the reader shows the basmala as a surah header instead.
-String _stripBasmala(int surah, int number, String text) {
-  const basmala = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ';
-  if (surah == 1 || number != 1 || !text.startsWith(basmala)) return text;
-  return text.substring(basmala.length);
+String _stripBasmala(int surah, int number, String text, String basmala) {
+  // The source's own 1:1 is the prefix, so its diacritic order always matches.
+  final prefix = '$basmala ';
+  if (surah == 1 || number != 1 || !text.startsWith(prefix)) return text;
+  return text.substring(prefix.length);
 }

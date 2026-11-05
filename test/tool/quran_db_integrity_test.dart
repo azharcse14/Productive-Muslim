@@ -22,11 +22,21 @@ void main() {
 
   tearDownAll(() => db.close());
 
-  int scalar(String sql) =>
-      db.select(sql).first.values.first! as int;
+  int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version is 2', () {
-    expect(scalar('PRAGMA user_version'), 2);
+  test('schema version is 3', () {
+    expect(scalar('PRAGMA user_version'), 3);
+  });
+
+  test('31:14 carries the parents/পিতা-মাতার corrections', () {
+    final row = db
+        .select(
+          'SELECT translation_en, translation_bn FROM ayahs '
+          'WHERE surah = 31 AND number = 14',
+        )
+        .first;
+    expect(row['translation_en'], contains('concerning his parents'));
+    expect(row['translation_bn'], isNot(contains('পিতা-মতার')));
   });
 
   test('contains exactly 114 surahs and 6236 ayahs', () {
@@ -38,11 +48,15 @@ void main() {
     expect(scalar('SELECT ayah_count FROM surahs WHERE id = 1'), 7);
     expect(scalar('SELECT COUNT(*) FROM ayahs WHERE surah = 1'), 7);
 
-    final arabic = db
-        .select('SELECT arabic FROM ayahs WHERE surah = 1 AND number = 1')
-        .first
-        .values
-        .first! as String;
+    final arabic =
+        db
+                .select(
+                  'SELECT arabic FROM ayahs WHERE surah = 1 AND number = 1',
+                )
+                .first
+                .values
+                .first!
+            as String;
     expect(
       arabic.startsWith('بِسْمِ') || arabic.startsWith('بِّسْمِ'),
       isTrue,
