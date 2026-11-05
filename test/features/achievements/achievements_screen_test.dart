@@ -12,6 +12,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../helpers/muhasaba_fakes.dart';
+import '../../helpers/tracker_screen_matrix.dart';
 
 Widget _app() => MaterialApp(
   theme: AppTheme.light(),
@@ -107,4 +108,16 @@ void main() {
       expect(find.byType(AchievementCard), findsWidgets);
     });
   }
+
+  screenMatrix(
+    'AchievementsScreen',
+    () => const AchievementsScreen(),
+    setUpCase: _registerStore,
+    afterPump: (tester) async {
+      GetIt.I<AchievementStore>().debugSetStats(
+        const AchievementStats(bestStreak: 7, totalDhikr: 100),
+      );
+      await tester.pumpAndSettle();
+    },
+  );
 }

@@ -42,6 +42,40 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('stepper value and edit button are 48dp tap targets', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              TrackerRow(
+                item: _countItem,
+                value: 2,
+                displayName: 'Sadaqah',
+                onChanged: (_) {},
+              ),
+              TrackerRow(
+                item: const TrackerItem(
+                  id: 'custom_3',
+                  name: 'Miswak',
+                  kind: TrackerKind.yesNo,
+                  icon: 'leaf',
+                ),
+                value: 0,
+                displayName: 'Miswak',
+                onChanged: (_) {},
+                onEdit: () {},
+              ),
+            ],
+          ),
+        ),
+      );
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      handle.dispose();
+    });
+
     testWidgets('a yes/no item exposes a labelled switch', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
