@@ -5936,6 +5936,24 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load the prophets. Please try again.'**
   String get prophetsLoadError;
 
+  /// No description provided for @prophetsTabProphets.
+  ///
+  /// In en, this message translates to:
+  /// **'25 Prophets'**
+  String get prophetsTabProphets;
+
+  /// No description provided for @prophetsTabLineage.
+  ///
+  /// In en, this message translates to:
+  /// **'Full lineage'**
+  String get prophetsTabLineage;
+
+  /// No description provided for @prophetsLineageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From a traditional genealogy chart: historical reports, many from Israelite sources. The names between the prophets are not certain and differ between books.'**
+  String get prophetsLineageNote;
+
   /// No description provided for @prophetSummaryComingSoon.
   ///
   /// In en, this message translates to:
@@ -5959,6 +5977,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar'**
   String get creditsProphetsSource;
+
+  /// No description provided for @creditsProphetsLineageSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Full lineage: names from the genealogy chart “Salasilah Nabi/Rasul” (author unknown), with Lut’s line and Maryam’s father (‘Imran, Quran 66:12) corrected. Not yet reviewed by a scholar'**
+  String get creditsProphetsLineageSource;
 
   /// No description provided for @storiesTitle.
   ///

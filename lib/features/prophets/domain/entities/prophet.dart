@@ -1,4 +1,6 @@
-/// One of the 25 prophets named in the Quran (bundled `prophets.json`).
+/// One of the 25 prophets named in the Quran (bundled `prophets.json`), or a
+/// person in the full lineage (`prophet_lineage.json`), who has names, an
+/// order and a parent only.
 final class Prophet {
   const Prophet({
     required this.id,
@@ -19,7 +21,8 @@ final class Prophet {
 
   final String id;
 
-  /// Chronological position, 1 (Adam) to 25 (Muhammad ﷺ).
+  /// Chronological position, 1 (Adam) to 25 (Muhammad ﷺ); in the full
+  /// lineage, the display position.
   final int order;
   final String nameAr;
   final String nameEn;

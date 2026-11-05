@@ -48,6 +48,27 @@ final class _Prophets implements ProphetRepository {
             parent: 'ibrahim',
           ),
         ]);
+
+  @override
+  Future<Result<List<Prophet>>> lineage() async => fail
+      ? const Result.failure(UnexpectedFailure('boom'))
+      : const Result.success([
+          Prophet(
+            id: 'azar',
+            order: 1,
+            nameAr: '',
+            nameEn: 'Azar',
+            nameBn: 'আযর',
+          ),
+          Prophet(
+            id: 'ibrahim',
+            order: 2,
+            nameAr: 'إبراهيم',
+            nameEn: 'Ibrahim',
+            nameBn: 'ইবরাহিম',
+            parent: 'azar',
+          ),
+        ]);
 }
 
 final class _Stories implements StoryRepository {
@@ -138,6 +159,24 @@ void main() {
     expect(find.text('STORIES'), findsNothing);
   });
 
+  testWidgets('the lineage tab shows everyone; only prophets open', (
+    tester,
+  ) async {
+    register();
+    final router = _router();
+    await tester.pumpWidget(_app(router));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Full lineage'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Israelite sources'), findsOneWidget);
+    await tester.tap(find.text('Azar'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/prophets');
+    await tester.tap(find.text('Ibrahim').last);
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/prophets/ibrahim');
+  });
+
   testWidgets('a failed load offers a retry', (tester) async {
     register(fail: true);
     await tester.pumpWidget(_app(_router()));
@@ -159,4 +198,13 @@ void main() {
       expect(find.byType(screen), findsOneWidget);
     });
   }
+
+  layoutMatrix('ProphetsScreen lineage tab', (tester, v) async {
+    register();
+    await tester.pumpWidget(_app(_router(), variant: v));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Tab).last);
+    await tester.pumpAndSettle();
+    expect(find.byType(ProphetsScreen), findsOneWidget);
+  });
 }

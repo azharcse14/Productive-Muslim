@@ -1,0 +1,833 @@
+[
+  {
+    "id": "adam",
+    "parent": null
+  },
+  {
+    "id": "sheth",
+    "nameEn": "Sheth",
+    "nameBn": "শীস",
+    "parent": "adam"
+  },
+  {
+    "id": "anwas",
+    "nameEn": "Anwas",
+    "nameBn": "আনওয়াস",
+    "parent": "sheth"
+  },
+  {
+    "id": "qinan",
+    "nameEn": "Qinan",
+    "nameBn": "কিনান",
+    "parent": "anwas"
+  },
+  {
+    "id": "mahlail",
+    "nameEn": "Mahla'il",
+    "nameBn": "মাহলাইল",
+    "parent": "qinan"
+  },
+  {
+    "id": "yarid",
+    "nameEn": "Yarid",
+    "nameBn": "ইয়ারিদ",
+    "parent": "mahlail"
+  },
+  {
+    "id": "idris",
+    "parent": "yarid"
+  },
+  {
+    "id": "matulsalkh",
+    "nameEn": "Matulsalkh",
+    "nameBn": "মাতুলসালখ",
+    "parent": "idris"
+  },
+  {
+    "id": "lamik",
+    "nameEn": "Lamik",
+    "nameBn": "লামিক",
+    "parent": "matulsalkh"
+  },
+  {
+    "id": "nuh",
+    "parent": "lamik"
+  },
+  {
+    "id": "yafid",
+    "nameEn": "Yafid",
+    "nameBn": "ইয়াফিদ",
+    "parent": "nuh"
+  },
+  {
+    "id": "sam",
+    "nameEn": "Sam",
+    "nameBn": "সাম",
+    "parent": "nuh"
+  },
+  {
+    "id": "iram",
+    "nameEn": "Iram",
+    "nameBn": "ইরাম",
+    "parent": "sam"
+  },
+  {
+    "id": "ars",
+    "nameEn": "'Ars",
+    "nameBn": "আরস",
+    "parent": "iram"
+  },
+  {
+    "id": "samud",
+    "nameEn": "Samud",
+    "nameBn": "সামুদ",
+    "parent": "ars"
+  },
+  {
+    "id": "hadhir",
+    "nameEn": "Hadhir",
+    "nameBn": "হাযির",
+    "parent": "samud"
+  },
+  {
+    "id": "ubayd",
+    "nameEn": "Ubayd",
+    "nameBn": "উবাইদ",
+    "parent": "hadhir"
+  },
+  {
+    "id": "masih",
+    "nameEn": "Masih",
+    "nameBn": "মাসিহ",
+    "parent": "ubayd"
+  },
+  {
+    "id": "auf",
+    "nameEn": "Auf",
+    "nameBn": "আউফ",
+    "parent": "masih"
+  },
+  {
+    "id": "abir_salih",
+    "nameEn": "Abir",
+    "nameBn": "আবির",
+    "parent": "auf"
+  },
+  {
+    "id": "salih",
+    "parent": "abir_salih"
+  },
+  {
+    "id": "aush",
+    "nameEn": "Aush",
+    "nameBn": "আউশ",
+    "parent": "iram"
+  },
+  {
+    "id": "ad",
+    "nameEn": "Ad",
+    "nameBn": "আদ",
+    "parent": "aush"
+  },
+  {
+    "id": "khulud",
+    "nameEn": "Khulud",
+    "nameBn": "খুলুদ",
+    "parent": "ad"
+  },
+  {
+    "id": "raya",
+    "nameEn": "Raya",
+    "nameBn": "রায়া",
+    "parent": "khulud"
+  },
+  {
+    "id": "abdullah_hud",
+    "nameEn": "Abdullah",
+    "nameBn": "আবদুল্লাহ",
+    "parent": "raya"
+  },
+  {
+    "id": "hud",
+    "parent": "abdullah_hud"
+  },
+  {
+    "id": "arfakhshad",
+    "nameEn": "Arfakhshad",
+    "nameBn": "আরফাখশাদ",
+    "parent": "sam"
+  },
+  {
+    "id": "shalikh",
+    "nameEn": "Shalikh",
+    "nameBn": "শালিখ",
+    "parent": "arfakhshad"
+  },
+  {
+    "id": "abir",
+    "nameEn": "Abir",
+    "nameBn": "আবির",
+    "parent": "shalikh"
+  },
+  {
+    "id": "falikh",
+    "nameEn": "Falikh",
+    "nameBn": "ফালিখ",
+    "parent": "abir"
+  },
+  {
+    "id": "rau",
+    "nameEn": "Ra'u",
+    "nameBn": "রাউ",
+    "parent": "falikh"
+  },
+  {
+    "id": "saru",
+    "nameEn": "Saru'",
+    "nameBn": "সারু",
+    "parent": "rau"
+  },
+  {
+    "id": "nahur",
+    "nameEn": "Nahur",
+    "nameBn": "নাহুর",
+    "parent": "saru"
+  },
+  {
+    "id": "azar",
+    "nameEn": "Azar",
+    "nameBn": "আযর",
+    "parent": "nahur"
+  },
+  {
+    "id": "haran",
+    "nameEn": "Haran",
+    "nameBn": "হারান",
+    "parent": "azar"
+  },
+  {
+    "id": "lut",
+    "parent": "haran"
+  },
+  {
+    "id": "ibrahim",
+    "parent": "azar"
+  },
+  {
+    "id": "ismail",
+    "parent": "ibrahim"
+  },
+  {
+    "id": "haidir",
+    "nameEn": "Haidir",
+    "nameBn": "হাইদির",
+    "parent": "ismail"
+  },
+  {
+    "id": "aram",
+    "nameEn": "Aram",
+    "nameBn": "আরাম",
+    "parent": "haidir"
+  },
+  {
+    "id": "adwa",
+    "nameEn": "'Adwa",
+    "nameBn": "আদওয়া",
+    "parent": "aram"
+  },
+  {
+    "id": "wazzi",
+    "nameEn": "Wazzi",
+    "nameBn": "ওয়াযযি",
+    "parent": "adwa"
+  },
+  {
+    "id": "sami",
+    "nameEn": "Sami",
+    "nameBn": "সামি",
+    "parent": "wazzi"
+  },
+  {
+    "id": "zarih",
+    "nameEn": "Zarih",
+    "nameBn": "যারিহ",
+    "parent": "sami"
+  },
+  {
+    "id": "nahith",
+    "nameEn": "Nahith",
+    "nameBn": "নাহিস",
+    "parent": "zarih"
+  },
+  {
+    "id": "muksar",
+    "nameEn": "Muksar",
+    "nameBn": "মুকসার",
+    "parent": "nahith"
+  },
+  {
+    "id": "aiham",
+    "nameEn": "Aiham",
+    "nameBn": "আইহাম",
+    "parent": "muksar"
+  },
+  {
+    "id": "afnad",
+    "nameEn": "Afnad",
+    "nameBn": "আফনাদ",
+    "parent": "aiham"
+  },
+  {
+    "id": "aisar",
+    "nameEn": "Aisar",
+    "nameBn": "আইসার",
+    "parent": "afnad"
+  },
+  {
+    "id": "deshan",
+    "nameEn": "Deshan",
+    "nameBn": "দেশান",
+    "parent": "aisar"
+  },
+  {
+    "id": "aid",
+    "nameEn": "Aid",
+    "nameBn": "আইদ",
+    "parent": "deshan"
+  },
+  {
+    "id": "arawi",
+    "nameEn": "Ar'awi",
+    "nameBn": "আরআওয়ি",
+    "parent": "aid"
+  },
+  {
+    "id": "yalhan",
+    "nameEn": "Yalhan",
+    "nameBn": "ইয়ালহান",
+    "parent": "arawi"
+  },
+  {
+    "id": "yahzin",
+    "nameEn": "Yahzin",
+    "nameBn": "ইয়াহযিন",
+    "parent": "yalhan"
+  },
+  {
+    "id": "yathrabi",
+    "nameEn": "Yathrabi",
+    "nameBn": "ইয়াসরাবি",
+    "parent": "yahzin"
+  },
+  {
+    "id": "sanbir",
+    "nameEn": "Sanbir",
+    "nameBn": "সানবির",
+    "parent": "yathrabi"
+  },
+  {
+    "id": "hamdan",
+    "nameEn": "Hamdan",
+    "nameBn": "হামদান",
+    "parent": "sanbir"
+  },
+  {
+    "id": "adaa",
+    "nameEn": "Ad-Da'a",
+    "nameBn": "আদ-দাআ",
+    "parent": "hamdan"
+  },
+  {
+    "id": "ubaid",
+    "nameEn": "'Ubaid",
+    "nameBn": "উবাইদ",
+    "parent": "adaa"
+  },
+  {
+    "id": "abqar",
+    "nameEn": "'Abqar",
+    "nameBn": "আবকার",
+    "parent": "ubaid"
+  },
+  {
+    "id": "aid_2",
+    "nameEn": "Aid",
+    "nameBn": "আইদ",
+    "parent": "abqar"
+  },
+  {
+    "id": "makhi",
+    "nameEn": "Makhi",
+    "nameBn": "মাখি",
+    "parent": "aid_2"
+  },
+  {
+    "id": "nahish",
+    "nameEn": "Nahish",
+    "nameBn": "নাহিশ",
+    "parent": "makhi"
+  },
+  {
+    "id": "jahim",
+    "nameEn": "Jahim",
+    "nameBn": "জাহিম",
+    "parent": "nahish"
+  },
+  {
+    "id": "tabikh",
+    "nameEn": "Tabikh",
+    "nameBn": "তাবিখ",
+    "parent": "jahim"
+  },
+  {
+    "id": "yadlaf",
+    "nameEn": "Yadlaf",
+    "nameBn": "ইয়াদলাফ",
+    "parent": "tabikh"
+  },
+  {
+    "id": "bildas",
+    "nameEn": "Bildas",
+    "nameBn": "বিলদাস",
+    "parent": "yadlaf"
+  },
+  {
+    "id": "haza",
+    "nameEn": "Haza",
+    "nameBn": "হাযা",
+    "parent": "bildas"
+  },
+  {
+    "id": "nashid",
+    "nameEn": "Nashid",
+    "nameBn": "নাশিদ",
+    "parent": "haza"
+  },
+  {
+    "id": "awwam",
+    "nameEn": "'Awwam",
+    "nameBn": "আওয়াম",
+    "parent": "nashid"
+  },
+  {
+    "id": "obai",
+    "nameEn": "Obai",
+    "nameBn": "উবাই",
+    "parent": "awwam"
+  },
+  {
+    "id": "qamwal",
+    "nameEn": "Qamwal",
+    "nameBn": "কামওয়াল",
+    "parent": "obai"
+  },
+  {
+    "id": "buz",
+    "nameEn": "Buz",
+    "nameBn": "বুয",
+    "parent": "qamwal"
+  },
+  {
+    "id": "aws",
+    "nameEn": "Aws",
+    "nameBn": "আওস",
+    "parent": "buz"
+  },
+  {
+    "id": "salaman",
+    "nameEn": "Salaman",
+    "nameBn": "সালামান",
+    "parent": "aws"
+  },
+  {
+    "id": "humaisi",
+    "nameEn": "Humaisi'",
+    "nameBn": "হুমাইসি",
+    "parent": "salaman"
+  },
+  {
+    "id": "add",
+    "nameEn": "Add",
+    "nameBn": "আদ্দ",
+    "parent": "humaisi"
+  },
+  {
+    "id": "adnan",
+    "nameEn": "Adnan",
+    "nameBn": "আদনান",
+    "parent": "add"
+  },
+  {
+    "id": "maad",
+    "nameEn": "Ma'ad",
+    "nameBn": "মাআদ",
+    "parent": "adnan"
+  },
+  {
+    "id": "nizar",
+    "nameEn": "Nizar",
+    "nameBn": "নিযার",
+    "parent": "maad"
+  },
+  {
+    "id": "mudar",
+    "nameEn": "Mudar",
+    "nameBn": "মুদার",
+    "parent": "nizar"
+  },
+  {
+    "id": "ilyas_mudar",
+    "nameEn": "Ilyas",
+    "nameBn": "ইলিয়াস",
+    "parent": "mudar"
+  },
+  {
+    "id": "mudrikah",
+    "nameEn": "Mudrikah",
+    "nameBn": "মুদরিকা",
+    "parent": "ilyas_mudar"
+  },
+  {
+    "id": "khuzaimah",
+    "nameEn": "Khuzaimah",
+    "nameBn": "খুযাইমা",
+    "parent": "mudrikah"
+  },
+  {
+    "id": "kinanah",
+    "nameEn": "Kinanah",
+    "nameBn": "কিনানা",
+    "parent": "khuzaimah"
+  },
+  {
+    "id": "nadr",
+    "nameEn": "An-Nadr",
+    "nameBn": "নাদর",
+    "parent": "kinanah"
+  },
+  {
+    "id": "malik",
+    "nameEn": "Malik",
+    "nameBn": "মালিক",
+    "parent": "nadr"
+  },
+  {
+    "id": "fihr",
+    "nameEn": "Fihr",
+    "nameBn": "ফিহর",
+    "parent": "malik"
+  },
+  {
+    "id": "ghalib",
+    "nameEn": "Ghalib",
+    "nameBn": "গালিব",
+    "parent": "fihr"
+  },
+  {
+    "id": "luayy",
+    "nameEn": "Lu'ayy",
+    "nameBn": "লুআই",
+    "parent": "ghalib"
+  },
+  {
+    "id": "kab",
+    "nameEn": "Ka'b",
+    "nameBn": "কাব",
+    "parent": "luayy"
+  },
+  {
+    "id": "murrah",
+    "nameEn": "Murrah",
+    "nameBn": "মুররা",
+    "parent": "kab"
+  },
+  {
+    "id": "kilab",
+    "nameEn": "Kilab",
+    "nameBn": "কিলাব",
+    "parent": "murrah"
+  },
+  {
+    "id": "qusai",
+    "nameEn": "Qusai",
+    "nameBn": "কুসাই",
+    "parent": "kilab"
+  },
+  {
+    "id": "abd_manaf",
+    "nameEn": "'Abd Manaf",
+    "nameBn": "আবদে মানাফ",
+    "parent": "qusai"
+  },
+  {
+    "id": "hashim",
+    "nameEn": "Hashim",
+    "nameBn": "হাশিম",
+    "parent": "abd_manaf"
+  },
+  {
+    "id": "abdul_muttalib",
+    "nameEn": "'Abdul Muttalib",
+    "nameBn": "আবদুল মুত্তালিব",
+    "parent": "hashim"
+  },
+  {
+    "id": "abdullah",
+    "nameEn": "'Abdullah",
+    "nameBn": "আবদুল্লাহ",
+    "parent": "abdul_muttalib"
+  },
+  {
+    "id": "muhammad",
+    "parent": "abdullah"
+  },
+  {
+    "id": "madyan",
+    "nameEn": "Madyan",
+    "nameBn": "মাদইয়ান",
+    "parent": "ibrahim"
+  },
+  {
+    "id": "safyun",
+    "nameEn": "Safyun",
+    "nameBn": "সাফইউন",
+    "parent": "madyan",
+    "parentDistant": true
+  },
+  {
+    "id": "shuayb",
+    "parent": "safyun"
+  },
+  {
+    "id": "ishaq",
+    "parent": "ibrahim"
+  },
+  {
+    "id": "ish",
+    "nameEn": "Ish",
+    "nameBn": "ঈস",
+    "parent": "ishaq"
+  },
+  {
+    "id": "rum",
+    "nameEn": "Rum",
+    "nameBn": "রুম",
+    "parent": "ish"
+  },
+  {
+    "id": "tarekh",
+    "nameEn": "Tarekh",
+    "nameBn": "তারেখ",
+    "parent": "rum"
+  },
+  {
+    "id": "amose",
+    "nameEn": "Amose",
+    "nameBn": "আমোস",
+    "parent": "tarekh"
+  },
+  {
+    "id": "ayyub",
+    "parent": "amose"
+  },
+  {
+    "id": "dhulkifl",
+    "parent": "ayyub"
+  },
+  {
+    "id": "yaqub",
+    "parent": "ishaq"
+  },
+  {
+    "id": "bunyamin",
+    "nameEn": "Bunyamin",
+    "nameBn": "বুনইয়ামিন",
+    "parent": "yaqub"
+  },
+  {
+    "id": "abumata",
+    "nameEn": "Abumata",
+    "nameBn": "আবুমাতা",
+    "parent": "bunyamin"
+  },
+  {
+    "id": "matta",
+    "nameEn": "Matta",
+    "nameBn": "মাত্তা",
+    "parent": "abumata"
+  },
+  {
+    "id": "yunus",
+    "parent": "matta"
+  },
+  {
+    "id": "yusuf",
+    "parent": "yaqub"
+  },
+  {
+    "id": "levi",
+    "nameEn": "Levi",
+    "nameBn": "লাবি",
+    "parent": "yaqub"
+  },
+  {
+    "id": "kohath",
+    "nameEn": "Kohath",
+    "nameBn": "কাহাত",
+    "parent": "levi"
+  },
+  {
+    "id": "imran",
+    "nameEn": "Imran",
+    "nameBn": "ইমরান",
+    "parent": "kohath"
+  },
+  {
+    "id": "musa",
+    "parent": "imran"
+  },
+  {
+    "id": "harun",
+    "parent": "imran"
+  },
+  {
+    "id": "izar",
+    "nameEn": "Izar",
+    "nameBn": "ইযার",
+    "parent": "harun"
+  },
+  {
+    "id": "aziz",
+    "nameEn": "Aziz",
+    "nameBn": "আযিয",
+    "parent": "izar",
+    "parentDistant": true
+  },
+  {
+    "id": "fahnaz",
+    "nameEn": "Fahnaz",
+    "nameBn": "ফাহনায",
+    "parent": "izar"
+  },
+  {
+    "id": "yasin",
+    "nameEn": "Yasin",
+    "nameBn": "ইয়াসিন",
+    "parent": "fahnaz"
+  },
+  {
+    "id": "ilyas",
+    "parent": "yasin"
+  },
+  {
+    "id": "ukhtub",
+    "nameEn": "Ukhtub",
+    "nameBn": "উখতুব",
+    "parent": "fahnaz"
+  },
+  {
+    "id": "alyasa",
+    "parent": "ukhtub"
+  },
+  {
+    "id": "yahudha",
+    "nameEn": "Yahudha",
+    "nameBn": "ইয়াহুদা",
+    "parent": "yaqub"
+  },
+  {
+    "id": "bares",
+    "nameEn": "Bares",
+    "nameBn": "বারেস",
+    "parent": "yahudha"
+  },
+  {
+    "id": "hasrun",
+    "nameEn": "Hasrun",
+    "nameBn": "হাসরুন",
+    "parent": "bares"
+  },
+  {
+    "id": "raum",
+    "nameEn": "Raum",
+    "nameBn": "রাউম",
+    "parent": "hasrun"
+  },
+  {
+    "id": "ummanizab",
+    "nameEn": "Ummanizab",
+    "nameBn": "উম্মানিযাব",
+    "parent": "raum"
+  },
+  {
+    "id": "yauksaun",
+    "nameEn": "Yauksaun",
+    "nameBn": "ইয়াউকসাউন",
+    "parent": "ummanizab"
+  },
+  {
+    "id": "salmun",
+    "nameEn": "Salmun",
+    "nameBn": "সালমুন",
+    "parent": "yauksaun"
+  },
+  {
+    "id": "yuar",
+    "nameEn": "Yuar",
+    "nameBn": "ইয়ুআর",
+    "parent": "salmun"
+  },
+  {
+    "id": "ufiz",
+    "nameEn": "Ufiz",
+    "nameBn": "উফিয",
+    "parent": "yuar"
+  },
+  {
+    "id": "isya",
+    "nameEn": "Isya",
+    "nameBn": "ঈশা",
+    "parent": "ufiz"
+  },
+  {
+    "id": "dawud",
+    "parent": "isya"
+  },
+  {
+    "id": "sulaiman",
+    "parent": "dawud"
+  },
+  {
+    "id": "zakariya",
+    "parent": "sulaiman",
+    "parentDistant": true
+  },
+  {
+    "id": "yahya",
+    "parent": "zakariya"
+  },
+  {
+    "id": "hezekiah",
+    "nameEn": "Hezekiah",
+    "nameBn": "হিযকিয়া",
+    "parent": "sulaiman",
+    "parentDistant": true
+  },
+  {
+    "id": "imran_maryam",
+    "nameEn": "Imran",
+    "nameBn": "ইমরান",
+    "parent": "hezekiah",
+    "parentDistant": true
+  },
+  {
+    "id": "maryam",
+    "nameEn": "Maryam",
+    "nameBn": "মারইয়াম",
+    "parent": "imran_maryam"
+  },
+  {
+    "id": "isa",
+    "parent": "maryam"
+  }
+]
