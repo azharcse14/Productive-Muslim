@@ -29,22 +29,23 @@ final class Surah {
   int get hashCode => id;
 }
 
-/// Diacritic-light Latin fold: lowercases, strips everything but ASCII
-/// letters/digits and collapses doubled letters, so 'fatiha' matches
-/// 'Al-Faatiha'. Applied to both the query and the indexed text.
+/// Diacritic-light Latin fold, applied to both the query and the indexed
+/// text: lowercases, keeps ASCII letters/digits, unifies common
+/// transliteration variants per word (ee→i, oo→u, dh→d, a trailing h after
+/// a/i dropped) and collapses doubled letters. So 'Fatihah', 'Yasin',
+/// 'Duha' match 'Al-Faatiha', 'Yaseen', 'Ad-Dhuhaa'.
 String _foldLatin(String input) {
-  final buffer = StringBuffer();
-  int? previous;
-  for (final code in input.toLowerCase().codeUnits) {
-    final isAlnum =
-        (code >= 0x61 && code <= 0x7a) || (code >= 0x30 && code <= 0x39);
-    if (!isAlnum || code == previous) {
-      continue;
-    }
-    buffer.writeCharCode(code);
-    previous = code;
-  }
-  return buffer.toString();
+  final words = input.toLowerCase().split(RegExp('[^a-z0-9]+'));
+  final joined = words
+      .map(
+        (w) => w
+            .replaceAll('ee', 'i')
+            .replaceAll('oo', 'u')
+            .replaceAll('dh', 'd')
+            .replaceFirst(RegExp(r'(?<=[ai])h$'), ''),
+      )
+      .join();
+  return joined.replaceAllMapped(RegExp(r'(.)\1+'), (m) => m[1]!);
 }
 
 /// Arabic fold: drops harakat/Quranic marks, tatweel and spaces, and

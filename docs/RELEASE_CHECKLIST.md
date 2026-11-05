@@ -21,7 +21,7 @@ Steps a store build needs that a dev build doesn't. Decisions behind them:
    Malik) stay. Once permission arrives: skip this step and update
    `docs/DEPENDENCIES.md`; bump `HadithDatabase.bundledVersion` +
    `PRAGMA user_version` only if the DB content itself changes.
-2. **`dua-ruqya-server` (90 `hm_*` duas) — no license.** Still `NO LICENSE —
+2. **`dua-ruqya-server` (88 `hm_*` duas) — no license.** Still `NO LICENSE —
    permission needed` in `docs/DEPENDENCIES.md`; get permission or replace the
    Bengali wording before a public release.
 3. **Jamaat Focus / Nafs lock (`focusBlocking`, default on).** Play Console:

@@ -68,6 +68,11 @@ final class HadithDatabase extends GeneratedDatabase {
   /// means a switch between a stripped and a full asset re-copies even when
   /// nobody bumped the version — the stale copy never keeps (or lacks) the
   /// hadithbangla text.
+  ///
+  /// Each copy is stamped with the switch it was made for (`application_id`)
+  /// and a stamped copy is kept too, so an asset that itself mismatches the
+  /// switch (stripped without the define, or the define without the strip)
+  /// is copied once, not on every launch.
   @visibleForTesting
   static Future<void> ensureCopied(
     File file,
@@ -84,7 +89,12 @@ final class HadithDatabase extends GeneratedDatabase {
                 "AND name = 'hadith_bn_section'",
               )
               .isNotEmpty;
-          if (existing.userVersion == bundledVersion && hasBengali == bengali) {
+          final stamp = existing
+              .select('PRAGMA application_id')
+              .first
+              .columnAt(0);
+          if (existing.userVersion == bundledVersion &&
+              (hasBengali == bengali || stamp == _stamp(bengali: bengali))) {
             return;
           }
         } finally {
@@ -99,7 +109,17 @@ final class HadithDatabase extends GeneratedDatabase {
       file,
       bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
     );
+    final copy = sqlite.sqlite3.open(file.path);
+    try {
+      copy.execute('PRAGMA application_id = ${_stamp(bengali: bengali)}');
+    } finally {
+      copy.close();
+    }
   }
+
+  /// `application_id` marking which `BENGALI_HADITH` value a copy was made
+  /// for (the asset itself carries 0).
+  static int _stamp({required bool bengali}) => bengali ? 1 : 2;
 
   /// The gzip blob of one fawazahmed0 [edition]'s [section], or null when the
   /// snapshot has no such section (the caller then falls back to the network).

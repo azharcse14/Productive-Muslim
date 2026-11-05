@@ -364,8 +364,9 @@ List<BnHadith> _parseBn(String body) {
 /// 1, 4, 9 … 49 s (~2.5 min) before giving up.
 const _attempts = 8;
 
-/// GETs [url] with a few retries. Returns null on a tolerated 404 (a
-/// missing edition/chapter) or after exhausting retries when [tolerant].
+/// GETs [url] with a few retries. Returns null only on a 404 when
+/// [tolerant] (a missing chapter); any other failure, after the retries,
+/// fails the build rather than silently dropping a section.
 Future<String?> _get(
   HttpClient http,
   String url, {
@@ -378,7 +379,7 @@ Future<String?> _get(
       final res = await req.close();
       // A 404 for an optional ben-*/bn file means "doesn't exist". Anything
       // else (incl. a 403 from CDN throttling, or a 404 for ara/eng) retries
-      // and then fails/skips loudly instead of silently dropping a section.
+      // and then fails the build instead of silently dropping a section.
       if (tolerant && res.statusCode == 404) {
         await res.drain<void>();
         return null;
@@ -388,12 +389,8 @@ Future<String?> _get(
         throw HttpException('HTTP ${res.statusCode}', uri: Uri.parse(url));
       }
       return await res.transform(utf8.decoder).join();
-    } on Object catch (e) {
+    } on Object {
       if (attempt == _attempts) {
-        if (tolerant) {
-          stderr.writeln('  ! skipped $url ($e)');
-          return null;
-        }
         rethrow;
       }
       await Future<void>.delayed(Duration(seconds: attempt * attempt));
