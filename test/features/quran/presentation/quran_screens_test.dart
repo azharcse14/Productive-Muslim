@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter/services.dart' show MethodCall, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/content_layout_matrix.dart';
 import '../../../helpers/screen_wake_fake.dart';
 import '../../../helpers/share_sheet_fake.dart';
 
@@ -864,5 +866,57 @@ void main() {
         );
       });
     }
+  });
+
+  group('layout matrix', () {
+    TransitionBuilder readerScope() =>
+        (context, child) =>
+            ReaderTextSizeScope(textSize: ReaderTextSize(), child: child!);
+
+    /// Quran Arabic is laid out RTL even when the UI is LTR (and vice versa).
+    void expectArabicRtl(WidgetTester tester, String arabic) {
+      final text = find.text(arabic).first;
+      expect(
+        tester.renderObject<RenderParagraph>(text).textDirection,
+        TextDirection.rtl,
+      );
+    }
+
+    layoutMatrix('QuranScreen', (tester, v) async {
+      repo.storedLastRead = const QuranPosition(2, 2);
+      repo.storedBookmarks.add(1);
+      await store.load();
+      await tester.pumpWidget(
+        variantApp(const QuranScreen(), v, builder: readerScope()),
+      );
+      await tester.pumpAndSettle();
+      expectArabicRtl(tester, 'البقرة');
+    });
+
+    layoutMatrix('QuranScreen juz tab', (tester, v) async {
+      await tester.pumpWidget(
+        variantApp(const QuranScreen(), v, builder: readerScope()),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(Tab).at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining(RegExp('[1১]\$')).first);
+      await tester.pumpAndSettle();
+    });
+
+    layoutMatrix('QuranReaderScreen', (tester, v) async {
+      repo.storedBookmarks.add(1);
+      await store.load();
+      await tester.pumpWidget(
+        variantApp(
+          const QuranReaderScreen(surahId: 1),
+          v,
+          builder: readerScope(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await flushMarkRead(tester);
+      expectArabicRtl(tester, 'بِسْمِ اللَّهِ');
+    });
   });
 }

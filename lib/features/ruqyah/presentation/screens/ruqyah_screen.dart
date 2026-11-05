@@ -111,7 +111,8 @@ final class _RuqyahScreenState extends State<RuqyahScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: QSpace.s3,
                     crossAxisSpacing: QSpace.s3,
-                    childAspectRatio: 1.2 / context.textGrowth,
+                    // 1.1 (not 1.2) leaves room for a two-line title on a 360dp phone.
+                    childAspectRatio: 1.1 / context.textGrowth,
                     children: [
                       if (!_store.loaded.value)
                         for (var i = 0; i < 6; i++)

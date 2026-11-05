@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/content_layout_matrix.dart';
 import '../../../helpers/screen_wake_fake.dart';
 
 const _morningCategory = DuaCategory(
@@ -492,4 +493,16 @@ void main() {
       );
     });
   });
+
+  for (final (name, screen) in [
+    ('DuaScreen', const DuaScreen()),
+    ('DuaCategoryScreen', const DuaCategoryScreen(id: 'morning_evening')),
+    ('TasbihScreen', const TasbihScreen()),
+    ('AsmaulHusnaScreen', const AsmaulHusnaScreen()),
+  ]) {
+    layoutMatrix(name, (tester, v) async {
+      await tester.pumpWidget(variantApp(screen, v));
+      await tester.pumpAndSettle();
+    });
+  }
 }
