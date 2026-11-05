@@ -485,7 +485,7 @@ abstract class AppLocalizations {
   /// No description provided for @creditsQuranText.
   ///
   /// In en, this message translates to:
-  /// **'Quran text: Tanzil Project'**
+  /// **'Quran translations: Tanzil Project'**
   String get creditsQuranText;
 
   /// No description provided for @creditsQuranTextLink.
@@ -5587,6 +5587,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'City database'**
   String get creditsCities;
+
+  /// No description provided for @creditsAzanAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan sound (excerpt)'**
+  String get creditsAzanAudio;
 
   /// No description provided for @creditsGroupFonts.
   ///

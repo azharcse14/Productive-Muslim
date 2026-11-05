@@ -49,8 +49,10 @@ final class CreditsScreen extends StatelessWidget {
           _Group(l10n.quranTitle, [
             (
               l10n.creditsArabicText,
-              'Tanzil Quran Text (Simple), Tanzil.net · '
-                  '${l10n.creditsUnlicense('fawazahmed0/quran-api')}',
+              // KFGQPC's text license is unverified (docs/DEPENDENCIES.md),
+              // so the repo's Unlicense is not shown next to it.
+              'Uthmani Hafs © King Fahd Glorious Quran Printing Complex · '
+                  'fawazahmed0/quran-api',
             ),
             // No license claimed: unverified (docs/DEPENDENCIES.md).
             (
@@ -94,6 +96,11 @@ final class CreditsScreen extends StatelessWidget {
           _Group(l10n.creditsGroupPlaces, [
             (l10n.creditsPrayerCalc, l10n.creditsPrayerCalcValue),
             (l10n.creditsCities, '© GeoNames (CC BY 4.0)'),
+            (
+              l10n.creditsAzanAudio,
+              '"The Adhan - Muslim Call to Prayer" by Aaqib Azeez, '
+                  'Wikimedia Commons (CC BY-SA 4.0)',
+            ),
           ]),
           _Group(l10n.creditsGroupFonts, [
             (

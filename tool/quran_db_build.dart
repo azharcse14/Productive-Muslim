@@ -3,9 +3,12 @@
 //
 // Source: fawazahmed0/quran-api (https://github.com/fawazahmed0/quran-api,
 // API licensed under the Unlicense) served via the jsDelivr CDN. Editions:
-//   * Arabic  — ara-quransimple (Tanzil Simple, fully diacritized; the
-//     requested ara-quranuthmanihaf1 edition ships undotted text on the CDN,
-//     so the closest fully-vowelled equivalent is used instead).
+//   * Arabic  — ara-quranuthmanihaf (King Fahd Complex (KFGQPC) Uthmani
+//     Hafs text, version 13; license UNVERIFIED, see DEPENDENCIES.md). The
+//     edition swaps KFGQPC's open-tanween code points for the Unicode
+//     U+08F0..U+08F2, appends U+200F and splits off a following silent alif;
+//     [_toKfgqpc] undoes all three, so every code point is in the bundled
+//     KFGQPC HAFS v22 font's cmap.
 //   * English — eng-mohammedmarmadu (Mohammed Marmaduke William Pickthall,
 //     via Tanzil; license unverified, see DEPENDENCIES.md).
 //   * Bangla  — ben-muhiuddinkhan (Muhiuddin Khan, via Tanzil).
@@ -13,7 +16,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 4, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 5, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -25,7 +28,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 const _cdn =
     'https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@${ContentSources.quranApiSha}';
-const _arabicUrl = '$_cdn/editions/ara-quransimple.json';
+const _arabicUrl = '$_cdn/editions/ara-quranuthmanihaf.json';
 const _englishUrl = '$_cdn/editions/eng-mohammedmarmadu.json';
 const _banglaUrl = '$_cdn/editions/ben-muhiuddinkhan.json';
 const _infoUrl = '$_cdn/info.json';
@@ -58,8 +61,8 @@ String? _corrected(String? text, (String, String)? fix) {
 }
 
 const _attributionLines = [
-  'Quran text: Tanzil Quran Text (Simple), Tanzil.net — '
-      'via fawazahmed0/quran-api (Unlicense)',
+  'Quran text: Uthmani Hafs, King Fahd Glorious Quran Printing Complex '
+      '(qurancomplex.gov.sa) — via fawazahmed0/quran-api (Unlicense)',
   'English translation: Mohammed Marmaduke William Pickthall, '
       '"The Meaning of the Glorious Koran" (license unverified) — via Tanzil.net',
   'Bangla translation: Muhiuddin Khan — via Tanzil.net',
@@ -68,7 +71,10 @@ const _attributionLines = [
 Future<void> main() async {
   final tmp = Directory.systemTemp.createTempSync('productive_muslim_quran');
   try {
-    final arabic = _downloadVerses(_arabicUrl, '${tmp.path}/ara.json');
+    final arabic = _downloadVerses(
+      _arabicUrl,
+      '${tmp.path}/ara.json',
+    ).map((key, text) => MapEntry(key, _toKfgqpc(text)));
     final english = _downloadVerses(_englishUrl, '${tmp.path}/eng.json');
     final bangla = _downloadVerses(_banglaUrl, '${tmp.path}/ben.json');
     final chapters = _downloadChapters('${tmp.path}/info.json');
@@ -189,6 +195,11 @@ void _validate(
   if (arabic.values.any((text) => text.trim().isEmpty)) {
     _fail('Arabic edition contains empty ayah text');
   }
+  // Uthmani-only small high dotless head of khah (sukun): a wrong edition
+  // (e.g. Tanzil Simple) has none.
+  if (!arabic[(1, 2)]!.contains('\u06E1')) {
+    _fail('Arabic edition is not the Uthmani text (no U+06E1 in 1:2)');
+  }
   final byId = {for (final c in chapters) c.id: c};
   if (byId[1]?.ayahCount != 7) {
     _fail('Surah 1 should have 7 ayahs, metadata says ${byId[1]?.ayahCount}');
@@ -238,7 +249,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 4;
+      PRAGMA user_version = 5;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
@@ -295,9 +306,29 @@ void _run(String cmd, List<String> args) {
   }
 }
 
-/// `ara-quransimple` glues the basmala onto ayah 1 of every surah but 1 and 9,
-/// while the translations don't carry it. Strip it so the Arabic matches its
-/// translation; the reader shows the basmala as a surah header instead.
+/// A space the edition puts between an open tanween and the silent alif /
+/// alif maqsura closing the same word (فِرَٰشࣰ ا for فِرَٰشٗا, 2,417 times).
+final _splitTanweenAlif = RegExp(
+  '([\u08F0-\u08F2]) (?=[\u0627\u0649][\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]*(?: |\$))',
+);
+
+/// Undoes fawazahmed0's Unicode substitutions so the text is in KFGQPC's own
+/// encoding, which the bundled KFGQPC HAFS font expects: the word split at
+/// [_splitTanweenAlif] rejoined, open fathatan / dammatan / kasratan back to
+/// U+0657 / U+065E / U+0656, and the U+200F marks it appended after them
+/// dropped. Letters and marks are untouched. Checked 2026-11-05 to equal
+/// KFGQPC's text as served by quran.com (`text_qpc_hafs`) for all 6,236 ayat.
+String _toKfgqpc(String text) => text
+    .replaceAllMapped(_splitTanweenAlif, (m) => m[1]!)
+    .replaceAll('\u08F0', '\u0657')
+    .replaceAll('\u08F1', '\u065E')
+    .replaceAll('\u08F2', '\u0656')
+    .replaceAll('\u200F', '');
+
+/// Some editions (e.g. `ara-quransimple`) glue the basmala onto ayah 1 of every
+/// surah but 1 and 9, while the translations don't carry it. Strip it so the
+/// Arabic matches its translation; the reader shows the basmala as a surah
+/// header instead. `ara-quranuthmanihaf` doesn't glue it, so this is a guard.
 String _stripBasmala(int surah, int number, String text, String basmala) {
   // The source's own 1:1 is the prefix, so its diacritic order always matches.
   final prefix = '$basmala ';

@@ -47,12 +47,14 @@ void main() {
         '${File('lib/features/settings/presentation/screens/credits_screen.dart').readAsStringSync()}';
     for (final name in [
       'Tanzil',
+      'Uthmani Hafs © King Fahd Glorious Quran Printing Complex',
       'Pickthall',
       'Muhiuddin Khan',
       'fawazahmed0/hadith-api',
       'hadithbangla',
       'Hisnul Muslim',
       'GeoNames',
+      'Aaqib Azeez',
     ]) {
       expect(credits, contains(name));
     }

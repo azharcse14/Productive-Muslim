@@ -149,7 +149,20 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
   /// Android channels no longer used. A channel's importance can't be
   /// changed in place, so moved items get a new id and the old one is
   /// removed from system settings. Deleting a missing channel is a no-op.
-  static const legacyChannels = ['productive_muslim_reminders'];
+  /// `productive_muslim_azan` played the default tone; its sound can't be
+  /// changed in place either, so the bundled adhan got [azanChannelId].
+  static const legacyChannels = [
+    'productive_muslim_reminders',
+    'productive_muslim_azan',
+  ];
+
+  /// Full-azan channel, sounding the bundled adhan excerpt.
+  static const azanChannelId = 'productive_muslim_azan_audio';
+
+  /// Bundled adhan excerpt (≤30 s, iOS's cap): Android
+  /// `res/raw/azan.m4a`, iOS `Runner/azan.caf`.
+  static const azanSoundAndroid = 'azan';
+  static const azanSoundIos = 'azan.caf';
 
   Future<void> _deleteLegacyChannels() async {
     final android = _android;
@@ -424,6 +437,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             d.channelName,
             importance: d.importance,
             playSound: d.playSound,
+            sound: d.sound,
             enableVibration: d.enableVibration,
           ),
         );
@@ -535,9 +549,6 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
     // Beep: one short default tone on its own default-importance channel —
     // no heads-up, vibration, or time-sensitive break-through. Azan keeps
     // the high-importance channel.
-    // ponytail: azan plays the default sound too; real adhan audio needs a
-    // bundled file (android/app/src/main/res/raw + iOS bundle) wired via
-    // `sound:` on a NEW channel id (Android channels are immutable).
     final beep = item.kind == NotificationKind.azan && item.beepOnly;
     // Content nudges aren't time-critical: no heads-up, no iOS
     // time-sensitive break-through (azan, jamaat, sahri, iftar keep it).
@@ -562,11 +573,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
         t.channelBeepName,
         true,
       ),
-      NotificationKind.azan => (
-        'productive_muslim_azan',
-        t.channelAzanName,
-        true,
-      ),
+      NotificationKind.azan => (azanChannelId, t.channelAzanName, true),
       // Own low-importance channel: Android 8+ takes importance from the
       // channel, not the notification.
       NotificationKind.keepAlive => (
@@ -596,6 +603,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
       // [legacyChannels]) also held the daily nudges a user may have muted.
       _ => ('productive_muslim_alerts', t.channelRemindersName, true),
     };
+    // The full azan plays the bundled adhan; beep and silent stay as they are.
+    final adhan =
+        item.kind == NotificationKind.azan && !item.silent && !item.beepOnly;
     return NotificationDetails(
       android: AndroidNotificationDetails(
         channelId,
@@ -607,6 +617,9 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             ? Priority.low
             : (normal ? Priority.defaultPriority : Priority.high),
         playSound: sound,
+        sound: adhan
+            ? const RawResourceAndroidNotificationSound(azanSoundAndroid)
+            : null,
         enableVibration: !beep,
         category: AndroidNotificationCategory.reminder,
         actions:
@@ -628,6 +641,7 @@ final class LocalNotificationsScheduler implements NotificationScheduler {
             ? _azanCategoryId
             : null,
         presentSound: sound,
+        sound: adhan ? azanSoundIos : null,
         interruptionLevel: quiet
             ? InterruptionLevel.passive
             : normal

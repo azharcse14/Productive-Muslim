@@ -37,6 +37,21 @@ void main() {
     expect(keep, contains('@$icon'));
   });
 
+  test('the bundled azan sound ships on both platforms', () {
+    // A missing sound doesn't fail the build: the azan plays the default
+    // tone (iOS) or the channel errors (Android).
+    expect(File('android/app/src/main/res/raw/azan.m4a').existsSync(), isTrue);
+    expect(
+      File('android/app/src/main/res/raw/keep.xml').readAsStringSync(),
+      contains('@raw/azan'),
+    );
+    expect(File('ios/Runner/azan.caf').existsSync(), isTrue);
+    expect(
+      File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync(),
+      contains('azan.caf in Resources */,'),
+    );
+  });
+
   test('signing secrets are gitignored', () {
     final ignore = File('.gitignore').readAsStringSync();
     for (final p in ['key.properties', '*.jks', '*.keystore']) {

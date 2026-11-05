@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:productive_muslim/features/quran/data/datasources/quran_database.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {
@@ -24,8 +25,46 @@ void main() {
 
   int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version is 4', () {
-    expect(scalar('PRAGMA user_version'), 4);
+  test('schema version matches QuranDatabase.bundledVersion (5)', () {
+    expect(scalar('PRAGMA user_version'), 5);
+    expect(QuranDatabase.bundledVersion, 5);
+  });
+
+  String arabic(int surah, int ayah) =>
+      db
+              .select(
+                'SELECT arabic FROM ayahs WHERE surah = ? AND number = ?',
+                [surah, ayah],
+              )
+              .first
+              .values
+              .first!
+          as String;
+
+  test('Arabic is the KFGQPC Uthmani Hafs edition', () {
+    // Uthmani-only marks: small high dotless head of khah (sukun) and
+    // alef wasla; Tanzil Simple has neither.
+    expect(arabic(1, 2), contains('\u06E1'));
+    expect(arabic(1, 2), startsWith('\u0671'));
+    // KFGQPC open tanween (U+0657/U+065E/U+0656), not the Unicode U+08F0..2
+    // the font lacks, and no RLM or split tanween-alif words left over.
+    expect(arabic(2, 255), contains('\u065E')); // سِنَةٞ
+    expect(
+      arabic(2, 22),
+      contains('\u0641\u0650\u0631\u064E\u0670\u0634\u0657\u0627 '),
+    ); // فِرَٰشٗا
+    expect(
+      scalar(
+        "SELECT COUNT(*) FROM ayahs WHERE arabic GLOB '*[\u08F0-\u08F2\u200F]*'",
+      ),
+      0,
+    );
+  });
+
+  test('2:255 is Ayat al-Kursi', () {
+    final text = arabic(2, 255);
+    expect(text, startsWith('ٱللَّهُ'));
+    expect(text, endsWith('ٱلۡعَظِيمُ'));
   });
 
   test('3:1 and 12:1 carry the Alif / verses corrections', () {
@@ -63,19 +102,11 @@ void main() {
     expect(scalar('SELECT ayah_count FROM surahs WHERE id = 1'), 7);
     expect(scalar('SELECT COUNT(*) FROM ayahs WHERE surah = 1'), 7);
 
-    final arabic =
-        db
-                .select(
-                  'SELECT arabic FROM ayahs WHERE surah = 1 AND number = 1',
-                )
-                .first
-                .values
-                .first!
-            as String;
+    final bismillah = arabic(1, 1);
     expect(
-      arabic.startsWith('بِسْمِ') || arabic.startsWith('بِّسْمِ'),
-      isTrue,
-      reason: 'Ayah 1:1 should start with the bismillah, got "$arabic"',
+      bismillah,
+      startsWith('بِسۡمِ'),
+      reason: 'Ayah 1:1 should start with the bismillah, got "$bismillah"',
     );
   });
 
@@ -95,6 +126,10 @@ void main() {
   test('surah 114 has 6 ayahs', () {
     expect(scalar('SELECT ayah_count FROM surahs WHERE id = 114'), 6);
     expect(scalar('SELECT COUNT(*) FROM ayahs WHERE surah = 114'), 6);
+  });
+
+  test('no ayah has empty Arabic text', () {
+    expect(scalar("SELECT COUNT(*) FROM ayahs WHERE trim(arabic) = ''"), 0);
   });
 
   test('every surah ayah_count matches its stored ayahs', () {
