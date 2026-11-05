@@ -66,4 +66,28 @@ void main() {
       Prayer.fajr,
     );
   });
+
+  test("sunset after midnight (Nome, June) → next is yesterday's maghrib", () {
+    final nome = PrayerDay(
+      asrYesterday: DateTime(2026, 6, 20, 17, 50),
+      maghribYesterday: DateTime(2026, 6, 21, 1, 48),
+      sunsetYesterday: DateTime(2026, 6, 21, 1, 45),
+      ishaYesterday: DateTime(2026, 6, 21, 3, 3),
+      fajr: DateTime(2026, 6, 21, 3, 4),
+      sunrise: DateTime(2026, 6, 21, 4, 25),
+      dhuhr: DateTime(2026, 6, 21, 15, 7),
+      asr: DateTime(2026, 6, 21, 17, 50),
+      maghrib: DateTime(2026, 6, 22, 1, 49),
+      isha: DateTime(2026, 6, 22, 3, 3),
+      fajrTomorrow: DateTime(2026, 6, 22, 3, 4),
+    );
+    final next = resolveNextPrayer(nome, DateTime(2026, 6, 21, 0, 30));
+    expect(next.prayer, Prayer.maghrib);
+    expect(next.at, nome.maghribYesterday);
+    expect(next.tomorrow, isFalse);
+    expect(
+      resolveNextPrayer(nome, DateTime(2026, 6, 21, 2)).prayer,
+      Prayer.isha,
+    );
+  });
 }

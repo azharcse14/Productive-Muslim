@@ -130,9 +130,8 @@ void main() {
       instantOf: instantOf,
     );
     final strips = _lines(payload['widget_strips']!);
-    Duration span(List<String> s) => Duration(
-      milliseconds: int.parse(s[1]) - int.parse(s[0]),
-    );
+    Duration span(List<String> s) =>
+        Duration(milliseconds: int.parse(s[1]) - int.parse(s[0]));
     expect(span(strips[0]), const Duration(hours: 24)); // Mar 27
     expect(span(strips[2]), const Duration(hours: 23)); // Mar 29
     expect(span(strips[3]), const Duration(hours: 24)); // Mar 30
@@ -144,5 +143,25 @@ void main() {
       for (final l in _lines(payload['widget_schedule']!)) int.parse(l[0]),
     ];
     expect(starts, orderedEquals([...starts]..sort()));
+  });
+
+  test("sunset after midnight: yesterday's maghrib leads the schedule", () {
+    final d = _day(DateTime(2026, 6, 14));
+    final nome = PrayerDay(
+      maghribYesterday: DateTime(2026, 6, 14, 0, 50),
+      ishaYesterday: DateTime(2026, 6, 14, 2, 5),
+      fajr: d.fajr,
+      sunrise: d.sunrise,
+      dhuhr: d.dhuhr,
+      asr: d.asr,
+      maghrib: d.maghrib,
+      isha: d.isha,
+      fajrTomorrow: d.fajrTomorrow,
+    );
+    final lines = _lines(_build([nome])['widget_schedule']!);
+    expect(lines, hasLength(8));
+    expect(lines[0].sublist(1), ['maghrib', '0:50']);
+    expect(lines[1].sublist(1), ['isha', '2:05']);
+    expect(lines[2].sublist(1), ['fajr', '4:30']);
   });
 }

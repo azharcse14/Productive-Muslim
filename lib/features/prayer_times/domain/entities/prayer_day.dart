@@ -33,12 +33,14 @@ final class PrayerDay {
     required this.ishaYesterday,
     this.maghribYesterday,
     this.asrYesterday,
+    DateTime? sunsetYesterday,
     this.sahriSafety = Duration.zero,
     DateTime? trueSunrise,
     DateTime? sunset,
     DateTime? transit,
   }) : trueSunrise = trueSunrise ?? sunrise,
        sunset = sunset ?? maghrib,
+       sunsetYesterday = sunsetYesterday ?? maghribYesterday,
        transit = transit ?? dhuhr;
 
   final DateTime fajr;
@@ -76,6 +78,10 @@ final class PrayerDay {
   /// offset, Tehran's angle, user adjustment). Bounds the makruh window
   /// before sunset. Defaults to [maghrib].
   final DateTime sunset;
+
+  /// Yesterday's [sunset]: after midnight with a high-latitude summer's
+  /// [asrYesterday]. Defaults to [maghribYesterday].
+  final DateTime? sunsetYesterday;
 
   /// Solar transit (true noon) without the method's or the user's Dhuhr
   /// offset: bounds the zawal window. [dhuhr] keeps the offsets, as it
