@@ -285,20 +285,23 @@ fatwa sites (islamqa, islamweb), plus the bundled DBs. This is not a scholar's s
   "bribe" → payment (18:94-95), Qarun ref 28:76-83, "ধরতে পারেন" → "পাকড়াও করেন"
   (Bukhari 3481), Tamim's دير = মঠ (monastery), not গির্জা.
 
-**Still for a human scholar (sources could not settle them):**
-- Yunus 21:87 Bangla "পাকড়াও করবেন না": both tafsir readings valid; confirm it can't read as
-  "could not catch him". quran.db's own Bangla ("ধৃত করতে পারব না") leans that way.
-- 12:24 wording (no inclination at all vs a passing thought); 12:42 who was made to forget.
-- 7:143 "revealed His glory/light" vs the literal "manifested Himself" (Attributes wording).
-- `adam_creation` lesson "pride was the first sin" (some say envy); `harut_and_marut` lesson
-  "magic is disbelief" (schools differ on every form).
-- `isa_raised_up` lesson "Allah protects His messengers".
-- Lut "wished for a powerful support" (Bukhari 3375): add the commentators' explanation?
-- Yahya سيّد: "noble" (EN) vs "নেতা" (BN).
-- `baby_who_spoke_about_the_rider` "only three spoke in the cradle" vs the boy in Muslim 7511.
-- `musa_and_the_angel_of_death`: add the standard explanation (angel in human form)?
-- Ka'b story: Murarah and Hilal "at Badr" (Ibn al-Qayyim vs Ibn Hajar).
-- `ibrahim_sarah_and_the_tyrant` Bangla "পাঠালেন" vs English "she was sent".
-- `khubaib`: Khubaib ibn 'Adi vs ibn Isaf as al-Harith's killer (Fath al-Bari).
-- `sun_held_back`: name Yusha' ibn Nun (Musnad Ahmad)? · `hittah`: quote حطة حبة في شعرة?
-- 12:15 Bangla "তারা তোমাকে চিনবে না" (one of two readings).
+**Differences of opinion now written into the text (37 patches, second pass):** each point was
+researched online (Ibn Kathir, al-Tabari, al-Qurtubi, al-Sa'di, al-Baghawi, Fath al-Bari,
+Dalil al-Falihin, islamqa, islamweb, dorar.net); the majority/stronger view comes first, then
+"Some scholars say …" / "কোনো কোনো আলেম বলেন, …".
+- 12:24 hamm (passing inclination vs none) · 12:42 who forgot (Ibn Kathir: the freed man;
+  al-Tabari: Yusuf) · 12:15 two readings (EN now "recognise you", matching BN) · 7:143 tajalla
+  now literal "manifested Himself" (islamqa 353034), al-Baghawi's "light" view added.
+- 21:87 Bangla "সংকটে ফেলবেন না" + both readings (constrict / decree); the rejected reading is
+  excluded · first sin: pride, with Qatada's envy · magic: all kufr vs al-Nawawi (kufr only with
+  disbelief, else a major sin) · `isa_raised_up` lesson reworded (some prophets were killed;
+  40:51 = help/victory).
+- Hadith: cradle speakers reconciled (Muslim 7511) · angel of death came in human form · Ka'b:
+  Murarah/Hilal at Badr (Ibn Hajar vs Ibn al-Jawzi/al-Dimyati) · Sarah: EN "he sent her"
+  (Arabic فأرسل بها) · Khubaib ibn 'Adi vs ibn Isaf (al-Dimyati vs Ibn Hajar) · sun held back:
+  Yusha' ibn Nun (Musnad Ahmad 8315, chain sahih per al-Arna'ut) · Hittah: mockery (Ibn Kathir).
+- Prophets: Lut's "powerful support" = Allah (Ibn Kathir 11:80) · Yahya سيّد "a noble leader" /
+  "সম্মানিত নেতা" · 19:7 "no one named so before" vs "no one like him" (Ibn Abbas, Mujahid).
+
+Unconfirmed in the bundled DB: Tirmidhi 3074 (7:143) rests on sunnah.com; Musnad Ahmad isn't
+bundled. All of this is still a draft until a scholar signs off.
