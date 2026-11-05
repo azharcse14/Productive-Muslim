@@ -96,7 +96,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
   @override
   Future<Result<void>> setEntry(DailyEntry entry) async {
-    if (entry.value > 0 && (storedItems[entry.itemId]?.archived ?? false)) {
+    if (storedItems[entry.itemId]?.archived ?? false) {
       return const Result.failure(ArchivedTrackerFailure());
     }
     final day = _d(entry.date);
@@ -209,6 +209,10 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
               in (storedEntries[id] ?? const <DateTime, int>{}).entries)
             if (storedItems[id]?.isDone(v) ?? false) day,
       });
+
+  @override
+  Future<Result<int>> doneDayCount(Set<String> itemIds) async =>
+      Result.success((await doneDates(itemIds)).valueOrNull!.length);
 }
 
 Widget _app() => MaterialApp(

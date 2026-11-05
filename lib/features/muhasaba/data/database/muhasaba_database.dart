@@ -46,6 +46,11 @@ class DailyEntries extends Table {
   IntColumn get date => integer()();
   IntColumn get value => integer()();
 
+  /// The item's daily target when this entry was written (0 = no target),
+  /// so a later target edit doesn't rewrite past days. Null only for rows
+  /// no write has stamped yet; readers fall back to the item's target.
+  IntColumn get target => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {itemId, date};
 }
@@ -126,7 +131,7 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
   /// `dart run drift_dev schema dump lib/features/muhasaba/data/database/muhasaba_database.dart drift_schemas/muhasaba/`
   /// `dart run drift_dev schema generate drift_schemas/muhasaba/ test/features/muhasaba/data/generated/`
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -171,6 +176,15 @@ final class MuhasabaDatabase extends _$MuhasabaDatabase {
         // one-time import, not here.
         await m.createTable(expenses);
         await m.createTable(expenseBudgets);
+      }
+      if (from < 6) {
+        // Stamp existing entries with today's targets: nothing visible
+        // changes on upgrade, later target edits leave them alone.
+        await m.addColumn(dailyEntries, dailyEntries.target);
+        await customStatement(
+          'UPDATE daily_entries SET target = COALESCE((SELECT daily_target '
+          'FROM tracker_items WHERE id = daily_entries.item_id), 0)',
+        );
       }
     },
   );
