@@ -262,3 +262,5 @@ should still review them with the rest of the content.
 - al-Khidr: islamqa.info/en/answers/21793; islamqa.org (SeekersGuidance, "What do we know
   about Khidr"); dar-alifta.org fatwa 5837.
 - 31:14: alquran.cloud/ayah/31:14, corpus.quran.com/translation.jsp?chapter=31&verse=14.
+
+- 2026-11-05: al-Khidr's Bangla spelling unified to খিজির; ruqyah.json Bangla verse markers now in Bangla digits.
