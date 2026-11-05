@@ -516,7 +516,5 @@ void main() {
       ),
     ),
     screen: () => const MyMosqueScreen(),
-    // Shared QSegControl segments are 40dp tall (lib/shared scope).
-    tapTargets: false,
   );
 }

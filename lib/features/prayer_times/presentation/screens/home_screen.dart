@@ -576,6 +576,9 @@ final class _HomeScreenState extends State<HomeScreen> {
           // screen-reader tap hint make the card read as tappable.
           return Semantics(
             button: true,
+            // The countdown text is its own node inside the card; this
+            // label names the tap target itself.
+            label: l10n.countdownSeeDay,
             onTapHint: l10n.countdownSeeDay,
             child: QPressable(
               borderRadius: BorderRadius.circular(QRadius.xl),

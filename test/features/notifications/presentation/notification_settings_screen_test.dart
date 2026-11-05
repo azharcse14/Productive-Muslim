@@ -770,8 +770,6 @@ void main() {
         await tester.runAsync(_controller.start);
       },
       screen: () => screen,
-      // Shared QSegControl segments are 40dp tall (lib/shared scope).
-      tapTargets: screen is! NotificationSettingsScreen,
     );
   }
 }

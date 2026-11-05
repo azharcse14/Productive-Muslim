@@ -223,7 +223,5 @@ void main() {
   layoutMatrix(
     'InheritanceScreen',
     screen: () => const InheritanceScreen(),
-    // Shared QSegControl segments are 40dp tall (lib/shared scope).
-    tapTargets: false,
   );
 }

@@ -810,8 +810,5 @@ void main() {
     ),
     screen: () => const HomeScreen(),
     cleanup: stopHome,
-    // CountdownCard's spoken label is its own container node, so the
-    // tappable card around it has none (lib/shared scope).
-    tapLabels: false,
   );
 }

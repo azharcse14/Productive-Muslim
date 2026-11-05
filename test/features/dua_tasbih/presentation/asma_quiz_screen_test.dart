@@ -190,7 +190,5 @@ void main() {
       await tester.pumpWidget(variantApp(const AsmaQuizScreen(), v));
       await tester.pumpAndSettle();
     },
-    // Shared QSegControl segments are 40dp tall (lib/shared, not here).
-    tapTargets: false,
   );
 }
