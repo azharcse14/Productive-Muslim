@@ -3730,6 +3730,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditsAzanAudio => 'Azan sound (excerpt)';
 
   @override
+  String get creditsAzanAudioValue =>
+      '\"The Adhan - Muslim Call to Prayer\" by Aaqib Azeez, Wikimedia Commons (CC BY-SA 4.0)';
+
+  @override
   String get creditsGroupFonts => 'Fonts';
 
   @override

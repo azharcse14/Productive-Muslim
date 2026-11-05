@@ -5612,6 +5612,12 @@ abstract class AppLocalizations {
   /// **'Azan sound (excerpt)'**
   String get creditsAzanAudio;
 
+  /// No description provided for @creditsAzanAudioValue.
+  ///
+  /// In en, this message translates to:
+  /// **'\"The Adhan - Muslim Call to Prayer\" by Aaqib Azeez, Wikimedia Commons (CC BY-SA 4.0)'**
+  String get creditsAzanAudioValue;
+
   /// No description provided for @creditsGroupFonts.
   ///
   /// In en, this message translates to:

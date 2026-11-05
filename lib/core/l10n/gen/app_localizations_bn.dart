@@ -3711,6 +3711,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get creditsAzanAudio => 'আজানের ধ্বনি (অংশবিশেষ)';
 
   @override
+  String get creditsAzanAudioValue =>
+      '\"The Adhan - Muslim Call to Prayer\" — Aaqib Azeez, উইকিমিডিয়া কমন্স (CC BY-SA 4.0)';
+
+  @override
   String get creditsGroupFonts => 'ফন্ট';
 
   @override

@@ -44,6 +44,7 @@ void main() {
         '${arb['creditsQuranText']} '
         '${arb['shareTranslatorPickthall']} '
         '${arb['shareTranslatorMuhiuddinKhan']} '
+        '${arb['creditsAzanAudioValue']} '
         '${File('lib/features/settings/presentation/screens/credits_screen.dart').readAsStringSync()}';
     for (final name in [
       'Tanzil',
