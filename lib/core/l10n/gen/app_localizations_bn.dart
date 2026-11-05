@@ -3954,6 +3954,16 @@ class AppLocalizationsBn extends AppLocalizations {
       'নবী-রাসূলদের তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get prophetsTabProphets => '২৫ জন নবী';
+
+  @override
+  String get prophetsTabLineage => 'পূর্ণ বংশধারা';
+
+  @override
+  String get prophetsLineageNote =>
+      'প্রচলিত বংশতালিকা থেকে নেওয়া: ঐতিহাসিক বর্ণনা, যার অনেকগুলো ইসরাইলি সূত্রের। নবীদের মাঝের নামগুলো নিশ্চিত নয় এবং এক এক কিতাবে এক এক রকম।';
+
+  @override
   String get prophetSummaryComingSoon => 'সারসংক্ষেপ শীঘ্রই আসছে।';
 
   @override
@@ -3965,6 +3975,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get creditsProphetsSource =>
       'এই অ্যাপের জন্য কুরআন ও হাদিস থেকে লেখা; রেফারেন্সগুলো অ্যাপের কুরআন ও হাদিসের পাঠের সাথে মিলিয়ে দেখা। এখনো কোনো আলেম পর্যালোচনা করেননি';
+
+  @override
+  String get creditsProphetsLineageSource =>
+      'পূর্ণ বংশধারা: নামগুলো “সালাসিলাহ নবী/রাসূল” বংশতালিকা থেকে নেওয়া (লেখক অজানা); লূতের বংশ এবং মারইয়ামের পিতার নাম (ইমরান, কুরআন ৬৬:১২) সংশোধিত। এখনো কোনো আলেম পর্যালোচনা করেননি';
 
   @override
   String get storiesTitle => 'গল্প';

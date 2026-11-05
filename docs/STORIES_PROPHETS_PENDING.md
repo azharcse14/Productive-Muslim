@@ -81,6 +81,20 @@ Every ref must be read and matched before it ships.
     as the entry's own summary says.
   - A scholar should confirm these links, especially Dhul-Kifl, Yunus → Binyamin, the
     Harun → Ilyas/Al-Yasa chains, and Sulaiman → Zakariya/'Isa.
+- **Full lineage tab (2026-11-05, `feat/prophets-full-lineage`).** `prophet_lineage.json`
+  has all 146 people from the same chart (prophets by id, the rest with En/Bn names), in
+  depth-first order so the tree needs only 4 lanes. UNVERIFIED. Changes from the chart:
+  - Lut: Azar → Haran → Lut (the chart draws Hud → Haran ⇢ Lut).
+  - Maryam's father is written 'Imran (Quran 66:12), not "Heli"; Hezekiah → 'Imran is
+    dashed (centuries apart, though the chart draws it solid).
+  - Dawud: Isya (Jesse) → Dawud. The chart puts an extra "'Uwaid" between them, but in
+    Ibn Kathir's line 'Uwayd is Isha's father, i.e. the chart's "Ufiz". It was left out.
+  - Shuayb: only the Madyan ⇢ Safyun line is kept; the chart also links Safyun to Lut (the
+    report that Shuayb's mother was Lut's daughter). One parent per person.
+  - "Aziz" (probably 'Uzair) is kept as in the chart, dashed from Izar.
+  - The chart's spellings are Malay (Matulsalkh, Ummanizab, Yauksaun …). Only "dz" → "dh"
+    and the Prophet ﷺ's well-known ancestors (Khuzaimah, Fihr, Lu'ayy …) were respelled;
+    the rest, and all Bangla spellings, need a check.
 - **Muslim numbering: DECIDED 2026-11-05** (default chosen when the owner said "do all"; the
   owner may revisit). Every Muslim ref uses the bundled hadith.db numbering (sequential, e.g.
   Muslim 6162 = 2379 in the common numbering), since the app and the ref checker read that DB.

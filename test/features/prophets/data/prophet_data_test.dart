@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/prophets/data/prophet_repository_impl.dart';
 import 'package:productive_muslim/features/prophets/domain/entities/lineage.dart';
+import 'package:productive_muslim/features/prophets/domain/entities/prophet.dart';
 
 void main() {
   group('ProphetRepositoryImpl.parse', () {
@@ -53,6 +54,92 @@ void main() {
 
     test('a non-list document parses to nothing', () {
       expect(ProphetRepositoryImpl.parse('{}'), isEmpty);
+    });
+  });
+
+  group('ProphetRepositoryImpl.parseLineage', () {
+    test('prophets take their names; others need their own; order = '
+        'position', () {
+      const ibrahim = Prophet(
+        id: 'ibrahim',
+        order: 6,
+        nameAr: 'إبراهيم',
+        nameEn: 'Ibrahim',
+        nameBn: 'ইবরাহিম',
+        titleEn: 'Khalilullah',
+      );
+      final people = ProphetRepositoryImpl.parseLineage(
+        jsonEncode([
+          {'id': 'azar', 'nameEn': 'Azar', 'nameBn': 'আযর', 'parent': null},
+          {'id': 'nameless', 'parent': 'azar'},
+          {'id': 'ibrahim', 'parent': 'azar', 'parentDistant': true},
+          'not a map',
+        ]),
+        [ibrahim],
+      );
+      expect(people.map((p) => p.id), ['azar', 'ibrahim']);
+      expect(people.map((p) => p.order), [1, 2]);
+      expect(people.first.nameFor('bn'), 'আযর');
+      expect(people.first.nameAr, isEmpty);
+      final i = people.last;
+      expect(
+        (i.nameAr, i.nameEn, i.parent, i.parentDistant),
+        ('إبراهيم', 'Ibrahim', 'azar', true),
+      );
+      expect(i.titleEn, isEmpty);
+    });
+  });
+
+  group('bundled prophet_lineage.json', () {
+    final prophets = ProphetRepositoryImpl.parse(
+      File(ProphetRepositoryImpl.path).readAsStringSync(),
+    );
+    final raw = File(ProphetRepositoryImpl.lineagePath).readAsStringSync();
+    final people = ProphetRepositoryImpl.parseLineage(raw, prophets);
+    final byId = {for (final p in people) p.id: p};
+    final prophetIds = {for (final p in prophets) p.id};
+
+    test('every entry parses, ids unique, all 25 prophets present', () {
+      expect(people, hasLength((jsonDecode(raw) as List).length));
+      expect(byId, hasLength(people.length));
+      expect(byId.keys, containsAll(prophetIds));
+      for (final p in people) {
+        expect(p.nameEn, isNotEmpty, reason: p.id);
+        expect(p.nameBn, isNotEmpty, reason: p.id);
+      }
+    });
+
+    test('Adam is the only root; every parent comes earlier', () {
+      expect(people.first.id, 'adam');
+      for (final p in people.skip(1)) {
+        expect(byId[p.parent], isNotNull, reason: p.id);
+        expect(byId[p.parent]!.order, lessThan(p.order), reason: p.id);
+      }
+    });
+
+    test("each prophet's nearest prophet ancestor matches prophets.json", () {
+      for (final p in prophets.where((p) => p.id != 'adam')) {
+        var link = byId[p.id]!;
+        var distant = link.parentDistant;
+        var up = byId[link.parent]!;
+        while (!prophetIds.contains(up.id)) {
+          distant = true;
+          link = up;
+          up = byId[link.parent]!;
+        }
+        expect((up.id, distant), (p.parent, p.parentDistant), reason: p.id);
+      }
+    });
+
+    test('the tree stays narrow and puts no dot on a passing line', () {
+      final rows = layoutLineage(people);
+      for (final row in rows) {
+        expect(row.through.keys, isNot(contains(row.column)));
+        expect(row.column, lessThan(5), reason: row.prophet.id);
+        for (final c in row.outgoing.keys) {
+          expect(c, lessThan(5), reason: row.prophet.id);
+        }
+      }
     });
   });
 

@@ -3975,6 +3975,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t load the prophets. Please try again.';
 
   @override
+  String get prophetsTabProphets => '25 Prophets';
+
+  @override
+  String get prophetsTabLineage => 'Full lineage';
+
+  @override
+  String get prophetsLineageNote =>
+      'From a traditional genealogy chart: historical reports, many from Israelite sources. The names between the prophets are not certain and differ between books.';
+
+  @override
   String get prophetSummaryComingSoon => 'Summary coming soon.';
 
   @override
@@ -3986,6 +3996,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get creditsProphetsSource =>
       'Drafted for this app from the Quran and hadith; references checked against the bundled Quran and hadith text. Not yet reviewed by a scholar';
+
+  @override
+  String get creditsProphetsLineageSource =>
+      'Full lineage: names from the genealogy chart “Salasilah Nabi/Rasul” (author unknown), with Lut’s line and Maryam’s father (‘Imran, Quran 66:12) corrected. Not yet reviewed by a scholar';
 
   @override
   String get storiesTitle => 'Stories';
