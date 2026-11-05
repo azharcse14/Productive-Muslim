@@ -67,15 +67,15 @@ Every ref must be read and matched before it ships.
   owner may revisit). Every Muslim ref uses the bundled hadith.db numbering (sequential, e.g.
   Muslim 6162 = 2379 in the common numbering), since the app and the ref checker read that DB.
   `rasul_names.json` was converted: 2354 → 6105, 2355 → 6108, 2276 → 5938.
-- "Isra'il" is set as Yaqub's title. It is really an alternate name; decide whether it
-  stays.
+- Yaqub's title is now "Isra'il (another name of Yaqub)" / "ইসরাইল (ইয়াকুবের আরেক নাম)"
+  (decided 2026-11-05, see "Content decisions" below).
 
 ## Story lists
 
 ### Hadith stories (`hadith_stories.json`)
 Muslim refs use the bundled DB numbering (decided 2026-11-05).
 
-**Done (58):** three_men_in_the_cave (Bukhari 2272) · man_who_killed_one_hundred (Bukhari 3470, Muslim 7008) · leper_bald_and_blind (Bukhari 3464) · juraij_the_worshipper (Bukhari 2482, Bukhari 3436) · baby_who_spoke_about_the_rider (Bukhari 3436) · man_who_watered_a_thirsty_dog (Bukhari 2363) · sinful_woman_and_the_dog (Bukhari 3467) · woman_and_the_cat (Bukhari 3482) · thousand_dinars_and_the_wood (Bukhari 2291) · man_who_ordered_his_body_burnt (Bukhari 3481) · boy_magician_monk_and_king (Muslim 7511) · cloud_that_watered_a_garden (Muslim 7473) · jar_of_gold (Bukhari 3472) · sulaiman_and_the_two_mothers (Bukhari 3427) · ibrahim_sarah_and_the_tyrant (Bukhari 2217) · hajar_ismail_and_zamzam (Bukhari 3364) · musa_and_the_angel_of_death (Bukhari 1339) · musa_and_the_stone (Bukhari 278) · prophet_and_the_ants (Bukhari 3019) · beginning_of_revelation (Bukhari 3) · isra_and_miraj (Bukhari 3887) · abu_hurairah_and_the_shaytan (Bukhari 2311) · kab_ibn_malik_and_tabuk (Bukhari 4418) · ansari_who_fed_his_guest (Bukhari 3798) · thumamah_ibn_uthal (Bukhari 4372) · abu_talhah_and_umm_sulaym (Bukhari 5470) · jabir_food_at_the_trench (Bukhari 4101) · last_man_to_enter_paradise (Bukhari 6571) · weeping_palm_trunk (Bukhari 3584) · debtors_funeral (Bukhari 2289) · earth_threw_out_the_apostate (Bukhari 3617) · tamim_ad_dari_and_al_jassasah (Muslim 7386) · musa_and_al_khidr (Bukhari 3401) · merchant_who_forgave_debtors (Bukhari 2078) · thorny_branch_on_the_road (Bukhari 652) · mother_who_shared_one_date (Bukhari 1418) · ayyub_and_the_golden_locusts (Bukhari 279) · adam_and_musa_argue (Bukhari 3409) · two_whose_third_is_allah (Bukhari 3653) · charity_given_to_a_thief (Bukhari 1421) · isa_and_the_thief (Bukhari 3444) · forgive_my_people (Bukhari 6929) · al_fatiha_as_ruqyah (Bukhari 2276) · hittah_the_changed_word (Bukhari 4479) · ibrahim_and_azar_on_judgement_day (Bukhari 3350) · the_jewish_boy_who_served_the_prophet (Bukhari 1356) · cow_and_wolf_that_spoke (Bukhari 3471) · sun_held_back (Bukhari 3124) · bedouin_in_the_mosque (Bukhari 220) · water_from_his_fingers (Bukhari 3576) · joy_over_the_lost_camel (Bukhari 6309, Bukhari 6308, Muslim 6960) · uwais_al_qarani (Muslim 6492) · allah_will_not_forgive_so_and_so (Muslim 6681) · abu_hurairah_and_his_mother (Muslim 6396) · abu_hurairah_and_the_bowl_of_milk (Bukhari 6452) · khubaib (Bukhari 3045) · hadith_of_jibril (Bukhari 50) · heraclius_and_abu_sufyan (Bukhari 7)
+**Done (61):** three_men_in_the_cave (Bukhari 2272) · man_who_killed_one_hundred (Bukhari 3470, Muslim 7008) · leper_bald_and_blind (Bukhari 3464) · juraij_the_worshipper (Bukhari 2482, Bukhari 3436) · baby_who_spoke_about_the_rider (Bukhari 3436) · man_who_watered_a_thirsty_dog (Bukhari 2363) · sinful_woman_and_the_dog (Bukhari 3467) · woman_and_the_cat (Bukhari 3482) · thousand_dinars_and_the_wood (Bukhari 2291) · man_who_ordered_his_body_burnt (Bukhari 3481) · boy_magician_monk_and_king (Muslim 7511) · cloud_that_watered_a_garden (Muslim 7473) · jar_of_gold (Bukhari 3472) · sulaiman_and_the_two_mothers (Bukhari 3427) · ibrahim_sarah_and_the_tyrant (Bukhari 2217) · hajar_ismail_and_zamzam (Bukhari 3364) · musa_and_the_angel_of_death (Bukhari 1339) · musa_and_the_stone (Bukhari 278) · prophet_and_the_ants (Bukhari 3019) · beginning_of_revelation (Bukhari 3) · isra_and_miraj (Bukhari 3887) · abu_hurairah_and_the_shaytan (Bukhari 2311) · kab_ibn_malik_and_tabuk (Bukhari 4418) · ansari_who_fed_his_guest (Bukhari 3798) · thumamah_ibn_uthal (Bukhari 4372) · abu_talhah_and_umm_sulaym (Bukhari 5470) · jabir_food_at_the_trench (Bukhari 4101) · last_man_to_enter_paradise (Bukhari 6571) · weeping_palm_trunk (Bukhari 3584) · debtors_funeral (Bukhari 2289) · earth_threw_out_the_apostate (Bukhari 3617) · tamim_ad_dari_and_al_jassasah (Muslim 7386) · musa_and_al_khidr (Bukhari 3401) · merchant_who_forgave_debtors (Bukhari 2078) · thorny_branch_on_the_road (Bukhari 652) · mother_who_shared_one_date (Bukhari 1418) · ayyub_and_the_golden_locusts (Bukhari 279) · adam_and_musa_argue (Bukhari 3409) · two_whose_third_is_allah (Bukhari 3653) · charity_given_to_a_thief (Bukhari 1421) · isa_and_the_thief (Bukhari 3444) · forgive_my_people (Bukhari 6929) · al_fatiha_as_ruqyah (Bukhari 2276) · hittah_the_changed_word (Bukhari 4479) · ibrahim_and_azar_on_judgement_day (Bukhari 3350) · the_jewish_boy_who_served_the_prophet (Bukhari 1356) · cow_and_wolf_that_spoke (Bukhari 3471) · sun_held_back (Bukhari 3124) · bedouin_in_the_mosque (Bukhari 220) · water_from_his_fingers (Bukhari 3576) · joy_over_the_lost_camel (Bukhari 6309, Bukhari 6308, Muslim 6960) · uwais_al_qarani (Muslim 6492) · allah_will_not_forgive_so_and_so (Muslim 6681) · abu_hurairah_and_his_mother (Muslim 6396) · abu_hurairah_and_the_bowl_of_milk (Bukhari 6452) · khubaib (Bukhari 3045) · hadith_of_jibril (Bukhari 50) · heraclius_and_abu_sufyan (Bukhari 7) · the_card_bitaqah (Tirmidhi 2639) · adam_gives_dawud_forty_years (Tirmidhi 3076) · camel_that_complained (Abu Dawud 2549)
 
 **Fixed 2026-11-05:** `woman_and_the_cat` no longer ends with a moral line that is not in the
 hadith. The two dog stories now say "চামড়ার মোজা" (khuff).
@@ -84,7 +84,8 @@ hadith. The two dog stories now say "চামড়ার মোজা" (khuff)
 - Condensed long hadith: Ka'b ibn Malik (4418), Heraclius (7), Tamim ad-Dari (Muslim 7386),
   Hajar and Zamzam (3364), Isra and Mi'raj (3887). Nothing was added, but parts were left out.
 - `musa_and_al_khidr`: Bukhari 3401 in the DB ends at the parting, so al-Khidr's explanations
-  (Quran 18:79-82) are not included. al-Khidr has no "(AS)" (his prophethood is a difference).
+  (Quran 18:79-82) are not included. al-Khidr now has "(AS)" in both story files (decided
+  2026-11-05, majority view; see "Content decisions").
 - `isra_and_miraj`: Jibril's words on the milk read "the fitrah" (the Arabic); the DB English has
   "the Islamic religion". This narration has no Bayt al-Maqdis part.
 - Unnamed prophets stay unnamed: the ants (3019), the sun held back (3124).
@@ -99,9 +100,9 @@ hadith. The two dog stories now say "চামড়ার মোজা" (khuff)
   "(সদকাতুল ফিতর)" after the zakat of Ramadan.
 - Narrators given only as "'Abdullah" in the DB (6571, 6929) are not expanded to Ibn Mas'ud.
 
-**Pending (outside Bukhari/Muslim, check the grading with a scholar before writing):**
-The card / Bitaqah (Tirmidhi 2639) · Adam gives Dawud 40 years (Tirmidhi 3076) · The camel
-that complained (Abu Dawud 2549). Uwais al-Qarani turned out to be in Muslim (6492) and is done.
+**Pending:** none. The three non-Bukhari/Muslim stories were graded by research and written
+2026-11-05 (gradings and sources under "Content decisions"). Uwais al-Qarani turned out to be
+in Muslim (6492) and is done.
 
 ### Quran stories (`quran_stories.json`)
 
@@ -183,7 +184,8 @@ tabuk_and_the_three · masjid_ad_dirar · the_mubahala
 - alyasa_and_dhulkifl adds 21:85-86; dawud_mountains_and_iron adds 38:17-20.
 - masjid_ad_dirar: the text says scholars differ on whether 9:108's mosque is Quba or the
   Prophet's mosque.
-- Bangla numerals in Bangla text (২৭:১৯, ১০০) — check this matches the house style.
+- Bangla numerals in Bangla text (২৭:১৯, ১০০): checked 2026-11-05, this is the house style
+  (see "Content decisions").
 
 **Pending (planned ranges):**
 - None: every planned range is written (parts 1 and 2, 2026-11-05).
@@ -196,5 +198,67 @@ tabuk_and_the_three · masjid_ad_dirar · the_mubahala
 | File | Done | Pending |
 |---|---|---|
 | quran_stories.json | 101 | none planned (7:137-141, 2:63-64 noted as candidates) |
-| hadith_stories.json | 58 | 3 |
+| hadith_stories.json | 61 | none |
 | prophets.json | 25 entries, 25 summaries (review pending) | scholar review |
+
+## Content decisions (2026-11-05, branch `fix/content-decisions`)
+
+Settled by research at the owner's request (majority scholarly view as default). A scholar
+should still review them with the rest of the content.
+
+1. **Three hadith graded, all written.** Gradings are kept here, not in the story bodies (no
+   existing entry puts a grading in its text). The bundled DB numbering matches each ref, and
+   each story was retold from the DB English (`tool/verify_refs.py`).
+   - **Bitaqah, Tirmidhi 2639** (DB grade: Sahih). at-Tirmidhi: "hasan gharib"; al-Hakim:
+     sahih on Muslim's condition; al-Albani: sahih; Zubair 'Ali Za'i: sahih. The same hadith
+     is Ibn Majah 4300 (al-Albani: sahih). Story `the_card_bitaqah`.
+   - **Adam gives Dawud forty years, Tirmidhi 3076** (DB grade: Hasan Sahih). at-Tirmidhi:
+     "hasan sahih" (narrated by several routes from Abu Hurairah); al-Hakim: sahih on Muslim's
+     condition; al-Albani: sahih; Zubair 'Ali Za'i: hasan. Story `adam_gives_dawud_forty_years`.
+     The last line follows the Arabic (خطئ, "erred"); the DB English has "sinned". The other
+     version at the end of Tirmidhi's Tafsir (different numbers) was not used.
+   - **The camel that complained, Abu Dawud 2549** (DB grade: Sahih). al-Albani: sahih
+     (Sahih Abi Dawud 2549; Sahih at-Targhib 2269); Shu'ayb al-Arna'ut: isnad sahih; al-Hakim:
+     sahih al-isnad; Ibn Kathir (Irshad al-Faqih 2/247): its origin is in Muslim. Note: one
+     al-Albani line on sunnah.com/tohed reads "sahih, in Muslim, only the sentence about the
+     mound and the palm grove"; Muslim (342) has only that part, not the camel story. The
+     camel story itself is graded sahih by al-Albani in Sahih Abi Dawud and Sahih at-Targhib
+     and by al-Arna'ut, so it was written. Flag for the scholar. Story `camel_that_complained`.
+     "Wiped the temple of its head" (ذفراه) is rendered "stroked the side of its head".
+2. **al-Khidr gets "(AS)".** The majority of scholars hold that he was a prophet (Ibn 'Atiyyah
+   via Ibn Hajar; al-Fakhr ar-Razi attributes it to many scholars; IslamQA 21793 concludes he
+   was a prophet from the ayat, e.g. "I did it not of my own accord", 18:82). A minority (e.g.
+   al-Qushayri) say he was a wali. Applied as an honorific only: hadith story title + first
+   mention (EN/BN), Quran story first mention (EN/BN). The Quran story title "the Servant of
+   Allah (al-Khidr)" was left as is to avoid nested brackets. Not changed (spelling only, out of
+   scope): the hadith story spells him খিযির, the Quran story খিজির.
+3. **Isra'il.** It is another name of Ya'qub, not an honorific (scholars' explanation of 3:93 and
+   19:58; Yaqub's own summary already says so). Kept as the title, but labelled like the other
+   "Name (meaning)" titles: "Isra'il (another name of Yaqub)" / "ইসরাইল (ইয়াকুবের আরেক নাম)".
+4. **Bangla numerals: Bangla digits are the house style.** Every Bangla string in
+   `assets/data/*.json` that has a digit uses Bangla digits (duas 21, tibb_nabawi 15,
+   quran_stories 11, hadith_stories 5, hadith_books 2, ruqyah 3). The only ASCII digits in Bangla
+   text are the verse markers "(1)", "(2)" inside one `ruqyah.json` passage translation (religious
+   text, not changed; flag for review). Stories needed no change; the new stories have no digits.
+   Refs chips (`Bukhari 50`) stay ASCII since they are shared across languages.
+
+### Suspected translation errors (not changed — religious text)
+
+- **Quran 31:14, English (Pickthall, `quran.db`)** reads "And We have enjoined upon man
+  concerning his **partners**". The Arabic is بِوَالِدَيْهِ ("his parents"), the same ayah later
+  says "unto thy parents", and Sahih International has "his parents". The same "partners" text
+  is on alquran.cloud, corpus.quran.com and quranpedia, so it comes from the shared Tanzil
+  digital text; the 1930 print was not checked. Very likely a typo for "parents". Fix it in the
+  build pipeline (and bump `bundledVersion` + `PRAGMA user_version`) only with the owner's OK.
+- **Quran 31:14, Bangla (`quran.db`)**: "পিতা-মতার" in the second sentence looks like a typo for
+  "পিতা-মাতার" (the first sentence has it right).
+
+### Sources
+
+- Gradings: hadithunlocked.com (tirmidhi:2639, tirmidhi:3076, abudawud:2549),
+  en.tohed.com/hadith/abu-dawud/2549, surahquran.com/Hadith-120761.html (dorar.net mirror:
+  al-Albani, Sahih Abi Dawud 2549; Ibn Kathir), dorar.net search results (Sahih at-Targhib 2269),
+  alim.org (Ibn Majah 4300). sunnah.com and dorar.net blocked direct fetches (HTTP 403).
+- al-Khidr: islamqa.info/en/answers/21793; islamqa.org (SeekersGuidance, "What do we know
+  about Khidr"); dar-alifta.org fatwa 5837.
+- 31:14: alquran.cloud/ayah/31:14, corpus.quran.com/translation.jsp?chapter=31&verse=14.
