@@ -94,6 +94,11 @@ final class CreditsScreen extends StatelessWidget {
           _Group(l10n.creditsGroupPlaces, [
             (l10n.creditsPrayerCalc, l10n.creditsPrayerCalcValue),
             (l10n.creditsCities, '© GeoNames (CC BY 4.0)'),
+            (
+              l10n.creditsAzanAudio,
+              '"The Adhan - Muslim Call to Prayer" by Aaqib Azeez, '
+                  'Wikimedia Commons (CC BY-SA 4.0)',
+            ),
           ]),
           _Group(l10n.creditsGroupFonts, [
             (
