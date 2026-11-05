@@ -12,11 +12,14 @@
 //   * English — eng-mohammedmarmadu (Mohammed Marmaduke William Pickthall,
 //     via Tanzil; license unverified, see DEPENDENCIES.md).
 //   * Bangla  — ben-muhiuddinkhan (Muhiuddin Khan, via Tanzil).
+// Bengali surah names + meanings: Bengali Wikipedia "কুরআনের সূরার তালিকা",
+// revision ContentSources.bnWikiSurahListOldid (CC BY-SA 4.0), adapted by
+// [bengaliSurahNames] — see DEPENDENCIES.md.
 // Per-edition attribution lines are printed on success — record them in the
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 5, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 6, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -24,6 +27,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:productive_muslim/config/content_sources.dart';
+import 'package:productive_muslim/core/utils/locale_digits.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 const _cdn =
@@ -66,6 +70,9 @@ const _attributionLines = [
   'English translation: Mohammed Marmaduke William Pickthall, '
       '"The Meaning of the Glorious Koran" (license unverified) — via Tanzil.net',
   'Bangla translation: Muhiuddin Khan — via Tanzil.net',
+  'Bengali surah names: Bengali Wikipedia contributors, CC BY-SA 4.0 '
+      '(adapted) — bn.wikipedia.org oldid '
+      '${ContentSources.bnWikiSurahListOldid}',
 ];
 
 Future<void> main() async {
@@ -78,11 +85,22 @@ Future<void> main() async {
     final english = _downloadVerses(_englishUrl, '${tmp.path}/eng.json');
     final bangla = _downloadVerses(_banglaUrl, '${tmp.path}/ben.json');
     final chapters = _downloadChapters('${tmp.path}/info.json');
+    stdout.writeln('Downloading ${ContentSources.bnWikiSurahListRaw} …');
+    final wikiPath = '${tmp.path}/bn_wiki.txt';
+    _run('curl', [
+      '-sfL',
+      '--retry',
+      '3',
+      '-o',
+      wikiPath,
+      ContentSources.bnWikiSurahListRaw,
+    ]);
+    final namesBn = bengaliSurahNames(File(wikiPath).readAsStringSync());
 
     _validate(chapters, arabic, english, bangla);
 
     final dbPath = '${tmp.path}/quran.db';
-    _buildDatabase(dbPath, chapters, arabic, english, bangla);
+    _buildDatabase(dbPath, chapters, namesBn, arabic, english, bangla);
 
     final out = File('assets/data/quran.db')
       ..parent.createSync(recursive: true);
@@ -225,6 +243,7 @@ void _validate(
 void _buildDatabase(
   String path,
   List<_Chapter> chapters,
+  List<BengaliSurahName> namesBn,
   _Verses arabic,
   _Verses english,
   _Verses bangla,
@@ -238,7 +257,9 @@ void _buildDatabase(
         transliteration TEXT,
         translation_en TEXT,
         ayah_count INTEGER,
-        revelation TEXT
+        revelation TEXT,
+        name_bn TEXT,
+        meaning_bn TEXT
       );
       CREATE TABLE ayahs(
         id INTEGER PRIMARY KEY,
@@ -249,11 +270,11 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 5;
+      PRAGMA user_version = 6;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
-      'INSERT INTO surahs VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO surahs VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     );
     final insertAyah = db.prepare(
       'INSERT INTO ayahs VALUES (?, ?, ?, ?, ?, ?)',
@@ -268,6 +289,8 @@ void _buildDatabase(
           chapter.translationEn,
           chapter.ayahCount,
           chapter.revelation,
+          namesBn[chapter.id - 1].name,
+          namesBn[chapter.id - 1].meaning,
         ]);
         for (var number = 1; number <= chapter.ayahCount; number++) {
           final key = (chapter.id, number);
@@ -334,4 +357,132 @@ String _stripBasmala(int surah, int number, String text, String basmala) {
   final prefix = '$basmala ';
   if (surah == 1 || number != 1 || !text.startsWith(prefix)) return text;
   return text.substring(prefix.length);
+}
+
+/// One surah's Bengali name and meaning.
+typedef BengaliSurahName = ({String name, String meaning});
+
+/// Raw (pronunciation, meaning) cells of the 114-row table on the Bengali
+/// Wikipedia surah list, wiki links reduced to their label, in surah order.
+/// Rows split on `|-`, cells on `||` and line-leading `|`; the first cell
+/// must be the row's surah number.
+List<BengaliSurahName> parseBnWikiSurahTable(String wikitext) {
+  final start = wikitext.indexOf('{|');
+  final end = start < 0 ? -1 : wikitext.indexOf('\n|}', start);
+  if (end < 0) {
+    throw const FormatException('no wikitable');
+  }
+  final link = RegExp(r'\[\[(?:[^|\]]*\|)?([^\]]*)\]\]');
+  String text(String cell) => cell.replaceAllMapped(link, (m) => m[1]!);
+  final rows = <BengaliSurahName>[];
+  for (final row in wikitext.substring(start, end).split('\n|-').skip(1)) {
+    final cells = [
+      for (final line in row.split('\n').skip(1))
+        if (line.trim().startsWith('|'))
+          ...line.trim().substring(1).split('||').map((c) => c.trim()),
+    ];
+    if (cells.length < 4) {
+      continue; // the header row has `!` cells only
+    }
+    final number = int.tryParse(LocaleDigits.toAscii(cells[0]));
+    if (number != rows.length + 1) {
+      throw FormatException('row ${rows.length + 1} is numbered ${cells[0]}');
+    }
+    rows.add((name: text(cells[1]), meaning: text(cells[3])));
+  }
+  if (rows.length != 114) {
+    throw FormatException('expected 114 rows, got ${rows.length}');
+  }
+  return rows;
+}
+
+/// Per-surah fixes to the Wikipedia cells, as (from, to) replacements
+/// applied before the generic clean-up; a stale one throws.
+const bnSurahNameFixes =
+    <int, ({(String, String)? name, (String, String)? meaning})>{
+      // آل عمران: "Aal" (family), not the article.
+      3: (name: ('আল- ইমরান', 'আলে-ইমরান'), meaning: null),
+      6: (name: null, meaning: ('গৃৃহপালিত', 'গৃহপালিত')),
+      7: (name: null, meaning: ('উচু', 'উঁচু')),
+      8: (name: null, meaning: ('যুদ্ধে-লব্ধ', 'যুদ্ধলব্ধ')),
+      // The page's own meaning cell spells it হাজ্জ.
+      22: (name: ('হাজ্জ্ব', 'হাজ্জ'), meaning: null),
+      37: (name: null, meaning: ('দাড়ানো', 'দাঁড়ানো')),
+      // Like 50's "আরবি বর্ণ ক্বাফ".
+      38: (name: null, meaning: ('আরবি বর্ণ', 'আরবি বর্ণ ছোয়াদ')),
+      // الزمر is zumar (the page's own link: "সূরা আয যুমার"); জুমার
+      // reads as Friday.
+      39: (name: ('জুমার', 'যুমার'), meaning: ('দল-বদ্ধ', 'দলবদ্ধ')),
+      // 32's spelling, সিজদাহ.
+      41: (name: ('সেজদাহ্\u200c', 'সিজদাহ'), meaning: null),
+      49: (name: null, meaning: ('সমূূহ', 'সমূহ')),
+      75: (name: null, meaning: ('পুনরুথান', 'পুনরুত্থান')),
+      84: (name: null, meaning: ('খন্ড-বিখন্ড করণ', 'খণ্ড-বিখণ্ডকরণ')),
+      91: (name: null, meaning: ('সূর্য্য', 'সূর্য')),
+      96: (name: null, meaning: ('রক্তপিন্ড', 'রক্তপিণ্ড')),
+      // The page names 111 লাহাব; the Arabic name the app shows is المسد.
+      111: (
+        name: ('লাহাব', 'মাসাদ'),
+        meaning: (
+          'জ্বলন্ত অঙ্গার',
+          'খেজুর আঁশের রশি (অপর নাম লাহাব: জ্বলন্ত অঙ্গার)',
+        ),
+      ),
+    };
+
+/// A leading "সূরা" and Arabic article (আল / আন / আত্ব / আশ্‌ …) followed
+/// by a space or hyphen — dropped: the common Bangla form is "সূরা বাকারা".
+final _bnArticle = RegExp(
+  '^(?:সূরা\\s+)?আ(?:ল|ন|ত্ব|ত|র|স|শ|য|দ)\u09CD?\u200C?[\\s-]+',
+);
+
+/// What a cleaned name/meaning may hold: Bengali letters and signs (no
+/// digits), space, hyphen, apostrophe, comma, colon, parentheses, ZWNJ.
+final _bnAllowed = RegExp("^[\u0980-\u09E5\u09F0-\u09FF \\-',:()\u200C]+\$");
+
+/// The 114 Bengali surah names and meanings from the Wikipedia
+/// [wikitext], adapted: [bnSurahNameFixes]; "সূরা" and the article
+/// dropped from names; ZWNJ kept only after a hasanta inside a word (a
+/// word-final hasanta + ZWNJ goes); "," and "/" written ", ". Throws on
+/// anything outside [_bnAllowed].
+List<BengaliSurahName> bengaliSurahNames(String wikitext) {
+  String clean(String text) => text
+      .replaceAll(RegExp('\u09CD\u200C(?=\\s|\$)'), '')
+      .replaceAll(RegExp('(?<!\u09CD)\u200C'), '')
+      .replaceAll(RegExp(r'\s*[,/]\s*'), ', ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  final raw = parseBnWikiSurahTable(wikitext);
+  return [
+    for (final (i, row) in raw.indexed)
+      _checkedBn(i + 1, (
+        name: clean(
+          _fixed(
+            row.name,
+            bnSurahNameFixes[i + 1]?.name,
+          ).replaceFirst(_bnArticle, ''),
+        ),
+        meaning: clean(_fixed(row.meaning, bnSurahNameFixes[i + 1]?.meaning)),
+      )),
+  ];
+}
+
+BengaliSurahName _checkedBn(int surah, BengaliSurahName entry) {
+  for (final text in [entry.name, entry.meaning]) {
+    if (!_bnAllowed.hasMatch(text)) {
+      throw FormatException('surah $surah: unexpected text "$text"');
+    }
+  }
+  return entry;
+}
+
+String _fixed(String text, (String, String)? fix) {
+  if (fix == null) {
+    return text;
+  }
+  final (from, to) = fix;
+  if (!text.contains(from)) {
+    throw StateError('fix "$from" not found in "$text"');
+  }
+  return text.replaceFirst(from, to);
 }

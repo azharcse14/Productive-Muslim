@@ -232,6 +232,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get creditsQuranTextLink => 'tanzil.net — খুলতে ট্যাপ করুন';
 
   @override
+  String get creditsBnSurahNames =>
+      'সূরার বাংলা নাম: বাংলা উইকিপিডিয়ার অবদানকারীগণ, CC BY-SA 4.0 (পরিমার্জিত)';
+
+  @override
+  String get creditsBnSurahNamesLink =>
+      'bn.wikipedia.org, “কুরআনের সূরার তালিকা” — খুলতে ট্যাপ করুন';
+
+  @override
   String get madhabHanafi => 'হানাফি';
 
   @override

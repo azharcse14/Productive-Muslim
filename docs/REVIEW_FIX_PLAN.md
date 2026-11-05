@@ -611,7 +611,7 @@ fresh branch from `master`.
 - [x] **Persistent badge-unlock toast.** (now in the app shell) It only fires while Muhasaba is open; it belongs in the app shell.
 - [ ] **Owner decisions:**
   - ~~Bengali date in calendar cells (design handoff §13).~~ Done `b5dbe37`.
-  - Bengali surah names, which need a licensed source. — deferred 2026-11-04 until a licensed source exists (religious text, owner sign-off).
+  - ~~Bengali surah names, which need a licensed source.~~ Done 2026-11-05 (`feat/bengali-surah-names`): the Wikipedia list below, pinned to revision 9164874, adapted and stored in quran.db v6 (`surahs.name_bn` / `meaning_bn`); cleaning decisions in `bnSurahNameFixes` (tool/quran_db_build.dart) and the DEPENDENCIES.md row; credited in Settings → Credits. Names kept as the page has them though they differ from the Arabic shown: 17 বনি ইসরাঈল (الإسراء), 41 হা-মীম সিজদাহ (فصلت), 94 ইনশিরাহ (الشرح) — the traditional Bangla names, also on teachers.gov.bd; owner may want them like 111. 76 is দাহর with meaning মানুষ (that meaning belongs to its other name, al-Insan). Earlier note: deferred 2026-11-04 until a licensed source exists (religious text, owner sign-off).
     Research 2026-11-05: one clearly licensed source exists — Bengali Wikipedia
     "কুরআনের সূরার তালিকা" (https://bn.wikipedia.org/wiki/?curid=1330631, revision 9164874,
     2026-09-18), a 114-row table with Bengali pronunciation ("বাংলা উচ্চারণ", e.g. আল ফাতিহা,

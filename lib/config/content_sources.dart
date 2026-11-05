@@ -16,6 +16,15 @@ abstract final class ContentSources {
   /// Uthmani Hafs) at this same SHA; that file last changed here 2026-09-12.
   static const quranApiSha = '93e6f64925ae76273520d636fcaaf061129f2316';
 
+  /// Bengali Wikipedia "কুরআনের সূরার তালিকা" (page id 1330631, CC BY-SA
+  /// 4.0), revision of 2026-09-18 — the Bengali surah names and meanings in
+  /// quran.db; read only by `tool/quran_db_build.dart`.
+  static const bnWikiSurahListOldid = 9164874;
+
+  /// Raw wikitext of exactly that revision.
+  static const bnWikiSurahListRaw =
+      'https://bn.wikipedia.org/w/index.php?oldid=$bnWikiSurahListOldid&action=raw';
+
   /// azharcse14/hadithbangla — HEAD of `main`, resolved 2026-10-29.
   static const hadithBanglaSha = '3de802c0bea9f0892ac47eb5903cb1498630b209';
 

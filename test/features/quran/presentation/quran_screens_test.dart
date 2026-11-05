@@ -36,6 +36,8 @@ final class FakeQuranRepository implements QuranRepository {
       translationEn: 'The Opening',
       ayahCount: 2,
       revelation: 'meccan',
+      nameBn: 'ফাতিহা',
+      meaningBn: 'সূচনা',
     ),
     Surah(
       id: 2,
@@ -44,7 +46,10 @@ final class FakeQuranRepository implements QuranRepository {
       translationEn: 'The Cow',
       ayahCount: 2,
       revelation: 'medinan',
+      nameBn: 'বাকারা',
+      meaningBn: 'বকনা-বাছুর-গরু',
     ),
+    // No Bengali name: the bn UI falls back to the transliteration.
     Surah(
       id: 3,
       nameArabic: 'آل عمران',
@@ -126,18 +131,8 @@ final class FakeQuranRepository implements QuranRepository {
       : Result.success(extraAyahs[surah] ?? ayahsData[surah] ?? const []);
 
   @override
-  Future<Result<List<Surah>>> searchSurahs(String query) async {
-    final needle = query.trim().toLowerCase();
-    if (needle.isEmpty) {
-      return const Result.success(surahsData);
-    }
-    return Result.success([
-      for (final s in surahsData)
-        if (s.transliteration.toLowerCase().contains(needle) ||
-            s.translationEn.toLowerCase().contains(needle))
-          s,
-    ]);
-  }
+  Future<Result<List<Surah>>> searchSurahs(String query) async =>
+      Result.success(filterSurahs(surahsData, query));
 
   @override
   Future<Result<QuranPosition?>> lastRead() async =>
@@ -318,6 +313,57 @@ void main() {
         find.text('No matching surah — try another name or number'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('bn shows Bengali surah names and meanings, en does not', (
+      tester,
+    ) async {
+      repo.storedLastRead = const QuranPosition(2, 2);
+      await store.load();
+      await tester.pumpWidget(
+        _app(const QuranScreen(), locale: const Locale('bn')),
+      );
+      await tester.pump();
+      expect(find.text('ফাতিহা'), findsOneWidget);
+      expect(find.text('সূচনা'), findsOneWidget);
+      expect(find.textContaining('বাকারা ·'), findsOneWidget); // resume card
+      expect(find.text('Aal-i-Imraan'), findsOneWidget); // no Bengali name
+      expect(find.text('Al-Faatiha'), findsNothing);
+      expect(find.text('The Opening'), findsNothing);
+
+      await tester.pumpWidget(_app(const QuranScreen()));
+      await tester.pump();
+      expect(find.text('Al-Faatiha'), findsOneWidget);
+      expect(find.text('The Opening'), findsOneWidget);
+      expect(find.text('ফাতিহা'), findsNothing);
+      expect(find.text('সূচনা'), findsNothing);
+    });
+
+    testWidgets('search matches a Bengali surah name', (tester) async {
+      await tester.pumpWidget(
+        _app(const QuranScreen(), locale: const Locale('bn')),
+      );
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), 'বাকারা');
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+
+      expect(find.text('বাকারা'), findsWidgets);
+      expect(find.text('ফাতিহা'), findsNothing);
+      expect(find.text('Aal-i-Imraan'), findsNothing);
+    });
+
+    testWidgets('the bn Juz tab names surahs in Bengali', (tester) async {
+      await tester.pumpWidget(
+        _app(const QuranScreen(), locale: const Locale('bn')),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('পারা'));
+      await tester.pumpAndSettle();
+      expect(find.text('ফাতিহা · ১:১'), findsOneWidget);
+      expect(find.text('বাকারা · ২:১৪২'), findsOneWidget);
     });
 
     testWidgets('a surah:ayah query offers a jump to that ayah', (
@@ -551,7 +597,7 @@ void main() {
       expect(share.shared, [
         'بِسْمِ اللَّهِ\n\n'
             'আল্লাহর নামে\n\n'
-            '— সূরা Al-Faatiha ১:১\n'
+            '— সূরা ফাতিহা ১:১\n'
             'অনুবাদ: মুহিউদ্দীন খান',
       ]);
 
@@ -586,6 +632,23 @@ void main() {
       await flushMarkRead(tester);
       // Opening without scrolling must not overwrite last-read with ayah 1.
       expect(repo.storedLastRead, isNull);
+    });
+
+    testWidgets('the bn header shows the Bengali name and meaning', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(const QuranReaderScreen(surahId: 1), locale: const Locale('bn')),
+      );
+      await tester.pump();
+
+      expect(find.text('ফাতিহা'), findsOneWidget);
+      expect(find.text('সূচনা'), findsOneWidget);
+      expect(find.text('Al-Faatiha'), findsNothing);
+      expect(find.text('The Opening'), findsNothing);
+      expect(find.text('বাকারা'), findsOneWidget); // next-surah card
+
+      await flushMarkRead(tester);
     });
 
     testWidgets('settings sheet switch hides the translation', (tester) async {

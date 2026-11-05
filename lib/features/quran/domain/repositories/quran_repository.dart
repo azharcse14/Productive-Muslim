@@ -9,8 +9,9 @@ abstract interface class QuranRepository {
 
   Future<Result<List<Ayah>>> ayahsOf(int surah);
 
-  /// [filterSurahs] over the index: number, Arabic name, transliteration
-  /// or English name; empty query returns all surahs in order.
+  /// [filterSurahs] over the index: number, Arabic name, transliteration,
+  /// English name or Bengali name / meaning; empty query returns all
+  /// surahs in order.
   Future<Result<List<Surah>>> searchSurahs(String query);
 
   Future<Result<QuranPosition?>> lastRead();
