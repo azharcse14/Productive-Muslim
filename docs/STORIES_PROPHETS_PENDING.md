@@ -119,14 +119,44 @@ outside Bukhari and Muslim. Check their grading with a scholar before writing th
 
 ### Quran stories (`quran_stories.json`)
 
-**Done (19), with the first and last ayah of every range checked:** adam_creation ·
+**Done (19 + 34 = 53). First 19, with the first and last ayah of every range checked:** adam_creation ·
 adam_in_the_garden · two_sons_of_adam · idris · nuh_and_the_flood · hud_and_ad ·
 salih_and_the_she_camel · ibrahim_searches_for_his_lord · ibrahim_and_his_father ·
 ibrahim_breaks_the_idols · ibrahim_in_the_fire · ibrahim_and_the_king ·
 ibrahim_and_the_four_birds · ibrahim_honoured_guests · lut_and_his_people ·
 ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismail_true_to_promise
 
-**Review before release:**
+**Done (34), 2026-11-05, branch `feat/quran-stories-1`, every ayah of every range read with
+the ref checker (scholar review still pending):** yusuf_1_the_dream · yusuf_2_the_well ·
+yusuf_3_the_house_of_al_aziz · yusuf_4_the_prison · yusuf_5_the_kings_dream ·
+yusuf_6_the_brothers_come_to_egypt · yusuf_7_the_family_reunited · yaqub_advice_to_his_sons ·
+ayyub_patience · shuayb_and_madyan · musa_birth_and_the_river · musa_flees_egypt ·
+musa_in_madyan · musa_and_the_burning_bush · musa_and_harun_before_pharaoh ·
+musa_and_the_magicians · pharaoh_the_signs_and_the_tower · believer_of_pharaohs_family ·
+wife_of_pharaoh · musa_crossing_the_sea · manna_quails_and_twelve_springs ·
+musa_asks_to_see_allah · the_golden_calf · the_seventy_chosen_men · the_cow_of_bani_israel ·
+the_holy_land_and_forty_years · the_word_hittah · qarun_and_his_treasure · musa_and_al_khidr ·
+harun_brother_of_musa · people_of_the_sabbath · man_who_threw_off_the_signs ·
+those_who_fled_death · talut_and_jalut
+
+**Review before release (2026-11-05 batch):**
+- Marked in the text as from the scholars/hadith, not the Quran: Binyamin's name; the
+  prostration in 12:100 as a greeting allowed in their law; Asiya's name (Bukhari 3769);
+  al-Khidr and Yusha' ibn Nun (Bukhari 3401); the "messenger" of 20:96 as Jibril; the
+  seventy (7:155) linked to 2:55-56.
+- Stated as a difference of opinion: who speaks 12:52-53; which man speaks 28:19; whether
+  the old man of Madyan is Shu'ayb; whether the People of the Wood are Madyan; the fate of
+  the silent group in 7:164-165; who the man in 7:175 and the people in 2:243 were; the
+  town of Hittah.
+- Left out: Zulaikha's name; the content of Ayyub's oath (38:44); 27:8 "whoever is in the
+  fire"; the changed word in 2:59 (comes from hadith, Bukhari 4479); the dead man naming
+  his killer (2:73, tafsir); the prophet of 2:246's name; 19:28 "sister of Harun".
+- `harun_brother_of_musa` is a summary of the Harun ayat in `prophets.json`, plus 23:45-48
+  and 7:150-151.
+- `talut_and_jalut` mentions Dawud (AS); link it from Dawud too if wanted.
+- 2:243 and 7:175-176 are very short, so those two stories are short as well.
+
+**Review before release (first 19):**
 - Habil/Qabil, Namrud and Sarah are not named in the Quran. The text marks those names as
   coming from the scholars.
 - The Hajar and Zamzam part comes from hadith (Bukhari 3364); its only Quran ref is 2:158.
@@ -135,18 +165,6 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
 - Mid-range ayahs of long ranges were not read one by one; re-read them during review.
 
 **Pending (planned ranges):**
-- Yusuf, 7 parts: 12:4-6, 7-18, 19-29, 30-42, 43-57, 58-79, 80-101.
-- Ya'qub's advice 2:132-133 · Ayyub 21:83-84, 38:41-44 · Shu'ayb 7:85-93, 11:84-95,
-  26:176-191.
-- Musa: birth 28:3-13, 20:38-40 · flight 28:14-21 · Madyan 28:22-28 · bush 28:29-35, 20:9-36,
-  27:7-12 · Pharaoh 20:43-56, 26:16-33 · magicians 7:109-126, 20:57-73, 26:34-51 · plagues and
-  Haman 7:130-136, 28:38, 40:36-37 · believer of Pharaoh's family 40:28-45 · Asiya 66:11, 28:9
-  · sea 26:52-68, 20:77-79, 10:88-92 · manna/springs 2:57, 2:60, 7:160 · seeing Allah and the
-  tablets 7:142-145 · calf/Samiri 20:83-98, 7:148-154 · the seventy 7:155-156, 2:55-56 · the
-  cow 2:67-73 · the holy land 5:20-26 · Hittah 2:58-59 · Qarun 28:76-82 · Khidr 18:60-82 ·
-  Harun.
-- Sabbath 7:163-166, 2:65-66 · the man who threw off the signs 7:175-176 · those who fled death
-  2:243 · Talut/Jalut 2:246-251.
 - Dawud: 34:10-11, 21:79-80 · 38:21-26 · 21:78-79.
 - Sulaiman: ants 27:15-19 · hoopoe/Saba 27:20-44 · wind/jinn 34:12-13, 21:81-82, 38:35-40 ·
   death 34:14.
@@ -166,11 +184,13 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
 - Not checked yet: the Sulaiman/Dawud batch (38:17-20, 27:15-19, 27:20-44, 34:12-13, 21:81-82)
   and 8:14-19.
 - Left out on purpose: Sulaiman and the horses 38:30-33 (the tafsir is disputed), and 2:54.
+- Not written in the Musa batch (outside the planned ranges): 7:137-141 (asking for an idol
+  after the crossing), 2:63-64 (the mount raised over them).
 
 ## Content totals at pause
 
 | File | Done | Pending |
 |---|---|---|
-| quran_stories.json | 19 | about 80 |
+| quran_stories.json | 53 | about 46 |
 | hadith_stories.json | 11 | 50 |
 | prophets.json | 25 entries, 0 summaries | 25 summaries |
