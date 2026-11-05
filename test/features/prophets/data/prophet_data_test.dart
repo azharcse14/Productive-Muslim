@@ -80,6 +80,17 @@ void main() {
       }
     });
 
+    test('summaries are filled in both languages', () {
+      for (final p in prophets) {
+        for (final summary in [p.summaryEn, p.summaryBn]) {
+          expect(summary, isNotEmpty, reason: p.id);
+          for (final paragraph in summary) {
+            expect(paragraph.trim(), isNotEmpty, reason: p.id);
+          }
+        }
+      }
+    });
+
     test('every parent resolves to an earlier prophet', () {
       final orderOf = {for (final p in prophets) p.id: p.order};
       for (final p in prophets) {
