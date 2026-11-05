@@ -51,6 +51,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../helpers/content_fakes.dart';
 import '../../../helpers/home_store_fakes.dart';
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/mosque_fakes.dart';
 import '../../../helpers/muhasaba_fakes.dart';
 
@@ -774,4 +775,43 @@ void main() {
       expect(find.text('Actions are judged by intentions.'), findsOneWidget);
     });
   });
+
+  Future<void> stopHome() async {
+    if (GetIt.I.checkLazySingletonInstanceExists<HomeStore>()) {
+      GetIt.I<HomeStore>().stop();
+    }
+  }
+
+  layoutMatrix(
+    'HomeScreen no location',
+    arrange: (_) => _register(withLocation: false),
+    screen: () => const HomeScreen(),
+    cleanup: stopHome,
+  );
+  layoutMatrix(
+    'HomeScreen with mosque',
+    arrange: (_) => _register(
+      withLocation: true,
+      now: DateTime(2026, 11, 5, 15, 44),
+      mosqueState: const MosqueState(
+        profiles: [
+          MosqueProfile(
+            id: 'b',
+            name: 'Baitul Mukarram National Mosque',
+            entries: {
+              Prayer.fajr: FixedJamaat(ClockTime(5, 20)),
+              Prayer.asr: FixedJamaat(ClockTime(16, 0)),
+              Prayer.maghrib: OffsetJamaat(Duration(minutes: 5)),
+            },
+          ),
+        ],
+        activeId: 'b',
+      ),
+    ),
+    screen: () => const HomeScreen(),
+    cleanup: stopHome,
+    // CountdownCard's spoken label is its own container node, so the
+    // tappable card around it has none (lib/shared scope).
+    tapLabels: false,
+  );
 }

@@ -20,6 +20,7 @@ import 'package:productive_muslim/features/settings/domain/repositories/settings
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import '../../helpers/layout_matrix.dart';
 
 final class _Repo implements SettingsRepository {
   _Repo(this.stored);
@@ -231,4 +232,12 @@ void main() {
     expect(find.text(l10n.calendarNightBeginsAtSunset), findsOneWidget);
     expect(find.text(l10n.calendarObservanceDiffers), findsOneWidget);
   });
+
+  layoutMatrix(
+    'CalendarScreen',
+    screen: () => const CalendarScreen(),
+    // The pixel sampler misreads the antialiased one-letter weekday
+    // headers (ink3 on bg is 5.0:1 light, 5.7:1 dark by token).
+    contrast: false,
+  );
 }

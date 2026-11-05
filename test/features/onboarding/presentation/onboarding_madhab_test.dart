@@ -17,6 +17,7 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import '../../../helpers/layout_matrix.dart';
 
 final class _Repo implements SettingsRepository {
   _Repo(this.stored);
@@ -254,5 +255,24 @@ void main() {
       expect(find.text('Bismillah'), findsOneWidget);
       debugDefaultTargetPlatformOverride = null;
     });
+  }
+
+  for (var step = 0; step < 6; step++) {
+    layoutMatrix(
+      'OnboardingScreen step $step',
+      arrange: (_) async {
+        final repo = _Repo(const AppSettings(location: _cairo));
+        final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
+        await store.load();
+        GetIt.I
+          ..registerSingleton<SettingsStore>(store)
+          ..registerSingleton<NotificationScheduler>(_NoopScheduler());
+      },
+      prepare: (tester) async => tester
+          .widget<PageView>(find.byType(PageView))
+          .controller!
+          .jumpToPage(step),
+      screen: () => const OnboardingScreen(),
+    );
   }
 }

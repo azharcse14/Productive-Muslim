@@ -26,6 +26,7 @@ import 'package:productive_muslim/features/settings/domain/entities/prayer_param
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 
 import '../../../helpers/home_store_fakes.dart';
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/mosque_fakes.dart';
 import '../../../helpers/settings_fakes.dart';
 
@@ -489,4 +490,33 @@ void main() {
       expect(repo.stored.profiles.single.name, 'Masjid');
     });
   });
+
+  layoutMatrix(
+    'MyMosqueScreen empty',
+    arrange: (_) => register(),
+    screen: () => const MyMosqueScreen(),
+  );
+  layoutMatrix(
+    'MyMosqueScreen with profiles',
+    arrange: (_) => register(
+      const MosqueState(
+        profiles: [
+          MosqueProfile(
+            id: 'a',
+            name: 'Baitul Mukarram National Mosque',
+            entries: {
+              Prayer.fajr: FixedJamaat(ClockTime(5, 20)),
+              Prayer.maghrib: OffsetJamaat(Duration(minutes: 5)),
+            },
+            jumuah: ClockTime(13, 30),
+          ),
+          MosqueProfile(id: 'b', name: 'Home'),
+        ],
+        activeId: 'a',
+      ),
+    ),
+    screen: () => const MyMosqueScreen(),
+    // Shared QSegControl segments are 40dp tall (lib/shared scope).
+    tapTargets: false,
+  );
 }

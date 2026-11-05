@@ -84,21 +84,39 @@ final class _MealTime extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     if (compact) {
-      return Row(
-        children: [
-          Icon(icon, size: 16, color: q.ink3),
-          const SizedBox(width: QSpace.s2),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: QType.caption.copyWith(color: q.ink2),
+      // The label ellipsizes first; the time only shrinks once the label
+      // is gone (large text on a 360dp phone).
+      return LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            Icon(icon, size: 16, color: q.ink3),
+            const SizedBox(width: QSpace.s2),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: QType.caption.copyWith(color: q.ink2),
+              ),
             ),
-          ),
-          const SizedBox(width: QSpace.s2),
-          Text(time, style: QType.num_(QType.label).copyWith(color: q.ink)),
-        ],
+            const SizedBox(width: QSpace.s2),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: (constraints.maxWidth - 16 - 2 * QSpace.s2).clamp(
+                  0,
+                  double.infinity,
+                ),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  time,
+                  style: QType.num_(QType.label).copyWith(color: q.ink),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }
     return Row(
