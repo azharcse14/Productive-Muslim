@@ -21,6 +21,8 @@ final class QCategoryTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
+  static const double _iconSize = 38;
+
   @override
   Widget build(BuildContext context) {
     final q = context.q;
@@ -32,28 +34,47 @@ final class QCategoryTile extends StatelessWidget {
       child: QCard(
         onTap: onTap,
         padding: const EdgeInsets.all(QSpace.s4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: q.primarySoft,
-                borderRadius: BorderRadius.circular(QRadius.sm),
-              ),
-              child: Icon(icon, size: 19, color: q.onPrimarySoft),
-            ),
-            const Spacer(),
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: QType.titleSm.copyWith(color: q.ink),
-            ),
-            const SizedBox(height: 2),
-            Text(subtitle, style: QType.caption.copyWith(color: q.ink2)),
-          ],
+        // Grids size tiles from a fixed aspect ratio, which can leave too
+        // little height for two title lines (narrow phones, 1.0× text);
+        // then the title drops to one ellipsized line instead of overflowing.
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final scaler = MediaQuery.textScalerOf(context);
+            double lineOf(TextStyle s) => scaler.scale(s.fontSize!) * s.height!;
+            final titleLines =
+                box.maxHeight - _iconSize - 2 - lineOf(QType.caption) >=
+                    2 * lineOf(QType.titleSm)
+                ? 2
+                : 1;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: _iconSize,
+                  height: _iconSize,
+                  decoration: BoxDecoration(
+                    color: q.primarySoft,
+                    borderRadius: BorderRadius.circular(QRadius.sm),
+                  ),
+                  child: Icon(icon, size: 19, color: q.onPrimarySoft),
+                ),
+                const Spacer(),
+                Text(
+                  title,
+                  maxLines: titleLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: QType.titleSm.copyWith(color: q.ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: QType.caption.copyWith(color: q.ink2),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -107,6 +107,11 @@ void main() {
           'ok/okSoft': (q.ok, q.okSoft),
           'warn/warnSoft': (q.warn, q.warnSoft),
           'urgent/urgentSoft': (q.urgent, q.urgentSoft),
+          // Accent QButton label.
+          'onAccent/accent': (q.onAccent, q.accent),
+          // Calm countdown caption over its dawn/night and evening sky tints.
+          'ink2/primarySoft': (q.ink2, q.primarySoft),
+          'ink2/accentSoft': (q.ink2, q.accentSoft),
         };
         for (final MapEntry(key: name, value: (fg, bg)) in pairs.entries) {
           expect(ratio(fg, bg), greaterThanOrEqualTo(4.5), reason: name);

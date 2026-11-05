@@ -35,7 +35,9 @@ final class QSegControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     return Container(
-      padding: const EdgeInsets.all(4),
+      // The 4dp vertical inset sits inside each segment's hit area below,
+      // so the tap target is the full 48dp track height.
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: q.surface2,
         borderRadius: BorderRadius.circular(QRadius.md),
@@ -55,35 +57,38 @@ final class QSegControl extends StatelessWidget {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => _select(i),
-                    child: AnimatedContainer(
-                      duration: QMotion.fast,
-                      curve: QMotion.ease,
-                      // + the 4dp track inset = a 48dp tap target.
-                      constraints: const BoxConstraints(
-                        minHeight: QTouch.minTarget - 8,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 9,
-                        horizontal: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: i == activeIndex
-                            ? q.surface
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(QRadius.sm),
-                        boxShadow: i == activeIndex ? q.e1 : null,
-                      ),
-                      // Shrink rather than break a word mid-glyph at
-                      // large text scales.
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          option,
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                          style: QType.label.copyWith(
-                            color: i == activeIndex ? q.ink : q.ink2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: AnimatedContainer(
+                        duration: QMotion.fast,
+                        curve: QMotion.ease,
+                        // + the 4dp insets above and below = 48dp.
+                        constraints: const BoxConstraints(
+                          minHeight: QTouch.minTarget - 8,
+                        ),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 9,
+                          horizontal: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: i == activeIndex
+                              ? q.surface
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(QRadius.sm),
+                          boxShadow: i == activeIndex ? q.e1 : null,
+                        ),
+                        // Shrink rather than break a word mid-glyph at
+                        // large text scales.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            option,
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                            style: QType.label.copyWith(
+                              color: i == activeIndex ? q.ink : q.ink2,
+                            ),
                           ),
                         ),
                       ),
