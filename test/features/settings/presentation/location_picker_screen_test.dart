@@ -21,6 +21,7 @@ import 'package:productive_muslim/features/settings/domain/usecases/save_setting
 import 'package:productive_muslim/features/settings/domain/usecases/search_cities.dart';
 import 'package:productive_muslim/features/settings/presentation/screens/location_picker_screen.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/settings_fakes.dart';
 
 const _cairo = City(
@@ -234,4 +235,15 @@ void main() {
       200 / tester.view.devicePixelRatio,
     );
   });
+
+  layoutMatrix(
+    'LocationPickerScreen',
+    arrange: (_) async {
+      GetIt.I
+        ..registerSingleton<SettingsStore>(await makeSettingsStore())
+        ..registerSingleton(SearchCities(_Cities()))
+        ..registerSingleton(GetCurrentLocation(_NoGps()));
+    },
+    screen: () => const LocationPickerScreen(),
+  );
 }

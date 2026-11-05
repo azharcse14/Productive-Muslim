@@ -17,6 +17,7 @@ import 'package:productive_muslim/features/settings/domain/entities/location_con
 import 'package:productive_muslim/features/settings/domain/repositories/settings_repository.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
+import '../../../helpers/layout_matrix.dart';
 
 final class _NeverSensors implements CompassSensorSource {
   @override
@@ -176,4 +177,12 @@ void main() {
       expect(find.byType(CompassDial), findsOneWidget);
     });
   });
+
+  for (final withLocation in const [false, true]) {
+    layoutMatrix(
+      'QiblaScreen location=$withLocation',
+      arrange: (_) => _register(withLocation: withLocation),
+      screen: () => const QiblaScreen(),
+    );
+  }
 }

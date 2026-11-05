@@ -16,6 +16,7 @@ import 'package:productive_muslim/features/settings/domain/usecases/save_setting
 import 'package:productive_muslim/features/settings/presentation/screens/credits_screen.dart';
 import 'package:productive_muslim/features/settings/presentation/screens/settings_screen.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/lock_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
@@ -271,4 +272,12 @@ void main() {
       expect(repo.stored.prayerParams.sahriSafetyMinutes, 3);
     });
   });
+
+  layoutMatrix('SettingsScreen', screen: () => const SettingsScreen());
+  layoutMatrix(
+    'CreditsScreen',
+    arrange: (_) async =>
+        GetIt.I.registerSingleton<ExternalLauncher>(_FakeLauncher()),
+    screen: () => const CreditsScreen(),
+  );
 }

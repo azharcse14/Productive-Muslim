@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/age_screen.dart';
+import '../../../helpers/layout_matrix.dart';
 
 Widget _app() => MaterialApp(
   theme: AppTheme.light(),
@@ -59,4 +60,6 @@ void main() {
       expect(picker.lastDate, DateTime(now.year, now.month, now.day));
     });
   });
+
+  layoutMatrix('AgeScreen', screen: () => const AgeScreen());
 }

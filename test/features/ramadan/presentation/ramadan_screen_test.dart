@@ -21,6 +21,7 @@ import 'package:productive_muslim/features/settings/domain/entities/location_con
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/share/domain/share_sheet.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/settings_fakes.dart';
 import '../../../helpers/share_sheet_fake.dart';
 
@@ -229,4 +230,31 @@ void main() {
     expect(find.text(l10n.ramadanShareFailed), findsOneWidget);
     await unmount(tester);
   });
+
+  layoutMatrix(
+    'RamadanScreen',
+    arrange: (_) async {
+      final settings = await makeSettingsStore(
+        const AppSettings(location: _dhaka),
+      );
+      final clock = _FixedClock(evening);
+      GetIt.I
+        ..registerSingleton(
+          EidAnnouncementStore(
+            read: () async => const {},
+            write: (_, {required ended}) async {},
+          ),
+        )
+        ..registerSingleton<SettingsStore>(settings)
+        ..registerSingleton<ZonedClock>(clock)
+        ..registerSingleton<GetPrayerDay>(
+          GetPrayerDay(PrayerDayRepositoryImpl(clock)),
+        )
+        ..registerSingleton<IsDayFasted>(
+          (day) => !day.isBefore(DateTime(2026, 2, 18)),
+        )
+        ..registerSingleton<ShareSheet>(FakeShareSheet());
+    },
+    screen: () => const RamadanScreen(),
+  );
 }

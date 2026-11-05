@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/ramadan/presentation/screens/zakat_screen.dart';
+import '../../../helpers/layout_matrix.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester) {
@@ -186,4 +187,6 @@ void main() {
     expect(find.text(l10n.zakatRowZakatable), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  layoutMatrix('ZakatScreen', screen: () => const ZakatScreen());
 }
