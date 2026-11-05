@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/settings_fakes.dart';
+import '../../../helpers/tracker_screen_matrix.dart';
 
 /// In-memory [MuhasabaRepository] — just enough behavior for the screen.
 final class InMemoryMuhasabaRepository implements MuhasabaRepository {
@@ -487,5 +489,82 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Add item'), findsOneWidget);
     });
+  });
+
+  group('polish matrix', () {
+    // lib/shared QSegControl segments are 40dp tall (the 4dp track inset
+    // isn't hittable) — reported as a shared-widget follow-up.
+    final segLabels = {
+      for (final l in [
+        lookupAppLocalizations(const Locale('en')),
+        lookupAppLocalizations(const Locale('bn')),
+      ]) ...[
+        l.todayTab,
+        l.dashboardTab,
+        l.periodToday,
+        l.periodWeek,
+        l.periodMonth,
+        l.periodYear,
+        l.muhasabaRangeCustom,
+        l.kindYesNo,
+        l.kindCount,
+        l.kindDuration,
+      ],
+    };
+    bool isSeg(SemanticsData d) => segLabels.contains(d.label);
+
+    Future<void> seed() async {
+      await store.setValue('salah_fajr', 1);
+      await store.setValue('quran', 3);
+    }
+
+    screenMatrix(
+      'MuhasabaScreen welcome',
+      () => const MuhasabaScreen(),
+      setUpCase: seed,
+      knownSmallTarget: isSeg,
+    );
+    screenMatrix(
+      'MuhasabaScreen today',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+      knownSmallTarget: isSeg,
+    );
+    screenMatrix(
+      'MuhasabaScreen dashboard',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+      afterPump: (tester) async {
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(MuhasabaScreen)),
+        );
+        await tester.tap(find.text(l10n.dashboardTab));
+        await tester.pumpAndSettle();
+      },
+      knownSmallTarget: isSeg,
+    );
+    screenMatrix(
+      'MuhasabaScreen item editor',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+      afterPump: (tester) async {
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(MuhasabaScreen)),
+        );
+        await tester.tap(find.byTooltip(l10n.addTracker));
+        await tester.pumpAndSettle();
+        expect(find.byType(BottomSheet), findsOneWidget);
+      },
+      knownSmallTarget: isSeg,
+    );
   });
 }

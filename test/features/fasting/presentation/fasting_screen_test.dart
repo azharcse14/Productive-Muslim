@@ -8,6 +8,7 @@ import 'package:productive_muslim/features/fasting/presentation/state/fasting_st
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import '../../../helpers/tracker_screen_matrix.dart';
 
 Widget _app(Widget home) => MaterialApp(
   theme: AppTheme.light(),
@@ -211,4 +212,15 @@ void main() {
       );
     });
   });
+
+  screenMatrix(
+    'FastingScreen',
+    () => const FastingScreen(),
+    setUpCase: () async {
+      final store = GetIt.I<FastingStore>();
+      await store.toggle(DateTime(2026, 6, 11));
+      await store.toggle(DateTime(2026, 6, 8), asQaza: true);
+      await store.setQazaOwed(10);
+    },
+  );
 }

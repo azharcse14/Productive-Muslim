@@ -145,13 +145,15 @@ final class _AchievementsScreenState extends State<AchievementsScreen> {
       crossAxisSpacing: QSpace.s3,
       // Height from content, not width: 64dp disc + gaps + three caption
       // lines (2-line name, status) at the user's text size, plus slack.
+      // Bangla (Noto fallback) lines run ~0.12em taller than the 1.4 line
+      // box, hence the +0.15 per line.
       mainAxisExtent:
           64 +
           QSpace.s2 +
           2 +
           3 *
               MediaQuery.textScalerOf(context).scale(QType.caption.fontSize!) *
-              QType.caption.height! +
+              (QType.caption.height! + 0.15) +
           QSpace.s2,
     ),
     itemCount: items.length,

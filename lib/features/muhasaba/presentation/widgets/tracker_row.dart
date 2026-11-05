@@ -173,7 +173,6 @@ final class TrackerRow extends StatelessWidget {
                   if (toggles && onEdit != null)
                     IconButton(
                       tooltip: l10n.editTracker,
-                      visualDensity: VisualDensity.compact,
                       icon: Icon(Icons.edit_outlined, size: 18, color: q.ink3),
                       onPressed: onEdit,
                     ),
@@ -262,9 +261,10 @@ final class _Stepper extends StatelessWidget {
             child: InkWell(
               onTap: onChanged == null ? null : () => _typeValue(context),
               // A floor, not a fixed width: big text or long numbers grow it.
+              // 48dp both ways: it's a tap target (type-a-value).
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
-                  minWidth: 38,
+                  minWidth: QTouch.minTarget,
                   minHeight: QTouch.minTarget,
                 ),
                 child: Center(
