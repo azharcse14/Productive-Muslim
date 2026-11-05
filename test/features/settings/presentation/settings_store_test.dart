@@ -16,9 +16,14 @@ final class _InMemoryRepo implements SettingsRepository {
   bool failLoad = false;
 
   @override
-  Future<Result<AppSettings>> load() async => failLoad
-      ? const Result.failure(UnexpectedFailure('boom'))
-      : Result.success(stored);
+  Future<Result<AppSettings>> load() async {
+    // Snapshot, then yield: a real read returns what was stored when it ran.
+    final snapshot = stored;
+    await Future<void>.delayed(Duration.zero);
+    return failLoad
+        ? const Result.failure(UnexpectedFailure('boom'))
+        : Result.success(snapshot);
+  }
 
   @override
   Future<Result<void>> save(AppSettings settings) async {
@@ -60,6 +65,26 @@ void main() {
       expect(repo.stored.themeMode, AppThemeMode.light);
       // Only the unpersisted change counted as a failure.
       expect(store.saveFailures.value, 1);
+    });
+
+    test('overlapping updates after a failed read both land', () async {
+      final (store, repo) = _make();
+      repo
+        ..stored = const AppSettings(localeCode: 'bn')
+        ..failLoad = true;
+      await store.load();
+      repo.failLoad = false;
+
+      // Two fast taps: neither awaited before the other starts.
+      await Future.wait([
+        store.setAdjustment(Prayer.fajr, 1),
+        store.setThemeMode(AppThemeMode.dark),
+      ]);
+      expect(repo.stored.localeCode, 'bn');
+      expect(repo.stored.prayerParams.adjustmentFor(Prayer.fajr), 1);
+      expect(repo.stored.themeMode, AppThemeMode.dark);
+      expect(store.settings.value, repo.stored);
+      expect(store.saveFailures.value, 0);
     });
 
     test('load pulls persisted settings into the signal', () async {

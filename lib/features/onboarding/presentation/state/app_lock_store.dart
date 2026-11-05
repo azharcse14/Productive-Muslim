@@ -338,12 +338,19 @@ final class AppLockStore implements SectionLockStatus {
 
   Future<void> disable() async {
     await _source.disable();
-    await _resetThrottle();
+    // Storage says off: memory follows before anything else can throw.
     enabled.value = false;
     biometricEnabled.value = false;
     locked.value = false;
     scope.value = LockScope.app;
     sectionLocked.value = false;
+    try {
+      await _resetThrottle();
+    } on Object catch (e) {
+      // No PIN is left to throttle; a stale count only matters if a new
+      // PIN is set, and [enable] resets it again.
+      debugPrint('app lock: throttle reset not saved: $e');
+    }
   }
 
   /// Switches what the lock guards; the caller proves the PIN first when

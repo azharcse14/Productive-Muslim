@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
@@ -192,6 +193,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(scheduler.prompts, 1);
     expect(find.text('Bismillah'), findsOneWidget);
+  });
+
+  testWidgets('a failing permission plugin still advances, as denied', (
+    tester,
+  ) async {
+    final scheduler = _NoopScheduler();
+    await _pumpToLocationStep(tester, scheduler: scheduler);
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('Next').hitTestable());
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text('Allow notifications').hitTestable());
+    await tester.pump();
+    scheduler.prompt.completeError(PlatformException(code: 'boom'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bismillah'), findsOneWidget);
+    expect(find.byType(SnackBar), findsOneWidget);
   });
 
   testWidgets('with no location the location step says Set location', (

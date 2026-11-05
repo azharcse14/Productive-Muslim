@@ -88,7 +88,7 @@ GoRouter buildRouter() {
   return GoRouter(
     navigatorKey: root,
     initialLocation: Routes.splash.path,
-    refreshListenable: _RouterRefresh(),
+    refreshListenable: RouterRefresh(),
     // An unknown path (a stale notification payload, an old deep link)
     // goes home; go_router's default page is English-only and its Home
     // button targets '/', which isn't a route — a dead end.
@@ -618,20 +618,26 @@ void openDeepLink(String location) {
 
 /// Re-runs the router redirect whenever a gate signal flips
 /// (lock/unlock, setup completion).
-final class _RouterRefresh extends ChangeNotifier {
-  _RouterRefresh() {
+@visibleForTesting
+final class RouterRefresh extends ChangeNotifier {
+  RouterRefresh() {
     _stop = effect(() {
       locator<AppLockStore>().locked.value;
-      locator<SettingsStore>().settings.value.setupComplete;
+      // Only the flag: any other settings change must not re-run redirects.
+      _setupComplete.value;
       notifyListeners();
     });
   }
 
+  final _setupComplete = computed(
+    () => locator<SettingsStore>().settings.value.setupComplete,
+  );
   late final EffectCleanup _stop;
 
   @override
   void dispose() {
     _stop();
+    _setupComplete.dispose();
     super.dispose();
   }
 }

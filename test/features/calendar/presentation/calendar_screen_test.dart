@@ -14,6 +14,22 @@ import 'package:productive_muslim/features/settings/domain/repositories/zoned_cl
 import '../../../helpers/settings_fakes.dart';
 
 void main() {
+  group('hijriSpanLabel', () {
+    String label(DateTime month, {int offset = 0}) =>
+        hijriSpanLabel(month, offsetDays: offset, nameOf: (m) => 'M$m');
+
+    test('a 31-day month touching three Hijri months names all three', () {
+      // Tabular: 1 Dec 2035 = 30 Ramadan, 31 Dec = 1 Dhul-Qadah 1457.
+      expect(label(DateTime(2035, 12)), 'M9 – M10 – M11 1457');
+    });
+
+    test('two months, and a Hijri year boundary', () {
+      expect(label(DateTime(2026, 3)), 'M9 – M10 1447');
+      // Muharram 1448 starts mid-June 2026.
+      expect(label(DateTime(2026, 6)), 'M12 1447 – M1 1448');
+    });
+  });
+
   setUpAll(TimezoneClock.initialize);
   tearDown(GetIt.I.reset);
 

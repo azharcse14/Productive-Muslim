@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/router/app_router.dart';
+import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
@@ -443,6 +444,30 @@ void main() {
         expect(find.byType(QBottomNavScaffold), findsOneWidget);
       },
     );
+
+    test(
+      'the router refreshes on setupComplete, not on other settings',
+      () async {
+        final settings = GetIt.I<SettingsStore>();
+        final refresh = RouterRefresh();
+        addTearDown(refresh.dispose);
+        var notified = 0;
+        refresh.addListener(() => notified++);
+        await settings.setThemeMode(AppThemeMode.dark);
+        expect(notified, 0);
+        await settings.setSetupComplete(complete: false);
+        expect(notified, 1);
+      },
+    );
+
+    test('notification settings lives at /notifications/settings', () {
+      final router = buildRouter();
+      addTearDown(router.dispose);
+      expect(
+        router.namedLocation(Routes.notificationSettings.name),
+        '/notifications/settings',
+      );
+    });
 
     testHomeWidgets('a ?category= dua payload opens that category over the tab',
         (tester) async {

@@ -23,7 +23,7 @@ abstract final class Routes {
   static const notifications = (name: 'notifications', path: '/notifications');
   static const notificationSettings = (
     name: 'notificationSettings',
-    path: '/notifications/settings',
+    path: 'settings',
   );
 
   /// Jamaat focus + nafs lock (linked from notification settings).

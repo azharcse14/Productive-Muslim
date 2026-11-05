@@ -397,7 +397,7 @@ final class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
       if (verified ?? false) {
-        await lock.disable();
+        await _lockWrite(lock.disable);
       }
       return;
     }
@@ -422,7 +422,19 @@ final class _SettingsScreenState extends State<SettingsScreen> {
         return;
       }
     }
-    await lock.setScope(on ? LockScope.muhasaba : LockScope.app);
+    await _lockWrite(
+      () => lock.setScope(on ? LockScope.muhasaba : LockScope.app),
+    );
+  }
+
+  /// A lock change that failed to persist says so, like any other save.
+  Future<void> _lockWrite(Future<void> Function() write) async {
+    try {
+      await write();
+    } on Object catch (e) {
+      debugPrint('app lock: change not saved: $e');
+      _store.saveFailures.value++;
+    }
   }
 
   /// Setup stays complete while re-running, so the flow can be closed
