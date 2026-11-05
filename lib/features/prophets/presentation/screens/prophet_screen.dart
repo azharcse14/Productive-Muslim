@@ -12,15 +12,16 @@ import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/widgets/q_chip.dart';
 import '../../../../shared/widgets/q_error_retry.dart';
+import '../../../../shared/widgets/q_list_row.dart';
 import '../../../../shared/widgets/q_section_header.dart';
 import '../../../../shared/widgets/q_skeleton.dart';
+import '../../../stories/domain/entities/story.dart';
 import '../../domain/entities/prophet.dart';
 import '../state/prophets_store.dart';
 
 /// One prophet by id (deep-linkable): names, title, summary, Quran mentions
-/// (each opens the reader at that ayah) and hadith references.
-// ponytail: storyIds are parsed but not shown; the "Read the story" buttons
-// are wired to Routes.story when feat/stories merges.
+/// (each opens the reader at that ayah), its Quran stories and hadith
+/// references.
 final class ProphetScreen extends StatefulWidget {
   const ProphetScreen({required this.id, super.key});
 
@@ -57,7 +58,12 @@ final class _ProphetScreenState extends State<ProphetScreen> {
           ),
           body: SafeArea(
             child: switch ((prophet, _store.loaded.value)) {
-              (final p?, _) => _Details(prophet: p),
+              (final p?, _) => _Details(
+                prophet: p,
+                stories: [
+                  for (final id in p.storyIds) ?_store.quranStories.value[id],
+                ],
+              ),
               (null, false) => const QSkeletonList(),
               (null, true) when _store.failed.value => QErrorRetry(
                 message: l10n.prophetsLoadError,
@@ -74,9 +80,12 @@ final class _ProphetScreenState extends State<ProphetScreen> {
 }
 
 final class _Details extends StatelessWidget {
-  const _Details({required this.prophet});
+  const _Details({required this.prophet, required this.stories});
 
   final Prophet prophet;
+
+  /// The prophet's `storyIds` that resolved to a loaded story.
+  final List<Story> stories;
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +149,23 @@ final class _Details extends StatelessWidget {
                 ),
             ],
           ),
+        ],
+        if (stories.isNotEmpty) ...[
+          QSectionHeader(l10n.storiesTitle),
+          for (final story in stories)
+            QListRow(
+              key: ValueKey(story.id),
+              title: story.titleFor(languageCode),
+              onTap: () => unawaited(
+                context.pushNamed(
+                  Routes.story.name,
+                  pathParameters: {
+                    'kind': StoryKind.quran.name,
+                    'id': story.id,
+                  },
+                ),
+              ),
+            ),
         ],
         if (prophet.hadithRefs.isNotEmpty) ...[
           QSectionHeader(l10n.prophetHadithRefs),

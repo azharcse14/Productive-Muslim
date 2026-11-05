@@ -36,26 +36,14 @@ Every ref must be read and matched before it ships.
 - `assets/data/quran_stories.json`, `assets/data/hadith_stories.json`: see "Story lists"
   below for what is done and what is pending.
 
-### Prophets code: IN PROGRESS (in master: it compiles, but it has NO tests)
-- Done: entity, `layoutLineage` (pure Dart), repo, store, `LineagePainter`, list + detail
-  screens, routes `/prophets` + `/prophets/:id`, More tile, DI, credits, 7 ARB keys,
-  DEPENDENCIES row. analyze clean, and the existing 1660 tests pass.
-- TODO:
-  1. **Write the tests (CLAUDE.md requires them; they are missing):**
-     - `test/features/prophets/domain/lineage_test.dart`: Ibrahim → Ismail + Ishaq branch,
-       Ishaq → Yaqub → Yusuf continuing, null parent, unknown parent, a parent that comes
-       later, the dashed Ismail → Muhammad link, and a root that must not land on a
-       passing line.
-     - A parse test, plus an integrity test that reads the real `assets/data/prophets.json`:
-       25 entries, orders 1..25, unique ids, parents resolve to a lower order, Adam first
-       and Muhammad last, `quranMentions` match `^\d+:\d+(-\d+)?$`. Add "summary non-empty
-       in both languages" only once the summaries are written.
-     - A widget test going from the list to the detail page, including the empty-summary
-       state. Copy the router setup from `test/features/ruqyah/ruqyah_screens_test.dart`.
-  2. Wire the story buttons on the prophet detail page (look for the `ponytail:` comment in
-     `prophet_screen.dart`), use `Routes.story` from stories, and fill `storyIds` in
-     `prophets.json` with ids from `quran_stories.json`. Go through routes only; never
-     import `features/stories`.
+### Prophets code: DONE (2026-11-05, `feat/prophets-tests`)
+- Entity, `layoutLineage`, repo, store, `LineagePainter`, list + detail screens, routes, More
+  tile, DI, credits, ARB keys, DEPENDENCIES row — all tested (`test/features/prophets/`).
+- Detail page lists the prophet's Quran stories (`storyIds` → `Routes.story`). When you add a
+  Quran story about a prophet, add its id to that prophet's `storyIds` in `prophets.json`
+  (the integrity test checks the id exists).
+- When the summaries are written, add a "summary non-empty in both languages" check to
+  `test/features/prophets/data/prophet_data_test.dart`.
 
 ### Prophets content `prophets.json`: PARTIAL
 - Done: 25 entries (names Ar/En/Bn, order, parents, titles for 10, `quranMentions` for all,

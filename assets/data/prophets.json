@@ -30,7 +30,11 @@
       "Bukhari 4712",
       "Bukhari 3887"
     ],
-    "storyIds": []
+    "storyIds": [
+      "adam_creation",
+      "adam_in_the_garden",
+      "two_sons_of_adam"
+    ]
   },
   {
     "id": "idris",
@@ -51,7 +55,9 @@
     "hadithRefs": [
       "Bukhari 3887"
     ],
-    "storyIds": []
+    "storyIds": [
+      "idris"
+    ]
   },
   {
     "id": "nuh",
@@ -85,7 +91,9 @@
       "Bukhari 3339",
       "Bukhari 4712"
     ],
-    "storyIds": []
+    "storyIds": [
+      "nuh_and_the_flood"
+    ]
   },
   {
     "id": "hud",
@@ -112,7 +120,9 @@
     "hadithRefs": [
       "Bukhari 1035"
     ],
-    "storyIds": []
+    "storyIds": [
+      "hud_and_ad"
+    ]
   },
   {
     "id": "salih",
@@ -141,7 +151,9 @@
       "Bukhari 3380",
       "Bukhari 3381"
     ],
-    "storyIds": []
+    "storyIds": [
+      "salih_and_the_she_camel"
+    ]
   },
   {
     "id": "ibrahim",
@@ -184,7 +196,18 @@
       "Bukhari 3365",
       "Bukhari 3887"
     ],
-    "storyIds": []
+    "storyIds": [
+      "ibrahim_searches_for_his_lord",
+      "ibrahim_and_his_father",
+      "ibrahim_breaks_the_idols",
+      "ibrahim_in_the_fire",
+      "ibrahim_and_the_king",
+      "ibrahim_and_the_four_birds",
+      "ibrahim_honoured_guests",
+      "ibrahim_family_in_the_valley",
+      "ibrahim_sacrifice",
+      "building_the_kabah"
+    ]
   },
   {
     "id": "lut",
@@ -217,7 +240,9 @@
     "hadithRefs": [
       "Bukhari 3375"
     ],
-    "storyIds": []
+    "storyIds": [
+      "lut_and_his_people"
+    ]
   },
   {
     "id": "ismail",
@@ -249,7 +274,12 @@
       "Bukhari 2899",
       "Muslim 5938"
     ],
-    "storyIds": []
+    "storyIds": [
+      "ibrahim_family_in_the_valley",
+      "ibrahim_sacrifice",
+      "building_the_kabah",
+      "ismail_true_to_promise"
+    ]
   },
   {
     "id": "ishaq",
@@ -280,7 +310,9 @@
     "hadithRefs": [
       "Bukhari 3382"
     ],
-    "storyIds": []
+    "storyIds": [
+      "ibrahim_honoured_guests"
+    ]
   },
   {
     "id": "yaqub",
