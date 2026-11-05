@@ -10,6 +10,8 @@ final class Surah {
     required this.translationEn,
     required this.ayahCount,
     required this.revelation,
+    this.nameBn = '',
+    this.meaningBn = '',
   });
 
   /// 1..114.
@@ -21,6 +23,25 @@ final class Surah {
 
   /// 'meccan' | 'medinan'.
   final String revelation;
+
+  /// Bengali name / meaning (adapted from Bengali Wikipedia); empty falls
+  /// back to [transliteration] / no meaning.
+  final String nameBn;
+  final String meaningBn;
+
+  /// The surah's name for a UI in [languageCode].
+  String nameFor(String languageCode) => switch (languageCode) {
+    'bn' when nameBn.isNotEmpty => nameBn,
+    _ => transliteration,
+  };
+
+  /// The name's meaning in [languageCode]'s language; null when there is
+  /// none in that language (never another language's).
+  String? meaningFor(String languageCode) => switch (languageCode) {
+    'en' => translationEn,
+    'bn' when meaningBn.isNotEmpty => meaningBn,
+    _ => null,
+  };
 
   @override
   bool operator ==(Object other) => other is Surah && other.id == id;
@@ -79,11 +100,30 @@ String _foldArabic(String input, {bool daggerAsAlef = false}) {
   return buffer.toString();
 }
 
+/// Bengali fold: keeps Bengali letters and vowel signs only, dropping
+/// hasanta, nukta, chandrabindu, ZWNJ, spaces and punctuation, and unifies
+/// long/short ী ি and ূ ু and য় য, so 'ইয়াসিন' matches 'ইয়াসীন' and
+/// 'নমল' matches 'নম্‌ল'. Digits are excluded (numbers match by id).
+String _foldBengali(String input) {
+  final buffer = StringBuffer();
+  for (final rune in input.runes) {
+    if (rune < 0x0985 || rune > 0x09DF || rune == 0x09CD || rune == 0x09BC) {
+      continue;
+    }
+    buffer.writeCharCode(switch (rune) {
+      0x09C0 => 0x09BF, // ী → ি
+      0x09C2 => 0x09C1, // ূ → ু
+      0x09DF => 0x09AF, // য় → য
+      _ => rune,
+    });
+  }
+  return buffer.toString();
+}
+
 /// Surah index search: an exact surah number (any digit script), the
-/// Arabic name, or the Latin transliteration / English name. An empty
-/// query returns [all]; a query that folds to nothing matchable (e.g. a
-/// Bengali word — the index has no Bengali names) returns no results
-/// rather than everything.
+/// Arabic name, the Latin transliteration / English name, or the Bengali
+/// name / meaning. An empty query returns [all]; a query that folds to
+/// nothing matchable returns no results rather than everything.
 List<Surah> filterSurahs(List<Surah> all, String query) {
   final raw = query.trim();
   if (raw.isEmpty) {
@@ -98,11 +138,15 @@ List<Surah> filterSurahs(List<Surah> all, String query) {
   }
   final latin = _foldLatin(raw);
   final arabic = _foldArabic(raw);
+  final bengali = _foldBengali(raw);
   return [
     for (final s in all)
       if ((latin.isNotEmpty &&
               (_foldLatin(s.transliteration).contains(latin) ||
                   _foldLatin(s.translationEn).contains(latin))) ||
+          (bengali.isNotEmpty &&
+              (_foldBengali(s.nameBn).contains(bengali) ||
+                  _foldBengali(s.meaningBn).contains(bengali))) ||
           (arabic.isNotEmpty &&
               (_foldArabic(s.nameArabic).contains(arabic) ||
                   _foldArabic(

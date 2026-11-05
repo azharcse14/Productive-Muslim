@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/features/quran/data/datasources/quran_database.dart';
 import 'package:productive_muslim/features/quran/data/repositories/quran_repository_impl.dart';
 import 'package:productive_muslim/features/quran/domain/entities/ayah.dart';
+import 'package:productive_muslim/features/quran/domain/entities/surah.dart';
 
 void main() {
   // The committed asset must never be written to (the beforeOpen hook
@@ -92,9 +93,16 @@ void main() {
     test(
       'an unmatchable non-Latin query returns nothing, not everything',
       () async {
-        expect((await repo.searchSurahs('ফাতিহা')).valueOrNull, isEmpty);
+        expect((await repo.searchSurahs('привет')).valueOrNull, isEmpty);
       },
     );
+
+    test('a Bengali query matches name_bn / meaning_bn', () async {
+      List<int>? ids(List<Surah>? s) => s?.map((s) => s.id).toList();
+      expect(ids((await repo.searchSurahs('ফাতিহা')).valueOrNull), [1]);
+      expect(ids((await repo.searchSurahs('লাহাব')).valueOrNull), [111]);
+      expect(ids((await repo.searchSurahs('মাসাদ')).valueOrNull), [111]);
+    });
 
     test('empty query returns all 114 surahs in order', () async {
       final result = await repo.searchSurahs('');

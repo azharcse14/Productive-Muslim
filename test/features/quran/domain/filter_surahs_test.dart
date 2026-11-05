@@ -30,6 +30,48 @@ void main() {
     expect(filterSurahs(all, 'طه').map((s) => s.id), [20]);
   });
 
+  group('Bengali', () {
+    const yasin = Surah(
+      id: 36,
+      nameArabic: 'يٰسٓ',
+      transliteration: 'Yaseen',
+      translationEn: 'Yaseen',
+      ayahCount: 83,
+      revelation: 'meccan',
+      nameBn: 'ইয়াসীন',
+      meaningBn: 'ইয়াসীন',
+    );
+    const naml = Surah(
+      id: 27,
+      nameArabic: 'النمل',
+      transliteration: 'An-Naml',
+      translationEn: 'The Ant',
+      ayahCount: 93,
+      revelation: 'meccan',
+      nameBn: 'নম্‌ল',
+      meaningBn: 'পিপীলিকা',
+    );
+    const index = [yasin, naml];
+
+    test('search matches the Bengali name and meaning, loosely spelled', () {
+      expect(filterSurahs(index, 'ইয়াসিন'), [yasin]); // ি for ী
+      expect(filterSurahs(index, 'নমল'), [naml]); // no hasanta / ZWNJ
+      expect(filterSurahs(index, 'পিপীলিকা'), [naml]);
+      expect(filterSurahs(index, 'হাতি'), isEmpty);
+      // Bengali digits are still a surah number.
+      expect(filterSurahs(index, '২৭'), [naml]);
+    });
+
+    test('nameFor / meaningFor pick the UI language, with fallback', () {
+      expect(naml.nameFor('bn'), 'নম্‌ল');
+      expect(naml.nameFor('en'), 'An-Naml');
+      expect(naml.meaningFor('bn'), 'পিপীলিকা');
+      expect(naml.meaningFor('en'), 'The Ant');
+      expect(_surah(1, '').nameFor('bn'), ''); // no Bengali: transliteration
+      expect(_surah(1, '').meaningFor('bn'), isNull);
+    });
+  });
+
   test('parseAyahReference reads surah:ayah within the surah', () {
     const baqara = Surah(
       id: 2,

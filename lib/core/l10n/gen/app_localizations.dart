@@ -494,6 +494,18 @@ abstract class AppLocalizations {
   /// **'tanzil.net — tap to open'**
   String get creditsQuranTextLink;
 
+  /// No description provided for @creditsBnSurahNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Bengali surah names: Bengali Wikipedia contributors, CC BY-SA 4.0 (adapted)'**
+  String get creditsBnSurahNames;
+
+  /// No description provided for @creditsBnSurahNamesLink.
+  ///
+  /// In en, this message translates to:
+  /// **'bn.wikipedia.org, “কুরআনের সূরার তালিকা” — tap to open'**
+  String get creditsBnSurahNamesLink;
+
   /// No description provided for @madhabHanafi.
   ///
   /// In en, this message translates to:

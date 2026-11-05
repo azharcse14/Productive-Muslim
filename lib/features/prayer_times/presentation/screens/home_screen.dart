@@ -298,14 +298,14 @@ final class _HomeScreenState extends State<HomeScreen> {
     ]);
   }
 
-  String _surahName(int surahId) {
+  String _surahName(int surahId, String languageCode) {
     final quran = _quran;
     if (quran == null) {
       return '';
     }
     for (final s in quran.surahs.value) {
       if (s.id == surahId) {
-        return s.transliteration;
+        return s.nameFor(languageCode);
       }
     }
     return '';
@@ -849,7 +849,7 @@ final class _HomeScreenState extends State<HomeScreen> {
         }
         return ContinueReadingCard(
           title: l10n.continueReading,
-          surahName: _surahName(pos.surah),
+          surahName: _surahName(pos.surah, locale.languageCode),
           ayahLabel: l10n.continueReadingAyah(
             LocaleDigits.localize('${pos.ayah}', locale.languageCode),
           ),
@@ -902,7 +902,7 @@ final class _HomeScreenState extends State<HomeScreen> {
       DailyAyahCard(
         arabic: ayah.arabic,
         translation: ayah.translationFor(locale.languageCode),
-        surahName: _surahName(ayah.surah),
+        surahName: _surahName(ayah.surah, locale.languageCode),
         ayahNumber: LocaleDigits.localize(
           '${ayah.number}',
           locale.languageCode,

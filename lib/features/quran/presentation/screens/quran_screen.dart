@@ -246,7 +246,9 @@ final class _QuranIndexState extends State<_QuranIndex> {
                             return QListRow(
                               icon: Icons.bookmark_outline,
                               title:
-                                  _surahById(position.surah)?.transliteration ??
+                                  _surahById(
+                                    position.surah,
+                                  )?.nameFor(languageCode) ??
                                   '',
                               subtitle: preview == null
                                   ? reference
@@ -422,7 +424,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
           '${start.surah}:${start.ayah}',
           languageCode,
         );
-        final name = _surahById(start.surah)?.transliteration;
+        final name = _surahById(start.surah)?.nameFor(languageCode);
         final juz = index + 1;
         final expanded = expandedJuz.contains(juz);
         final header = QPressable(
@@ -492,7 +494,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
                       const SizedBox(width: QSpace.s3),
                       Expanded(
                         child: Text(
-                          _surahById(id)?.transliteration ??
+                          _surahById(id)?.nameFor(languageCode) ??
                               LocaleDigits.localize('$id', languageCode),
                           style: QType.body.copyWith(color: q.ink),
                         ),
@@ -516,11 +518,9 @@ final class _QuranIndexState extends State<_QuranIndex> {
       return const SizedBox.shrink();
     }
     final surah = _surahById(position.surah);
+    final languageCode = Localizations.localeOf(context).languageCode;
     final ayahLabel = l10n.continueReadingAyah(
-      LocaleDigits.localize(
-        '${position.ayah}',
-        Localizations.localeOf(context).languageCode,
-      ),
+      LocaleDigits.localize('${position.ayah}', languageCode),
     );
     return QCard(
       padding: const EdgeInsets.symmetric(
@@ -532,7 +532,7 @@ final class _QuranIndexState extends State<_QuranIndex> {
         title: l10n.continueReading,
         subtitle: surah == null
             ? null
-            : '${surah.transliteration} · $ayahLabel',
+            : '${surah.nameFor(languageCode)} · $ayahLabel',
         trailing: Icon(Icons.chevron_right, color: q.ink3),
         onTap: () => _openReader(position.surah, initialAyah: position.ayah),
       ),
@@ -634,16 +634,11 @@ final class _QuranIndexState extends State<_QuranIndex> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    surah.transliteration,
+                    surah.nameFor(languageCode),
                     style: QType.titleSm.copyWith(color: q.ink),
                   ),
-                  // No Bengali surah meanings in the data; never show the
-                  // English one in a Bengali UI.
-                  if (languageCode == 'en')
-                    Text(
-                      surah.translationEn,
-                      style: QType.caption.copyWith(color: q.ink2),
-                    ),
+                  if (surah.meaningFor(languageCode) case final meaning?)
+                    Text(meaning, style: QType.caption.copyWith(color: q.ink2)),
                   Text(
                     l10n.surahMeta(
                       surah.ayahCount,

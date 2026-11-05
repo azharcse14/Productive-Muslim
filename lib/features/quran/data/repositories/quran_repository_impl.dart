@@ -119,6 +119,8 @@ final class QuranRepositoryImpl implements QuranRepository {
     translationEn: row.read<String>('translation_en'),
     ayahCount: row.read<int>('ayah_count'),
     revelation: row.read<String>('revelation'),
+    nameBn: row.read<String>('name_bn'),
+    meaningBn: row.read<String>('meaning_bn'),
   );
 
   Ayah _ayahOf(QueryRow row) => Ayah(

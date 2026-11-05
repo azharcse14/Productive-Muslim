@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../config/app_config.dart';
+import '../../../../config/content_sources.dart';
 import '../../../../core/di/locator.dart';
 
 import '../../../../core/theme/productive_muslim_tokens.dart';
@@ -15,6 +16,11 @@ import '../../../nearby_mosques/domain/external_launcher.dart';
 
 /// Tanzil's terms ask apps to name the source and link to tanzil.net.
 final _tanzilUrl = Uri.parse('https://tanzil.net');
+
+/// The pinned revision the Bengali surah names were taken from.
+final _bnWikiSurahListUrl = Uri.parse(
+  'https://bn.wikipedia.org/w/index.php?oldid=${ContentSources.bnWikiSurahListOldid}',
+);
 
 /// Sources & licenses of bundled content (see docs/DEPENDENCIES.md and the
 /// tool/ build scripts). Source names are proper nouns, so they stay as
@@ -37,13 +43,29 @@ final class CreditsScreen extends StatelessWidget {
               horizontal: QSpace.s4,
               vertical: QSpace.s1,
             ),
-            child: QListRow(
-              icon: Icons.menu_book_outlined,
-              title: l10n.creditsQuranText,
-              subtitle: l10n.creditsQuranTextLink,
-              trailing: Icon(Icons.open_in_new, color: q.ink3),
-              onTap: () =>
-                  unawaited(locator<ExternalLauncher>().launch(_tanzilUrl)),
+            child: Column(
+              children: [
+                QListRow(
+                  icon: Icons.menu_book_outlined,
+                  title: l10n.creditsQuranText,
+                  subtitle: l10n.creditsQuranTextLink,
+                  trailing: Icon(Icons.open_in_new, color: q.ink3),
+                  onTap: () =>
+                      unawaited(locator<ExternalLauncher>().launch(_tanzilUrl)),
+                ),
+                const Divider(),
+                // CC BY-SA asks for credit, the license and a link; the
+                // names were adapted (tool/quran_db_build.dart).
+                QListRow(
+                  icon: Icons.translate,
+                  title: l10n.creditsBnSurahNames,
+                  subtitle: l10n.creditsBnSurahNamesLink,
+                  trailing: Icon(Icons.open_in_new, color: q.ink3),
+                  onTap: () => unawaited(
+                    locator<ExternalLauncher>().launch(_bnWikiSurahListUrl),
+                  ),
+                ),
+              ],
             ),
           ),
           _Group(l10n.quranTitle, [

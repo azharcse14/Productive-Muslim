@@ -233,6 +233,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditsQuranTextLink => 'tanzil.net — tap to open';
 
   @override
+  String get creditsBnSurahNames =>
+      'Bengali surah names: Bengali Wikipedia contributors, CC BY-SA 4.0 (adapted)';
+
+  @override
+  String get creditsBnSurahNamesLink =>
+      'bn.wikipedia.org, “কুরআনের সূরার তালিকা” — tap to open';
+
+  @override
   String get madhabHanafi => 'Hanafi';
 
   @override

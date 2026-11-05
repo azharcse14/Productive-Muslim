@@ -277,20 +277,15 @@ final class _QuranReaderState extends State<_QuranReader> {
         title: SignalBuilder(
           builder: (context) {
             final surah = _surah();
-            // English meaning only: the data has no Bengali one.
-            final showMeaning =
-                surah != null &&
-                Localizations.localeOf(context).languageCode == 'en';
+            final languageCode = Localizations.localeOf(context).languageCode;
+            final meaning = surah?.meaningFor(languageCode);
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(surah?.transliteration ?? context.l10n.quranTitle),
-                if (showMeaning)
-                  Text(
-                    surah.translationEn,
-                    style: QType.caption.copyWith(color: q.ink2),
-                  ),
+                Text(surah?.nameFor(languageCode) ?? context.l10n.quranTitle),
+                if (meaning != null)
+                  Text(meaning, style: QType.caption.copyWith(color: q.ink2)),
               ],
             );
           },
@@ -455,7 +450,7 @@ final class _QuranReaderState extends State<_QuranReader> {
       child: QListRow(
         icon: Icons.menu_book_outlined,
         title: context.l10n.nextSurah,
-        subtitle: next?.transliteration,
+        subtitle: next?.nameFor(Localizations.localeOf(context).languageCode),
         trailing: Icon(Icons.chevron_right, color: q.ink3),
         onTap: _openNextSurah,
       ),
@@ -471,7 +466,7 @@ final class _QuranReaderState extends State<_QuranReader> {
     final reference = surah == null
         ? l10n.ayahShareSuffix(ayah.surah, ayah.number)
         : l10n.shareAyahReference(
-            surah.transliteration,
+            surah.nameFor(languageCode),
             LocaleDigits.localize('${ayah.surah}:${ayah.number}', languageCode),
           );
     final translator = switch (ayah.translationLanguageFor(languageCode)) {

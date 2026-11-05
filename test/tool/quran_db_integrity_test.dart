@@ -25,9 +25,9 @@ void main() {
 
   int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version matches QuranDatabase.bundledVersion (5)', () {
-    expect(scalar('PRAGMA user_version'), 5);
-    expect(QuranDatabase.bundledVersion, 5);
+  test('schema version matches QuranDatabase.bundledVersion (6)', () {
+    expect(scalar('PRAGMA user_version'), 6);
+    expect(QuranDatabase.bundledVersion, 6);
   });
 
   String arabic(int surah, int ayah) =>
@@ -96,6 +96,27 @@ void main() {
   test('contains exactly 114 surahs and 6236 ayahs', () {
     expect(scalar('SELECT COUNT(*) FROM surahs'), 114);
     expect(scalar('SELECT COUNT(*) FROM ayahs'), 6236);
+  });
+
+  test('all 114 surahs have a Bengali name and meaning, no ASCII digits', () {
+    expect(
+      scalar(
+        "SELECT COUNT(*) FROM surahs WHERE trim(name_bn) != '' "
+        "AND trim(meaning_bn) != '' "
+        "AND name_bn NOT GLOB '*[0-9A-Za-z]*' "
+        "AND meaning_bn NOT GLOB '*[0-9A-Za-z]*'",
+      ),
+      114,
+    );
+    String nameBn(int id) =>
+        db.select('SELECT name_bn FROM surahs WHERE id = ?', [
+              id,
+            ]).first['name_bn']!
+            as String;
+    expect(nameBn(1), 'ফাতিহা');
+    expect(nameBn(3), 'আলে-ইমরান');
+    expect(nameBn(111), 'মাসাদ');
+    expect(nameBn(114), 'নাস');
   });
 
   test('surah 1 has 7 ayahs and opens with the bismillah', () {
