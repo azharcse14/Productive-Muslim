@@ -24,8 +24,23 @@ void main() {
 
   int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version is 3', () {
-    expect(scalar('PRAGMA user_version'), 3);
+  test('schema version is 4', () {
+    expect(scalar('PRAGMA user_version'), 4);
+  });
+
+  test('3:1 and 12:1 carry the Alif / verses corrections', () {
+    String en(int surah, int ayah) =>
+        db
+                .select(
+                  'SELECT translation_en FROM ayahs WHERE surah = ? AND number = ?',
+                  [surah, ayah],
+                )
+                .first
+                .values
+                .first!
+            as String;
+    expect(en(3, 1), startsWith('Alif. Lam. Mim'));
+    expect(en(12, 1), contains('These are verses of'));
   });
 
   test('31:14 carries the parents/পিতা-মাতার corrections', () {

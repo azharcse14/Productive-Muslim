@@ -32,9 +32,10 @@ Every ref must be read and matched before it ships.
 ### Stories code: DONE (in master)
 - `lib/features/stories/`, routes `/stories` + `/stories/:kind/:id`, 2 More tiles, tests.
 
-### Stories content: IN PROGRESS
-- `assets/data/quran_stories.json`, `assets/data/hadith_stories.json`: see "Story lists"
-  below for what is done and what is pending.
+### Stories content: DRAFTED (2026-11-05) — scholar sign-off pending
+- `assets/data/quran_stories.json` (101), `assets/data/hadith_stories.json` (61): every planned
+  story is written and web-reviewed against scholars' views (see the last sections). Nothing
+  is left to write; what remains is a human scholar's review before release.
 
 ### Prophets code: DONE (2026-11-05, `feat/prophets-tests`)
 - Entity, `layoutLineage`, repo, store, `LineagePainter`, list + detail screens, routes, More

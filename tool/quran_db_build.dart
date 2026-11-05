@@ -13,7 +13,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 3, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 4, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -31,11 +31,15 @@ const _banglaUrl = '$_cdn/editions/ben-muhiuddinkhan.json';
 const _infoUrl = '$_cdn/info.json';
 
 /// Typos in the upstream (Tanzil) translation text, fixed at build time as
-/// (from, to) replacements. 31:14 — Arabic بِوَالِدَيْهِ and the same ayah's
+/// (from, to) replacements. 3:1 and 12:1 below; 31:14 — Arabic بِوَالِدَيْهِ and the same ayah's
 /// "thy parents": "partners" is a typo for "parents"; Bangla "পিতা-মতার" →
 /// "পিতা-মাতার".
 const _corrections =
     <(int, int), ({(String, String)? en, (String, String)? bn})>{
+      // 3:1 الم — the first letter is Alif ("Alim" is a typo; 2:1 has "Alif").
+      (3, 1): (en: ('Alim. Lam. Mim', 'Alif. Lam. Mim'), bn: null),
+      // 12:1 آيَاتُ is plural.
+      (12, 1): (en: ('These are verse of', 'These are verses of'), bn: null),
       (31, 14): (
         en: ('concerning his partners', 'concerning his parents'),
         bn: ('পিতা-মতার', 'পিতা-মাতার'),
@@ -234,7 +238,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 3;
+      PRAGMA user_version = 4;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
