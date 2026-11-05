@@ -42,18 +42,27 @@ Every ref must be read and matched before it ships.
 - Detail page lists the prophet's Quran stories (`storyIds` → `Routes.story`). When you add a
   Quran story about a prophet, add its id to that prophet's `storyIds` in `prophets.json`
   (the integrity test checks the id exists).
-- When the summaries are written, add a "summary non-empty in both languages" check to
-  `test/features/prophets/data/prophet_data_test.dart`.
+- `prophet_data_test.dart` checks every prophet has non-empty `summaryEn` and `summaryBn`.
 
-### Prophets content `prophets.json`: PARTIAL
+### Prophets content `prophets.json`: DRAFTED — scholar review needed before release
 - Done: 25 entries (names Ar/En/Bn, order, parents, titles for 10, `quranMentions` for all,
   `hadithRefs` read in hadith.db).
-- **PENDING: summaryEn/summaryBn for all 25.** Take care with these:
-  - The son in 37:100-111 is not named in the Quran. The majority view is that it is Ismail.
-  - Whether Dhul-Kifl was a prophet is a scholarly difference.
-  - Idris's era is not stated in the Quran.
-  - Lut being Ibrahim's nephew comes from scholars, not the Quran.
-  - Whether the People of the Wood are the same as Madyan is a scholarly question.
+- Done 2026-11-05 (`feat/prophets-summaries`): summaryEn/summaryBn for all 25 (2–3
+  paragraphs each). Every claim was read in the entry's own `quranMentions`/`hadithRefs`
+  (Bukhari/Muslim only; Nasai 693 and Tirmidhi 3505 were not used). **A scholar must review
+  them before release.** Points marked in the text as scholarly views:
+  - The son in 37:100-111 is not named in the Quran; the text gives Ismail as the view of
+    the majority of scholars.
+  - Dhul-Kifl's prophethood: the text says the scholars differ.
+  - Idris: the Quran does not state his era; "between Adam and Nuh" is marked as the
+    scholars' view.
+  - Lut as Ibrahim's nephew: marked as from the scholars.
+  - People of the Wood = Madyan: marked as a scholarly difference.
+  - Isra'il = Ya'qub and Yahya's "word from Allah" = 'Isa: marked as scholars' explanations.
+  - Muhammad ﷺ: "his greatest miracle is the revelation … the Quran" reads Bukhari 4981's
+    "Divine Inspiration" as the Quran (standard, but an interpretation).
+  - Left out on purpose: Ayyub's oath and branch (38:44), Lut's "daughters" (11:78),
+    Ibrahim's "three lies", details of Ayyub's illness.
 - **Owner to decide: Muslim numbering.** The bundled hadith.db numbers Muslim hadith
   sequentially, e.g. Muslim 6162 = 2379 in the common numbering. `prophets.json` uses the
   DB numbers, but `rasul_names.json` cites the common ones (Muslim 2354). Pick one and
@@ -161,4 +170,4 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
 |---|---|---|
 | quran_stories.json | 19 | about 80 |
 | hadith_stories.json | 11 | 50 |
-| prophets.json | 25 entries, 0 summaries | 25 summaries |
+| prophets.json | 25 entries, 25 summaries (review pending) | scholar review |
