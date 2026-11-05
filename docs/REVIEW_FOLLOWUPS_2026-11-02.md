@@ -3,7 +3,7 @@
 A read-only review of the whole project, followed by fixes on five branches. All five were
 merged into `master` via `integrate/review-fixes`: `fix/review-muhasaba`,
 `fix/review-fasting-expenses`, `fix/review-prayer-widget`, `fix/review-notifications-native`
-and `fix/review-core-settings`. The items below are still open.
+and `fix/review-core-settings`. The items below were open then; all are now ticked.
 
 ## Failing tests after the merge — fixed 2026-11-03 on `fix/review-followups`
 

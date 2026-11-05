@@ -30,7 +30,7 @@ Findings that change this plan:
 - `md-rifatkhan/hadithbangla` is gone (404); the snapshot is `azharcse14/hadithbangla`
   (fork of `mohacelhosen/hadithbangla`) — no license on any of them.
 - `aminurdev/dua-ruqya-server` (90 `hm_*` duas) has no license → `NO LICENSE` in the ledger.
-- Tanzil translations are non-commercial only; Pickthall and Muhiuddin Khan are `UNVERIFIED`.
+- Tanzil translations are non-commercial only; Pickthall and Muhiuddin Khan are `UNVERIFIED`. (2026-11-04: both now OK for non-commercial use, see DEPENDENCIES.md.)
 - ~~`hadith_books.json` still carries 330 hadithbangla Bengali chapter titles; the 1.3 switch
   doesn't strip them — owner to decide.~~ Settled 2026-11-05: `tool/strip_bengali_hadith.dart`
   already drops `sections_bn` + `bn_folder`, so release builds ship none of them (decision 4).
@@ -122,7 +122,7 @@ status (`OK` / `UNVERIFIED — owner to confirm` / `NO LICENSE — permission ne
 - Bengali hadith: `NO LICENSE — permission needed` (no LICENSE file in
   md-rifatkhan/hadithbangla; its README names no translator or publisher;
   azharcse14/hadithbangla carries the same README).
-- Muhiuddin Khan translation: `UNVERIFIED`.
+- Muhiuddin Khan translation: `UNVERIFIED`. (2026-11-04: OK, non-commercial.)
 - fawazahmed0/hadith-api: the repo's LICENSE is the Unlicense (the ledger says CC0 — correct it).
 - Backfill `docs/PRODUCTIVE_MUSLIM_PROGRESS.md`: its worklog has no rows after 2026-10-26,
   while 82 non-merge commits landed 2026-10-27 → 2026-10-29 (health tracker, content
@@ -531,7 +531,7 @@ The full UI review was fixed on `fix/ui-design-system`, `fix/ui-features-a` and 
   - `QCard`'s default padding went from 18 to 20.
   - The lock screen now shows "Biometric unavailable" even when the user cancels the biometric prompt.
   - The prayer table puts the time range on a second line when text is scaled above 1.3x.
-- [ ] **Manual QA.** No device run has been done yet. Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
+- [ ] **Manual QA.** No device run has been done yet. (2026-11-05: the automated part is done — every screen has a 360dp × 1.0/2.0x × light/dark × en/bn × LTR/RTL test with tap-target, label and contrast guidelines; a human device run with TalkBack/VoiceOver and 1.5x is still open.) Check on a 360dp screen at 1.0x, 1.5x and 2.0x text, in light and dark mode, in Bangla and English, and with TalkBack/VoiceOver on.
 - [x] **Countdown card test.** Add a widget test for the new eyebrow/corner row.
 - [x] **Muhasaba Today swipe.** — kept as is (decided 2026-11-04): the chevrons cover it. The day-swipe `GestureDetector` was left unchanged because the chevrons already do the same job. Review it if it still matters.
 
@@ -609,7 +609,7 @@ fresh branch from `master`.
 - [x] **Battery optimisation.** (direct list via a platform channel) The button opens app info; the direct
   `ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS` list needs a new platform channel.
 - [x] **Persistent badge-unlock toast.** (now in the app shell) It only fires while Muhasaba is open; it belongs in the app shell.
-- [ ] **Owner decisions:**
+- [x] **Owner decisions:** (all three settled; see each line)
   - ~~Bengali date in calendar cells (design handoff §13).~~ Done `b5dbe37`.
   - ~~Bengali surah names, which need a licensed source.~~ Done 2026-11-05 (`feat/bengali-surah-names`): the Wikipedia list below, pinned to revision 9164874, adapted and stored in quran.db v6 (`surahs.name_bn` / `meaning_bn`); cleaning decisions in `bnSurahNameFixes` (tool/quran_db_build.dart) and the DEPENDENCIES.md row; credited in Settings → Credits. Names kept as the page has them though they differ from the Arabic shown: 17 বনি ইসরাঈল (الإسراء), 41 হা-মীম সিজদাহ (فصلت), 94 ইনশিরাহ (الشرح) — the traditional Bangla names, also on teachers.gov.bd; owner may want them like 111. 76 is দাহর with meaning মানুষ (that meaning belongs to its other name, al-Insan). Earlier note: deferred 2026-11-04 until a licensed source exists (religious text, owner sign-off).
     Research 2026-11-05: one clearly licensed source exists — Bengali Wikipedia
