@@ -50,7 +50,7 @@ asked to merge without more test runs.
 - [~] **iOS entitlements.** — `Runner.entitlements` wired into the build configs and the Debug team pinned (2026-11-03, `integrate/followups-2`). Still needed: App Group + Time Sensitive capability enabled for the App ID in the Apple developer portal. `CODE_SIGN_ENTITLEMENTS` is missing from `project.pbxproj`, so azan
   `timeSensitive` and the App Group are not active. Needs Xcode and an Apple account
   (App Group provisioning).
-- [x] **Suspected Quran translation typos.** — both are in the upstream Tanzil Pickthall text; left unedited (religious-text rule). Owner decides whether to patch the build script. Verify these against the Pickthall source; don't
+- [x] **Suspected Quran translation typos.** — FIXED 2026-11-05 (`docs/stale-status`): 3:1 "Alim" → "Alif" (الم; 2:1 has "Alif"), 12:1 "verse" → "verses" (آيَاتُ), as build-time `_corrections` in `tool/quran_db_build.dart`, quran.db v4 (31:14 fixed earlier, v3). Was: both are in the upstream Tanzil Pickthall text; left unedited (religious-text rule). Owner decides whether to patch the build script. Verify these against the Pickthall source; don't
   edit them without the owner:
   - 3:1 "Alim. Lam. Mim" (should probably be "Alif").
   - 12:1 "These are verse…" (should probably be "verses").
