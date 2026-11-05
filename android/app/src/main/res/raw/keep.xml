@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Resources looked up by name at runtime, so shrinkResources can't see them.
      flutter_local_notifications resolves its small icon ('@drawable/ic_stat_notify')
-     via getIdentifier; if it is stripped, notifications fail silently. -->
+     via getIdentifier; if it is stripped, notifications fail silently.
+     The azan channel's sound (@raw/azan) is looked up by name too. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@mipmap/ic_launcher,@drawable/*" />
+    tools:keep="@mipmap/ic_launcher,@drawable/*,@raw/azan" />

@@ -16,6 +16,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy */; };
+		C4A2A9E1B3D5F60718293A4C /* azan.caf in Resources */ = {isa = PBXBuildFile; fileRef = C4A2A9E1B3D5F60718293A4D /* azan.caf */; };
 		B7C1D2E3F405162738495A6B /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B7C1D2E3F405162738495A6C /* InfoPlist.xcstrings */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +61,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C4A2A9E1B3D5F60718293A4D /* azan.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = azan.caf; sourceTree = "<group>"; };
 		B7C1D2E3F405162738495A6C /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,6 +123,7 @@
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy */,
 				B7C1D2E3F405162738495A6C /* InfoPlist.xcstrings */,
+				C4A2A9E1B3D5F60718293A4D /* azan.caf */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -234,6 +237,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy in Resources */,
 				B7C1D2E3F405162738495A6B /* InfoPlist.xcstrings in Resources */,
+				C4A2A9E1B3D5F60718293A4C /* azan.caf in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

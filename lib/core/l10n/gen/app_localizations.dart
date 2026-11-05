@@ -5588,6 +5588,12 @@ abstract class AppLocalizations {
   /// **'City database'**
   String get creditsCities;
 
+  /// No description provided for @creditsAzanAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Azan sound (excerpt)'**
+  String get creditsAzanAudio;
+
   /// No description provided for @creditsGroupFonts.
   ///
   /// In en, this message translates to:

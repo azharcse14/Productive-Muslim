@@ -240,11 +240,16 @@ void main() {
 
   // Well in the future at any test run time.
   final at = DateTime.now().add(const Duration(days: 1));
-  NotificationItem azan(Prayer prayer, {bool beep = false}) => NotificationItem(
+  NotificationItem azan(
+    Prayer prayer, {
+    bool beep = false,
+    bool silent = false,
+  }) => NotificationItem(
     kind: NotificationKind.azan,
     prayer: prayer,
     at: at.add(Duration(hours: prayer.index)),
     beepOnly: beep,
+    silent: silent,
   );
 
   test('reschedule keeps shown notifications (cancels pending only)', () async {
@@ -552,6 +557,33 @@ void main() {
     );
   });
 
+  test('only the full azan plays the bundled adhan', () async {
+    final full = azan(Prayer.fajr);
+    final beep = azan(Prayer.dhuhr, beep: true);
+    final silent = azan(Prayer.asr, silent: true);
+    await scheduler.reschedule([full, beep, silent], _texts);
+    final f = plugin.scheduled[full.id]!;
+    expect(f.android!.channelId, 'productive_muslim_azan_audio');
+    expect(
+      (f.android!.sound! as RawResourceAndroidNotificationSound).sound,
+      'azan',
+    );
+    expect(f.iOS!.sound, 'azan.caf');
+    for (final item in [beep, silent]) {
+      final d = plugin.scheduled[item.id]!;
+      expect(d.android!.sound, isNull);
+      expect(d.iOS!.sound, isNull);
+    }
+    expect(
+      plugin.scheduled[beep.id]!.android!.channelId,
+      'productive_muslim_beep',
+    );
+    expect(
+      plugin.scheduled[silent.id]!.android!.channelId,
+      'productive_muslim_silent',
+    );
+  });
+
   test('content nudges are default urgency on their own channel', () async {
     final jamaat = NotificationItem(
       kind: NotificationKind.jamaat,
@@ -621,18 +653,25 @@ void main() {
       await scheduler.reschedule([azan(Prayer.fajr), azan(Prayer.asr)], bn);
       expect(android.created, hasLength(1), reason: 'one per channel');
       final channel = android.created.single;
-      expect(channel.id, 'productive_muslim_azan');
+      expect(channel.id, 'productive_muslim_azan_audio');
       expect(channel.name, 'আজান');
       expect(channel.importance, Importance.high);
       expect(channel.playSound, isTrue);
+      expect(
+        (channel.sound! as RawResourceAndroidNotificationSound).sound,
+        'azan',
+      );
     },
   );
 
-  test('first initialize deletes the legacy Android channel', () async {
+  test('first initialize deletes the legacy Android channels', () async {
     final android = _ChannelAndroid();
     plugin.android = android;
     await scheduler.initialize(_texts);
-    expect(android.deleted, ['productive_muslim_reminders']);
+    expect(android.deleted, [
+      'productive_muslim_reminders',
+      'productive_muslim_azan',
+    ]);
     // Later re-initializations (language change) don't repeat it.
     await scheduler.initialize(
       const NotificationTexts(
@@ -659,7 +698,7 @@ void main() {
         prayerNames: {},
       ),
     );
-    expect(android.deleted, hasLength(1));
+    expect(android.deleted, hasLength(2));
   });
 
   test(
@@ -704,7 +743,7 @@ void main() {
       entries.single['at'],
       plugin.instants[fajr.id]!.millisecondsSinceEpoch,
     );
-    expect(entries.single['channel'], 'productive_muslim_azan');
+    expect(entries.single['channel'], 'productive_muslim_azan_audio');
     expect(entries.single['payload'], startsWith('/home?prayer=fajr'));
 
     await scheduler.cancelAll();

@@ -3696,6 +3696,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get creditsCities => 'শহরের ডেটাবেস';
 
   @override
+  String get creditsAzanAudio => 'আজানের ধ্বনি (অংশবিশেষ)';
+
+  @override
   String get creditsGroupFonts => 'ফন্ট';
 
   @override

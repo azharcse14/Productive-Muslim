@@ -3715,6 +3715,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get creditsCities => 'City database';
 
   @override
+  String get creditsAzanAudio => 'Azan sound (excerpt)';
+
+  @override
   String get creditsGroupFonts => 'Fonts';
 
   @override

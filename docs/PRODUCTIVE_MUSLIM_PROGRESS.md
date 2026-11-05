@@ -91,7 +91,7 @@
 - [x] Notification matrix UI live: per-prayer 4-mode segments, sahri/iftar/jamaat/muhasaba toggles with lead-time steppers, linked from Settings
 - [x] Tests (24 new, 143 total): plan builder (modes, leads, window/boundary trims, jamaat resolution, sorted unique ids), reschedule orchestration, utcInstantOf round-trip, controller triggers (debounce, locale re-resolution, idempotent start), matrix screen widget tests
 - [x] Notification-tap deep links (payload → route) — wired when target screens exist (Phase 7)
-- [ ] Custom azan audio asset — polish pass (Phase 11)
+- [x] Custom azan audio asset — 27 s adhan excerpt (Aaqib Azeez, CC BY-SA 4.0), 2026-11-05
 - [x] Debug APK build green
 
 ## Phase 5 — My Mosque / Jamaat ✅ (seasonal profiles deferred)
@@ -163,7 +163,8 @@
 - [ ] RTL pass · dark pass · perf pass — NEXT session (needs Arabic locale + screen-by-screen review)
 - [~] **a11y pass — P0 + P1 done (2026-06-14):** shared widgets, all P0 screen-reader-blocking fixes, and the P1 stepper/icon-button labels + option-sheet selected-state shipped & tested (6 a11y tests). Remaining (P2): AppBar `header:true` semantics across screens, tap-target bump on 26–32dp custom buttons, decorative-icon `ExcludeSemantics` sweep. See worklog 2026-06-14.
 - [ ] Store assets (~~adaptive icon~~ done, feature graphic, screenshots) — NEXT
-- [ ] Custom azan audio; Uthmani script switch — NEXT
+- [x] Custom azan audio (2026-11-05)
+- [ ] Uthmani script switch — NEXT
 
 ---
 
@@ -173,6 +174,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-11-05 | **Custom azan audio** (`feat/azan-audio`). The full-azan mode now plays a bundled adhan: "The Adhan - Muslim Call to Prayer" by Aaqib Azeez (Wikimedia Commons, uploaded as own work by User:Atcovi, who confirms on his talk page he is the reciter and rights holder), CC BY-SA 4.0. Excerpt 0–27 s (four takbirs + both "ashhadu an la ilaha illallah", 0.8 s fade-out) — under iOS's 30 s notification-sound cap; Android uses the same file (one sound on both, and a full ~87 s adhan from a notification can only be stopped by dismissing it). Files: `android/app/src/main/res/raw/azan.m4a` (AAC 64 kbps mono, 228 KB; kept from shrinkResources in `raw/keep.xml`), `ios/Runner/azan.caf` (IMA4 22 kHz mono, 320 KB; Runner Resources in `project.pbxproj`). Made with `afconvert` + a Python trim. **Channel migration:** Android channel sounds are immutable, so the full azan moved to `productive_muslim_azan_audio` (`RawResourceAndroidNotificationSound('azan')`, also passed on channel creation) and `productive_muslim_azan` joined `legacyChannels` (deleted on first initialize; a user's overrides on the old channel are lost). iOS: `sound: 'azan.caf'`. Beep and silent modes unchanged. Credits: Settings → Credits ("Azan sound (excerpt)"), DEPENDENCIES row. Not checked on a device: playback on Android/iOS hardware (RELEASE_CHECKLIST device QA) | Scheduler tests (adhan only on full azan, new channel id + sound, legacy delete); asset/keep/pbxproj pin test; gen-l10n clean; analyze 0; full suite green; debug APK; Kotlin unit tests |
 | 2026-11-05 | **Docs status pass + two more translation typos** (`docs/stale-status`): every doc grepped for open items. Fixed: Pickthall 3:1 "Alim" → "Alif" and 12:1 "verse" → "verses" (the Tanzil digital text has both typos too; the Arabic settles them) as build-time `_corrections`, quran.db `PRAGMA user_version`/`bundledVersion` 3 → 4, a rebuild changes only those two rows. Stale status updated: stories content (drafted, not in progress), REVIEW_FOLLOWUPS typo item, DEPENDENCIES content rows (web-reviewed, still UNVERIFIED for a scholar) | integrity test for 3:1/12:1 + v4; analyze clean; full suite green |
 | 2026-11-05 | **Web review against scholars' views** (`fix/scholar-review`): 6 parallel review agents checked all 25 summaries, 101 Quran and 61 hadith stories against tafsir/sharh/fatwa sources and the bundled DBs; 26 fixes applied (3 errors: Ka'b also missed Badr, Bukhari 3350 hyena, 12:9 plural speaker; majority views marked; 7:143 Bangla "never" dropped; 18:21 grave-mosque note; honorific/tense/wording fixes). Second pass: 4 research agents settled the 17 open points online; 37 patches write the differing scholarly views into the text (majority first, then "some scholars say"), details in `docs/STORIES_PROPHETS_PENDING.md` | analyze clean; full suite green |
 | 2026-11-05 | **fix(content): last two flags** (`fix/content-flags`): al-Khidr's Bangla name unified to খিজির (house style জ, as in নামাজ/জাকাত) in `hadith_stories.json`; the Bangla translation of the Al-Kahf passage in `ruqyah.json` uses Bangla verse markers (১)…(১০) like the rest of the Bangla content (markers only, no wording changed) | analyze clean; full suite green |
