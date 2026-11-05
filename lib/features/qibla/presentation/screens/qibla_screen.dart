@@ -42,10 +42,18 @@ final class _QiblaScreenState extends State<QiblaScreen> {
       onShow: _store.resume,
     );
     // The heading is the device's top edge; in landscape the dial would be
-    // 90° off. Held upright while the compass is open.
+    // 90° off. Held upright while the compass is open (Android 16 ignores
+    // this on large screens / split-screen: see [didChangeDependencies]).
     unawaited(
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _store.landscape.value =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
   }
 
   @override
@@ -117,6 +125,11 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                   kind: QButtonKind.tonal,
                   onPressed: _store.retry,
                 ),
+              ),
+              QiblaStatus.calibrating ||
+              QiblaStatus.ready when _store.landscape.value => QEmptyState(
+                icon: Icons.screen_rotation,
+                body: l10n.qiblaHoldPortrait,
               ),
               QiblaStatus.calibrating || QiblaStatus.ready => Column(
                 children: [

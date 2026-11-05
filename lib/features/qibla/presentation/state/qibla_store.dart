@@ -24,7 +24,18 @@ final class QiblaStore {
   }) : _sensors = sensors,
        _settings = settings,
        _now = now ?? DateTime.now {
-    _subscribe();
+    // Sensors only while a location exists (the needs-location state shows
+    // no compass); subscribes as soon as one is set.
+    _disposeLocationEffect = effect(() {
+      final hasLocation = _settings.location.value != null;
+      untracked(() {
+        if (!hasLocation) {
+          _release();
+        } else if (!_hidden && _subscription == null) {
+          _subscribe();
+        }
+      });
+    });
   }
 
   final CompassSensorSource _sensors;
@@ -46,12 +57,18 @@ final class QiblaStore {
   /// [CompassMath.maxTiltDeg]): the heading holds, nothing reads aligned.
   late final tooTilted = signal(false);
 
+  /// Screen is in landscape, where the top-edge heading is 90° off (some
+  /// devices ignore the portrait lock): nothing reads aligned.
+  late final landscape = signal(false);
+
   /// Fires [sensorFailed] if the stream never emits (some devices just
   /// stay silent instead of erroring).
   final Duration firstEventTimeout;
 
   StreamSubscription<SensorVectors>? _subscription;
   Timer? _firstEvent;
+  late final void Function() _disposeLocationEffect;
+  bool _hidden = false;
 
   late final bearing = computed<double?>(() {
     final location = _settings.location.value;
@@ -107,6 +124,7 @@ final class QiblaStore {
     aligned.value =
         !needsCalibration.value &&
         !tooTilted.value &&
+        !landscape.value &&
         h != null &&
         b != null &&
         CompassMath.isAligned(h, b, toleranceDeg: aligned.value ? 5 : 3);
@@ -129,7 +147,7 @@ final class QiblaStore {
           wasTilted: tooTilted.value,
         );
         if (magnitude < 1 || tooTilted.value) {
-          // No field at all (iOS sends zeros while uncalibrated): atan2(0, 0)
+          // No field at all (iOS sends zeros below medium accuracy): atan2(0, 0)
           // would read as north. Tilted: roll is unstable. Either way keep
           // the last heading.
           _updateAligned();
@@ -165,23 +183,32 @@ final class QiblaStore {
   /// Releases the sensors while the app is hidden (Android keeps them
   /// streaming in the background otherwise).
   void pause() {
+    _hidden = true;
+    _release();
+  }
+
+  void resume() {
+    _hidden = false;
+    if (_subscription == null && _settings.location.value != null) {
+      _subscribe();
+    }
+  }
+
+  void _release() {
     _firstEvent?.cancel();
     unawaited(_subscription?.cancel());
     _subscription = null;
   }
 
-  void resume() {
-    if (_subscription == null) {
-      _subscribe();
-    }
-  }
-
   /// Re-subscribes from scratch after the sensor failed or timed out
   /// ([resume] alone keeps a stalled subscription).
   void retry() {
-    pause();
-    _subscribe();
+    _release();
+    resume();
   }
 
-  void dispose() => pause();
+  void dispose() {
+    _disposeLocationEffect();
+    pause();
+  }
 }
