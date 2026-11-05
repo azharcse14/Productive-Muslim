@@ -13,6 +13,8 @@ import 'package:productive_muslim/features/stories/presentation/screens/stories_
 import 'package:productive_muslim/features/stories/presentation/screens/story_screen.dart';
 import 'package:productive_muslim/features/stories/presentation/state/stories_store.dart';
 
+import '../../helpers/content_layout_matrix.dart';
+
 final class _FakeRepo implements StoryRepository {
   _FakeRepo({this.fail = false});
 
@@ -33,27 +35,30 @@ final class _FakeRepo implements StoryRepository {
         ]);
 }
 
-Widget _router(String location, {Locale? locale}) => MaterialApp.router(
-  theme: AppTheme.light(),
-  locale: locale,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  routerConfig: GoRouter(
-    initialLocation: location,
-    routes: [
-      GoRoute(
-        name: Routes.stories.name,
-        path: Routes.stories.path,
-        builder: (_, state) => StoriesScreen(
-          initialKind:
-              StoryKind.values.asNameMap()[state.uri.queryParameters['kind']] ??
-              StoryKind.quran,
-        ),
-        routes: storiesRoutes(),
+Widget _router(String location, {Locale? locale, LayoutVariant? variant}) =>
+    MaterialApp.router(
+      theme: variant == null ? AppTheme.light() : variantTheme(variant),
+      locale: variant == null ? locale : Locale(variant.locale),
+      builder: variant == null ? null : variantBuilder(variant),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: GoRouter(
+        initialLocation: location,
+        routes: [
+          GoRoute(
+            name: Routes.stories.name,
+            path: Routes.stories.path,
+            builder: (_, state) => StoriesScreen(
+              initialKind:
+                  StoryKind.values
+                      .asNameMap()[state.uri.queryParameters['kind']] ??
+                  StoryKind.quran,
+            ),
+            routes: storiesRoutes(),
+          ),
+        ],
       ),
-    ],
-  ),
-);
+    );
 
 void main() {
   void register({bool fail = false}) =>
@@ -109,4 +114,16 @@ void main() {
       findsOneWidget,
     );
   });
+
+  for (final (screen, location) in [
+    (StoriesScreen, Routes.stories.path),
+    (StoryScreen, '/stories/quran/quran_1'),
+  ]) {
+    layoutMatrix('$screen', (tester, v) async {
+      register();
+      await tester.pumpWidget(_router(location, variant: v));
+      await tester.pumpAndSettle();
+      expect(find.byType(screen), findsOneWidget);
+    });
+  }
 }

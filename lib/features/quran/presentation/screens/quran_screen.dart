@@ -657,6 +657,9 @@ final class _QuranIndexState extends State<_QuranIndex> {
             const SizedBox(width: QSpace.s3),
             Text(
               surah.nameArabic,
+              // Arabic stays right-to-left whatever the UI direction.
+              textDirection: TextDirection.rtl,
+              locale: const Locale('ar'),
               style: QType.quran(20).copyWith(color: q.ink),
             ),
           ],

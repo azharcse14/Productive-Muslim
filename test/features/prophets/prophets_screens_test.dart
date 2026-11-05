@@ -17,6 +17,8 @@ import 'package:productive_muslim/features/stories/domain/repositories/story_rep
 import 'package:productive_muslim/features/stories/presentation/screens/story_screen.dart';
 import 'package:productive_muslim/features/stories/presentation/state/stories_store.dart';
 
+import '../../helpers/content_layout_matrix.dart';
+
 final class _Prophets implements ProphetRepository {
   _Prophets({this.fail = false});
 
@@ -87,8 +89,10 @@ GoRouter _router() => GoRouter(
   ],
 );
 
-Widget _app(GoRouter router) => MaterialApp.router(
-  theme: AppTheme.light(),
+Widget _app(GoRouter router, {LayoutVariant? variant}) => MaterialApp.router(
+  theme: variant == null ? AppTheme.light() : variantTheme(variant),
+  locale: variant == null ? null : Locale(variant.locale),
+  builder: variant == null ? null : variantBuilder(variant),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   routerConfig: router,
@@ -143,4 +147,16 @@ void main() {
       findsOne,
     );
   });
+
+  for (final (screen, location) in [
+    (ProphetsScreen, '/prophets'),
+    (ProphetScreen, '/prophets/ibrahim'),
+  ]) {
+    layoutMatrix('$screen', (tester, v) async {
+      register();
+      await tester.pumpWidget(_app(_router()..go(location), variant: v));
+      await tester.pumpAndSettle();
+      expect(find.byType(screen), findsOneWidget);
+    });
+  }
 }

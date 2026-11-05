@@ -67,9 +67,13 @@ final class _ProphetsScreenState extends State<ProphetsScreen> {
                 [r.column, ...r.outgoing.keys].reduce(math.max) + 1,
               ),
             );
+            // About half the row is text: grow that half with the text
+            // scale so two lines still fit at 2x.
+            const textPart = _rowHeight / 2;
+            final textScaler = MediaQuery.textScalerOf(context);
             return ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: QSpace.s3),
-              itemExtent: _rowHeight,
+              itemExtent: _rowHeight - textPart + textScaler.scale(textPart),
               itemCount: rows.length,
               itemBuilder: (context, index) => _ProphetRow(
                 key: ValueKey(rows[index].prophet.id),

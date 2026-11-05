@@ -20,6 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
+import '../../../helpers/content_layout_matrix.dart';
+
 const _section = HadithSection(
   number: 1,
   name: 'Revelation',
@@ -102,6 +104,7 @@ final class _FakeRepository implements HadithBookRepository {
 Future<_FakeRepository> _pump(
   WidgetTester tester, {
   Completer<void>? hold,
+  LayoutVariant? variant,
 }) async {
   final repo = _FakeRepository(hold);
   SharedPreferencesAsyncPlatform.instance =
@@ -114,22 +117,25 @@ Future<_FakeRepository> _pump(
     ..registerFactory<HadithSectionStore>(() => HadithSectionStore(repo))
     ..registerFactory<HadithSearchStore>(() => HadithSearchStore(repo));
   // Opened at its real route, so a result opens through the router.
-  await tester.pumpWidget(
-    MaterialApp.router(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: GoRouter(
-        initialLocation: '/hadith/books/search',
-        routes: [
-          GoRoute(
-            path: Routes.hadith.path,
-            builder: (_, _) => const SizedBox(),
-            routes: hadithRoutes(),
-          ),
-        ],
+  final router = GoRouter(
+    initialLocation: '/hadith/books/search',
+    routes: [
+      GoRoute(
+        path: Routes.hadith.path,
+        builder: (_, _) => const SizedBox(),
+        routes: hadithRoutes(),
       ),
-    ),
+    ],
+  );
+  await tester.pumpWidget(
+    variant != null
+        ? variantRouterApp(router, variant)
+        : MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
   );
   return repo;
 }
@@ -207,5 +213,12 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     expect(repo.released, isTrue);
+  });
+
+  layoutMatrix('HadithSearchScreen', (tester, v) async {
+    await _pump(tester, variant: v);
+    await tester.pumpAndSettle();
+    await _type(tester, 'prayer');
+    await tester.pumpAndSettle();
   });
 }
