@@ -38,7 +38,8 @@ final class LineageRow {
 /// Lays [prophets] out as timeline rows, sorted by `order`.
 ///
 /// A prophet's first child (lowest order) continues in the parent's column;
-/// later children branch into the nearest free column to the right. Roots
+/// later children branch into the lowest free column, so the tree stays as
+/// narrow as the busiest row allows. Roots
 /// (no parent, an unknown parent, or a parent that comes later) take the
 /// lowest column no line is passing through, so dots never sit on another
 /// prophet's line.
@@ -76,7 +77,7 @@ List<LineageRow> layoutLineage(Iterable<Prophet> prophets) {
         final outgoing = <int, LinkStyle>{};
         for (final child in sorted.where((c) => c.parent == p.id)) {
           if (linkOf(child) case final style?) {
-            final at = outgoing.isEmpty ? column : free(reserved, column + 1);
+            final at = outgoing.isEmpty ? column : free(reserved, 0);
             reserved[at] = (child.id, style);
             outgoing[at] = style;
           }

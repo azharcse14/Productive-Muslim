@@ -31,7 +31,7 @@ final class _ProphetsScreenState extends State<ProphetsScreen> {
   late final ProphetsStore _store = locator<ProphetsStore>();
 
   static const _rowHeight = 72.0;
-  static const _laneWidth = 22.0;
+  static const _laneWidth = 16.0;
 
   @override
   void initState() {

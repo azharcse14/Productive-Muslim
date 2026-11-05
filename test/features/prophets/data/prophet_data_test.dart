@@ -127,6 +127,41 @@ void main() {
       }
     });
 
+    test('only Adam is a root; links follow the Salasilah chart', () {
+      final byId = {for (final p in prophets) p.id: p};
+      expect(prophets.where((p) => p.parent == null).map((p) => p.id), [
+        'adam',
+      ]);
+      // Direct (solid) links: father → son.
+      for (final (child, parent) in [
+        ('ismail', 'ibrahim'),
+        ('ishaq', 'ibrahim'),
+        ('yaqub', 'ishaq'),
+        ('yusuf', 'yaqub'),
+        ('dhulkifl', 'ayyub'),
+        ('sulaiman', 'dawud'),
+        ('yahya', 'zakariya'),
+      ]) {
+        expect(byId[child]!.parent, parent, reason: child);
+        expect(byId[child]!.parentDistant, isFalse, reason: child);
+      }
+      expect(byId['lut']!.parent, 'nuh', reason: 'nephew, not son, of Ibrahim');
+      expect(byId['muhammad']!.parent, 'ismail');
+      expect(byId['muhammad']!.parentDistant, isTrue);
+    });
+
+    test('the real tree stays narrow enough for a phone', () {
+      final lanes = layoutLineage(prophets).fold(
+        1,
+        (n, r) => [
+          n,
+          r.column + 1,
+          ...r.outgoing.keys.map((c) => c + 1),
+        ].reduce((a, b) => a > b ? a : b),
+      );
+      expect(lanes, lessThanOrEqualTo(8));
+    });
+
     test('the real tree puts no dot on a passing line', () {
       for (final row in layoutLineage(prophets)) {
         expect(
