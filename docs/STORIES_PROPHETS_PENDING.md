@@ -264,3 +264,44 @@ should still review them with the rest of the content.
 - 31:14: alquran.cloud/ayah/31:14, corpus.quran.com/translation.jsp?chapter=31&verse=14.
 
 - 2026-11-05: al-Khidr's Bangla spelling unified to খিজির; ruqyah.json Bangla verse markers now in Bangla digits.
+
+## Web review against scholars' views (2026-11-05, `fix/scholar-review`)
+
+Six agents checked every summary and story against tafsir (Ibn Kathir, al-Tabari, al-Qurtubi,
+al-Sa'di), hadith commentary (Fath al-Bari, Sharh Nawawi), gradings (sunnah.com, dorar.net) and
+fatwa sites (islamqa, islamweb), plus the bundled DBs. This is not a scholar's sign-off.
+
+**Fixed (26 patches):**
+- Errors: Ka'b ibn Malik also missed Badr (Bukhari 4418); Bukhari 3350 ذيخ ملتطخ is a
+  filth-smeared male hyena, not "a blood-stained animal" (Mishkat 5538, Ibn Kathir 6:77);
+  12:9 "Kill Yusuf" is the brothers' plural speech, the single speaker is 12:10.
+- Majority view marked: Ismail as the sacrificed son (`ismail_true_to_promise`), Dhul-Kifl
+  (`alyasa_and_dhulkifl`), Iram as the tribe of 'Ad (Hud summary, Ibn Kathir 89:7-8), the
+  Quran as his ﷺ greatest miracle is the scholars' explanation of Bukhari 4981.
+- 7:143 Bangla: "কখনো" dropped (Ahl al-Sunnah: believers see Allah in the Hereafter).
+- 18:21: the Quran only reports the plan to build a mosque over the cave; added that it was
+  not praiseworthy (Ibn Kathir; Bukhari 1330).
+- Smaller: honorific Bangla forms (Ismail, Thumamah, Abu Bakr/Umar), 34:12 future tense,
+  "bribe" → payment (18:94-95), Qarun ref 28:76-83, "ধরতে পারেন" → "পাকড়াও করেন"
+  (Bukhari 3481), Tamim's دير = মঠ (monastery), not গির্জা.
+
+**Differences of opinion now written into the text (37 patches, second pass):** each point was
+researched online (Ibn Kathir, al-Tabari, al-Qurtubi, al-Sa'di, al-Baghawi, Fath al-Bari,
+Dalil al-Falihin, islamqa, islamweb, dorar.net); the majority/stronger view comes first, then
+"Some scholars say …" / "কোনো কোনো আলেম বলেন, …".
+- 12:24 hamm (passing inclination vs none) · 12:42 who forgot (Ibn Kathir: the freed man;
+  al-Tabari: Yusuf) · 12:15 two readings (EN now "recognise you", matching BN) · 7:143 tajalla
+  now literal "manifested Himself" (islamqa 353034), al-Baghawi's "light" view added.
+- 21:87 Bangla "সংকটে ফেলবেন না" + both readings (constrict / decree); the rejected reading is
+  excluded · first sin: pride, with Qatada's envy · magic: all kufr vs al-Nawawi (kufr only with
+  disbelief, else a major sin) · `isa_raised_up` lesson reworded (some prophets were killed;
+  40:51 = help/victory).
+- Hadith: cradle speakers reconciled (Muslim 7511) · angel of death came in human form · Ka'b:
+  Murarah/Hilal at Badr (Ibn Hajar vs Ibn al-Jawzi/al-Dimyati) · Sarah: EN "he sent her"
+  (Arabic فأرسل بها) · Khubaib ibn 'Adi vs ibn Isaf (al-Dimyati vs Ibn Hajar) · sun held back:
+  Yusha' ibn Nun (Musnad Ahmad 8315, chain sahih per al-Arna'ut) · Hittah: mockery (Ibn Kathir).
+- Prophets: Lut's "powerful support" = Allah (Ibn Kathir 11:80) · Yahya سيّد "a noble leader" /
+  "সম্মানিত নেতা" · 19:7 "no one named so before" vs "no one like him" (Ibn Abbas, Mujahid).
+
+Unconfirmed in the bundled DB: Tirmidhi 3074 (7:143) rests on sunnah.com; Musnad Ahmad isn't
+bundled. All of this is still a draft until a scholar signs off.
