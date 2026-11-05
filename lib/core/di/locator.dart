@@ -380,7 +380,7 @@ Future<void> setupLocator() async {
     ..registerLazySingleton<ProphetRepository>(
       () => ProphetRepositoryImpl(rootBundle),
     )
-    ..registerLazySingleton(() => ProphetsStore(locator()));
+    ..registerLazySingleton(() => ProphetsStore(locator(), locator()));
   // ---- stories (Quran + hadith) ----
   locator
     ..registerLazySingleton(() => StoryAssetDataSource(rootBundle))
