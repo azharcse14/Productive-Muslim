@@ -242,14 +242,14 @@ should still review them with the rest of the content.
    text, not changed; flag for review). Stories needed no change; the new stories have no digits.
    Refs chips (`Bukhari 50`) stay ASCII since they are shared across languages.
 
-### Suspected translation errors (not changed — religious text)
+### Suspected translation errors — FIXED 2026-11-05 (owner approved, `fix/quran-31-14`; quran.db v3)
 
 - **Quran 31:14, English (Pickthall, `quran.db`)** reads "And We have enjoined upon man
   concerning his **partners**". The Arabic is بِوَالِدَيْهِ ("his parents"), the same ayah later
   says "unto thy parents", and Sahih International has "his parents". The same "partners" text
   is on alquran.cloud, corpus.quran.com and quranpedia, so it comes from the shared Tanzil
-  digital text; the 1930 print was not checked. Very likely a typo for "parents". Fix it in the
-  build pipeline (and bump `bundledVersion` + `PRAGMA user_version`) only with the owner's OK.
+  digital text; the 1930 print was not checked. Very likely a typo for "parents". Fixed in the
+  build pipeline (`_corrections`), `bundledVersion` + `PRAGMA user_version` → 3.
 - **Quran 31:14, Bangla (`quran.db`)**: "পিতা-মতার" in the second sentence looks like a typo for
   "পিতা-মাতার" (the first sentence has it right).
 
