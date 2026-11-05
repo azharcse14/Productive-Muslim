@@ -50,6 +50,10 @@ const _platformPackages = {
   'local_auth',
   'url_launcher',
   'path_provider',
+  'drift_flutter',
+  'shared_preferences_android',
+  'timezone',
+  'adhan_dart',
 };
 
 /// The only non-domain project files a domain file may import. Each must stay

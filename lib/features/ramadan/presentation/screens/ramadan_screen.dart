@@ -179,15 +179,16 @@ final class _RamadanScreenState extends State<RamadanScreen> {
                     ),
                   )
                 else ...[
-                  if (_store.isRamadan.value) ...[
+                  // Also on the eve of 1 Ramadan: from Maghrib the card
+                  // counts down to the first sahri (it sizes itself to
+                  // nothing before then).
+                  if (_store.isRamadan.value || _store.eveMaghrib.value != null)
                     _TodayTimesCard(
                       store: _store,
                       now: _wallNow,
                       left: _left,
                       formatTime: (t) => _formatTime(context, t),
                     ),
-                    const SizedBox(height: QSpace.s4),
-                  ],
                   _MonthTableCard(
                     store: _store,
                     formatTime: (t) => _formatTime(context, t),
@@ -425,21 +426,34 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
         final rows = widget.store.monthRows.value;
         final today = widget.store.today.value;
         final i = rows.indexWhere((r) => r.$1 == today);
-        if (i < 0) {
-          return const SizedBox.shrink();
-        }
-        final (_, todaySahri, iftar, _) = rows[i];
         final now = widget.now();
-        // After iftar, today's sahri is past: show tomorrow's instead.
-        final next = now.isBefore(iftar) ? null : widget.store.rowAfter(today);
-        final sahri = next?.$2 ?? todaySahri;
-        final (label, target) = now.isBefore(todaySahri)
-            ? (l10n.countdownSahriEnds, todaySahri)
-            : now.isBefore(iftar)
-            ? (l10n.countdownIftarIn, iftar)
-            : next != null
-            ? (l10n.countdownSahriEnds, next.$2)
-            : (null, null);
+        final RamadanRow? next;
+        final DateTime sahri, iftar;
+        final (String?, DateTime?) countdown;
+        if (i < 0) {
+          // Eve of 1 Ramadan, after Maghrib: the first fast's times.
+          next = widget.store.firstFastAfterEve(now);
+          if (next == null) {
+            return const SizedBox.shrink();
+          }
+          sahri = next.$2;
+          iftar = next.$3;
+          countdown = (l10n.countdownSahriEnds, sahri);
+        } else {
+          final (_, todaySahri, todayIftar, _) = rows[i];
+          iftar = todayIftar;
+          // After iftar, today's sahri is past: show tomorrow's instead.
+          next = now.isBefore(iftar) ? null : widget.store.rowAfter(today);
+          sahri = next?.$2 ?? todaySahri;
+          countdown = now.isBefore(todaySahri)
+              ? (l10n.countdownSahriEnds, todaySahri)
+              : now.isBefore(iftar)
+              ? (l10n.countdownIftarIn, iftar)
+              : next != null
+              ? (l10n.countdownSahriEnds, next.$2)
+              : (null, null);
+        }
+        final (label, target) = countdown;
         Duration left(DateTime at) => widget.left(at, now);
         Widget time(String caption, DateTime at) => Expanded(
           child: Column(
@@ -453,7 +467,7 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             ],
           ),
         );
-        return QCard(
+        final card = QCard(
           tone: q.primarySoft,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,6 +497,10 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
               ],
             ],
           ),
+        );
+        return Padding(
+          padding: const EdgeInsetsDirectional.only(bottom: QSpace.s4),
+          child: card,
         );
       },
     );

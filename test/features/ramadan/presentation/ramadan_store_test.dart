@@ -221,5 +221,38 @@ void main() {
       final store = await make(hijriOffset: -1);
       expect(store.monthRows.value.first.$1, DateTime(2026, 2, 19));
     });
+
+    test('offset −1: the eve moves to 18 Feb', () async {
+      final store = await make(hijriOffset: -1, now: DateTime(2026, 2, 18));
+      final first = store.firstFastAfterEve(DateTime.utc(2026, 2, 18, 20));
+      expect(first?.$1, DateTime(2026, 2, 19));
+      expect(first?.$4, 1);
+    });
+  });
+
+  group('eve of 1 Ramadan (17 Feb 2026, no offset)', () {
+    test('after Maghrib: the first fast\'s row', () async {
+      final store = await make(now: DateTime(2026, 2, 17, 12));
+      addTearDown(store.dispose);
+      expect(store.isRamadan.value, isFalse);
+      final maghrib = store.eveMaghrib.value!;
+      expect(maghrib.day, 17);
+      expect(store.firstFastAfterEve(DateTime.utc(2026, 2, 17, 12)), isNull);
+      final first = store.firstFastAfterEve(
+        maghrib.add(const Duration(minutes: 1)),
+      );
+      expect(first?.$1, DateTime(2026, 2, 18));
+      expect(first?.$4, 1);
+    });
+
+    test('not the eve: two days before, or on 1 Ramadan itself', () async {
+      expect((await make(now: DateTime(2026, 2, 16))).eveMaghrib.value, isNull);
+      expect((await make(now: DateTime(2026, 2, 18))).eveMaghrib.value, isNull);
+    });
+
+    test('no location: no eve card', () async {
+      final store = await make(withLocation: false, now: DateTime(2026, 2, 17));
+      expect(store.eveMaghrib.value, isNull);
+    });
   });
 }

@@ -64,22 +64,14 @@ final class _CalendarScreenState extends State<CalendarScreen> {
 
   /// Hijri month-year span of the displayed Gregorian month, e.g.
   /// "Dhul-Qadah – Dhul-Hijjah 1447".
-  String _hijriRange(BuildContext context) {
-    final l10n = context.l10n;
-    final first = HijriDate.fromGregorian(_month, offsetDays: _offset);
-    final last = HijriDate.fromGregorian(
-      DateTime(_month.year, _month.month + 1, 0),
+  String _hijriRange(BuildContext context) => _digits(
+    context,
+    hijriSpanLabel(
+      _month,
       offsetDays: _offset,
-    );
-    final from = l10n.hijriMonthName('m${first.month}');
-    final to = l10n.hijriMonthName('m${last.month}');
-    final label = first.month == last.month && first.year == last.year
-        ? '$from ${first.year}'
-        : first.year == last.year
-        ? '$from – $to ${first.year}'
-        : '$from ${first.year} – $to ${last.year}';
-    return _digits(context, label);
-  }
+      nameOf: (m) => context.l10n.hijriMonthName('m$m'),
+    ),
+  );
 
   void _openDaySheet(BuildContext context, DateTime day) {
     final location = _settings.location.value;
@@ -591,4 +583,32 @@ final class _OddNightRing extends StatelessWidget {
       border: Border.all(color: context.q.accent, width: 1.5),
     ),
   );
+}
+
+/// Every Hijri month that touches Gregorian [month], in order, the year
+/// after the last month of each Hijri year: "A 1447", "A – B 1447",
+/// "A – B – C 1447" (a 31-day month can touch three), "A 1446 – B 1447".
+@visibleForTesting
+String hijriSpanLabel(
+  DateTime month, {
+  required int offsetDays,
+  required String Function(int month) nameOf,
+}) {
+  final spans = <(int, int)>[];
+  final days = DateTime(month.year, month.month + 1, 0).day;
+  for (var d = 1; d <= days; d++) {
+    final h = HijriDate.fromGregorian(
+      DateTime(month.year, month.month, d),
+      offsetDays: offsetDays,
+    );
+    if (spans.isEmpty || spans.last != (h.year, h.month)) {
+      spans.add((h.year, h.month));
+    }
+  }
+  return [
+    for (final (i, (year, m)) in spans.indexed)
+      i == spans.length - 1 || spans[i + 1].$1 != year
+          ? '${nameOf(m)} $year'
+          : nameOf(m),
+  ].join(' – ');
 }
