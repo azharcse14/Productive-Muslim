@@ -31,8 +31,14 @@ Findings that change this plan:
   (fork of `mohacelhosen/hadithbangla`) — no license on any of them.
 - `aminurdev/dua-ruqya-server` (90 `hm_*` duas) has no license → `NO LICENSE` in the ledger.
 - Tanzil translations are non-commercial only; Pickthall and Muhiuddin Khan are `UNVERIFIED`.
-- `hadith_books.json` still carries 330 hadithbangla Bengali chapter titles; the 1.3 switch
-  doesn't strip them — owner to decide.
+- ~~`hadith_books.json` still carries 330 hadithbangla Bengali chapter titles; the 1.3 switch
+  doesn't strip them — owner to decide.~~ Settled 2026-11-05: `tool/strip_bengali_hadith.dart`
+  already drops `sections_bn` + `bn_folder`, so release builds ship none of them (decision 4).
+  No licensed Bengali source for the titles exists (see `docs/DEPENDENCIES.md`); dev builds
+  keep them together with the hadithbangla text they index.
+- ~~KFGQPC Hafs font license unverified~~ — OK 2026-11-05: the font's embedded EULA allows
+  free use/copy/distribution unmodified and unsold; KFGQPC's usage-rights clause allows
+  commercial use if the font isn't attributed to anyone else. Credits already name KFGQPC.
 - Widget QA: with 7 days pushed, the stale state needs clock **+8 days**, not +3.
 - Alarm allowlist allows every `ACTION_SHOW_ALARMS` handler (not only a default); needs a
   `<queries>` manifest entry on Android 11+.
@@ -606,6 +612,23 @@ fresh branch from `master`.
 - [ ] **Owner decisions:**
   - ~~Bengali date in calendar cells (design handoff §13).~~ Done `b5dbe37`.
   - Bengali surah names, which need a licensed source. — deferred 2026-11-04 until a licensed source exists (religious text, owner sign-off).
+    Research 2026-11-05: one clearly licensed source exists — Bengali Wikipedia
+    "কুরআনের সূরার তালিকা" (https://bn.wikipedia.org/wiki/?curid=1330631, revision 9164874,
+    2026-09-18), a 114-row table with Bengali pronunciation ("বাংলা উচ্চারণ", e.g. আল ফাতিহা,
+    আল বাকারা) and Bengali meaning ("বাংলায় নামের অর্থ", e.g. সূচনা). License: CC BY-SA 4.0
+    (site rightsinfo). Using it means: credit "Bengali Wikipedia contributors" + link + license
+    in Settings → Credits and the ledger, and the extracted names file is itself CC BY-SA 4.0
+    (ShareAlike covers the adapted list, not the app code). Quality: spelling is inconsistent
+    (আল- / আল / no article: "আল-আদিয়াত" vs "তাকাসুর"; 111 is "লাহাব" for المسد; a typo
+    "গৃৃহপালিত"), so it needs a pass by the owner/scholar before shipping. Rejected:
+    quran.com / Quran Foundation API (`chapters?language=bn` has `translated_name`, but the
+    developer terms cap caching at 1 week outside their Content Sync APIs and say "The Content
+    Sync storage exception does not itself authorize distributing a prepackaged database" —
+    https://api-docs.quran.foundation/legal/developer-terms/, read 2026-11-05);
+    fawazahmed0/quran-api and Tanzil metadata have Arabic/English names only; QUL surah-info
+    has no Bengali. Still owner sign-off: adopt the Wikipedia list (pinned to that revision,
+    after review) or keep transliterated English names. Work goes in `lib/features/quran` +
+    `tool/quran_db_build.dart` (not touched here).
   - ~~Settings lives under the More branch while Qibla/Calendar are root routes (bottom bar
     shows on one, not the other).~~ Done: bottom bar only on the five tab roots; every secondary page full-screen (design shows the bar on Settings/Calendar/Ramadan — owner may want those three in the More branch).
 - [x] **Full `flutter test` passes on a quiet machine.** 1560 green on `integrate/followups-2` with `-j 2`. During the parallel runs some tap tests
