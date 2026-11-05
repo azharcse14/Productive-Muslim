@@ -176,4 +176,60 @@ void main() {
     expect(w.start, DateTime(2026, 6, 12, 0, 45));
     expect(w.end, day.fajr);
   });
+
+  group('sunset after midnight (Nome, June), before Fajr', () {
+    final nome = PrayerDay(
+      asrYesterday: DateTime(2026, 6, 20, 17, 50),
+      maghribYesterday: DateTime(2026, 6, 21, 1, 48),
+      sunsetYesterday: DateTime(2026, 6, 21, 1, 45),
+      ishaYesterday: DateTime(2026, 6, 21, 3, 3),
+      fajr: DateTime(2026, 6, 21, 3, 4),
+      sunrise: DateTime(2026, 6, 21, 4, 25),
+      dhuhr: DateTime(2026, 6, 21, 15, 7),
+      asr: DateTime(2026, 6, 21, 17, 50),
+      maghrib: DateTime(2026, 6, 22, 1, 49),
+      isha: DateTime(2026, 6, 22, 3, 3),
+      fajrTomorrow: DateTime(2026, 6, 22, 3, 4),
+    );
+    SpecialWindow w(SpecialTime t, {required bool preFajr}) =>
+        resolveSpecialWindows(
+          nome,
+          preFajr: preFajr,
+        ).firstWhere((w) => w.time == t);
+
+    test("the forbidden-sunset window is yesterday's (01:30–01:45)", () {
+      final s = w(SpecialTime.forbiddenSunset, preFajr: true);
+      expect(s.start, DateTime(2026, 6, 21, 1, 30));
+      expect(s.end, nome.sunsetYesterday);
+    });
+
+    test("awwabin is yesterday's Maghrib → Isha", () {
+      final a = w(SpecialTime.awwabin, preFajr: true);
+      expect(a.start, nome.maghribYesterday);
+      expect(a.end, nome.ishaYesterday);
+    });
+
+    test("after Fajr: today's sunset again", () {
+      expect(w(SpecialTime.forbiddenSunset, preFajr: false).end, nome.sunset);
+    });
+  });
+
+  test("pre-Fajr with an evening sunset yesterday keeps today's window", () {
+    final day = PrayerDay(
+      maghribYesterday: DateTime(2026, 6, 11, 18, 45),
+      ishaYesterday: _day.ishaYesterday,
+      fajr: _day.fajr,
+      sunrise: _day.sunrise,
+      dhuhr: _day.dhuhr,
+      asr: _day.asr,
+      maghrib: _day.maghrib,
+      isha: _day.isha,
+      fajrTomorrow: _day.fajrTomorrow,
+    );
+    final s = resolveSpecialWindows(
+      day,
+      preFajr: true,
+    ).firstWhere((w) => w.time == SpecialTime.forbiddenSunset);
+    expect(s.end, day.sunset);
+  });
 }

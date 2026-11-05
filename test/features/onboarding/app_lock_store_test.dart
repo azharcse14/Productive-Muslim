@@ -187,6 +187,20 @@ void main() {
       expect(fresh.locked.value, isFalse);
       expect(await fresh.unlockWithPin('1234'), isFalse);
     });
+
+    test(
+      'disable turns the lock off even if the throttle reset fails',
+      () async {
+        final storage = _FlakyStorage();
+        final store = AppLockStore(storage, _FakeBiometric());
+        await store.enable('1234', biometric: false);
+        expect(await store.unlockWithPin('0000'), isFalse); // a count to reset
+        storage.failWrites = true;
+        await store.disable();
+        expect(store.enabled.value, isFalse);
+        expect(store.locked.value, isFalse);
+      },
+    );
   });
 
   group('AppLockStore background re-lock', () {

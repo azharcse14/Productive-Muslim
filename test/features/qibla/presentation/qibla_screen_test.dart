@@ -80,7 +80,12 @@ Future<void> _register({
     );
 }
 
-Widget _app() => MaterialApp(
+/// Portrait by default (the test view is landscape 800×600).
+Widget _app({Size size = const Size(400, 800)}) => MaterialApp(
+  builder: (context, child) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(size: size),
+    child: child!,
+  ),
   theme: AppTheme.light(),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
@@ -146,6 +151,20 @@ void main() {
         findsOneWidget,
       );
       expect(banner().visible, isTrue);
+    });
+
+    testWidgets('landscape asks for portrait instead of a wrong dial', (
+      tester,
+    ) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app(size: const Size(800, 400)));
+      await tester.pump();
+      expect(
+        find.text('Turn your phone upright (portrait) to use the compass'),
+        findsOneWidget,
+      );
+      expect(find.byType(CompassDial), findsNothing);
+      expect(GetIt.I<QiblaStore>().landscape.value, isTrue);
     });
 
     testWidgets('sensor failure falls back to the verbal bearing', (

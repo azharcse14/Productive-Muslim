@@ -129,11 +129,11 @@ void main() {
 
     test('a dormant default counts from the day it is turned on', () async {
       await unwrap(repo.upsertItem(DefaultTrackers.items().first));
+      await unwrap(repo.upsertItem(DefaultTrackers.items()[1]));
       await unwrap(repo.seedDefaults()); // Dec 31: health arrives archived
       final health = DefaultTrackers.healthIds.first;
       final first = DefaultTrackers.items().first.id;
       final second = DefaultTrackers.items()[1].id;
-      await unwrap(repo.upsertItem(DefaultTrackers.items()[1]));
       await unwrap(repo.setArchived(first, archived: true));
 
       now = DateTime(2026, 6, 10);
@@ -200,6 +200,66 @@ void main() {
       items = await unwrap(repo.items());
       expect(items.single, edited);
       expect(items.single.dailyTarget, isNull);
+    });
+
+    test('an edit cannot flip archived (setArchived owns it)', () async {
+      final item = _item('a', sortOrder: 0);
+      await unwrap(repo.upsertItem(item));
+      await unwrap(repo.setArchived('a', archived: true));
+      await unwrap(repo.upsertItem(item.copyWith(name: 'Renamed')));
+      var row = await db.select(db.trackerItems).getSingle();
+      expect(
+        (row.name, row.archived, row.archivedOn),
+        ('Renamed', true, 20251231),
+      );
+
+      await unwrap(repo.setArchived('a', archived: false));
+      await unwrap(repo.upsertItem(item.copyWith(archived: true)));
+      row = await db.select(db.trackerItems).getSingle();
+      expect((row.archived, row.archivedOn), (false, null));
+    });
+
+    test('raising a target keeps past days done; today uses it', () async {
+      const quran = TrackerItem(
+        id: 'quran',
+        name: 'Quran',
+        kind: TrackerKind.count,
+        dailyTarget: 2,
+        icon: 'book',
+      );
+      await unwrap(repo.upsertItem(quran));
+      final jun10 = DateTime(2026, 6, 10);
+      final jun11 = DateTime(2026, 6, 11);
+      final jun12 = DateTime(2026, 6, 12);
+      await unwrap(repo.setEntry(_entry('quran', jun10, 2)));
+      await unwrap(repo.setEntry(_entry('quran', jun11, 2)));
+      now = jun11; // Jun 11's entry is today's: it takes the new target.
+      await unwrap(repo.upsertItem(quran.copyWith(dailyTarget: () => 5)));
+      now = jun12;
+      await unwrap(repo.setEntry(_entry('quran', jun12, 2)));
+
+      Future<PeriodStats> stats() =>
+          unwrap(repo.periodStats(start: jun10, end: jun12, today: jun12));
+      var s = await stats();
+      expect([for (final d in s.days) d.completion], [1, 0.4, 0.4]);
+      expect(s.items.single.daysDone, 1);
+      expect(await unwrap(repo.doneDates({'quran'})), {jun10});
+      expect(await unwrap(repo.doneDayCount({'quran'})), 1);
+
+      await unwrap(repo.setEntry(_entry('quran', jun12, 5)));
+      s = await stats();
+      expect([for (final d in s.days) d.completion], [1, 0.4, 1]);
+      expect(await unwrap(repo.doneDayCount({'quran'})), 2);
+    });
+
+    test('adding a target to a target-less item leaves past days', () async {
+      final item = _item('a', sortOrder: 0);
+      await unwrap(repo.upsertItem(item));
+      final day = DateTime(2026, 6, 10);
+      await unwrap(repo.setEntry(_entry('a', day, 1)));
+      now = DateTime(2026, 6, 11);
+      await unwrap(repo.upsertItem(item.copyWith(dailyTarget: () => 3)));
+      expect(await unwrap(repo.doneDates({'a'})), {day});
     });
   });
 
@@ -316,6 +376,31 @@ void main() {
       },
     );
 
+    test('restoring does not change the archive day', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
+      // Jun 10: a logged, then archived; restored Jun 12.
+      final jun10 = DateTime(2026, 6, 10);
+      now = jun10;
+      await unwrap(repo.setEntry(_entry('a', jun10, 1)));
+      await unwrap(repo.setArchived('a', archived: true));
+      Future<PeriodStats> stats() => unwrap(
+        repo.periodStats(
+          start: jun10,
+          end: jun10,
+          today: DateTime(2026, 6, 12),
+        ),
+      );
+      final archived = await stats();
+      now = DateTime(2026, 6, 12);
+      await unwrap(repo.setArchived('a', archived: false));
+      final restored = await stats();
+      expect(archived.days.single.completion, 0, reason: 'only b counts');
+      expect(restored.days.single.completion, archived.days.single.completion);
+      final a = restored.items.firstWhere((i) => i.itemId == 'a');
+      expect((a.daysDone, a.periodDays), (0, 0));
+    });
+
     test('archive/restore twice records two spans', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       await unwrap(repo.upsertItem(_item('b', sortOrder: 1)));
@@ -352,7 +437,7 @@ void main() {
   });
 
   group('setEntry / entriesOn', () {
-    test('an archived tracker refuses new values but can be cleared', () async {
+    test('an archived tracker refuses new values and clearing', () async {
       await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
       final date = DateTime(2026, 6, 12);
       await unwrap(repo.setEntry(_entry('a', date, 1)));
@@ -369,8 +454,16 @@ void main() {
       );
       expect((await unwrap(repo.entriesOn(date))).single.value, 1);
 
-      await unwrap(repo.setEntry(_entry('a', date, 0)));
-      expect(await unwrap(repo.entriesOn(date)), isEmpty);
+      // value 0 would hard-delete its history: refused as well.
+      expect(
+        await repo.setEntry(_entry('a', date, 0)),
+        isA<FailureResult<void>>().having(
+          (r) => r.failure,
+          'failure',
+          isA<ArchivedTrackerFailure>(),
+        ),
+      );
+      expect((await unwrap(repo.entriesOn(date))).single.value, 1);
     });
 
     test('upsert, overwrite, delete-on-zero', () async {

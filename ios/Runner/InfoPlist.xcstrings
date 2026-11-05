@@ -35,6 +35,23 @@
         }
       }
     },
+    "NSMotionUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "প্রোডাক্টিভ মুসলিম কিবলা কম্পাস দেখাতে আপনার ফোনের মোশন সেন্সর ব্যবহার করে। মোশন ডেটা এই ডিভাইসেই থাকে।"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Productive Muslim uses your phone's motion sensors to point the qibla compass. Motion data stays on this device."
+          }
+        }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription": {
       "extractionState": "manual",
       "localizations": {

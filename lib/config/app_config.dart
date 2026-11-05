@@ -33,9 +33,8 @@ abstract final class AppConfig {
   /// with `--dart-define=BENGALI_HADITH=false` to ship without it: no code
   /// path then reads the Bengali sections or requests the hadithbangla URL.
   /// Always pair it with a stripped hadith.db (`tool/strip_bengali_hadith.dart`
-  /// or `hadith_db_build.dart --no-bengali`): the on-device copy is replaced
-  /// when its Bengali table doesn't match this flag, so a mismatched build
-  /// re-copies hadith.db on every launch.
+  /// or `hadith_db_build.dart --no-bengali`): a mismatched build ships 25 MB
+  /// of text it never reads (the copy is stamped, so it is copied only once).
   static const bengaliHadith = bool.fromEnvironment(
     'BENGALI_HADITH',
     defaultValue: true,

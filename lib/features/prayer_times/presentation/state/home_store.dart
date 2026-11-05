@@ -198,70 +198,48 @@ final class HomeStore {
     () => resolveAutoMosqueId(_mosque.state.value, now.value),
   );
 
-  /// The active mosque profile's jamaat times (schedule-resolved).
-  late final jamaatConfig = computed(
-    () => mosqueResolution.value.profile?.config ?? JamaatConfig.none,
-  );
+  /// Each waqt's jamaat config: the mosque active at that waqt's start
+  /// (yesterday's for the overnight waqt) — unless the waqt has begun and an
+  /// override is in effect now. The same rule notifications schedule by, so
+  /// Home's rows and countdown match the reminders. One memoized computed per
+  /// prayer: reads `now` every second but flips only when a config changes.
+  late final Map<Prayer, Computed<JamaatConfig>> _waqtConfig = {
+    for (final prayer in Prayer.values)
+      prayer: computed(() {
+        final range = waqtRangeOf(prayer);
+        if (range == null) {
+          return JamaatConfig.none;
+        }
+        return resolveMosqueForWaqt(
+              _mosque.state.value,
+              range.$1,
+              now.value,
+            ).profile?.config ??
+            JamaatConfig.none;
+      }),
+  };
 
-  /// On a Friday, the jamaat config of the mosque active at that Dhuhr (not
-  /// now) — the Jumu'ah row's mosque, the rule notifications and the widget
-  /// use. Null on other days.
-  late final _fridayDhuhrConfig = computed<JamaatConfig?>(() {
-    final dhuhr = prayerDay.value?.dhuhr;
-    if (dhuhr == null || dhuhr.weekday != DateTime.friday) {
-      return null;
-    }
-    return resolveActiveMosque(_mosque.state.value, dhuhr).profile?.config ??
-        JamaatConfig.none;
-  });
-
-  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque active
-  /// at that Dhuhr has a Jumu'ah time. Memoized: flips at most at a day or
+  /// Whether today's Dhuhr reads Jumu'ah: a Friday, and the mosque that
+  /// Dhuhr follows has a Jumu'ah time. Memoized: flips at most at a day or
   /// mosque change.
   late final jumuahToday = computed(
-    () => _fridayDhuhrConfig.value?.jumuah != null,
+    () =>
+        prayerDay.value?.dhuhr.weekday == DateTime.friday &&
+        _waqtConfig[Prayer.dhuhr]!.value.jumuah != null,
   );
 
-  /// The overnight waqt's jamaat config: the mosque active at its
-  /// (yesterday's) start, as notifications resolve it — unless an override
-  /// is in effect now, which the user set for the waqt running now (it
-  /// can't have been live at that start if set after midnight). Null
-  /// otherwise.
-  late final _overnightConfig = computed<JamaatConfig?>(() {
-    final o = overnightRange.value;
-    if (o == null) {
-      return null;
-    }
-    return resolveMosqueForWaqt(
-          _mosque.state.value,
-          o.start,
-          now.value,
-        ).profile?.config ??
-        JamaatConfig.none;
-  });
-
-  /// Each prayer row's jamaat moment. The overnight row's comes from the
-  /// mosque active at its (yesterday's) waqt start, as notifications resolve
-  /// it; Friday's Dhuhr from the mosque active at that Dhuhr (matching
-  /// [jumuahToday]); the rest from the mosque active now. A jamaat at or
-  /// past its waqt's end is stale (e.g. a summer time in winter) and left
-  /// out, as the countdown and notifications do.
+  /// Each prayer row's jamaat moment, from that waqt's mosque
+  /// ([_waqtConfig]). A jamaat at or past its waqt's end is stale (e.g. a
+  /// summer time in winter) and left out, as the countdown and
+  /// notifications do.
   late final rowJamaat = computed<Map<Prayer, DateTime>>(() {
-    final day = prayerDay.value;
-    if (day == null) {
+    if (prayerDay.value == null) {
       return const {};
     }
-    final current = jamaatConfig.value;
-    final friday = _fridayDhuhrConfig.value;
-    final overnight = overnightWaqt.value;
     final rows = <Prayer, DateTime>{};
     for (final prayer in Prayer.values) {
       final (start, end) = waqtRangeOf(prayer)!;
-      final config = prayer == overnight
-          ? _overnightConfig.value!
-          : prayer == Prayer.dhuhr
-          ? friday ?? current
-          : current;
+      final config = _waqtConfig[prayer]!.value;
       if (config.timeFor(prayer, start) case final t? when t.isBefore(end)) {
         rows[prayer] = t;
       }
@@ -299,16 +277,11 @@ final class HomeStore {
     return resolveCountdownTarget(
       now: now.value,
       day: day,
-      // Before Fajr the active waqt is the overnight one: its jamaat comes
-      // from the mosque active at its start, matching its row. Friday's
-      // Dhuhr counts to the Jumu'ah of the mosque active at that Dhuhr —
-      // the same one the row, label and notifications use.
-      jamaat:
-          _overnightConfig.value ??
-          (activeWaqt.value?.prayer == Prayer.dhuhr
-              ? _fridayDhuhrConfig.value
-              : null) ??
-          jamaatConfig.value,
+      // The running waqt's mosque, as its row and notifications use.
+      jamaat: switch (activeWaqt.value?.prayer) {
+        final prayer? => _waqtConfig[prayer]!.value,
+        null => JamaatConfig.none,
+      },
       ramadanMode: ramadanMode.value,
       ramadanTonight: sahriInRamadan.value,
       ramadanYesterday: _ramadanYesterday.value,

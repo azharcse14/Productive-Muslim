@@ -116,6 +116,30 @@ final class RamadanStore {
   RamadanRow? rowAfter(DateTime day) =>
       _rowByDay.value[DateTime(day.year, day.month, day.day + 1)];
 
+  /// On the eve of 1 Ramadan (Hijri offset applied): today's Maghrib, from
+  /// which the today card counts down to the first sahri. Null on any other
+  /// day, with no location, or when today's times failed to compute.
+  late final eveMaghrib = computed<DateTime?>(() {
+    final location = _settings.location.value;
+    if (location == null || nextRamadan.value.$2 != 1) {
+      return null;
+    }
+    return _getPrayerDay(
+      location: location,
+      params: _settings.prayerParams.value,
+      date: today.value,
+    ).valueOrNull?.iftar;
+  });
+
+  /// The first fast's row once wall-clock [now] is past [eveMaghrib]; null
+  /// otherwise.
+  RamadanRow? firstFastAfterEve(DateTime now) {
+    final maghrib = eveMaghrib.value;
+    return maghrib == null || now.isBefore(maghrib)
+        ? null
+        : rowAfter(today.value);
+  }
+
   /// Days of the current Ramadan, up to today, that [isFasted] reports as
   /// logged — 0 outside Ramadan.
   int fastsLogged(IsDayFasted isFasted) {

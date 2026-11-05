@@ -18,6 +18,7 @@ import 'package:productive_muslim/features/quran/presentation/state/quran_store.
 import 'package:productive_muslim/features/share/domain/share_sheet.dart';
 import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 import 'package:productive_muslim/shared/widgets/q_card.dart';
+import 'package:productive_muslim/shared/widgets/q_list_row.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
@@ -121,9 +122,13 @@ final class FakeQuranRepository implements QuranRepository {
   /// Per-test surah index override (e.g. a long one for scroll tests).
   List<Surah>? surahsOverride;
 
+  /// Makes `surahs` fail (the index can't be read).
+  bool failSurahs = false;
+
   @override
-  Future<Result<List<Surah>>> surahs() async =>
-      Result.success(surahsOverride ?? surahsData);
+  Future<Result<List<Surah>>> surahs() async => failSurahs
+      ? const Result.failure(UnexpectedFailure('broken'))
+      : Result.success(surahsOverride ?? surahsData);
 
   @override
   Future<Result<List<Ayah>>> ayahsOf(int surah) async => failAyahs
@@ -477,6 +482,35 @@ void main() {
       await tester.pumpAndSettle();
       expect(store.bookmarks.value, {3, 4});
       expect(find.text('Undo'), findsNothing);
+    });
+
+    testWidgets('bookmarks sheet shows the load error without the index', (
+      tester,
+    ) async {
+      repo
+        ..failSurahs = true
+        ..storedBookmarks.add(4);
+      await store.load();
+      expect(store.bookmarks.value, {4});
+      await tester.pumpWidget(_routerApp('/quran'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Bookmarks'));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byType(BottomSheet);
+      expect(
+        find.descendant(
+          of: sheet,
+          matching: find.text(
+            "Couldn't open the Quran text. Please try again.",
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: sheet, matching: find.byType(QListRow)),
+        findsNothing,
+      );
     });
 
     testWidgets('a bookmark has a labelled remove button', (tester) async {

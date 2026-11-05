@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -70,7 +71,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
       return;
     }
     setState(() => _requesting = true);
-    final NotificationPermission status;
+    var status = NotificationPermission.denied;
     try {
       status = await _scheduler.requestPermission();
       // Azan on time needs exact alarms (Android 12+); ask right after the
@@ -81,6 +82,11 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
           await _primeExactAlarms()) {
         await _scheduler.requestExactAlarmPermission();
       }
+    } on PlatformException catch (e) {
+      // The plugin failed; the step still advances (permission can be
+      // granted later from Settings). A failed notification prompt reads
+      // as denied; a failed exact-alarm step keeps the grant.
+      debugPrint('Notification permission request failed: $e');
     } finally {
       if (mounted) {
         setState(() => _requesting = false);

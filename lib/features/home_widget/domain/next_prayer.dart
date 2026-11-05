@@ -28,10 +28,13 @@ final class NextPrayer {
 }
 
 /// First prayer whose waqt starts strictly after [now]; rolls over to
-/// tomorrow's Fajr once Isha has begun. Before Fajr, yesterday's Isha can
-/// still be ahead (high-latitude summer: Isha after midnight), as in
-/// `PrayerDay.activeWaqtAt`.
+/// tomorrow's Fajr once Isha has begun. Before Fajr, yesterday's Maghrib
+/// or Isha can still be ahead (high-latitude summer: sunset or Isha after
+/// midnight), as in `PrayerDay.activeWaqtAt`.
 NextPrayer resolveNextPrayer(PrayerDay day, DateTime now) {
+  if (day.maghribYesterday case final m? when m.isAfter(now)) {
+    return NextPrayer(prayer: Prayer.maghrib, at: m, tomorrow: false);
+  }
   if (day.ishaYesterday.isAfter(now)) {
     return NextPrayer(
       prayer: Prayer.isha,

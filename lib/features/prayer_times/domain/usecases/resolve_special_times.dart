@@ -1,3 +1,4 @@
+import '../../../../core/utils/wall_time.dart';
 import '../entities/prayer_day.dart';
 import '../entities/special_time.dart';
 
@@ -37,7 +38,20 @@ List<SpecialWindow> resolveSpecialWindows(
   final ishraqEnd = sunriseEnd.add(_ishraqWindow);
   // Zawal hugs the sun's transit, not the offset Dhuhr start.
   final zawalStart = day.transit.subtract(_zawalWindow);
-  final sunsetStart = day.sunset.subtract(_horizonWindow);
+  // Sunset past midnight (high-latitude summer): before Fajr, yesterday's
+  // sunset and Maghrib are still ahead of (or just behind) the clock.
+  final (sunset, maghrib, isha) = switch ((
+    day.sunsetYesterday,
+    day.maghribYesterday,
+  )) {
+    (final s?, final m?) when preFajr && !s.isBefore(day.fajr.wallDay(0)) => (
+      s,
+      m,
+      day.ishaYesterday,
+    ),
+    _ => (day.sunset, day.maghrib, day.isha),
+  };
+  final sunsetStart = sunset.subtract(_horizonWindow);
 
   // Tahajjud: the last third of the night, sunset (Maghrib) → next Fajr.
   final (nightStart, nightEnd) = switch (day.maghribYesterday) {
@@ -70,7 +84,7 @@ List<SpecialWindow> resolveSpecialWindows(
       time: SpecialTime.forbiddenSunset,
       kind: SpecialKind.forbidden,
       start: sunsetStart,
-      end: day.sunset,
+      end: sunset,
     ),
     SpecialWindow(
       time: SpecialTime.ishraq,
@@ -93,8 +107,8 @@ List<SpecialWindow> resolveSpecialWindows(
     SpecialWindow(
       time: SpecialTime.awwabin,
       kind: SpecialKind.nafl,
-      start: day.maghrib,
-      end: day.isha,
+      start: maghrib,
+      end: isha,
     ),
     SpecialWindow(
       time: SpecialTime.tahajjud,

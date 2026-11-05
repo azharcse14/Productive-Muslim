@@ -141,33 +141,35 @@ final class AchievementStore {
     // data: badges would read locked, then "newly unlocked" on recovery.
     Future<T> read<T>(Future<Result<T>> result) async =>
         (await result).fold((value) => value, (f) => throw f);
-    // Distinct done dates per badge family, archived items included.
+    // Distinct done dates per badge family, archived items included —
+    // counted in SQL where only the number matters.
     Future<Set<DateTime>> doneOn(Set<String> ids) =>
         read(_muhasaba.doneDates(ids));
+    Future<int> countOf(Set<String> ids) => read(_muhasaba.doneDayCount(ids));
     // Streaks too: archiving a tracker must not re-lock streak badges.
     final allItems = await read(_muhasaba.items(includeArchived: true));
     final streaks = streaksOf(
       await doneOn({for (final i in allItems) i.id}),
       _today(),
     );
-    final salahDays = await doneOn(DefaultTrackers.salahIds.toSet());
-    final quranDays = await doneOn(const {'quran'});
+    final salahDays = await countOf(DefaultTrackers.salahIds.toSet());
+    final quranDays = await countOf(const {'quran'});
     final fastingDays = {
       ...await doneOn(const {'roza'}),
       for (final s in _fasting?.logged.value ?? const <int>{})
         DateTime(s ~/ 10000, (s ~/ 100) % 100, s % 100),
     };
-    final tahajjudDays = await doneOn(const {'tahajjud'});
-    final sadaqahDays = await doneOn(const {'sadaqah'});
+    final tahajjudDays = await countOf(const {'tahajjud'});
+    final sadaqahDays = await countOf(const {'sadaqah'});
 
     stats.value = AchievementStats(
       currentStreak: streaks.current,
       bestStreak: streaks.best,
-      salahDaysDone: salahDays.length,
-      quranDaysDone: quranDays.length,
+      salahDaysDone: salahDays,
+      quranDaysDone: quranDays,
       fastingDaysDone: fastingDays.length,
-      tahajjudDaysDone: tahajjudDays.length,
-      sadaqahDaysDone: sadaqahDays.length,
+      tahajjudDaysDone: tahajjudDays,
+      sadaqahDaysDone: sadaqahDays,
       totalDhikr: _tasbih?.lifetimeTotal.value ?? 0,
       tasbihSessions: _tasbih?.lifetimeSessions.value ?? 0,
       quranBookmarks: _quran?.bookmarks.value.length ?? 0,

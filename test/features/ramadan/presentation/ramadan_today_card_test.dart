@@ -159,6 +159,39 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('eve of 1 Ramadan: from Maghrib, counts to the first sahri', (
+    tester,
+  ) async {
+    final firstSahri = getPrayerDay(
+      location: _dhaka,
+      params: settings.prayerParams.value,
+      date: DateTime(2026, 2, 18),
+    ).valueOrNull!.sahriEnd;
+    clock.now = DateTime(2026, 2, 17, 12);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const RamadanScreen(),
+      ),
+    );
+    await tester.pump();
+    expect(find.textContaining('Sahri ends in'), findsNothing);
+
+    clock.now = DateTime(2026, 2, 17, 21);
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      find.text(
+        'Sahri ends in ${hms(firstSahri.difference(clock.nowAt(_dhaka)))}',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Sahri ends tomorrow'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('Eid announced: offered on 29 Ramadan, makes the 30th Eid, '
       'undoable', (tester) async {
     // Tabular dates (no override yet): 30 Ramadan doesn't exist once set.

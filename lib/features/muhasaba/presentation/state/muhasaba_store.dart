@@ -111,8 +111,8 @@ final class MuhasabaStore {
     if (!loaded.value || s == null) {
       return false;
     }
-    // items only cover the selected period; bestStreak scans ~400 days, so
-    // it is 0 only for a user who has (effectively) never logged anything.
+    // items only cover the selected period; bestStreak covers all history,
+    // so it is 0 only for a user who has never completed anything.
     final nothingEver =
         s.bestStreak == 0 &&
         s.items.every((i) => i.totalValue == 0) &&
@@ -509,7 +509,8 @@ final class MuhasabaStore {
       return false;
     }
     await _reloadItems();
-    // A target change flips done-days, so the dashboard must follow.
+    // A target change applies from today on (past entries keep the target
+    // they were logged against), so today's stats must follow.
     await refreshStats();
     return true;
   }

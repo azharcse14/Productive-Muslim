@@ -1826,6 +1826,12 @@ abstract class AppLocalizations {
   /// **'Hold your phone flat, screen facing up'**
   String get qiblaHoldFlat;
 
+  /// No description provided for @qiblaHoldPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn your phone upright (portrait) to use the compass'**
+  String get qiblaHoldPortrait;
+
   /// No description provided for @qiblaSensorUnavailable.
   ///
   /// In en, this message translates to:
@@ -5605,6 +5611,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Azan sound (excerpt)'**
   String get creditsAzanAudio;
+
+  /// No description provided for @creditsAzanAudioValue.
+  ///
+  /// In en, this message translates to:
+  /// **'\"The Adhan - Muslim Call to Prayer\" by Aaqib Azeez, Wikimedia Commons (CC BY-SA 4.0)'**
+  String get creditsAzanAudioValue;
 
   /// No description provided for @creditsGroupFonts.
   ///

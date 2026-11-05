@@ -149,11 +149,16 @@ final class SettingsStore {
     return result;
   }
 
+  /// The retry-read in flight, shared by every update that arrives while
+  /// it runs: a second read finishing later would overwrite [settings]
+  /// with a snapshot that lacks the first update's change.
+  Future<void>? _reload;
+
   Future<Result<void>> _apply(AppSettings Function(AppSettings) change) async {
     if (_readFailed) {
       // Retry the read first so [change] lands on the user's settings,
       // not on the defaults kept after the failed load.
-      await load();
+      await (_reload ??= load().whenComplete(() => _reload = null));
       if (_readFailed) {
         // ponytail: still unreadable — saving would overwrite the stored
         // settings with defaults, so the change lives in memory only and

@@ -119,7 +119,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
         return const Result.failure(UnexpectedFailure('save failed'));
       }
     }
-    if (entry.value > 0 && (items_[entry.itemId]?.archived ?? false)) {
+    if (items_[entry.itemId]?.archived ?? false) {
       return const Result.failure(ArchivedTrackerFailure());
     }
     final key = (entry.itemId, _key(entry.date));
@@ -217,6 +217,10 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
           if (itemIds.contains(id) && (items_[id]?.isDone(v) ?? false))
             DateTime(day ~/ 10000, (day % 10000) ~/ 100, day % 100),
       });
+
+  @override
+  Future<Result<int>> doneDayCount(Set<String> itemIds) async =>
+      Result.success((await doneDates(itemIds)).valueOrNull!.length);
 }
 
 Future<(MuhasabaStore, InMemoryMuhasabaRepository)> makeMuhasabaStore({

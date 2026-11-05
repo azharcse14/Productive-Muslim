@@ -29,7 +29,7 @@ plan is more specific, this plan wins.
 Findings that change this plan:
 - `md-rifatkhan/hadithbangla` is gone (404); the snapshot is `azharcse14/hadithbangla`
   (fork of `mohacelhosen/hadithbangla`) — no license on any of them.
-- `aminurdev/dua-ruqya-server` (90 `hm_*` duas) has no license → `NO LICENSE` in the ledger.
+- `aminurdev/dua-ruqya-server` (88 `hm_*` duas) has no license → `NO LICENSE` in the ledger.
 - Tanzil translations are non-commercial only; Pickthall and Muhiuddin Khan are `UNVERIFIED`. (2026-11-04: both now OK for non-commercial use, see DEPENDENCIES.md.)
 - ~~`hadith_books.json` still carries 330 hadithbangla Bengali chapter titles; the 1.3 switch
   doesn't strip them — owner to decide.~~ Settled 2026-11-05: `tool/strip_bengali_hadith.dart`

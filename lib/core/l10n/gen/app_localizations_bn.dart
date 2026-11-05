@@ -1059,6 +1059,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get qiblaHoldFlat => 'ফোনটি সমান করে ধরুন, স্ক্রিন উপরের দিকে';
 
   @override
+  String get qiblaHoldPortrait =>
+      'কম্পাস ব্যবহার করতে ফোনটি লম্বালম্বি (পোর্ট্রেট) করে ধরুন';
+
+  @override
   String get qiblaSensorUnavailable => 'এই ডিভাইসে কম্পাস সেন্সর নেই';
 
   @override
@@ -3705,6 +3709,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get creditsAzanAudio => 'আজানের ধ্বনি (অংশবিশেষ)';
+
+  @override
+  String get creditsAzanAudioValue =>
+      '\"The Adhan - Muslim Call to Prayer\" — Aaqib Azeez, উইকিমিডিয়া কমন্স (CC BY-SA 4.0)';
 
   @override
   String get creditsGroupFonts => 'ফন্ট';

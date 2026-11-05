@@ -102,10 +102,15 @@ object DirectBoot {
     fun post(c: Context, id: Int) {
         val p = prefs(c)
         val e = entries(p).firstOrNull { it.id == id } ?: return
-        val launch = c.packageManager.getLaunchIntentForPackage(c.packageName)
-            ?.setAction(SELECT_NOTIFICATION)
-            ?.putExtra("notificationId", e.id)
-            ?.putExtra("payload", e.payload)
+        // Explicit: getLaunchIntentForPackage is null while the user is
+        // locked (MainActivity isn't direct-boot aware), which left the tap
+        // dead. Same shape the plugin builds from the launch intent.
+        val launch = Intent(c, MainActivity::class.java)
+            .setAction(SELECT_NOTIFICATION)
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .putExtra("notificationId", e.id)
+            .putExtra("payload", e.payload)
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(c, e.channel)
         } else {
@@ -118,14 +123,12 @@ object DirectBoot {
             .setContentText(e.body)
             .setAutoCancel(true)
             .setCategory(Notification.CATEGORY_REMINDER)
-        if (launch != null) {
-            builder.setContentIntent(
-                PendingIntent.getActivity(
-                    c, e.id, launch,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
+        builder.setContentIntent(
+            PendingIntent.getActivity(
+                c, e.id, launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-        }
+        )
         try {
             c.getSystemService(NotificationManager::class.java).notify(e.id, builder.build())
         } catch (ex: SecurityException) {

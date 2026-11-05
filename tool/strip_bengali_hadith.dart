@@ -7,7 +7,8 @@
 // credits and the online fallback, HadithDatabase.ensureCopied compares that
 // switch with the installed copy's `hadith_bn_section`, so any switch between
 // a stripped and a full asset re-copies on device without a user_version
-// bump (and a mismatched build re-copies on every launch). user_version is
+// bump (a mismatched build copies its asset once and then keeps it, stale
+// Bengali table or not, until the next version bump). user_version is
 // left as is on purpose. Undo with
 // `git checkout -- assets/data/hadith.db assets/data/hadith_books.json`
 // (just these two, so other uncommitted asset work survives).

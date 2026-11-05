@@ -192,7 +192,15 @@ final class _QuranIndexState extends State<_QuranIndex> {
                   ],
                 ),
               ),
-            if (ids.isEmpty)
+            // Rows resolve their surah through the index; without it they
+            // would render blank.
+            if (_store.failed.value)
+              QErrorRetry(
+                message: l10n.quranLoadError,
+                retryLabel: l10n.retry,
+                onRetry: () => unawaited(_store.load()),
+              )
+            else if (ids.isEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   QSpace.s5,

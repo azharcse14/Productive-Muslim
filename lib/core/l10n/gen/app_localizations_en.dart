@@ -1063,6 +1063,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qiblaHoldFlat => 'Hold your phone flat, screen facing up';
 
   @override
+  String get qiblaHoldPortrait =>
+      'Turn your phone upright (portrait) to use the compass';
+
+  @override
   String get qiblaSensorUnavailable =>
       'Compass sensor unavailable on this device';
 
@@ -3724,6 +3728,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get creditsAzanAudio => 'Azan sound (excerpt)';
+
+  @override
+  String get creditsAzanAudioValue =>
+      '\"The Adhan - Muslim Call to Prayer\" by Aaqib Azeez, Wikimedia Commons (CC BY-SA 4.0)';
 
   @override
   String get creditsGroupFonts => 'Fonts';
