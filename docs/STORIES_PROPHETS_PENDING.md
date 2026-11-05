@@ -120,6 +120,41 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
 - Left out on purpose: the "daughters" (11:78) and "I am sick" (37:88-89).
 - Mid-range ayahs of long ranges were not read one by one; re-read them during review.
 
+**Done, part 2 (48, branch `feat/quran-stories-2`, every ayah of every range read with
+`tool/verify_refs.py`) — needs scholar review before release:** dawud_mountains_and_iron ·
+dawud_two_litigants · dawud_sulaiman_judgment · sulaiman_and_the_ant ·
+sulaiman_hoopoe_and_queen_of_saba · sulaiman_wind_and_jinn · sulaiman_death · harut_and_marut ·
+ilyas_and_baal · alyasa_and_dhulkifl · yunus_and_the_whale · the_ruined_town · saba_and_the_dam
+· three_messengers_of_the_town · luqman_advice_to_his_son · birth_of_maryam · zakariya_and_yahya
+· birth_of_isa · miracles_of_isa · the_table_from_heaven · isa_raised_up · people_of_the_cave ·
+owner_of_two_gardens · dhul_qarnayn · owners_of_the_garden · people_of_the_ditch ·
+year_of_the_elephant · first_revelation · abu_lahab · abasa_the_blind_man · splitting_of_the_moon
+· jinn_listen_to_quran · isra_and_miraj · the_hijrah · change_of_qibla · battle_of_badr ·
+battle_of_uhud · banu_nadir · zayd_and_zaynab · battle_of_ahzab · the_slander_ifk ·
+the_woman_who_pleaded · treaty_of_hudaybiyyah · conquest_of_makkah · battle_of_hunayn ·
+tabuk_and_the_three · masjid_ad_dirar · the_mubahala
+
+**Review before release (part 2):**
+- Sensitive, written neutrally from the ayat only: harut_and_marut (no detail beyond 2:102;
+  popular stories flagged as unreliable), the_slander_ifk ('A'ishah (RA) named from Bukhari),
+  zayd_and_zaynab (Zaynab named from hadith/tafsir; "what he hid" given as the view of many
+  scholars), isa_raised_up (how "it was made to appear so" and the meaning of 3:55 left to the
+  scholars; no substitution story).
+- dawud_two_litigants: the Quran does not say what the test was; the text says so and warns
+  against unreliable stories.
+- Names not in the Quran, marked as from hadith/sirah/tafsir: Bilqis (only as "later
+  reports"), Ibn Umm Maktum (Tirmidhi 3331), Abu Bakr and Thawr, Khadijah and Hira (Bukhari 3),
+  Khawlah bint Tha'labah, Banu an-Nadir, Banu Qurayzah, Najran, Ka'b ibn Malik, Tabuk, Abrahah
+  not named. Not named on purpose: the ruined-town man, the town of 36:13, Dhul-Qarnayn's
+  identity, the one "with knowledge of the Scripture" (27:40).
+- battle_of_badr: 3:124-125 (3,000/5,000 angels) — the text says scholars differ on Badr vs Uhud.
+- the_table_from_heaven: ref widened to 5:111-115 (5:111 introduces the disciples).
+- birth_of_maryam includes 3:42-44; birth_of_isa uses 3:45-47 (not 3:42-44).
+- alyasa_and_dhulkifl adds 21:85-86; dawud_mountains_and_iron adds 38:17-20.
+- masjid_ad_dirar: the text says scholars differ on whether 9:108's mosque is Quba or the
+  Prophet's mosque.
+- Bangla numerals in Bangla text (২৭:১৯, ১০০) — check this matches the house style.
+
 **Pending (planned ranges):**
 - Yusuf, 7 parts: 12:4-6, 7-18, 19-29, 30-42, 43-57, 58-79, 80-101.
 - Ya'qub's advice 2:132-133 · Ayyub 21:83-84, 38:41-44 · Shu'ayb 7:85-93, 11:84-95,
@@ -133,30 +168,12 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
   Harun.
 - Sabbath 7:163-166, 2:65-66 · the man who threw off the signs 7:175-176 · those who fled death
   2:243 · Talut/Jalut 2:246-251.
-- Dawud: 34:10-11, 21:79-80 · 38:21-26 · 21:78-79.
-- Sulaiman: ants 27:15-19 · hoopoe/Saba 27:20-44 · wind/jinn 34:12-13, 21:81-82, 38:35-40 ·
-  death 34:14.
-- Harut and Marut 2:102 · Ilyas 37:123-132 · Al-Yasa/Dhul-Kifl 38:48, 6:86 · Yunus 37:139-148,
-  21:87-88, 68:48-50, 10:98 · ruined town 2:259 · Saba's dam 34:15-19 · three messengers
-  36:13-27 · Luqman 31:12-19.
-- Zakariya/Yahya 3:37-41, 19:2-15, 21:89-90 · Maryam's birth 3:35-37 · 'Isa's birth 19:16-34,
-  3:42-47 · miracles 3:48-51, 5:110, 61:6 · the table 5:112-115 · raised up 3:52-55, 4:157-158.
-- Cave 18:9-26 · two gardens 18:32-44 · Dhul-Qarnayn 18:83-98 · owners of the garden 68:17-33
-  · the Ditch 85:4-10 · the Elephant 105:1-5.
-- Prophet ﷺ: first revelation 96:1-5, 74:1-5 · Abu Lahab 111, 26:214 · 'Abasa 80:1-10 · the
-  moon 54:1-2 · the jinn 46:29-32, 72:1-2 · Isra/Mi'raj 17:1, 53:13-18 · Hijrah 8:30, 9:40 ·
-  qibla 2:142-150 · Badr 8:5-19, 8:41-48, 3:123-127 · Uhud 3:121-122, 3:139-155, 3:172-174 ·
-  Banu Nadir 59:2-4 · Zayd/Zaynab 33:36-40 · Ahzab 33:9-27 · Ifk 24:11-20 · Mujadilah 58:1-4 ·
-  Hudaybiyyah 48:1, 48:18-27 · conquest 110, 17:81 · Hunayn 9:25-27 · Tabuk/the three 9:38-42,
-  9:81-83, 9:92, 9:117-118 · Dirar 9:107-110 · Mubahala 3:59-61.
-- Not checked yet: the Sulaiman/Dawud batch (38:17-20, 27:15-19, 27:20-44, 34:12-13, 21:81-82)
-  and 8:14-19.
 - Left out on purpose: Sulaiman and the horses 38:30-33 (the tafsir is disputed), and 2:54.
 
 ## Content totals at pause
 
 | File | Done | Pending |
 |---|---|---|
-| quran_stories.json | 19 | about 80 |
+| quran_stories.json | 67 | Yusuf–Talut batch (part 1) |
 | hadith_stories.json | 58 | 3 |
 | prophets.json | 25 entries, 25 summaries (review pending) | scholar review |
