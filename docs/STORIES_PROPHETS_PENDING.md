@@ -264,3 +264,41 @@ should still review them with the rest of the content.
 - 31:14: alquran.cloud/ayah/31:14, corpus.quran.com/translation.jsp?chapter=31&verse=14.
 
 - 2026-11-05: al-Khidr's Bangla spelling unified to খিজির; ruqyah.json Bangla verse markers now in Bangla digits.
+
+## Web review against scholars' views (2026-11-05, `fix/scholar-review`)
+
+Six agents checked every summary and story against tafsir (Ibn Kathir, al-Tabari, al-Qurtubi,
+al-Sa'di), hadith commentary (Fath al-Bari, Sharh Nawawi), gradings (sunnah.com, dorar.net) and
+fatwa sites (islamqa, islamweb), plus the bundled DBs. This is not a scholar's sign-off.
+
+**Fixed (26 patches):**
+- Errors: Ka'b ibn Malik also missed Badr (Bukhari 4418); Bukhari 3350 ذيخ ملتطخ is a
+  filth-smeared male hyena, not "a blood-stained animal" (Mishkat 5538, Ibn Kathir 6:77);
+  12:9 "Kill Yusuf" is the brothers' plural speech, the single speaker is 12:10.
+- Majority view marked: Ismail as the sacrificed son (`ismail_true_to_promise`), Dhul-Kifl
+  (`alyasa_and_dhulkifl`), Iram as the tribe of 'Ad (Hud summary, Ibn Kathir 89:7-8), the
+  Quran as his ﷺ greatest miracle is the scholars' explanation of Bukhari 4981.
+- 7:143 Bangla: "কখনো" dropped (Ahl al-Sunnah: believers see Allah in the Hereafter).
+- 18:21: the Quran only reports the plan to build a mosque over the cave; added that it was
+  not praiseworthy (Ibn Kathir; Bukhari 1330).
+- Smaller: honorific Bangla forms (Ismail, Thumamah, Abu Bakr/Umar), 34:12 future tense,
+  "bribe" → payment (18:94-95), Qarun ref 28:76-83, "ধরতে পারেন" → "পাকড়াও করেন"
+  (Bukhari 3481), Tamim's دير = মঠ (monastery), not গির্জা.
+
+**Still for a human scholar (sources could not settle them):**
+- Yunus 21:87 Bangla "পাকড়াও করবেন না": both tafsir readings valid; confirm it can't read as
+  "could not catch him". quran.db's own Bangla ("ধৃত করতে পারব না") leans that way.
+- 12:24 wording (no inclination at all vs a passing thought); 12:42 who was made to forget.
+- 7:143 "revealed His glory/light" vs the literal "manifested Himself" (Attributes wording).
+- `adam_creation` lesson "pride was the first sin" (some say envy); `harut_and_marut` lesson
+  "magic is disbelief" (schools differ on every form).
+- `isa_raised_up` lesson "Allah protects His messengers".
+- Lut "wished for a powerful support" (Bukhari 3375): add the commentators' explanation?
+- Yahya سيّد: "noble" (EN) vs "নেতা" (BN).
+- `baby_who_spoke_about_the_rider` "only three spoke in the cradle" vs the boy in Muslim 7511.
+- `musa_and_the_angel_of_death`: add the standard explanation (angel in human form)?
+- Ka'b story: Murarah and Hilal "at Badr" (Ibn al-Qayyim vs Ibn Hajar).
+- `ibrahim_sarah_and_the_tyrant` Bangla "পাঠালেন" vs English "she was sent".
+- `khubaib`: Khubaib ibn 'Adi vs ibn Isaf as al-Harith's killer (Fath al-Bari).
+- `sun_held_back`: name Yusha' ibn Nun (Musnad Ahmad)? · `hittah`: quote حطة حبة في شعرة?
+- 12:15 Bangla "তারা তোমাকে চিনবে না" (one of two readings).
