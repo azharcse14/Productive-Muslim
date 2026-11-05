@@ -63,56 +63,45 @@ Every ref must be read and matched before it ships.
     "Divine Inspiration" as the Quran (standard, but an interpretation).
   - Left out on purpose: Ayyub's oath and branch (38:44), Lut's "daughters" (11:78),
     Ibrahim's "three lies", details of Ayyub's illness.
-- **Owner to decide: Muslim numbering.** The bundled hadith.db numbers Muslim hadith
-  sequentially, e.g. Muslim 6162 = 2379 in the common numbering. `prophets.json` uses the
-  DB numbers, but `rasul_names.json` cites the common ones (Muslim 2354). Pick one and
-  make both files match.
+- **Muslim numbering: DECIDED 2026-11-05** (default chosen when the owner said "do all"; the
+  owner may revisit). Every Muslim ref uses the bundled hadith.db numbering (sequential, e.g.
+  Muslim 6162 = 2379 in the common numbering), since the app and the ref checker read that DB.
+  `rasul_names.json` was converted: 2354 → 6105, 2355 → 6108, 2276 → 5938.
 - "Isra'il" is set as Yaqub's title. It is really an alternate name; decide whether it
   stays.
 
 ## Story lists
 
 ### Hadith stories (`hadith_stories.json`)
-The Muslim refs use the bundled DB's numbering, which is the same open decision as above.
+Muslim refs use the bundled DB numbering (decided 2026-11-05).
 
-**Done (11):** three_men_in_the_cave (Bukhari 2272) · man_who_killed_one_hundred (Bukhari 3470,
-Muslim 7008) · leper_bald_and_blind (Bukhari 3464) · juraij_the_worshipper (Bukhari 2482, 3436) ·
-baby_who_spoke_about_the_rider (Bukhari 3436) · man_who_watered_a_thirsty_dog (Bukhari 2363) ·
-sinful_woman_and_the_dog (Bukhari 3467) · woman_and_the_cat (Bukhari 3482) ·
-thousand_dinars_and_the_wood (Bukhari 2291) · man_who_ordered_his_body_burnt (Bukhari 3481) ·
-boy_magician_monk_and_king (Muslim 7511)
+**Done (58):** three_men_in_the_cave (Bukhari 2272) · man_who_killed_one_hundred (Bukhari 3470, Muslim 7008) · leper_bald_and_blind (Bukhari 3464) · juraij_the_worshipper (Bukhari 2482, Bukhari 3436) · baby_who_spoke_about_the_rider (Bukhari 3436) · man_who_watered_a_thirsty_dog (Bukhari 2363) · sinful_woman_and_the_dog (Bukhari 3467) · woman_and_the_cat (Bukhari 3482) · thousand_dinars_and_the_wood (Bukhari 2291) · man_who_ordered_his_body_burnt (Bukhari 3481) · boy_magician_monk_and_king (Muslim 7511) · cloud_that_watered_a_garden (Muslim 7473) · jar_of_gold (Bukhari 3472) · sulaiman_and_the_two_mothers (Bukhari 3427) · ibrahim_sarah_and_the_tyrant (Bukhari 2217) · hajar_ismail_and_zamzam (Bukhari 3364) · musa_and_the_angel_of_death (Bukhari 1339) · musa_and_the_stone (Bukhari 278) · prophet_and_the_ants (Bukhari 3019) · beginning_of_revelation (Bukhari 3) · isra_and_miraj (Bukhari 3887) · abu_hurairah_and_the_shaytan (Bukhari 2311) · kab_ibn_malik_and_tabuk (Bukhari 4418) · ansari_who_fed_his_guest (Bukhari 3798) · thumamah_ibn_uthal (Bukhari 4372) · abu_talhah_and_umm_sulaym (Bukhari 5470) · jabir_food_at_the_trench (Bukhari 4101) · last_man_to_enter_paradise (Bukhari 6571) · weeping_palm_trunk (Bukhari 3584) · debtors_funeral (Bukhari 2289) · earth_threw_out_the_apostate (Bukhari 3617) · tamim_ad_dari_and_al_jassasah (Muslim 7386) · musa_and_al_khidr (Bukhari 3401) · merchant_who_forgave_debtors (Bukhari 2078) · thorny_branch_on_the_road (Bukhari 652) · mother_who_shared_one_date (Bukhari 1418) · ayyub_and_the_golden_locusts (Bukhari 279) · adam_and_musa_argue (Bukhari 3409) · two_whose_third_is_allah (Bukhari 3653) · charity_given_to_a_thief (Bukhari 1421) · isa_and_the_thief (Bukhari 3444) · forgive_my_people (Bukhari 6929) · al_fatiha_as_ruqyah (Bukhari 2276) · hittah_the_changed_word (Bukhari 4479) · ibrahim_and_azar_on_judgement_day (Bukhari 3350) · the_jewish_boy_who_served_the_prophet (Bukhari 1356) · cow_and_wolf_that_spoke (Bukhari 3471) · sun_held_back (Bukhari 3124) · bedouin_in_the_mosque (Bukhari 220) · water_from_his_fingers (Bukhari 3576) · joy_over_the_lost_camel (Bukhari 6309, Bukhari 6308, Muslim 6960) · uwais_al_qarani (Muslim 6492) · allah_will_not_forgive_so_and_so (Muslim 6681) · abu_hurairah_and_his_mother (Muslim 6396) · abu_hurairah_and_the_bowl_of_milk (Bukhari 6452) · khubaib (Bukhari 3045) · hadith_of_jibril (Bukhari 50) · heraclius_and_abu_sufyan (Bukhari 7)
 
-**Review before release:**
-- `woman_and_the_cat`: the last moral line is not in the hadith. Remove it for strict fidelity.
-- The two dog stories: the Bangla text says "মোজা (চামড়ার জুতা)" (মোজা is a sock, জুতা is a
-  shoe). Check the word.
+**Fixed 2026-11-05:** `woman_and_the_cat` no longer ends with a moral line that is not in the
+hadith. The two dog stories now say "চামড়ার মোজা" (khuff).
 
-**Pending (refs already found and read in the DB, stories not written):**
-Cloud watering a garden (Muslim 7473) · Jar of gold (Bukhari 3472) · Sulaiman and the two
-mothers (Bukhari 3427) · Ibrahim, Sarah and the tyrant (Bukhari 2217) · Hajar, Ismail and
-Zamzam (Bukhari 3364) · Musa and the angel of death (Bukhari 1339) · Musa and the stone
-(Bukhari 278) · The prophet and the ants (Bukhari 3019) · Beginning of revelation (Bukhari 3) ·
-Isra and Mi'raj (Bukhari 3887) · Abu Hurairah and the Shaytan (Bukhari 2311) · Ka'b ibn Malik
-(Bukhari 4418) · The Ansari who fed his guest (Bukhari 3798) · Thumamah (Bukhari 4372) · Abu
-Talhah and Umm Sulaym (Bukhari 5470) · Jabir's food at the Trench (Bukhari 4101) · Last man to
-enter Paradise (Bukhari 6571) · Weeping palm trunk (Bukhari 3584) · The debtor's funeral
-(Bukhari 2289) · Earth threw out the apostate (Bukhari 3617) · Tamim ad-Dari and al-Jassasah
-(Muslim 7386) · Musa and al-Khidr (Bukhari 3401) · Merchant who forgave debtors (Bukhari 2078) ·
-Thorny branch (Bukhari 652) · Mother who shared the dates (Bukhari 1418) · Ayyub's golden
-locusts (Bukhari 279) · Adam and Musa argue (Bukhari 3409) · "Two whose third is Allah"
-(Bukhari 3653) · Charity given to a thief (Bukhari 1421) · 'Isa and the thief (Bukhari 3444) ·
-"Forgive my people" (Bukhari 6929) · Al-Fatiha as ruqyah (Bukhari 2276) · Hittah (Bukhari
-4479) · Ibrahim and Azar (Bukhari 3350) · The Jewish boy (Bukhari 1356) · The cow and the wolf
-that spoke (Bukhari 3471) · The sun held back (Bukhari 3124) · Bedouin in the mosque (Bukhari
-220) · Water from his fingers (Bukhari 3576) · Joy over the lost camel (Bukhari 6309) · Uwais
-al-Qarani (Muslim 6492) · "Allah will not forgive so-and-so" (Muslim 6681) · Abu Hurairah's
-mother (Muslim 6396) · The card / Bitaqah (Tirmidhi 2639) · Adam gives Dawud 40 years
-(Tirmidhi 3076) · Abu Hurairah and the bowl of milk (Bukhari 6452) · Khubaib (Bukhari 3045) ·
-The camel that complained (Abu Dawud 2549) · Hadith of Jibril (Bukhari 50) · Heraclius and Abu
-Sufyan (Bukhari 7)
+**Needs scholar review (all 58, plus these points from the 2026-11-05 batch):**
+- Condensed long hadith: Ka'b ibn Malik (4418), Heraclius (7), Tamim ad-Dari (Muslim 7386),
+  Hajar and Zamzam (3364), Isra and Mi'raj (3887). Nothing was added, but parts were left out.
+- `musa_and_al_khidr`: Bukhari 3401 in the DB ends at the parting, so al-Khidr's explanations
+  (Quran 18:79-82) are not included. al-Khidr has no "(AS)" (his prophethood is a difference).
+- `isra_and_miraj`: Jibril's words on the milk read "the fitrah" (the Arabic); the DB English has
+  "the Islamic religion". This narration has no Bayt al-Maqdis part.
+- Unnamed prophets stay unnamed: the ants (3019), the sun held back (3124).
+- `mother_who_shared_one_date`: Bukhari 1418 has one date split between two daughters (the
+  three-dates version is in Muslim).
+- `ibrahim_and_azar_on_judgement_day`: the DB's "Dhabh" is rendered "a blood-stained animal".
+- `joy_over_the_lost_camel` also cites Bukhari 6308 and Muslim 6960 for the full scene.
+- `hadith_of_jibril` follows Bukhari 50 (Abu Hurairah), not the 'Umar version in Muslim.
+- `khubaib`: his verses are paraphrased from the DB English; his dua against his captors is
+  summarised in one line.
+- `thumamah_ibn_uthal`: "Sabi" wording; `abu_hurairah_and_the_shaytan`: the Bangla adds
+  "(সদকাতুল ফিতর)" after the zakat of Ramadan.
+- Narrators given only as "'Abdullah" in the DB (6571, 6929) are not expanded to Ibn Mas'ud.
 
-Uwais al-Qarani, the card (Bitaqah) and the camel that complained come from collections
-outside Bukhari and Muslim. Check their grading with a scholar before writing them.
+**Pending (outside Bukhari/Muslim, check the grading with a scholar before writing):**
+The card / Bitaqah (Tirmidhi 2639) · Adam gives Dawud 40 years (Tirmidhi 3076) · The camel
+that complained (Abu Dawud 2549). Uwais al-Qarani turned out to be in Muslim (6492) and is done.
 
 ### Quran stories (`quran_stories.json`)
 
@@ -169,5 +158,5 @@ ibrahim_family_in_the_valley · ibrahim_sacrifice · building_the_kabah · ismai
 | File | Done | Pending |
 |---|---|---|
 | quran_stories.json | 19 | about 80 |
-| hadith_stories.json | 11 | 50 |
+| hadith_stories.json | 58 | 3 |
 | prophets.json | 25 entries, 25 summaries (review pending) | scholar review |

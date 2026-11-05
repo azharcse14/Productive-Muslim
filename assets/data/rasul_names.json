@@ -1,12 +1,12 @@
 [
   {"n": 1, "ar": "مُحَمَّدٌ", "tr": "Muhammad", "en": "The Praised One", "bn": "প্রশংসিত", "ref": "Quran 48:29; Bukhari 3532"},
   {"n": 2, "ar": "أَحْمَدُ", "tr": "Ahmad", "en": "The Most Praiseworthy", "bn": "সর্বাধিক প্রশংসিত", "ref": "Quran 61:6; Bukhari 3532"},
-  {"n": 3, "ar": "الْمَاحِي", "tr": "Al-Mahi", "en": "The Eraser (through whom disbelief is erased)", "bn": "কুফর বিলুপ্তকারী", "ref": "Bukhari 3532; Muslim 2354"},
-  {"n": 4, "ar": "الْحَاشِرُ", "tr": "Al-Hashir", "en": "The Gatherer (people are gathered after him)", "bn": "সমবেতকারী", "ref": "Bukhari 3532; Muslim 2354"},
-  {"n": 5, "ar": "الْعَاقِبُ", "tr": "Al-'Aqib", "en": "The Last (no prophet after him)", "bn": "সর্বশেষ আগমনকারী", "ref": "Bukhari 3532; Muslim 2354"},
-  {"n": 6, "ar": "الْمُقَفِّي", "tr": "Al-Muqaffi", "en": "The Successor of the prophets", "bn": "পূর্ববর্তী নবীদের অনুগামী", "ref": "Muslim 2355"},
-  {"n": 7, "ar": "نَبِيُّ التَّوْبَةِ", "tr": "Nabiyy at-Tawbah", "en": "The Prophet of Repentance", "bn": "তাওবার নবী", "ref": "Muslim 2355"},
-  {"n": 8, "ar": "نَبِيُّ الرَّحْمَةِ", "tr": "Nabiyy ar-Rahmah", "en": "The Prophet of Mercy", "bn": "রহমতের নবী", "ref": "Muslim 2355"},
+  {"n": 3, "ar": "الْمَاحِي", "tr": "Al-Mahi", "en": "The Eraser (through whom disbelief is erased)", "bn": "কুফর বিলুপ্তকারী", "ref": "Bukhari 3532; Muslim 6105"},
+  {"n": 4, "ar": "الْحَاشِرُ", "tr": "Al-Hashir", "en": "The Gatherer (people are gathered after him)", "bn": "সমবেতকারী", "ref": "Bukhari 3532; Muslim 6105"},
+  {"n": 5, "ar": "الْعَاقِبُ", "tr": "Al-'Aqib", "en": "The Last (no prophet after him)", "bn": "সর্বশেষ আগমনকারী", "ref": "Bukhari 3532; Muslim 6105"},
+  {"n": 6, "ar": "الْمُقَفِّي", "tr": "Al-Muqaffi", "en": "The Successor of the prophets", "bn": "পূর্ববর্তী নবীদের অনুগামী", "ref": "Muslim 6108"},
+  {"n": 7, "ar": "نَبِيُّ التَّوْبَةِ", "tr": "Nabiyy at-Tawbah", "en": "The Prophet of Repentance", "bn": "তাওবার নবী", "ref": "Muslim 6108"},
+  {"n": 8, "ar": "نَبِيُّ الرَّحْمَةِ", "tr": "Nabiyy ar-Rahmah", "en": "The Prophet of Mercy", "bn": "রহমতের নবী", "ref": "Muslim 6108"},
   {"n": 9, "ar": "نَبِيُّ الْمَلْحَمَةِ", "tr": "Nabiyy al-Malhamah", "en": "The Prophet of the Great Battles", "bn": "মহাযুদ্ধের নবী", "ref": "Shama'il at-Tirmidhi; Musnad Ahmad"},
   {"n": 10, "ar": "رَسُولُ اللَّهِ", "tr": "Rasulullah", "en": "The Messenger of Allah", "bn": "আল্লাহর রাসূল", "ref": "Quran 48:29"},
   {"n": 11, "ar": "خَاتَمُ النَّبِيِّينَ", "tr": "Khatam an-Nabiyyin", "en": "The Seal of the Prophets", "bn": "শেষ নবী", "ref": "Quran 33:40"},
@@ -24,6 +24,6 @@
   {"n": 23, "ar": "رَحْمَةٌ لِلْعَالَمِينَ", "tr": "Rahmatun lil-'Alamin", "en": "A Mercy to the Worlds", "bn": "বিশ্বজগতের জন্য রহমত", "ref": "Quran 21:107"},
   {"n": 24, "ar": "الْمُذَكِّرُ", "tr": "Al-Mudhakkir", "en": "The Reminder", "bn": "উপদেশদাতা", "ref": "Quran 88:21"},
   {"n": 25, "ar": "الْهَادِي", "tr": "Al-Hadi", "en": "The Guide (to the straight path)", "bn": "সরল পথের দিশারী", "ref": "Quran 42:52"},
-  {"n": 26, "ar": "الْمُصْطَفَى", "tr": "Al-Mustafa", "en": "The Chosen One", "bn": "মনোনীত", "ref": "Muslim 2276"},
+  {"n": 26, "ar": "الْمُصْطَفَى", "tr": "Al-Mustafa", "en": "The Chosen One", "bn": "মনোনীত", "ref": "Muslim 5938"},
   {"n": 27, "ar": "الْأَمِينُ", "tr": "Al-Amin", "en": "The Trustworthy", "bn": "বিশ্বস্ত", "ref": "Sirah — title given by the Quraysh before prophethood"}
 ]
