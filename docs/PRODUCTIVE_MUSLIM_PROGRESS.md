@@ -131,7 +131,7 @@
 
 ## Phase 8 — Quran ✅
 
-- [x] `tool/quran_db_build.dart` — fawazahmed0/quran-api CDN → 4.9MB sqlite (114 surahs / 6236 ayahs, validated); attributions: Tanzil Simple text, Pickthall (EN, license UNVERIFIED — Tanzil terms), Muhiuddin Khan (BN). **Polish TODO:** switch to full Uthmani-script edition
+- [x] `tool/quran_db_build.dart` — fawazahmed0/quran-api CDN → 4.9MB sqlite (114 surahs / 6236 ayahs, validated); attributions: Tanzil Simple text, Pickthall (EN, license UNVERIFIED — Tanzil terms), Muhiuddin Khan (BN). ~~**Polish TODO:** switch to full Uthmani-script edition~~ done 2026-11-05
 - [x] First-run asset→documents copy with user_version check; bookmarks/last_read preserved across re-copies; opened via drift (raw customSelect, no codegen)
 - [x] Surah list: resume card, debounced diacritic-light search, Star8 medallions, first-open banner (juz tab = optional, skipped)
 - [x] Reader: RTL Arabic at user scale (22–44 step 2, persisted), per-ayah bookmark/copy/share-stub, scroll progress, settings sheet (font slider + translation toggle), markRead debounce
@@ -163,7 +163,8 @@
 - [ ] RTL pass · dark pass · perf pass — NEXT session (needs Arabic locale + screen-by-screen review)
 - [~] **a11y pass — P0 + P1 done (2026-06-14):** shared widgets, all P0 screen-reader-blocking fixes, and the P1 stepper/icon-button labels + option-sheet selected-state shipped & tested (6 a11y tests). Remaining (P2): AppBar `header:true` semantics across screens, tap-target bump on 26–32dp custom buttons, decorative-icon `ExcludeSemantics` sweep. See worklog 2026-06-14.
 - [ ] Store assets (~~adaptive icon~~ done, feature graphic, screenshots) — NEXT
-- [ ] Custom azan audio; Uthmani script switch — NEXT
+- [ ] Custom azan audio — NEXT
+- [x] Uthmani script switch (2026-11-05): quran.db Arabic is now the KFGQPC Uthmani Hafs text, encoded for the bundled KFGQPC HAFS v22 font
 
 ---
 
@@ -173,6 +174,7 @@
 
 | Date | Work | Result |
 |---|---|---|
+| 2026-11-05 | **feat(quran): Uthmani script** (`feat/quran-uthmani`): `tool/quran_db_build.dart` builds `arabic` from fawazahmed0/quran-api `ara-quranuthmanihaf` (KFGQPC Uthmani Hafs v13, same pinned SHA) and maps it back to KFGQPC's own encoding (open tanween U+08F0–2 → U+0657/065E/0656, U+200F dropped, 2,417 tanween–alif words rejoined) so every code point is in the HAFS v22 font cmap; cross-checked with quran.com `text_qpc_hafs` (equal under NFD except 35 later-revision words, flagged in DEPENDENCIES). Translations, ids, surahs and `_corrections` unchanged (byte-compared). quran.db `user_version`/`bundledVersion` 4 → 5. Credits: Arabic row now KFGQPC; Tanzil tile reads "Quran translations". KFGQPC text license UNVERIFIED (site 503) | integrity test: v5, Uthmani marks, no U+08F0–2/U+200F, 1:1 + 2:255, no empty ayah; gen-l10n clean; analyze 0; full suite green |
 | 2026-11-05 | **Docs status pass + two more translation typos** (`docs/stale-status`): every doc grepped for open items. Fixed: Pickthall 3:1 "Alim" → "Alif" and 12:1 "verse" → "verses" (the Tanzil digital text has both typos too; the Arabic settles them) as build-time `_corrections`, quran.db `PRAGMA user_version`/`bundledVersion` 3 → 4, a rebuild changes only those two rows. Stale status updated: stories content (drafted, not in progress), REVIEW_FOLLOWUPS typo item, DEPENDENCIES content rows (web-reviewed, still UNVERIFIED for a scholar) | integrity test for 3:1/12:1 + v4; analyze clean; full suite green |
 | 2026-11-05 | **Web review against scholars' views** (`fix/scholar-review`): 6 parallel review agents checked all 25 summaries, 101 Quran and 61 hadith stories against tafsir/sharh/fatwa sources and the bundled DBs; 26 fixes applied (3 errors: Ka'b also missed Badr, Bukhari 3350 hyena, 12:9 plural speaker; majority views marked; 7:143 Bangla "never" dropped; 18:21 grave-mosque note; honorific/tense/wording fixes). Second pass: 4 research agents settled the 17 open points online; 37 patches write the differing scholarly views into the text (majority first, then "some scholars say"), details in `docs/STORIES_PROPHETS_PENDING.md` | analyze clean; full suite green |
 | 2026-11-05 | **fix(content): last two flags** (`fix/content-flags`): al-Khidr's Bangla name unified to খিজির (house style জ, as in নামাজ/জাকাত) in `hadith_stories.json`; the Bangla translation of the Al-Kahf passage in `ruqyah.json` uses Bangla verse markers (১)…(১০) like the rest of the Bangla content (markers only, no wording changed) | analyze clean; full suite green |

@@ -12,6 +12,8 @@ abstract final class ContentSources {
   /// 2026-11-02; read only by `tool/quran_db_build.dart`. Every file the
   /// tool reads is unchanged there since 2022-10-05, so this is the content
   /// the bundled quran.db (built 2026-06-13 / 2026-10-29 from `@1`) used.
+  /// Since 2026-11-05 the Arabic comes from `ara-quranuthmanihaf` (KFGQPC
+  /// Uthmani Hafs) at this same SHA; that file last changed here 2026-09-12.
   static const quranApiSha = '93e6f64925ae76273520d636fcaaf061129f2316';
 
   /// azharcse14/hadithbangla — HEAD of `main`, resolved 2026-10-29.

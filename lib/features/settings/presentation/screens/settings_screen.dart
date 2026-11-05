@@ -29,7 +29,7 @@ import '../widgets/option_sheet.dart';
 /// Grouped settings (design §12): calculation / notifications /
 /// appearance & language / privacy / about. Notification matrix UI lands
 /// in Phase 4; app lock in Phase 11.
-/// Tanzil's terms ask apps using its Quran text to link to tanzil.net.
+/// Tanzil's terms ask apps using its Quran translations to link to tanzil.net.
 
 final class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
