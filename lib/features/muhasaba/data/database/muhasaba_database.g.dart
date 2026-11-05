@@ -766,8 +766,17 @@ class $DailyEntriesTable extends DailyEntries
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _targetMeta = const VerificationMeta('target');
   @override
-  List<GeneratedColumn> get $columns => [itemId, date, value];
+  late final GeneratedColumn<int> target = GeneratedColumn<int>(
+    'target',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [itemId, date, value, target];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -804,6 +813,12 @@ class $DailyEntriesTable extends DailyEntries
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
+    if (data.containsKey('target')) {
+      context.handle(
+        _targetMeta,
+        target.isAcceptableOrUnknown(data['target']!, _targetMeta),
+      );
+    }
     return context;
   }
 
@@ -825,6 +840,10 @@ class $DailyEntriesTable extends DailyEntries
         DriftSqlType.int,
         data['${effectivePrefix}value'],
       )!,
+      target: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target'],
+      ),
     );
   }
 
@@ -842,10 +861,16 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
   /// and avoids timezone ambiguity for date-only data.
   final int date;
   final int value;
+
+  /// The item's daily target when this entry was written (0 = no target),
+  /// so a later target edit doesn't rewrite past days. Null only for rows
+  /// no write has stamped yet; readers fall back to the item's target.
+  final int? target;
   const DailyEntryRow({
     required this.itemId,
     required this.date,
     required this.value,
+    this.target,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -853,6 +878,9 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
     map['item_id'] = Variable<String>(itemId);
     map['date'] = Variable<int>(date);
     map['value'] = Variable<int>(value);
+    if (!nullToAbsent || target != null) {
+      map['target'] = Variable<int>(target);
+    }
     return map;
   }
 
@@ -861,6 +889,9 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
       itemId: Value(itemId),
       date: Value(date),
       value: Value(value),
+      target: target == null && nullToAbsent
+          ? const Value.absent()
+          : Value(target),
     );
   }
 
@@ -873,6 +904,7 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
       itemId: serializer.fromJson<String>(json['itemId']),
       date: serializer.fromJson<int>(json['date']),
       value: serializer.fromJson<int>(json['value']),
+      target: serializer.fromJson<int?>(json['target']),
     );
   }
   @override
@@ -882,20 +914,27 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
       'itemId': serializer.toJson<String>(itemId),
       'date': serializer.toJson<int>(date),
       'value': serializer.toJson<int>(value),
+      'target': serializer.toJson<int?>(target),
     };
   }
 
-  DailyEntryRow copyWith({String? itemId, int? date, int? value}) =>
-      DailyEntryRow(
-        itemId: itemId ?? this.itemId,
-        date: date ?? this.date,
-        value: value ?? this.value,
-      );
+  DailyEntryRow copyWith({
+    String? itemId,
+    int? date,
+    int? value,
+    Value<int?> target = const Value.absent(),
+  }) => DailyEntryRow(
+    itemId: itemId ?? this.itemId,
+    date: date ?? this.date,
+    value: value ?? this.value,
+    target: target.present ? target.value : this.target,
+  );
   DailyEntryRow copyWithCompanion(DailyEntriesCompanion data) {
     return DailyEntryRow(
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       date: data.date.present ? data.date.value : this.date,
       value: data.value.present ? data.value.value : this.value,
+      target: data.target.present ? data.target.value : this.target,
     );
   }
 
@@ -904,37 +943,42 @@ class DailyEntryRow extends DataClass implements Insertable<DailyEntryRow> {
     return (StringBuffer('DailyEntryRow(')
           ..write('itemId: $itemId, ')
           ..write('date: $date, ')
-          ..write('value: $value')
+          ..write('value: $value, ')
+          ..write('target: $target')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(itemId, date, value);
+  int get hashCode => Object.hash(itemId, date, value, target);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DailyEntryRow &&
           other.itemId == this.itemId &&
           other.date == this.date &&
-          other.value == this.value);
+          other.value == this.value &&
+          other.target == this.target);
 }
 
 class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
   final Value<String> itemId;
   final Value<int> date;
   final Value<int> value;
+  final Value<int?> target;
   final Value<int> rowid;
   const DailyEntriesCompanion({
     this.itemId = const Value.absent(),
     this.date = const Value.absent(),
     this.value = const Value.absent(),
+    this.target = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DailyEntriesCompanion.insert({
     required String itemId,
     required int date,
     required int value,
+    this.target = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : itemId = Value(itemId),
        date = Value(date),
@@ -943,12 +987,14 @@ class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
     Expression<String>? itemId,
     Expression<int>? date,
     Expression<int>? value,
+    Expression<int>? target,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (itemId != null) 'item_id': itemId,
       if (date != null) 'date': date,
       if (value != null) 'value': value,
+      if (target != null) 'target': target,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -957,12 +1003,14 @@ class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
     Value<String>? itemId,
     Value<int>? date,
     Value<int>? value,
+    Value<int?>? target,
     Value<int>? rowid,
   }) {
     return DailyEntriesCompanion(
       itemId: itemId ?? this.itemId,
       date: date ?? this.date,
       value: value ?? this.value,
+      target: target ?? this.target,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -979,6 +1027,9 @@ class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
     if (value.present) {
       map['value'] = Variable<int>(value.value);
     }
+    if (target.present) {
+      map['target'] = Variable<int>(target.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -991,6 +1042,7 @@ class DailyEntriesCompanion extends UpdateCompanion<DailyEntryRow> {
           ..write('itemId: $itemId, ')
           ..write('date: $date, ')
           ..write('value: $value, ')
+          ..write('target: $target, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2391,6 +2443,7 @@ typedef $$DailyEntriesTableCreateCompanionBuilder =
       required String itemId,
       required int date,
       required int value,
+      Value<int?> target,
       Value<int> rowid,
     });
 typedef $$DailyEntriesTableUpdateCompanionBuilder =
@@ -2398,6 +2451,7 @@ typedef $$DailyEntriesTableUpdateCompanionBuilder =
       Value<String> itemId,
       Value<int> date,
       Value<int> value,
+      Value<int?> target,
       Value<int> rowid,
     });
 
@@ -2440,6 +2494,11 @@ class $$DailyEntriesTableFilterComposer
 
   ColumnFilters<int> get value => $composableBuilder(
     column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get target => $composableBuilder(
+    column: $table.target,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2486,6 +2545,11 @@ class $$DailyEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get target => $composableBuilder(
+    column: $table.target,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TrackerItemsTableOrderingComposer get itemId {
     final $$TrackerItemsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2524,6 +2588,9 @@ class $$DailyEntriesTableAnnotationComposer
 
   GeneratedColumn<int> get value =>
       $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get target =>
+      $composableBuilder(column: $table.target, builder: (column) => column);
 
   $$TrackerItemsTableAnnotationComposer get itemId {
     final $$TrackerItemsTableAnnotationComposer composer = $composerBuilder(
@@ -2582,11 +2649,13 @@ class $$DailyEntriesTableTableManager
                 Value<String> itemId = const Value.absent(),
                 Value<int> date = const Value.absent(),
                 Value<int> value = const Value.absent(),
+                Value<int?> target = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyEntriesCompanion(
                 itemId: itemId,
                 date: date,
                 value: value,
+                target: target,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2594,11 +2663,13 @@ class $$DailyEntriesTableTableManager
                 required String itemId,
                 required int date,
                 required int value,
+                Value<int?> target = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyEntriesCompanion.insert(
                 itemId: itemId,
                 date: date,
                 value: value,
+                target: target,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

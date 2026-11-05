@@ -15,14 +15,47 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('a fresh database matches the exported v5 schema', () async {
-    final schema = await verifier.schemaAt(5);
+  test('a fresh database matches the exported v6 schema', () async {
+    final schema = await verifier.schemaAt(6);
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     await db.close();
   });
 
-  test('v4 -> v5 adds empty expense tables; trackers untouched', () async {
+  test('v5 -> v6 stamps entries with their item target', () async {
+    final schema = await verifier.schemaAt(5);
+    schema.rawDatabase
+      ..execute(
+        "INSERT INTO tracker_items (id, name, kind, daily_target, icon, "
+        "color_index, is_default, archived, sort_order, created_on, "
+        "archived_on, added_on) VALUES "
+        "('quran', 'q', 1, 5, 'm', 0, 1, 0, 0, 20250801, NULL, 20250801), "
+        "('fajr', 'f', 0, NULL, 'm', 0, 1, 0, 1, 20250801, NULL, 20250801)",
+      )
+      ..execute(
+        "INSERT INTO daily_entries (item_id, date, value) VALUES "
+        "('quran', 20260601, 5), ('quran', 20260602, 3), "
+        "('fajr', 20260601, 1)",
+      );
+    final db = MuhasabaDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 6);
+    final targets = {
+      for (final e in await db.select(db.dailyEntries).get())
+        (e.itemId, e.date): e.target,
+    };
+    expect(targets, {
+      ('quran', 20260601): 5,
+      ('quran', 20260602): 5,
+      ('fajr', 20260601): 0,
+    });
+    // Nothing visible changes: Jun 1 done, Jun 2 short of 5.
+    final repo = MuhasabaRepositoryImpl(db);
+    expect((await repo.doneDates({'quran'})).valueOrNull, {DateTime(2026, 6)});
+    expect((await repo.doneDates({'fajr'})).valueOrNull, {DateTime(2026, 6)});
+    await db.close();
+  });
+
+  test('v4 -> v6 adds empty expense tables; trackers untouched', () async {
     final schema = await verifier.schemaAt(4);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -30,14 +63,14 @@ void main() {
       "VALUES ('quran', 'q', 0, 'm', 0, 1, 0, 0, 20250801, NULL, 20250801)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.expenses).get(), isEmpty);
     expect(await db.select(db.expenseBudgets).get(), isEmpty);
     expect((await db.select(db.trackerItems).getSingle()).addedOn, 20250801);
     await db.close();
   });
 
-  test('v3 -> v5 copies created_on into added_on', () async {
+  test('v3 -> v6 copies created_on into added_on', () async {
     final schema = await verifier.schemaAt(3);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -46,7 +79,7 @@ void main() {
       "('old', 'o', 0, 'm', 0, 1, 0, 1, NULL, NULL)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     final rows = {
       for (final r in await db.select(db.trackerItems).get()) r.id: r,
     };
@@ -55,7 +88,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 -> v5 adds archive spans; an archived item stays open', () async {
+  test('v2 -> v6 adds archive spans; an archived item stays open', () async {
     final schema = await verifier.schemaAt(2);
     schema.rawDatabase.execute(
       "INSERT INTO tracker_items (id, name, kind, icon, color_index, "
@@ -64,7 +97,7 @@ void main() {
       "('dhikr', 'd', 0, 'm', 0, 1, 0, 1, 20250801, NULL)",
     );
     final db = MuhasabaDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.trackerArchiveSpans).get(), isEmpty);
     final quran = await (db.select(
       db.trackerItems,
@@ -75,7 +108,7 @@ void main() {
   });
 
   test(
-    'v1 -> v5 directly: conservative backfill, past completion unchanged',
+    'v1 -> v6 directly: conservative backfill, past completion unchanged',
     () async {
       final schema = await verifier.schemaAt(1);
       final raw = schema.rawDatabase;
@@ -91,7 +124,7 @@ void main() {
         "('salah_fajr', 20260601, 1)",
       );
       final db = MuhasabaDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(db, 5);
+      await verifier.migrateAndValidate(db, 6);
       final rows = {
         for (final r in await db.select(db.trackerItems).get()) r.id: r,
       };
@@ -102,6 +135,11 @@ void main() {
       // Archived in v1 -> never counted (as v1 left it out of every day).
       expect(rows['custom_1']!.archivedOn, 20260505);
       expect(rows['custom_1']!.addedOn, 20260505);
+      // v6: every entry stamped (no targets in v1 -> 0).
+      expect(
+        (await db.select(db.dailyEntries).get()).map((e) => e.target),
+        everyElement(0),
+      );
 
       // v1 completion: archived custom_1 left out of both sides.
       final stats = await MuhasabaRepositoryImpl(db).periodStats(
@@ -130,7 +168,7 @@ void main() {
         schema.newConnection(),
         clock: () => DateTime(2031, 1, 2, 23, 30),
       );
-      await verifier.migrateAndValidate(db, 5);
+      await verifier.migrateAndValidate(db, 6);
       final row = await db.select(db.trackerItems).getSingle();
       expect(row.createdOn, 20310102);
       expect(row.addedOn, 20310102);

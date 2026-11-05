@@ -26,23 +26,32 @@ int _dayCount(DateTime start, DateTime end) =>
     1;
 
 /// SQL fragment: day `e.date` falls in a finished archive span of item
-/// `i` (archived, later restored).
+/// `i` (archived, later restored) after its archive day.
 const _inArchiveSpan =
     'EXISTS (SELECT 1 FROM tracker_archive_spans s WHERE s.item_id = i.id '
-    'AND e.date >= s.start_on AND e.date < s.end_on)';
+    'AND e.date > s.start_on AND e.date < s.end_on)';
+
+/// SQL fragment: `e.date` is a past archive day of item `i`. It never
+/// counts — the same as while the item is still archived — so restoring
+/// doesn't change that day.
+const _onPastArchiveDay =
+    'EXISTS (SELECT 1 FROM tracker_archive_spans s WHERE s.item_id = i.id '
+    'AND e.date = s.start_on)';
 
 /// SQL fragment: whether item `i`'s entry `e` counts toward its day — the
 /// item existed (created on/before) and was not yet archived that day. A
 /// past archive span doesn't drop it: an entry back-filled into a span
 /// after restore means "I did it that day", so it counts like the streak
-/// and badges count it. Mirrored in Dart by [_countsOn].
+/// and badges count it — except on the archive day itself. Mirrored in
+/// Dart by [_countsOn].
 const _existedOnEntryDay =
     '(i.created_on IS NULL OR e.date >= i.created_on) '
-    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on))';
+    'AND (i.archived = 0 OR (i.archived_on IS NOT NULL AND e.date < i.archived_on)) '
+    'AND NOT $_onPastArchiveDay';
 
 /// Dart twin of [_existedOnEntryDay] (plus the known-kind check) for any
-/// day: a day in a past archive span counts only if it has an entry
-/// ([revived], `(itemId, yyyymmdd)`).
+/// day: a day in a past archive span (after its archive day) counts only
+/// if it has an entry ([revived], `(itemId, yyyymmdd)`).
 bool _countsOn(
   TrackerItemRow r,
   List<ArchiveSpanRow> spans,
@@ -62,14 +71,18 @@ bool _countsOn(
 final _knownKind =
     'i.kind IN (${TrackerKind.values.map((k) => k.code).join(', ')})';
 
+/// SQL: the target entry `e` is judged against — the one stamped when it
+/// was written, so editing the item's target leaves past days alone.
+const _target = 'COALESCE(e.target, i.daily_target)';
+
 /// SQL fragment: whether an entry value completes its item for a day
 /// (mirrors `TrackerItem.isDone`).
 const _doneCase =
-    'CASE WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
-    'THEN e.value > 0 ELSE e.value >= i.daily_target END';
+    'CASE WHEN $_target IS NULL OR $_target <= 0 '
+    'THEN e.value > 0 ELSE e.value >= $_target END';
 
 /// Drift-backed [MuhasabaRepository]. Aggregations run as SQL queries
-/// (guide §5) — Dart only fills bounded calendars and walks streaks.
+/// (guide §5) — Dart only fills bounded calendars.
 final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   const MuhasabaRepositoryImpl(
     this._db, {
@@ -127,14 +140,26 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
   @override
   Future<Result<void>> upsertItem(TrackerItem item) async {
     try {
-      // created/added days are stamped on first insert only; edits keep
-      // them.
-      await _db.trackerItems.insertOne(
-        _toCompanion(
-          item,
-        ).copyWith(createdOn: Value(_todayCode), addedOn: Value(_todayCode)),
-        onConflict: DoUpdate((_) => _toCompanion(item)),
-      );
+      await _db.transaction(() async {
+        // created/added days are stamped on first insert only; edits keep
+        // them. The archived flag changes only through [setArchived], which
+        // keeps the archive-day bookkeeping.
+        await _db.trackerItems.insertOne(
+          _toCompanion(
+            item,
+          ).copyWith(createdOn: Value(_todayCode), addedOn: Value(_todayCode)),
+          onConflict: DoUpdate(
+            (_) => _toCompanion(item).copyWith(archived: const Value.absent()),
+          ),
+        );
+        // A new target applies from today on; past days keep theirs.
+        await (_db.update(_db.dailyEntries)..where(
+              (t) =>
+                  t.itemId.equals(item.id) &
+                  t.date.isBiggerOrEqualValue(_todayCode),
+            ))
+            .write(DailyEntriesCompanion(target: Value(item.dailyTarget ?? 0)));
+      });
       return const Result.success(null);
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('Failed to upsert item', e));
@@ -244,24 +269,26 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // One transaction: drift runs transactions one at a time in call
       // order, so a quick on→off can't land its delete before the upsert.
       final archived = await _db.transaction(() async {
+        final item = await (_db.select(
+          _db.trackerItems,
+        )..where((t) => t.id.equals(entry.itemId))).getSingleOrNull();
+        // Clearing is refused too: an archived item's history is frozen.
+        if (item != null && item.archived) {
+          return true;
+        }
         if (entry.value <= 0) {
           await (_db.delete(_db.dailyEntries)
                 ..where((t) => t.itemId.equals(entry.itemId))
                 ..where((t) => t.date.equals(code)))
               .go();
         } else {
-          final archived =
-              await (_db.select(_db.trackerItems)
-                    ..where((t) => t.id.equals(entry.itemId) & t.archived))
-                  .getSingleOrNull();
-          if (archived != null) {
-            return true;
-          }
           await _db.dailyEntries.insertOnConflictUpdate(
             DailyEntriesCompanion.insert(
               itemId: entry.itemId,
               date: code,
               value: entry.value,
+              // 0 = no target, so adding one later can't reach this day.
+              target: Value(item?.dailyTarget ?? 0),
             ),
           );
         }
@@ -341,38 +368,10 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       // b) Per-item aggregates over the range.
       final itemStats = await _itemStats(start, end, spans, revived);
 
-      // c) Streaks: SQL day-has-done-item flags, walked in Dart. The scan
-      // covers the whole history (one row per active day), so the best
-      // streak matches the all-time streak badges and always includes
-      // (so is >=) the current one.
-      final today0 = DateTime(today.year, today.month, today.day);
-      final scanTo = end.isAfter(today0) ? end : today0;
-      final recentDone = await _doneDates(0, _encodeDate(scanTo));
-      var anchor = today0;
-      if (!recentDone.contains(_encodeDate(anchor))) {
-        // Today has nothing done yet — the streak survives until the day
-        // fully passes empty, so anchor at yesterday.
-        anchor = DateTime(anchor.year, anchor.month, anchor.day - 1);
-      }
-      var currentStreak = 0;
-      var cursor = anchor;
-      while (recentDone.contains(_encodeDate(cursor))) {
-        currentStreak++;
-        cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
-      }
-
-      var bestStreak = 0;
-      var run = 0;
-      DateTime? prev;
-      for (final code in recentDone.toList()..sort()) {
-        final day = _decodeDate(code);
-        final follows =
-            prev != null &&
-            DateTime(prev.year, prev.month, prev.day + 1) == day;
-        run = follows ? run + 1 : 1;
-        if (run > bestStreak) bestStreak = run;
-        prev = day;
-      }
+      // c) Streaks over the whole history, so the best streak matches the
+      // all-time streak badges and always includes (so is >=) the current
+      // one.
+      final (:currentStreak, :bestStreak) = await _streaks(today);
 
       // d) Equal-length window immediately before [start].
       final prevStart = DateTime(
@@ -449,6 +448,29 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     }
   }
 
+  @override
+  Future<Result<int>> doneDayCount(Set<String> itemIds) async {
+    if (itemIds.isEmpty) {
+      return const Result.success(0);
+    }
+    try {
+      final row = await _db
+          .customSelect(
+            'SELECT COUNT(DISTINCT e.date) AS n '
+            'FROM daily_entries e '
+            'INNER JOIN tracker_items i ON i.id = e.item_id '
+            'WHERE e.item_id IN (${List.filled(itemIds.length, '?').join(', ')}) '
+            'AND $_knownKind AND ($_doneCase)',
+            variables: [for (final id in itemIds) Variable<String>(id)],
+            readsFrom: {_db.dailyEntries, _db.trackerItems},
+          )
+          .getSingle();
+      return Result.success(row.read<int>('n'));
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Failed to count done days', e));
+    }
+  }
+
   /// Per-day sum of per-item completion fractions over the items that
   /// counted on that day, keyed by yyyymmdd. Days without entries are absent.
   Future<Map<int, double>> _dayFractionSums(int from, int to) async {
@@ -456,9 +478,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
         .customSelect(
           'SELECT e.date AS day, '
           'CAST(SUM(CASE '
-          'WHEN i.daily_target IS NULL OR i.daily_target <= 0 '
+          'WHEN $_target IS NULL OR $_target <= 0 '
           'THEN (CASE WHEN e.value > 0 THEN 1.0 ELSE 0.0 END) '
-          'ELSE MIN(CAST(e.value AS REAL) / i.daily_target, 1.0) '
+          'ELSE MIN(CAST(e.value AS REAL) / $_target, 1.0) '
           'END) AS REAL) AS fraction_sum '
           'FROM daily_entries e '
           'INNER JOIN tracker_items i ON i.id = e.item_id '
@@ -501,21 +523,36 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     };
   }
 
-  /// yyyymmdd codes of days in [from]..[to] with at least one completed
-  /// item. Archived items count (history is never lost) and hidden
-  /// unknown-kind ones don't, matching the achievements' streaks.
-  Future<Set<int>> _doneDates(int from, int to) async {
-    final rows = await _db
+  /// Current and best run of consecutive days with at least one completed
+  /// item, as islands of consecutive day numbers in SQL. Archived items
+  /// count (history is never lost) and hidden unknown-kind ones don't,
+  /// matching the achievements' streaks. The current run may end
+  /// yesterday: today still counts until it passes empty.
+  Future<({int currentStreak, int bestStreak})> _streaks(DateTime today) async {
+    const julian =
+        "CAST(julianday(printf('%04d-%02d-%02d', "
+        'day / 10000, day / 100 % 100, day % 100)) AS INTEGER)';
+    final row = await _db
         .customSelect(
-          'SELECT DISTINCT e.date AS day '
-          'FROM daily_entries e '
+          'WITH d AS (SELECT DISTINCT e.date AS day FROM daily_entries e '
           'INNER JOIN tracker_items i ON i.id = e.item_id '
-          'WHERE e.date BETWEEN ? AND ? AND $_knownKind AND ($_doneCase)',
-          variables: [Variable<int>(from), Variable<int>(to)],
+          'WHERE $_knownKind AND ($_doneCase)), '
+          'j AS (SELECT $julian AS jd FROM d), '
+          'runs AS (SELECT MIN(jd) AS first, MAX(jd) AS last, COUNT(*) AS len '
+          'FROM (SELECT jd, jd - ROW_NUMBER() OVER (ORDER BY jd) AS grp FROM j) '
+          'GROUP BY grp) '
+          'SELECT COALESCE(MAX(len), 0) AS best, '
+          'COALESCE(MAX(CASE WHEN first <= t.today AND last >= t.today - 1 '
+          'THEN MIN(last, t.today) - first + 1 END), 0) AS current '
+          'FROM runs, (SELECT $julian AS today FROM (SELECT ? AS day)) t',
+          variables: [Variable<int>(_encodeDate(today))],
           readsFrom: {_db.dailyEntries, _db.trackerItems},
         )
-        .get();
-    return {for (final row in rows) row.read<int>('day')};
+        .getSingle();
+    return (
+      currentStreak: row.read<int>('current'),
+      bestStreak: row.read<int>('best'),
+    );
   }
 
   /// Per non-archived item: done-day count and value sum over the range;
@@ -538,6 +575,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           'FROM tracker_items i '
           'LEFT JOIN daily_entries e '
           'ON e.item_id = i.id AND e.date BETWEEN ? AND ? '
+          'AND NOT $_onPastArchiveDay '
           'WHERE i.archived = 0 '
           'GROUP BY i.id ORDER BY i.sort_order',
           variables: [Variable<int>(from), Variable<int>(to)],
