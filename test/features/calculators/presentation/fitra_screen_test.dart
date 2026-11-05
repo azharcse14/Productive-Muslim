@@ -8,6 +8,7 @@ import 'package:productive_muslim/features/calculators/presentation/screens/fitr
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/prayer_params.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/settings_fakes.dart';
 
 Widget _app() => MaterialApp(
@@ -115,4 +116,6 @@ void main() {
       expect(find.textContaining('follows Hanafi measures'), findsOneWidget);
     });
   });
+
+  layoutMatrix('FitraScreen', screen: () => const FitraScreen());
 }

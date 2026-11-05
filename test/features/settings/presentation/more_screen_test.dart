@@ -11,6 +11,7 @@ import 'package:productive_muslim/features/settings/domain/entities/location_con
 import 'package:productive_muslim/features/settings/domain/repositories/zoned_clock.dart';
 import 'package:productive_muslim/features/settings/presentation/screens/more_screen.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/settings_fakes.dart';
 
 final class _MutableClock implements ZonedClock {
@@ -107,4 +108,18 @@ void main() {
     expect(promoted(), isTrue);
     await tester.pumpWidget(const SizedBox()); // cancels the ticker
   });
+
+  layoutMatrix(
+    'MoreScreen',
+    arrange: (_) async => GetIt.I
+      ..registerSingleton<ZonedClock>(_MutableClock(DateTime(2026, 11, 5, 12)))
+      ..registerSingleton<SettingsStore>(
+        await makeSettingsStore(
+          const AppSettings(
+            location: GpsLocation(latitude: 23.8, longitude: 90.4),
+          ),
+        ),
+      ),
+    screen: () => const MoreScreen(),
+  );
 }

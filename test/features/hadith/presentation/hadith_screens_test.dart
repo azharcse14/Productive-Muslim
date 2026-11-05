@@ -12,6 +12,7 @@ import 'package:productive_muslim/features/hadith/domain/entities/hadith_book.da
 import 'package:productive_muslim/features/hadith/domain/entities/hadith_search.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_book_repository.dart';
 import 'package:productive_muslim/features/hadith/domain/repositories/hadith_repository.dart';
+import 'package:productive_muslim/features/hadith/presentation/screens/hadith_books_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_detail_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_screen.dart';
 import 'package:productive_muslim/features/hadith/presentation/screens/hadith_section_screen.dart';
@@ -23,6 +24,8 @@ import 'package:productive_muslim/features/hadith/presentation/state/hadith_stor
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import '../../../helpers/content_layout_matrix.dart';
 
 Hadith _h(String id, String topic) => Hadith(
   id: id,
@@ -181,11 +184,8 @@ Widget _app(Widget home, {Locale? locale}) => MaterialApp(
 );
 
 /// The app's real hadith routes under `/hadith`, opened at [location].
-Widget _routerApp(String location) => MaterialApp.router(
-  theme: AppTheme.light(),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  routerConfig: GoRouter(
+Widget _routerApp(String location, {LayoutVariant? variant}) {
+  final router = GoRouter(
     initialLocation: location,
     routes: [
       GoRoute(
@@ -194,8 +194,16 @@ Widget _routerApp(String location) => MaterialApp.router(
         routes: hadithRoutes(),
       ),
     ],
-  ),
-);
+  );
+  return variant != null
+      ? variantRouterApp(router, variant)
+      : MaterialApp.router(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        );
+}
 
 Future<_FakeBookRepository> _register({
   bool failSection = false,
@@ -527,4 +535,20 @@ void main() {
       expect(repo.languages, ['bn', 'bn']);
     });
   });
+
+  for (final (screen, location) in [
+    (HadithScreen, '/hadith'),
+    (HadithTopicScreen, '/hadith/topic/character'),
+    (HadithDetailScreen, '/hadith/item/2'),
+    (HadithBooksScreen, '/hadith/books'),
+    (HadithSectionsScreen, '/hadith/books/bukhari'),
+    (HadithSectionScreen, '/hadith/books/bukhari/1'),
+  ]) {
+    layoutMatrix('$screen', (tester, v) async {
+      await _register();
+      await tester.pumpWidget(_routerApp(location, variant: v));
+      await tester.pumpAndSettle();
+      expect(find.byType(screen), findsOneWidget);
+    });
+  }
 }

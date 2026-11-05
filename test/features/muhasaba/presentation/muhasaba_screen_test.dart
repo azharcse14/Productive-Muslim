@@ -22,6 +22,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 import '../../../helpers/settings_fakes.dart';
+import '../../../helpers/tracker_screen_matrix.dart';
 
 /// In-memory [MuhasabaRepository] — just enough behavior for the screen.
 final class InMemoryMuhasabaRepository implements MuhasabaRepository {
@@ -487,5 +488,58 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Add item'), findsOneWidget);
     });
+  });
+
+  group('polish matrix', () {
+
+    Future<void> seed() async {
+      await store.setValue('salah_fajr', 1);
+      await store.setValue('quran', 3);
+    }
+
+    screenMatrix(
+      'MuhasabaScreen welcome',
+      () => const MuhasabaScreen(),
+      setUpCase: seed,
+    );
+    screenMatrix(
+      'MuhasabaScreen today',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+    );
+    screenMatrix(
+      'MuhasabaScreen dashboard',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+      afterPump: (tester) async {
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(MuhasabaScreen)),
+        );
+        await tester.tap(find.text(l10n.dashboardTab));
+        await tester.pumpAndSettle();
+      },
+    );
+    screenMatrix(
+      'MuhasabaScreen item editor',
+      () => const MuhasabaScreen(),
+      setUpCase: () async {
+        await seed();
+        await store.dismissWelcome();
+      },
+      afterPump: (tester) async {
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(MuhasabaScreen)),
+        );
+        await tester.tap(find.byTooltip(l10n.addTracker));
+        await tester.pumpAndSettle();
+        expect(find.byType(BottomSheet), findsOneWidget);
+      },
+    );
   });
 }

@@ -4,6 +4,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/calculators/presentation/screens/inheritance_screen.dart';
 import 'package:productive_muslim/shared/widgets/q_card.dart';
+import '../../../helpers/layout_matrix.dart';
 
 Widget _app() => MaterialApp(
   theme: AppTheme.light(),
@@ -218,4 +219,9 @@ void main() {
     expect(find.textContaining('Son'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
+
+  layoutMatrix(
+    'InheritanceScreen',
+    screen: () => const InheritanceScreen(),
+  );
 }

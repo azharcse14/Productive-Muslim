@@ -130,12 +130,15 @@ final class HomeHeader extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 for (final (i, d) in dates.indexed) ...[
+                  // Decorative separator: not spoken ("dot") by readers.
                   if (i > 0)
-                    Opacity(
-                      opacity: 0.5,
-                      child: Text(
-                        '·',
-                        style: QType.caption.copyWith(color: q.ink2),
+                    ExcludeSemantics(
+                      child: Opacity(
+                        opacity: 0.5,
+                        child: Text(
+                          '·',
+                          style: QType.caption.copyWith(color: q.ink2),
+                        ),
                       ),
                     ),
                   Text(d, style: QType.caption.copyWith(color: q.ink2)),

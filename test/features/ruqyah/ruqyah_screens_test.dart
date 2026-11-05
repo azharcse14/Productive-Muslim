@@ -6,12 +6,16 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/router/app_router.dart';
 import 'package:productive_muslim/core/router/routes.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
+import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/ruqyah/domain/entities/ruqyah.dart';
+import 'package:productive_muslim/features/ruqyah/domain/repositories/ruqyah_repository.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_category_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/ruqyah_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/screens/tibb_nabawi_screen.dart';
 import 'package:productive_muslim/features/ruqyah/presentation/state/ruqyah_store.dart';
 
 import '../../helpers/content_fakes.dart';
+import '../../helpers/content_layout_matrix.dart';
 
 Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   theme: AppTheme.light(),
@@ -20,6 +24,18 @@ Widget _app(Widget home, {Locale? locale}) => MaterialApp(
   supportedLocales: AppLocalizations.supportedLocales,
   home: home,
 );
+
+/// The fake's passages under "Anxiety, grief & distress".
+final class _TwoLineCategory implements RuqyahRepository {
+  @override
+  Future<Result<List<RuqyahCategory>>> categories() async =>
+      (await FakeRuqyahRepository().categories()).map(
+        (all) => [
+          for (final c in all)
+            RuqyahCategory(id: 'anxiety_grief', icon: c.icon, items: c.items),
+        ],
+      );
+}
 
 void main() {
   setUp(() async {
@@ -127,4 +143,31 @@ void main() {
       expect(list.childrenDelegate, isA<SliverChildBuilderDelegate>());
     });
   });
+  Future<void> pumpVariant(
+    WidgetTester tester,
+    LayoutVariant v,
+    Widget home,
+  ) async {
+    await tester.pumpWidget(variantApp(home, v));
+    await tester.pumpAndSettle();
+  }
+
+  layoutMatrix('RuqyahScreen', (tester, v) async {
+    // A two-line category name, as real data has.
+    final store = RuqyahStore(_TwoLineCategory());
+    await store.load();
+    GetIt.I
+      ..unregister<RuqyahStore>()
+      ..registerSingleton<RuqyahStore>(store);
+    await pumpVariant(tester, v, const RuqyahScreen());
+  });
+  layoutMatrix(
+    'RuqyahCategoryScreen',
+    (tester, v) =>
+        pumpVariant(tester, v, const RuqyahCategoryScreen(id: 'protection')),
+  );
+  layoutMatrix(
+    'TibbNabawiScreen',
+    (tester, v) => pumpVariant(tester, v, const TibbNabawiScreen()),
+  );
 }

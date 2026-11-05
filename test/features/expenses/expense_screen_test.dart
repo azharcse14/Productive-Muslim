@@ -8,6 +8,7 @@ import 'package:productive_muslim/features/expenses/presentation/screens/expense
 import 'package:productive_muslim/features/expenses/presentation/state/expense_store.dart';
 import 'package:productive_muslim/shared/widgets/q_chip.dart';
 
+import '../../helpers/tracker_screen_matrix.dart';
 import 'fake_expense_repository.dart';
 
 Widget _app({Locale? locale}) => MaterialApp(
@@ -567,5 +568,28 @@ void main() {
       ),
     );
     handle.dispose();
+  });
+
+  group('polish matrix', () {
+    setUp(() async {
+      register();
+      await store.setBudget(500000);
+      await store.add(amount: 80, category: ExpenseCategory.want, note: 'tea');
+      await store.add(
+        amount: 12500,
+        category: ExpenseCategory.need,
+        note: 'Groceries for the whole week at the bazaar',
+      );
+    });
+    screenMatrix('ExpenseScreen', () => const ExpenseScreen());
+    screenMatrix(
+      'ExpenseScreen editor',
+      () => const ExpenseScreen(),
+      afterPump: (tester) async {
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(BottomSheet), findsOneWidget);
+      },
+    );
   });
 }

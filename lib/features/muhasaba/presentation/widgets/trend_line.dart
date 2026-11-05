@@ -4,6 +4,10 @@ import '../../../../shared/extensions/context_ext.dart';
 
 /// Minimal trend polyline of day completions (0..1), painted in-house
 /// per guide §3.1 — no chart package.
+///
+/// RTL: mirrored (oldest day at the start edge), matching the heatmap's
+/// week columns and the day-swipe below it, which both follow
+/// [Directionality].
 final class TrendLine extends StatelessWidget {
   const TrendLine({
     required this.values,
@@ -31,6 +35,7 @@ final class TrendLine extends StatelessWidget {
             values: values,
             color: q.primary,
             track: q.line,
+            rtl: Directionality.of(context) == TextDirection.rtl,
           ),
         ),
       ),
@@ -47,11 +52,13 @@ final class _TrendPainter extends CustomPainter {
     required this.values,
     required this.color,
     required this.track,
+    required this.rtl,
   });
 
   final List<double> values;
   final Color color;
   final Color track;
+  final bool rtl;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -68,7 +75,8 @@ final class _TrendPainter extends CustomPainter {
     }
     final path = Path();
     for (final (i, v) in values.indexed) {
-      final x = size.width * i / (values.length - 1);
+      final t = i / (values.length - 1);
+      final x = size.width * (rtl ? 1 - t : t);
       final y = (1 - v.clamp(0, 1)) * (size.height - 4) + 2;
       if (i == 0) {
         path.moveTo(x, y);
@@ -91,5 +99,6 @@ final class _TrendPainter extends CustomPainter {
   bool shouldRepaint(_TrendPainter oldDelegate) =>
       values != oldDelegate.values ||
       color != oldDelegate.color ||
-      track != oldDelegate.track;
+      track != oldDelegate.track ||
+      rtl != oldDelegate.rtl;
 }

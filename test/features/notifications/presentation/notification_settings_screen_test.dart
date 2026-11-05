@@ -33,6 +33,7 @@ import 'package:productive_muslim/features/settings/domain/repositories/zoned_cl
 import 'package:productive_muslim/features/settings/domain/usecases/get_settings.dart';
 import 'package:productive_muslim/features/settings/domain/usecases/save_settings.dart';
 
+import '../../../helpers/layout_matrix.dart';
 import '../../../helpers/mosque_fakes.dart';
 
 final class _InMemoryRepo implements SettingsRepository {
@@ -752,4 +753,23 @@ void main() {
       expect(_repo.stored.notifications.nafsLock, isTrue);
     });
   });
+
+  for (final (name, screen) in [
+    ('NotificationSettingsScreen', const NotificationSettingsScreen()),
+    ('JamaatFocusSettingsScreen', const JamaatFocusSettingsScreen()),
+    ('NotificationsScreen', const NotificationsScreen()),
+  ]) {
+    layoutMatrix(
+      name,
+      arrange: (tester) async {
+        await _register(
+          _FakeScheduler(),
+          settings: const AppSettings(location: _dhaka),
+        );
+        GetIt.I.registerSingleton<ExternalLauncher>(_FakeLauncher());
+        await tester.runAsync(_controller.start);
+      },
+      screen: () => screen,
+    );
+  }
 }

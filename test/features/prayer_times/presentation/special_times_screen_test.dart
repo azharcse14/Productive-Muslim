@@ -4,6 +4,7 @@ import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/special_time.dart';
 import 'package:productive_muslim/features/prayer_times/presentation/screens/special_times_screen.dart';
+import '../../../helpers/layout_matrix.dart';
 
 final _forbidden = [
   SpecialWindow(
@@ -80,4 +81,14 @@ void main() {
       expect(find.text('Forbidden times'), findsOneWidget);
     });
   });
+
+  for (final kind in SpecialKind.values) {
+    layoutMatrix(
+      'SpecialTimesScreen ${kind.name}',
+      screen: () => SpecialTimesScreen(
+        kind: kind,
+        windows: kind == SpecialKind.forbidden ? _forbidden : _nafl,
+      ),
+    );
+  }
 }
