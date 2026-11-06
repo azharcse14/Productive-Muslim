@@ -133,6 +133,16 @@ void main() {
       expect(find.text('Turn 20° right'), findsOneWidget);
     });
 
+    testWidgets('a heading just under 360° reads 0°, not 360°', (tester) async {
+      await _register(withLocation: true);
+      await tester.pumpWidget(_app());
+      await tester.pump();
+      GetIt.I<QiblaStore>().heading.value = 359.7;
+      await tester.pump();
+      expect(find.textContaining('360°'), findsNothing);
+      expect(find.textContaining(RegExp(r'^0° ')), findsOneWidget);
+    });
+
     testWidgets('tilted phone shows the hold-flat prompt', (tester) async {
       await _register(withLocation: true);
       await tester.pumpWidget(_app());
