@@ -139,6 +139,11 @@ final class _LockScreenState extends State<LockScreen> {
   void dispose() {
     _cooldownTicker?.cancel();
     _stopResetWatch?.call();
+    if (_resetting) {
+      // Backed out mid-reset (e.g. the section lock popped): whoever opens
+      // the lock screen next must pass the device lock again.
+      _store.pinResetAuthorized.value = false;
+    }
     super.dispose();
   }
 
