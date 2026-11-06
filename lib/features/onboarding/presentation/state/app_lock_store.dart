@@ -46,17 +46,17 @@ final class AppLockStore implements SectionLockStatus {
   final SecureScreen? _secureScreen;
   EffectCleanup? _secureEffect;
 
-  /// Last [BootClock] reading, advanced in-process by [_sinceBootBase]
-  /// between readings (that stopwatch pauses in deep sleep, so it can only
-  /// lag the boot clock — stricter, never looser; [_syncBootClock] catches
-  /// it up on resume and before each PIN check).
-  Duration _bootBase = Duration.zero;
-  final _sinceBootBase = Stopwatch()..start();
+  /// How far the in-process clock lags the [BootClock]. That clock (a
+  /// stopwatch, or the injected [elapsed]) pauses in deep sleep, so it can
+  /// only lag — stricter, never looser; [_syncBootClock] catches it up on
+  /// resume and before each PIN check.
+  Duration _bootLag = Duration.zero;
+  final _stopwatch = Stopwatch()..start();
 
   /// Monotonic time since boot — immune to wall-clock changes. Tests inject
   /// it ([elapsed]); those that inject only [now] get it from that clock.
   Duration _elapsed() =>
-      _injectedElapsed?.call() ?? _bootBase + _sinceBootBase.elapsed;
+      (_injectedElapsed?.call() ?? _stopwatch.elapsed) + _bootLag;
 
   Future<void> _syncBootClock() async {
     final clock = _bootClock;
@@ -65,9 +65,9 @@ final class AppLockStore implements SectionLockStatus {
     }
     try {
       final boot = await clock.sinceBoot();
-      if (boot > _elapsed()) {
-        _bootBase = boot;
-        _sinceBootBase.reset();
+      final behind = boot - _elapsed();
+      if (behind > Duration.zero) {
+        _bootLag += behind;
       }
     } on Object catch (e) {
       // Stopwatch only: lags across sleep, and a restart reads as a
@@ -137,6 +137,10 @@ final class AppLockStore implements SectionLockStatus {
   DateTime? _backgroundedAt;
   Duration _backgroundedAtMono = Duration.zero;
   AppLifecycleListener? _lifecycle;
+
+  /// Bumped on every lifecycle event, so a resume still waiting on the boot
+  /// clock can tell a newer event (e.g. a pause) took over.
+  var _lifecycleEvents = 0;
 
   /// True while an OS auth prompt is up: biometric/device-credential UIs
   /// push the app to inactive/paused on some platforms, which must not
@@ -257,6 +261,7 @@ final class AppLockStore implements SectionLockStatus {
   /// Lifecycle hook (public for tests): remembers when the app left the
   /// foreground and re-locks on resume once the grace period has passed.
   void onLifecycleChanged(AppLifecycleState state) {
+    _lifecycleEvents++;
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
         if (enabled.value && _backgroundedAt == null) {
@@ -268,18 +273,14 @@ final class AppLockStore implements SectionLockStatus {
           obscured.value = true;
         }
       case AppLifecycleState.resumed:
-        // The in-process stopwatch paused if the device slept.
-        unawaited(_syncBootClock());
-        // Before any early break: an inactive→resumed blip (shade, dialog)
-        // never backgrounded, but it did set the cover.
-        obscured.value = false;
-        final due = _relockDue();
-        _backgroundedAt = null;
-        if (_authInProgress) {
-          // Judged once the prompt ends (see [_duringAuth]).
-          _awayDuringAuth |= due;
-        } else if (due) {
-          _relock();
+        if (_backgroundedAt != null && _bootClock != null && !_relockDue()) {
+          // Not due by the unsynced clocks — but the in-process clock paused
+          // if the device slept, and the wall clock may have been set back.
+          // Keep the cover up until the boot clock has had its say.
+          unawaited(_resumeAfterBootSync(_lifecycleEvents));
+        } else {
+          unawaited(_syncBootClock());
+          _finishResume();
         }
       // iOS snapshots the app switcher right after inactive. Android's
       // FLAG_SECURE already blanks it, and inactive fires there for
@@ -293,6 +294,29 @@ final class AppLockStore implements SectionLockStatus {
       case AppLifecycleState.detached:
         break;
     }
+  }
+
+  Future<void> _resumeAfterBootSync(int event) async {
+    await _syncBootClock();
+    if (event == _lifecycleEvents) {
+      _finishResume();
+    }
+    // Else a newer event took over: a pause keeps the original
+    // [_backgroundedAt] for the next resume to judge.
+  }
+
+  void _finishResume() {
+    final due = _relockDue();
+    _backgroundedAt = null;
+    if (_authInProgress) {
+      // Judged once the prompt ends (see [_duringAuth]).
+      _awayDuringAuth |= due;
+    } else if (due) {
+      _relock();
+    }
+    // After the re-lock, so nothing shows in between. Also clears the cover
+    // an inactive→resumed blip (shade, dialog) set without backgrounding.
+    obscured.value = false;
   }
 
   /// Whether the app has been in the background (still, or until this
@@ -310,13 +334,16 @@ final class AppLockStore implements SectionLockStatus {
   }
 
   /// Whether what the lock guards (the app, or just Muhasaba) must be
-  /// treated as locked right now — also when it is due to re-lock but
-  /// hasn't seen `resumed` yet (a notification action can run first).
-  /// Either way Muhasaba data is off limits.
+  /// treated as locked right now — also while the app is (or was until a
+  /// resume still checking the boot clock) in the background at all: a
+  /// notification action can run before `resumed`, and synchronously
+  /// neither clock can prove the grace period hasn't passed (the in-process
+  /// one pauses in deep sleep, the wall one can be set back). Either way
+  /// Muhasaba data is off limits.
   bool get lockedNow =>
       enabled.value &&
       ((_appScope ? locked.value : sectionLocked.value) ||
-          (!_authInProgress && _relockDue()));
+          (!_authInProgress && _backgroundedAt != null));
 
   /// Whether biometric unlock is available to offer at PIN setup.
   Future<bool> canUseBiometric() => _biometric.canAuthenticate();
