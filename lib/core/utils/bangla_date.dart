@@ -18,24 +18,25 @@ final class BanglaDate {
   /// Month lengths for the Bengali year beginning in Gregorian [startYear]
   /// (Falgun falls in startYear+1).
   static List<int> _monthLengths(int startYear) => [
-        31, 31, 31, 31, 31, 31, // Boishakh–Ashwin
-        30, 30, 30, 30, // Kartik–Magh
-        _isGregorianLeap(startYear + 1) ? 30 : 29, // Falgun
-        30, // Choitro
-      ];
+    31, 31, 31, 31, 31, 31, // Boishakh–Ashwin
+    30, 30, 30, 30, // Kartik–Magh
+    _isGregorianLeap(startYear + 1) ? 30 : 29, // Falgun
+    30, // Choitro
+  ];
 
   static BanglaDate fromGregorian(DateTime date) {
     // The Bengali year that began on/before this date.
-    final startYear =
-        (date.month > 4 || (date.month == 4 && date.day >= 14))
-            ? date.year
-            : date.year - 1;
+    final startYear = (date.month > 4 || (date.month == 4 && date.day >= 14))
+        ? date.year
+        : date.year - 1;
     // UTC on both sides: local midnights can be 23h apart across a DST
     // change, which truncates inDays one short.
     final start = DateTime.utc(startYear, 4, 14);
-    var remaining = DateTime.utc(date.year, date.month, date.day)
-        .difference(start)
-        .inDays;
+    var remaining = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(start).inDays;
     final lengths = _monthLengths(startYear);
     var month = 1;
     for (final length in lengths) {

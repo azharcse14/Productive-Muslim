@@ -62,8 +62,11 @@ void main() {
         final cur = BanglaDate.fromGregorian(DateTime(2026, 1, 1 + d));
         final sameMonth = cur.month == prev.month && cur.day == prev.day + 1;
         final newMonth = cur.day == 1 && cur.month != prev.month;
-        expect(sameMonth || newMonth, isTrue,
-            reason: 'discontinuity at day $d: $prev → $cur');
+        expect(
+          sameMonth || newMonth,
+          isTrue,
+          reason: 'discontinuity at day $d: $prev → $cur',
+        );
         prev = cur;
       }
     });
@@ -72,9 +75,11 @@ void main() {
   // DST-sensitive: only bites in a southern-hemisphere DST zone (e.g.
   // TZ=Australia/Sydney); holds in every zone.
   test('day count is exact across DST changes', () {
-    for (var d = DateTime(2026, 4, 14);
-        d.year < 2028;
-        d = DateTime(d.year, d.month, d.day + 1)) {
+    for (
+      var d = DateTime(2026, 4, 14);
+      d.year < 2028;
+      d = DateTime(d.year, d.month, d.day + 1)
+    ) {
       final b = BanglaDate.fromGregorian(d);
       final next = BanglaDate.fromGregorian(
         DateTime(d.year, d.month, d.day + 1),

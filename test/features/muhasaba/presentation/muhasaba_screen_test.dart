@@ -31,6 +31,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   /// itemId → (date-only → value).
   final Map<String, Map<DateTime, int>> storedEntries = {};
 
+  /// itemId → (date-only → stamped target), as tests seed it.
+  final Map<String, Map<DateTime, int>> storedTargets = {};
+
   static DateTime _d(DateTime date) =>
       DateTime(date.year, date.month, date.day);
 
@@ -91,7 +94,12 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     return Result.success([
       for (final MapEntry(key: itemId, value: byDate) in storedEntries.entries)
         if (byDate[day] case final value? when value > 0)
-          DailyEntry(itemId: itemId, date: day, value: value),
+          DailyEntry(
+            itemId: itemId,
+            date: day,
+            value: value,
+            target: storedTargets[itemId]?[day],
+          ),
     ]);
   }
 
@@ -296,6 +304,23 @@ void main() {
       expect(find.text('Azkar'), findsOneWidget);
     });
 
+    testWidgets('a past-day row reads against its stamped target', (
+      tester,
+    ) async {
+      await repo.upsertItem(
+        repo.storedItems['quran']!.copyWith(dailyTarget: () => 30),
+      );
+      await store.load();
+      final t = store.today;
+      final yesterday = DateTime(t.year, t.month, t.day - 1);
+      repo.storedEntries['quran'] = {yesterday: 12};
+      repo.storedTargets['quran'] = {yesterday: 10};
+      await pumpAndDismissWelcome(tester);
+      await tester.runAsync(() => store.selectDate(yesterday));
+      await tester.pumpAndSettle();
+      expect(find.text('12 min / 10 min'), findsOneWidget);
+    });
+
     testWidgets('tapping a salah chip persists value 1', (tester) async {
       await pumpAndDismissWelcome(tester);
       await tester.tap(find.text('Fajr'));
@@ -495,7 +520,6 @@ void main() {
   });
 
   group('polish matrix', () {
-
     Future<void> seed() async {
       await store.setValue('salah_fajr', 1);
       await store.setValue('quran', 3);

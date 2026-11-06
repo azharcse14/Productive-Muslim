@@ -35,8 +35,7 @@ final class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) {
       return;
     }
-    final setupComplete =
-        locator<SettingsStore>().settings.value.setupComplete;
+    final setupComplete = locator<SettingsStore>().settings.value.setupComplete;
     final locked = locator<AppLockStore>().locked.value;
     if (!setupComplete) {
       context.goNamed(Routes.onboarding.name);
@@ -70,11 +69,7 @@ final class _SplashScreenState extends State<SplashScreen> {
                 opacity: t,
                 child: Transform.scale(scale: 0.8 + 0.2 * t, child: child),
               ),
-              child: QalbMark(
-                size: 120,
-                color: q.primary,
-                accent: q.primary,
-              ),
+              child: QalbMark(size: 120, color: q.primary, accent: q.primary),
             ),
             const SizedBox(height: QSpace.s5),
             Text(

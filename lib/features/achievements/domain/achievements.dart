@@ -288,8 +288,10 @@ abstract final class AchievementCatalog {
     ),
   ];
 
-  static List<Achievement> byCategory(AchievementCategory c) =>
-      [for (final a in all) if (a.category == c) a];
+  static List<Achievement> byCategory(AchievementCategory c) => [
+    for (final a in all)
+      if (a.category == c) a,
+  ];
 }
 
 /// Pure evaluator: maps the catalog over [stats], computing unlocked state
@@ -323,8 +325,8 @@ abstract final class AchievementEvaluator {
     final fraction = unlocked
         ? 1.0
         : span <= 0
-            ? 0.0
-            : ((current - floor) / span).clamp(0.0, 1.0).toDouble();
+        ? 0.0
+        : ((current - floor) / span).clamp(0.0, 1.0).toDouble();
     return AchievementProgress(
       achievement: a,
       unlocked: unlocked,
@@ -333,15 +335,15 @@ abstract final class AchievementEvaluator {
     );
   }
 
-  static List<AchievementProgress> evaluate(AchievementStats stats) =>
-      [for (final a in AchievementCatalog.all) evaluateOne(a, stats)];
+  static List<AchievementProgress> evaluate(AchievementStats stats) => [
+    for (final a in AchievementCatalog.all) evaluateOne(a, stats),
+  ];
 
   /// Ids of every currently-unlocked badge (for "newly unlocked" diffing).
   static Set<String> unlockedIds(AchievementStats stats) => {
-        for (final a in AchievementCatalog.all)
-          if (a.isUnlocked(stats)) a.id,
-      };
+    for (final a in AchievementCatalog.all)
+      if (a.isUnlocked(stats)) a.id,
+  };
 
-  static int unlockedCount(AchievementStats stats) =>
-      unlockedIds(stats).length;
+  static int unlockedCount(AchievementStats stats) => unlockedIds(stats).length;
 }

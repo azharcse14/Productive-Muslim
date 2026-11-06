@@ -30,9 +30,9 @@ final class Hadith {
   final String reference;
 
   String translationFor(String languageCode) => switch (languageCode) {
-        'bn' when bn.isNotEmpty => bn,
-        _ => en,
-      };
+    'bn' when bn.isNotEmpty => bn,
+    _ => en,
+  };
 }
 
 /// A topic with its hadith — grouping derived from [Hadith.topic].

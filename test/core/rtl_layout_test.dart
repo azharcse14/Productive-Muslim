@@ -10,14 +10,14 @@ import 'package:productive_muslim/features/prayer_times/presentation/widgets/dai
 import 'package:productive_muslim/features/prayer_times/presentation/widgets/day_timeline_sheet.dart';
 
 Widget _app(Widget child, TextDirection direction) => MaterialApp(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Directionality(
-        textDirection: direction,
-        child: Scaffold(body: child),
-      ),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Directionality(
+    textDirection: direction,
+    child: Scaffold(body: child),
+  ),
+);
 
 final _day = PrayerDay(
   fajr: DateTime(2026, 6, 14, 4, 5),
@@ -35,8 +35,9 @@ const _arabic = 'ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ';
 void main() {
   group('Day timeline mirrors in RTL', () {
     for (final direction in TextDirection.values) {
-      testWidgets('$direction: label on the start side, time on the end',
-          (tester) async {
+      testWidgets('$direction: label on the start side, time on the end', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           _app(
             DayTimelineSheet(
@@ -50,13 +51,18 @@ void main() {
         final label = tester.getCenter(find.text('Dhuhr'));
         final time = tester.getCenter(find.text('12:30'));
         expect(
-          direction == TextDirection.ltr ? label.dx < time.dx : label.dx > time.dx,
+          direction == TextDirection.ltr
+              ? label.dx < time.dx
+              : label.dx > time.dx,
           isTrue,
         );
         // Text hugs the start edge of its expanded slot.
         final labelRect = tester.getRect(find.text('Dhuhr'));
         final slot = tester.getRect(
-          find.ancestor(of: find.text('Dhuhr'), matching: find.byType(Expanded)),
+          find.ancestor(
+            of: find.text('Dhuhr'),
+            matching: find.byType(Expanded),
+          ),
         );
         if (direction == TextDirection.ltr) {
           expect(labelRect.left, slot.left);

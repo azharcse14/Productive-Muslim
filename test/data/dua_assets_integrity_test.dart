@@ -81,7 +81,11 @@ void main() {
     test('tr, en and bn are unique so no quiz question is ambiguous', () {
       for (final field in <String>['tr', 'en', 'bn']) {
         final values = names.map((n) => (n[field]! as String).toLowerCase());
-        expect(values.toSet(), hasLength(names.length), reason: 'duplicate $field');
+        expect(
+          values.toSet(),
+          hasLength(names.length),
+          reason: 'duplicate $field',
+        );
       }
     });
   });

@@ -23,10 +23,10 @@ final class DailyContentSelection {
   final int? duaIndex;
 
   int? indexFor(DailyContentKind kind) => switch (kind) {
-        DailyContentKind.ayah => ayahIndex,
-        DailyContentKind.hadith => hadithIndex,
-        DailyContentKind.dua => duaIndex,
-      };
+    DailyContentKind.ayah => ayahIndex,
+    DailyContentKind.hadith => hadithIndex,
+    DailyContentKind.dua => duaIndex,
+  };
 
   @override
   bool operator ==(Object other) =>

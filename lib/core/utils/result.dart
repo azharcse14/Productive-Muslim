@@ -12,9 +12,9 @@ sealed class Result<T> {
 
   /// Returns the value or null — for call sites where absence is fine.
   T? get valueOrNull => switch (this) {
-        Success<T>(:final value) => value,
-        FailureResult<T>() => null,
-      };
+    Success<T>(:final value) => value,
+    FailureResult<T>() => null,
+  };
 
   R fold<R>(R Function(T value) onSuccess, R Function(Failure f) onFailure) =>
       switch (this) {
@@ -23,9 +23,9 @@ sealed class Result<T> {
       };
 
   Result<R> map<R>(R Function(T value) transform) => switch (this) {
-        Success<T>(:final value) => Result.success(transform(value)),
-        FailureResult<T>(:final failure) => Result.failure(failure),
-      };
+    Success<T>(:final value) => Result.success(transform(value)),
+    FailureResult<T>(:final failure) => Result.failure(failure),
+  };
 }
 
 final class Success<T> extends Result<T> {
