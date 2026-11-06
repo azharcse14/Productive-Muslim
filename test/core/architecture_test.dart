@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// may only shrink. A violation is written as `'from -> to'`, where `to` is
 /// the imported file (`lib/...`), the package (`package:x`), `GetIt` /
 /// `locator` for rule 6, or `dart:io` / `MethodChannel` / `EventChannel` /
-/// `BasicMessageChannel` for rule 8.
+/// `BasicMessageChannel` / `SystemChannels` / `defaultBinaryMessenger` for
+/// rule 8, or `dart:ui` / `dart:html` / `dart:js_interop` for rule 1.
 void main() {
   test('no domain file imports Flutter', () {
     final offenders = [
@@ -74,8 +75,12 @@ final _directive = RegExp(
 final _quoted = RegExp(r'''['"]([^'"]+)['"]''');
 final _serviceLocator = RegExp(r'\b(GetIt|locator)\b');
 final _platformChannel = RegExp(
-  r'\b(MethodChannel|EventChannel|BasicMessageChannel)\b',
+  r'\b(MethodChannel|EventChannel|BasicMessageChannel|SystemChannels|'
+  r'defaultBinaryMessenger)\b',
 );
+
+/// Engine/web libraries a pure-Dart domain file must not import.
+const _nonPureDartLibs = {'dart:ui', 'dart:html', 'dart:js_interop'};
 
 /// Layer-less shared code (`lib/shared`, `lib/core` outside the composition
 /// roots, `lib/config`): held to presentation's platform-package rule and
@@ -125,6 +130,8 @@ Set<String> _findViolations() {
     ];
     for (final uri in uris) {
       if (uri == 'dart:io' && !platformAllowed) out.add('$from -> dart:io');
+      // Rule 1: domain stays pure Dart — no engine or web libraries.
+      if (inDomain && _nonPureDartLibs.contains(uri)) out.add('$from -> $uri');
       if (uri.startsWith('dart:')) continue;
       const self = 'package:productive_muslim/';
       String? to; // resolved lib/ path; null for a third-party package
