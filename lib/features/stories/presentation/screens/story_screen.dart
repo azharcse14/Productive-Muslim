@@ -104,7 +104,9 @@ final class _StoryBody extends StatelessWidget {
           Wrap(
             spacing: QSpace.s2,
             runSpacing: QSpace.s2,
-            children: [for (final ref in story.refs) QChip(label: ref)],
+            children: [
+              for (final ref in story.refs) QChip(label: context.digits(ref)),
+            ],
           ),
         ],
       ],
