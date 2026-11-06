@@ -312,6 +312,25 @@ void main() {
       expect(result, isA<FailureResult<Object?>>());
     });
 
+    test('a broken bundled DB is kept as the cause when offline', () async {
+      final repo = HadithBookRepositoryImpl(
+        HadithBookCatalogDataSource(
+          _FakeAssetBundle(const {
+            HadithBookCatalogDataSource.catalogAssetPath: _catalogJson,
+          }),
+        ),
+        HadithBookBundledDataSource(
+          () => Future.error(StateError('db corrupt')),
+        ),
+        HadithBookRemoteDataSource((_) async => throw const SocketishError()),
+      );
+      final book = (await repo.books()).valueOrNull!.first;
+
+      final result = await repo.section(book, book.sections.first, 'en');
+      final failure = (result as FailureResult<Object?>).failure;
+      expect(failure.message, contains('db corrupt'));
+    });
+
     test(
       'bn on a hadithbangla book reads the Bengali chapter source',
       () async {

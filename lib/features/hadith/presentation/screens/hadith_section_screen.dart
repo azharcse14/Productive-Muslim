@@ -85,7 +85,9 @@ final class _HadithSectionScreenState extends State<HadithSectionScreen> {
       );
       unawaited(_load());
       if (_tracksPosition) {
-        final languageCode = Localizations.localeOf(context).languageCode;
+        // Under [_lang], like the offset: the section number is from that
+        // language's list, so the app locale would resume a wrong chapter.
+        final languageCode = _lang!;
         // After this frame: the books list watching it may be mid-build.
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => unawaited(

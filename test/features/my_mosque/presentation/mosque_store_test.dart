@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/my_mosque/domain/entities/jamaat_config.dart';
@@ -58,6 +60,36 @@ void main() {
       await store.load();
       expect(repo.stored.profiles.map((p) => p.name), ['Home', 'Work']);
       expect(store.readFailed.value, isFalse);
+    });
+
+    test('concurrent loads while unreadable keep every queued edit', () async {
+      const profile = MosqueProfile(id: 'a', name: 'Home');
+      final repo = _GatedLoadRepository(
+        const MosqueState(profiles: [profile], activeId: 'a'),
+      );
+      final store = MosqueStore(GetMosqueState(repo), SaveMosqueState(repo));
+      final first = store.load();
+      repo.gates.single.complete(const Result.failure(UnexpectedFailure('x')));
+      await first;
+      expect(store.readFailed.value, isTrue);
+
+      // Two edits and a Retry, all while the reload is still in flight.
+      final edits = [
+        store.addProfile('Work'),
+        store.addProfile('Shop'),
+        store.load(),
+      ];
+      await Future<void>.delayed(Duration.zero);
+      expect(repo.gates, hasLength(2), reason: 'one shared reload');
+      repo.gates.last.complete(Result.success(repo.stored));
+      await Future.wait(edits);
+
+      const names = ['Home', 'Work', 'Shop'];
+      expect(store.state.value.profiles.map((p) => p.name), names);
+      expect(repo.stored.profiles.map((p) => p.name), names);
+      // The next write builds on the replayed state, not a stale read.
+      await store.addProfile('Office');
+      expect(repo.stored.profiles.map((p) => p.name), [...names, 'Office']);
     });
 
     test('a failed save rolls the change back and is counted', () async {
@@ -280,4 +312,25 @@ final class _FailingSaveRepository implements MosqueRepository {
   @override
   Future<Result<void>> save(MosqueState state) async =>
       const Result.failure(UnexpectedFailure('disk full'));
+}
+
+/// Each load waits on a [Completer] the test resolves.
+final class _GatedLoadRepository implements MosqueRepository {
+  _GatedLoadRepository(this.stored);
+
+  MosqueState stored;
+  final gates = <Completer<Result<MosqueState>>>[];
+
+  @override
+  Future<Result<MosqueState>> load() {
+    final gate = Completer<Result<MosqueState>>();
+    gates.add(gate);
+    return gate.future;
+  }
+
+  @override
+  Future<Result<void>> save(MosqueState state) async {
+    stored = state;
+    return const Result.success(null);
+  }
 }

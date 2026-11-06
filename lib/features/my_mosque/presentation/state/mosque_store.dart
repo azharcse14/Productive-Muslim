@@ -39,7 +39,14 @@ final class MosqueStore {
   /// state by the first [load] that succeeds, so none are lost.
   final _pending = <MosqueState Function(MosqueState)>[];
 
-  Future<void> load() async {
+  /// The in-flight load: concurrent callers (Retry, every queued edit)
+  /// share it, so a later stale read can't overwrite the replayed edits.
+  Future<void>? _loading;
+
+  Future<void> load() =>
+      _loading ??= _load().whenComplete(() => _loading = null);
+
+  Future<void> _load() async {
     final result = await _get();
     final loaded = result.fold((value) => value, (_) => null);
     if (loaded == null) {
