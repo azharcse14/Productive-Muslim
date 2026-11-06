@@ -14,6 +14,9 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
 
   /// (itemId, yyyymmdd) → value.
   final entries_ = <(String, int), int>{};
+
+  /// (itemId, yyyymmdd) → stamped target, as tests seed it (unset = none).
+  final targets_ = <(String, int), int>{};
   int seeds = 0;
 
   /// When true, seedDefaults and items fail (as a locked DB would).
@@ -101,7 +104,12 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     return Result.success([
       for (final entry in entries_.entries)
         if (entry.key.$2 == k)
-          DailyEntry(itemId: entry.key.$1, date: date, value: entry.value),
+          DailyEntry(
+            itemId: entry.key.$1,
+            date: date,
+            value: entry.value,
+            target: targets_[entry.key],
+          ),
     ]);
   }
 
@@ -125,6 +133,7 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     final key = (entry.itemId, _key(entry.date));
     if (entry.value <= 0) {
       entries_.remove(key);
+      targets_.remove(key);
     } else {
       entries_[key] = entry.value;
     }

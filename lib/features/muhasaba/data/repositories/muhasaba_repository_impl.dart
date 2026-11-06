@@ -253,6 +253,7 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
                 itemId: r.itemId,
                 date: _decodeDate(r.date),
                 value: r.value,
+                target: r.target,
               ),
             )
             .toList(),
@@ -282,13 +283,20 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
                 ..where((t) => t.date.equals(code)))
               .go();
         } else {
-          await _db.dailyEntries.insertOnConflictUpdate(
+          // A new row is stamped with the item's current target — also on
+          // a back-filled past day (its old target isn't recorded anywhere).
+          // 0 = no target, so adding one later can't reach this day. An
+          // edit only changes the value: the day keeps the target it was
+          // first logged against.
+          await _db.dailyEntries.insertOne(
             DailyEntriesCompanion.insert(
               itemId: entry.itemId,
               date: code,
               value: entry.value,
-              // 0 = no target, so adding one later can't reach this day.
               target: Value(item?.dailyTarget ?? 0),
+            ),
+            onConflict: DoUpdate(
+              (_) => DailyEntriesCompanion(value: Value(entry.value)),
             ),
           );
         }
@@ -323,89 +331,93 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
       final endCode = _encodeDate(end);
       final periodDays = _dayCount(start, end);
 
-      // Items that count on a given day (existed, not archived that day).
-      final rows = await _db.select(_db.trackerItems).get();
-      final spans = await _db.select(_db.trackerArchiveSpans).get();
-      final revived = await _revivedDays();
-      int countOn(DateTime day) {
-        final code = _encodeDate(day);
-        return rows.where((r) => _countsOn(r, spans, revived, code)).length;
-      }
-
-      // a) Day completions: SQL fraction sums, calendar filled in Dart.
-      final fractionSums = await _dayFractionSums(startCode, endCode);
-      final days = <DayCompletion>[];
-      // The overall average counts only days that had items and have
-      // come (as the per-item bars do): a new tracker's first perfect day
-      // reads 100%, not 1/7.
-      final todayCode = _encodeDate(today);
-      var completionTotal = 0.0;
-      var countedDays = 0;
-      var todayUntouched = false;
-      for (var i = 0; i < periodDays; i++) {
-        final day = DateTime(start.year, start.month, start.day + i);
-        final sum = fractionSums[_encodeDate(day)] ?? 0;
-        final count = countOn(day);
-        final completion = count == 0
-            ? 0.0
-            : (sum / count).clamp(0, 1).toDouble();
-        if (count > 0 && _encodeDate(day) <= todayCode) {
-          completionTotal += completion;
-          countedDays++;
-          todayUntouched |= _encodeDate(day) == todayCode && sum == 0;
+      // One transaction: every read sees the same snapshot (a write
+      // landing mid-way can't mix old and new rows).
+      final stats = await _db.transaction(() async {
+        // Items that count on a given day (existed, not archived that day).
+        final rows = await _db.select(_db.trackerItems).get();
+        final spans = await _db.select(_db.trackerArchiveSpans).get();
+        final revived = await _revivedDays();
+        int countOn(DateTime day) {
+          final code = _encodeDate(day);
+          return rows.where((r) => _countsOn(r, spans, revived, code)).length;
         }
-        days.add(DayCompletion(day, completion));
-      }
-      final completion = countedDays == 0 ? 0.0 : completionTotal / countedDays;
-      // The trend compares against finished days, so a today with nothing
-      // logged yet sits out (else every morning reads "down").
-      final trendCompletion = !todayUntouched
-          ? completion
-          : countedDays > 1
-          ? completionTotal / (countedDays - 1)
-          : null;
 
-      // b) Per-item aggregates over the range.
-      final itemStats = await _itemStats(start, end, spans, revived);
-
-      // c) Streaks over the whole history, so the best streak matches the
-      // all-time streak badges and always includes (so is >=) the current
-      // one.
-      final (:currentStreak, :bestStreak) = await _streaks(today);
-
-      // d) Equal-length window immediately before [start].
-      final prevStart = DateTime(
-        start.year,
-        start.month,
-        start.day - periodDays,
-      );
-      final prevEnd = DateTime(start.year, start.month, start.day - 1);
-      final prevSums = await _dayFractionSums(
-        _encodeDate(prevStart),
-        _encodeDate(prevEnd),
-      );
-      // Null only when no tracker counted then; an empty window is 0%.
-      double? previousCompletion;
-      if (periodDays > 0) {
-        var total = 0.0;
-        var counted = 0;
+        // a) Day completions: SQL fraction sums, calendar filled in Dart.
+        final fractionSums = await _dayFractionSums(startCode, endCode);
+        final days = <DayCompletion>[];
+        // The overall average counts only days that had items and have
+        // come (as the per-item bars do): a new tracker's first perfect day
+        // reads 100%, not 1/7.
+        final todayCode = _encodeDate(today);
+        var completionTotal = 0.0;
+        var countedDays = 0;
+        var todayUntouched = false;
         for (var i = 0; i < periodDays; i++) {
-          final day = DateTime(
-            prevStart.year,
-            prevStart.month,
-            prevStart.day + i,
-          );
+          final day = DateTime(start.year, start.month, start.day + i);
+          final sum = fractionSums[_encodeDate(day)] ?? 0;
           final count = countOn(day);
-          if (count > 0) {
-            total += ((prevSums[_encodeDate(day)] ?? 0) / count).clamp(0, 1);
-            counted++;
+          final completion = count == 0
+              ? 0.0
+              : (sum / count).clamp(0, 1).toDouble();
+          if (count > 0 && _encodeDate(day) <= todayCode) {
+            completionTotal += completion;
+            countedDays++;
+            todayUntouched |= _encodeDate(day) == todayCode && sum == 0;
           }
+          days.add(DayCompletion(day, completion));
         }
-        previousCompletion = counted == 0 ? null : total / counted;
-      }
+        final completion = countedDays == 0
+            ? 0.0
+            : completionTotal / countedDays;
+        // The trend compares against finished days, so a today with nothing
+        // logged yet sits out (else every morning reads "down").
+        final trendCompletion = !todayUntouched
+            ? completion
+            : countedDays > 1
+            ? completionTotal / (countedDays - 1)
+            : null;
 
-      return Result.success(
-        PeriodStats(
+        // b) Per-item aggregates over the range.
+        final itemStats = await _itemStats(start, end, spans, revived);
+
+        // c) Streaks over the whole history, so the best streak matches the
+        // all-time streak badges and always includes (so is >=) the current
+        // one.
+        final (:currentStreak, :bestStreak) = await _streaks(today);
+
+        // d) Equal-length window immediately before [start].
+        final prevStart = DateTime(
+          start.year,
+          start.month,
+          start.day - periodDays,
+        );
+        final prevEnd = DateTime(start.year, start.month, start.day - 1);
+        final prevSums = await _dayFractionSums(
+          _encodeDate(prevStart),
+          _encodeDate(prevEnd),
+        );
+        // Null only when no tracker counted then; an empty window is 0%.
+        double? previousCompletion;
+        if (periodDays > 0) {
+          var total = 0.0;
+          var counted = 0;
+          for (var i = 0; i < periodDays; i++) {
+            final day = DateTime(
+              prevStart.year,
+              prevStart.month,
+              prevStart.day + i,
+            );
+            final count = countOn(day);
+            if (count > 0) {
+              total += ((prevSums[_encodeDate(day)] ?? 0) / count).clamp(0, 1);
+              counted++;
+            }
+          }
+          previousCompletion = counted == 0 ? null : total / counted;
+        }
+
+        return PeriodStats(
           completion: completion,
           days: days,
           items: itemStats,
@@ -413,8 +425,9 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
           bestStreak: bestStreak,
           previousCompletion: previousCompletion,
           trendCompletion: trendCompletion,
-        ),
-      );
+        );
+      });
+      return Result.success(stats);
     } on Object catch (e) {
       return Result.failure(
         UnexpectedFailure('Failed to compute period stats', e),

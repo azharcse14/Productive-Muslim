@@ -10,9 +10,9 @@ import 'package:timezone/timezone.dart' as tz;
 void main() {
   test('every city timezone exists in the bundled tz database', () {
     TimezoneClock.initialize();
-    final cities = jsonDecode(
-      File('assets/data/cities.json').readAsStringSync(),
-    ) as List<dynamic>;
+    final cities =
+        jsonDecode(File('assets/data/cities.json').readAsStringSync())
+            as List<dynamic>;
     final missing = {
       for (final c in cities.cast<List<dynamic>>()) c[4] as String,
     }.where((id) => !tz.timeZoneDatabase.locations.containsKey(id)).toList();

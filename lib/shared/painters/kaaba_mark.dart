@@ -11,10 +11,8 @@ final class KaabaMark extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-        size: Size.square(size),
-        painter: _KaabaPainter(color),
-      );
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: _KaabaPainter(color));
 }
 
 class _KaabaPainter extends CustomPainter {
@@ -31,7 +29,10 @@ class _KaabaPainter extends CustomPainter {
 
     final body = Path()
       ..addRRect(
-        RRect.fromRectAndRadius(r(0.17, 0.11, 0.83, 0.92), Radius.circular(0.05 * w)),
+        RRect.fromRectAndRadius(
+          r(0.17, 0.11, 0.83, 0.92),
+          Radius.circular(0.05 * w),
+        ),
       );
     // Kiswa band across the upper third, and the door at the base.
     final cuts = Path()

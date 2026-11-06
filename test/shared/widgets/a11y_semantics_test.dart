@@ -7,14 +7,15 @@ import 'package:productive_muslim/shared/widgets/q_list_row.dart';
 import 'package:productive_muslim/shared/widgets/q_seg_control.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: AppTheme.light(),
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
   group('a11y — shared widgets expose semantics', () {
-    testWidgets('QChip announces its label, button role and selected state',
-        (tester) async {
+    testWidgets('QChip announces its label, button role and selected state', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _wrap(QChip(label: 'Asr', active: true, onTap: () {})),
@@ -26,36 +27,37 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('QSegControl marks the active segment selected with its label',
-        (tester) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _wrap(
-          QSegControl(
-            options: const ['Day', 'Week', 'Month'],
-            activeIndex: 1,
-            onChanged: (_) {},
+    testWidgets(
+      'QSegControl marks the active segment selected with its label',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _wrap(
+            QSegControl(
+              options: const ['Day', 'Week', 'Month'],
+              activeIndex: 1,
+              onChanged: (_) {},
+            ),
           ),
-        ),
-      );
-      expect(
-        tester.getSemantics(find.bySemanticsLabel('Week')),
-        isSemantics(isSelected: true),
-      );
-      expect(
-        tester.getSemantics(find.bySemanticsLabel('Day')),
-        isSemantics(isSelected: false),
-      );
-      handle.dispose();
-    });
+        );
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Week')),
+          isSemantics(isSelected: true),
+        );
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Day')),
+          isSemantics(isSelected: false),
+        );
+        handle.dispose();
+      },
+    );
 
-    testWidgets('tappable QListRow is a button and merges title + subtitle',
-        (tester) async {
+    testWidgets('tappable QListRow is a button and merges title + subtitle', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
-        _wrap(
-          QListRow(title: 'Madhab', subtitle: 'Hanafi', onTap: () {}),
-        ),
+        _wrap(QListRow(title: 'Madhab', subtitle: 'Hanafi', onTap: () {})),
       );
       final node = tester.getSemantics(find.bySemanticsLabel(RegExp('Madhab')));
       expect(node, isSemantics(isButton: true));
@@ -63,8 +65,9 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('QHeatmap surfaces a summary label and hides the raw cells',
-        (tester) async {
+    testWidgets('QHeatmap surfaces a summary label and hides the raw cells', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         _wrap(
@@ -79,8 +82,9 @@ void main() {
       // The spoken summary stands in for the whole grid…
       expect(find.bySemanticsLabel('12 of 30 days completed'), findsOneWidget);
       // …and the decorative cells are excluded from the a11y tree.
-      final summary =
-          tester.getSemantics(find.bySemanticsLabel('12 of 30 days completed'));
+      final summary = tester.getSemantics(
+        find.bySemanticsLabel('12 of 30 days completed'),
+      );
       expect(summary.childrenCount, 0);
       handle.dispose();
     });

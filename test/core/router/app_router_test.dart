@@ -47,18 +47,17 @@ final class _InMemoryRepo implements SettingsRepository {
 }
 
 Widget _app() => MaterialApp.router(
-      theme: AppTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: buildRouter(),
-    );
+  theme: AppTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  routerConfig: buildRouter(),
+);
 
 void main() {
   setUp(() async {
     TimezoneClock.initialize();
     final repo = _InMemoryRepo();
-    final settingsStore =
-        SettingsStore(GetSettings(repo), SaveSettings(repo));
+    final settingsStore = SettingsStore(GetSettings(repo), SaveSettings(repo));
     await settingsStore.load();
     final clock = TimezoneClock();
     final (mosqueStore, _) = await makeMosqueStore();
@@ -88,8 +87,9 @@ void main() {
 
   tearDown(() => GetIt.I.reset());
   group('App shell routing', () {
-    testHomeWidgets('boots into the Home branch with 5 nav destinations',
-        (tester) async {
+    testHomeWidgets('boots into the Home branch with 5 nav destinations', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
@@ -131,8 +131,9 @@ void main() {
       expect(find.text('Quran'), findsNWidgets(2));
     });
 
-    testHomeWidgets('system back on a tab root returns to Home, not exit',
-        (tester) async {
+    testHomeWidgets('system back on a tab root returns to Home, not exit', (
+      tester,
+    ) async {
       final router = buildRouter();
       await tester.pumpWidget(
         MaterialApp.router(
@@ -153,8 +154,9 @@ void main() {
       expect(router.state.uri.path, '/home');
     });
 
-    testHomeWidgets('tab state persists across switches (indexed stack)',
-        (tester) async {
+    testHomeWidgets('tab state persists across switches (indexed stack)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
@@ -166,8 +168,9 @@ void main() {
       expect(find.text('Muhasaba'), findsOneWidget);
     });
 
-    testHomeWidgets('nav bar hugs the bottom of the screen (regression)',
-        (tester) async {
+    testHomeWidgets('nav bar hugs the bottom of the screen (regression)', (
+      tester,
+    ) async {
       // A max-sized Column inside the nav once swallowed the whole
       // screen height, centering the bar mid-screen and blanking the
       // body (Scaffold gives the bottomNavigationBar slot loose
@@ -175,8 +178,7 @@ void main() {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
-      final screen =
-          tester.view.physicalSize / tester.view.devicePixelRatio;
+      final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
       final homeLabel = tester.getCenter(find.text('Home'));
       expect(
         homeLabel.dy,
@@ -187,12 +189,15 @@ void main() {
       expect(find.text('Where are you?'), findsOneWidget);
     });
 
-    testHomeWidgets('incomplete setup gates every route to onboarding',
-        (tester) async {
+    testHomeWidgets('incomplete setup gates every route to onboarding', (
+      tester,
+    ) async {
       await GetIt.I.reset();
       final repo = _InMemoryRepo()..stored = const AppSettings();
-      final settingsStore =
-          SettingsStore(GetSettings(repo), SaveSettings(repo));
+      final settingsStore = SettingsStore(
+        GetSettings(repo),
+        SaveSettings(repo),
+      );
       await settingsStore.load();
       final lockStore = await makeAppLockStore();
       final quranStore = await makeQuranStore();
@@ -212,12 +217,15 @@ void main() {
       );
     });
 
-    testHomeWidgets('enabled app lock gates to the PIN screen and unlocks',
-        (tester) async {
+    testHomeWidgets('enabled app lock gates to the PIN screen and unlocks', (
+      tester,
+    ) async {
       await GetIt.I.reset();
       final repo = _InMemoryRepo();
-      final settingsStore =
-          SettingsStore(GetSettings(repo), SaveSettings(repo));
+      final settingsStore = SettingsStore(
+        GetSettings(repo),
+        SaveSettings(repo),
+      );
       await settingsStore.load();
       final lockStore = await makeAppLockStore(withPin: true);
       final quranStore = await makeQuranStore();
@@ -256,129 +264,135 @@ void main() {
     });
 
     testHomeWidgets(
-        'background re-lock overlays the gate and keeps pushed pages',
-        (tester) async {
-      await GetIt.I.reset();
-      final repo = _InMemoryRepo();
-      final settingsStore =
-          SettingsStore(GetSettings(repo), SaveSettings(repo));
-      await settingsStore.load();
-      final lockStore = await makeAppLockStore(withPin: true);
-      final (mosqueStore, _) = await makeMosqueStore();
-      final (muhasabaStore, _) = await makeMuhasabaStore();
-      final clock = TimezoneClock();
-      GetIt.I
-        ..registerSingleton<SettingsStore>(settingsStore)
-        ..registerSingleton<AppLockStore>(lockStore)
-        ..registerSingleton<QuranStore>(await makeQuranStore())
-        ..registerSingleton<DuaStore>(await makeDuaStore())
-        ..registerSingleton<TasbihStore>(await makeTasbihStore())
-        ..registerSingleton<MosqueStore>(mosqueStore)
-        ..registerSingleton<MuhasabaStore>(muhasabaStore)
-        ..registerLazySingleton<HomeStore>(
-          () => HomeStore(
-            getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
-            clock: clock,
-            settings: settingsStore,
-            mosque: mosqueStore,
-          ),
+      'background re-lock overlays the gate and keeps pushed pages',
+      (tester) async {
+        await GetIt.I.reset();
+        final repo = _InMemoryRepo();
+        final settingsStore = SettingsStore(
+          GetSettings(repo),
+          SaveSettings(repo),
         );
-      final router = buildRouter();
-      await tester.pumpWidget(
-        MaterialApp.router(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: router,
-          builder: (context, child) =>
-              LockOverlay(router: router, child: child),
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
-      await tester.pumpAndSettle();
-      Future<void> enterPin() async {
-        for (final digit in ['1', '2', '3', '4']) {
-          await tester.tap(
-            find.descendant(
-              of: find.byType(LockScreen),
-              matching: find.text(digit),
+        await settingsStore.load();
+        final lockStore = await makeAppLockStore(withPin: true);
+        final (mosqueStore, _) = await makeMosqueStore();
+        final (muhasabaStore, _) = await makeMuhasabaStore();
+        final clock = TimezoneClock();
+        GetIt.I
+          ..registerSingleton<SettingsStore>(settingsStore)
+          ..registerSingleton<AppLockStore>(lockStore)
+          ..registerSingleton<QuranStore>(await makeQuranStore())
+          ..registerSingleton<DuaStore>(await makeDuaStore())
+          ..registerSingleton<TasbihStore>(await makeTasbihStore())
+          ..registerSingleton<MosqueStore>(mosqueStore)
+          ..registerSingleton<MuhasabaStore>(muhasabaStore)
+          ..registerLazySingleton<HomeStore>(
+            () => HomeStore(
+              getPrayerDay: GetPrayerDay(PrayerDayRepositoryImpl(clock)),
+              clock: clock,
+              settings: settingsStore,
+              mosque: mosqueStore,
             ),
           );
-          await tester.pump();
-        }
+        final router = buildRouter();
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+            builder: (context, child) =>
+                LockOverlay(router: router, child: child),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash timer
         await tester.pumpAndSettle();
-      }
+        Future<void> enterPin() async {
+          for (final digit in ['1', '2', '3', '4']) {
+            await tester.tap(
+              find.descendant(
+                of: find.byType(LockScreen),
+                matching: find.text(digit),
+              ),
+            );
+            await tester.pump();
+          }
+          await tester.pumpAndSettle();
+        }
 
-      // Cold start: the redirect gate.
-      expect(router.state.uri.path, '/lock');
-      await enterPin();
-      await tester.tap(find.text('More'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('Calculators'), 200);
-      await tester.ensureVisible(find.text('Calculators'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Calculators'));
-      await tester.pumpAndSettle();
-      expect(find.text('Zakat calculator'), findsOneWidget);
+        // Cold start: the redirect gate.
+        expect(router.state.uri.path, '/lock');
+        await enterPin();
+        await tester.tap(find.text('More'));
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(find.text('Calculators'), 200);
+        await tester.ensureVisible(find.text('Calculators'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Calculators'));
+        await tester.pumpAndSettle();
+        expect(find.text('Zakat calculator'), findsOneWidget);
 
-      // Re-lock (as after the grace period in the background).
-      lockStore.locked.value = true;
-      await tester.pumpAndSettle();
-      expect(find.byType(LockScreen), findsOneWidget);
-      expect(router.state.uri.path, isNot('/lock'));
-      // The page underneath is still mounted but unreachable.
-      await tester.tap(find.text('Zakat calculator'), warnIfMissed: false);
-      await tester.pumpAndSettle();
-      expect(find.text('Cash on hand'), findsNothing);
-      // System back is held by the gate, not spent popping hidden pages.
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.byType(LockScreen), findsOneWidget);
+        // Re-lock (as after the grace period in the background).
+        lockStore.locked.value = true;
+        await tester.pumpAndSettle();
+        expect(find.byType(LockScreen), findsOneWidget);
+        expect(router.state.uri.path, isNot('/lock'));
+        // The page underneath is still mounted but unreachable.
+        await tester.tap(find.text('Zakat calculator'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(find.text('Cash on hand'), findsNothing);
+        // System back is held by the gate, not spent popping hidden pages.
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(LockScreen), findsOneWidget);
 
-      await enterPin();
-      expect(find.byType(LockScreen), findsNothing);
-      expect(find.text('Zakat calculator'), findsOneWidget);
-    });
+        await enterPin();
+        expect(find.byType(LockScreen), findsNothing);
+        expect(find.text('Zakat calculator'), findsOneWidget);
+      },
+    );
 
     // The only test on the global [appRouter] (what openDeepLink drives).
     testHomeWidgets(
-        'a notification tap at the cold-start PIN gate opens after unlock '
-        'with home beneath', (tester) async {
-      GetIt.I
-        ..unregister<AppLockStore>()
-        ..registerSingleton<AppLockStore>(
-          await makeAppLockStore(withPin: true),
+      'a notification tap at the cold-start PIN gate opens after unlock '
+      'with home beneath',
+      (tester) async {
+        GetIt.I
+          ..unregister<AppLockStore>()
+          ..registerSingleton<AppLockStore>(
+            await makeAppLockStore(withPin: true),
+          );
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: appRouter,
+          ),
         );
-      await tester.pumpWidget(
-        MaterialApp.router(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: appRouter,
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 1300)); // splash timer
-      await tester.pumpAndSettle();
-      expect(appRouter.state.uri.path, '/lock');
+        await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/lock');
 
-      openDeepLink('/zakat');
-      await tester.pumpAndSettle();
-      expect(appRouter.state.uri.path, '/lock');
-      for (final digit in ['1', '2', '3', '4']) {
-        await tester.tap(find.text(digit));
-        await tester.pump();
-      }
-      await tester.pumpAndSettle();
+        openDeepLink('/zakat');
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/lock');
+        for (final digit in ['1', '2', '3', '4']) {
+          await tester.tap(find.text(digit));
+          await tester.pump();
+        }
+        await tester.pumpAndSettle();
 
-      expect(find.text('Cash on hand'), findsOneWidget);
-      expect(appRouter.canPop(), isTrue);
-      appRouter.pop();
-      await tester.pumpAndSettle();
-      expect(appRouter.state.uri.path, '/home');
-    });
+        expect(find.text('Cash on hand'), findsOneWidget);
+        expect(appRouter.canPop(), isTrue);
+        appRouter.pop();
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/home');
+      },
+    );
 
-    testHomeWidgets('More opens the Calculators hub with every tool',
-        (tester) async {
+    testHomeWidgets('More opens the Calculators hub with every tool', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
@@ -398,8 +412,9 @@ void main() {
       expect(find.text('Age calculator'), findsOneWidget);
     });
 
-    testHomeWidgets('Calculators hub navigates into the Zakat tool',
-        (tester) async {
+    testHomeWidgets('Calculators hub navigates into the Zakat tool', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app());
       await tester.pump(const Duration(milliseconds: 1300)); // splash timer
       await tester.pumpAndSettle();
@@ -469,31 +484,33 @@ void main() {
       );
     });
 
-    testHomeWidgets('a ?category= dua payload opens that category over the tab',
-        (tester) async {
-      GetIt.I.registerSingleton<DuaFavoritesStore>(
-        DuaFavoritesStore(SharedPreferencesAsync()),
-      );
-      final router = buildRouter();
-      await tester.pumpWidget(
-        MaterialApp.router(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          routerConfig: router,
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 1300)); // splash
-      await tester.pumpAndSettle();
-      router.go('/dua?category=morning_evening');
-      await tester.pumpAndSettle();
-      expect(router.state.uri.path, '/dua/category/morning_evening');
-      expect(find.text('Morning & evening'), findsOneWidget);
-      router.pop();
-      await tester.pumpAndSettle();
-      expect(router.state.uri.path, '/dua');
-      expect(find.byType(QBottomNavScaffold), findsOneWidget);
-    });
+    testHomeWidgets(
+      'a ?category= dua payload opens that category over the tab',
+      (tester) async {
+        GetIt.I.registerSingleton<DuaFavoritesStore>(
+          DuaFavoritesStore(SharedPreferencesAsync()),
+        );
+        final router = buildRouter();
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: router,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash
+        await tester.pumpAndSettle();
+        router.go('/dua?category=morning_evening');
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/dua/category/morning_evening');
+        expect(find.text('Morning & evening'), findsOneWidget);
+        router.pop();
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/dua');
+        expect(find.byType(QBottomNavScaffold), findsOneWidget);
+      },
+    );
 
     testHomeWidgets(
       'a locked Muhasaba section gates its tab, Health and Achievements',
@@ -524,7 +541,9 @@ void main() {
       },
     );
 
-    testHomeWidgets('renders Bangla labels under the bn locale', (tester) async {
+    testHomeWidgets('renders Bangla labels under the bn locale', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp.router(
           theme: AppTheme.light(),

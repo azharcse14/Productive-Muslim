@@ -102,9 +102,11 @@ abstract final class ZakatCalculator {
     final silverPrice = _clamp(input.silverPricePerGram);
 
     final cashTotal = _clamp(input.cashOnHand) + _clamp(input.bankBalance);
-    final metalsValue = _clamp(input.goldGrams) * goldPrice +
+    final metalsValue =
+        _clamp(input.goldGrams) * goldPrice +
         _clamp(input.silverGrams) * silverPrice;
-    final businessTotal = _clamp(input.businessAssets) +
+    final businessTotal =
+        _clamp(input.businessAssets) +
         _clamp(input.investments) +
         _clamp(input.moneyOwedToYou);
 

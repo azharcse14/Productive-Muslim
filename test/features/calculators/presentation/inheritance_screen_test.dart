@@ -220,8 +220,5 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  layoutMatrix(
-    'InheritanceScreen',
-    screen: () => const InheritanceScreen(),
-  );
+  layoutMatrix('InheritanceScreen', screen: () => const InheritanceScreen());
 }

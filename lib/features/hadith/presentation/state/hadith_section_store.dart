@@ -26,8 +26,7 @@ final class HadithSectionStore {
   ) async {
     loading.value = true;
     failed.value = false;
-    final result =
-        await _repository.section(book, section, languageCode);
+    final result = await _repository.section(book, section, languageCode);
     if (_disposed) {
       return;
     }

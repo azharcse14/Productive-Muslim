@@ -184,11 +184,8 @@ void main() {
     });
   });
 
-  layoutMatrix(
-    'AsmaQuizScreen',
-    (tester, v) async {
-      await tester.pumpWidget(variantApp(const AsmaQuizScreen(), v));
-      await tester.pumpAndSettle();
-    },
-  );
+  layoutMatrix('AsmaQuizScreen', (tester, v) async {
+    await tester.pumpWidget(variantApp(const AsmaQuizScreen(), v));
+    await tester.pumpAndSettle();
+  });
 }

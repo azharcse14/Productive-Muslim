@@ -5,6 +5,7 @@ final class DailyEntry {
     required this.itemId,
     required this.date,
     required this.value,
+    this.target,
   });
 
   final String itemId;
@@ -13,6 +14,11 @@ final class DailyEntry {
   final DateTime date;
   final int value;
 
+  /// The item's daily target stamped when this entry was first written
+  /// (0 = no target) — the day is judged by it, not by a later target.
+  /// Null = unstamped (or a value to write): the item's current target.
+  final int? target;
+
   @override
   bool operator ==(Object other) =>
       other is DailyEntry &&
@@ -20,9 +26,10 @@ final class DailyEntry {
       other.date.year == date.year &&
       other.date.month == date.month &&
       other.date.day == date.day &&
-      other.value == value;
+      other.value == value &&
+      other.target == target;
 
   @override
   int get hashCode =>
-      Object.hash(itemId, date.year, date.month, date.day, value);
+      Object.hash(itemId, date.year, date.month, date.day, value, target);
 }
