@@ -141,11 +141,17 @@ final class NotificationController {
       final age = _now().difference(last);
       // Coming back from a permission prompt / settings page with a
       // changed grant must reschedule.
-      if (!age.isNegative &&
-          age < _freshFor &&
-          _zone() == _lastZone &&
-          await _grants() == _lastGrants) {
-        return;
+      try {
+        if (!age.isNegative &&
+            age < _freshFor &&
+            _zone() == _lastZone &&
+            await _grants() == _lastGrants) {
+          return;
+        }
+      } on Exception catch (e) {
+        // A failed grant check (PlatformException) can't prove the plan
+        // fresh: reschedule, which reports its own failures.
+        debugPrint('Notification grant check failed: $e');
       }
     }
     _scheduleDebounced();

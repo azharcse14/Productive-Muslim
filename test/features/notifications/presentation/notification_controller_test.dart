@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/settings/settings_store.dart';
@@ -60,8 +61,12 @@ final class _CountingScheduler implements NotificationScheduler {
 
   bool exact = true;
 
+  /// When set, canScheduleExactAlarms() throws it.
+  Exception? exactError;
+
   @override
-  Future<bool> canScheduleExactAlarms() async => exact;
+  Future<bool> canScheduleExactAlarms() async =>
+      exactError == null ? exact : throw exactError!;
 
   @override
   Future<void> requestExactAlarmPermission() async {}
@@ -375,6 +380,21 @@ void main() {
     resume();
     await Future<void>.delayed(const Duration(milliseconds: 600));
     expect(scheduler.rescheduleCalls, 2);
+    controller.dispose();
+  });
+
+  test('a failing grant check on resume is caught and reschedules', () async {
+    final (controller, scheduler) = await _controller();
+    await controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(controller.rescheduleFailed.value, isFalse);
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    scheduler.exactError = PlatformException(code: 'channel-error');
+    resume(); // an uncaught async error would fail this test
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    // The reschedule ran (and reported the same failure itself).
+    expect(controller.rescheduleFailed.value, isTrue);
     controller.dispose();
   });
 
