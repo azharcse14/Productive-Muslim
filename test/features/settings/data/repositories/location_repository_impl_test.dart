@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,12 +57,20 @@ final class _FakeBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async => ByteData.sublistView(
     utf8.encode(
-      jsonEncode([
-        ['Dhaka', 'BD', 23.7104, 90.4074, 'Asia/Dhaka'],
-        ['Narayanganj', 'BD', 23.6238, 90.5000, 'Asia/Dhaka'],
-      ]),
+      key != CityAssetDataSource.assetPath
+          ? '[]'
+          : jsonEncode([
+              ['Dhaka', 'BD', 23.7104, 90.4074, 'Asia/Dhaka'],
+              ['Narayanganj', 'BD', 23.6238, 90.5000, 'Asia/Dhaka'],
+            ]),
     ),
   );
+}
+
+final class _FileBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async =>
+      ByteData.sublistView(File(key).readAsBytesSync());
 }
 
 void main() {
@@ -78,6 +87,20 @@ void main() {
       expect(await nameAt(23.75, 90.39), 'Dhaka, BD');
       expect(await nameAt(23.63, 90.51), 'Narayanganj, BD');
       expect(await nameAt(25.5, 90.4), '', reason: '~200 km from any city');
+    });
+
+    test('bundled assets name Dhaka neighbourhoods', () async {
+      final cities = CityAssetDataSource(_FileBundle());
+      Future<String?> nameAt(double lat, double lng) async =>
+          (await LocationRepositoryImpl(
+            _FakeSource(position: _position(lat, lng)),
+            cities: cities,
+          ).getCurrentLocation()).valueOrNull?.resolvedName;
+      // Jakir Hossain Road — used to resolve to Dhanmondi, ~3 km off.
+      expect(await nameAt(23.7635, 90.3640), 'Mohammadpur, BD');
+      // Only in the OpenStreetMap asset.
+      expect(await nameAt(23.7567, 90.3692), 'Lalmatia, BD');
+      expect(await nameAt(23.7795, 90.4046), 'Mohakhali, BD');
     });
 
     test('service disabled → LocationServiceDisabled', () async {

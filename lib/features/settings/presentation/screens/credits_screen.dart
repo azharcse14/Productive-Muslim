@@ -118,7 +118,11 @@ final class CreditsScreen extends StatelessWidget {
           ]),
           _Group(l10n.creditsGroupPlaces, [
             (l10n.creditsPrayerCalc, l10n.creditsPrayerCalcValue),
-            (l10n.creditsCities, '© GeoNames (CC BY 4.0)'),
+            (
+              l10n.creditsCities,
+              '© GeoNames (CC BY 4.0)\n'
+                  '© OpenStreetMap contributors (ODbL 1.0)',
+            ),
             (l10n.creditsAzanAudio, l10n.creditsAzanAudioValue),
           ]),
           _Group(l10n.creditsGroupFonts, [
