@@ -31,6 +31,9 @@ const _sample = [
   ['Al Ḩudaydah', 'YE', 14.7978, 42.9545, 'Asia/Aden'],
   ['Gdańsk', 'PL', 54.352, 18.6464, 'Europe/Warsaw'],
   ['Bogra District', 'BD', 24.85, 89.37, 'Asia/Dhaka', 'বগুড়া জেলা'],
+  ['Adabar', 'BD', 23.7736, 90.3575, 'Asia/Dhaka'],
+  ['Vitória', 'BR', -20.3194, -40.3378, 'America/Sao_Paulo'],
+  ['Bhatara', 'BD', 23.8, 90.45, 'Asia/Dhaka'],
 ];
 
 CityRepositoryImpl _repo() =>
@@ -85,6 +88,19 @@ void main() {
       // ড় typed as ড + nukta (U+09A1 U+09BC) on some keyboards.
       final result = await _repo().search('বগু\u09A1\u09BCা');
       expect(result.valueOrNull!.single.name, 'Bogra District');
+    });
+
+    test('romanized spellings match by sound, after real matches', () async {
+      Future<List<String>> names(String q) async =>
+          (await _repo().search(q)).valueOrNull!.map((c) => c.name).toList();
+      expect(await names('Adabor'), ['Adabar']);
+      expect(await names('vatara'), ['Bhatara', 'Vitória'], reason: 'BD first');
+      expect(await names('vitoria'), [
+        'Vitória',
+        'Bhatara',
+      ], reason: 'real match first');
+      expect(await names('lon'), ['London', 'New London']);
+      expect(await names('xyz'), isEmpty);
     });
 
     test('search is case-insensitive', () async {
