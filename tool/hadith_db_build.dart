@@ -47,7 +47,20 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// Bump together with [HadithDatabase.bundledVersion] to force a re-copy of the
 /// asset on the next app launch after the data changes.
-const _userVersion = 3;
+const _userVersion = 4;
+
+/// Grades upstream leaves out, by (edition, hadith number). Read in the
+/// reader's language: the Arabic edition carries none, so the translation's
+/// shows (see assembleSection).
+const _gradeOverrides = {
+  // Ibn Rajab (Jami' al-'Ulum wal-Hikam) rejects an-Nawawi's "sahih chain".
+  ('eng-nawawi', 41):
+      "Da'if (disputed — Ibn Rajab rejects an-Nawawi's 'sahih chain' "
+      "claim; chain via Nu'aym ibn Hammad)",
+  ('ben-nawawi', 41):
+      'যঈফ (বিতর্কিত — ইবনু রজব আন-নববির ‘সহিহ সনদ’ দাবি প্রত্যাখ্যান '
+      'করেছেন; সনদ নুআইম ইবনু হাম্মাদের মাধ্যমে)',
+};
 
 const _catalogPath = 'assets/data/hadith_books.json';
 const _outPath = 'assets/data/hadith.db';
@@ -123,34 +136,52 @@ Future<void> main(List<String> args) async {
           [...?zero['ara-$id'], ...?zero['eng-$id']],
           {for (final s in sections) (s as Map)['n'] as int},
         );
-        for (final edition in editions) {
-          // ben-* may not exist for a book (e.g. ben-qudsi) — tolerate that.
-          final tolerant = edition.startsWith('ben-');
-          for (final s in sections) {
-            final n = (s as Map)['n'] as int;
+        for (final s in sections) {
+          final n = (s as Map)['n'] as int;
+          final byEdition = <String, List<RawHadith>>{};
+          for (final edition in editions) {
+            // ben-* may not exist for a book (e.g. ben-qudsi) — tolerate that.
+            final tolerant = edition.startsWith('ben-');
             final base = n == 0
                 ? const <Map<String, Object?>>[]
                 : await _rawSection(http, edition, n, tolerant: tolerant);
             if (base == null) {
               continue;
             }
-            final hadiths = [
+            byEdition[edition] = [
               for (final entry in mergeByNumber(base, [
                 for (final h in zero[edition] ?? const <Map<String, Object?>>[])
                   if (target[h['hadithnumber']] == n) h,
               ]))
                 if (RawHadith.parse(entry) case final h?)
-                  entry.containsKey('arabicnumber')
-                      ? h
-                      // Only Sahih Muslim's section-0 hadith lack it: they
-                      // have no Abd al-Baqi number, so mark upstream's
-                      // internal one rather than pass it off as standard.
-                      : RawHadith(
-                          number: h.number,
-                          text: h.text,
-                          grade: h.grade,
-                          ref: '#${h.number}',
-                        ),
+                  RawHadith(
+                    number: h.number,
+                    text: h.text,
+                    grade: _gradeOverrides[(edition, h.number)] ?? h.grade,
+                    // Only Sahih Muslim's section-0 hadith lack
+                    // `arabicnumber`: they have no Abd al-Baqi number, so
+                    // mark upstream's internal one rather than pass it off
+                    // as standard.
+                    ref: entry.containsKey('arabicnumber')
+                        ? h.ref
+                        : '#${h.number}',
+                  ),
+            ];
+          }
+          // Upstream entries blank in both Arabic and English have nothing
+          // to show — drop them from every edition (matched by number and
+          // occurrence, as assembleSection pairs them).
+          final english = _byOccurrence(byEdition['eng-$id'] ?? const []);
+          final blank = {
+            for (final MapEntry(:key, value: h) in _byOccurrence(
+              byEdition['ara-$id'] ?? const [],
+            ).entries)
+              if (h.text.isEmpty && (english[key]?.text ?? '').isEmpty) key,
+          };
+          for (final MapEntry(key: edition, value: all) in byEdition.entries) {
+            final hadiths = [
+              for (final MapEntry(:key, :value) in _byOccurrence(all).entries)
+                if (!blank.contains(key)) value,
             ];
             if (hadiths.isEmpty) {
               continue;
@@ -397,4 +428,14 @@ Future<String?> _get(
     }
   }
   return null;
+}
+
+/// [hadiths] keyed by (number, nth occurrence) in order — upstream repeats a
+/// number for distinct narrations (Tirmidhi 3604 ×10).
+Map<(int, int), RawHadith> _byOccurrence(List<RawHadith> hadiths) {
+  final seen = <int, int>{};
+  return {
+    for (final h in hadiths)
+      (h.number, seen[h.number] = (seen[h.number] ?? -1) + 1): h,
+  };
 }

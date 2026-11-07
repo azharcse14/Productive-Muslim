@@ -116,6 +116,16 @@ void main() {
             isTrue,
             reason: '$id: bad ref "$ref"',
           );
+          // Sahih Muslim is cited by Abd al-Baqi number (sunnah.com, the
+          // in-app "go to"), which ends at 3033 — not the dataset's
+          // sequential one (2766 is sequential 7008).
+          if (ref.startsWith('Muslim ')) {
+            expect(
+              int.parse(ref.split(' ')[1].split('-').first),
+              lessThanOrEqualTo(3033),
+              reason: '$id: "$ref" looks like an internal number',
+            );
+          }
         }
       }
     }, skip: file.existsSync() ? false : '${file.path} not written yet');

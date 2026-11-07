@@ -28,10 +28,12 @@ final class HadithBook {
   final String authorBn;
 
   /// "sahih" — the whole book is rigorously authentic (Bukhari/Muslim);
-  /// "graded" — authenticity varies per hadith, so a per-hadith grade shows.
+  /// "graded" — authenticity varies per hadith, so a per-hadith grade shows;
+  /// "ungraded" — the source gives no per-hadith grades (40 Nawawi / Qudsi),
+  /// so a grade shows only where one was added by hand (Nawawi 41).
   final String kind;
 
-  /// Total hadith count (dataset numbering).
+  /// Number of hadith entries bundled (the sum of the sections' `count`).
   final int total;
 
   /// API edition keys for Arabic / English / Bengali text.

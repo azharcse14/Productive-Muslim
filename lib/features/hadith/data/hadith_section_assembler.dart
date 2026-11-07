@@ -169,7 +169,7 @@ List<BookHadith> assembleSection({
   final wantsNonEnglish = !translationIsEnglish;
   final translationByKey = _byOccurrence(translation);
   final arabicSeen = <int, int>{};
-  return [
+  final hadith = [
     for (final ar in arabic)
       () {
         final key = (ar.number, _nextOccurrence(arabicSeen, ar.number));
@@ -193,6 +193,11 @@ List<BookHadith> assembleSection({
         );
       }(),
   ];
+  // Upstream has a few entries blank in every edition — no empty card.
+  return [
+    for (final h in hadith)
+      if (h.arabic.isNotEmpty || h.translation.isNotEmpty) h,
+  ];
 }
 
 /// Upstream sometimes gives several distinct narrations the same hadith
@@ -212,14 +217,15 @@ int _nextOccurrence(Map<int, int> seen, int number) =>
 /// Shapes one Bengali chapter (hadithbangla source) into display hadith.
 List<BookHadith> assembleBangla(HadithBook book, List<BnHadith> raw) => [
   for (final h in raw)
-    BookHadith(
-      number: h.number,
-      arabic: h.arabic,
-      translation: h.bn,
-      grade: h.grade.isNotEmpty ? h.grade : (book.isSahih ? 'সহিহ' : ''),
-      reference: '${book.bn} ${h.number}',
-      narrator: h.narrator,
-    ),
+    if (h.arabic.isNotEmpty || h.bn.isNotEmpty)
+      BookHadith(
+        number: h.number,
+        arabic: h.arabic,
+        translation: h.bn,
+        grade: h.grade.isNotEmpty ? h.grade : (book.isSahih ? 'সহিহ' : ''),
+        reference: '${book.bn} ${h.number}',
+        narrator: h.narrator,
+      ),
 ];
 
 String _grade(RawHadith arabic, RawHadith? translation, bool sahih) {
