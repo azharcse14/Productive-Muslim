@@ -73,9 +73,13 @@ void main() {
       }
     });
 
-    test('first name is Ar-Rahman and last name is As-Sabur', () {
-      expect(names.first['tr'], 'Ar-Rahman');
+    test('follows Tirmidhi 3507: Allah first, As-Sabur last, no Al-Ahad', () {
+      expect(names.first['tr'], 'Allah');
+      expect(names[1]['tr'], 'Ar-Rahman');
       expect(names.last['tr'], 'As-Sabur');
+      expect(names.map((n) => n['tr']), isNot(contains('Al-Ahad')));
+      final wahid = names.indexWhere((n) => n['tr'] == 'Al-Wahid');
+      expect(names[wahid + 1]['tr'], 'As-Samad');
     });
 
     test('tr, en and bn are unique so no quiz question is ambiguous', () {
@@ -264,6 +268,38 @@ void main() {
         ids.toSet(),
         hasLength(ids.length),
         reason: 'duplicate dua ids found',
+      );
+    });
+  });
+
+  test('passages shared with ruqyah.json cite the same source and count', () {
+    Map<String, Map<String, Object?>> byId(String path, String listKey) {
+      final root =
+          jsonDecode(File(path).readAsStringSync()) as Map<dynamic, dynamic>;
+      return {
+        for (final c in root['categories'] as List<Object?>)
+          for (final e
+              in (c! as Map<dynamic, dynamic>)[listKey] as List<Object?>)
+            (e! as Map<dynamic, dynamic>)['id'] as String:
+                (e as Map<dynamic, dynamic>).cast<String, Object?>(),
+      };
+    }
+
+    final duas = byId('assets/data/duas.json', 'duas');
+    final ruqyah = byId('assets/data/ruqyah.json', 'items');
+    const pairs = <String, String>{
+      'hm_5_12_92': 'radhitu_billahi',
+      'hm_6_14_134': 'audhu_kalimat_ghadab_sleep',
+    };
+    pairs.forEach((duaId, ruqyahId) {
+      final dua = duas[duaId]!;
+      final rq = ruqyah[ruqyahId]!;
+      expect(dua['repeat'], rq['repeat'], reason: duaId);
+      final source = RegExp(r'^[^(—]*').firstMatch(dua['ref']! as String)!;
+      expect(
+        (rq['ref']! as String).startsWith(source[0]!),
+        isTrue,
+        reason: '$duaId vs $ruqyahId',
       );
     });
   });
