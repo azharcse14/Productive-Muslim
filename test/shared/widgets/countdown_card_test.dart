@@ -5,17 +5,17 @@ import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
 import 'package:productive_muslim/shared/widgets/countdown_card.dart';
 
 Widget _wrap(Widget child, {bool dark = false}) => MaterialApp(
-      theme: dark ? AppTheme.dark() : AppTheme.light(),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: dark ? AppTheme.dark() : AppTheme.light(),
+  home: Scaffold(body: Center(child: child)),
+);
 
 CountdownCard _card(CountdownState state) => CountdownCard(
-      state: state,
-      eyebrow: 'Asr ends in',
-      big: '01:24:36',
-      sub: 'Jamaat at 5:15 pm',
-      progress: 0.42,
-    );
+  state: state,
+  eyebrow: 'Asr ends in',
+  big: '01:24:36',
+  sub: 'Jamaat at 5:15 pm',
+  progress: 0.42,
+);
 
 AnimatedContainer _container(WidgetTester tester) =>
     tester.widget<AnimatedContainer>(
@@ -29,42 +29,49 @@ Color _bgOf(WidgetTester tester) =>
     (_container(tester).decoration! as BoxDecoration).color!;
 
 LinearGradient? _gradientOf(WidgetTester tester) =>
-    (_container(tester).decoration! as BoxDecoration).gradient as LinearGradient?;
+    (_container(tester).decoration! as BoxDecoration).gradient
+        as LinearGradient?;
 
 Color? _flatColorOf(WidgetTester tester) =>
     (_container(tester).decoration! as BoxDecoration).color;
 
 void main() {
   group('CountdownCard', () {
-    testWidgets('renders eyebrow (uppercased), numeral, and sub',
-        (tester) async {
+    testWidgets('renders eyebrow (uppercased), numeral, and sub', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
       expect(find.text('ASR ENDS IN'), findsOneWidget);
       expect(find.text('Jamaat at 5:15 pm'), findsOneWidget);
     });
 
-    testWidgets('corner shares the eyebrow row and keeps its own tap',
-        (tester) async {
+    testWidgets('corner shares the eyebrow row and keeps its own tap', (
+      tester,
+    ) async {
       Color? fg;
       var taps = 0;
-      await tester.pumpWidget(_wrap(SizedBox(
-        width: 320,
-        child: CountdownCard(
-          state: CountdownState.calm,
-          eyebrow: 'A very long eyebrow that has to wrap before the corner',
-          big: '01:24:36',
-          sub: 'Jamaat at 5:15 pm',
-          progress: 0.42,
-          corner: (foreground) {
-            fg = foreground;
-            return IconButton(
-              tooltip: 'Qibla',
-              icon: const Icon(Icons.explore),
-              onPressed: () => taps++,
-            );
-          },
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(
+            width: 320,
+            child: CountdownCard(
+              state: CountdownState.calm,
+              eyebrow: 'A very long eyebrow that has to wrap before the corner',
+              big: '01:24:36',
+              sub: 'Jamaat at 5:15 pm',
+              progress: 0.42,
+              corner: (foreground) {
+                fg = foreground;
+                return IconButton(
+                  tooltip: 'Qibla',
+                  icon: const Icon(Icons.explore),
+                  onPressed: () => taps++,
+                );
+              },
+            ),
+          ),
         ),
-      )));
+      );
       expect(tester.takeException(), isNull);
       expect(fg, isNotNull);
       final eyebrow = tester.getRect(find.textContaining('A VERY LONG'));
@@ -75,14 +82,18 @@ void main() {
     });
 
     testWidgets('reads as one semantics label', (tester) async {
-      await tester.pumpWidget(_wrap(const CountdownCard(
-        state: CountdownState.calm,
-        eyebrow: 'Asr ends in',
-        big: '01:24:36',
-        sub: 'Ends at 5:15 pm',
-        progress: 0.5,
-        semanticLabel: 'Asr ends in 1 hour 24 minutes. Ends at 5:15 pm',
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const CountdownCard(
+            state: CountdownState.calm,
+            eyebrow: 'Asr ends in',
+            big: '01:24:36',
+            sub: 'Ends at 5:15 pm',
+            progress: 0.5,
+            semanticLabel: 'Asr ends in 1 hour 24 minutes. Ends at 5:15 pm',
+          ),
+        ),
+      );
       expect(
         find.bySemanticsLabel('Asr ends in 1 hour 24 minutes. Ends at 5:15 pm'),
         findsOneWidget,
@@ -90,8 +101,9 @@ void main() {
       expect(find.bySemanticsLabel('01:24:36'), findsNothing);
     });
 
-    testWidgets('calm state uses a brand sky gradient ending in surface',
-        (tester) async {
+    testWidgets('calm state uses a brand sky gradient ending in surface', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
       final gradient = _gradientOf(tester);
       expect(gradient, isNotNull);
@@ -101,8 +113,9 @@ void main() {
       expect(_flatColorOf(tester), isNull);
     });
 
-    testWidgets('the sky phase shifts the calm gradient top tint',
-        (tester) async {
+    testWidgets('the sky phase shifts the calm gradient top tint', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const CountdownCard(
@@ -132,8 +145,9 @@ void main() {
       expect(_gradientOf(tester)!.colors.first, isNot(dawnTint));
     });
 
-    testWidgets('a semantic state keeps a flat colour (no gradient)',
-        (tester) async {
+    testWidgets('a semantic state keeps a flat colour (no gradient)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.amber)));
       expect(_gradientOf(tester), isNull);
       expect(_flatColorOf(tester), ProductiveMuslimColors.light.warnSoft);
@@ -161,7 +175,10 @@ void main() {
 
     testWidgets('dark theme resolves dark tokens', (tester) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm), dark: true));
-      expect(_gradientOf(tester)!.colors.last, ProductiveMuslimColors.dark.surface);
+      expect(
+        _gradientOf(tester)!.colors.last,
+        ProductiveMuslimColors.dark.surface,
+      );
     });
 
     testWidgets('progress is clamped to 0..1', (tester) async {
@@ -182,8 +199,9 @@ void main() {
       expect(fraction.widthFactor, 1);
     });
 
-    testWidgets('progress fill is anchored to the start (left-to-right)',
-        (tester) async {
+    testWidgets('progress fill is anchored to the start (left-to-right)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(_card(CountdownState.calm)));
       final fraction = tester.widget<FractionallySizedBox>(
         find.byType(FractionallySizedBox),

@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
+import android.os.SystemClock
 import android.os.UserManager
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -84,7 +85,9 @@ object DirectBoot {
         if (c.getSystemService(UserManager::class.java).isUserUnlocked) return
         val am = c.getSystemService(AlarmManager::class.java)
         val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
-        for (e in DirectBootPlan.toArm(entries(p), System.currentTimeMillis())) {
+        val now = System.currentTimeMillis()
+        val bootTime = now - SystemClock.elapsedRealtime()
+        for (e in DirectBootPlan.toArm(entries(p), now, bootTime)) {
             val pi = alarm(c, e.id, PendingIntent.FLAG_UPDATE_CURRENT) ?: continue
             try {
                 if (exact) {
@@ -184,12 +187,25 @@ object DirectBootPlan {
     }
 
     /**
-     * What a locked boot arms: everything not yet missed by more than
-     * [BootPrune.GRACE_MS] (the same rule the unlock path prunes by; a
-     * just-missed one fires at once), earliest first.
+     * What a locked boot arms, earliest first: everything not yet missed by
+     * more than [BootPrune.GRACE_MS] (a just-missed one fires at once) and
+     * not due before [bootTime].
+     *
+     * The plan isn't pruned as entries are delivered (the plugin shows them
+     * while the phone runs), so one due before this boot may already have
+     * been shown: Fajr at 03:00, reboot at 03:02, would azan twice. With no
+     * shutdown time (none is persisted) "due before boot" can't tell shown
+     * from missed-while-off, so both are dropped. Trade-off: a genuine miss
+     * (phone off at 03:00, locked boot at 03:01) no longer fires while
+     * locked; it is still in the plugin's cache, so the unlock path
+     * ([BootPrune], same grace) shows it if the user unlocks in time.
+     * [BootPrune] needs no boot cut-off: the plugin drops delivered
+     * one-offs from its cache itself.
      */
-    fun toArm(entries: List<Entry>, now: Long): List<Entry> =
-        entries.filter { it.at >= now - BootPrune.GRACE_MS }.sortedBy { it.at }
+    fun toArm(entries: List<Entry>, now: Long, bootTime: Long): List<Entry> {
+        val from = maxOf(now - BootPrune.GRACE_MS, bootTime)
+        return entries.filter { it.at >= from }.sortedBy { it.at }
+    }
 }
 
 /** LOCKED_BOOT_COMPLETED and the alarms [DirectBoot.arm] sets. */

@@ -177,6 +177,41 @@ void main() {
     expect(window[3], matches(RegExp(r'^1:20\sPM$')));
   });
 
+  test('a 24-hour device gets the end and pattern on a 24-hour clock', () async {
+    await initializeDateFormatting('en');
+    final dispatcher = TestWidgetsFlutterBinding.instance.platformDispatcher
+      ..alwaysUse24HourFormatTestValue = true;
+    addTearDown(dispatcher.clearAlwaysUse24HourTestValue);
+    const en = NotificationTexts(
+      azanTitle: '',
+      azanBody: '',
+      jamaatTitle: '',
+      jamaatBody: '',
+      sahriTitle: '',
+      sahriBody: '',
+      iftarTitle: '',
+      iftarBody: '',
+      muhasabaTitle: '',
+      muhasabaBody: '',
+      dailyReminderTitle: '',
+      dailyReminderBody: '',
+      dailyReminderRoute: '/hadith',
+      keepAliveTitle: '',
+      keepAliveBody: '',
+      markAsPrayedAction: '',
+      channelAzanName: '',
+      channelRemindersName: '',
+      channelSilentName: '',
+      channelBeepName: '',
+      prayerNames: {},
+      localeCode: 'en',
+    );
+    final args = await scheduled(blocking: true, texts: en);
+    final window = (args['windows']! as List<Object?>).single! as List<Object?>;
+    expect(window[3], '13:20');
+    expect(args['clockPattern'], 'HH:mm');
+  });
+
   test(
     'nafs ends (set natively) get the app format, digits and city zone',
     () async {

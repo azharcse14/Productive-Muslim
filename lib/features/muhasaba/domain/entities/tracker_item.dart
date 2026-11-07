@@ -69,6 +69,12 @@ final class TrackerItem {
     final target => (value / target).clamp(0, 1).toDouble(),
   };
 
+  /// This item as judged on a day whose entry was stamped with [target]
+  /// (see `DailyEntry.target`; 0 = no target, null = unstamped → as is).
+  TrackerItem judgedBy(int? target) => target == null
+      ? this
+      : copyWith(dailyTarget: () => target <= 0 ? null : target);
+
   TrackerItem copyWith({
     String? name,
     TrackerKind? kind,

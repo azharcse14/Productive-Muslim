@@ -96,6 +96,7 @@ void main() {
     expect(find.text('quran গল্প'), findsWidgets);
     expect(find.text('প্রথম অনুচ্ছেদ।'), findsOneWidget);
     expect(find.text('First paragraph.'), findsNothing);
+    expect(find.text('Quran ১২:৪-১০১'), findsOneWidget);
   });
 
   testWidgets('unknown kind or id is not available', (tester) async {

@@ -33,19 +33,33 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
     try {
       // Polar day/night: either 45° above the polar circle (MWL Fiqh
       // Council region 3) or, by default, stepped toward the equator until
-      // the sun rises and sets on all three days used (aqrab al-bilad).
-      var latitude =
+      // the sun rises and sets (aqrab al-bilad).
+      final baseLatitude =
           params.polarRule == PolarRule.latitude45 &&
               location.latitude.abs() >= 66
           ? 45.0 * location.latitude.sign
           : location.latitude;
       final offset = _hijriOffset();
+      // Per day −1, 0, +1 (index d + 1), each a function of that civil date
+      // alone: day D's tonight and day D+1's last night are then the same
+      // computation, whichever day is requested.
+      // [shifts]: adhan computes the solar day of a UTC date. Where the
+      // zone runs a day ahead of solar time (Samoa, UTC+13 at 172°W) that
+      // day's times land on the next local date; near 180° the equation of
+      // time moves noon across UTC midnight on one date a year (Suva 20
+      // Sep). Each day takes the solar day whose Dhuhr lands on it.
+      // [nudges]: on that date one UTC day holds two transits and adhan
+      // (transit normalised into its UTC day) only ever yields the first:
+      // computed 1° east the transit sits 4 min before midnight, and the
+      // times are moved back 4 min (sub-second error).
+      // [latitudes]: each day's own stepped latitude, never its
+      // neighbours' (a shared stepping made the result depend on the day
+      // requested: Tromsø 4 Jan, Fajr 08:22 vs 07:54).
+      final shifts = [0, 0, 0];
+      final nudges = [0, 0, 0];
+      final latitudes = [baseLatitude, baseLatitude, baseLatitude];
       // Whole minutes, rounded up: the displayed (minute-only) time, the
       // countdown and the notification then agree, and never run early.
-      // adhan computes the solar day of a UTC date. Where the zone runs a
-      // day ahead of solar time (Samoa, UTC+13 at 172°W) that day's times
-      // land on the next local date: [shift] picks the matching solar day.
-      var shift = 0;
       // [raw]: unadjusted, unrounded times (the 45° proportion's inputs).
       adhan.PrayerTimes timesOn(
         int dayOffset, {
@@ -72,32 +86,58 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
             ..adjustments = {}
             ..methodAdjustments = {};
         }
-        return adhan.PrayerTimes(
-          date: day.add(Duration(days: shift)),
-          coordinates: adhan.Coordinates(lat ?? latitude, location.longitude),
+        final nudge = nudges[dayOffset + 1];
+        // Wrapped into adhan's ±180° (it works modulo 360°).
+        final lng = location.longitude + nudge;
+        final t = adhan.PrayerTimes(
+          date: day.add(Duration(days: shifts[dayOffset + 1])),
+          coordinates: adhan.Coordinates(
+            lat ?? latitudes[dayOffset + 1],
+            lng > 180 ? lng - 360 : lng,
+          ),
           calculationParameters: calc,
           precision: raw,
         );
+        if (nudge == 0) return t;
+        final back = Duration(minutes: 4 * nudge);
+        return t
+          ..fajr = t.fajr.add(back)
+          ..sunrise = t.sunrise.add(back)
+          ..dhuhr = t.dhuhr.add(back)
+          ..asr = t.asr.add(back)
+          ..sunset = t.sunset.add(back)
+          ..maghrib = t.maghrib.add(back)
+          ..isha = t.isha.add(back);
       }
 
       DateTime wall(DateTime utc) => _clock.instantAt(location, utc);
-      final noon = wall(timesOn(0).dhuhr);
-      shift = DateTime.utc(
-        date.year,
-        date.month,
-        date.day,
-      ).difference(DateTime.utc(noon.year, noon.month, noon.day)).inDays;
+      final near = <adhan.PrayerTimes>[];
+      for (final d in const [-1, 0, 1]) {
+        final i = d + 1;
+        final target = DateTime.utc(date.year, date.month, date.day + d);
+        bool lands() {
+          final noon = wall(timesOn(d).dhuhr);
+          return DateTime.utc(noon.year, noon.month, noon.day) == target;
+        }
 
-      List<adhan.PrayerTimes> around() => [
-        for (final d in const [-1, 0, 1]) timesOn(d),
-      ];
-      var near = around();
-      // adhan_dart 2.0.1 never yields NaN where the sun doesn't rise or set
-      // (its own polarCircleResolution never fires): it returns times weeks
-      // away instead. Same 0.5° step as adhan's aqrabBalad.
-      while (!near.every(_sunRisesAndSets) && latitude.abs() > 60) {
-        latitude -= latitude.sign * 0.5;
-        near = around();
+        search:
+        for (final nudge in const [0, 1]) {
+          for (final shift in const [0, -1, 1]) {
+            nudges[i] = nudge;
+            shifts[i] = shift;
+            if (lands()) break search;
+            nudges[i] = shifts[i] = 0;
+          }
+        }
+        var t = timesOn(d);
+        // adhan_dart 2.0.1 never yields NaN where the sun doesn't rise or
+        // set (its own polarCircleResolution never fires): it returns times
+        // weeks away instead. Same 0.5° step as adhan's aqrabBalad.
+        while (!_sunRisesAndSets(t) && latitudes[d + 1].abs() > 60) {
+          latitudes[d + 1] -= latitudes[d + 1].sign * 0.5;
+          t = timesOn(d);
+        }
+        near.add(t);
       }
       final [yesterday, times, tomorrow] = near;
       // Fajr ends at the method's sunrise; the makruh window uses the sun's.
@@ -117,13 +157,13 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
       // take the share of the night they take at 45°. Like adhan's own
       // rules, only a bound: Isha no later, Fajr no earlier.
       if (params.highLatitudeRule == HighLatitudeRule.latitude45Proportion &&
-          latitude.abs() > 45) {
+          baseLatitude.abs() > 45) {
         final here = [
           for (final d in const [-1, 0, 1]) timesOn(d, raw: true),
         ];
         final at45 = [
           for (final d in const [-1, 0, 1])
-            timesOn(d, lat: 45.0 * latitude.sign, raw: true),
+            timesOn(d, lat: 45.0 * baseLatitude.sign, raw: true),
         ];
         // Night n (0: last night, 1: tonight): sunset of day n-1 → sunrise
         // of day n, as indexes into [-1, 0, 1].
@@ -147,8 +187,9 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
 
         // Where the twilight angle is never reached adhan returns an
         // arbitrary time, not NaN: the proportion replaces it outright.
+        // Night n is judged at the latitude of the day it starts on.
         bool reached(double angle, int n) => _twilightReached(
-          latitude,
+          latitudes[n],
           angle,
           here[n].sunset.add(night(here, n) ~/ 2),
         );

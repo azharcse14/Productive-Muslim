@@ -222,7 +222,8 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
           const SizedBox(height: QSpace.s3),
           for (final item in others) ...[
             TrackerRow(
-              item: item,
+              // Judged by the target stamped on the selected day's entry.
+              item: _store.itemOn(item, _store.selectedDate.value),
               value: _store.valueOf(item.id),
               displayName: _nameOf(l10n, item),
               onChanged: (v) => unawaited(_store.setValue(item.id, v)),
@@ -239,7 +240,7 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
             const SizedBox(height: QSpace.s3),
             for (final item in archived) ...[
               TrackerRow(
-                item: item,
+                item: _store.itemOn(item, _store.selectedDate.value),
                 value: _store.valueOf(item.id),
                 displayName: _nameOf(l10n, item),
                 onChanged: null,
@@ -420,7 +421,12 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
   Widget _dayComplete(BuildContext context, List<TrackerItem> items) {
     final q = context.q;
     final done =
-        items.isNotEmpty && items.every((i) => i.isDone(_store.valueOf(i.id)));
+        items.isNotEmpty &&
+        items.every(
+          (i) => _store
+              .itemOn(i, _store.selectedDate.value)
+              .isDone(_store.valueOf(i.id)),
+        );
     return QCelebrate(
       key: ValueKey(_store.selectedDate.value),
       active: done,

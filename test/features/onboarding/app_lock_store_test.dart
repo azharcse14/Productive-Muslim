@@ -339,6 +339,57 @@ void main() {
       expect(store.locked.value, isTrue);
     });
 
+    Future<(AppLockStore, _FakeBootClock, void Function(Duration))>
+    sleepy() async {
+      var mono = Duration.zero; // in-process clock: pauses in deep sleep
+      final boot = _FakeBootClock(const Duration(hours: 1));
+      final store = AppLockStore(
+        AppLockDataSource(SharedPreferencesAsync()),
+        _FakeBiometric(),
+        now: () => clock,
+        elapsed: () => mono,
+        bootClock: boot,
+      );
+      await store.enable('1234', biometric: false);
+      await store.load();
+      await store.unlockWithPin('1234');
+      return (store, boot, (Duration d) => mono += d);
+    }
+
+    test('deep sleep plus a clock set back still re-locks', () async {
+      final (store, boot, awake) = await sleepy();
+      background(store);
+      boot.value += const Duration(minutes: 10);
+      awake(const Duration(seconds: 10));
+      clock = clock.subtract(const Duration(minutes: 1));
+      foreground(store);
+      // Nothing shows while the boot clock is read.
+      expect(store.obscured.value, isTrue);
+      expect(store.lockedNow, isTrue);
+      await Future<void>.delayed(Duration.zero);
+      expect(store.locked.value, isTrue);
+      expect(store.obscured.value, isFalse);
+    });
+
+    test('a pause while the boot clock is read is not undone', () async {
+      final (store, boot, awake) = await sleepy();
+      background(store);
+      awake(const Duration(seconds: 5));
+      boot.value += const Duration(seconds: 5);
+      foreground(store);
+      background(store); // left again before the reading came back
+      await Future<void>.delayed(Duration.zero);
+      expect(store.obscured.value, isTrue);
+      expect(store.lockedNow, isTrue);
+
+      // Still within the grace period: the next resume uncovers, unlocked.
+      foreground(store);
+      await Future<void>.delayed(Duration.zero);
+      expect(store.obscured.value, isFalse);
+      expect(store.locked.value, isFalse);
+      expect(store.lockedNow, isFalse);
+    });
+
     test('leaving the app revokes a verified PIN reset', () async {
       final store = await unlocked();
       store.locked.value = true;

@@ -4,8 +4,9 @@ import 'package:productive_muslim/shared/widgets/staggered_entrance.dart';
 
 void main() {
   group('StaggeredEntrance', () {
-    testWidgets('child becomes fully visible after the stagger settles',
-        (tester) async {
+    testWidgets('child becomes fully visible after the stagger settles', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MediaQuery(
           data: MediaQueryData(),
@@ -26,8 +27,9 @@ void main() {
       expect(fade.opacity.value, 1.0);
     });
 
-    testWidgets('reduced motion shows the child immediately at full opacity',
-        (tester) async {
+    testWidgets('reduced motion shows the child immediately at full opacity', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MediaQuery(
           data: MediaQueryData(disableAnimations: true),

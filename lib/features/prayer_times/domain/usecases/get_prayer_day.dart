@@ -13,6 +13,5 @@ final class GetPrayerDay {
     required LocationConfig location,
     required PrayerParams params,
     required DateTime date,
-  }) =>
-      _repository.prayerDay(location: location, params: params, date: date);
+  }) => _repository.prayerDay(location: location, params: params, date: date);
 }

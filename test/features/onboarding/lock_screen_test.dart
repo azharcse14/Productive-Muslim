@@ -211,6 +211,24 @@ void main() {
     expect(find.text('Forgot PIN?'), findsOneWidget);
   });
 
+  testWidgets('backing out mid-reset revokes it for the next lock screen', (
+    tester,
+  ) async {
+    final store = await _register(FakeBiometric());
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    await tester.tap(find.text('Forgot PIN?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Set a new 4-digit PIN'), findsOneWidget);
+    // The section lock route popped without a new PIN.
+    await tester.pumpWidget(const SizedBox());
+    expect(store.pinResetAuthorized.value, isFalse);
+    await tester.pumpWidget(_app());
+    await tester.pump();
+    expect(find.text('Set a new 4-digit PIN'), findsNothing);
+    expect(find.text('Forgot PIN?'), findsOneWidget);
+  });
+
   testWidgets('forgot PIN without a device screen lock explains why', (
     tester,
   ) async {

@@ -6,9 +6,9 @@ import 'package:productive_muslim/core/utils/haptics.dart';
 import 'package:productive_muslim/shared/widgets/q_button.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: AppTheme.light(),
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
   group('QButton', () {
@@ -76,16 +76,10 @@ void main() {
 
     testWidgets('exposes button semantics', (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _wrap(QButton(label: 'Save', onPressed: () {})),
-      );
+      await tester.pumpWidget(_wrap(QButton(label: 'Save', onPressed: () {})));
       expect(
         tester.getSemantics(find.byType(QButton)),
-        isSemantics(
-          isButton: true,
-          isEnabled: true,
-          hasTapAction: true,
-        ),
+        isSemantics(isButton: true, isEnabled: true, hasTapAction: true),
       );
       handle.dispose();
     });

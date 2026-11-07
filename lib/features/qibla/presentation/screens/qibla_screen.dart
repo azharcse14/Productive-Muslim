@@ -67,6 +67,11 @@ final class _QiblaScreenState extends State<QiblaScreen> {
   String _digits(BuildContext context, String text) =>
       LocaleDigits.localize(text, Localizations.localeOf(context).languageCode);
 
+  /// Localized whole-degree compass angle; `% 360` so 359.6° reads 0°,
+  /// never 360°.
+  String _degrees(BuildContext context, double angle) =>
+      _digits(context, (angle.round() % 360).toString());
+
   /// Localized 16-point compass label for [degrees].
   String _point(BuildContext context, double degrees) =>
       context.l10n.qiblaCompassPoint(CompassMath.cardinal16(degrees));
@@ -77,7 +82,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
     final l10n = context.l10n;
     if (bearing == null) {
       return l10n.qiblaHeading(
-        _digits(context, heading.round().toString()),
+        _degrees(context, heading),
         _point(context, heading),
       );
     }
@@ -116,7 +121,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                 detail: bearing == null
                     ? null
                     : l10n.qiblaVerbalBearing(
-                        _digits(context, bearing.round().toString()),
+                        _degrees(context, bearing),
                         _point(context, bearing),
                       ),
                 action: QButton(
@@ -233,10 +238,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                       const SizedBox(height: QSpace.s2),
                                       Text(
                                         l10n.qiblaHeading(
-                                          _digits(
-                                            context,
-                                            reading.round().toString(),
-                                          ),
+                                          _degrees(context, reading),
                                           _point(context, reading),
                                         ),
                                         style: QType.caption.copyWith(
@@ -248,10 +250,7 @@ final class _QiblaScreenState extends State<QiblaScreen> {
                                       const SizedBox(height: QSpace.s2),
                                       Text(
                                         l10n.qiblaVerbalBearing(
-                                          _digits(
-                                            context,
-                                            bearing.round().toString(),
-                                          ),
+                                          _degrees(context, bearing),
                                           _point(context, bearing),
                                         ),
                                         textAlign: TextAlign.center,

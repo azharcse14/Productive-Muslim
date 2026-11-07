@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show debugPrint;
+
 import '../../../config/app_config.dart';
 import '../../../core/utils/result.dart';
 import '../domain/entities/hadith_book.dart';
@@ -77,20 +79,28 @@ final class HadithBookRepositoryImpl implements HadithBookRepository {
     // can't serve this section (a gap, or a future book not yet snapshotted)
     // do we reach for the network — so a deleted upstream source never breaks
     // the reader.
+    Object? bundledError;
     try {
       final items = await _bundled.fetchSection(book, section, languageCode);
       if (items.isNotEmpty) {
         return Result.success(items);
       }
-    } on Object {
-      // fall through to the remote fallback
+    } on Object catch (e) {
+      // A broken bundled DB, not a gap: log it, then try the network.
+      bundledError = e;
+      debugPrint('Hadith bundled section read failed: $e');
     }
     try {
       final items = await _remote.fetchSection(book, section, languageCode);
       return Result.success(items);
     } on Object catch (e) {
       return Result.failure(
-        UnexpectedFailure('Hadith section fetch failed', e),
+        UnexpectedFailure(
+          bundledError == null
+              ? 'Hadith section fetch failed'
+              : 'Hadith section fetch failed (bundled: $bundledError)',
+          e,
+        ),
       );
     }
   }

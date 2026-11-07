@@ -205,4 +205,25 @@ class FocusPlanTest {
         // A zone the device doesn't know would read as GMT: fall back instead.
         assertNull(FocusPlan.clockLabel(at, "h:mm a", "AM", "PM", "", "Bad/Zone"))
     }
+
+    @Test
+    fun twentyFourHourPatternFormats() {
+        val at = 1_777_800_000_000L // 2026-05-03 09:20 UTC
+        assertEquals("15:20", FocusPlan.clockLabel(at, "HH:mm", "", "", "", "Asia/Dhaka"))
+    }
+
+    @Test
+    fun dndTakenOverMidSessionIsNoLongerOurs() {
+        val all = 1
+        val priority = 2
+        val alarms = 4
+        val d = FocusPlan.DndChange.NONE
+        // Still our filter, or never ours: nothing to do.
+        assertEquals(d, FocusPlan.onDndChanged(true, false, priority, priority))
+        assertEquals(d, FocusPlan.onDndChanged(false, true, all, priority))
+        // Switched off, or swapped for another filter (a Bedtime rule).
+        assertEquals(FocusPlan.DndChange.REASSERT, FocusPlan.onDndChanged(true, true, all, priority))
+        assertEquals(FocusPlan.DndChange.RELEASE, FocusPlan.onDndChanged(true, false, all, priority))
+        assertEquals(FocusPlan.DndChange.RELEASE, FocusPlan.onDndChanged(true, false, alarms, priority))
+    }
 }

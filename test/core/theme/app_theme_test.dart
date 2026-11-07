@@ -8,15 +8,17 @@ import 'package:productive_muslim/core/theme/productive_muslim_colors.dart';
 
 void main() {
   group('AppTheme', () {
-    test('light theme registers the ProductiveMuslimColors extension with light tokens',
-        () {
-      final theme = AppTheme.light();
-      final q = theme.extension<ProductiveMuslimColors>();
-      expect(q, isNotNull);
-      expect(q!.bg, const Color(0xFFF6F4EE));
-      expect(q.primary, const Color(0xFF15564D));
-      expect(theme.brightness, Brightness.light);
-    });
+    test(
+      'light theme registers the ProductiveMuslimColors extension with light tokens',
+      () {
+        final theme = AppTheme.light();
+        final q = theme.extension<ProductiveMuslimColors>();
+        expect(q, isNotNull);
+        expect(q!.bg, const Color(0xFFF6F4EE));
+        expect(q.primary, const Color(0xFF15564D));
+        expect(theme.brightness, Brightness.light);
+      },
+    );
 
     test('dark theme is the designed palette, not an inversion', () {
       final theme = AppTheme.dark();
@@ -52,12 +54,25 @@ void main() {
         AppTheme.light().scaffoldBackgroundColor,
         ProductiveMuslimColors.light.bg,
       );
-      expect(AppTheme.dark().scaffoldBackgroundColor, ProductiveMuslimColors.dark.bg);
+      expect(
+        AppTheme.dark().scaffoldBackgroundColor,
+        ProductiveMuslimColors.dark.bg,
+      );
     });
 
     test('ProductiveMuslimColors lerp interpolates between themes', () {
-      final mid = ProductiveMuslimColors.light.lerp(ProductiveMuslimColors.dark, 0.5);
-      expect(mid.bg, Color.lerp(ProductiveMuslimColors.light.bg, ProductiveMuslimColors.dark.bg, 0.5));
+      final mid = ProductiveMuslimColors.light.lerp(
+        ProductiveMuslimColors.dark,
+        0.5,
+      );
+      expect(
+        mid.bg,
+        Color.lerp(
+          ProductiveMuslimColors.light.bg,
+          ProductiveMuslimColors.dark.bg,
+          0.5,
+        ),
+      );
     });
   });
 
@@ -118,8 +133,7 @@ void main() {
         }
       });
 
-      test('$name: warn keeps ≥5:1 on warnSoft (countdown motif headroom)',
-          () {
+      test('$name: warn keeps ≥5:1 on warnSoft (countdown motif headroom)', () {
         expect(ratio(q.warn, q.warnSoft), greaterThanOrEqualTo(5));
       });
 
@@ -139,36 +153,37 @@ void main() {
     Map<String, Color> block(String selector) {
       final body = RegExp('\\.$selector \\{([^}]*)\\}').firstMatch(css)![1]!;
       return {
-        for (final m in RegExp(r'--([a-z0-9-]+):\s*#([0-9A-Fa-f]{6})')
-            .allMatches(body))
+        for (final m in RegExp(
+          r'--([a-z0-9-]+):\s*#([0-9A-Fa-f]{6})',
+        ).allMatches(body))
           m[1]!: Color(int.parse('FF${m[2]}', radix: 16)),
       };
     }
 
     Map<String, Color> dart(ProductiveMuslimColors q) => {
-          'bg': q.bg,
-          'surface': q.surface,
-          'surface-2': q.surface2,
-          'ink': q.ink,
-          'ink-2': q.ink2,
-          'ink-3': q.ink3,
-          'line': q.line,
-          'line-strong': q.lineStrong,
-          'primary': q.primary,
-          'on-primary': q.onPrimary,
-          'primary-soft': q.primarySoft,
-          'on-primary-soft': q.onPrimarySoft,
-          'accent': q.accent,
-          'accent-strong': q.accentStrong,
-          'accent-soft': q.accentSoft,
-          'on-accent-soft': q.onAccentSoft,
-          'ok': q.ok,
-          'ok-soft': q.okSoft,
-          'warn': q.warn,
-          'warn-soft': q.warnSoft,
-          'urgent': q.urgent,
-          'urgent-soft': q.urgentSoft,
-        };
+      'bg': q.bg,
+      'surface': q.surface,
+      'surface-2': q.surface2,
+      'ink': q.ink,
+      'ink-2': q.ink2,
+      'ink-3': q.ink3,
+      'line': q.line,
+      'line-strong': q.lineStrong,
+      'primary': q.primary,
+      'on-primary': q.onPrimary,
+      'primary-soft': q.primarySoft,
+      'on-primary-soft': q.onPrimarySoft,
+      'accent': q.accent,
+      'accent-strong': q.accentStrong,
+      'accent-soft': q.accentSoft,
+      'on-accent-soft': q.onAccentSoft,
+      'ok': q.ok,
+      'ok-soft': q.okSoft,
+      'warn': q.warn,
+      'warn-soft': q.warnSoft,
+      'urgent': q.urgent,
+      'urgent-soft': q.urgentSoft,
+    };
 
     test('light', () {
       expect(block('q-light'), dart(ProductiveMuslimColors.light));

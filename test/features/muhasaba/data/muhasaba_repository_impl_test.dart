@@ -261,6 +261,40 @@ void main() {
       await unwrap(repo.upsertItem(item.copyWith(dailyTarget: () => 3)));
       expect(await unwrap(repo.doneDates({'a'})), {day});
     });
+
+    test('editing a past day keeps the target it was logged against', () async {
+      const read = TrackerItem(
+        id: 'read',
+        name: 'Read',
+        kind: TrackerKind.duration,
+        dailyTarget: 10,
+      );
+      final oct1 = DateTime(2026, 10);
+      now = oct1;
+      await unwrap(repo.upsertItem(read));
+      await unwrap(repo.setEntry(_entry('read', oct1, 15)));
+      now = DateTime(2026, 11);
+      await unwrap(repo.upsertItem(read.copyWith(dailyTarget: () => 30)));
+      final nov6 = DateTime(2026, 11, 6);
+      now = nov6;
+      // Corrected down, still >= the Oct 1 target of 10.
+      await unwrap(repo.setEntry(_entry('read', oct1, 12)));
+
+      final entry = (await unwrap(repo.entriesOn(oct1))).single;
+      expect((entry.value, entry.target), (12, 10));
+      final s = await unwrap(
+        repo.periodStats(start: oct1, end: oct1, today: oct1),
+      );
+      expect(s.days.single.completion, 1.0);
+      expect(s.currentStreak, 1);
+      expect(await unwrap(repo.doneDates({'read'})), {oct1});
+
+      // A new back-filled row takes the current target (30).
+      final oct2 = DateTime(2026, 10, 2);
+      await unwrap(repo.setEntry(_entry('read', oct2, 12)));
+      expect((await unwrap(repo.entriesOn(oct2))).single.target, 30);
+      expect(await unwrap(repo.doneDates({'read'})), {oct1});
+    });
   });
 
   group('setArchived', () {
@@ -472,7 +506,11 @@ void main() {
 
       await unwrap(repo.setEntry(_entry('a', date, 5)));
       var entries = await unwrap(repo.entriesOn(date));
-      expect(entries.single, _entry('a', date, 5));
+      // Stamped with the item's target (none = 0).
+      expect(
+        entries.single,
+        DailyEntry(itemId: 'a', date: date, value: 5, target: 0),
+      );
 
       await unwrap(repo.setEntry(_entry('a', date, 9)));
       entries = await unwrap(repo.entriesOn(date));

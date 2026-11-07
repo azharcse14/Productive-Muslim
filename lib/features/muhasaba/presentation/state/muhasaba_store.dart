@@ -67,6 +67,10 @@ final class MuhasabaStore {
   /// ticks whatever date the Muhasaba tab is back-filling.
   late final _days = signal(const <DateTime, Map<String, int>>{});
 
+  /// date → (itemId → target stamped on that day's entry), alongside
+  /// [_days]. A key without a stamp is judged by the item's current target.
+  late final _stamps = signal(const <DateTime, Map<String, int>>{});
+
   /// Days whose last read failed (their values are unknown).
   final _failedDays = <DateTime>{};
 
@@ -80,6 +84,12 @@ final class MuhasabaStore {
       _days.value[DateTime(day.year, day.month, day.day)] ??
       const <String, int>{};
 
+  /// [item] as judged on [day]: against the target stamped on its entry
+  /// there, so a later target edit doesn't re-judge a past day. Reactive.
+  TrackerItem itemOn(TrackerItem item, DateTime day) => item.judgedBy(
+    _stamps.value[DateTime(day.year, day.month, day.day)]?[item.id],
+  );
+
   /// Mean completion of the active items on [day] (0..1), from the cached
   /// entries — independent of the dashboard [period]. Every active item
   /// counts today, so for today this equals the SQL day completion.
@@ -90,7 +100,10 @@ final class MuhasabaStore {
       return 0;
     }
     final values = entriesOn(day);
-    return list.fold(0.0, (sum, i) => sum + i.fractionOf(values[i.id] ?? 0)) /
+    return list.fold(
+          0.0,
+          (sum, i) => sum + itemOn(i, day).fractionOf(values[i.id] ?? 0),
+        ) /
         list.length;
   }
 
@@ -179,7 +192,7 @@ final class MuhasabaStore {
           await _loadDay(day);
         }
       }
-      if (stats.value == null) {
+      if (stats.value == null || _statsStale) {
         await refreshStats();
       }
       return;
@@ -214,6 +227,10 @@ final class MuhasabaStore {
     }
     _failedDays.remove(day);
     final fresh = {for (final e in list) e.itemId: e.value};
+    final stamps = {
+      for (final e in list)
+        if (e.target case final t?) e.itemId: t,
+    };
     // A _put landed mid-read (the read may predate its write): keep the
     // keys it changed rather than the possibly stale DB values.
     final current = _days.value[day];
@@ -224,11 +241,13 @@ final class MuhasabaStore {
             fresh[id] = v;
           } else {
             fresh.remove(id);
+            stamps.remove(id);
           }
         }
       }
     }
     _days.value = {..._days.value, day: fresh};
+    _stamps.value = {..._stamps.value, day: stamps};
   }
 
   /// Sets one cached value (0 removes it), leaving other keys untouched.
@@ -238,8 +257,19 @@ final class MuhasabaStore {
       map[itemId] = value;
     } else {
       map.remove(itemId);
+      // The row is deleted: a re-log stamps the then-current target.
+      _dropStamp(day, itemId);
     }
     _days.value = {..._days.value, day: map};
+  }
+
+  void _dropStamp(DateTime day, String itemId) {
+    if (_stamps.value[day]?.containsKey(itemId) ?? false) {
+      _stamps.value = {
+        ..._stamps.value,
+        day: {..._stamps.value[day]!}..remove(itemId),
+      };
+    }
   }
 
   /// False (lists untouched) when the read failed.
@@ -451,6 +481,10 @@ final class MuhasabaStore {
   /// Bumped per [refreshStats]; only the latest pass may write [stats].
   int _statsRequest = 0;
 
+  /// The latest [refreshStats] failed: [stats] is stale, and
+  /// [rollOverIfNewDay] (on resume) retries it.
+  bool _statsStale = false;
+
   Future<void> refreshStats() async {
     // Anything pending is covered by this pass.
     _statsTimer?.cancel();
@@ -468,6 +502,9 @@ final class MuhasabaStore {
     }
     if (result.valueOrNull case final value?) {
       stats.value = value;
+      _statsStale = false;
+    } else {
+      _statsStale = true;
     }
   }
 
@@ -509,8 +546,14 @@ final class MuhasabaStore {
       return false;
     }
     await _reloadItems();
-    // A target change applies from today on (past entries keep the target
-    // they were logged against), so today's stats must follow.
+    // A target change applies from today on (the repository re-stamps
+    // those entries; past ones keep the target they were logged against),
+    // so today's cached stamps give way to the new target.
+    for (final day in _stamps.value.keys.toList()) {
+      if (!day.isBefore(_today())) {
+        _dropStamp(day, item.id);
+      }
+    }
     await refreshStats();
     return true;
   }

@@ -14,18 +14,18 @@ import 'hadith_section_assembler.dart';
 /// fawazahmed0 edition section → blob. Keys kept short (`n`/`t`/`g`/`r`) to trim
 /// the pre-compression JSON.
 List<int> encodeEditionBlob(List<RawHadith> hadiths) => gzip.encode(
-      utf8.encode(
-        jsonEncode([
-          for (final h in hadiths)
-            {
-              'n': h.number,
-              't': h.text,
-              'g': h.grade,
-              if (h.ref.isNotEmpty) 'r': h.ref,
-            },
-        ]),
-      ),
-    );
+  utf8.encode(
+    jsonEncode([
+      for (final h in hadiths)
+        {
+          'n': h.number,
+          't': h.text,
+          'g': h.grade,
+          if (h.ref.isNotEmpty) 'r': h.ref,
+        },
+    ]),
+  ),
+);
 
 List<RawHadith> decodeEditionBlob(List<int> blob) {
   final decoded = jsonDecode(utf8.decode(gzip.decode(blob)));
@@ -46,19 +46,19 @@ List<RawHadith> decodeEditionBlob(List<int> blob) {
 
 /// hadithbangla chapter → blob (`n`/`a`/`b`/`r`/`g`).
 List<int> encodeBanglaBlob(List<BnHadith> hadiths) => gzip.encode(
-      utf8.encode(
-        jsonEncode([
-          for (final h in hadiths)
-            {
-              'n': h.number,
-              'a': h.arabic,
-              'b': h.bn,
-              'r': h.narrator,
-              'g': h.grade,
-            },
-        ]),
-      ),
-    );
+  utf8.encode(
+    jsonEncode([
+      for (final h in hadiths)
+        {
+          'n': h.number,
+          'a': h.arabic,
+          'b': h.bn,
+          'r': h.narrator,
+          'g': h.grade,
+        },
+    ]),
+  ),
+);
 
 List<BnHadith> decodeBanglaBlob(List<int> blob) {
   final decoded = jsonDecode(utf8.decode(gzip.decode(blob)));

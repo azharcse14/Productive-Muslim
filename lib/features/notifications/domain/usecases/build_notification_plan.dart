@@ -30,10 +30,16 @@ import 'build_focus_windows.dart';
 /// over [jamaat].
 ///
 /// Each of [focusWindows] with an end gets a [NotificationKind.focusEnd]
-/// item then; with [focusStartNudges] (iOS, where the app can't silence
+/// item [focusEndDelay] after it; with [focusStartNudges] (iOS, where the app can't silence
 /// the phone) also a [NotificationKind.jamaatFocus] nudge at its start.
 /// How long before the plan's last reminder the keep-alive nudge fires.
 const keepAliveLead = Duration(hours: 12);
+
+/// The "prayed in jamaat?" item comes this long after its session ends, so
+/// it doesn't race the native session end lifting Do Not Disturb and post
+/// silenced. A different minute from the end can't collide ids: they are
+/// unique per kind, prayer and minute, and a prayer has one session a day.
+const focusEndDelay = Duration(minutes: 1);
 
 List<NotificationItem> buildNotificationPlan({
   required DateTime from,
@@ -178,7 +184,7 @@ List<NotificationItem> buildNotificationPlan({
         ),
       );
     }
-    final end = focus.end;
+    final end = focus.end?.add(focusEndDelay);
     if (end != null && inWindow(end)) {
       items.add(
         NotificationItem(

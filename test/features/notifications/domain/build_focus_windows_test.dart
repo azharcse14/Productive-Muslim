@@ -193,7 +193,11 @@ void main() {
     // Android: no start nudge (the phone really goes silent).
     expect(plan.where((i) => i.kind == NotificationKind.jamaatFocus), isEmpty);
     final ends = plan.where((i) => i.kind == NotificationKind.focusEnd);
-    expect(ends.map((i) => i.at), windows.map((w) => w.end));
+    // A minute after the end: DND is lifted by then, so it isn't silenced.
+    expect(
+      ends.map((i) => i.at),
+      windows.map((w) => w.end!.add(const Duration(minutes: 1))),
+    );
     expect(ends.first.prayer, Prayer.fajr);
     expect(ends.first.prayerDay, DateTime(2026, 5, 12));
   });

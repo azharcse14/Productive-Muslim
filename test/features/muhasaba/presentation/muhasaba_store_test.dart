@@ -516,6 +516,53 @@ void main() {
       expect(store.valueOf('quran'), 5);
     });
 
+    test(
+      'a stats refresh that fails after a good one retries on resume',
+      () async {
+        final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+        final before = store.stats.value;
+        repo.failStats = true;
+        await store.setValue('quran', 10); // its refresh fails: stats stale
+        expect(store.stats.value, same(before));
+        repo.failStats = false;
+        await store.rollOverIfNewDay(); // same day
+        expect(store.stats.value, isNot(same(before)));
+        expect(store.stats.value!.days.last.completion, greaterThan(0));
+      },
+    );
+
+    test('a past day is judged by its stamped target', () async {
+      final repo = InMemoryMuhasabaRepository();
+      await repo.seedDefaults();
+      // quran's target was 10 when Jun 10 was logged; it's 30 now.
+      await repo.upsertItem(
+        repo.items_['quran']!.copyWith(dailyTarget: () => 30),
+      );
+      repo.entries_[('quran', 20260610)] = 12;
+      repo.targets_[('quran', 20260610)] = 10;
+      final store = MuhasabaStore(repo, now: _fixedNow);
+      addTearDown(store.dispose);
+      await store.load();
+      final jun10 = DateTime(2026, 6, 10);
+      await store.selectDate(jun10);
+      final quran = store.items.value.firstWhere((i) => i.id == 'quran');
+
+      expect(store.itemOn(quran, jun10).dailyTarget, 10);
+      expect(store.itemOn(quran, jun10).isDone(12), isTrue);
+      // Today has no stamp: the current target.
+      expect(store.itemOn(quran, _fixedNow()).dailyTarget, 30);
+      // 1 of the active items fully done on Jun 10.
+      expect(
+        store.completionOn(jun10),
+        closeTo(1 / store.items.value.length, 1e-9),
+      );
+
+      // Cleared and re-logged: the row is new, so the current target.
+      await store.setValue('quran', 0);
+      await store.setValue('quran', 12);
+      expect(store.itemOn(quran, jun10).dailyTarget, 30);
+    });
+
     test('a failed save bumps saveFailures (the screen toasts it)', () async {
       final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
       final before = store.saveFailures.value;

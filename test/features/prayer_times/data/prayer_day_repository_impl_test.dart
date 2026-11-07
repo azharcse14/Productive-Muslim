@@ -555,4 +555,94 @@ void main() {
     expect(gap(civil(eid, -2)), const Duration(minutes: 120));
     expect(gap(civil(eid, -1)), const Duration(minutes: 90));
   });
+
+  // Day D's tonight is day D+1's last night: both must be the same times.
+  void expectConsecutiveAgree(PrayerDay d, PrayerDay next, String why) {
+    expect(d.fajrTomorrow, next.fajr, reason: 'fajr $why');
+    expect(d.isha, next.ishaYesterday, reason: 'isha $why');
+    expect(d.maghrib, next.maghribYesterday, reason: 'maghrib $why');
+    expect(d.sunset, next.sunsetYesterday, reason: 'sunset $why');
+    expect(d.asr, next.asrYesterday, reason: 'asr $why');
+  }
+
+  ManualCityLocation place(String name, double lat, double lng, String tz) =>
+      ManualCityLocation(
+        City(
+          name: name,
+          countryCode: 'XX',
+          latitude: lat,
+          longitude: lng,
+          timezone: tz,
+        ),
+      );
+  final suva = place('Suva', -18.1416, 178.4419, 'Pacific/Fiji');
+
+  test('Suva 19-21 Sep: noon crossing UTC midnight keeps each day its own '
+      'times', () {
+    final days = [
+      for (final d in [19, 20, 21])
+        repo
+            .prayerDay(
+              location: suva,
+              params: const PrayerParams(),
+              date: DateTime(2026, 9, d),
+            )
+            .valueOrNull!,
+    ];
+    for (final (i, day) in days.indexed) {
+      expect(day.dhuhr.day, 19 + i, reason: '${day.dhuhr}');
+      expect(day.fajr.day, 19 + i, reason: '${day.fajr}');
+    }
+    expect(days[0].fajrTomorrow.day, 20);
+    expect(days[2].ishaYesterday.day, 20);
+    expectConsecutiveAgree(days[0], days[1], '19→20');
+    expectConsecutiveAgree(days[1], days[2], '20→21');
+  });
+
+  for (final (loc, params) in [
+    (suva, const PrayerParams()),
+    (
+      place('Funafuti', -8.5211, 179.1983, 'Pacific/Funafuti'),
+      const PrayerParams(),
+    ),
+    (place('Anadyr', 64.7337, 177.4968, 'Asia/Anadyr'), const PrayerParams()),
+    (
+      place('Chatham', -43.9535, -176.5597, 'Pacific/Chatham'),
+      const PrayerParams(),
+    ),
+    (_dhaka, const PrayerParams()),
+    (
+      place('Tromsø', 69.6492, 18.9553, 'Europe/Oslo'),
+      const PrayerParams(
+        method: CalculationMethodId.muslimWorldLeague,
+        highLatitudeRule: HighLatitudeRule.latitude45Proportion,
+      ),
+    ),
+    (
+      place('Tromsø', 69.6492, 18.9553, 'Europe/Oslo'),
+      const PrayerParams(
+        method: CalculationMethodId.moonsightingCommittee,
+        highLatitudeRule: HighLatitudeRule.latitude45Proportion,
+      ),
+    ),
+  ]) {
+    test('${loc.city.name} ${params.method.name}: consecutive days agree all '
+        'year', () {
+      PrayerDay on(int i) => repo
+          .prayerDay(location: loc, params: params, date: DateTime(2026, 1, i))
+          .valueOrNull!;
+      var day = on(1);
+      for (var i = 2; i <= 366; i++) {
+        final next = on(i);
+        final d = DateTime(2026, 1, i - 1);
+        expect(
+          (day.dhuhr.month, day.dhuhr.day),
+          (d.month, d.day),
+          reason: '$d',
+        );
+        expectConsecutiveAgree(day, next, '$d');
+        day = next;
+      }
+    });
+  }
 }

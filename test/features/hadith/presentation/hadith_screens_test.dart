@@ -509,6 +509,21 @@ void main() {
       expect(find.text('Try again'), findsOneWidget);
     });
 
+    testWidgets('an English chapter opened from the Bangla UI resumes in '
+        'English', (tester) async {
+      await _register();
+      final screen = HadithSectionScreen(
+        book: _bukhari,
+        section: _bukhari.sections.first,
+        languageCode: 'en',
+      );
+      await tester.pumpWidget(_app(screen, locale: const Locale('bn')));
+      await tester.pumpAndSettle();
+      // The section number is from the en list; recording it under bn
+      // would resume a different chapter.
+      expect(GetIt.I<HadithBooksStore>().lastOpened.value?.languageCode, 'en');
+    });
+
     testWidgets('retry after a language switch refetches the opened '
         "language's chapter", (tester) async {
       final repo = await _register(failSection: true);
