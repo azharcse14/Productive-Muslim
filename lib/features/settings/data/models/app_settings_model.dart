@@ -4,6 +4,7 @@ import '../../domain/entities/city.dart';
 import '../../domain/entities/location_config.dart';
 import '../../domain/entities/notification_matrix.dart';
 import '../../domain/entities/prayer_params.dart';
+import '../../domain/usecases/regional_defaults.dart';
 
 /// Hand-written JSON mapping for [AppSettings] (guide §3 — no codegen).
 /// Unknown/missing fields fall back to defaults so old payloads survive
@@ -75,6 +76,8 @@ abstract final class AppSettingsModel {
     'hiddenHomeCards': [for (final c in s.hiddenHomeCards) c.name],
     'hijriOffsetDays': s.hijriOffsetDays,
     'exactAlarmBannerDismissed': s.exactAlarmBannerDismissed,
+    'hijriOffsetTuned': s.hijriOffsetTuned,
+    'sahriSafetyTuned': s.sahriSafetyTuned,
   };
 
   /// [v] if it has type [T], else null — one wrong-typed field falls back
@@ -84,9 +87,29 @@ abstract final class AppSettingsModel {
 
   static AppSettings fromMap(Map<String, Object?> map) {
     const defaults = AppSettings();
+    final location = _location(map['location']);
+    final country = countryCodeOf(location);
+    final storedOffset =
+        _as<num>(map['hijriOffsetDays'])?.toInt() ?? defaults.hijriOffsetDays;
+    final params = _prayerParams(map['prayerParams']);
+    // Payloads from before the *Tuned flags: a value still at 0 (the old
+    // universal default) or at the region default was never tuned, so it
+    // takes the region default now; this moves pre-upgrade Bangladesh
+    // users onto −1 / 3 min like a fresh install.
+    final offsetTuned =
+        _as<bool>(map['hijriOffsetTuned']) ??
+        (storedOffset != 0 && storedOffset != defaultHijriOffsetFor(country));
+    final sahri = params.sahriSafetyMinutes;
+    final sahriTuned =
+        _as<bool>(map['sahriSafetyTuned']) ??
+        (sahri != 0 && sahri != defaultSahriSafetyFor(country));
     return AppSettings(
-      location: _location(map['location']),
-      prayerParams: _prayerParams(map['prayerParams']),
+      location: location,
+      prayerParams: sahriTuned
+          ? params
+          : params.copyWith(sahriSafetyMinutes: defaultSahriSafetyFor(country)),
+      hijriOffsetTuned: offsetTuned,
+      sahriSafetyTuned: sahriTuned,
       notifications: _notifications(map['notifications']),
       themeMode: _enumOrDefault(
         AppThemeMode.values,
@@ -105,8 +128,9 @@ abstract final class AppSettingsModel {
             in _as<List<Object?>>(map['hiddenHomeCards']) ?? const [])
           ?HomeCard.values.asNameMap()[name],
       },
-      hijriOffsetDays:
-          _as<num>(map['hijriOffsetDays'])?.toInt() ?? defaults.hijriOffsetDays,
+      hijriOffsetDays: offsetTuned
+          ? storedOffset
+          : defaultHijriOffsetFor(country),
       exactAlarmBannerDismissed:
           _as<bool>(map['exactAlarmBannerDismissed']) ??
           defaults.exactAlarmBannerDismissed,

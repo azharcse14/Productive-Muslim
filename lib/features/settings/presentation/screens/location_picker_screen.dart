@@ -164,16 +164,9 @@ final class _LocationPickerScreenState extends State<LocationPickerScreen> {
         to.isNotEmpty &&
         to != from) {
       await _offerRegionalDefaults(to);
-      // An offset or sahri margin still at the old region's default was
-      // never tuned by the user, so it follows the new region.
-      if (_store.settings.value.hijriOffsetDays ==
-          defaultHijriOffsetFor(from)) {
-        await _store.setHijriOffset(defaultHijriOffsetFor(to));
-      }
-      if (_store.prayerParams.value.sahriSafetyMinutes ==
-          defaultSahriSafetyFor(from)) {
-        await _store.setSahriSafety(defaultSahriSafetyFor(to));
-      }
+      // The dialog is about the method; an offset or sahri margin the
+      // user never set follows the new region, one they set stays.
+      await _store.applyRegionalTimingDefaults(to);
     }
     if (mounted) {
       context.pop();

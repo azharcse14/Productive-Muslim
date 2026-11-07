@@ -83,8 +83,18 @@ Future<_Repo> _pumpToLocationStep(
   bool rerun = false,
   LocationConfig location = _cairo,
   NotificationScheduler? scheduler,
+  int hijriOffset = 0,
+  bool tuned = false,
 }) async {
-  final repo = _Repo(AppSettings(location: location, prayerParams: params));
+  final repo = _Repo(
+    AppSettings(
+      location: location,
+      prayerParams: params,
+      hijriOffsetDays: hijriOffset,
+      hijriOffsetTuned: tuned,
+      sahriSafetyTuned: tuned,
+    ),
+  );
   final store = SettingsStore(GetSettings(repo), SaveSettings(repo));
   await store.load();
   GetIt.I
@@ -137,7 +147,7 @@ void main() {
     expect(repo.stored.prayerParams.method, defaults.method);
   });
 
-  testWidgets('Bangladesh pre-selects a 3 min sahri margin; rerun keeps 0', (
+  testWidgets('Bangladesh pre-selects 3 min / −1 day; a tuned 0 is kept', (
     tester,
   ) async {
     const dhaka = ManualCityLocation(
@@ -153,12 +163,29 @@ void main() {
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.sahriSafetyMinutes, 3);
+    expect(repo.stored.hijriOffsetDays, -1);
 
     await GetIt.I.reset();
-    repo = await _pumpToLocationStep(tester, location: dhaka, rerun: true);
+    repo = await _pumpToLocationStep(
+      tester,
+      location: dhaka,
+      rerun: true,
+      tuned: true,
+    );
     await tester.tap(find.text('Next').hitTestable());
     await tester.pumpAndSettle();
     expect(repo.stored.prayerParams.sahriSafetyMinutes, 0);
+    expect(repo.stored.hijriOffsetDays, 0);
+  });
+
+  testWidgets('a restart after a BD pick does not strand its −1 offset', (
+    tester,
+  ) async {
+    // Saved by an earlier, killed run that had picked Dhaka.
+    final repo = await _pumpToLocationStep(tester, hijriOffset: -1);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(repo.stored.hijriOffsetDays, 0); // Egypt
   });
 
   testWidgets('leaving the location step pre-selects the region method', (
