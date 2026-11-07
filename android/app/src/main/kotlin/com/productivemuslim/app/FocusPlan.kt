@@ -24,7 +24,7 @@ object FocusPlan {
     )
 
     /**
-     * [atMs] as the app shows times: Dart's [pattern] (DateFormat.jm) with
+     * [atMs] as the app shows times: Dart's [pattern] (DateFormat.jm, or Hm on a 24-hour clock) with
      * its [am]/[pm] markers and locale [digits] ("0123456789" in the app's
      * script), on [zone] (IANA; empty = device zone). Null when no pattern
      * was sent (older plans), it doesn't parse, or the device lacks [zone].
@@ -110,6 +110,21 @@ object FocusPlan {
      */
     fun running(windows: List<Window>, lastStart: Long, lastKey: Long): Window? =
         windows.firstOrNull { if (lastKey != 0L) it.key == lastKey else it.start == lastStart }
+
+    enum class DndChange { NONE, REASSERT, RELEASE }
+
+    /**
+     * DND changed mid-session to [filter] while the session [silenced] it
+     * with [ours]: strict puts it back; otherwise it isn't ours any more
+     * (the user or an automatic rule such as Bedtime took it over), so the
+     * session end must leave it alone.
+     */
+    fun onDndChanged(silenced: Boolean, strict: Boolean, filter: Int, ours: Int): DndChange =
+        when {
+            !silenced || filter == ours -> DndChange.NONE
+            strict -> DndChange.REASSERT
+            else -> DndChange.RELEASE
+        }
 
     /**
      * The session must be stopped (and DND we [silenced] restored): it ran

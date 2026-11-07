@@ -31,7 +31,21 @@ class DirectBootPlanTest {
         val soon = entry(4, now + 60_000)
         assertEquals(
             listOf(justDue, soon, later),
-            DirectBootPlan.toArm(listOf(later, missed, soon, justDue), now),
+            DirectBootPlan.toArm(listOf(later, missed, soon, justDue), now, now - 600_000),
+        )
+    }
+
+    @Test
+    fun skipsWhatWasDueBeforeTheBoot() {
+        // Fajr shown at 03:00 by the plugin; rebooted, locked again at 03:02.
+        val now = 1_000_000_000L
+        val bootTime = now - 30_000
+        val shownBeforeReboot = entry(1, now - 120_000)
+        val dueWhileBooting = entry(2, now - 10_000)
+        val later = entry(3, now + 60_000)
+        assertEquals(
+            listOf(dueWhileBooting, later),
+            DirectBootPlan.toArm(listOf(later, shownBeforeReboot, dueWhileBooting), now, bootTime),
         )
     }
 }
