@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -86,9 +87,16 @@ final class _SettingsScreenState extends State<SettingsScreen> {
     if (!locator.isRegistered<NotificationScheduler>()) {
       return;
     }
-    final status = await locator<NotificationScheduler>().permissionStatus();
-    if (mounted) {
-      _notifPermission.value = status;
+    try {
+      final status = await locator<NotificationScheduler>()
+          .permissionStatus();
+      if (mounted) {
+        _notifPermission.value = status;
+      }
+    } on PlatformException catch (e) {
+      // Status unknown: keep the row in its neutral state (no warning) and
+      // retry on the next resume.
+      debugPrint('Notification permission check failed: $e');
     }
   }
 

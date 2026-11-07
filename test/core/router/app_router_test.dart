@@ -14,6 +14,7 @@ import 'package:productive_muslim/features/muhasaba/presentation/state/muhasaba_
 import 'package:productive_muslim/features/my_mosque/presentation/state/mosque_store.dart';
 import 'package:productive_muslim/features/onboarding/domain/repositories/app_lock_repository.dart';
 import 'package:productive_muslim/features/onboarding/presentation/screens/lock_screen.dart';
+import 'package:productive_muslim/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/prayer_times/data/repositories/prayer_day_repository_impl.dart';
 import 'package:productive_muslim/features/prayer_times/domain/usecases/get_prayer_day.dart';
@@ -390,6 +391,43 @@ void main() {
       },
     );
 
+    // Also on the global [appRouter]; works whether or not the test above
+    // ran first (it navigates explicitly instead of relying on the splash).
+    testHomeWidgets(
+      'a notification tap during onboarding waits until setup is done',
+      (tester) async {
+        final settings = GetIt.I<SettingsStore>();
+        await settings.setSetupComplete(complete: false);
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: appRouter,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 1300)); // splash timer
+        await tester.pumpAndSettle();
+        appRouter.go(Routes.home.path);
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/onboarding');
+
+        openDeepLink('/zakat');
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/onboarding');
+        expect(find.byType(OnboardingScreen), findsOneWidget);
+
+        // What the onboarding finish does.
+        await settings.setSetupComplete(complete: true);
+        appRouter.go(Routes.home.path);
+        await tester.pumpAndSettle();
+        expect(find.text('Cash on hand'), findsOneWidget);
+        appRouter.pop();
+        await tester.pumpAndSettle();
+        expect(appRouter.state.uri.path, '/home');
+      },
+    );
+
     testHomeWidgets('More opens the Calculators hub with every tool', (
       tester,
     ) async {
@@ -467,10 +505,17 @@ void main() {
         final refresh = RouterRefresh();
         addTearDown(refresh.dispose);
         var notified = 0;
-        refresh.addListener(() => notified++);
+        refresh.addListener(() {
+          notified++;
+          // Like go_router's redirect, run synchronously by the refresh.
+          settings.settings.value;
+        });
         await settings.setThemeMode(AppThemeMode.dark);
         expect(notified, 0);
         await settings.setSetupComplete(complete: false);
+        expect(notified, 1);
+        // The listener read every setting: still no redirect on a theme flip.
+        await settings.setThemeMode(AppThemeMode.light);
         expect(notified, 1);
       },
     );

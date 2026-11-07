@@ -584,8 +584,9 @@ final _shellRoots = [
 var _splashDone = false;
 
 /// Opens an in-app [location] from outside the widget tree (notification
-/// taps). While the splash or the cold-start PIN gate still owns navigation
-/// the link is parked and applied once home is reached (after unlock).
+/// taps). While the splash, unfinished onboarding or the cold-start PIN gate
+/// still owns navigation the link is parked and applied once home is
+/// reached (after setup / unlock).
 void openDeepLink(String location) {
   // Only in-app paths; never an absolute URL.
   if (!location.startsWith('/') || location.startsWith('//')) {
@@ -595,7 +596,11 @@ void openDeepLink(String location) {
   // use the overlay), so this is the cold-start gate: navigating now would
   // be redirected to /lock and, after unlock, leave the page with no home
   // beneath it.
-  if (_splashDone && appRouter.state.uri.path != Routes.lock.path) {
+  // Unfinished setup: navigating would be redirected to onboarding again
+  // and stack a second copy of it; home opens the link once setup is done.
+  if (_splashDone &&
+      appRouter.state.uri.path != Routes.lock.path &&
+      locator<SettingsStore>().settings.value.setupComplete) {
     final path = Uri.parse(location).path;
     final inShell = _shellRoots.any(
       (root) => path == root || path.startsWith('$root/'),
@@ -625,7 +630,9 @@ final class RouterRefresh extends ChangeNotifier {
       locator<AppLockStore>().locked.value;
       // Only the flag: any other settings change must not re-run redirects.
       _setupComplete.value;
-      notifyListeners();
+      // go_router runs the redirect synchronously from here; untracked, or
+      // the signals it reads (all settings) would subscribe this effect.
+      untracked(notifyListeners);
     });
   }
 

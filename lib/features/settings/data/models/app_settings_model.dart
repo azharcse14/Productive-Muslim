@@ -149,19 +149,24 @@ abstract final class AppSettingsModel {
     }
     final lat = rawLat.toDouble();
     final lng = rawLng.toDouble();
+    final tz = _as<String>(map['tz']);
     return switch (map['type']) {
       'gps' => GpsLocation(
         latitude: lat,
         longitude: lng,
         resolvedName: _as<String>(map['name']) ?? '',
       ),
+      // No timezone, no correct wall-clock times: a 'UTC' fallback would
+      // shift every prayer by the city's offset. Treat it as unset so the
+      // user picks the city again.
+      'city' when tz == null || tz.isEmpty => null,
       'city' => ManualCityLocation(
         City(
           name: _as<String>(map['name']) ?? '',
           countryCode: _as<String>(map['country']) ?? '',
           latitude: lat,
           longitude: lng,
-          timezone: _as<String>(map['tz']) ?? 'UTC',
+          timezone: tz!,
           nameBn: _as<String>(map['nameBn']),
         ),
       ),

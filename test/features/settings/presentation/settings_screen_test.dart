@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
@@ -6,6 +7,7 @@ import 'package:productive_muslim/core/settings/settings_store.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/core/utils/result.dart';
 import 'package:productive_muslim/features/nearby_mosques/domain/external_launcher.dart';
+import 'package:productive_muslim/features/notifications/domain/repositories/notification_scheduler.dart';
 import 'package:productive_muslim/features/onboarding/presentation/state/app_lock_store.dart';
 import 'package:productive_muslim/features/settings/domain/entities/app_settings.dart';
 import 'package:productive_muslim/features/settings/domain/entities/location_config.dart';
@@ -40,6 +42,20 @@ final class _FakeLauncher implements ExternalLauncher {
     launched.add(uri);
     return true;
   }
+}
+
+/// The plugin's status channel throws (e.g. no engine binding yet).
+final class _ThrowingScheduler implements NotificationScheduler {
+  int checks = 0;
+
+  @override
+  Future<NotificationPermission> permissionStatus() async {
+    checks++;
+    throw PlatformException(code: 'unavailable');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 Widget _app() => MaterialApp(
@@ -84,6 +100,20 @@ void main() {
       ]) {
         expect(find.text(group), findsOneWidget, reason: group);
       }
+    });
+
+    testWidgets('a failing permission check leaves the row neutral', (
+      tester,
+    ) async {
+      final scheduler = _ThrowingScheduler();
+      GetIt.I.registerSingleton<NotificationScheduler>(scheduler);
+      _tall(tester);
+      await tester.pumpWidget(_app());
+      await tester.pumpAndSettle();
+      expect(scheduler.checks, 1);
+      expect(tester.takeException(), isNull);
+      expect(find.text('Notifications'), findsWidgets);
+      expect(find.text('Off in system settings'), findsNothing);
     });
 
     testWidgets('show achievements switch persists (default off)', (
