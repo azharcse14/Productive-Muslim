@@ -37,6 +37,13 @@ void main() {
     }
   });
 
+  test('defaultSahriSafetyFor: Bangladesh ends sahri 3 min early (IFB)', () {
+    expect(defaultSahriSafetyFor('BD'), 3);
+    for (final cc in ['IN', 'PK', 'SA', 'GB', '']) {
+      expect(defaultSahriSafetyFor(cc), 0, reason: cc);
+    }
+  });
+
   test('countryCodeOf reads the display name suffix', () {
     const dhaka = ManualCityLocation(
       City(

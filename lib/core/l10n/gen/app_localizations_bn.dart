@@ -61,6 +61,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shareTranslatorMuhiuddinKhan => 'মুহিউদ্দীন খান';
 
   @override
+  String get quranNote4v34 =>
+      'টীকা: পূর্ববর্তী আলেমগণের ব্যাখ্যায় এটি সর্বশেষ উপায় — প্রথমে উপদেশ, তারপর শয্যা পৃথক করার পরে। এতে আঘাত বা জখম করা যাবে না: ইবনে আব্বাস (রা.) বলেছেন, \"মিসওয়াক বা এ জাতীয় কিছু দিয়ে\" (তাবারি), আর কখনো মুখে নয় (ইবনে কাসির)। নবী ﷺ কখনো কোনো নারীকে প্রহার করেননি (মুসলিম ২৩২৮)।';
+
+  @override
   String shareTranslationBy(String translator) {
     return 'অনুবাদ: $translator';
   }
@@ -186,7 +190,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingSahriSafety => 'সাহরির সতর্কতা সময়';
 
   @override
-  String get settingSahriSafetySub => 'ফজরের এত মিনিট আগে সাহরি শেষ করুন';
+  String get settingSahriSafetySub =>
+      'ফজরের এত মিনিট আগে সাহরি শেষ করুন। শরিয়তে রোজা শুরু হয় প্রকৃত ফজর (সুবহে সাদিক) থেকে; এই সময়টুকু কেবল সতর্কতা।';
 
   @override
   String get settingTheme => 'থিম';

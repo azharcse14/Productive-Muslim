@@ -98,11 +98,14 @@ void main() {
           )
           .valueOrNull!;
       final none = at(0);
+      final three = at(3);
       final ten = at(10);
-      // Shown Fajr is rounded up, so sahri always ends a minute earlier.
+      // Shown Fajr is rounded up, so a 0 margin still ends sahri a minute
+      // early; a real margin is exact (no extra minute on top).
       expect(none.sahriEnd, none.fajr.subtract(const Duration(minutes: 1)));
+      expect(three.sahriEnd, none.fajr.subtract(const Duration(minutes: 3)));
       expect(ten.fajr, none.fajr);
-      expect(ten.sahriEnd, none.fajr.subtract(const Duration(minutes: 11)));
+      expect(ten.sahriEnd, none.fajr.subtract(const Duration(minutes: 10)));
     });
 
     test('calculation method changes fajr/isha', () {

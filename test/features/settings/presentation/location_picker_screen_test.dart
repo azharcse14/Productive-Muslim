@@ -82,9 +82,11 @@ Future<SettingsStore> _pump(
   LocationRepository? gps,
   bool autoGps = false,
   SettingsRepository? repo,
+  int sahriSafety = 0,
 }) async {
   final initial = AppSettings(
     setupComplete: setup,
+    prayerParams: PrayerParams(sahriSafetyMinutes: sahriSafety),
     location: const ManualCityLocation(
       City(
         name: 'Dhaka',
@@ -164,6 +166,24 @@ void main() {
     expect(store.prayerParams.value.method, CalculationMethodId.egyptian);
     expect(store.prayerParams.value.madhab, Madhab.shafi);
     expect(find.byType(LocationPickerScreen), findsNothing);
+  });
+
+  testWidgets('the BD sahri margin follows a country move unless tuned', (
+    tester,
+  ) async {
+    Future<int> moveToCairo(int sahri) async {
+      final store = await _pump(tester, setup: true, sahriSafety: sahri);
+      await tester.tap(find.text('Cairo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Keep current'));
+      await tester.pumpAndSettle();
+      final minutes = store.prayerParams.value.sahriSafetyMinutes;
+      await GetIt.I.reset();
+      return minutes;
+    }
+
+    expect(await moveToCairo(3), 0); // BD default → Egypt's
+    expect(await moveToCairo(5), 5); // tuned by the user: kept
   });
 
   testWidgets('first setup does not ask (its own steps pre-select)', (

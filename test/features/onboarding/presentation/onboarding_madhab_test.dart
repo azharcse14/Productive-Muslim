@@ -137,6 +137,30 @@ void main() {
     expect(repo.stored.prayerParams.method, defaults.method);
   });
 
+  testWidgets('Bangladesh pre-selects a 3 min sahri margin; rerun keeps 0', (
+    tester,
+  ) async {
+    const dhaka = ManualCityLocation(
+      City(
+        name: 'Dhaka',
+        countryCode: 'BD',
+        latitude: 23.81,
+        longitude: 90.41,
+        timezone: 'Asia/Dhaka',
+      ),
+    );
+    var repo = await _pumpToLocationStep(tester, location: dhaka);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(repo.stored.prayerParams.sahriSafetyMinutes, 3);
+
+    await GetIt.I.reset();
+    repo = await _pumpToLocationStep(tester, location: dhaka, rerun: true);
+    await tester.tap(find.text('Next').hitTestable());
+    await tester.pumpAndSettle();
+    expect(repo.stored.prayerParams.sahriSafetyMinutes, 0);
+  });
+
   testWidgets('leaving the location step pre-selects the region method', (
     tester,
   ) async {

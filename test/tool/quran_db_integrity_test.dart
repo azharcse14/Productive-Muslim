@@ -25,9 +25,9 @@ void main() {
 
   int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version matches QuranDatabase.bundledVersion (7)', () {
-    expect(scalar('PRAGMA user_version'), 7);
-    expect(QuranDatabase.bundledVersion, 7);
+  test('schema version matches QuranDatabase.bundledVersion (8)', () {
+    expect(scalar('PRAGMA user_version'), 8);
+    expect(QuranDatabase.bundledVersion, 8);
   });
 
   String arabic(int surah, int ayah) =>
@@ -119,6 +119,7 @@ void main() {
         translation('translation_en', surah, ayah);
     expect(en(47, 19), contains('there is no God save Allah'));
     expect(en(2, 163), startsWith('Your God is One God; there is no God'));
+    expect(en(2, 255), startsWith('Allah! There is no God save Him,'));
     final ilah = RegExp(r'\b(no|other|One|[Yy]our|our|any) Allah\b');
     final hits = [
       for (final row in db.select(

@@ -165,6 +165,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   Madhab? _autoMadhab;
   CalculationMethodId? _autoMethod;
   int? _autoHijriOffset;
+  int? _autoSahriSafety;
 
   /// Leaving the location step: pre-select the region's default madhab and
   /// suggested method, unless the user already chose or changed them, so
@@ -190,6 +191,12 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
     if (!widget.rerun && (offset == 0 || offset == _autoHijriOffset)) {
       _autoHijriOffset = defaultHijriOffsetFor(country);
       await _settings.setHijriOffset(_autoHijriOffset!);
+    }
+    // Same rule for the sahri margin: no step sets it.
+    final sahri = _settings.prayerParams.value.sahriSafetyMinutes;
+    if (!widget.rerun && (sahri == 0 || sahri == _autoSahriSafety)) {
+      _autoSahriSafety = defaultSahriSafetyFor(country);
+      await _settings.setSahriSafety(_autoSahriSafety!);
     }
   }
 

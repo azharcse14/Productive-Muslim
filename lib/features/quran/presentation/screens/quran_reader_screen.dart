@@ -510,6 +510,14 @@ final class _QuranReaderState extends State<_QuranReader> {
               ayah.translationFor(languageCode),
               style: QType.body.copyWith(color: q.ink2),
             ),
+            // Owner-approved explanatory note; both translations unchanged.
+            if (ayah.surah == 4 && ayah.number == 34) ...[
+              const SizedBox(height: QSpace.s2),
+              Text(
+                l10n.quranNote4v34,
+                style: QType.caption.copyWith(color: q.ink3),
+              ),
+            ],
           ],
           const SizedBox(height: QSpace.s1),
           Row(
