@@ -29,6 +29,14 @@ void main() {
     expect(suggestedMethodFor('XX'), CalculationMethodId.muslimWorldLeague);
   });
 
+  test('defaultHijriOffsetFor: Bangladesh runs a day behind tabular', () {
+    expect(defaultHijriOffsetFor('BD'), -1);
+    // IN/PK unverified: stay on the tabular date.
+    for (final cc in ['IN', 'PK', 'SA', 'GB', '']) {
+      expect(defaultHijriOffsetFor(cc), 0, reason: cc);
+    }
+  });
+
   test('countryCodeOf reads the display name suffix', () {
     const dhaka = ManualCityLocation(
       City(

@@ -1,6 +1,7 @@
 /// A special daily time window surfaced on the home screen: either a
-/// forbidden (makruh taḥrīmī) window in which all salah is prohibited, or
-/// a recommended nafl window.
+/// forbidden (makruh taḥrīmī) window in which salah is prohibited (Hanafi
+/// exception: that day's own Asr before sunset; most other schools allow
+/// qada of missed fard), or a recommended nafl window.
 enum SpecialKind { forbidden, nafl }
 
 /// The named special windows. Order is presentation order within a kind.

@@ -80,6 +80,19 @@ void main() {
     expect(find.textContaining('Zakat due'), findsNothing);
   });
 
+  testWidgets('gold grams field shows the same-karat hint', (tester) async {
+    await pump(tester);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(
+      find.descendant(
+        of: field(l10n.zakatGold),
+        matching: find.text(l10n.zakatGoldHint),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(l10n.zakatGoldHint), findsOneWidget);
+  });
+
   testWidgets('gold alone needs only the gold price', (tester) async {
     await pump(tester);
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));

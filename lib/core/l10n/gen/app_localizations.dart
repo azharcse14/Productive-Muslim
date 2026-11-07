@@ -1079,13 +1079,13 @@ abstract class AppLocalizations {
   /// No description provided for @specialDetailDuha.
   ///
   /// In en, this message translates to:
-  /// **'The forenoon prayer of two to twelve rak\'ahs, best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak\'ahs suffice for it.'**
+  /// **'The forenoon prayer of two or more rak\'ahs — up to eight is well established; twelve rests on a weak report (Tirmidhi 473) — best offered once the sun has risen high, lasting until just before zawal. A charity is due for every joint of the body each morning, and these rak\'ahs suffice for it.'**
   String get specialDetailDuha;
 
   /// No description provided for @specialDetailSalatZawal.
   ///
   /// In en, this message translates to:
-  /// **'Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour.'**
+  /// **'Offered right after the sun passes its zenith and begins to decline, just before the Dhuhr fard. The Prophet ﷺ used to pray when the gates of heaven are opened at this hour (Tirmidhi 478).'**
   String get specialDetailSalatZawal;
 
   /// No description provided for @specialDetailAwwabin.
@@ -1097,7 +1097,7 @@ abstract class AppLocalizations {
   /// No description provided for @specialDetailTahajjud.
   ///
   /// In en, this message translates to:
-  /// **'Night prayer in the last third of the night, the most virtuous voluntary salah. It is the hour Allah descends to the lowest heaven, answering the one who calls upon Him.'**
+  /// **'Night prayer, the most virtuous voluntary salah. Its time begins after Isha and is best in the last third of the night (Bukhari 1145; Muslim 757), the hour Allah descends to the lowest heaven, answering the one who calls upon Him.'**
   String get specialDetailTahajjud;
 
   /// No description provided for @setJamaat.
@@ -2849,7 +2849,7 @@ abstract class AppLocalizations {
   /// No description provided for @tibbNabawiNote.
   ///
   /// In en, this message translates to:
-  /// **'Authentic narrations on remedies the Prophet ﷺ used and recommended. Healing is from Allah alone; take the means, and consult a qualified doctor for any illness.'**
+  /// **'Authentic (sahih) or sound (hasan) narrations on remedies the Prophet ﷺ used and recommended. Healing is from Allah alone; take the means, and consult a qualified doctor for any illness.'**
   String get tibbNabawiNote;
 
   /// No description provided for @ruqyahSubtitle.
@@ -3019,6 +3019,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gold (grams)'**
   String get zakatGold;
+
+  /// No description provided for @zakatGoldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the price per gram for this same karat — or enter the pure-gold weight with the 24K price.'**
+  String get zakatGoldHint;
 
   /// No description provided for @zakatSilver.
   ///

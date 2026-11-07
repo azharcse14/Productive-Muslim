@@ -35,3 +35,12 @@ Madhab defaultMadhabFor(String countryCode) => switch (countryCode) {
   'BA' || 'AL' || 'XK' || 'MK' => Madhab.hanafi,
   _ => Madhab.shafi,
 };
+
+/// Region-default Hijri offset (days) for [countryCode]: Bangladesh's
+/// moon-sighting dates run one day after the tabular reckoning (1 Ramadan
+/// 1447 was 19 Feb 2026 there vs 18 Feb tabular). Other regions are
+/// unverified, so 0.
+int defaultHijriOffsetFor(String countryCode) => switch (countryCode) {
+  'BD' => -1,
+  _ => 0,
+};

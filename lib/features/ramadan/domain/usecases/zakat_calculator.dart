@@ -22,6 +22,9 @@ final class ZakatInput {
 
   final double cashOnHand;
   final double bankBalance;
+
+  /// Weight of gold held, priced at [goldPricePerGram] — the two must be
+  /// for the same karat (or this is the pure-gold weight at the 24K price).
   final double goldGrams;
   final double silverGrams;
   final double businessAssets;

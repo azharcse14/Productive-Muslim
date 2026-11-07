@@ -246,13 +246,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get madhabShafi => 'শাফেয়ি';
 
   @override
-  String get madhabMaliki => 'মালিকি';
+  String get madhabMaliki => 'মালেকি';
 
   @override
   String get madhabHanbali => 'হাম্বলি';
 
   @override
-  String get madhabStandard => 'স্ট্যান্ডার্ড (শাফেয়ি, মালিকি, হাম্বলি)';
+  String get madhabStandard => 'স্ট্যান্ডার্ড (শাফেয়ি, মালেকি, হাম্বলি)';
 
   @override
   String get madhabExplain => 'শুধু আসরের সময়ে প্রভাব ফেলে';
@@ -570,7 +570,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialDetailForbiddenZawal =>
-      'যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত কোনো নামাজ আদায় হয় না।';
+      'যোহরের ওয়াক্ত শুরুর ঠিক আগে সূর্য যখন আকাশের সর্বোচ্চ বিন্দুতে (ইস্তিওয়া) অবস্থান করে সেই সংক্ষিপ্ত সময়। সূর্য ঢলে না পড়া পর্যন্ত নামাজ পড়া নিষেধ।';
 
   @override
   String get specialDetailForbiddenSunset =>
@@ -582,11 +582,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialDetailDuha =>
-      'চাশতের নামাজ — দুই থেকে বারো রাকাত, সূর্য ভালোভাবে উঠে যাওয়ার পর থেকে যাওয়ালের ঠিক আগ পর্যন্ত আদায় করা উত্তম। প্রতিদিন সকালে শরীরের প্রতিটি জোড়ার জন্য সদকা ওয়াজিব, আর এই রাকাতগুলো তার জন্য যথেষ্ট।';
+      'চাশতের নামাজ — দুই বা ততোধিক রাকাত (আট রাকাত পর্যন্ত সুপ্রমাণিত; বারো রাকাতের বর্ণনাটি দুর্বল — তিরমিজি ৪৭৩), সূর্য ভালোভাবে উঠে যাওয়ার পর থেকে যাওয়ালের ঠিক আগ পর্যন্ত আদায় করা উত্তম। প্রতিদিন সকালে শরীরের প্রতিটি জোড়ার জন্য সদকা রয়েছে, আর এই রাকাতগুলো তার জন্য যথেষ্ট।';
 
   @override
   String get specialDetailSalatZawal =>
-      'সূর্য মাথার উপর থেকে ঢলে পড়ার ঠিক পরে, যোহরের ফরজের আগমুহূর্তে আদায় করা হয়। রাসূলুল্লাহ ﷺ এই সময়ে নামাজ পড়তেন যখন আসমানের দরজাগুলো খুলে দেওয়া হয়।';
+      'সূর্য মাথার উপর থেকে ঢলে পড়ার ঠিক পরে, যোহরের ফরজের আগমুহূর্তে আদায় করা হয়। রাসূলুল্লাহ ﷺ এই সময়ে নামাজ পড়তেন যখন আসমানের দরজাগুলো খুলে দেওয়া হয় (তিরমিজি ৪৭৮)।';
 
   @override
   String get specialDetailAwwabin =>
@@ -594,7 +594,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get specialDetailTahajjud =>
-      'রাতের শেষ তৃতীয়াংশে আদায় করা নামাজ, সর্বোত্তম নফল নামাজ। এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
+      'রাতের নামাজ, সর্বোত্তম নফল নামাজ। এর সময় এশার পর থেকে শুরু হয়, আর রাতের শেষ তৃতীয়াংশে পড়া সর্বোত্তম (বুখারি ১১৪৫; মুসলিম ৭৫৭); এ সময় আল্লাহ নিকটতম আসমানে নেমে আসেন এবং আহ্বানকারীর ডাকে সাড়া দেন।';
 
   @override
   String get setJamaat => 'জামাতের সময় সেট করুন';
@@ -1914,7 +1914,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get tibbNabawiNote =>
-      'রাসূলুল্লাহ ﷺ যেসব চিকিৎসা ব্যবহার ও পরামর্শ দিয়েছেন, সে বিষয়ে সহিহ বর্ণনা। আরোগ্য কেবল আল্লাহর পক্ষ থেকে; উপায় অবলম্বন করুন এবং যেকোনো অসুস্থতায় অভিজ্ঞ চিকিৎসকের পরামর্শ নিন।';
+      'রাসূলুল্লাহ ﷺ যেসব চিকিৎসা ব্যবহার ও পরামর্শ দিয়েছেন, সে বিষয়ে সহিহ বা হাসান বর্ণনা। আরোগ্য কেবল আল্লাহর পক্ষ থেকে; উপায় অবলম্বন করুন এবং যেকোনো অসুস্থতায় অভিজ্ঞ চিকিৎসকের পরামর্শ নিন।';
 
   @override
   String get ruqyahSubtitle => 'কুরআনি সুরক্ষা ও আরোগ্য';
@@ -2067,6 +2067,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get zakatGold => 'স্বর্ণ (গ্রাম)';
+
+  @override
+  String get zakatGoldHint =>
+      'একই ক্যারেটের প্রতি গ্রামের দাম দিন — অথবা খাঁটি স্বর্ণের ওজন দিয়ে ২৪ ক্যারেটের দাম দিন।';
 
   @override
   String get zakatSilver => 'রুপা (গ্রাম)';
@@ -2395,7 +2399,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get prayerFazilatIsha =>
-      'জামাতে ইশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।';
+      'জামাতে এশা পড়া অর্ধেক রাত দাঁড়ানোর সমান; ফজরসহ পড়লে সারা রাত দাঁড়ানোর সমান।';
 
   @override
   String get dailyKindAyah => 'আয়াত';
