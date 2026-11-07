@@ -25,9 +25,9 @@ void main() {
 
   int scalar(String sql) => db.select(sql).first.values.first! as int;
 
-  test('schema version matches QuranDatabase.bundledVersion (6)', () {
-    expect(scalar('PRAGMA user_version'), 6);
-    expect(QuranDatabase.bundledVersion, 6);
+  test('schema version matches QuranDatabase.bundledVersion (7)', () {
+    expect(scalar('PRAGMA user_version'), 7);
+    expect(QuranDatabase.bundledVersion, 7);
   });
 
   String arabic(int surah, int ayah) =>
@@ -91,6 +91,61 @@ void main() {
         .first;
     expect(row['translation_en'], contains('concerning his parents'));
     expect(row['translation_bn'], isNot(contains('পিতা-মতার')));
+  });
+
+  String translation(String column, int surah, int ayah) =>
+      db
+              .select(
+                'SELECT $column FROM ayahs WHERE surah = ? AND number = ?',
+                [surah, ayah],
+              )
+              .first
+              .values
+              .first!
+          as String;
+
+  test('Bangla typo corrections are in', () {
+    String bn(int surah, int ayah) =>
+        translation('translation_bn', surah, ayah);
+    expect(bn(27, 30), contains('অসীম দাতা'));
+    expect(bn(4, 3), contains('যথার্থভাবে পূরণ'));
+    expect(bn(4, 34), contains('কর্তৃত্বশীল'));
+    expect(bn(5, 3), isNot(contains('মারা যা,')));
+    expect(bn(11, 14), contains('কথা পূরণ'));
+  });
+
+  test('Pickthall says "God" for the generic ilah, not "Allah"', () {
+    String en(int surah, int ayah) =>
+        translation('translation_en', surah, ayah);
+    expect(en(47, 19), contains('there is no God save Allah'));
+    expect(en(2, 163), startsWith('Your God is One God; there is no God'));
+    final ilah = RegExp(r'\b(no|other|One|[Yy]our|our|any) Allah\b');
+    final hits = [
+      for (final row in db.select(
+        'SELECT surah, number, translation_en FROM ayahs',
+      ))
+        if (ilah.hasMatch(row['translation_en'] as String))
+          '${row['surah']}:${row['number']}',
+    ];
+    expect(hits, isEmpty);
+  });
+
+  test('surah names and meanings corrections are in', () {
+    final rows = {
+      for (final r in db.select(
+        'SELECT id, name_arabic, name_bn, meaning_bn FROM surahs '
+        'WHERE id IN (2, 40, 76, 77, 79, 97)',
+      ))
+        r['id'] as int: r,
+    };
+    expect(rows[2]!['meaning_bn'], 'গাভী');
+    expect(rows[40]!['name_arabic'], 'غَافِرٍ');
+    expect(rows[40]!['name_bn'], 'গাফির');
+    expect(rows[76]!['name_arabic'], 'الْإِنْسَانِ');
+    expect(rows[76]!['name_bn'], 'ইনসান');
+    expect(rows[77]!['meaning_bn'], 'প্রেরিত বায়ুসমূহ');
+    expect(rows[79]!['meaning_bn'], 'প্রবলভাবে টেনে আনয়নকারী');
+    expect(rows[97]!['meaning_bn'], 'মহিমান্বিত রজনী');
   });
 
   test('contains exactly 114 surahs and 6236 ayahs', () {
