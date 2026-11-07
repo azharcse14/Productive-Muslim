@@ -262,6 +262,22 @@ void main() {
       });
     });
 
+    test('verified refs stay pinned', () {
+      String ref(String id) =>
+          allDuas.singleWhere((d) => d['id'] == id)['ref']! as String;
+      for (final id in ['hm_6_15_142', 'wk_afani_fi_jasadi']) {
+        expect(ref(id), contains('al-Albani (Sahih at-Tirmidhi)'), reason: id);
+      }
+      for (final id in ['hm_5_12_1001', 'hm_5_12_1001_m']) {
+        expect(ref(id), startsWith('Abu Dawud 5073;'), reason: id);
+        expect(ref(id), contains("Da'if al-Jami' 5730"), reason: id);
+      }
+      // Hidayat ar-Ruwat, not Mishkat, is Ibn Hajar's work.
+      expect(ref('hm_8_18_158'), startsWith('Abu Dawud 5195; Tirmidhi 2689'));
+      expect(ref('hm_8_18_158'), isNot(contains('Mishkat')));
+      expect(ref('hm_6_14_134'), contains('al-Sahihah 840, 2995'));
+    });
+
     test('dua ids are unique across the whole collection', () {
       final ids = allDuas.map((Map<String, Object?> d) => d['id']).toList();
       expect(

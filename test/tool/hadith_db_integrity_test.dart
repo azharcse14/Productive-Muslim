@@ -125,12 +125,13 @@ void main() {
   });
 
   test("Nawawi 41 carries its disputed Da'if grade in en and bn", () {
-    for (final (edition, grade) in [
-      ('eng-nawawi', "Da'if"),
-      ('ben-nawawi', 'যঈফ'),
+    for (final (edition, grade, mishkat) in [
+      ('eng-nawawi', "Da'if", 'Mishkat 167'),
+      ('ben-nawawi', 'যঈফ', 'মিশকাত ১৬৭'),
     ]) {
       final h = all(edition).singleWhere((h) => h.number == 41);
       expect(h.grade, startsWith(grade), reason: edition);
+      expect(h.grade, contains(mishkat), reason: edition);
     }
   });
 
