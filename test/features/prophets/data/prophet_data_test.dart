@@ -131,6 +131,22 @@ void main() {
       }
     });
 
+    test('uncertain links are drawn dashed', () {
+      // Ismail → Adnan is agreed only up to Adnan; the rest are Israiliyat
+      // identifications or chronologically compressed chains.
+      for (final id in [
+        'haidir',
+        'idris',
+        'matulsalkh',
+        'dhulkifl',
+        'abumata',
+        'ukhtub',
+        'yasin',
+      ]) {
+        expect(byId[id]!.parentDistant, isTrue, reason: id);
+      }
+    });
+
     test('the tree stays narrow and puts no dot on a passing line', () {
       final rows = layoutLineage(people);
       for (final row in rows) {
@@ -225,13 +241,15 @@ void main() {
         ('ishaq', 'ibrahim'),
         ('yaqub', 'ishaq'),
         ('yusuf', 'yaqub'),
-        ('dhulkifl', 'ayyub'),
         ('sulaiman', 'dawud'),
         ('yahya', 'zakariya'),
       ]) {
         expect(byId[child]!.parent, parent, reason: child);
         expect(byId[child]!.parentDistant, isFalse, reason: child);
       }
+      // Dhul-Kifl as Ayyub's son comes from Israiliyat: drawn as disputed.
+      expect(byId['dhulkifl']!.parent, 'ayyub');
+      expect(byId['dhulkifl']!.parentDistant, isTrue);
       expect(byId['lut']!.parent, 'nuh', reason: 'nephew, not son, of Ibrahim');
       expect(byId['muhammad']!.parent, 'ismail');
       expect(byId['muhammad']!.parentDistant, isTrue);

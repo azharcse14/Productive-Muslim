@@ -35,13 +35,15 @@
   },
   {
     "id": "idris",
-    "parent": "yarid"
+    "parent": "yarid",
+    "parentDistant": true
   },
   {
     "id": "matulsalkh",
     "nameEn": "Matulsalkh",
     "nameBn": "মাতুলসালখ",
-    "parent": "idris"
+    "parent": "idris",
+    "parentDistant": true
   },
   {
     "id": "lamik",
@@ -73,13 +75,13 @@
   },
   {
     "id": "ars",
-    "nameEn": "'Ars",
-    "nameBn": "আরস",
+    "nameEn": "'Athir",
+    "nameBn": "আসির",
     "parent": "iram"
   },
   {
     "id": "samud",
-    "nameEn": "Samud",
+    "nameEn": "Thamud",
     "nameBn": "সামুদ",
     "parent": "ars"
   },
@@ -137,8 +139,8 @@
   },
   {
     "id": "raya",
-    "nameEn": "Raya",
-    "nameBn": "রায়া",
+    "nameEn": "Rabah",
+    "nameBn": "রাবাহ",
     "parent": "khulud"
   },
   {
@@ -221,7 +223,8 @@
     "id": "haidir",
     "nameEn": "Haidir",
     "nameBn": "হাইদির",
-    "parent": "ismail"
+    "parent": "ismail",
+    "parentDistant": true
   },
   {
     "id": "aram",
@@ -632,7 +635,8 @@
   },
   {
     "id": "dhulkifl",
-    "parent": "ayyub"
+    "parent": "ayyub",
+    "parentDistant": true
   },
   {
     "id": "yaqub",
@@ -648,7 +652,8 @@
     "id": "abumata",
     "nameEn": "Abumata",
     "nameBn": "আবুমাতা",
-    "parent": "bunyamin"
+    "parent": "bunyamin",
+    "parentDistant": true
   },
   {
     "id": "matta",
@@ -698,8 +703,8 @@
   },
   {
     "id": "aziz",
-    "nameEn": "Aziz",
-    "nameBn": "আযিয",
+    "nameEn": "'Uzayr",
+    "nameBn": "উযাইর",
     "parent": "izar",
     "parentDistant": true
   },
@@ -713,7 +718,8 @@
     "id": "yasin",
     "nameEn": "Yasin",
     "nameBn": "ইয়াসিন",
-    "parent": "fahnaz"
+    "parent": "fahnaz",
+    "parentDistant": true
   },
   {
     "id": "ilyas",
@@ -723,7 +729,8 @@
     "id": "ukhtub",
     "nameEn": "Ukhtub",
     "nameBn": "উখতুব",
-    "parent": "fahnaz"
+    "parent": "fahnaz",
+    "parentDistant": true
   },
   {
     "id": "alyasa",
@@ -786,7 +793,7 @@
   {
     "id": "isya",
     "nameEn": "Isya",
-    "nameBn": "ঈশা",
+    "nameBn": "ইশাই",
     "parent": "ufiz"
   },
   {
