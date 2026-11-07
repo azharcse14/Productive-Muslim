@@ -91,14 +91,18 @@ final class JamaatFocusBridge implements JamaatFocusControl {
     };
   }
 
-  /// The app's time format; null when the locale is unknown or its date
-  /// data isn't loaded.
+  /// The app's time format (the device's 12/24-hour choice, as
+  /// `formatClockTime` everywhere else); null when the locale is unknown or
+  /// its date data isn't loaded.
   static DateFormat? _format(String localeCode) {
     if (localeCode.isEmpty) {
       return null;
     }
     try {
-      final format = DateFormat.jm(localeCode);
+      final format =
+          ServicesBinding.instance.platformDispatcher.alwaysUse24HourFormat
+          ? DateFormat.Hm(localeCode)
+          : DateFormat.jm(localeCode);
       format.format(DateTime(2000)); // missing date data throws here, not later
       return format;
     } on ArgumentError {

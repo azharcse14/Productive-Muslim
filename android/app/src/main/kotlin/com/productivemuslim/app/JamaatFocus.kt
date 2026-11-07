@@ -250,7 +250,17 @@ object JamaatFocus {
     private fun stop(c: Context) {
         val p = prefs(c)
         val nm = nm(c)
-        // Restore only what we changed: a filter the user picked meanwhile stays.
+        // Restore only what we changed: a filter the user picked meanwhile
+        // stays, and [enforce] drops "silenced" once DND left our filter
+        // mid-session (taken over by the user or a rule).
+        // ponytail: up to Android 14 no public API reads the system's or
+        // other apps' zen rules, so a Bedtime rule with our very filter starting
+        // mid-session leaves no trace; setInterruptionFilter(ALL) then snoozes
+        // it. Without the accessibility service nothing tracks changes at all
+        // (the broadcast is registered-only). Upgrade path: our own
+        // AutomaticZenRule + setAutomaticZenRuleState (API 29+), so ending
+        // only drops ours. Android 15+ already scopes app DND to an implicit
+        // rule of ours, so ALL there can't end Bedtime.
         if (p.getBoolean("silenced", false) &&
             nm.isNotificationPolicyAccessGranted &&
             nm.currentInterruptionFilter == SILENT
@@ -322,13 +332,23 @@ object JamaatFocus {
         }
     }
 
-    /** Strict: DND switched off from quick settings goes straight back on. */
+    /**
+     * DND changed mid-session. Strict: switched off from quick settings, it
+     * goes straight back on. Otherwise a DND that left our filter is no
+     * longer ours, and [stop] won't touch it.
+     */
     fun enforce(c: Context) {
         val nm = nm(c)
-        if (isActive(c) && isStrict(c) && prefs(c).getBoolean("silenced", false) &&
-            nm.isNotificationPolicyAccessGranted && nm.currentInterruptionFilter != SILENT
+        if (!isActive(c) || !nm.isNotificationPolicyAccessGranted) return
+        val p = prefs(c)
+        when (
+            FocusPlan.onDndChanged(
+                p.getBoolean("silenced", false), isStrict(c), nm.currentInterruptionFilter, SILENT,
+            )
         ) {
-            nm.setInterruptionFilter(SILENT)
+            FocusPlan.DndChange.REASSERT -> nm.setInterruptionFilter(SILENT)
+            FocusPlan.DndChange.RELEASE -> p.edit().putBoolean("silenced", false).apply()
+            FocusPlan.DndChange.NONE -> Unit
         }
     }
 
