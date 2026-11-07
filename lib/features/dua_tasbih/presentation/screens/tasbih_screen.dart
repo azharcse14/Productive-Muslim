@@ -368,9 +368,11 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                                         '$count',
                                         languageCode,
                                       ),
-                                      style: QType.num_(
-                                        QType.countdown,
-                                      ).copyWith(color: q.ink),
+                                      // Digits only: tabular so the count
+                                      // doesn't jitter as it climbs.
+                                      style: QType.countdown.copyWith(
+                                        color: q.ink,
+                                      ),
                                     ),
                                   ),
                                 ),

@@ -155,6 +155,9 @@ final class _TabFadeState extends State<_TabFade>
       FadeTransition(opacity: _opacity, child: widget.child);
 }
 
+/// Material 3 NavigationBar's label text-scale cap.
+const _maxLabelScale = 1.3;
+
 final class _NavDestination extends StatelessWidget {
   const _NavDestination({
     required this.item,
@@ -215,13 +218,27 @@ final class _NavDestination extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 3),
-              Text(
-                item.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: QType.caption.copyWith(
-                  color: active ? q.ink : q.ink3,
-                  fontVariations: [FontVariation('wght', active ? 700 : 500)],
+              // Like Material's NavigationBar: label scale capped at 1.3×,
+              // a gap kept between neighbours, and a word that still won't
+              // fit shrinks on one line rather than wrapping or clipping.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: QSpace.s1),
+                child: MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: _maxLabelScale,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      item.label,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: QType.caption.copyWith(
+                        color: active ? q.ink : q.ink3,
+                        fontVariations: [
+                          FontVariation('wght', active ? 700 : 500),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

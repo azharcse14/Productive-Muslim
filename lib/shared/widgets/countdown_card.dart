@@ -316,7 +316,12 @@ final class _RollingText extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text(ch, key: ValueKey(ch), maxLines: 1, style: style),
+                child: Text(
+                  ch,
+                  key: ValueKey(ch),
+                  maxLines: 1,
+                  style: QType.countdownDigit(style, ch),
+                ),
               ),
           ],
         ),

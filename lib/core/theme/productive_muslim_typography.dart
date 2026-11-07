@@ -54,6 +54,9 @@ abstract final class QType {
   static final overline = _base(11, 1.2, 700, spacing: 1.4);
 
   /// Countdown hero numeral: 56px·700, −1.5 tracking, tabular numerals.
+  ///
+  /// SchibstedGrotesk's `tnum` also widens `, . : %` to figure width
+  /// ("6 : 07"), so apply this to digits only — see [countdownDigit].
   static final countdown = _base(
     56,
     1.05,
@@ -61,9 +64,24 @@ abstract final class QType {
     spacing: -1.5,
   ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
 
-  /// Tabular-numeral variant of any style (times, counters).
+  /// [style] (a tabular style such as [countdown]) for one character [ch]
+  /// of a ticking value: tabular for ASCII digits so they don't jitter,
+  /// proportional for separators so they stay tight.
+  static TextStyle countdownDigit(TextStyle style, String ch) {
+    final c = ch.isEmpty ? 0 : ch.codeUnitAt(0);
+    return c >= 0x30 && c <= 0x39
+        ? style
+        : style.copyWith(
+            fontFeatures: const [FontFeature.proportionalFigures()],
+          );
+  }
+
+  /// Numeric variant of any style (static times, amounts, percentages).
+  /// Proportional on purpose: SchibstedGrotesk's `tnum` widens `, . : %` to
+  /// figure width ("300 ,000", "37 . 5%") and swaps in a narrow `%`. Values
+  /// that tick every second use [countdown] + [countdownDigit] instead.
   static TextStyle num_(TextStyle style) =>
-      style.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+      style.copyWith(fontFeatures: const [FontFeature.proportionalFigures()]);
 
   /// Quran Arabic — KFGQPC Uthmanic HAFS only, independent user scale
   /// (22–44 in steps of 2, persisted separately from system font scale).

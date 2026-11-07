@@ -3,6 +3,7 @@
 // dark, English and Bangla, LTR and RTL. Asserts no layout exception and the
 // Flutter a11y guidelines (tap target, labels, text contrast).
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/l10n/gen/app_localizations.dart';
 import 'package:productive_muslim/core/theme/app_theme.dart';
@@ -75,6 +76,7 @@ void _matrix(
   String widget,
   Widget Function(BuildContext) build, {
   bool contrast = true,
+  void Function(WidgetTester tester)? check,
 }) {
   group(widget, () {
     setUpAll(loadAppFonts);
@@ -85,6 +87,7 @@ void _matrix(
         await tester.pumpWidget(_app(c, build));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+        check?.call(tester);
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
         if (contrast) {
@@ -276,6 +279,37 @@ void main() {
       onSelect: (_) {},
       body: const SizedBox.expand(),
     ),
+    // Each label on one line, a visible gap between neighbours.
+    check: (tester) {
+      final context = tester.element(find.byType(QBottomNavScaffold));
+      final labels = [
+        for (final item in QBottomNavScaffold.itemsOf(context))
+          tester.renderObject<RenderParagraph>(find.text(item.label)),
+      ];
+      expect(labels, hasLength(5));
+      final rects = <Rect>[];
+      for (final p in labels) {
+        final text = p.text.toPlainText();
+        final lines = p
+            .getBoxesForSelection(
+              TextSelection(baseOffset: 0, extentOffset: text.length),
+            )
+            .map((box) => box.top)
+            .toSet();
+        expect(lines, hasLength(1), reason: text);
+        expect(p.didExceedMaxLines, isFalse);
+        rects.add(
+          MatrixUtils.transformRect(
+            p.getTransformTo(null),
+            Offset.zero & p.size,
+          ),
+        );
+      }
+      rects.sort((a, b) => a.left.compareTo(b.left));
+      for (var i = 1; i < rects.length; i++) {
+        expect(rects[i].left - rects[i - 1].right, greaterThanOrEqualTo(4));
+      }
+    },
   );
 
   _matrix(

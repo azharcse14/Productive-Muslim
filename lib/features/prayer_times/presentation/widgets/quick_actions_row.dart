@@ -91,11 +91,8 @@ final class QuickActionsRow extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: QSpace.s2),
-                      Text(
+                      _WordSafeLabel(
                         action.label,
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
                         style: QType.caption.copyWith(color: q.ink2),
                       ),
                     ],
@@ -105,6 +102,50 @@ final class QuickActionsRow extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Two-line centred caption that wraps only between words: when the widest
+/// word alone is wider than the cell (Bangla "ক্যালেন্ডার" at 2.0× on a 360dp
+/// phone), the label shrinks until that word fits instead of breaking
+/// inside it.
+final class _WordSafeLabel extends StatelessWidget {
+  const _WordSafeLabel(this.text, {required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var widest = 0.0;
+        for (final word in text.split(RegExp(r'\s+'))) {
+          final painter = TextPainter(
+            text: TextSpan(text: word, style: style),
+            textDirection: direction,
+            textScaler: scaler,
+            maxLines: 1,
+          )..layout();
+          if (painter.width > widest) widest = painter.width;
+          painter.dispose();
+        }
+        final size = style.fontSize ?? 14;
+        final shrink = widest > constraints.maxWidth
+            ? constraints.maxWidth / widest
+            : 1.0;
+        return Text(
+          text,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          style: style,
+          textScaler: TextScaler.linear(scaler.scale(size) / size * shrink),
+        );
+      },
     );
   }
 }
