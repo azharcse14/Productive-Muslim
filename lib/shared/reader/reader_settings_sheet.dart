@@ -67,7 +67,13 @@ Future<void> showReaderSettingsSheet(
                     unawaited(textSize.set(value, persist: false));
                     onFontChanged?.call();
                   },
-                  onChangeEnd: (value) => unawaited(textSize.set(value)),
+                  onChangeEnd: (value) async {
+                    if (!await textSize.set(value) && context.mounted) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(l10n.saveFailed)));
+                    }
+                  },
                 ),
                 ...?extras?.call(context),
               ],

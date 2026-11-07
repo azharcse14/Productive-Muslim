@@ -30,12 +30,20 @@ final class ReaderTextSize {
   }
 
   /// [persist] false previews the size (slider drag) without a write.
-  Future<void> set(double value, {bool persist = true}) async {
+  /// Returns false when the write failed; the size still applies for this
+  /// session, so the caller only needs to tell the user it wasn't saved.
+  Future<bool> set(double value, {bool persist = true}) async {
     final clamped = _clamp(value);
     size.value = clamped;
     if (persist) {
-      await _write?.call(clamped);
+      try {
+        await _write?.call(clamped);
+      } on Object catch (e) {
+        debugPrint('Saving reader text size failed: $e');
+        return false;
+      }
     }
+    return true;
   }
 
   static double _clamp(double size) => size

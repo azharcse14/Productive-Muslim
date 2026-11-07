@@ -141,6 +141,22 @@ void main() {
       expect(restored.location, isNull);
     });
 
+    test('a stored city without a timezone is treated as unset', () {
+      for (final tz in [null, '', 42]) {
+        final restored = AppSettingsModel.fromMap({
+          'location': {
+            'type': 'city',
+            'name': 'Dhaka',
+            'country': 'BD',
+            'lat': 23.8,
+            'lng': 90.4,
+            'tz': ?tz,
+          },
+        });
+        expect(restored.location, isNull, reason: 'tz: $tz');
+      }
+    });
+
     test('missing hijriOffsetDays → 0; out-of-range values are clamped', () {
       expect(AppSettingsModel.fromMap(const {}).hijriOffsetDays, 0);
       expect(
