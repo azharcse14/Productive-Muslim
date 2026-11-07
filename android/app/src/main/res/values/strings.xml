@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Short name under the launcher icon; the full "Productive Muslim"
+         (application label) doesn't fit on one line. Brand, not translated. -->
+    <string name="launcher_label" translatable="false">ProMuslim</string>
+</resources>

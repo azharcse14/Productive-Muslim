@@ -12,7 +12,7 @@
 		<string>bn</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Productive Muslim</string>
+	<string>ProMuslim</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
