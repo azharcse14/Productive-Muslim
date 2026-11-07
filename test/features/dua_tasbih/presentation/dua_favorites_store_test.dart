@@ -16,6 +16,21 @@ final class _FailingListPrefs extends InMemorySharedPreferencesAsync {
   ) => Future.error(StateError('disk full'));
 }
 
+/// Prefs whose list reads fail until [readable] flips.
+final class _FlakyReadPrefs extends InMemorySharedPreferencesAsync {
+  _FlakyReadPrefs() : super.empty();
+
+  bool readable = false;
+
+  @override
+  Future<List<String>?> getStringList(
+    String key,
+    SharedPreferencesOptions options,
+  ) => readable
+      ? super.getStringList(key, options)
+      : Future.error(StateError('read failed'));
+}
+
 void main() {
   setUp(() {
     SharedPreferencesAsyncPlatform.instance =
@@ -82,5 +97,27 @@ void main() {
 
     expect(await store.toggle('me_1'), isFalse);
     expect(store.isFavorite('me_1'), isFalse);
+  });
+
+  test('a failed load is flagged and toggle never writes over the stored '
+      'list', () async {
+    final prefs = _FlakyReadPrefs();
+    SharedPreferencesAsyncPlatform.instance = prefs;
+    await SharedPreferencesAsync().setStringList('dua_favorites_v1', ['sl_1']);
+    final store = DuaFavoritesStore(SharedPreferencesAsync());
+
+    await store.load(); // doesn't throw
+    expect(store.failed.value, isTrue);
+    expect(store.loaded.value, isFalse);
+
+    expect(await store.toggle('me_1'), isFalse);
+    prefs.readable = true;
+    expect(await SharedPreferencesAsync().getStringList('dua_favorites_v1'), [
+      'sl_1',
+    ]);
+
+    expect(await store.toggle('me_1'), isTrue); // retries the load first
+    expect(store.failed.value, isFalse);
+    expect(store.ids.value, {'sl_1', 'me_1'});
   });
 }

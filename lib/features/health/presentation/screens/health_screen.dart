@@ -351,7 +351,9 @@ final class _WeightCard extends StatelessWidget {
               style: QType.caption.copyWith(color: q.ink2),
             ),
           const SizedBox(height: QSpace.s1),
-          for (final (date, w) in recent.skip(1))
+          // Today's weight is edited from the Log button; every other shown
+          // day (the headline too, when it's from an earlier day) gets a row.
+          for (final (date, w) in recent.skip(todays == null ? 0 : 1))
             InkWell(
               onTap: () => onEdit(date, w),
               borderRadius: BorderRadius.circular(QRadius.sm),

@@ -84,6 +84,24 @@ void main() {
     expect(health.weightOn(DateTime(2026, 10, 29)), 69);
   });
 
+  testWidgets('the newest weight from an earlier day is editable', (
+    tester,
+  ) async {
+    await health.setWeight(DateTime(2026, 10, 20), 70);
+    await health.setWeight(DateTime(2026, 10, 25), 69);
+    await pumpScreen(tester);
+
+    expect(find.text("Log today's weight"), findsOneWidget);
+    await tester.tap(find.text('Oct 25 · 69.0 kg'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '68.5');
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(health.weightOn(DateTime(2026, 10, 25)), 68.5);
+    expect(health.weightOn(DateTime(2026, 10, 29)), isNull);
+  });
+
   screenMatrix(
     'HealthScreen',
     () => const HealthScreen(),

@@ -154,6 +154,17 @@ final class _DuaScreenState extends State<DuaScreen> {
                 // rebuilds only this section.
                 SignalBuilder(
                   builder: (context) {
+                    // Unread, not empty: say so instead of showing none.
+                    if (_favorites.failed.value) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: QSpace.s4),
+                        child: QErrorRetry(
+                          message: l10n.dataLoadFailed,
+                          retryLabel: l10n.retry,
+                          onRetry: () => unawaited(_favorites.load()),
+                        ),
+                      );
+                    }
                     final duas = _favoriteDuas();
                     return duas.isEmpty
                         ? const SizedBox.shrink()
@@ -198,7 +209,9 @@ final class _DuaScreenState extends State<DuaScreen> {
                 // With none saved yet, the how-to hint goes below the grid.
                 SignalBuilder(
                   builder: (context) =>
-                      _store.loaded.value && _favoriteDuas().isEmpty
+                      _store.loaded.value &&
+                          !_favorites.failed.value &&
+                          _favoriteDuas().isEmpty
                       ? const Padding(
                           padding: EdgeInsets.only(top: QSpace.s4),
                           child: _FavoritesSection(duas: []),

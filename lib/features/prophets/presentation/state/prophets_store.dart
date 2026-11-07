@@ -35,7 +35,14 @@ final class ProphetsStore {
   /// to load — the detail page then shows no story buttons.
   late final quranStories = signal(const <String, Story>{});
 
-  Future<void> load() async {
+  Future<void>? _loading;
+
+  /// Concurrent callers share one load, so a late result can't land over
+  /// a newer one.
+  Future<void> load() =>
+      _loading ??= _load().whenComplete(() => _loading = null);
+
+  Future<void> _load() async {
     final (result, stories, lineage) = (
       await _repository.prophets(),
       await _stories.stories(StoryKind.quran),

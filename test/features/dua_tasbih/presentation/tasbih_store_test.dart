@@ -21,6 +21,22 @@ final class _RecordingPrefs extends InMemorySharedPreferencesAsync {
   }
 }
 
+/// Prefs whose writes to [failKey] fail (full disk, platform error).
+final class _FailingKeyPrefs extends InMemorySharedPreferencesAsync {
+  _FailingKeyPrefs(this.failKey) : super.empty();
+
+  final String failKey;
+
+  @override
+  Future<bool> setString(
+    String key,
+    String value,
+    SharedPreferencesOptions options,
+  ) => key == failKey
+      ? Future.error(StateError('disk full'))
+      : super.setString(key, value, options);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -388,6 +404,47 @@ void main() {
       // Killed between the writes, the round must not be credited twice.
       expect(prefs.writes, ['tasbih_round', 'tasbih_lifetime']);
       expect(nextDay.lifetimeTotal.value, 2);
+    });
+
+    test(
+      'a failed day-total write is reported and still credits lifetime',
+      () async {
+        SharedPreferencesAsyncPlatform.instance = _FailingKeyPrefs(
+          'tasbih_today',
+        );
+        final store = makeStore();
+        await store.load();
+        await store.setAutoNextRound(value: true);
+        store
+          ..setTarget(2)
+          ..tap()
+          ..tap()
+          ..tap(); // auto-next saves the full round
+        await pumpEventQueue();
+
+        expect(store.saveFailures.value, 1);
+        expect(store.count.value, 1);
+        expect(store.lifetimeTotal.value, 2);
+        expect(store.lifetimeSessions.value, 1);
+        final restored = makeStore();
+        await restored.load();
+        expect(restored.lifetimeTotal.value, 2);
+      },
+    );
+
+    test('a failed round write is reported, not thrown', () async {
+      SharedPreferencesAsyncPlatform.instance = _FailingKeyPrefs(
+        'tasbih_round',
+      );
+      final store = makeStore();
+      await store.load();
+      store
+        ..tap()
+        ..setTarget(5);
+      await pumpEventQueue();
+
+      expect(store.count.value, 1);
+      expect(store.saveFailures.value, 2);
     });
   });
 }
