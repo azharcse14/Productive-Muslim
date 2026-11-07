@@ -154,8 +154,6 @@ final class _ProphetRow extends StatelessWidget {
     super.key,
   });
 
-  static const _adnanChainStart = 'haidir';
-
   final LineageRow row;
   final double treeWidth;
 
@@ -167,11 +165,9 @@ final class _ProphetRow extends StatelessWidget {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     final prophet = row.prophet;
-    // Ismail → Haidir starts the chain to Adnan, which scholars hold
-    // uncertain; the line is agreed only from Adnan down.
-    final title = prophet.id == _adnanChainStart
-        ? context.l10n.prophetsLineageAdnanNote
-        : prophet.titleFor(languageCode);
+    // Lineage captions (e.g. where the chain to Adnan turns uncertain)
+    // come from prophet_lineage.json.
+    final title = prophet.titleFor(languageCode);
     return InkWell(
       onTap: isProphet
           ? () => unawaited(
