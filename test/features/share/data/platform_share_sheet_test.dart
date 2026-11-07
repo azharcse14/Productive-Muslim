@@ -33,7 +33,7 @@ void main() {
   });
 
   test(
-    'writes a fresh PNG to the cache share folder, dropping old ones',
+    'writes a fresh PNG per share, pruning only ones over an hour old',
     () async {
       final cache = Directory.systemTemp.createTempSync('share_test');
       addTearDown(() => cache.deleteSync(recursive: true));
@@ -59,11 +59,23 @@ void main() {
         '${cache.path}/share/productive_muslim_1000.png',
         '${cache.path}/share/productive_muslim_2000.png',
       ]);
-      expect(Directory('${cache.path}/share').listSync().map((f) => f.path), [
-        paths.last,
-      ]);
+      List<String> files() =>
+          [for (final f in Directory('${cache.path}/share').listSync()) f.path]
+            ..sort();
+      // A target app may still be reading the first one.
+      expect(files(), paths);
       expect(File(paths.last! as String).readAsBytesSync(), png);
       expect((calls.last.arguments as Map<Object?, Object?>)['text'], 'again');
+
+      now = DateTime.fromMillisecondsSinceEpoch(
+        1500 + PlatformShareSheet.keepFor.inMilliseconds,
+      );
+      expect(await sheet.shareImage(png, 'later'), isTrue);
+      expect(files(), [
+        '${cache.path}/share/productive_muslim_2000.png',
+        '${cache.path}/share/productive_muslim_${now.millisecondsSinceEpoch}'
+            '.png',
+      ]);
     },
   );
 

@@ -67,6 +67,17 @@ void main() {
 
   tearDown(() => GetIt.I.reset());
 
+  testWidgets('a failed favorites load offers a retry, not the empty hint', (
+    tester,
+  ) async {
+    favoritesStore.failed.value = true;
+    await tester.pumpWidget(_app(const DuaScreen()));
+    await tester.pump();
+
+    expect(find.text("Couldn't load your data. Please try again."), findsOne);
+    expect(find.text('Tap the heart on any dua to save it here'), findsNothing);
+  });
+
   testWidgets('empty favorites shows the hint', (tester) async {
     await tester.pumpWidget(_app(const DuaScreen()));
     await tester.pump();

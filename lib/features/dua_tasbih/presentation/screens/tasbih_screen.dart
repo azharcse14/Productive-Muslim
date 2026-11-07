@@ -82,9 +82,22 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   /// past midnight.
   Timer? _dayTick;
 
+  /// Shows "couldn't save" for each new failed write.
+  late final void Function() _saveFailedEffect;
+
   @override
   void initState() {
     super.initState();
+    var seenFailures = _store.saveFailures.peek();
+    _saveFailedEffect = effect(() {
+      final failures = _store.saveFailures.value;
+      if (failures > seenFailures) {
+        seenFailures = failures;
+        ScaffoldMessenger.maybeOf(context)
+          ?..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(context.l10n.saveFailed)));
+      }
+    });
     unawaited(_store.load());
     // Counting with the phone set down: don't let the screen lock.
     unawaited(_wake.hold(on: true));
@@ -97,6 +110,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
   @override
   void dispose() {
     _dayTick?.cancel();
+    _saveFailedEffect();
     unawaited(_wake.hold(on: false));
     super.dispose();
   }

@@ -18,7 +18,14 @@ final class RuqyahStore {
   /// The last load failed; the screen offers a retry.
   late final failed = signal(false);
 
-  Future<void> load() async {
+  Future<void>? _loading;
+
+  /// Concurrent callers share one load, so a late result can't land over
+  /// a newer one.
+  Future<void> load() =>
+      _loading ??= _load().whenComplete(() => _loading = null);
+
+  Future<void> _load() async {
     final cats = await _repository.categories();
     if (cats.valueOrNull case final value?) {
       categories.value = value;

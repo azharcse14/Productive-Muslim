@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -51,7 +52,22 @@ final class TasbihStore {
 
   Future<void> setAutoNextRound({required bool value}) {
     autoNextRound.value = value;
-    return _prefs.setBool(_autoNextKey, value);
+    return _guard('auto-next', _prefs.setBool(_autoNextKey, value));
+  }
+
+  /// Counts failed prefs writes (the screen shows a "couldn't save" note on
+  /// each increment). Writes never throw out of the store.
+  late final saveFailures = signal(0);
+
+  /// Awaits [write], reporting a failure instead of letting it escape (or
+  /// vanish inside an unawaited future).
+  Future<void> _guard(String what, Future<Object?> write) async {
+    try {
+      await write;
+    } on Object catch (e) {
+      debugPrint('Tasbih $what save failed: $e');
+      saveFailures.value = saveFailures.value + 1;
+    }
   }
 
   /// The day key [totalToday] belongs to; a different day means it is stale.
@@ -61,6 +77,10 @@ final class TasbihStore {
   /// waits for it so a save never lands on a total about to be replaced.
   Future<void> _reloading = Future<void>.value();
   int _reloadGen = 0;
+
+  /// The latest re-read failed: today's stored total is unknown, so [reset]
+  /// must not overwrite it.
+  bool _totalUnread = false;
 
   /// Day key of the in-progress round's first bead; null while count is 0.
   String? _roundDay;
@@ -80,7 +100,7 @@ final class TasbihStore {
 
   Future<void> setPhrase(String id) {
     phrase.value = id;
-    return _prefs.setString(_phraseKey, id);
+    return _guard('phrase', _prefs.setString(_phraseKey, id));
   }
 
   static void _defaultTapHaptic() => Haptics.light();
@@ -147,14 +167,30 @@ final class TasbihStore {
   // ponytail: one prefs write per bead; debounce if taps ever get heavy.
   void _saveRound() => unawaited(_writeRound());
 
-  Future<void> _writeRound() => _prefs.setString(
-    _roundKey,
-    jsonEncode({
-      'count': count.value,
-      'target': target.value,
-      'day': _roundDay,
-    }),
+  Future<void> _writeRound() => _guard(
+    'round',
+    _prefs.setString(
+      _roundKey,
+      jsonEncode({
+        'count': count.value,
+        'target': target.value,
+        'day': _roundDay,
+      }),
+    ),
   );
+
+  Future<void> _writeTotal(String today, int total) async {
+    if (_totalUnread) {
+      throw StateError("today's stored total was never read");
+    }
+    // ponytail: one stored day only — a day behind the stored one (zone
+    // switched back) keeps its total in memory rather than clobbering the
+    // later day's; store a per-day map if that ever matters.
+    final stored = await _readStored();
+    if (stored.day == null || stored.day!.compareTo(today) <= 0) {
+      await _prefs.setString(_key, jsonEncode({'date': today, 'total': total}));
+    }
+  }
 
   /// The persisted total and the day it belongs to (null day: none stored).
   Future<_StoredTotal> _readStored() async {
@@ -188,11 +224,20 @@ final class TasbihStore {
     _totalDay = today;
     totalToday.value = 0;
     final gen = ++_reloadGen;
-    _reloading = _readStored().then((stored) {
-      if (gen == _reloadGen) {
-        totalToday.value = stored.totalFor(today);
-      }
-    });
+    _reloading = _readStored().then(
+      (stored) {
+        if (gen == _reloadGen) {
+          _totalUnread = false;
+          totalToday.value = stored.totalFor(today);
+        }
+      },
+      onError: (Object e) {
+        debugPrint('Tasbih total reload failed: $e');
+        if (gen == _reloadGen) {
+          _totalUnread = true;
+        }
+      },
+    );
   }
 
   Future<void> _loadLifetime() async {
@@ -219,12 +264,15 @@ final class TasbihStore {
   Future<void> _creditLifetime(int beads) async {
     lifetimeTotal.value = lifetimeTotal.value + beads;
     lifetimeSessions.value = lifetimeSessions.value + 1;
-    await _prefs.setString(
-      _lifetimeKey,
-      jsonEncode({
-        'total': lifetimeTotal.value,
-        'sessions': lifetimeSessions.value,
-      }),
+    await _guard(
+      'lifetime',
+      _prefs.setString(
+        _lifetimeKey,
+        jsonEncode({
+          'total': lifetimeTotal.value,
+          'sessions': lifetimeSessions.value,
+        }),
+      ),
     );
   }
 
@@ -278,7 +326,9 @@ final class TasbihStore {
   }
 
   /// Ends the round. With [saveToHistory] the round is added to today's
-  /// total and persisted; otherwise the count is simply discarded.
+  /// total and persisted; otherwise the count is simply discarded. Never
+  /// throws: a failed write counts in [saveFailures], and the lifetime credit
+  /// doesn't hinge on the day-total write.
   Future<void> reset({required bool saveToHistory}) async {
     // Snapshot and clear synchronously: taps landing during the awaits
     // below start the next round instead of being lost or miscredited.
@@ -297,17 +347,7 @@ final class TasbihStore {
       // A round started before midnight is not part of today's total.
       if (roundDay == null || roundDay == today) {
         totalToday.value = totalToday.value + round;
-        final total = totalToday.value;
-        // ponytail: one stored day only — a day behind the stored one (zone
-        // switched back) keeps its total in memory rather than clobbering
-        // the later day's; store a per-day map if that ever matters.
-        final stored = await _readStored();
-        if (stored.day == null || stored.day!.compareTo(today) <= 0) {
-          await _prefs.setString(
-            _key,
-            jsonEncode({'date': today, 'total': total}),
-          );
-        }
+        await _guard('total', _writeTotal(today, totalToday.value));
       }
       await _creditLifetime(round);
     }

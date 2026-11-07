@@ -31,25 +31,47 @@ final class PlatformShareSheet implements ShareSheet {
   Future<void> shareText(String text) =>
       _invoke(() => _channel.invokeMethod<void>('shareText', text));
 
-  /// Each share gets a fresh file name, so a target app still reading the
-  /// previous image never sees it replaced; older images are deleted
-  /// first, so the folder holds one image at a time.
+  /// How long a shared image stays: target apps may read it lazily (a
+  /// draft, a slow upload), so only images older than this are pruned.
+  static const keepFor = Duration(hours: 1);
+
+  static final _name = RegExp(r'productive_muslim_(\d+)\.png$');
+
+  /// Each share gets a fresh file name, so a target app still reading an
+  /// earlier image never sees it replaced or deleted; only images older
+  /// than [keepFor] (by the time in their name) are removed.
   @override
   Future<bool> shareImage(Uint8List png, String text) => _invoke(() async {
     final dir = Directory('${(await _cacheDir()).path}/$shareDir');
-    if (dir.existsSync()) {
-      await dir.delete(recursive: true);
-    }
+    final nowMs = _now().millisecondsSinceEpoch;
+    await _prune(dir, nowMs - keepFor.inMilliseconds);
     await dir.create(recursive: true);
-    final file = File(
-      '${dir.path}/productive_muslim_${_now().millisecondsSinceEpoch}.png',
-    );
+    final file = File('${dir.path}/productive_muslim_$nowMs.png');
     await file.writeAsBytes(png, flush: true);
     await _channel.invokeMethod<void>('shareImage', {
       'path': file.path,
       'text': text,
     });
   });
+
+  /// Deletes entries of [dir] named before [cutoffMs] (or not named by us).
+  /// Best effort: a file that can't be removed doesn't stop the share.
+  static Future<void> _prune(Directory dir, int cutoffMs) async {
+    if (!dir.existsSync()) {
+      return;
+    }
+    for (final entry in dir.listSync()) {
+      final ms = _name.firstMatch(entry.path)?.group(1);
+      if (ms != null && int.parse(ms) >= cutoffMs) {
+        continue;
+      }
+      try {
+        await entry.delete(recursive: true);
+      } on FileSystemException catch (e) {
+        debugPrint('share: old image not removed: $e');
+      }
+    }
+  }
 
   /// Runs [share]; false (logged) when the native side is missing or
   /// fails, or the file can't be written.
