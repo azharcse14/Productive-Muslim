@@ -29,4 +29,16 @@ void main() {
       expect(c.style, isNull, reason: 'inherits Hafs from the parent');
     }
   });
+
+  test('؟ and ؛ also leave Hafs, consecutive marks stay one span', () {
+    const text = 'أَيْنَ؟ قَالَ؛ نَعَمْ،؟';
+    final span = hafsSpan(text, hafs);
+    expect(span.toPlainText(), text);
+    final ui = span.children!
+        .cast<TextSpan>()
+        .where((c) => c.style?.fontFamily == AppFonts.arabicUi)
+        .map((c) => c.text)
+        .toList();
+    expect(ui, ['؟', '؛', '،؟']);
+  });
 }
