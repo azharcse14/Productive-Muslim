@@ -33,7 +33,7 @@
     ],
     "hadithRefs": [
       "Bukhari 3326",
-      "Muslim 1976",
+      "Muslim 854",
       "Bukhari 3409",
       "Bukhari 4712",
       "Bukhari 3887"
@@ -238,7 +238,7 @@
       "87:18-19"
     ],
     "hadithRefs": [
-      "Muslim 6138",
+      "Muslim 2369",
       "Bukhari 3349",
       "Bukhari 3364",
       "Bukhari 3365",
@@ -336,7 +336,7 @@
       "Bukhari 3364",
       "Bukhari 3365",
       "Bukhari 2899",
-      "Muslim 5938"
+      "Muslim 2276"
     ],
     "storyIds": [
       "ibrahim_family_in_the_valley",
@@ -453,7 +453,7 @@
     "hadithRefs": [
       "Bukhari 3382",
       "Bukhari 3390",
-      "Muslim 411",
+      "Muslim 162",
       "Bukhari 3887"
     ],
     "storyIds": [
@@ -652,7 +652,7 @@
     "titleEn": "",
     "titleBn": "",
     "parent": "ayyub",
-    "parentDistant": false,
+    "parentDistant": true,
     "summaryEn": [
       "Dhul-Kifl (AS) is named twice in the Quran, together with Ismail, Idris and Al-Yasa‘. Allah says all of them were among the patient, the righteous and the best of the chosen, and that He admitted them into His mercy.",
       "The Quran tells nothing more about his life. Many scholars count him among the prophets because he is named in their company, while others held that he was a righteous man and not a prophet. This is a difference among the scholars, and Allah knows best."
@@ -874,7 +874,7 @@
       "21:89-90"
     ],
     "hadithRefs": [
-      "Muslim 6162"
+      "Muslim 2379"
     ],
     "storyIds": [
       "zakariya_and_yahya",
@@ -953,7 +953,7 @@
     ],
     "hadithRefs": [
       "Bukhari 3448",
-      "Muslim 7373",
+      "Muslim 2937",
       "Bukhari 3431",
       "Bukhari 3436",
       "Bukhari 3443",
@@ -1014,7 +1014,7 @@
       "Bukhari 3535",
       "Bukhari 335",
       "Bukhari 4981",
-      "Muslim 5938",
+      "Muslim 2276",
       "Bukhari 4712"
     ],
     "storyIds": [

@@ -68,6 +68,15 @@ final class _Prophets implements ProphetRepository {
             nameBn: 'ইবরাহিম',
             parent: 'azar',
           ),
+          Prophet(
+            id: 'haidir',
+            order: 3,
+            nameAr: '',
+            nameEn: 'Haidir',
+            nameBn: 'হাইদির',
+            parent: 'ibrahim',
+            parentDistant: true,
+          ),
         ]);
 }
 
@@ -169,6 +178,10 @@ void main() {
     await tester.tap(find.text('Full lineage'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Israelite sources'), findsOneWidget);
+    expect(
+      find.text('Uncertain from here: the line is agreed only up to Adnan'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Azar'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/prophets');

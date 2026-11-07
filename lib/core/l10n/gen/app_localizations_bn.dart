@@ -3968,6 +3968,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্রচলিত বংশতালিকা থেকে নেওয়া: ঐতিহাসিক বর্ণনা, যার অনেকগুলো ইসরাইলি সূত্রের। নবীদের মাঝের নামগুলো নিশ্চিত নয় এবং এক এক কিতাবে এক এক রকম।';
 
   @override
+  String get prophetsLineageAdnanNote =>
+      'এখান থেকে অনিশ্চিত: বংশধারা কেবল আদনান পর্যন্ত সর্বসম্মত';
+
+  @override
   String get prophetSummaryComingSoon => 'সারসংক্ষেপ শীঘ্রই আসছে।';
 
   @override

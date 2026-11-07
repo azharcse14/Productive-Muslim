@@ -3989,6 +3989,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'From a traditional genealogy chart: historical reports, many from Israelite sources. The names between the prophets are not certain and differ between books.';
 
   @override
+  String get prophetsLineageAdnanNote =>
+      'Uncertain from here: the line is agreed only up to Adnan';
+
+  @override
   String get prophetSummaryComingSoon => 'Summary coming soon.';
 
   @override
