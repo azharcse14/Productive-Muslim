@@ -167,13 +167,13 @@ const _overpass = [
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
 ];
 
-/// BD cities, towns and city neighbourhoods from OpenStreetMap, deduped
+/// BD cities, towns, villages and city neighbourhoods from OpenStreetMap, deduped
 /// among themselves (a place is often both a node and an area).
 List<List<Object>> _osmBangladesh() {
   const query =
       '[out:json][timeout:250];'
       'area["ISO3166-1"="BD"][admin_level=2]->.a;'
-      'nwr(area.a)[place~"^(city|town|borough|suburb|quarter|neighbourhood)\$"]'
+      'nwr(area.a)[place~"^(city|town|borough|suburb|quarter|neighbourhood|village)\$"]'
       '[name];out center tags;';
   for (final url in _overpass) {
     stdout.writeln('Querying $url …');
@@ -598,6 +598,21 @@ const _placeBn = {
   'Sreerampur': 'শ্রীরামপুর',
   'Salamabad': 'সালামাবাদ',
   'Pirgacha': 'পীরগাছা',
+  'Birampur': 'বিরামপুর',
+  'Buliapāra': 'বুলিয়াপাড়া',
+  'Bāhārpur': 'বাহারপুর',
+  'Bāliādānga': 'বালিয়াডাঙ্গা',
+  'Bāniakhāmar': 'বানিয়াখামার',
+  'Charandip': 'চরণদ্বীপ',
+  'Hāmzāpur': 'হামজাপুর',
+  'Jhautala': 'ঝাউতলা',
+  'Karnapāra': 'কর্ণপাড়া',
+  'Khayertala': 'খয়েরতলা',
+  'Phulhāt': 'ফুলহাট',
+  'Purba Narsinghapur': 'পূর্ব নরসিংহপুর',
+  'Shaikh Hāti': 'শেখহাটি',
+  'Tutpara': 'টুটপাড়া',
+  'Ārabpur': 'আরবপুর',
 };
 
 double _round(double v) => (v * 10000).roundToDouble() / 10000;

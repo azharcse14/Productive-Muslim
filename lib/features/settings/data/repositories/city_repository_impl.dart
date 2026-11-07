@@ -14,6 +14,9 @@ final class CityRepositoryImpl implements CityRepository {
   List<City>? _indexed;
   List<String> _names = const [];
 
+  /// [_soundsLike] of each English name, parallel to [_indexed].
+  List<String> _sounds = const [];
+
   @override
   Future<Result<List<City>>> search(String query, {int limit = 30}) async {
     try {
@@ -24,6 +27,7 @@ final class CityRepositoryImpl implements CityRepository {
             // Newline can't appear in a query, so it never matches across.
             [city.name, ?city.nameBn].map(_normalize).join('\n'),
         ];
+        _sounds = [for (final city in all) _soundsLike(_normalize(city.name))];
         _indexed = all;
       }
       final q = _normalize(query);
@@ -31,8 +35,12 @@ final class CityRepositoryImpl implements CityRepository {
         return Result.success(all.take(limit).toList());
       }
       // Source is population-ordered, so prefix hits collect biggest first.
+      // Romanized Bengali has no fixed spelling ("Adabor" / "Adabar"), so a
+      // fully typed Latin name also matches by sound, ranked last.
+      final sound = RegExp(r'^[a-z ]+$').hasMatch(q) ? _soundsLike(q) : '';
       final prefix = <City>[];
       final contains = <City>[];
+      final similar = <City>[];
       for (var i = 0; i < all.length; i++) {
         final city = all[i];
         final name = _names[i];
@@ -43,13 +51,43 @@ final class CityRepositoryImpl implements CityRepository {
           }
         } else if (contains.length < limit && name.contains(q)) {
           contains.add(city);
+        } else if (similar.length < limit &&
+            sound.length >= 3 &&
+            (_sounds[i] == sound || _sounds[i].startsWith('$sound '))) {
+          similar.add(city);
         }
       }
-      return Result.success([...prefix, ...contains].take(limit).toList());
+      // Spelling drift is a romanized-Bengali habit: BD sound-alikes first.
+      final bd = [
+        for (final c in similar)
+          if (c.countryCode == 'BD') c,
+      ];
+      return Result.success(
+        [
+          ...prefix,
+          ...contains,
+          ...bd,
+          ...similar.where((c) => c.countryCode != 'BD'),
+        ].take(limit).toList(),
+      );
     } on Object catch (e) {
       return Result.failure(UnexpectedFailure('City search failed', e));
     }
   }
+
+  /// Per-word consonant skeleton of a normalized Latin name: first letter
+  /// kept, later vowels and every h dropped, v→b, z→j, repeats collapsed —
+  /// so Lalbag/Lalbagh, Vatara/Bhatara and Basabo/Basaboo sound alike.
+  static String _soundsLike(String name) => [
+    for (final word
+        in name
+            .replaceAll('v', 'b')
+            .replaceAll('z', 'j')
+            .split(RegExp('[^a-z]+')))
+      if (word.isNotEmpty)
+        (word[0] + word.substring(1).replaceAll(RegExp('[aeiouyh]'), ''))
+            .replaceAllMapped(RegExp(r'(.)\1+'), (m) => m[1]!),
+  ].join(' ');
 
   /// [foldForSearch] + strip Latin diacritics so "Sao" matches "São" and
   /// "eskisehir" matches "Eskişehir". The table is every lowercase letter
