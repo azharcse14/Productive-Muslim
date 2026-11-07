@@ -820,40 +820,39 @@ final class _MuhasabaScreenState extends State<MuhasabaScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          QHeatmap(
+            weeks: _heatmapWeeks(days),
+            // Week/Month fill the card centered; Year scrolls, newest first.
+            maxCellSize: 28,
             reverse: true,
-            child: QHeatmap(
-              weeks: _heatmapWeeks(days),
-              highlight: todayIndex == null
-                  ? null
-                  : (todayIndex ~/ 7, todayIndex % 7),
-              semanticLabel: l10n.heatmapDaysComplete(complete, days.length),
-              cellLabel: (w, d) {
-                final day = dayAt(w, d);
-                if (day == null) {
-                  return '';
-                }
-                return LocaleDigits.localize(
-                  '${dayFormat.format(day.date)}: '
-                  '${_percent(context, day.completion)}',
-                  locale.languageCode,
-                );
-              },
-              // Jump to that day's checklist.
-              onTap: (w, d) {
-                final day = dayAt(w, d);
-                if (day == null) {
-                  return;
-                }
-                Haptics.selection();
-                setState(() {
-                  _tab = 0;
-                  _cascadePlayed = true;
-                });
-                unawaited(_store.selectDate(day.date));
-              },
-            ),
+            highlight: todayIndex == null
+                ? null
+                : (todayIndex ~/ 7, todayIndex % 7),
+            semanticLabel: l10n.heatmapDaysComplete(complete, days.length),
+            cellLabel: (w, d) {
+              final day = dayAt(w, d);
+              if (day == null) {
+                return '';
+              }
+              return LocaleDigits.localize(
+                '${dayFormat.format(day.date)}: '
+                '${_percent(context, day.completion)}',
+                locale.languageCode,
+              );
+            },
+            // Jump to that day's checklist.
+            onTap: (w, d) {
+              final day = dayAt(w, d);
+              if (day == null) {
+                return;
+              }
+              Haptics.selection();
+              setState(() {
+                _tab = 0;
+                _cascadePlayed = true;
+              });
+              unawaited(_store.selectDate(day.date));
+            },
           ),
           const SizedBox(height: QSpace.s3),
           Row(

@@ -224,7 +224,7 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                     children: [
                       Text(
                         l10n.tasbihTarget.toUpperCase(),
-                        style: QType.overline.copyWith(color: q.ink2),
+                        style: context.text.labelSmall?.copyWith(color: q.ink2),
                       ),
                       const SizedBox(height: QSpace.s2),
                       Wrap(
@@ -261,7 +261,9 @@ final class _TasbihScreenState extends State<TasbihScreen> {
                         const SizedBox(height: QSpace.s3),
                         Text(
                           l10n.tasbihDhikr.toUpperCase(),
-                          style: QType.overline.copyWith(color: q.ink2),
+                          style: context.text.labelSmall?.copyWith(
+                            color: q.ink2,
+                          ),
                         ),
                         const SizedBox(height: QSpace.s2),
                         // One scrolling line, so the counter keeps its room.

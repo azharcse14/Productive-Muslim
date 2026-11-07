@@ -5,6 +5,7 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/reader/reader_text_size.dart';
+import '../../../../shared/widgets/q_arabic_span.dart';
 import '../../../../shared/widgets/q_card.dart';
 
 /// Home card: the "Dua of the day". Purely presentational — the day's dua is
@@ -65,8 +66,11 @@ final class DuaOfDayCard extends StatelessWidget {
               width: double.infinity,
               // Rebuilds when the reader text size changes.
               child: SignalBuilder(
-                builder: (context) => Text(
-                  arabic,
+                builder: (context) => Text.rich(
+                  hafsSpan(
+                    arabic,
+                    QType.quran(arabicBodySize(context)).copyWith(color: q.ink),
+                  ),
                   textAlign: TextAlign.start,
                   textDirection: TextDirection.rtl,
                   semanticsLabel: transliteration,
@@ -74,9 +78,6 @@ final class DuaOfDayCard extends StatelessWidget {
                   // Sized by the reader setting, so the system text scale
                   // must not multiply it again.
                   textScaler: TextScaler.noScaling,
-                  style: QType.quran(
-                    arabicBodySize(context),
-                  ).copyWith(color: q.ink),
                 ),
               ),
             ),

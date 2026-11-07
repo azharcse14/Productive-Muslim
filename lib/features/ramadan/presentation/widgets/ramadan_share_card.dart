@@ -91,7 +91,7 @@ final class RamadanShareCard extends StatelessWidget {
                       const Spacer(),
                       Text(
                         l10n.ramadanShareHeading.toUpperCase(),
-                        style: QType.overline.copyWith(color: muted),
+                        style: context.text.labelSmall?.copyWith(color: muted),
                       ),
                       const SizedBox(height: QSpace.s3),
                       FittedBox(

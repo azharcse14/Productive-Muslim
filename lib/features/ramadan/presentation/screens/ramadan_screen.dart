@@ -260,7 +260,7 @@ final class _RozaCounterCard extends StatelessWidget {
             children: [
               Text(
                 l10n.ramadanTitle.toUpperCase(),
-                style: QType.overline.copyWith(color: q.ink2),
+                style: context.text.labelSmall?.copyWith(color: q.ink2),
               ),
               const SizedBox(height: QSpace.s2),
               Text(
@@ -474,7 +474,9 @@ final class _TodayTimesCardState extends State<_TodayTimesCard> {
             children: [
               Text(
                 l10n.todayTab.toUpperCase(),
-                style: QType.overline.copyWith(color: q.onPrimarySoft),
+                style: context.text.labelSmall?.copyWith(
+                  color: q.onPrimarySoft,
+                ),
               ),
               const SizedBox(height: QSpace.s2),
               Row(

@@ -25,6 +25,68 @@ void main() {
       expect(find.byType(QHeatmapCell), findsNWidgets(14));
     });
 
+    testWidgets('maxCellSize: short grid grows and centers, long one scrolls', (
+      tester,
+    ) async {
+      List<List<int>> weeks(int n) => [
+        for (var i = 0; i < n; i++) [0, 1, 2, 3, 4, 0, 1],
+      ];
+      Widget at(int n) => MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: Align(
+            alignment: AlignmentDirectional.topStart,
+            child: SizedBox(
+              width: 300,
+              child: QHeatmap(weeks: weeks(n), maxCellSize: 28),
+            ),
+          ),
+        ),
+      );
+      final cells = find.byType(QHeatmapCell);
+
+      await tester.pumpWidget(at(2));
+      expect(tester.widget<QHeatmapCell>(cells.first).size, 28);
+      final mid =
+          (tester.getTopLeft(cells.first).dx +
+              tester.getTopRight(cells.last).dx) /
+          2;
+      expect(mid, moreOrLessEquals(150, epsilon: 0.5));
+
+      await tester.pumpWidget(at(53));
+      expect(tester.widget<QHeatmapCell>(cells.first).size, 13);
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a tap on a grown cell picks that cell', (tester) async {
+      (int, int)? tapped;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: Align(
+              alignment: AlignmentDirectional.topStart,
+              child: SizedBox(
+                width: 300,
+                child: QHeatmap(
+                  weeks: const [
+                    [1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1],
+                  ],
+                  maxCellSize: 28,
+                  onTap: (w, d) => tapped = (w, d),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      // Last cell of the second week: (1, 6).
+      await tester.tap(find.byType(QHeatmapCell).last);
+      expect(tapped, (1, 6));
+    });
+
     testWidgets('level 0 is surface-2 — neutral, never a shame color', (
       tester,
     ) async {
