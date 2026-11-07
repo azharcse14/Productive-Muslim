@@ -131,6 +131,11 @@ List<List<Object>> _bangladeshAdmin(Directory tmp) {
               final bn => [bn, ?d?.$2].join(', '),
             },
           ),
+    // City neighbourhoods (e.g. Mohammadpur, Dhaka) so a GPS fix names the
+    // area, not a farther one; ≥15k ones already came from cities15000.
+    for (final f in rows)
+      if (f[7] == 'PPLX' && (int.tryParse(f[14]) ?? 0) < 15000)
+        entry(f, f[1], _bengali(f[3]) ?? _placeBn[f[1]]),
   ];
 }
 

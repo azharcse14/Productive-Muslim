@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,12 @@ final class _FakeBundle extends CachingAssetBundle {
   );
 }
 
+final class _FileBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) async =>
+      ByteData.sublistView(File(key).readAsBytesSync());
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -78,6 +85,15 @@ void main() {
       expect(await nameAt(23.75, 90.39), 'Dhaka, BD');
       expect(await nameAt(23.63, 90.51), 'Narayanganj, BD');
       expect(await nameAt(25.5, 90.4), '', reason: '~200 km from any city');
+    });
+
+    test('bundled asset names Dhaka neighbourhoods (Mohammadpur)', () async {
+      final name = (await LocationRepositoryImpl(
+        // Jakir Hossain Road — used to resolve to Dhanmondi, ~3 km off.
+        _FakeSource(position: _position(23.7635, 90.3640)),
+        cities: CityAssetDataSource(_FileBundle()),
+      ).getCurrentLocation()).valueOrNull?.resolvedName;
+      expect(name, 'Mohammadpur, BD');
     });
 
     test('service disabled → LocationServiceDisabled', () async {
