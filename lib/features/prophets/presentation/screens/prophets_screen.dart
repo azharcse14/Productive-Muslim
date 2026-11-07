@@ -31,7 +31,7 @@ final class _ProphetsScreenState extends State<ProphetsScreen> {
   late final ProphetsStore _store = locator<ProphetsStore>();
 
   static const _rowHeight = 72.0;
-  static const _lineageRowHeight = 52.0;
+  static const _lineageRowHeight = 56.0;
   static const _laneWidth = 16.0;
 
   @override
@@ -154,6 +154,8 @@ final class _ProphetRow extends StatelessWidget {
     super.key,
   });
 
+  static const _adnanChainStart = 'haidir';
+
   final LineageRow row;
   final double treeWidth;
 
@@ -165,7 +167,11 @@ final class _ProphetRow extends StatelessWidget {
     final q = context.q;
     final languageCode = Localizations.localeOf(context).languageCode;
     final prophet = row.prophet;
-    final title = prophet.titleFor(languageCode);
+    // Ismail → Haidir starts the chain to Adnan, which scholars hold
+    // uncertain; the line is agreed only from Adnan down.
+    final title = prophet.id == _adnanChainStart
+        ? context.l10n.prophetsLineageAdnanNote
+        : prophet.titleFor(languageCode);
     return InkWell(
       onTap: isProphet
           ? () => unawaited(
