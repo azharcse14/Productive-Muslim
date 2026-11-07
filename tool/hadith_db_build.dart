@@ -47,7 +47,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// Bump together with [HadithDatabase.bundledVersion] to force a re-copy of the
 /// asset on the next app launch after the data changes.
-const _userVersion = 4;
+const _userVersion = 5;
 
 /// Grades upstream leaves out, by (edition, hadith number). Read in the
 /// reader's language: the Arabic edition carries none, so the translation's
@@ -55,11 +55,11 @@ const _userVersion = 4;
 const _gradeOverrides = {
   // Ibn Rajab (Jami' al-'Ulum wal-Hikam) rejects an-Nawawi's "sahih chain".
   ('eng-nawawi', 41):
-      "Da'if (disputed — Ibn Rajab rejects an-Nawawi's 'sahih chain' "
-      "claim; chain via Nu'aym ibn Hammad)",
+      "Da'if: chain weak per Ibn Rajab and al-Albani (Mishkat 167); hasan "
+      'per Ibn Hajar (Hidayat ar-Ruwat 1/131)',
   ('ben-nawawi', 41):
-      'যঈফ (বিতর্কিত — ইবনু রজব আন-নববির ‘সহিহ সনদ’ দাবি প্রত্যাখ্যান '
-      'করেছেন; সনদ নুআইম ইবনু হাম্মাদের মাধ্যমে)',
+      'যঈফ: ইবনু রজব ও আলবানির মতে সনদ দুর্বল (মিশকাত ১৬৭); ইবনু হাজারের '
+      'মতে হাসান (হিদায়াতুর রুওয়াত ১/১৩১)',
 };
 
 const _catalogPath = 'assets/data/hadith_books.json';
