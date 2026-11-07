@@ -157,6 +157,20 @@ void main() {
       expect(store.settings.value, const AppSettings());
       expect(store.loaded.value, isTrue);
     });
+
+    test('a hand-set offset / margin survives regional defaults', () async {
+      final (store, _) = _make();
+      await store.load();
+      await store.applyRegionalTimingDefaults('BD');
+      expect(store.hijriOffsetDays.value, -1);
+      expect(store.prayerParams.value.sahriSafetyMinutes, 3);
+      // Same values as the BD defaults, but now the user's own.
+      await store.setHijriOffset(-1);
+      await store.setSahriSafety(3);
+      await store.applyRegionalTimingDefaults('EG');
+      expect(store.hijriOffsetDays.value, -1);
+      expect(store.prayerParams.value.sahriSafetyMinutes, 3);
+    });
   });
 }
 

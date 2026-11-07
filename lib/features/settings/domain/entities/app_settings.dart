@@ -32,6 +32,8 @@ final class AppSettings {
     this.hiddenHomeCards = const {},
     this.exactAlarmBannerDismissed = false,
     int hijriOffsetDays = 0,
+    this.hijriOffsetTuned = false,
+    this.sahriSafetyTuned = false,
   }) : hijriOffsetDays = hijriOffsetDays < minHijriOffset
            ? minHijriOffset
            : (hijriOffsetDays > maxHijriOffset
@@ -68,6 +70,14 @@ final class AppSettings {
   /// clamped): the tabular calendar can differ from local sighting.
   final int hijriOffsetDays;
 
+  /// The user set [hijriOffsetDays] themselves. Until then it follows the
+  /// location's region default (`defaultHijriOffsetFor`), even when the
+  /// user's choice happens to equal a default.
+  final bool hijriOffsetTuned;
+
+  /// Same as [hijriOffsetTuned], for [PrayerParams.sahriSafetyMinutes].
+  final bool sahriSafetyTuned;
+
   /// Home's exact-alarm banner was closed for good ("don't remind me").
   /// The notification settings screen still shows its own banner.
   final bool exactAlarmBannerDismissed;
@@ -84,6 +94,8 @@ final class AppSettings {
     Set<HomeCard>? hiddenHomeCards,
     int? hijriOffsetDays,
     bool? exactAlarmBannerDismissed,
+    bool? hijriOffsetTuned,
+    bool? sahriSafetyTuned,
   }) {
     return AppSettings(
       location: location ?? this.location,
@@ -98,6 +110,8 @@ final class AppSettings {
       hijriOffsetDays: hijriOffsetDays ?? this.hijriOffsetDays,
       exactAlarmBannerDismissed:
           exactAlarmBannerDismissed ?? this.exactAlarmBannerDismissed,
+      hijriOffsetTuned: hijriOffsetTuned ?? this.hijriOffsetTuned,
+      sahriSafetyTuned: sahriSafetyTuned ?? this.sahriSafetyTuned,
     );
   }
 
@@ -115,7 +129,9 @@ final class AppSettings {
       other.hiddenHomeCards.length == hiddenHomeCards.length &&
       other.hiddenHomeCards.containsAll(hiddenHomeCards) &&
       other.hijriOffsetDays == hijriOffsetDays &&
-      other.exactAlarmBannerDismissed == exactAlarmBannerDismissed;
+      other.exactAlarmBannerDismissed == exactAlarmBannerDismissed &&
+      other.hijriOffsetTuned == hijriOffsetTuned &&
+      other.sahriSafetyTuned == sahriSafetyTuned;
 
   @override
   int get hashCode => Object.hash(
@@ -130,5 +146,7 @@ final class AppSettings {
     Object.hashAllUnordered(hiddenHomeCards),
     hijriOffsetDays,
     exactAlarmBannerDismissed,
+    hijriOffsetTuned,
+    sahriSafetyTuned,
   );
 }

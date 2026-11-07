@@ -39,6 +39,8 @@ void main() {
         localeCode: 'bn',
         setupComplete: true,
         hijriOffsetDays: -1,
+        hijriOffsetTuned: true,
+        sahriSafetyTuned: true,
         showAchievements: true,
       );
 
@@ -46,6 +48,41 @@ void main() {
         AppSettingsModel.toMap(settings),
       );
       expect(restored, settings);
+    });
+
+    test('a pre-flag BD payload at 0 / 0 gets the BD defaults', () {
+      Map<String, Object?> legacy(int offset, int sahri) => {
+        'location': {
+          'type': 'city',
+          'name': 'Dhaka',
+          'country': 'BD',
+          'lat': 23.71,
+          'lng': 90.41,
+          'tz': 'Asia/Dhaka',
+        },
+        'prayerParams': {'sahriSafety': sahri},
+        'hijriOffsetDays': offset,
+      };
+      final untouched = AppSettingsModel.fromMap(legacy(0, 0));
+      expect(untouched.hijriOffsetDays, -1);
+      expect(untouched.prayerParams.sahriSafetyMinutes, 3);
+      expect(untouched.hijriOffsetTuned, isFalse);
+      expect(untouched.sahriSafetyTuned, isFalse);
+      // Any other value was the user's.
+      final tuned = AppSettingsModel.fromMap(legacy(1, 5));
+      expect(tuned.hijriOffsetDays, 1);
+      expect(tuned.prayerParams.sahriSafetyMinutes, 5);
+      expect(tuned.hijriOffsetTuned, isTrue);
+      expect(tuned.sahriSafetyTuned, isTrue);
+    });
+
+    test('an untuned offset always reads as the region default', () {
+      final s = AppSettingsModel.fromMap({
+        'hijriOffsetDays': -1,
+        'hijriOffsetTuned': false,
+        'sahriSafetyTuned': false,
+      });
+      expect(s.hijriOffsetDays, 0); // no location → 0
     });
 
     test('persists the 45° proportion rule by name', () {

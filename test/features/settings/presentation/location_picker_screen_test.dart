@@ -83,9 +83,14 @@ Future<SettingsStore> _pump(
   bool autoGps = false,
   SettingsRepository? repo,
   int sahriSafety = 0,
+  bool tuned = false,
+  int hijriOffset = 0,
 }) async {
   final initial = AppSettings(
     setupComplete: setup,
+    sahriSafetyTuned: tuned,
+    hijriOffsetTuned: tuned,
+    hijriOffsetDays: hijriOffset,
     prayerParams: PrayerParams(sahriSafetyMinutes: sahriSafety),
     location: const ManualCityLocation(
       City(
@@ -168,22 +173,33 @@ void main() {
     expect(find.byType(LocationPickerScreen), findsNothing);
   });
 
-  testWidgets('the BD sahri margin follows a country move unless tuned', (
+  testWidgets('BD sahri margin and Hijri offset follow a move unless tuned', (
     tester,
   ) async {
-    Future<int> moveToCairo(int sahri) async {
-      final store = await _pump(tester, setup: true, sahriSafety: sahri);
+    Future<(int, int)> moveToCairo(int sahri, int offset, bool tuned) async {
+      final store = await _pump(
+        tester,
+        setup: true,
+        sahriSafety: sahri,
+        hijriOffset: offset,
+        tuned: tuned,
+      );
       await tester.tap(find.text('Cairo'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Keep current'));
       await tester.pumpAndSettle();
-      final minutes = store.prayerParams.value.sahriSafetyMinutes;
+      final result = (
+        store.prayerParams.value.sahriSafetyMinutes,
+        store.hijriOffsetDays.value,
+      );
       await GetIt.I.reset();
-      return minutes;
+      return result;
     }
 
-    expect(await moveToCairo(3), 0); // BD default → Egypt's
-    expect(await moveToCairo(5), 5); // tuned by the user: kept
+    expect(await moveToCairo(3, -1, false), (0, 0)); // BD defaults → Egypt's
+    expect(await moveToCairo(5, 1, true), (5, 1)); // tuned by the user: kept
+    // Set by hand to exactly the BD default is still the user's choice.
+    expect(await moveToCairo(3, -1, true), (3, -1));
   });
 
   testWidgets('first setup does not ask (its own steps pre-select)', (

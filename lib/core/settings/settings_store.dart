@@ -6,6 +6,7 @@ import '../../features/settings/domain/entities/location_config.dart';
 import '../../features/settings/domain/entities/notification_matrix.dart';
 import '../../features/settings/domain/entities/prayer_params.dart';
 import '../../features/settings/domain/usecases/get_settings.dart';
+import '../../features/settings/domain/usecases/regional_defaults.dart';
 import '../../features/settings/domain/usecases/save_settings.dart';
 import '../utils/haptics.dart';
 import '../utils/result.dart';
@@ -87,15 +88,33 @@ final class SettingsStore {
   Future<void> setNotifications(NotificationMatrix matrix) =>
       _update((s) => s.copyWith(notifications: matrix));
 
+  /// The user's own margin: it no longer follows the region default.
   Future<void> setSahriSafety(int minutes) => _update(
     (s) => s.copyWith(
+      sahriSafetyTuned: true,
       prayerParams: s.prayerParams.copyWith(sahriSafetyMinutes: minutes),
     ),
   );
 
-  /// Clamped to −2..+2 by [AppSettings].
+  /// The user's own offset (clamped to −2..+2 by [AppSettings]): it no
+  /// longer follows the region default.
   Future<void> setHijriOffset(int days) =>
-      _update((s) => s.copyWith(hijriOffsetDays: days));
+      _update((s) => s.copyWith(hijriOffsetDays: days, hijriOffsetTuned: true));
+
+  /// Sets the Hijri offset and sahri margin the user never tuned to
+  /// [countryCode]'s defaults (first setup and country moves).
+  Future<void> applyRegionalTimingDefaults(String countryCode) => _update(
+    (s) => s.copyWith(
+      hijriOffsetDays: s.hijriOffsetTuned
+          ? null
+          : defaultHijriOffsetFor(countryCode),
+      prayerParams: s.sahriSafetyTuned
+          ? null
+          : s.prayerParams.copyWith(
+              sahriSafetyMinutes: defaultSahriSafetyFor(countryCode),
+            ),
+    ),
+  );
 
   Future<void> setShowAchievements({required bool show}) =>
       _update((s) => s.copyWith(showAchievements: show));
