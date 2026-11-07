@@ -12,7 +12,9 @@ final class _FakeBundle extends CachingAssetBundle {
 
   @override
   Future<ByteData> load(String key) async {
-    final bytes = utf8.encode(payload);
+    final bytes = utf8.encode(
+      key == CityAssetDataSource.assetPath ? payload : '[]',
+    );
     return ByteData.view(Uint8List.fromList(bytes).buffer);
   }
 }

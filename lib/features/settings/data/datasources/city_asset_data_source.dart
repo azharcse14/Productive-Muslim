@@ -5,12 +5,15 @@ import 'package:flutter/services.dart' show AssetBundle;
 
 import '../../domain/entities/city.dart';
 
-/// Loads the bundled GeoNames-derived city list
-/// (built by `tool/city_db_build.dart`, ordered largest-population first).
+/// Loads the bundled city list — GeoNames (ordered largest-population
+/// first) then OSM Bangladesh places, both built by `tool/city_db_build.dart`.
 final class CityAssetDataSource {
   CityAssetDataSource(this._bundle);
 
   static const assetPath = 'assets/data/cities.json';
+
+  /// OSM (ODbL) rows live apart from the GeoNames (CC BY) ones.
+  static const osmAssetPath = 'assets/data/places_bd_osm.json';
 
   final AssetBundle _bundle;
 
@@ -28,10 +31,13 @@ final class CityAssetDataSource {
   }
 
   Future<List<City>> _load() async {
-    final raw = await _bundle.loadString(assetPath);
-    // ~1.8 MB of JSON: decode off the UI isolate so the first search
+    final raw = [
+      await _bundle.loadString(assetPath),
+      await _bundle.loadString(osmAssetPath),
+    ];
+    // ~1.9 MB of JSON: decode off the UI isolate so the first search
     // doesn't drop frames.
-    return Isolate.run(() => _parse(raw));
+    return Isolate.run(() => [for (final r in raw) ..._parse(r)]);
   }
 
   static List<City> _parse(String raw) => [

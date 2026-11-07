@@ -55,6 +55,7 @@ void main() {
       'hadithbangla',
       'Hisnul Muslim',
       'GeoNames',
+      'OpenStreetMap',
       'Aaqib Azeez',
     ]) {
       expect(credits, contains(name));

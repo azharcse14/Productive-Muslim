@@ -4,13 +4,18 @@
 // Source: GeoNames cities15000 (all cities with population ≥ 15,000),
 // licensed CC BY 4.0 (attribution surfaced in About — see DEPENDENCIES.md).
 //
+// Plus Bangladesh neighbourhoods/towns from OpenStreetMap (ODbL 1.0), kept
+// in their own asset so the two licenses never mix in one database.
+//
 // Usage:  dart run tool/city_db_build.dart
-// Output: assets/data/cities.json  — JSON array of
-//         [name, countryCode, lat, lng, ianaTimezone, nameBn?]
+// Output: assets/data/cities.json         — GeoNames (CC BY 4.0)
+//         assets/data/places_bd_osm.json  — OpenStreetMap (ODbL 1.0)
+//         both JSON arrays of [name, countryCode, lat, lng, ianaTimezone, nameBn?]
 // Requires `curl` and `unzip` on PATH (dev machines only).
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 const _dumpUrl = 'https://download.geonames.org/export/dump/cities15000.zip';
 
@@ -63,7 +68,21 @@ Future<void> main() async {
       for (final c in cities) [...c.take(5), ...c.skip(6)],
     ];
 
-    compact.addAll(_bangladeshAdmin(tmp));
+    final osm = _osmBangladesh();
+    compact.addAll(_bangladeshAdmin(tmp, osm));
+    // OSM fills what GeoNames lacks — skip places GeoNames already has.
+    final bd = [
+      for (final c in compact)
+        if (c[1] == 'BD') c,
+    ];
+    final osmOnly = [
+      for (final o in osm)
+        if (!_isDuplicate(o, bd)) o,
+    ];
+    File(
+      'assets/data/places_bd_osm.json',
+    ).writeAsStringSync(jsonEncode(osmOnly));
+    stdout.writeln('Wrote ${osmOnly.length} OSM places (BD)');
 
     final out = File('assets/data/cities.json')
       ..parent.createSync(recursive: true);
@@ -79,7 +98,7 @@ Future<void> main() async {
 
 /// BD districts as "X District" and upazilas as "X, District", appended
 /// after the population-ordered cities.
-List<List<Object>> _bangladeshAdmin(Directory tmp) {
+List<List<Object>> _bangladeshAdmin(Directory tmp, List<List<Object>> osm) {
   final zipPath = '${tmp.path}/BD.zip';
   stdout.writeln('Downloading $_bdUrl …');
   _run('curl', ['-sfL', '-o', zipPath, _bdUrl]);
@@ -133,10 +152,110 @@ List<List<Object>> _bangladeshAdmin(Directory tmp) {
           ),
     // City neighbourhoods (e.g. Mohammadpur, Dhaka) so a GPS fix names the
     // area, not a farther one; ≥15k ones already came from cities15000.
+    // OSM's copy wins where both have one: it carries the Bengali name.
     for (final f in rows)
       if (f[7] == 'PPLX' && (int.tryParse(f[14]) ?? 0) < 15000)
-        entry(f, f[1], _bengali(f[3]) ?? _placeBn[f[1]]),
+        if (entry(f, f[1], _bengali(f[3]) ?? _placeBn[f[1]]) case final e
+            when !_isDuplicate(e, osm))
+          e,
   ];
+}
+
+const _overpass = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+];
+
+/// BD cities, towns and city neighbourhoods from OpenStreetMap, deduped
+/// among themselves (a place is often both a node and an area).
+List<List<Object>> _osmBangladesh() {
+  const query =
+      '[out:json][timeout:250];'
+      'area["ISO3166-1"="BD"][admin_level=2]->.a;'
+      'nwr(area.a)[place~"^(city|town|borough|suburb|quarter|neighbourhood)\$"]'
+      '[name];out center tags;';
+  for (final url in _overpass) {
+    stdout.writeln('Querying $url …');
+    // Overpass rejects requests without a User-Agent.
+    final r = Process.runSync('curl', [
+      '-sf', '--max-time', '300', '-A', 'productive-muslim-city-build/1.0',
+      url, '--data-urlencode', 'data=$query', //
+    ], stdoutEncoding: utf8);
+    if (r.exitCode != 0) {
+      continue;
+    }
+    final elements =
+        (jsonDecode(r.stdout as String) as Map<String, dynamic>)['elements']
+            as List<dynamic>;
+    // Nodes first: their point is the place itself, an area's is a centroid.
+    elements.sort(
+      (a, b) => ((a as Map)['type'] == 'node' ? 0 : 1).compareTo(
+        (b as Map)['type'] == 'node' ? 0 : 1,
+      ),
+    );
+    final out = <List<Object>>[];
+    for (final e in elements.cast<Map<String, dynamic>>()) {
+      final tags = (e['tags'] as Map).cast<String, String>();
+      final at = (e['center'] as Map<String, dynamic>?) ?? e;
+      final local = tags['name']!;
+      final en = tags['name:en'] ?? (_isBengali(local) ? null : local);
+      final bn =
+          tags['name:bn'] ?? (_isBengali(local) ? local : null) ?? _placeBn[en];
+      final name = en ?? bn!;
+      // Mapper notes and bare generics ("Bazar"), not place names.
+      if (RegExp(r'[(]|^Towards |^My |^(বাজার|স্ট্যান্ড)$').hasMatch(name)) {
+        continue;
+      }
+      final row = <Object>[
+        name,
+        'BD',
+        _round((at['lat'] as num).toDouble()),
+        _round((at['lon'] as num).toDouble()),
+        'Asia/Dhaka',
+        if (bn != null && bn != name) bn,
+      ];
+      if (!_isDuplicate(row, out)) {
+        out.add(row);
+      }
+    }
+    return out;
+  }
+  throw const ProcessException('curl', [], 'every Overpass endpoint failed');
+}
+
+bool _isBengali(String s) => s.runes.any((r) => r >= 0x0980 && r <= 0x09FF);
+
+/// Same place: same folded English or Bengali name within 5 km.
+bool _isDuplicate(List<Object> row, List<List<Object>> others) {
+  String key(Object name) => (name as String)
+      .split(',')
+      .first
+      .toLowerCase()
+      .replaceAll(RegExp('[āâà]'), 'a')
+      .replaceAll(RegExp('[īî]'), 'i')
+      .replaceAll(RegExp('[ūû]'), 'u')
+      .replaceAll(RegExp('[ēê]'), 'e')
+      .replaceAll(RegExp('[ōô]'), 'o')
+      .replaceAll(RegExp(r'[^a-z\u0980-\u09ff]'), '');
+  final en = key(row[0]);
+  final bn = row.length > 5 ? key(row[5]) : null;
+  for (final o in others) {
+    final sameName =
+        key(o[0]) == en || (bn != null && o.length > 5 && key(o[5]) == bn);
+    if (sameName && _km(row, o) < 5) {
+      return true;
+    }
+  }
+  return false;
+}
+
+double _km(List<Object> a, List<Object> b) {
+  const rad = math.pi / 180;
+  final (lat1, lng1) = ((a[2] as double) * rad, (a[3] as double) * rad);
+  final (lat2, lng2) = ((b[2] as double) * rad, (b[3] as double) * rad);
+  final x = (lng2 - lng1) * math.cos((lat1 + lat2) / 2);
+  return 6371 * math.sqrt(x * x + (lat2 - lat1) * (lat2 - lat1));
 }
 
 /// First Bengali-script alternate name, minus admin suffixes.
@@ -390,6 +509,95 @@ const _placeBn = {
   'Titas': 'তিতাস',
   'Tongibari': 'টঙ্গীবাড়ি',
   'Zianagar': 'জিয়ানগর',
+  // City neighbourhoods (GeoNames PPLX / OSM) without a Bengali name
+  'Ahmad Hossaīn pāra': 'আহমদ হোসেন পাড়া',
+  'Amla Para': 'আমলাপাড়া',
+  'Askarābad': 'আসকারাবাদ',
+  'Bahāddār Hāt': 'বহদ্দারহাট',
+  'Bakalia Char': 'বাকলিয়া চর',
+  'Bangshal': 'বংশাল',
+  'Bank Colony': 'ব্যাংক কলোনি',
+  'Basaboo': 'বাসাবো',
+  'Biswanāthpur': 'বিশ্বনাথপুর',
+  'Chandgaon': 'চান্দগাঁও',
+  'Char Rāngāmātia': 'চর রাঙ্গামাটিয়া',
+  'Chaudhury pāra': 'চৌধুরী পাড়া',
+  'Chikan Dandi': 'চিকনদণ্ডী',
+  'Dakshin Chikandandi': 'দক্ষিণ চিকনদণ্ডী',
+  'Cornel Hāt': 'কর্নেলহাট',
+  'Dakhin Khandakia': 'দক্ষিণ খন্দকিয়া',
+  'Dakshin Bakalia': 'দক্ষিণ বাকলিয়া',
+  'Dakshin Chāndgaon': 'দক্ষিণ চান্দগাঁও',
+  'Dakshin Hālishahar': 'দক্ষিণ হালিশহর',
+  'Dakshin Patenga': 'দক্ষিণ পতেঙ্গা',
+  'Dakshin Pāhārtali': 'দক্ষিণ পাহাড়তলী',
+  'Daulatpur': 'দৌলতপুর',
+  'Dewān Hāt': 'দেওয়ানহাট',
+  'Diwān Bāzār': 'দেওয়ান বাজার',
+  'Double Moorings': 'ডবলমুরিং',
+  'Dampāra': 'দামপাড়া',
+  'Fakirpāra': 'ফকিরপাড়া',
+  'Firingi Bāzār': 'ফিরিঙ্গী বাজার',
+  'Hamid Char': 'হামিদচর',
+  'Jālālābād': 'জালালাবাদ',
+  'Kalibari': 'কালীবাড়ী',
+  'Kalyanpur': 'কল্যাণপুর',
+  'Kamalapur': 'কমলাপুর',
+  'Kānchanpur': 'কাঞ্চনপুর',
+  'Khilpāra': 'খিলপাড়া',
+  'Khurushkul': 'খুরুশকুল',
+  'Kulgaon': 'কুলগাঁও',
+  'Lalbagh': 'লালবাগ',
+  'Lāldia': 'লালদিয়া',
+  'Lāldighi': 'লালদিঘী',
+  'Madhya Hālishahar': 'মধ্য হালিশহর',
+  'Madhya Hālisharar': 'মধ্য হালিশহর',
+  'Mirganj': 'মীরগঞ্জ',
+  'Moghbazar': 'মগবাজার',
+  'Mohājerpāra': 'মোহাজেরপাড়া',
+  'Mugdapara': 'মুগদাপাড়া',
+  'Mughaltuli': 'মোগলটুলী',
+  'Munshipara': 'মুন্সীপাড়া',
+  'Muradpur': 'মুরাদপুর',
+  'Narayānpur': 'নারায়ণপুর',
+  'New Moorings': 'নিউমুরিং',
+  'Nimtala': 'নিমতলা',
+  'Paribagh': 'পরীবাগ',
+  'Paschim Patenga': 'পশ্চিম পতেঙ্গা',
+  'Paschim Sholasahar': 'পশ্চিম ষোলশহর',
+  'Postagola': 'পোস্তগোলা',
+  'Purba Nāsirābād': 'পূর্ব নাসিরাবাদ',
+  'Purba Patenga': 'পূর্ব পতেঙ্গা',
+  'Purba Shalashahar': 'পূর্ব ষোলশহর',
+  'Purba Sholasahar': 'পূর্ব ষোলশহর',
+  'Pāhārtali': 'পাহাড়তলী',
+  'Pāikpāra': 'পাইকপাড়া',
+  'Pānchlais': 'পাঁচলাইশ',
+  'Pāthāntuli': 'পাঠানটুলী',
+  'Rajarbagh': 'রাজারবাগ',
+  'Rampur': 'রামপুর',
+  'Sankarpur': 'শংকরপুর',
+  'Sat Masjid': 'সাত মসজিদ',
+  'Segunbagan': 'সেগুনবাগান',
+  'Sekhpara': 'শেখপাড়া',
+  'Shekpāra': 'শেখপাড়া',
+  'Sepāipāra': 'সিপাইপাড়া',
+  'Shah Ali': 'শাহ আলী',
+  'Shaympur': 'শ্যামপুর',
+  'Shegunbagicha': 'সেগুনবাগিচা',
+  'Sher-e-Bangla Nagor': 'শেরেবাংলা নগর',
+  'Tabalchari': 'তবলছড়ি',
+  'Tāltala': 'তালতলা',
+  'Uttar Bakālia': 'উত্তর বাকলিয়া',
+  'Uttar Hālishahar': 'উত্তর হালিশহর',
+  'Uttar Patenga': 'উত্তর পতেঙ্গা',
+  'Uttar Pāhārtali': 'উত্তর পাহাড়তলী',
+  'Zigatola': 'জিগাতলা',
+  'Ghosh Para': 'ঘোষপাড়া',
+  'Krishnapur': 'কৃষ্ণপুর',
+  'Sreerampur': 'শ্রীরামপুর',
+  'Salamabad': 'সালামাবাদ',
+  'Pirgacha': 'পীরগাছা',
 };
 
 double _round(double v) => (v * 10000).roundToDouble() / 10000;
