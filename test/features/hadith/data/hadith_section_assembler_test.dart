@@ -199,6 +199,20 @@ void main() {
       // graded + no stored grade -> empty, not "Sahih".
       expect(items.first.grade, '');
     });
+
+    test('skips entries blank everywhere; keeps one-language ones', () {
+      final items = assembleSection(
+        book: _book(kind: 'graded'),
+        arabic: [r(1, ''), r(2, 'ar2'), r(3, ''), r(4, 'ar4')],
+        translation: [r(1, ''), r(2, ''), r(3, 'bn3'), r(4, 'bn4')],
+        englishFallback: [r(1, ''), r(2, ''), r(3, ''), r(4, '')],
+        translationIsEnglish: false,
+      );
+      // #1 has no text at all; #2 is Arabic-only, #3 translation-only.
+      expect(items.map((h) => h.number), [2, 3, 4]);
+      // Occurrence pairing is not thrown off by the skipped entry.
+      expect(items.map((h) => h.translation), ['', 'bn3', 'bn4']);
+    });
   });
 
   test(
@@ -224,6 +238,14 @@ void main() {
       expect(items.first.narrator, 'n');
       expect(items.first.grade, 'সহিহ'); // sahih default
       expect(items.first.reference, 'সহিহ বুখারি 1');
+    });
+
+    test('skips an entry with neither Arabic nor Bangla text', () {
+      final items = assembleBangla(_book(), const [
+        BnHadith(number: 1, arabic: '', bn: '', narrator: 'n', grade: ''),
+        BnHadith(number: 2, arabic: 'a', bn: '', narrator: '', grade: ''),
+      ]);
+      expect(items.map((h) => h.number), [2]);
     });
   });
 }

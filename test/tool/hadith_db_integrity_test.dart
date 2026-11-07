@@ -78,16 +78,17 @@ void main() {
     // Entries per book in the pinned fawazahmed0 snapshot (@df57907,
     // info.json `hadiths`, sections 0..N), less its section-0 entries that
     // are empty in both Arabic and English (Bukhari 5, Muslim 196, Nasa'i
-    // 82, Malik 18). Non-empty section-0 hadith recovered: Bukhari 306,
-    // Muslim 148.
+    // 82, Malik 18), less the entries of other sections that are blank in
+    // both too (last term). Non-empty section-0 hadith recovered: Bukhari
+    // 306, Muslim 148.
     const expected = {
-      'bukhari': 7589 - 5,
-      'muslim': 7563 - 196,
-      'abudawud': 5274,
-      'tirmidhi': 3998,
-      'nasai': 5765 - 82,
-      'ibnmajah': 4343,
-      'malik': 1858 - 18,
+      'bukhari': 7589 - 5 - 4,
+      'muslim': 7563 - 196 - 7,
+      'abudawud': 5274 - 2,
+      'tirmidhi': 3998 - 72,
+      'nasai': 5765 - 82 - 4,
+      'ibnmajah': 4343 - 3,
+      'malik': 1858 - 18 - 11,
       'nawawi': 42,
       'qudsi': 40,
     };
@@ -100,6 +101,50 @@ void main() {
     // (a CDN-throttled section once went missing silently).
     expect(all('ben-malik'), hasLength(expected['malik']));
     expect(all('ben-nawawi'), hasLength(expected['nawawi']));
+  });
+
+  test('no hadith is blank in both Arabic and English', () {
+    for (final book in [
+      'bukhari',
+      'muslim',
+      'abudawud',
+      'tirmidhi',
+      'nasai',
+      'ibnmajah',
+      'malik',
+      'nawawi',
+      'qudsi',
+    ]) {
+      final en = all('eng-$book');
+      final blank = [
+        for (final (i, ar) in all('ara-$book').indexed)
+          if (ar.text.isEmpty && en[i].text.isEmpty) ar.number,
+      ];
+      expect(blank, isEmpty, reason: book);
+    }
+  });
+
+  test("Nawawi 41 carries its disputed Da'if grade in en and bn", () {
+    for (final (edition, grade) in [
+      ('eng-nawawi', "Da'if"),
+      ('ben-nawawi', 'যঈফ'),
+    ]) {
+      final h = all(edition).singleWhere((h) => h.number == 41);
+      expect(h.grade, startsWith(grade), reason: edition);
+    }
+  });
+
+  test('catalog totals are the sum of the section counts', () {
+    final catalog =
+        jsonDecode(File('assets/data/hadith_books.json').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final book
+        in (catalog['books'] as List).cast<Map<String, dynamic>>()) {
+      final sum = (book['sections'] as List)
+          .cast<Map<String, dynamic>>()
+          .fold<int>(0, (n, s) => n + (s['count'] as int));
+      expect(book['total'], sum, reason: book['id'] as String);
+    }
   });
 
   test('Bukhari 832 and 5692 (cited by duas / tibb) are present', () {

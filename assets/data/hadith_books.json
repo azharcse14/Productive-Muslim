@@ -9,7 +9,7 @@
       "kind": "sahih",
       "bn_available": true,
       "bn_folder": "Bukhari",
-      "total": 7563,
+      "total": 7580,
       "edition_ar": "ara-bukhari",
       "edition_en": "eng-bukhari",
       "edition_bn": "ben-bukhari",
@@ -994,18 +994,18 @@
           "name": "Medicine",
           "first": 5678,
           "last": 5782,
-          "count": 102,
+          "count": 100,
           "refs": [
             [
               5678,
               5709
             ],
             [
-              5712,
+              5713,
               5773
             ],
             [
-              5775,
+              5776,
               5782
             ]
           ]
@@ -1028,18 +1028,18 @@
           "name": "Good Manners and Form (Al-Adab)",
           "first": 5970,
           "last": 6226,
-          "count": 255,
+          "count": 253,
           "refs": [
             [
               5970,
               6073
             ],
             [
-              6075,
+              6076,
               6173
             ],
             [
-              6175,
+              6176,
               6226
             ]
           ]
@@ -2641,7 +2641,7 @@
       "kind": "sahih",
       "bn_available": true,
       "bn_folder": "Muslim",
-      "total": 7563,
+      "total": 7360,
       "edition_ar": "ara-muslim",
       "edition_en": "eng-muslim",
       "edition_bn": "ben-muslim",
@@ -2950,12 +2950,8 @@
           "name": "The Book of Marriage",
           "first": 388,
           "last": 3567,
-          "count": 169,
+          "count": 168,
           "refs": [
-            [
-              154,
-              154
-            ],
             [
               1365,
               1365
@@ -3039,7 +3035,7 @@
           "name": "The Book of Transactions",
           "first": 3801,
           "last": 3961,
-          "count": 159,
+          "count": 158,
           "refs": [
             [
               1412,
@@ -3330,7 +3326,7 @@
           "name": "The Book of Drinks",
           "first": 5114,
           "last": 5383,
-          "count": 258,
+          "count": 256,
           "refs": [
             [
               17,
@@ -3473,7 +3469,7 @@
           "name": "The Book of Virtues",
           "first": 384,
           "last": 6168,
-          "count": 222,
+          "count": 221,
           "refs": [
             [
               151,
@@ -3760,7 +3756,7 @@
           "name": "The Book of Tribulations and Portents of the Last Hour",
           "first": 7235,
           "last": 7416,
-          "count": 163,
+          "count": 162,
           "refs": [
             [
               144,
@@ -3793,7 +3789,7 @@
           "name": "The Book of Zuhd and Softening of Hearts ",
           "first": 7417,
           "last": 7522,
-          "count": 82,
+          "count": 81,
           "refs": [
             [
               533,
@@ -3822,10 +3818,6 @@
             [
               2999,
               3005
-            ],
-            [
-              3014,
-              3014
             ]
           ]
         },
@@ -4600,7 +4592,7 @@
       "bn": "৪০ হাদিস নববি",
       "author": "Imam an-Nawawi",
       "author_bn": "ইমাম আন-নববি",
-      "kind": "graded",
+      "kind": "ungraded",
       "bn_available": true,
       "bn_folder": "",
       "total": 42,
@@ -4629,7 +4621,7 @@
       "bn": "৪০ হাদিসে কুদসি",
       "author": "Compiled",
       "author_bn": "সংকলিত",
-      "kind": "graded",
+      "kind": "ungraded",
       "bn_available": false,
       "bn_folder": "",
       "total": 40,
@@ -4661,7 +4653,7 @@
       "kind": "graded",
       "bn_available": true,
       "bn_folder": "AbuDaud",
-      "total": 5274,
+      "total": 5272,
       "edition_ar": "ara-abudawud",
       "edition_en": "eng-abudawud",
       "edition_bn": "ben-abudawud",
@@ -4684,10 +4676,14 @@
           "name": "Prayer (Kitab Al-Salat)",
           "first": 391,
           "last": 1160,
-          "count": 770,
+          "count": 769,
           "refs": [
             [
               391,
+              906
+            ],
+            [
+              908,
               1160
             ]
           ]
@@ -5152,11 +5148,11 @@
           "name": "The Promised Deliverer (Kitab Al-Mahdi)",
           "first": 4279,
           "last": 4290,
-          "count": 12,
+          "count": 11,
           "refs": [
             [
               4279,
-              4290
+              4289
             ]
           ]
         },
@@ -5801,7 +5797,7 @@
       "kind": "graded",
       "bn_available": true,
       "bn_folder": "At-tirmizi",
-      "total": 3956,
+      "total": 3926,
       "edition_ar": "ara-tirmidhi",
       "edition_en": "eng-tirmidhi",
       "edition_bn": "ben-tirmidhi",
@@ -5824,10 +5820,14 @@
           "name": "The Book on Salat (Prayer)",
           "first": 149,
           "last": 451,
-          "count": 304,
+          "count": 302,
           "refs": [
             [
               149,
+              390
+            ],
+            [
+              392,
               451
             ]
           ]
@@ -5837,10 +5837,18 @@
           "name": "The Book on Al-Witr",
           "first": 452,
           "last": 487,
-          "count": 36,
+          "count": 33,
           "refs": [
             [
               452,
+              454
+            ],
+            [
+              456,
+              456
+            ],
+            [
+              459,
               487
             ]
           ]
@@ -5915,10 +5923,14 @@
           "name": "The Book on Hajj",
           "first": 809,
           "last": 964,
-          "count": 157,
+          "count": 156,
           "refs": [
             [
               809,
+              944
+            ],
+            [
+              946,
               964
             ]
           ]
@@ -5980,10 +5992,34 @@
           "name": "The Book on Business",
           "first": 1205,
           "last": 1321,
-          "count": 117,
+          "count": 109,
           "refs": [
             [
-              1205,
+              1206,
+              1207
+            ],
+            [
+              1210,
+              1224
+            ],
+            [
+              1226,
+              1254
+            ],
+            [
+              1256,
+              1257
+            ],
+            [
+              1259,
+              1300
+            ],
+            [
+              1302,
+              1316
+            ],
+            [
+              1318,
               1321
             ]
           ]
@@ -5993,10 +6029,14 @@
           "name": "The Chapters On Judgements From The Messenger of Allah",
           "first": 1322,
           "last": 1385,
-          "count": 64,
+          "count": 62,
           "refs": [
             [
-              1322,
+              1323,
+              1364
+            ],
+            [
+              1366,
               1385
             ]
           ]
@@ -6006,10 +6046,18 @@
           "name": "The Book on Blood Money",
           "first": 1386,
           "last": 1422,
-          "count": 37,
+          "count": 35,
           "refs": [
             [
               1386,
+              1394
+            ],
+            [
+              1396,
+              1419
+            ],
+            [
+              1421,
               1422
             ]
           ]
@@ -6019,10 +6067,14 @@
           "name": "The Book on Legal Punishments (Al-Hudud)",
           "first": 1423,
           "last": 1463,
-          "count": 45,
+          "count": 44,
           "refs": [
             [
               1423,
+              1437
+            ],
+            [
+              1439,
               1463
             ]
           ]
@@ -6032,11 +6084,31 @@
           "name": "The Book on Hunting",
           "first": 1464,
           "last": 1492,
-          "count": 29,
+          "count": 22,
           "refs": [
             [
               1464,
-              1492
+              1464
+            ],
+            [
+              1466,
+              1470
+            ],
+            [
+              1472,
+              1476
+            ],
+            [
+              1478,
+              1479
+            ],
+            [
+              1481,
+              1483
+            ],
+            [
+              1485,
+              1490
             ]
           ]
         },
@@ -6045,10 +6117,26 @@
           "name": "The Book on Sacrifices",
           "first": 1493,
           "last": 1523,
-          "count": 31,
+          "count": 26,
           "refs": [
             [
               1493,
+              1496
+            ],
+            [
+              1499,
+              1499
+            ],
+            [
+              1501,
+              1514
+            ],
+            [
+              1516,
+              1521
+            ],
+            [
+              1523,
               1523
             ]
           ]
@@ -6058,10 +6146,18 @@
           "name": "The Book on Vows and Oaths",
           "first": 1524,
           "last": 1547,
-          "count": 24,
+          "count": 22,
           "refs": [
             [
               1524,
+              1525
+            ],
+            [
+              1527,
+              1536
+            ],
+            [
+              1538,
               1547
             ]
           ]
@@ -6071,11 +6167,35 @@
           "name": "The Book on Military Expeditions",
           "first": 1548,
           "last": 1618,
-          "count": 72,
+          "count": 60,
           "refs": [
             [
               1548,
-              1618
+              1552
+            ],
+            [
+              1555,
+              1557
+            ],
+            [
+              1559,
+              1559
+            ],
+            [
+              1563,
+              1564
+            ],
+            [
+              1566,
+              1578
+            ],
+            [
+              1580,
+              1598
+            ],
+            [
+              1600,
+              1616
             ]
           ]
         },
@@ -6084,10 +6204,14 @@
           "name": "The Book on Virtues of Jihad",
           "first": 1619,
           "last": 1669,
-          "count": 51,
+          "count": 50,
           "refs": [
             [
               1619,
+              1636
+            ],
+            [
+              1638,
               1669
             ]
           ]
@@ -6097,10 +6221,22 @@
           "name": "The Book on Jihad",
           "first": 1670,
           "last": 1719,
-          "count": 50,
+          "count": 47,
           "refs": [
             [
               1670,
+              1704
+            ],
+            [
+              1706,
+              1708
+            ],
+            [
+              1710,
+              1710
+            ],
+            [
+              1712,
               1719
             ]
           ]
@@ -6110,10 +6246,26 @@
           "name": "The Book on Clothing",
           "first": 1720,
           "last": 1787,
-          "count": 68,
+          "count": 63,
           "refs": [
             [
               1720,
+              1755
+            ],
+            [
+              1758,
+              1766
+            ],
+            [
+              1768,
+              1769
+            ],
+            [
+              1771,
+              1780
+            ],
+            [
+              1782,
               1787
             ]
           ]
@@ -6123,10 +6275,30 @@
           "name": "The Book on Food",
           "first": 1788,
           "last": 1860,
-          "count": 73,
+          "count": 68,
           "refs": [
             [
               1788,
+              1793
+            ],
+            [
+              1795,
+              1819
+            ],
+            [
+              1821,
+              1824
+            ],
+            [
+              1826,
+              1850
+            ],
+            [
+              1852,
+              1857
+            ],
+            [
+              1859,
               1860
             ]
           ]
@@ -6136,10 +6308,14 @@
           "name": "The Book on Drinks",
           "first": 1861,
           "last": 1896,
-          "count": 37,
+          "count": 35,
           "refs": [
             [
               1861,
+              1883
+            ],
+            [
+              1885,
               1896
             ]
           ]
@@ -6162,11 +6338,11 @@
           "name": "Chapters on Medicine",
           "first": 2036,
           "last": 2089,
-          "count": 54,
+          "count": 53,
           "refs": [
             [
               2036,
-              2089
+              2088
             ]
           ]
         },
@@ -6201,10 +6377,14 @@
           "name": "Chapters On Wala' And Gifts",
           "first": 2125,
           "last": 2132,
-          "count": 8,
+          "count": 7,
           "refs": [
             [
               2125,
+              2128
+            ],
+            [
+              2130,
               2132
             ]
           ]
@@ -6274,10 +6454,14 @@
           "name": "Chapters On Zuhd",
           "first": 2304,
           "last": 2414,
-          "count": 111,
+          "count": 110,
           "refs": [
             [
               2304,
+              2391
+            ],
+            [
+              2393,
               2414
             ]
           ]
@@ -6429,10 +6613,14 @@
           "name": "Chapters on Tafsir",
           "first": 2950,
           "last": 3723,
-          "count": 424,
+          "count": 420,
           "refs": [
             [
               2950,
+              3366
+            ],
+            [
+              3369,
               3369
             ],
             [
@@ -6459,14 +6647,26 @@
           "name": "Chapters on Virtues",
           "first": 3605,
           "last": 3956,
-          "count": 351,
+          "count": 347,
           "refs": [
             [
               3605,
+              3716
+            ],
+            [
+              3718,
               3722
             ],
             [
               3724,
+              3757
+            ],
+            [
+              3760,
+              3798
+            ],
+            [
+              3800,
               3956
             ]
           ]
@@ -7138,7 +7338,7 @@
       "kind": "graded",
       "bn_available": true,
       "bn_folder": "Al-Nasai",
-      "total": 5758,
+      "total": 5679,
       "edition_ar": "ara-nasai",
       "edition_en": "eng-nasai",
       "edition_bn": "ben-nasai",
@@ -7148,10 +7348,14 @@
           "name": "The Book of Purification",
           "first": 1,
           "last": 324,
-          "count": 324,
+          "count": 323,
           "refs": [
             [
               1,
+              124
+            ],
+            [
+              126,
               324
             ]
           ]
@@ -7317,10 +7521,18 @@
           "name": "The Book of Jumu'ah (Friday Prayer)",
           "first": 1367,
           "last": 1432,
-          "count": 66,
+          "count": 63,
           "refs": [
             [
               1367,
+              1367
+            ],
+            [
+              1370,
+              1371
+            ],
+            [
+              1373,
               1432
             ]
           ]
@@ -8473,7 +8685,7 @@
       "kind": "graded",
       "bn_available": true,
       "bn_folder": "Ibne-Mazah",
-      "total": 4341,
+      "total": 4340,
       "edition_ar": "ara-ibnmajah",
       "edition_en": "eng-ibnmajah",
       "edition_bn": "ben-ibnmajah",
@@ -8600,10 +8812,14 @@
           "name": "The Chapters on Marriage",
           "first": 1845,
           "last": 2015,
-          "count": 171,
+          "count": 170,
           "refs": [
             [
               1845,
+              1954
+            ],
+            [
+              1956,
               2015
             ]
           ]
@@ -8707,7 +8923,7 @@
           "name": "The Chapters on Pawning",
           "first": 2436,
           "last": 2491,
-          "count": 53,
+          "count": 52,
           "refs": [
             [
               2436,
@@ -8719,6 +8935,10 @@
             ],
             [
               2478,
+              2489
+            ],
+            [
+              2491,
               2491
             ]
           ]
@@ -8728,10 +8948,14 @@
           "name": "The Chapters on Pre-emption",
           "first": 2492,
           "last": 2501,
-          "count": 10,
+          "count": 9,
           "refs": [
             [
               2492,
+              2496
+            ],
+            [
+              2498,
               2501
             ]
           ]
@@ -9511,7 +9735,7 @@
       "kind": "graded",
       "bn_available": true,
       "bn_folder": "",
-      "total": 1858,
+      "total": 1829,
       "edition_ar": "ara-malik",
       "edition_en": "eng-malik",
       "edition_bn": "ben-malik",
@@ -9707,10 +9931,14 @@
           "name": "The Qur'an",
           "first": 470,
           "last": 519,
-          "count": 50,
+          "count": 48,
           "refs": [
             [
-              470,
+              471,
+              484
+            ],
+            [
+              486,
               519
             ]
           ]
@@ -9720,10 +9948,14 @@
           "name": "Burials",
           "first": 520,
           "last": 577,
-          "count": 58,
+          "count": 57,
           "refs": [
             [
               520,
+              521
+            ],
+            [
+              523,
               577
             ]
           ]
@@ -9746,10 +9978,14 @@
           "name": "Fasting",
           "first": 630,
           "last": 689,
-          "count": 59,
+          "count": 58,
           "refs": [
             [
               630,
+              670
+            ],
+            [
+              672,
               683
             ],
             [
@@ -9763,10 +9999,14 @@
           "name": "I'tikaf in Ramadan",
           "first": 690,
           "last": 704,
-          "count": 15,
+          "count": 14,
           "refs": [
             [
               690,
+              693
+            ],
+            [
+              695,
               704
             ]
           ]
@@ -9797,10 +10037,14 @@
           "name": "Jihad",
           "first": 959,
           "last": 1008,
-          "count": 50,
+          "count": 49,
           "refs": [
             [
               959,
+              993
+            ],
+            [
+              995,
               1008
             ]
           ]
@@ -9857,10 +10101,18 @@
           "name": "Game",
           "first": 1052,
           "last": 1066,
-          "count": 15,
+          "count": 13,
           "refs": [
             [
               1052,
+              1053
+            ],
+            [
+              1055,
+              1056
+            ],
+            [
+              1058,
               1066
             ]
           ]
@@ -9981,11 +10233,11 @@
           "name": "Sharecropping",
           "first": 1388,
           "last": 1389,
-          "count": 2,
+          "count": 1,
           "refs": [
             [
               1388,
-              1389
+              1388
             ]
           ]
         },
@@ -10140,11 +10392,11 @@
           "name": "The Oath of Qasama",
           "first": 1596,
           "last": 1597,
-          "count": 2,
+          "count": 1,
           "refs": [
             [
               1596,
-              1597
+              1596
             ]
           ]
         },
@@ -10261,11 +10513,11 @@
           "name": "Greetings",
           "first": 1756,
           "last": 1762,
-          "count": 7,
+          "count": 6,
           "refs": [
             [
               1756,
-              1762
+              1761
             ]
           ]
         },

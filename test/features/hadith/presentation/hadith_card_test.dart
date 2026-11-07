@@ -5,6 +5,7 @@ import 'package:productive_muslim/core/theme/app_theme.dart';
 import 'package:productive_muslim/features/hadith/domain/entities/hadith.dart';
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_card.dart';
 import 'package:productive_muslim/features/hadith/presentation/widgets/hadith_list_card.dart';
+import 'package:productive_muslim/shared/extensions/context_ext.dart';
 import 'package:productive_muslim/shared/reader/reader_text_size.dart';
 
 Widget _app(Widget home) => MaterialApp(
@@ -113,6 +114,38 @@ void main() {
     expect(find.text('শায, সহিহ'), findsOneWidget);
     expect(find.text("মুরসাল সনদ মতন বাতিল মা'লুল"), findsOneWidget);
     expect(find.text('সহিহ হাদিস'), findsOneWidget);
+  });
+
+  testWidgets("GradeChip warns on Da'if and more strongly on Mawdu", (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        const Column(
+          children: [
+            GradeChip(grade: 'Sahih'),
+            GradeChip(grade: 'Hasan'),
+            GradeChip(grade: 'Very Daif'),
+            GradeChip(grade: 'দুর্বল হাদিস'),
+            GradeChip(grade: 'Mawdu'),
+            GradeChip(grade: 'জাল হাদিস'),
+          ],
+        ),
+      ),
+    );
+    final q = tester
+        .element(find.byType(Column).first)
+        .q; // the light theme's tokens
+    Color colorOf(String text) =>
+        tester.widget<Text>(find.text(text)).style!.color!;
+    expect(colorOf('Sahih'), q.ok);
+    expect(colorOf('Hasan'), q.ink2);
+    expect(colorOf('Very Da\'if'), q.warn);
+    expect(colorOf('দুর্বল হাদিস'), q.warn);
+    expect(colorOf('Mawdu'), q.urgent);
+    expect(colorOf('জাল হাদিস'), q.urgent);
+    // Only the four weak / fabricated chips carry the warning icon.
+    expect(find.byIcon(Icons.warning_amber_rounded), findsNWidgets(4));
   });
 
   testWidgets('a long grade wraps instead of overflowing (320dp, 1.3x)', (

@@ -50,10 +50,11 @@ final class HadithListCard extends StatelessWidget {
             ),
             const SizedBox(height: QSpace.s3),
           ],
-          Text(
-            hadith.translationFor(languageCode),
-            style: QType.body.copyWith(color: q.ink),
-          ),
+          if (hadith.translationFor(languageCode).isNotEmpty)
+            Text(
+              hadith.translationFor(languageCode),
+              style: QType.body.copyWith(color: q.ink),
+            ),
           if (hadith.narrator.isNotEmpty) ...[
             const SizedBox(height: QSpace.s2),
             Text(
@@ -120,7 +121,8 @@ final class HadithListCard extends StatelessWidget {
 
 /// Small pill showing an authenticity grade; wrap it in [Flexible] inside
 /// a row so long grades wrap instead of overflowing. Sahih reads in the positive
-/// (ok) tone; anything else in a neutral tone.
+/// (ok) tone, Da'if in the warning tone and Mawdu (fabricated) in the urgent
+/// one — both with a warning icon; anything else in a neutral tone.
 final class GradeChip extends StatelessWidget {
   const GradeChip({required this.grade, super.key});
 
@@ -143,21 +145,39 @@ final class GradeChip extends StatelessWidget {
         else
           word,
     ].join(' ');
-    final color = isSahihGrade(grade) ? q.ok : q.ink2;
+    final g = grade.toLowerCase();
+    final (color, background, warning) = switch (g) {
+      _ when _fabricated.any(g.contains) => (q.urgent, q.urgentSoft, true),
+      _ when _weak.any(g.contains) => (q.warn, q.warnSoft, true),
+      _ when isSahihGrade(grade) => (q.ok, q.ok.withValues(alpha: 0.12), false),
+      _ => (q.ink2, q.ink2.withValues(alpha: 0.12), false),
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: QSpace.s2, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: background,
         borderRadius: BorderRadius.circular(QRadius.sm),
+        border: warning ? Border.all(color: color) : null,
       ),
-      child: Text(
-        label,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: QType.caption.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (warning) ...[
+            Icon(Icons.warning_amber_rounded, size: 14, color: color),
+            const SizedBox(width: QSpace.s1),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: QType.caption.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -168,6 +188,12 @@ final _wordParts = RegExp(
   r'^([^\p{L}\p{M}\p{N}]*)(.*?)([^\p{L}\p{M}\p{N}]*)$',
   unicode: true,
 );
+
+/// Fabricated / baseless gradings (en or bn) — the strongest warning.
+const _fabricated = ['mawdu', 'batil', 'জাল', 'বাতিল'];
+
+/// Weak gradings (en or bn) — a warning, short of fabricated.
+const _weak = ['daif', "da'if", 'যঈফ', 'দুর্বল'];
 
 /// Qualifiers that weaken a grading even next to "sahih".
 const _weakening = [
