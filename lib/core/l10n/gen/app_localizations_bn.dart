@@ -190,7 +190,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingSahriSafety => 'সাহরির সতর্কতা সময়';
 
   @override
-  String get settingSahriSafetySub => 'ফজরের এত মিনিট আগে সাহরি শেষ করুন';
+  String get settingSahriSafetySub =>
+      'ফজরের এত মিনিট আগে সাহরি শেষ করুন। শরিয়তে রোজা শুরু হয় প্রকৃত ফজর (সুবহে সাদিক) থেকে; এই সময়টুকু কেবল সতর্কতা।';
 
   @override
   String get settingTheme => 'থিম';

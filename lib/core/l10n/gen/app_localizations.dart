@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingSahriSafetySub.
   ///
   /// In en, this message translates to:
-  /// **'End sahri this many minutes before Fajr'**
+  /// **'End sahri this many minutes before Fajr. The fast legally begins at true Fajr; this margin is only a precaution.'**
   String get settingSahriSafetySub;
 
   /// No description provided for @settingTheme.

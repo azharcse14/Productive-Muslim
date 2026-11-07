@@ -191,7 +191,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingSahriSafety => 'Sahri safety margin';
 
   @override
-  String get settingSahriSafetySub => 'End sahri this many minutes before Fajr';
+  String get settingSahriSafetySub =>
+      'End sahri this many minutes before Fajr. The fast legally begins at true Fajr; this margin is only a precaution.';
 
   @override
   String get settingTheme => 'Theme';

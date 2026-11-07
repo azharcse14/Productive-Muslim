@@ -251,9 +251,15 @@ final class PrayerDayRepositoryImpl implements PrayerDayRepository {
           ishaYesterday: wall(ishaYesterday),
           maghribYesterday: wall(yesterday.maghrib),
           asrYesterday: wall(yesterday.asr),
-          // +1: times are rounded *up*, so the shown Fajr can be up to 59 s
-          // after the true one; sahri must never end after true Fajr.
-          sahriSafety: Duration(minutes: params.sahriSafetyMinutes + 1),
+          // Shown Fajr is rounded *up* (up to 59 s after true Fajr), so a
+          // 0 margin still takes 1 min off: sahri never ends after true
+          // Fajr. A margin of m >= 1 already covers that, so sahri shows
+          // exactly m min before the shown Fajr (BD: 3, as IFB prints it).
+          sahriSafety: Duration(
+            minutes: params.sahriSafetyMinutes < 1
+                ? 1
+                : params.sahriSafetyMinutes,
+          ),
         ),
       );
     } on Object catch (e) {

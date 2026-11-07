@@ -91,7 +91,7 @@
   "hijriOffsetValue": "{count, plural, =1{{sign}1 day} other{{sign}{count} days}}",
   "@hijriOffsetValue": { "placeholders": { "count": { "type": "int", "format": "decimalPattern" }, "sign": { "type": "String" } } },
   "settingSahriSafety": "Sahri safety margin",
-  "settingSahriSafetySub": "End sahri this many minutes before Fajr",
+  "settingSahriSafetySub": "End sahri this many minutes before Fajr. The fast legally begins at true Fajr; this margin is only a precaution.",
   "settingTheme": "Theme",
   "themeSystem": "System",
   "themeLight": "Light",

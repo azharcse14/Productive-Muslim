@@ -44,3 +44,11 @@ int defaultHijriOffsetFor(String countryCode) => switch (countryCode) {
   'BD' => -1,
   _ => 0,
 };
+
+/// Region-default sahri safety margin (minutes) for [countryCode]: the
+/// Islamic Foundation Bangladesh timetable ends sahri 3 minutes before
+/// subh sadiq. Other regions: 0 (sahri ends at Fajr).
+int defaultSahriSafetyFor(String countryCode) => switch (countryCode) {
+  'BD' => 3,
+  _ => 0,
+};
