@@ -89,4 +89,24 @@ abstract final class QType {
     labelMedium: label.copyWith(color: ink),
     labelSmall: overline.copyWith(color: ink2),
   );
+
+  /// Languages whose script takes the overline's +1.4 tracking.
+  static const _trackedLanguages = {'en'};
+
+  /// [theme] for [locale]: positive tracking pulls the joined clusters of
+  /// complex scripts apart ("লক্ষ্য" → "ল ক্ষ্য"), so non-Latin locales get
+  /// an untracked overline (`labelSmall` — use it, not [overline], in
+  /// widgets). Negative tracking on display / headline / title / countdown
+  /// is kept on purpose: it only overlaps the headstroke, never opens a gap.
+  static ThemeData localize(ThemeData theme, Locale locale) {
+    if (_trackedLanguages.contains(locale.languageCode)) {
+      return theme;
+    }
+    final t = theme.textTheme;
+    return theme.copyWith(
+      textTheme: t.copyWith(
+        labelSmall: t.labelSmall?.copyWith(letterSpacing: 0),
+      ),
+    );
+  }
 }

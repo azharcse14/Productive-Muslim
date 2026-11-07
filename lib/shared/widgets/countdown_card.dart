@@ -182,7 +182,9 @@ final class CountdownCard extends StatelessWidget {
                             excludeSemantics: true,
                             child: Text(
                               eyebrow.toUpperCase(),
-                              style: QType.overline.copyWith(color: c.sub),
+                              style: context.text.labelSmall?.copyWith(
+                                color: c.sub,
+                              ),
                             ),
                           ),
                         ),

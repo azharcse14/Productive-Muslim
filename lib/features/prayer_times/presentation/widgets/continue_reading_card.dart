@@ -55,7 +55,10 @@ final class ContinueReadingCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: QType.overline.copyWith(color: q.ink2)),
+                Text(
+                  title,
+                  style: context.text.labelSmall?.copyWith(color: q.ink2),
+                ),
                 const SizedBox(height: 2),
                 Text(surahName, style: QType.titleSm.copyWith(color: q.ink)),
                 const SizedBox(height: 2),

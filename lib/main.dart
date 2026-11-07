@@ -9,6 +9,7 @@ import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/settings/settings_store.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/productive_muslim_typography.dart';
 import 'features/notifications/presentation/state/notification_controller.dart';
 import 'features/onboarding/presentation/state/app_lock_store.dart';
 import 'shared/reader/reader_text_size.dart';
@@ -54,16 +55,23 @@ final class _ProductiveMuslimAppState extends State<ProductiveMuslimApp> {
         // App lock: re-locks overlay the PIN gate (navigation state kept);
         // an opaque cover while backgrounded hides the UI from the app
         // switcher and from the first frame back before the gate.
-        builder: (context, child) => ReaderTextSizeScope(
-          textSize: _readerTextSize,
-          child: SignalBuilder(
-            builder: (context) => Stack(
-              fit: StackFit.expand,
-              children: [
-                LockOverlay(router: _router, child: child),
-                if (_lock.obscured.value)
-                  ColoredBox(color: Theme.of(context).colorScheme.surface),
-              ],
+        // Overline tracking follows the resolved locale's script.
+        builder: (context, child) => Theme(
+          data: QType.localize(
+            Theme.of(context),
+            Localizations.localeOf(context),
+          ),
+          child: ReaderTextSizeScope(
+            textSize: _readerTextSize,
+            child: SignalBuilder(
+              builder: (context) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  LockOverlay(router: _router, child: child),
+                  if (_lock.obscured.value)
+                    ColoredBox(color: Theme.of(context).colorScheme.surface),
+                ],
+              ),
             ),
           ),
         ),
