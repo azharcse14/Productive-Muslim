@@ -5,6 +5,7 @@ import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_sche
 import 'package:productive_muslim/features/my_mosque/domain/entities/mosque_state.dart';
 import 'package:productive_muslim/features/my_mosque/domain/usecases/resolve_active_mosque.dart';
 import 'package:productive_muslim/features/notifications/domain/entities/notification_item.dart';
+import 'package:productive_muslim/features/notifications/domain/usecases/build_focus_windows.dart';
 import 'package:productive_muslim/features/notifications/domain/usecases/build_notification_plan.dart';
 import 'package:productive_muslim/features/prayer_times/domain/entities/prayer_day.dart';
 import 'package:productive_muslim/features/settings/domain/entities/notification_matrix.dart';
@@ -553,6 +554,104 @@ void main() {
       expect(plan.take(full.length).toList(), full);
       expect(plan.last.kind, NotificationKind.keepAlive);
       expect(plan.last.at, full.last.at.add(const Duration(minutes: 1)));
+    });
+
+    group('cap drops low-value kinds first', () {
+      // Every kind on: azan, jamaat, sahri, iftar, evening nudge, three
+      // daily content reminders, focus start + end per prayer.
+      const busy = NotificationMatrix(
+        jamaatReminder: true,
+        muhasabaEveningReminder: true,
+        dailyReminder: true,
+        dailyAyahReminder: true,
+        dailyHadithReminder: true,
+      );
+      final jamaat = JamaatConfig({
+        for (final p in Prayer.values)
+          p: const OffsetJamaat(Duration(minutes: 15)),
+      });
+      final focus = [
+        for (final day in _days)
+          for (final p in Prayer.values)
+            FocusWindow(
+              prayer: p,
+              start: day.startOf(p).add(const Duration(minutes: 10)),
+              end: day.startOf(p).add(const Duration(minutes: 30)),
+            ),
+      ];
+      List<NotificationItem> busyPlan({
+        int? maxItems,
+        bool keepAlive = false,
+      }) => buildNotificationPlan(
+        from: _from,
+        days: _days,
+        matrix: busy,
+        jamaat: jamaat,
+        maxItems: maxItems,
+        keepAlive: keepAlive,
+        focusWindows: focus,
+        focusStartNudges: true,
+      );
+      int tierOf(NotificationKind k) => switch (k) {
+        NotificationKind.azan ||
+        NotificationKind.jamaat ||
+        NotificationKind.sahriWarning ||
+        NotificationKind.iftar ||
+        NotificationKind.keepAlive => 0,
+        NotificationKind.jamaatFocus => 1,
+        NotificationKind.focusEnd => 2,
+        NotificationKind.muhasabaEvening => 3,
+        NotificationKind.dailyReminder ||
+        NotificationKind.dailyAyah ||
+        NotificationKind.dailyHadith => 4,
+      };
+      final full = busyPlan();
+
+      test('the uncapped plan has every tier', () {
+        expect({for (final i in full) tierOf(i.kind)}, {0, 1, 2, 3, 4});
+      });
+
+      // Every cap from 0 to the full size: the kept items are exactly the
+      // highest tiers that fit, plus the earliest of the next tier, in time
+      // order.
+      for (var cap = 0; cap <= full.length; cap++) {
+        test('cap $cap', () {
+          final plan = busyPlan(maxItems: cap);
+          expect(plan.length, cap);
+          final ranked = [...full]
+            ..sort((a, b) {
+              final t = tierOf(a.kind).compareTo(tierOf(b.kind));
+              return t != 0 ? t : a.at.compareTo(b.at);
+            });
+          expect(plan.toSet(), ranked.take(cap).toSet());
+          for (var i = 1; i < plan.length; i++) {
+            expect(plan[i].at.isBefore(plan[i - 1].at), isFalse);
+          }
+        });
+      }
+
+      test('azans survive while content reminders are dropped', () {
+        final azans = full.where((i) => i.kind == NotificationKind.azan);
+        final core = full.where((i) => tierOf(i.kind) == 0).length;
+        final plan = busyPlan(maxItems: core);
+        expect(plan.where((i) => i.kind == NotificationKind.azan), azans);
+        expect(plan.every((i) => tierOf(i.kind) == 0), isTrue);
+      });
+
+      test('keep-alive sits 12 h before the last kept reminder', () {
+        final core = full.where((i) => tierOf(i.kind) == 0).length;
+        final plan = busyPlan(maxItems: core - 5, keepAlive: true);
+        expect(plan.length, core - 5);
+        final nudge = plan.singleWhere(
+          (i) => i.kind == NotificationKind.keepAlive,
+        );
+        final reminders = plan.where((i) => i != nudge).toList();
+        expect(reminders.every((i) => tierOf(i.kind) == 0), isTrue);
+        expect(nudge.at, reminders.last.at.subtract(keepAliveLead));
+        for (var i = 1; i < plan.length; i++) {
+          expect(plan[i].at.isBefore(plan[i - 1].at), isFalse);
+        }
+      });
     });
 
     test('no keep-alive when nothing is planned', () {

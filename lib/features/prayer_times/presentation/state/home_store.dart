@@ -59,9 +59,17 @@ final class HomeStore {
         unawaited(_mosque.clearOverride());
       }
     });
+    // A new location has its own wall clock: re-read [now] at once, so
+    // [prayerDay] isn't computed for it with the old zone's [dateKey]
+    // until the next tick.
+    _locationWatcher = effect(() {
+      _settings.location.value;
+      untracked(() => now.value = _wallNow());
+    });
   }
 
   late final void Function() _overrideWatcher;
+  late final void Function() _locationWatcher;
 
   final GetPrayerDay _getPrayerDay;
   final ZonedClock _clock;
@@ -493,5 +501,6 @@ final class HomeStore {
   void dispose() {
     stop();
     _overrideWatcher();
+    _locationWatcher();
   }
 }

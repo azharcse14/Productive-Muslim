@@ -94,8 +94,53 @@ const _dhaka = ManualCityLocation(
   ),
 );
 
+/// Each location reads its own wall clock: Dhaka is already past midnight.
+final class _PerZoneClock implements ZonedClock {
+  final _real = TimezoneClock();
+
+  @override
+  DateTime nowAt(LocationConfig location) =>
+      _real.instantAt(location, DateTime.utc(2026, 6, 19, 20)).floating;
+
+  @override
+  DateTime instantAt(LocationConfig location, DateTime instant) =>
+      _real.instantAt(location, instant);
+
+  @override
+  DateTime utcInstantOf(LocationConfig location, DateTime wall) =>
+      _real.utcInstantOf(location, wall);
+}
+
 void main() {
   setUpAll(TimezoneClock.initialize);
+
+  test('a location change re-reads now without waiting for a tick', () async {
+    final settings = await makeSettingsStore(
+      const AppSettings(location: _dhaka),
+    );
+    final (mosque, _) = await makeMosqueStore();
+    final store = HomeStore(
+      getPrayerDay: GetPrayerDay(_FridayDays()),
+      clock: _PerZoneClock(),
+      settings: settings,
+      mosque: mosque,
+    );
+    addTearDown(store.dispose);
+    expect(store.dateKey.value, DateTime(2026, 6, 20)); // Dhaka 02:00
+    await settings.setLocation(
+      const ManualCityLocation(
+        City(
+          name: 'New York',
+          countryCode: 'US',
+          latitude: 40.7128,
+          longitude: -74.006,
+          timezone: 'America/New_York',
+        ),
+      ),
+    );
+    expect(store.now.value.hour, 16); // New York 16:00, same instant
+    expect(store.dateKey.value, DateTime(2026, 6, 19));
+  });
 
   Future<(HomeStore, _CountingClock)> at(
     DateTime now, {
