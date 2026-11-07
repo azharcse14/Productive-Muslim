@@ -720,6 +720,44 @@ void main() {
       expect(find.text('Shake to lock'), findsOneWidget);
     });
 
+    testWidgets('a failed grant check offers the grant flow', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        focus,
+        (call) async => switch (call.method) {
+          'isBlockingAvailable' => true,
+          'status' => <String, Object?>{'active': false},
+          'hasDndAccess' => throw PlatformException(code: 'boom'),
+          _ => null,
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          focus,
+          null,
+        ),
+      );
+      await _register(_FakeScheduler(), settings: settings);
+      await pumpTall(tester);
+      expect(
+        find.text('Allow Do Not Disturb access to silence the phone'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Allow accessibility access for nafs lock to work'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('granted access shows no grant prompts', (tester) async {
+      mockNative(tester, blocking: true);
+      await _register(_FakeScheduler(), settings: settings);
+      await pumpTall(tester);
+      expect(
+        find.text('Allow Do Not Disturb access to silence the phone'),
+        findsNothing,
+      );
+    });
+
     testWidgets('without it: lock, nafs lock and disclosure are hidden', (
       tester,
     ) async {

@@ -98,7 +98,10 @@ final class _DetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final q = context.q;
     final l10n = context.l10n;
-    final range = '${formatTime(window.start)} – ${formatTime(window.end)}';
+    // Non-breaking inside each time, so "11:33 AM" never splits; the range
+    // can still break at the dash when even a line of its own is too narrow.
+    String time(DateTime t) => formatTime(t).replaceAll(' ', '\u00A0');
+    final range = '${time(window.start)} – ${time(window.end)}';
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,20 +117,23 @@ final class _DetailCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: QSpace.s3),
+              // Title and range share a line when they fit; otherwise the
+              // whole range moves under the title instead of wrapping.
               Expanded(
-                flex: 3,
-                child: Text(
-                  l10n.specialTimeLabel(window.time),
-                  style: QType.titleSm.copyWith(color: q.ink),
-                ),
-              ),
-              // Long label or large text: the range wraps instead of overflowing.
-              Flexible(
-                flex: 2,
-                child: Text(
-                  range,
-                  textAlign: TextAlign.end,
-                  style: QType.num_(QType.caption).copyWith(color: q.ink2),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: QSpace.s3,
+                  children: [
+                    Text(
+                      l10n.specialTimeLabel(window.time),
+                      style: QType.titleSm.copyWith(color: q.ink),
+                    ),
+                    Text(
+                      range,
+                      style: QType.num_(QType.caption).copyWith(color: q.ink2),
+                    ),
+                  ],
                 ),
               ),
             ],

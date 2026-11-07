@@ -251,24 +251,49 @@ void main() {
       expect(nudge.at, plan.last.at.subtract(keepAliveLead));
     });
 
-    test('iOS caps at 60 pending items, keeping the earliest', () async {
-      final ios = await planFor(TargetPlatform.iOS);
-      final android = await planFor(TargetPlatform.android);
-      expect(android.length, greaterThan(60));
-      expect(ios.length, 60);
-      final iosReminders = ios
-          .where((i) => i.kind != NotificationKind.keepAlive)
-          .toList();
-      final androidReminders = android
-          .where((i) => i.kind != NotificationKind.keepAlive)
-          .toList();
-      expect(iosReminders, androidReminders.take(iosReminders.length).toList());
-      // Well before the capped plan's last reminder, not after it.
-      final nudge = ios.singleWhere(
-        (i) => i.kind == NotificationKind.keepAlive,
-      );
-      expect(nudge.at, iosReminders.last.at.subtract(keepAliveLead));
-    });
+    test(
+      'iOS caps at 60 pending items, dropping content reminders first',
+      () async {
+        final ios = await planFor(TargetPlatform.iOS);
+        final android = await planFor(TargetPlatform.android);
+        expect(android.length, greaterThan(60));
+        expect(ios.length, 60);
+        final iosReminders = ios
+            .where((i) => i.kind != NotificationKind.keepAlive)
+            .toList();
+        final androidReminders = android
+            .where((i) => i.kind != NotificationKind.keepAlive)
+            .toList();
+        // Every azan/sahri/iftar of the 7 days survives; the leftover budget
+        // goes to the evening nudges, then the earliest daily reminders.
+        const core = {
+          NotificationKind.azan,
+          NotificationKind.sahriWarning,
+          NotificationKind.iftar,
+        };
+        bool isCore(NotificationItem i) => core.contains(i.kind);
+        expect(iosReminders.where(isCore), androidReminders.where(isCore));
+        final evenings = androidReminders.where(
+          (i) => i.kind == NotificationKind.muhasabaEvening,
+        );
+        expect(
+          iosReminders.where((i) => !isCore(i)),
+          [
+            ...evenings,
+            ...androidReminders
+                .where((i) => i.kind == NotificationKind.dailyReminder)
+                .take(
+                  59 - androidReminders.where(isCore).length - evenings.length,
+                ),
+          ]..sort((a, b) => a.at.compareTo(b.at)),
+        );
+        // Well before the capped plan's last reminder, not after it.
+        final nudge = ios.singleWhere(
+          (i) => i.kind == NotificationKind.keepAlive,
+        );
+        expect(nudge.at, iosReminders.last.at.subtract(keepAliveLead));
+      },
+    );
   });
 
   group('TimezoneClock.utcInstantOf', () {

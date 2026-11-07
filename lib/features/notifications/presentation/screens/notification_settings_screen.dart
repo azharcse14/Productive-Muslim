@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -800,8 +801,14 @@ final class _JamaatFocusCardState extends State<_JamaatFocusCard> {
       );
       _canSilence.value = await widget.focus.hasSilencePermission();
       _canBlock.value = await widget.focus.hasBlockPermission();
-    } on Object catch (_) {
+    } on MissingPluginException {
       // No native side (tests, other platforms): stay on the defaults.
+    } on Object catch (e) {
+      // A real native failure can't prove the grants: show them missing so
+      // the grant flow stays reachable.
+      debugPrint('Jamaat focus status failed: $e');
+      _canSilence.value = false;
+      _canBlock.value = false;
     }
   }
 

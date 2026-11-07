@@ -421,4 +421,40 @@ void main() {
     expect(scheduler.rescheduleCalls, before + 1, reason: 'zone changed');
     controller.dispose();
   });
+
+  test('the device fingerprint tracks the 24-hour setting', () {
+    final dispatcher = binding.platformDispatcher;
+    addTearDown(dispatcher.clearAlwaysUse24HourTestValue);
+    dispatcher.alwaysUse24HourFormatTestValue = false;
+    final twelve = NotificationController.deviceFingerprint();
+    dispatcher.alwaysUse24HourFormatTestValue = true;
+    final twentyFour = NotificationController.deviceFingerprint();
+    expect(twentyFour, isNot(twelve));
+  });
+
+  test('resume after toggling 24-hour time reschedules a fresh plan', () async {
+    final dispatcher = binding.platformDispatcher;
+    addTearDown(dispatcher.clearAlwaysUse24HourTestValue);
+    dispatcher.alwaysUse24HourFormatTestValue = false;
+    final now = DateTime(2026, 3, 1, 9);
+    final (controller, scheduler) = await _controller(
+      now: () => now,
+      deviceZone: NotificationController.deviceFingerprint,
+    );
+    await controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    final before = scheduler.rescheduleCalls;
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before, reason: 'unchanged, fresh');
+
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    dispatcher.alwaysUse24HourFormatTestValue = true;
+    resume();
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    expect(scheduler.rescheduleCalls, before + 1, reason: '24h toggled');
+    controller.dispose();
+  });
 }

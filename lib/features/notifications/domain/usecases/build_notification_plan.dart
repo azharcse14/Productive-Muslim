@@ -14,8 +14,10 @@ import 'build_focus_windows.dart';
 /// a late-evening [from] still fills the whole window. Only items strictly after [from] and within [window]
 /// are planned.
 ///
-/// [maxItems] caps the plan (iOS allows only 64 pending notifications);
-/// the earliest items are kept. With [keepAlive], one extra low-priority
+/// [maxItems] caps the plan (iOS allows only 64 pending notifications):
+/// lower-value kinds are dropped first (daily content, then the muhasaba
+/// nudge, focus end, focus start) and the earliest items are kept within
+/// each tier, so azan/jamaat/sahri/iftar keep their days. With [keepAlive], one extra low-priority
 /// [NotificationKind.keepAlive] item asks the user to open the app so the
 /// schedule is refilled — [keepAliveLead] before the last planned item, so
 /// there is time to act before reminders run out (a minute after it when
@@ -200,9 +202,20 @@ List<NotificationItem> buildNotificationPlan({
 
   items.sort((a, b) => a.at.compareTo(b.at));
   final cap = maxItems == null ? null : maxItems - (keepAlive ? 1 : 0);
-  final plan = cap != null && items.length > cap
-      ? items.sublist(0, cap < 0 ? 0 : cap)
-      : items;
+  var plan = items;
+  if (cap != null && items.length > cap) {
+    // Fill the budget tier by tier, earliest first within a tier, so a full
+    // schedule (e.g. Jamaat Focus on all five prayers) drops content
+    // reminders before it drops days of azans.
+    final ranked = [...items]
+      ..sort((a, b) {
+        final byTier = _tier(a.kind).compareTo(_tier(b.kind));
+        return byTier != 0 ? byTier : a.at.compareTo(b.at);
+      });
+    final kept = Set<NotificationItem>.identity()
+      ..addAll(ranked.take(cap < 0 ? 0 : cap));
+    plan = items.where(kept.contains).toList();
+  }
   if (keepAlive && plan.isNotEmpty) {
     final last = plan.last.at;
     final early = last.subtract(keepAliveLead);
@@ -218,3 +231,19 @@ List<NotificationItem> buildNotificationPlan({
   }
   return plan;
 }
+
+/// Cap priority, lower survives longer: what the user relies on to pray on
+/// time first, nudges and daily content last.
+int _tier(NotificationKind kind) => switch (kind) {
+  NotificationKind.azan ||
+  NotificationKind.jamaat ||
+  NotificationKind.sahriWarning ||
+  NotificationKind.iftar ||
+  NotificationKind.keepAlive => 0,
+  NotificationKind.jamaatFocus => 1,
+  NotificationKind.focusEnd => 2,
+  NotificationKind.muhasabaEvening => 3,
+  NotificationKind.dailyReminder ||
+  NotificationKind.dailyAyah ||
+  NotificationKind.dailyHadith => 4,
+};

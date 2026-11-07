@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ui' show Locale;
 
 import 'package:flutter/foundation.dart' show debugPrint;
-import 'package:flutter/widgets.dart' show AppLifecycleListener;
+import 'package:flutter/widgets.dart' show AppLifecycleListener, WidgetsBinding;
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/l10n/gen/app_localizations.dart';
@@ -20,8 +20,9 @@ import '../../domain/repositories/notification_scheduler.dart';
 import '../../domain/usecases/reschedule_notifications.dart';
 
 /// App-scoped: reschedules the plan on app open, on resume once the plan
-/// is stale (or a notification / exact-alarm grant or the device zone changed), and whenever location / prayer params / matrix / locale
-/// change (guide §5).
+/// is stale (or a notification / exact-alarm grant, the device zone or the
+/// 24-hour setting changed), and whenever location / prayer params / matrix
+/// / locale change (guide §5).
 final class NotificationController {
   NotificationController({
     required RescheduleNotifications reschedule,
@@ -29,7 +30,7 @@ final class NotificationController {
     required SettingsStore settings,
     required MosqueStore mosque,
     DateTime Function() now = DateTime.now,
-    String Function() deviceZone = _deviceZone,
+    String Function() deviceZone = deviceFingerprint,
   }) : _reschedule = reschedule,
        _scheduler = scheduler,
        _settings = settings,
@@ -44,12 +45,15 @@ final class NotificationController {
   final DateTime Function() _now;
   final String Function() _zone;
 
-  /// The device zone (name + current offset). Notification bodies and
-  /// GPS wall times are formatted in it, so a change (travel, DST)
-  /// must rebuild even a fresh plan.
-  static String _deviceZone() {
+  /// The device zone (name + current offset) and 12/24-hour preference.
+  /// Notification bodies and GPS wall times are formatted with them at
+  /// schedule time, so a change (travel, DST, the 24-hour toggle) must
+  /// rebuild even a fresh plan.
+  static String deviceFingerprint() {
     final now = DateTime.now();
-    return '${now.timeZoneName} ${now.timeZoneOffset}';
+    final use24h =
+        WidgetsBinding.instance.platformDispatcher.alwaysUse24HourFormat;
+    return '${now.timeZoneName} ${now.timeZoneOffset} $use24h';
   }
 
   /// A resume within this long of the last successful run, with the same
