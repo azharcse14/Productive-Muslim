@@ -19,7 +19,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 7, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 8, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -43,6 +43,12 @@ const _infoUrl = '$_cdn/info.json';
 /// "পিতা-মাতার".
 const _corrections =
     <(int, int), ({(String, String)? en, (String, String)? bn})>{
+      // 2:255 لَا إِلَٰهَ إِلَّا هُوَ — Pickthall (1930) has "no God save Him";
+      // "deity" is Tanzil's lone edit of his wording.
+      (2, 255): (
+        en: ('There is no deity save Him', 'There is no God save Him'),
+        bn: null,
+      ),
       // 3:1 الم — the first letter is Alif ("Alim" is a typo; 2:1 has "Alif").
       (3, 1): (en: ('Alim. Lam. Mim', 'Alif. Lam. Mim'), bn: null),
       // 12:1 آيَاتُ is plural.
@@ -307,7 +313,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 7;
+      PRAGMA user_version = 8;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(

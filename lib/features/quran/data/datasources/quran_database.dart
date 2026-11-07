@@ -20,7 +20,7 @@ final class QuranDatabase extends GeneratedDatabase {
 
   /// `PRAGMA user_version` of the bundled asset. Bump together with the
   /// asset (tool/quran_db_build.dart) to force a re-copy on upgrade.
-  static const bundledVersion = 7;
+  static const bundledVersion = 8;
 
   static const _assetPath = 'assets/data/quran.db';
   static const _fileName = 'quran.db';

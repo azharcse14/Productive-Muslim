@@ -61,6 +61,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareTranslatorMuhiuddinKhan => 'Muhiuddin Khan';
 
   @override
+  String get quranNote4v34 =>
+      'Note: Classical scholars explain this as a last resort, after advice and then separation in bed. It must not injure: Ibn Abbas said \"with a siwak or the like\" (al-Tabari), and never on the face (Ibn Kathir). The Prophet ﷺ never struck a woman (Muslim 2328).';
+
+  @override
   String shareTranslationBy(String translator) {
     return 'Translation: $translator';
   }

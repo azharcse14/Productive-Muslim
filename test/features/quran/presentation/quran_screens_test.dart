@@ -751,6 +751,35 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('the explanatory note shows under 4:34 only', (tester) async {
+      repo.extraAyahs[4] = [
+        for (final n in [33, 34])
+          Ayah(
+            id: 500 + n,
+            surah: 4,
+            number: n,
+            arabic: 'arabic $n',
+            translationEn: 'translation $n',
+            translationBn: 'অনুবাদ $n',
+          ),
+      ];
+      await tester.pumpWidget(_app(const QuranReaderScreen(surahId: 4)));
+      await tester.pump();
+
+      final note = find.textContaining('Note: Classical scholars');
+      expect(note, findsOneWidget);
+      QCard cardOf(String arabic) => tester.widget<QCard>(
+        find.ancestor(of: find.text(arabic), matching: find.byType(QCard)),
+      );
+      final noteCard = tester.widget<QCard>(
+        find.ancestor(of: note, matching: find.byType(QCard)),
+      );
+      expect(noteCard, same(cardOf('arabic 34')));
+      expect(noteCard, isNot(same(cardOf('arabic 33'))));
+
+      await flushMarkRead(tester);
+    });
+
     testWidgets('after a user scroll, records the ayah at the top edge', (
       tester,
     ) async {
