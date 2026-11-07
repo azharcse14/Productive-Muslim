@@ -2,23 +2,26 @@ import 'package:flutter/painting.dart';
 
 import '../../config/assets.dart';
 
-const _arabicComma = '،';
+/// Arabic punctuation UthmanicHafs maps to a dotted circle: ، ؛ ؟ ٪ ٫ ٬ ٭ ۔
+/// (checked glyph-by-glyph against the font). `fontFamilyFallback` can't help
+/// because the glyph exists.
+final _dottedInHafs = RegExp('[،؛؟٪-٭۔]+');
 
-/// [text] in [style] (the Hafs font), with every U+060C ARABIC COMMA drawn
-/// in the UI Arabic font instead: UthmanicHafs maps U+060C to a dotted
-/// circle, and `fontFamilyFallback` can't help because the glyph exists.
-/// For dua, ruqyah and hadith Arabic — Quran text has no Arabic commas.
+/// [text] in [style] (the Hafs font), with every character in
+/// [_dottedInHafs] drawn in the UI Arabic font instead.
+/// For dua, ruqyah and hadith Arabic — Quran text has none of them.
 TextSpan hafsSpan(String text, TextStyle style) {
-  if (!text.contains(_arabicComma)) return TextSpan(text: text, style: style);
-  final commaStyle = style.copyWith(fontFamily: AppFonts.arabicUi);
-  final parts = text.split(_arabicComma);
-  return TextSpan(
-    style: style,
-    children: [
-      for (var i = 0; i < parts.length; i++) ...[
-        if (i > 0) TextSpan(text: _arabicComma, style: commaStyle),
-        if (parts[i].isNotEmpty) TextSpan(text: parts[i]),
-      ],
-    ],
-  );
+  if (!_dottedInHafs.hasMatch(text)) return TextSpan(text: text, style: style);
+  final uiStyle = style.copyWith(fontFamily: AppFonts.arabicUi);
+  final children = <InlineSpan>[];
+  var start = 0;
+  for (final m in _dottedInHafs.allMatches(text)) {
+    if (m.start > start) {
+      children.add(TextSpan(text: text.substring(start, m.start)));
+    }
+    children.add(TextSpan(text: m[0], style: uiStyle));
+    start = m.end;
+  }
+  if (start < text.length) children.add(TextSpan(text: text.substring(start)));
+  return TextSpan(style: style, children: children);
 }
