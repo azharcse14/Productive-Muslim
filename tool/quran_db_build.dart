@@ -19,7 +19,7 @@
 // About/credits screen (see DEPENDENCIES.md).
 //
 // Usage:  dart run tool/quran_db_build.dart
-// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 6, tables
+// Output: assets/data/quran.db — SQLite, PRAGMA user_version = 7, tables
 //         `surahs` (114 rows) and `ayahs` (6236 rows, global id 1..6236).
 // Requires `curl` on PATH (dev machines only).
 
@@ -51,7 +51,43 @@ const _corrections =
         en: ('concerning his partners', 'concerning his parents'),
         bn: ('পিতা-মতার', 'পিতা-মাতার'),
       ),
+      // Bangla typos: 4:3 যথার্থ / পূরণ, 4:34 কর্তৃত্ব, 5:3 যায়, 11:14 পূরণ.
+      (4, 3): (en: null, bn: ('যথাথভাবে পুরণ', 'যথার্থভাবে পূরণ')),
+      (4, 34): (en: null, bn: ('কৃর্তত্বশীল', 'কর্তৃত্বশীল')),
+      (5, 3): (en: null, bn: ('মারা যা,', 'মারা যা\u09DF,')),
+      (11, 14): (en: null, bn: ('কথা পুরণ', 'কথা পূরণ')),
+      // 27:30 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ — "সসীম" (finite) is a typo
+      // for Muhiuddin Khan's "অসীম দাতা".
+      (27, 30): (en: null, bn: ('সসীম দাতা', 'অসীম দাতা')),
     };
+
+/// Tanzil's Pickthall swapped his "God" for "Allah" where the Arabic is
+/// the generic إِلَٰه ("there is no Allah save Allah", "Your Allah is One
+/// Allah"); 22:34 ("your god is One God") escaped it. Restored to "God" in
+/// these generic-deity phrases only — "Allah" as the proper name stays.
+final _pickthallIlah = RegExp(r'\b(no|other|One|[Yy]our|our|any) Allah\b');
+
+/// Hits of [_pickthallIlah] in the pinned edition; a change means the
+/// upstream text moved and the phrases need a fresh review.
+const _pickthallIlahCount = 74;
+
+/// Applies [_pickthallIlah] to every ayah of [english] in place.
+void _restorePickthallGod(_Verses english) {
+  var hits = 0;
+  english.updateAll(
+    (_, text) => text.replaceAllMapped(_pickthallIlah, (m) {
+      hits++;
+      return '${m[1]} God';
+    }),
+  );
+  if (hits != _pickthallIlahCount) {
+    _fail('Pickthall "God" restore: $hits hits, expected $_pickthallIlahCount');
+  }
+}
+
+/// Arabic surah names that don't match the transliteration/English name
+/// the API ships with them (40 is "Ghafir", 76 "Al-Insaan").
+const _arabicNameFixes = {40: 'غَافِرٍ', 76: 'الْإِنْسَانِ'};
 
 /// Applies [fix] to [text]; throws when the upstream text no longer has the
 /// typo, so a stale correction is noticed on the next build.
@@ -83,6 +119,7 @@ Future<void> main() async {
       '${tmp.path}/ara.json',
     ).map((key, text) => MapEntry(key, _toKfgqpc(text)));
     final english = _downloadVerses(_englishUrl, '${tmp.path}/eng.json');
+    _restorePickthallGod(english);
     final bangla = _downloadVerses(_banglaUrl, '${tmp.path}/ben.json');
     final chapters = _downloadChapters('${tmp.path}/info.json');
     stdout.writeln('Downloading ${ContentSources.bnWikiSurahListRaw} …');
@@ -181,7 +218,7 @@ List<_Chapter> _downloadChapters(String path) {
     chapters.add(
       _Chapter(
         id: chapter['chapter']! as int,
-        nameArabic: nameArabic,
+        nameArabic: _arabicNameFixes[chapter['chapter']! as int] ?? nameArabic,
         transliteration: chapter['name']! as String,
         translationEn: chapter['englishname']! as String,
         ayahCount: (chapter['verses']! as List<Object?>).length,
@@ -270,7 +307,7 @@ void _buildDatabase(
         translation_bn TEXT
       );
       CREATE INDEX idx_ayahs_surah_number ON ayahs(surah, number);
-      PRAGMA user_version = 6;
+      PRAGMA user_version = 7;
     ''');
     db.execute('BEGIN');
     final insertSurah = db.prepare(
@@ -400,6 +437,8 @@ List<BengaliSurahName> parseBnWikiSurahTable(String wikitext) {
 /// applied before the generic clean-up; a stale one throws.
 const bnSurahNameFixes =
     <int, ({(String, String)? name, (String, String)? meaning})>{
+      // البقرة is the cow.
+      2: (name: null, meaning: ('বকনা-বাছুর-গরু', 'গাভী')),
       // آل عمران: "Aal" (family), not the article.
       3: (name: ('আল- ইমরান', 'আলে-ইমরান'), meaning: null),
       6: (name: null, meaning: ('গৃৃহপালিত', 'গৃহপালিত')),
@@ -415,11 +454,21 @@ const bnSurahNameFixes =
       39: (name: ('জুমার', 'যুমার'), meaning: ('দল-বদ্ধ', 'দলবদ্ধ')),
       // 32's spelling, সিজদাহ.
       41: (name: ('সেজদাহ্\u200c', 'সিজদাহ'), meaning: null),
+      // Named غافر / "Ghafir" (see _arabicNameFixes), not المؤمن.
+      40: (name: ("মু'মিন", 'গাফির'), meaning: ('বিশ্বাসী', 'ক্ষমাশীল')),
       49: (name: null, meaning: ('সমূূহ', 'সমূহ')),
       75: (name: null, meaning: ('পুনরুথান', 'পুনরুত্থান')),
+      // Named الإنسان / "Al-Insaan" (see _arabicNameFixes), not الدهر.
+      76: (name: ('দাহর', 'ইনসান'), meaning: null),
+      // المرسلات: those (winds) sent forth, not messengers.
+      77: (name: null, meaning: ('প্রেরিত পুরুষবৃন্দ', 'প্রেরিত বায়ুসমূহ')),
+      // النازعات: those who pull out (souls) forcefully.
+      79: (name: null, meaning: ('প্রচেষ্টাকারী', 'প্রবলভাবে টেনে আনয়নকারী')),
       84: (name: null, meaning: ('খন্ড-বিখন্ড করণ', 'খণ্ড-বিখণ্ডকরণ')),
       91: (name: null, meaning: ('সূর্য্য', 'সূর্য')),
       96: (name: null, meaning: ('রক্তপিন্ড', 'রক্তপিণ্ড')),
+      // ليلة القدر: the night of majesty, not "amount".
+      97: (name: null, meaning: ('পরিমাণ', 'মহিমান্বিত রজনী')),
       // The page names 111 লাহাব; the Arabic name the app shows is المسد.
       111: (
         name: ('লাহাব', 'মাসাদ'),
