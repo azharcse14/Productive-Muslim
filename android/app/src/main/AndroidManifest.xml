@@ -19,6 +19,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules">
         <activity
             android:name=".MainActivity"
+            android:label="@string/launcher_label"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
