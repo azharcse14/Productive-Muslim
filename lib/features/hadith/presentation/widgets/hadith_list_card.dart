@@ -9,6 +9,7 @@ import '../../../../core/utils/haptics.dart';
 import '../../../../core/utils/locale_digits.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/reader/reader_text_size.dart';
+import '../../../../shared/widgets/q_arabic_span.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../domain/entities/hadith.dart';
@@ -34,17 +35,17 @@ final class HadithListCard extends StatelessWidget {
           if (hadith.arabic.isNotEmpty) ...[
             // Rebuilds when the reader text size changes.
             SignalBuilder(
-              builder: (context) => Text(
-                hadith.arabic,
+              builder: (context) => Text.rich(
+                hafsSpan(
+                  hadith.arabic,
+                  QType.quran(arabicBodySize(context)).copyWith(color: q.ink),
+                ),
                 textDirection: TextDirection.rtl,
                 // Lets screen readers pick an Arabic voice.
                 locale: const Locale('ar'),
                 // Sized by the reader setting, so the system text scale
                 // must not multiply it again.
                 textScaler: TextScaler.noScaling,
-                style: QType.quran(
-                  arabicBodySize(context),
-                ).copyWith(color: q.ink),
               ),
             ),
             const SizedBox(height: QSpace.s3),

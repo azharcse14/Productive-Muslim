@@ -5,6 +5,7 @@ import '../../../../core/theme/productive_muslim_tokens.dart';
 import '../../../../core/theme/productive_muslim_typography.dart';
 import '../../../../shared/extensions/context_ext.dart';
 import '../../../../shared/reader/reader_text_size.dart';
+import '../../../../shared/widgets/q_arabic_span.dart';
 import '../../../../shared/widgets/q_card.dart';
 import '../../../../shared/widgets/q_copy_button.dart';
 import '../../../../shared/widgets/q_repeat_counter.dart';
@@ -45,8 +46,11 @@ final class RuqyahCard extends StatelessWidget {
           const SizedBox(height: QSpace.s2),
           // Rebuilds when the reader text size changes.
           SignalBuilder(
-            builder: (context) => Text(
-              item.arabic,
+            builder: (context) => Text.rich(
+              hafsSpan(
+                item.arabic,
+                QType.quran(arabicBodySize(context)).copyWith(color: q.ink),
+              ),
               textDirection: TextDirection.rtl,
               // A non-Arabic TTS engine garbles raw Arabic glyphs; speak the
               // transliteration instead so screen-reader users hear the words.
@@ -54,9 +58,6 @@ final class RuqyahCard extends StatelessWidget {
               // Sized by the reader setting, so the system text scale must
               // not multiply it again.
               textScaler: TextScaler.noScaling,
-              style: QType.quran(
-                arabicBodySize(context),
-              ).copyWith(color: q.ink),
             ),
           ),
           const SizedBox(height: QSpace.s3),
