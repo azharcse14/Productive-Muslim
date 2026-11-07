@@ -121,8 +121,9 @@ final class HadithListCard extends StatelessWidget {
 
 /// Small pill showing an authenticity grade; wrap it in [Flexible] inside
 /// a row so long grades wrap instead of overflowing. Sahih reads in the positive
-/// (ok) tone, Da'if in the warning tone and Mawdu (fabricated) in the urgent
-/// one — both with a warning icon; anything else in a neutral tone.
+/// (ok) tone, weak or defective (Da'if, Munkar, Shadh, Ma'lul) in the warning
+/// tone and Mawdu (fabricated) in the urgent one — both with a warning icon;
+/// anything else in a neutral tone.
 final class GradeChip extends StatelessWidget {
   const GradeChip({required this.grade, super.key});
 
@@ -148,7 +149,7 @@ final class GradeChip extends StatelessWidget {
     final g = grade.toLowerCase();
     final (color, background, warning) = switch (g) {
       _ when _fabricated.any(g.contains) => (q.urgent, q.urgentSoft, true),
-      _ when _weak.any(g.contains) => (q.warn, q.warnSoft, true),
+      _ when _weakening.any(g.contains) => (q.warn, q.warnSoft, true),
       _ when isSahihGrade(grade) => (q.ok, q.ok.withValues(alpha: 0.12), false),
       _ => (q.ink2, q.ink2.withValues(alpha: 0.12), false),
     };
@@ -192,10 +193,8 @@ final _wordParts = RegExp(
 /// Fabricated / baseless gradings (en or bn) — the strongest warning.
 const _fabricated = ['mawdu', 'batil', 'জাল', 'বাতিল'];
 
-/// Weak gradings (en or bn) — a warning, short of fabricated.
-const _weak = ['daif', "da'if", 'যঈফ', 'দুর্বল'];
-
-/// Qualifiers that weaken a grading even next to "sahih".
+/// Weak or defective gradings (en or bn) — a warning, short of
+/// fabricated, even next to "sahih".
 const _weakening = [
   'shadh',
   'munkar',
@@ -216,7 +215,7 @@ const _weakening = [
 
 /// True when [grade] is a plain sahih grading (en or bn). Mixed gradings
 /// with a weakening qualifier ("Shadh, Sahih", "সহিহ মওকুফ শায",
-/// "Munkar Sahih") stay neutral.
+/// "Munkar Sahih") are not.
 bool isSahihGrade(String grade) {
   final g = grade.toLowerCase();
   if (_weakening.any(g.contains)) {

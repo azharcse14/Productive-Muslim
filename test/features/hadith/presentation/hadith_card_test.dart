@@ -116,7 +116,7 @@ void main() {
     expect(find.text('সহিহ হাদিস'), findsOneWidget);
   });
 
-  testWidgets("GradeChip warns on Da'if and more strongly on Mawdu", (
+  testWidgets("GradeChip warns on weak gradings, more strongly on Mawdu", (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -129,6 +129,9 @@ void main() {
             GradeChip(grade: 'দুর্বল হাদিস'),
             GradeChip(grade: 'Mawdu'),
             GradeChip(grade: 'জাল হাদিস'),
+            GradeChip(grade: 'Munkar'),
+            GradeChip(grade: 'Shadh'),
+            GradeChip(grade: 'মুনকার'),
           ],
         ),
       ),
@@ -144,8 +147,12 @@ void main() {
     expect(colorOf('দুর্বল হাদিস'), q.warn);
     expect(colorOf('Mawdu'), q.urgent);
     expect(colorOf('জাল হাদিস'), q.urgent);
-    // Only the four weak / fabricated chips carry the warning icon.
-    expect(find.byIcon(Icons.warning_amber_rounded), findsNWidgets(4));
+    // Denounced / anomalous gradings warn too, not neutral.
+    expect(colorOf('Munkar'), q.warn);
+    expect(colorOf('Shadh'), q.warn);
+    expect(colorOf('মুনকার'), q.warn);
+    // Only the weak / fabricated chips carry the warning icon.
+    expect(find.byIcon(Icons.warning_amber_rounded), findsNWidgets(7));
   });
 
   testWidgets('a long grade wraps instead of overflowing (320dp, 1.3x)', (
