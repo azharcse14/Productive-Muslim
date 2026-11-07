@@ -8,6 +8,8 @@ import 'package:productive_muslim/features/muhasaba/domain/entities/period_stats
 import 'package:productive_muslim/features/muhasaba/domain/entities/tracker_item.dart';
 import 'package:productive_muslim/features/muhasaba/domain/repositories/muhasaba_repository.dart';
 
+import '../../../helpers/muhasaba_fakes.dart' show streaksOver;
+
 void main() {
   late MuhasabaDatabase db;
   late MuhasabaRepositoryImpl repo;
@@ -865,6 +867,59 @@ void main() {
       expect(result.currentStreak, 0);
       expect(result.bestStreak, 0);
       expect(result.previousCompletion, isNull);
+    });
+  });
+
+  group('streaks', () {
+    // Parity with the Dart reference the achievements used to run over
+    // every done date: same days in, same runs out.
+    Future<void> expectParity(DateTime today) async {
+      final all = await unwrap(repo.items(includeArchived: true));
+      final days = await unwrap(repo.doneDates({for (final i in all) i.id}));
+      final sql = await unwrap(repo.streaks(today));
+      expect(sql, streaksOver(days, today), reason: 'today $today');
+    }
+
+    test('matches the Dart reference on mixed histories', () async {
+      await unwrap(repo.upsertItem(_item('a', sortOrder: 0)));
+      await unwrap(
+        repo.upsertItem(
+          _item('b', sortOrder: 1, kind: TrackerKind.count, dailyTarget: 3),
+        ),
+      );
+      await expectParity(DateTime(2026, 6, 10)); // empty history
+
+      // Run across a month end, a gap, then a run ending yesterday.
+      for (final d in [
+        DateTime(2026, 5, 29),
+        DateTime(2026, 5, 30),
+        DateTime(2026, 5, 31),
+        DateTime(2026, 6),
+        DateTime(2026, 6, 7),
+        DateTime(2026, 6, 8),
+        DateTime(2026, 6, 9),
+      ]) {
+        await unwrap(repo.setEntry(_entry('a', d, 1)));
+      }
+      // Below target: not done, so it doesn't bridge the gap on Jun 2.
+      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 2), 2)));
+      // Done only via 'b', then 'b' archived: still counts.
+      await unwrap(repo.setEntry(_entry('b', DateTime(2026, 6, 3), 3)));
+      now = DateTime(2026, 6, 9);
+      await unwrap(repo.setArchived('b', archived: true));
+
+      for (final today in [
+        DateTime(2026, 6, 9), // run ends today
+        DateTime(2026, 6, 10), // today empty, run ends yesterday
+        DateTime(2026, 6, 11), // broken
+        DateTime(2026, 6), // history after "today"
+      ]) {
+        await expectParity(today);
+      }
+      expect(await unwrap(repo.streaks(DateTime(2026, 6, 10))), (
+        current: 3,
+        best: 4,
+      ));
     });
   });
 }

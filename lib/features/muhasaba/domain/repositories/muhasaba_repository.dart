@@ -44,6 +44,12 @@ abstract interface class MuhasabaRepository {
 
   /// How many [doneDates] there are, counted in SQL.
   Future<Result<int>> doneDayCount(Set<String> itemIds);
+
+  /// All-time current and best run of consecutive days with any item
+  /// done, archived items included — the same streaks [periodStats]
+  /// reports. The current run may end yesterday: today still counts
+  /// until it passes empty.
+  Future<Result<({int current, int best})>> streaks(DateTime today);
 }
 
 /// [MuhasabaRepository.setEntry] refused a value for an archived tracker.

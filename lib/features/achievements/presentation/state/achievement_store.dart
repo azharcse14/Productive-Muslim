@@ -125,88 +125,65 @@ final class AchievementStore {
   /// it re-runs (and can [refresh]) when any of them changes.
   void watchSources() {
     _fasting?.logged.value;
+    _fasting?.loaded.value;
     _tasbih?.lifetimeTotal.value;
     _quran?.bookmarks.value;
     _quran?.lastRead.value;
+    _quran?.progressLoaded.value;
   }
 
   Future<void> _evaluate() async {
     // Bookmarks / last-read live in QuranStore, which is otherwise only
     // loaded by the Quran screen.
     final quran = _quran;
-    if (quran != null && !quran.loaded.value) {
+    if (quran != null && !quran.progressLoaded.value) {
       await quran.load();
     }
     // A failed read throws (stats untouched) rather than evaluating empty
     // data: badges would read locked, then "newly unlocked" on recovery.
     Future<T> read<T>(Future<Result<T>> result) async =>
         (await result).fold((value) => value, (f) => throw f);
-    // Distinct done dates per badge family, archived items included —
-    // counted in SQL where only the number matters.
-    Future<Set<DateTime>> doneOn(Set<String> ids) =>
-        read(_muhasaba.doneDates(ids));
     Future<int> countOf(Set<String> ids) => read(_muhasaba.doneDayCount(ids));
-    // Streaks too: archiving a tracker must not re-lock streak badges.
-    final allItems = await read(_muhasaba.items(includeArchived: true));
-    final streaks = streaksOf(
-      await doneOn({for (final i in allItems) i.id}),
-      _today(),
-    );
+    // Streaks in SQL, archived items included: archiving a tracker must not
+    // re-lock streak badges.
+    final streaks = await read(_muhasaba.streaks(_today()));
     final salahDays = await countOf(DefaultTrackers.salahIds.toSet());
     final quranDays = await countOf(const {'quran'});
-    final fastingDays = {
-      ...await doneOn(const {'roza'}),
-      for (final s in _fasting?.logged.value ?? const <int>{})
-        DateTime(s ~/ 10000, (s ~/ 100) % 100, s % 100),
-    };
+    final rozaDays = await read(_muhasaba.doneDates(const {'roza'}));
     final tahajjudDays = await countOf(const {'tahajjud'});
     final sadaqahDays = await countOf(const {'sadaqah'});
+
+    // A store whose read failed holds empty data, not the user's: keep
+    // the totals it feeds as they were until it really loads.
+    final prior = stats.value;
+    final fasting = _fasting;
+    final fastingDays = fasting == null || fasting.loaded.value
+        ? {
+            ...rozaDays,
+            for (final s in fasting?.logged.value ?? const <int>{})
+              DateTime(s ~/ 10000, (s ~/ 100) % 100, s % 100),
+          }.length
+        : prior.fastingDaysDone;
+    final quranRead = quran == null || quran.progressLoaded.value;
 
     stats.value = AchievementStats(
       currentStreak: streaks.current,
       bestStreak: streaks.best,
       salahDaysDone: salahDays,
       quranDaysDone: quranDays,
-      fastingDaysDone: fastingDays.length,
+      fastingDaysDone: fastingDays,
       tahajjudDaysDone: tahajjudDays,
       sadaqahDaysDone: sadaqahDays,
       totalDhikr: _tasbih?.lifetimeTotal.value ?? 0,
       tasbihSessions: _tasbih?.lifetimeSessions.value ?? 0,
-      quranBookmarks: _quran?.bookmarks.value.length ?? 0,
-      hasStartedReading: _quran?.lastRead.value != null,
+      quranBookmarks: quranRead
+          ? quran?.bookmarks.value.length ?? 0
+          : prior.quranBookmarks,
+      hasStartedReading: quranRead
+          ? quran?.lastRead.value != null
+          : prior.hasStartedReading,
     );
     loaded.value = true;
-  }
-
-  /// Current and best run of consecutive [days]. The current run may end
-  /// yesterday: today still counts until it passes empty.
-  @visibleForTesting
-  static ({int current, int best}) streaksOf(
-    Set<DateTime> days,
-    DateTime today,
-  ) {
-    final keys = {for (final d in days) DateTime(d.year, d.month, d.day)};
-    var cursor = DateTime(today.year, today.month, today.day);
-    if (!keys.contains(cursor)) {
-      cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
-    }
-    var current = 0;
-    while (keys.contains(cursor)) {
-      current++;
-      cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
-    }
-    var best = 0;
-    for (final d in keys) {
-      if (keys.contains(DateTime(d.year, d.month, d.day - 1))) {
-        continue; // not the start of a run
-      }
-      var run = 1;
-      while (keys.contains(DateTime(d.year, d.month, d.day + run))) {
-        run++;
-      }
-      if (run > best) best = run;
-    }
-    return (current: current, best: best);
   }
 
   /// Marks every currently-unlocked badge as seen and persists the set.

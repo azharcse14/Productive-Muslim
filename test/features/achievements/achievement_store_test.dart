@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:productive_muslim/core/utils/result.dart';
+import 'package:productive_muslim/features/achievements/domain/achievements.dart';
 import 'package:productive_muslim/features/achievements/presentation/state/achievement_store.dart';
 import 'package:productive_muslim/features/fasting/presentation/state/fasting_store.dart';
 import 'package:productive_muslim/features/muhasaba/domain/entities/daily_entry.dart';
@@ -64,7 +65,7 @@ void main() {
         now: () => DateTime(2026, 6, 10),
       );
       await Future.wait([for (var i = 0; i < 10; i++) store.refresh()]);
-      expect(repo.allItemsCalls, 2, reason: 'first run + one trailing run');
+      expect(repo.streaksCalls, 2, reason: 'first run + one trailing run');
     },
   );
 
@@ -111,19 +112,86 @@ void main() {
     expect(store.loaded.value, isTrue);
   });
 
-  test('streaksOf: runs, gaps, and a current run ending yesterday', () {
-    DateTime d(int day) => DateTime(2026, 6, day);
-    final s = AchievementStore.streaksOf({
-      d(1),
-      d(2),
-      d(3),
-      d(4),
-      d(7),
-      d(8),
-      d(9),
-    }, d(10));
-    expect(s.best, 4);
-    expect(s.current, 3, reason: 'today (10th) empty: run ends on the 9th');
-    expect(AchievementStore.streaksOf({d(1)}, d(10)).current, 0);
+  test('fasting days hold until the fasting log really loads', () async {
+    final repo = InMemoryMuhasabaRepository();
+    await repo.seedDefaults();
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.withData({
+          'fasting_log_v1': ['20260603', '20260604'],
+        });
+    // Not loaded yet (or its load failed): logged is an empty default.
+    final fasting = FastingStore(SharedPreferencesAsync());
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      fasting: fasting,
+      now: () => DateTime(2026, 6, 10),
+    )..debugSetStats(const AchievementStats(fastingDaysDone: 2));
+
+    await store.refresh();
+    expect(store.stats.value.fastingDaysDone, 2, reason: 'not zeroed');
+
+    await fasting.load();
+    await store.refresh();
+    expect(store.stats.value.fastingDaysDone, 2);
+    expect(store.loaded.value, isTrue);
+  });
+
+  test('Quran badges hold while the bookmarks read fails', () async {
+    final repo = InMemoryMuhasabaRepository();
+    await repo.seedDefaults();
+    final quranRepo = FakeQuranRepository();
+    await quranRepo.toggleBookmark(7);
+    final quran = QuranStore(quranRepo, SharedPreferencesAsync());
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      quran: quran,
+      now: () => DateTime(2026, 6, 10),
+    );
+    await store.load();
+    expect(store.stats.value.quranBookmarks, 1);
+
+    // A later load whose bookmark read fails leaves bookmarks empty.
+    quranRepo.failBookmarkReads = true;
+    final failing = QuranStore(quranRepo, SharedPreferencesAsync());
+    final held = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      quran: failing,
+      now: () => DateTime(2026, 6, 10),
+    )..debugSetStats(store.stats.value);
+    await held.refresh();
+    expect(failing.bookmarks.value, isEmpty);
+    expect(failing.progressLoaded.value, isFalse);
+    expect(held.stats.value.quranBookmarks, 1, reason: 'not zeroed');
+
+    // Recovery: the next refresh retries the read.
+    quranRepo.failBookmarkReads = false;
+    await held.refresh();
+    expect(failing.progressLoaded.value, isTrue);
+    expect(held.stats.value.quranBookmarks, 1);
+  });
+
+  test('streaks come from the repository', () async {
+    final repo = InMemoryMuhasabaRepository();
+    await repo.seedDefaults();
+    for (final day in [1, 2, 3, 4, 7, 8, 9]) {
+      await repo.setEntry(
+        DailyEntry(
+          itemId: 'salah_fajr',
+          date: DateTime(2026, 6, day),
+          value: 1,
+        ),
+      );
+    }
+    final store = AchievementStore(
+      muhasaba: repo,
+      prefs: SharedPreferencesAsync(),
+      now: () => DateTime(2026, 6, 10),
+    );
+    await store.load();
+    expect(store.stats.value.bestStreak, 4);
+    expect(store.stats.value.currentStreak, 3);
   });
 }

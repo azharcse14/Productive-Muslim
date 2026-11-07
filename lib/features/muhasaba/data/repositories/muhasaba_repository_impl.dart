@@ -484,6 +484,16 @@ final class MuhasabaRepositoryImpl implements MuhasabaRepository {
     }
   }
 
+  @override
+  Future<Result<({int current, int best})>> streaks(DateTime today) async {
+    try {
+      final (:currentStreak, :bestStreak) = await _streaks(today);
+      return Result.success((current: currentStreak, best: bestStreak));
+    } on Object catch (e) {
+      return Result.failure(UnexpectedFailure('Failed to compute streaks', e));
+    }
+  }
+
   /// Per-day sum of per-item completion fractions over the items that
   /// counted on that day, keyed by yyyymmdd. Days without entries are absent.
   Future<Map<int, double>> _dayFractionSums(int from, int to) async {
