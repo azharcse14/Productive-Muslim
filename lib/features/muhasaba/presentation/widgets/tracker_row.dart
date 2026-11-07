@@ -31,8 +31,8 @@ final class TrackerRow extends StatelessWidget {
   /// null renders the controls disabled (archived items).
   final ValueChanged<int>? onChanged;
 
-  /// A long press edits the item; so does a plain tap, except on an active
-  /// yes/no row, where a tap toggles it (and a pencil button edits).
+  /// The pencil button edits the item; so do a long press and a plain tap,
+  /// except on an active yes/no row, where a tap toggles it.
   final VoidCallback? onEdit;
 
   @override
@@ -98,9 +98,6 @@ final class TrackerRow extends StatelessWidget {
         onChanged: onChanged,
       ),
     });
-    // Large text: the stepper moves under the name (settings' _UnderRow),
-    // or it squeezes the name to a sliver on narrow phones.
-    final under = item.kind != TrackerKind.yesNo && context.textGrowth > 1.3;
     return Material(
       color: q.surface,
       shape: RoundedRectangleBorder(
@@ -127,67 +124,82 @@ final class TrackerRow extends StatelessWidget {
             horizontal: QSpace.s4,
             vertical: QSpace.s3,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+          // Large text or a narrow row: the stepper moves under the name
+          // (settings' _UnderRow). Inline, icon + stepper + pencil take
+          // ~245dp; under ~340dp that squeezes the name to a sliver.
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final under =
+                  item.kind != TrackerKind.yesNo &&
+                  (context.textGrowth > 1.3 || constraints.maxWidth < 340);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  dimmed(
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: q.primarySoft,
-                        borderRadius: BorderRadius.circular(QRadius.md),
-                      ),
-                      child: Icon(
-                        TrackerVisuals.iconOf(item.icon),
-                        size: 20,
-                        color: tone,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: QSpace.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          displayName,
-                          style: QType.titleSm.copyWith(
-                            color: dim ? q.ink2 : q.ink,
+                  Row(
+                    children: [
+                      dimmed(
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: q.primarySoft,
+                            borderRadius: BorderRadius.circular(QRadius.md),
+                          ),
+                          child: Icon(
+                            TrackerVisuals.iconOf(item.icon),
+                            size: 20,
+                            color: tone,
                           ),
                         ),
-                        if (sub != null)
-                          Text(
-                            context.digits(sub),
-                            style: QType.num_(
-                              QType.caption,
-                            ).copyWith(color: q.ink2),
+                      ),
+                      const SizedBox(width: QSpace.s3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: QType.titleSm.copyWith(
+                                color: dim ? q.ink2 : q.ink,
+                              ),
+                            ),
+                            if (sub != null)
+                              Text(
+                                context.digits(sub),
+                                style: QType.num_(
+                                  QType.caption,
+                                ).copyWith(color: q.ink2),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (!under) control,
+                      // Visible on every row: a yes/no tap toggles, and a long
+                      // press is undiscoverable.
+                      if (onEdit != null)
+                        IconButton(
+                          tooltip: l10n.editTracker,
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: q.ink3,
                           ),
-                      ],
-                    ),
+                          onPressed: onEdit,
+                        ),
+                    ],
                   ),
-                  if (!under) control,
-                  // The tap toggles, so editing needs its own button.
-                  if (toggles && onEdit != null)
-                    IconButton(
-                      tooltip: l10n.editTracker,
-                      icon: Icon(Icons.edit_outlined, size: 18, color: q.ink3),
-                      onPressed: onEdit,
+                  if (under)
+                    Padding(
+                      // 40 icon tile + gap: aligned with the name.
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 40 + QSpace.s3,
+                        top: QSpace.s2,
+                      ),
+                      child: control,
                     ),
                 ],
-              ),
-              if (under)
-                Padding(
-                  // 40 icon tile + gap: aligned with the name.
-                  padding: const EdgeInsetsDirectional.only(
-                    start: 40 + QSpace.s3,
-                    top: QSpace.s2,
-                  ),
-                  child: control,
-                ),
-            ],
+              );
+            },
           ),
         ),
       ),

@@ -221,7 +221,14 @@ final class CalibratedMagnetometer: NSObject, FlutterStreamHandler {
 
   func onListen(withArguments arguments: Any?, eventSink sink: @escaping FlutterEventSink) -> FlutterError? {
     guard manager.isDeviceMotionAvailable else {
-      return FlutterError(code: "UNAVAILABLE", message: "No device motion", details: nil)
+      // Through the sink, not the return value: an onListen error only
+      // reaches FlutterError.reportError, never the Dart stream, so the
+      // compass waited out its first-event timeout instead. Dart cancels
+      // the stream on this error. Async so the listen reply goes first.
+      DispatchQueue.main.async {
+        sink(FlutterError(code: "UNAVAILABLE", message: "No device motion", details: nil))
+      }
+      return nil
     }
     manager.deviceMotionUpdateInterval = 1.0 / 60
     manager.startDeviceMotionUpdates(using: .xArbitraryCorrectedZVertical, to: .main) { motion, _ in

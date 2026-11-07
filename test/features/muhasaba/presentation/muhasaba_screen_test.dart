@@ -397,6 +397,22 @@ void main() {
       expect(repo.valueOn('azkar', DateTime.now()), 1);
     });
 
+    testWidgets('the pencil on a count row opens the item editor', (
+      tester,
+    ) async {
+      await pumpAndDismissWelcome(tester);
+      final azkarRow = find.ancestor(
+        of: find.text('Azkar'),
+        matching: find.byType(TrackerRow),
+      );
+      await tester.tap(
+        find.descendant(of: azkarRow, matching: find.byTooltip('Edit item')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsOneWidget);
+      expect(repo.valueOn('azkar', DateTime.now()), 0);
+    });
+
     testWidgets('dashboard shows period segments and completion card', (
       tester,
     ) async {
