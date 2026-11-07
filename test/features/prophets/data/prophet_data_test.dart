@@ -131,6 +131,11 @@ void main() {
       }
     });
 
+    test('the chain to Adnan carries its caveat in both languages', () {
+      expect(byId['haidir']!.titleEn, startsWith('Uncertain from here'));
+      expect(byId['haidir']!.titleBn, startsWith('এখান থেকে অনিশ্চিত'));
+    });
+
     test('uncertain links are drawn dashed', () {
       // Ismail → Adnan is agreed only up to Adnan; the rest are Israiliyat
       // identifications or chronologically compressed chains.

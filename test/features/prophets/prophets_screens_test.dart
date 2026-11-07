@@ -74,6 +74,7 @@ final class _Prophets implements ProphetRepository {
             nameAr: '',
             nameEn: 'Haidir',
             nameBn: 'হাইদির',
+            titleEn: 'Uncertain from here: the line is agreed only up to Adnan',
             parent: 'ibrahim',
             parentDistant: true,
           ),

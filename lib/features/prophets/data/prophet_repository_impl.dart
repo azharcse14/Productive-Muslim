@@ -50,7 +50,9 @@ final class ProphetRepositoryImpl implements ProphetRepository {
 
   /// Parses the lineage array; `order` is the position in the file. An
   /// entry takes its names from the prophet with its id, else from its own
-  /// `nameEn`/`nameBn`; entries with neither are dropped.
+  /// `nameEn`/`nameBn`; entries with neither are dropped. Optional
+  /// `titleEn`/`titleBn` is the caption under the name (e.g. where the
+  /// chain turns uncertain).
   static List<Prophet> parseLineage(String raw, List<Prophet> prophets) {
     final byId = {for (final p in prophets) p.id: p};
     final people = <Prophet>[];
@@ -61,6 +63,8 @@ final class ProphetRepositoryImpl implements ProphetRepository {
               ? entry['parent'] as String
               : null;
           final distant = entry['parentDistant'] == true;
+          final titleEn = _string(entry['titleEn']);
+          final titleBn = _string(entry['titleBn']);
           final order = people.length + 1;
           if (byId[id] case final p?) {
             people.add(
@@ -70,6 +74,8 @@ final class ProphetRepositoryImpl implements ProphetRepository {
                 nameAr: p.nameAr,
                 nameEn: p.nameEn,
                 nameBn: p.nameBn,
+                titleEn: titleEn,
+                titleBn: titleBn,
                 parent: parent,
                 parentDistant: distant,
               ),
@@ -85,6 +91,8 @@ final class ProphetRepositoryImpl implements ProphetRepository {
                 nameAr: '',
                 nameEn: nameEn,
                 nameBn: nameBn,
+                titleEn: titleEn,
+                titleBn: titleBn,
                 parent: parent,
                 parentDistant: distant,
               ),
