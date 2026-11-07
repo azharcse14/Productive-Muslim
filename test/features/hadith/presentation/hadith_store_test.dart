@@ -21,12 +21,15 @@ final class _FakeHadithRepository implements HadithRepository {
   final List<Hadith> _items;
   Set<String> saved = {};
   bool failSave = false;
+  bool failRead = false;
 
   @override
   Future<Result<List<Hadith>>> all() async => Result.success(_items);
 
   @override
-  Future<Result<Set<String>>> favoriteIds() async => Result.success(saved);
+  Future<Result<Set<String>>> favoriteIds() async => failRead
+      ? const Result.failure(UnexpectedFailure('prefs'))
+      : Result.success(saved);
 
   @override
   Future<Result<void>> setFavoriteIds(Set<String> ids) async {
@@ -79,6 +82,25 @@ void main() {
 
       expect(await store.toggleFavorite('h001'), isFalse);
       expect(store.favorites.value, isEmpty);
+    });
+
+    test('a failed favorites read refuses toggles instead of wiping', () async {
+      final repo = _FakeHadithRepository([_hadith('h001'), _hadith('h002')])
+        ..saved = {'h002'}
+        ..failRead = true;
+      final store = HadithStore(repo);
+      await store.load();
+
+      expect(store.items.value, hasLength(2));
+      expect(await store.toggleFavorite('h001'), isFalse);
+      expect(repo.saved, {'h002'});
+      expect(store.favorites.value, isEmpty);
+
+      // Once the read recovers, the toggle merges into the saved set.
+      repo.failRead = false;
+      expect(await store.toggleFavorite('h001'), isTrue);
+      expect(repo.saved, {'h001', 'h002'});
+      expect(store.favorites.value, {'h001', 'h002'});
     });
   });
 

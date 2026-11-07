@@ -222,6 +222,10 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   @override
   Future<Result<int>> doneDayCount(Set<String> itemIds) async =>
       Result.success((await doneDates(itemIds)).valueOrNull!.length);
+
+  @override // The screen reads streaks from periodStats only.
+  Future<Result<({int current, int best})>> streaks(DateTime today) async =>
+      const Result.success((current: 0, best: 0));
 }
 
 Widget _app() => MaterialApp(

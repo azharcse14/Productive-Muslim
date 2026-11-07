@@ -582,6 +582,16 @@ void main() {
       expect(repo.items_['tahajjud']!.sortOrder, reordered.length);
     });
 
+    test('a failed reorder is reported and snaps back', () async {
+      final (store, repo) = await makeMuhasabaStore(now: _fixedNow);
+      final ids = [for (final i in store.items.value) i.id];
+      final before = store.saveFailures.value;
+      repo.failReorder = true;
+      await store.reorder([...ids.reversed]);
+      expect(store.saveFailures.value, before + 1);
+      expect([for (final i in store.items.value) i.id], ids);
+    });
+
     test('welcome dismissal is persisted across loads', () async {
       SharedPreferencesAsyncPlatform.instance =
           InMemorySharedPreferencesAsync.empty();

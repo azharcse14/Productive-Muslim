@@ -17,6 +17,9 @@ final class FakeQuranRepository implements QuranRepository {
   QuranPosition? _lastRead;
   final _bookmarks = <int>{};
 
+  /// When true, [bookmarkedAyahIds] fails (as a locked DB would).
+  bool failBookmarkReads = false;
+
   static const _surahs = [
     Surah(
       id: 1,
@@ -56,8 +59,9 @@ final class FakeQuranRepository implements QuranRepository {
   }
 
   @override
-  Future<Result<Set<int>>> bookmarkedAyahIds() async =>
-      Result.success(_bookmarks);
+  Future<Result<Set<int>>> bookmarkedAyahIds() async => failBookmarkReads
+      ? const Result.failure(UnexpectedFailure('read failed'))
+      : Result.success(_bookmarks);
 
   @override
   Future<Result<void>> toggleBookmark(int ayahId) async {

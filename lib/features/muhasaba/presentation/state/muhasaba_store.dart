@@ -37,7 +37,8 @@ final class MuhasabaStore {
   /// The welcome banner was dismissed (persisted across launches).
   late final welcomeDismissed = signal(false);
 
-  /// Bumped each time an entry fails to save (the UI says so once per bump).
+  /// Bumped each time an entry or the checklist order fails to save (the
+  /// UI says so once per bump).
   late final saveFailures = signal(0);
 
   /// Trailing delay before [setValue] recomputes the dashboard: a burst of
@@ -573,10 +574,14 @@ final class MuhasabaStore {
         if (byId[id] case final item?) item.copyWith(sortOrder: i),
     ];
     // Archived items keep trailing slots so a restore lands at the end.
-    await _repository.reorder([
+    final saved = await _repository.reorder([
       ...ids,
       for (final a in archivedItems.value) a.id,
     ]);
+    if (!saved.isSuccess) {
+      _reportSaveFailure(saved);
+    }
+    // On failure this snaps the list back to the stored order.
     await _reloadItems();
   }
 

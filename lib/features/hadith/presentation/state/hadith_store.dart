@@ -22,6 +22,11 @@ final class HadithStore {
   /// Bumped by [toggleFavorite] so a load racing it keeps the tap.
   int _favoriteEdits = 0;
 
+  /// [favorites] mirrors what is stored. False until a read succeeds: a
+  /// toggle writes the whole set, so toggling an unread `{}` would wipe
+  /// every saved favorite.
+  bool _favoritesRead = false;
+
   /// Hadith grouped by [Hadith.topic], in first-seen order — drives the
   /// topic grid. Recomputes when [items] changes.
   late final topics = computed<List<HadithTopic>>(() {
@@ -38,8 +43,11 @@ final class HadithStore {
   Future<void> load() async {
     final edits = _favoriteEdits;
     final saved = (await _repository.favoriteIds()).valueOrNull;
-    if (saved != null && edits == _favoriteEdits) {
-      favorites.value = saved;
+    if (saved != null) {
+      _favoritesRead = true;
+      if (edits == _favoriteEdits) {
+        favorites.value = saved;
+      }
     }
     final result = await _repository.all();
     if (result.valueOrNull case final value?) {
@@ -50,9 +58,18 @@ final class HadithStore {
   }
 
   /// Adds or removes [id] and persists; false (and the tap taken back)
-  /// when it couldn't be saved.
+  /// when it couldn't be saved — including when the saved set can't be
+  /// read, so a write never replaces favorites it hasn't seen.
   Future<bool> toggleFavorite(String id) async {
     _favoriteEdits++;
+    if (!_favoritesRead) {
+      final saved = (await _repository.favoriteIds()).valueOrNull;
+      if (saved == null) {
+        return false;
+      }
+      _favoritesRead = true;
+      favorites.value = saved;
+    }
     final next = {...favorites.value};
     final added = next.add(id);
     if (!added) {

@@ -27,6 +27,10 @@ final class QuranStore {
   late final showTranslation = signal(true);
   late final loaded = signal(false);
 
+  /// [bookmarks] and [lastRead] hold what is stored: both reads succeeded
+  /// at least once. Until then they are empty defaults, not the user's.
+  late final progressLoaded = signal(false);
+
   /// The surah index failed to load; the Quran tab offers a retry.
   late final failed = signal(false);
 
@@ -46,13 +50,14 @@ final class QuranStore {
     surahs.value = index ?? const [];
     // Memory is never behind the DB ([markRead] writes both), so a
     // position marked while this load awaited wins over the DB read.
-    final position = (await _repository.lastRead()).valueOrNull;
-    lastRead.value ??= position;
+    final position = await _repository.lastRead();
+    lastRead.value ??= position.valueOrNull;
     final edits = _bookmarkEdits;
     final ids = (await _repository.bookmarkedAyahIds()).valueOrNull;
     if (edits == _bookmarkEdits) {
       bookmarks.value = ids ?? const {};
     }
+    progressLoaded.value |= position.isSuccess && ids != null;
     showTranslation.value = await _prefs.getBool(_showTranslationKey) ?? true;
     loaded.value = true;
   }

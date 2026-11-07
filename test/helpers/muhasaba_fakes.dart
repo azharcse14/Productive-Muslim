@@ -73,8 +73,14 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
     return const Result.success(null);
   }
 
+  /// When true, [reorder] fails without writing.
+  bool failReorder = false;
+
   @override
   Future<Result<void>> reorder(List<String> ids) async {
+    if (failReorder) {
+      return const Result.failure(UnexpectedFailure('save failed'));
+    }
     for (final (i, id) in ids.indexed) {
       if (items_[id] case final item?) {
         items_[id] = item.copyWith(sortOrder: i);
@@ -230,6 +236,45 @@ final class InMemoryMuhasabaRepository implements MuhasabaRepository {
   @override
   Future<Result<int>> doneDayCount(Set<String> itemIds) async =>
       Result.success((await doneDates(itemIds)).valueOrNull!.length);
+
+  int streaksCalls = 0;
+
+  @override
+  Future<Result<({int current, int best})>> streaks(DateTime today) async {
+    streaksCalls++;
+    if (failItemReads) {
+      return const Result.failure(_readFailed);
+    }
+    final days = (await doneDates(items_.keys.toSet())).valueOrNull!;
+    return Result.success(streaksOver(days, today));
+  }
+}
+
+/// Reference streaks in Dart — what the SQL `streaks` must match. The
+/// current run may end yesterday: today still counts until it passes empty.
+({int current, int best}) streaksOver(Set<DateTime> days, DateTime today) {
+  final keys = {for (final d in days) DateTime(d.year, d.month, d.day)};
+  var cursor = DateTime(today.year, today.month, today.day);
+  if (!keys.contains(cursor)) {
+    cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
+  }
+  var current = 0;
+  while (keys.contains(cursor)) {
+    current++;
+    cursor = DateTime(cursor.year, cursor.month, cursor.day - 1);
+  }
+  var best = 0;
+  for (final d in keys) {
+    if (keys.contains(DateTime(d.year, d.month, d.day - 1))) {
+      continue; // not the start of a run
+    }
+    var run = 1;
+    while (keys.contains(DateTime(d.year, d.month, d.day + run))) {
+      run++;
+    }
+    if (run > best) best = run;
+  }
+  return (current: current, best: best);
 }
 
 Future<(MuhasabaStore, InMemoryMuhasabaRepository)> makeMuhasabaStore({
