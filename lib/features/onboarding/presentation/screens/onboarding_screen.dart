@@ -164,6 +164,7 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
   /// another location re-applies that region's defaults.
   Madhab? _autoMadhab;
   CalculationMethodId? _autoMethod;
+  int? _autoHijriOffset;
 
   /// Leaving the location step: pre-select the region's default madhab and
   /// suggested method, unless the user already chose or changed them, so
@@ -182,6 +183,13 @@ final class _OnboardingScreenState extends State<OnboardingScreen> {
         (method == defaults.method || method == _autoMethod)) {
       _autoMethod = suggestedMethodFor(country);
       await _settings.setMethod(_autoMethod!);
+    }
+    // No onboarding step sets the offset; on a rerun the saved one is
+    // the user's, so only first setup pre-selects it.
+    final offset = _settings.settings.value.hijriOffsetDays;
+    if (!widget.rerun && (offset == 0 || offset == _autoHijriOffset)) {
+      _autoHijriOffset = defaultHijriOffsetFor(country);
+      await _settings.setHijriOffset(_autoHijriOffset!);
     }
   }
 

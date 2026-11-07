@@ -21,8 +21,9 @@ typedef WallZone = ({
   DateTime Function(DateTime instant) wallOf,
 });
 
-/// The three forbidden (makruh taḥrīmī) windows and the nafl windows for
-/// [day], derived purely from its sun/prayer times. A pure function with
+/// The three forbidden (makruh taḥrīmī) windows (salah prohibited, except
+/// that day's Asr per Hanafis and missed-fard qada per the majority) and
+/// the nafl windows for [day], derived purely from its sun/prayer times. A pure function with
 /// exhaustive tests (guide §5). Ordered for top-to-bottom display:
 /// forbidden first, then nafl. [preFajr]: the clock is before today's
 /// Fajr, so Tahajjud is the night still running (yesterday's Maghrib →

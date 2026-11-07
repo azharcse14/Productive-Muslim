@@ -203,6 +203,10 @@ final class _ZakatScreenState extends State<ZakatScreen> {
                     style: QType.num_(QType.body).copyWith(color: q.ink),
                     decoration: InputDecoration(
                       labelText: label,
+                      helperText: controller == _gold
+                          ? l10n.zakatGoldHint
+                          : null,
+                      helperMaxLines: 3,
                       errorText: _invalid.contains(controller)
                           ? l10n.zakatInvalidNumber
                           : _needSilverPrice && controller == _silverPrice
