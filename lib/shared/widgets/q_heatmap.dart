@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../extensions/context_ext.dart';
@@ -56,12 +58,23 @@ final class QHeatmap extends StatelessWidget {
     this.highlight,
     this.onTap,
     this.cellLabel,
+    this.maxCellSize,
+    this.reverse = false,
     super.key,
   });
 
   final List<List<int>> weeks;
   final double cellSize;
   final double gap;
+
+  /// Fit to the available width: cells grow from [cellSize] up to this so
+  /// short ranges fill the card, and the grid is centered. Grids wider than
+  /// the space keep [cellSize] and scroll horizontally. Null = fixed
+  /// [cellSize], no scrolling (the caller lays it out). Needs bounded width.
+  final double? maxCellSize;
+
+  /// With [maxCellSize]: scroll from the end so the newest week shows first.
+  final bool reverse;
 
   /// (week, day) of the cell to outline (e.g. today).
   final (int, int)? highlight;
@@ -79,10 +92,32 @@ final class QHeatmap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final max = maxCellSize;
+    if (max == null) {
+      return _grid(context, cellSize);
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final n = weeks.length;
+        final fit = n == 0
+            ? cellSize
+            : (constraints.maxWidth - gap * (n - 1)) / n;
+        return Center(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            reverse: reverse,
+            child: _grid(context, fit.clamp(cellSize, math.max(cellSize, max))),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _grid(BuildContext context, double size) {
     Widget cell(int w, int d, int level) {
       final box = QHeatmapCell(
         level: level,
-        size: cellSize,
+        size: size,
         outlined: highlight == (w, d),
       );
       final tap = onTap;
@@ -133,7 +168,7 @@ final class QHeatmap extends StatelessWidget {
           if (weeks.isEmpty) {
             return;
           }
-          final pitch = cellSize + gap;
+          final pitch = size + gap;
           final width = weeks.length * pitch - gap;
           final x = rtl
               ? width - details.localPosition.dx
